@@ -204,7 +204,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     formalGateCleared: deployedRuntimeSmokeCleared,
     nextAction: deployedRuntimeSmokeCleared
       ? "Keep runtime smoke artifact fresh."
-      : "Attach deployed runtime smoke before clearing the formal runtime gate.",
+      : "Produce deployed runtime route evidence before clearing the runtime lane.",
   });
 
   const telemetryConfidence = buildCoverageItem({
@@ -221,7 +221,7 @@ export function buildAlgorithmicEvidencePolicyReport(
       evidenceArtifactStatusText(input.realUsageConfidenceEvidence, "missing_or_unknown"),
       evidenceArtifactStatusText(input.realUsageConfidenceCalibrationEvidence, "missing_or_unknown"),
     ].join(";"),
-    distinction: "telemetry and behavior math can satisfy non-UI confidence without clearing UI source coverage or runtime proof",
+    distinction: "telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
     nextAction: "Keep behavior math and real usage confidence artifacts current.",
   });
 
@@ -232,12 +232,12 @@ export function buildAlgorithmicEvidencePolicyReport(
     sourcePath: pathOf(input.adminTruthSampleEvidence),
     sourceStatus: evidenceArtifactStatusText(input.adminTruthSampleEvidence, "missing_or_unknown"),
     distinction: formalAdminRuntimeSampleCleared
-      ? "formal admin truth runtime sample is attached"
-      : "admin source sample earns partial confidence but does not clear formal admin runtime sample",
+      ? "production admin source activity sample is attached"
+      : "admin source sample earns partial confidence; clearing needs a matching source activity sample",
     formalGateCleared: formalAdminRuntimeSampleCleared,
     nextAction: formalAdminRuntimeSampleCleared
       ? "Keep admin truth sample fresh."
-      : "Attach a redacted production admin truth sample before clearing the formal admin gate.",
+      : "Produce a redacted admin source activity sample before clearing the admin lane.",
   });
 
   const providerConfidence = buildCoverageItem({
@@ -251,12 +251,12 @@ export function buildAlgorithmicEvidencePolicyReport(
       ? evidenceArtifactStatusText(input.providerSmokeEvidence, "missing_or_unknown")
       : evidenceArtifactStatusText(input.operatorRevenueSmokeEvidence, "missing_or_unknown"),
     distinction: formalProviderGateCleared
-      ? "formal provider smoke is attached"
+      ? "provider-backed source activity evidence is attached"
       : "operator-confirmed revenue smoke is partial product confidence only",
     formalGateCleared: formalProviderGateCleared,
     nextAction: formalProviderGateCleared
       ? "Keep provider artifact fresh."
-      : "Attach formal provider evidence before clearing provider smoke.",
+      : "Produce provider-backed site activity evidence before clearing provider smoke.",
   });
 
   const costConfidence = buildCoverageItem({
@@ -275,7 +275,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     score: refreshScore,
     sourcePath: input.refreshQueueSourcePath ?? pathOf(input.refreshQueueEvidence, "agent/state/self-healing-refresh-queue.generated.json"),
     sourceStatus: input.refreshQueueEvidence ? evidenceArtifactStatusText(input.refreshQueueEvidence, "missing_or_unknown") : input.refreshQueueSourcePath ? "source_path_available" : "missing_or_unknown",
-    distinction: "current refresh queue can satisfy source freshness ordering without creating runtime proof",
+    distinction: "current refresh queue can satisfy source freshness ordering without creating deployed runtime truth",
     nextAction: "Run the self-healing refresh queue when stale score-impact artifacts are detected.",
   });
 
@@ -291,9 +291,9 @@ export function buildAlgorithmicEvidencePolicyReport(
     (coverage.reduce((sum, item) => sum + item.score, 0) / coverage.length) * 100,
   ) / 100;
   const remainingFormalEvidenceGates = [
-    ...(deployedRuntimeSmokeCleared ? [] : ["Deployed runtime smoke requires a formal runtime artifact."]),
-    ...(formalProviderGateCleared ? [] : ["Provider smoke requires a formal provider artifact."]),
-    ...(formalAdminRuntimeSampleCleared ? [] : ["Admin truth sample requires a formal runtime/sample artifact."]),
+    ...(deployedRuntimeSmokeCleared ? [] : ["Deployed runtime smoke requires current route evidence."]),
+    ...(formalProviderGateCleared ? [] : ["Provider smoke requires provider-backed site activity evidence."]),
+    ...(formalAdminRuntimeSampleCleared ? [] : ["Admin truth sample requires a redacted source activity sample."]),
   ];
   const uiSurfaceCoverageScope = {
     uiSurfaceCoverageGate: {
@@ -355,20 +355,20 @@ export function validateAlgorithmicEvidencePolicyReport(report: AlgorithmicEvide
     failures.push("UI source coverage must not block non-UI algorithmic evidence.");
   }
   if (report.providerConfidence.confidence === "partial" && report.formalGateImpact.formalProviderGateCleared) {
-    failures.push("operator-confirmed provider confidence must not clear formal provider gate.");
+    failures.push("operator-confirmed provider confidence must not clear provider-backed source gate.");
   }
   if (report.runtimeSourceConfidence.confidence === "partial" && report.formalGateImpact.deployedRuntimeSmokeCleared) {
     failures.push("source-backed runtime confidence must not clear deployed runtime smoke.");
   }
   if (report.adminTruthConfidence.confidence === "partial" && report.formalGateImpact.formalAdminRuntimeSampleCleared) {
-    failures.push("admin source sample must not clear formal admin runtime sample.");
+    failures.push("admin source sample must not clear admin runtime sample.");
   }
   for (const item of report.coverage) {
     if (!item.sourcePath || item.sourcePath === MISSING_ARTIFACT_PATH) {
       failures.push(`${item.category} lacks algorithmic evidence source path.`);
     }
     if (!item.distinction || !/formal|partial|source|visual|runtime|confidence/u.test(item.distinction)) {
-      failures.push(`${item.category} lacks partial-vs-formal distinction.`);
+      failures.push(`${item.category} lacks partial-vs-source distinction.`);
     }
   }
   return failures;

@@ -306,13 +306,13 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const operatorSmokeAmount = readNumber(operatorSummary.amountUsdConfirmed);
   const operatorSmokeNote = operatorSmokeStatus === "operator_confirmed_revenue_smoke"
     ? readString(operatorSmoke?.plainLanguageNote)
-      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."
+      ?? "Operator-confirmed GumDrop revenue was recorded as product context; provider-backed site activity evidence is still separate."
     : undefined;
   const operatorSmokeEvidence = operatorSmokeNote
     ? [
       `operatorRevenueSmoke.status=${operatorSmokeStatus}`,
       ...(operatorSmokeAmount ? [`operatorRevenueSmoke.amountUsdConfirmed=${operatorSmokeAmount}`] : []),
-      "operatorRevenueSmoke.formalProviderSmokePassed=false",
+      "operatorRevenueSmoke.providerBackedSiteActivityPassed=false",
       `operatorRevenueSmoke.note=${operatorSmokeNote}`,
     ]
     : [];
@@ -321,7 +321,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       root,
       PROVIDER_SMOKE_EVIDENCE_PATH,
       "missing_formal_evidence",
-      "No formal provider smoke evidence artifact was supplied.",
+      "No provider-backed site activity evidence artifact was supplied.",
     );
     if (operatorSmokeNote) {
       artifact.detail = `${operatorSmokeNote} ${artifact.detail}`;
@@ -351,7 +351,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     passed,
     detail: [
       operatorSmokeNote,
-      passed ? "Formal provider smoke evidence passed." : "Formal provider smoke evidence is missing.",
+      passed ? "Provider-backed site activity evidence passed." : "Provider-backed site activity evidence is missing.",
       paypalNote,
       providerRecommendedAction,
     ].filter(Boolean).join(" "),
@@ -363,7 +363,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       ...operatorSmokeEvidence,
       ...(paypalStatus ? [`paypalRefillSmoke.status=${paypalStatus}`] : []),
       ...(paypalNote ? [`paypalRefillSmoke.note=${paypalNote}`] : []),
-      `paypalRefillSmoke.formalRepoArtifactAttached=${readBoolean(paypalRefillSmoke.formalRepoArtifactAttached) === true}`,
+      `paypalRefillSmoke.providerBackedSourceArtifactAttached=${readBoolean(paypalRefillSmoke.formalRepoArtifactAttached) === true}`,
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
     sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
@@ -377,7 +377,7 @@ function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       root,
       RUNTIME_SMOKE_EVIDENCE_PATH,
       "runtime_unverified",
-      "No formal runtime smoke evidence artifact was supplied.",
+      "No deployed runtime route evidence artifact was supplied.",
     );
   }
 
@@ -392,7 +392,7 @@ function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     status,
     passed,
     detail: readString(readinessImpact.recommendedAction)
-      ?? (passed ? "Formal deployed runtime smoke passed." : "No deployed runtime smoke evidence was supplied."),
+      ?? (passed ? "Deployed runtime route evidence passed." : "No deployed runtime route evidence was supplied."),
     evidence: [
       `runtimeArtifactStatus=${status}`,
       `runtimeDeploymentSmokePassed=${readBoolean(parsed.runtimeDeploymentSmokePassed) === true}`,
@@ -418,7 +418,7 @@ function readAdminTruthSourceSampleEvidence(root: string): PublicBetaEvidenceArt
     status: sourceReady ? status : "missing_or_unknown",
     passed: false,
     detail: readString(sourceSample.nextAction)
-      ?? "Source-backed admin truth wiring is present; formal admin truth sample remains missing.",
+      ?? "Source-backed admin truth wiring is present; admin source activity sample remains missing.",
     evidence: [
       `adminTruthSampleArtifactStatus=${status}`,
       `sourceSampleStatus=${status}`,
@@ -442,7 +442,7 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
       root,
       ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH,
       "missing_or_unknown",
-      "No formal admin truth sample evidence artifact was supplied.",
+      "No admin source activity sample evidence artifact was supplied.",
     );
   }
 
@@ -660,7 +660,7 @@ function readEventTranslationBridgeEvidence(root: string): PublicBetaEvidenceArt
     status: sourceReady ? "source_ready_event_translation_bridge" : status,
     passed: false,
     detail: sourceReady
-      ? "Event translation bridge is source-ready for raw events, envelopes, feature activity, person metrics, debug evidence, and score inputs without clearing deployed runtime proof."
+      ? "Event translation bridge is source-ready for raw events, envelopes, feature activity, person metrics, debug evidence, and score inputs without clearing deployed runtime truth."
       : "Event translation bridge evidence is missing required source-ready guardrails.",
     evidence: [
       `eventTranslationBridge.status=${status}`,
@@ -743,7 +743,7 @@ function readTelemetryTriggerTestMatrixEvidence(root: string): PublicBetaEvidenc
     status: sourceReady ? "source_ready_telemetry_trigger_test_matrix" : status,
     passed: false,
     detail: sourceReady
-      ? "Telemetry trigger test matrix is source-ready for user action, envelope, feature activity, person metric, debug lane, and score input coverage without clearing deployed runtime proof."
+      ? "Telemetry trigger test matrix is source-ready for user action, envelope, feature activity, person metric, debug lane, and score input coverage without clearing deployed runtime truth."
       : "Telemetry trigger test matrix evidence is missing required deterministic coverage guardrails.",
     evidence: [
       `telemetryTriggerTestMatrix.status=${status}`,
@@ -785,7 +785,7 @@ function readUserManagementRefactorEvidence(root: string): PublicBetaEvidenceArt
     status: sourceReady ? "source_ready_user_management_refactor" : status,
     passed: false,
     detail: sourceReady
-      ? "User management is source-ready for compact identity, account, consent, activity, person metric confidence, debug lane, and summary-first route evidence without clearing deployed runtime proof."
+      ? "User management is source-ready for compact identity, account, consent, activity, person metric confidence, debug lane, and summary-first route evidence without clearing deployed runtime truth."
       : "User management refactor evidence is missing required source-ready guardrails.",
     evidence: [
       `userManagementRefactor.status=${status}`,

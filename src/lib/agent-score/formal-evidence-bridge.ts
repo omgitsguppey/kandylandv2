@@ -213,8 +213,8 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
       formalGateCleared: providerFormal && runtimeFormal,
       evidenceClasses,
       nextAction: providerFormal && runtimeFormal
-        ? "Keep formal provider and deployed runtime artifacts fresh."
-        : "Attach formal provider and deployed runtime smoke before clearing this gate.",
+        ? "Keep provider-backed site activity and deployed runtime route artifacts fresh."
+        : "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
     }),
     adminTruthSamples: gateCredit({
       evidenceCredit: adminFormal ? 100 : adminSourceConfidenceScore,
@@ -223,14 +223,14 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
       evidenceClasses: adminFormal ? ["production_admin_truth_artifact"] : ["admin_source_sample", "missing_formal_artifact"],
       nextAction: adminFormal
         ? "Keep production admin truth sample fresh."
-        : "Attach a redacted production admin truth sample before clearing the formal admin gate.",
+        : "Produce a redacted admin source activity sample before clearing the admin lane.",
     }),
     debugRuntimeEvidence: gateCredit({
       evidenceCredit: Math.min(Math.max(debugRuntimeConfidenceScore, runtimeSourceConfidence), 80),
       runtimeCredit: Math.min(Math.max(debugRuntimeConfidenceScore, runtimeSourceConfidence), 80),
       formalGateCleared: false,
       evidenceClasses: ["debug_runtime_source_evidence", "source_backed_runtime_confidence"],
-      nextAction: "Use debug/source runtime evidence as current confidence only; attach deployed smoke before formal closure.",
+      nextAction: "Use debug/source runtime evidence as current confidence; produce deployed route evidence before runtime closure.",
     }),
   };
   const before = scoreDimensions(input.scoreBefore);
@@ -247,17 +247,17 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
       providerSmoke: {
         cleared: providerFormal,
         status: providerFormal ? "formal_provider_artifact" : "missing_formal_artifact",
-        nextAction: providerFormal ? "Keep provider artifact fresh." : "Attach formal provider smoke evidence.",
+        nextAction: providerFormal ? "Keep provider artifact fresh." : "Produce provider-backed site activity evidence.",
       },
       deployedRuntimeSmoke: {
         cleared: runtimeFormal,
         status: runtimeFormal ? "deployed_runtime_artifact" : "missing_formal_artifact",
-        nextAction: runtimeFormal ? "Keep deployed runtime artifact fresh." : "Attach deployed runtime smoke evidence.",
+        nextAction: runtimeFormal ? "Keep deployed runtime artifact fresh." : "Produce deployed runtime route evidence.",
       },
       adminProductionSample: {
         cleared: adminFormal,
         status: adminFormal ? "production_admin_truth_artifact" : "missing_formal_artifact",
-        nextAction: adminFormal ? "Keep admin production sample fresh." : "Attach redacted production admin truth sample evidence.",
+        nextAction: adminFormal ? "Keep admin production sample fresh." : "Produce redacted admin source activity sample evidence.",
       },
     },
     sourceConfidenceStatus: {
@@ -279,9 +279,9 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     scoreAfter: estimatedAfter(before, gates),
     scoreDimensionImpact: {
       runtimeHealth: "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
-      evidenceCompleteness: "Source-backed and operator-confirmed evidence can reduce empty-evidence language without clearing formal gates.",
+      evidenceCompleteness: "Source-backed and operator-confirmed context can reduce empty-evidence language, but clearing requires matching site activity records.",
     },
-    nextExactSteps: formalGapsRemaining.map((gap) => `${gap}: attach formal evidence artifact before clearing the gate.`),
+    nextExactSteps: formalGapsRemaining.map((gap) => `${gap}: produce the matching source activity record before clearing the gate.`),
     validationFailures: [],
   };
   report.validationFailures = validateFormalEvidenceBridgeReport(report);
@@ -291,7 +291,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
 export function validateFormalEvidenceBridgeReport(report: FormalEvidenceBridgeReport) {
   const failures: string[] = [];
   if (report.operatorSignalStatus.operatorConfirmedRevenue && report.formalGateStatus.providerSmoke.cleared && report.operatorSignalStatus.status !== "formal_provider_artifact") {
-    failures.push("operator revenue must not clear the formal provider gate.");
+    failures.push("operator revenue must not clear the provider-backed source gate.");
   }
   if (
     report.gates.runtimeProviderSmoke.status === "partial_source_confidence"

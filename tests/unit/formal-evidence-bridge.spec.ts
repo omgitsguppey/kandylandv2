@@ -18,8 +18,8 @@ function artifact(input: Partial<FormalEvidenceBridgeArtifact>): FormalEvidenceB
   };
 }
 
-describe("formal evidence bridge", () => {
-  it("credits source-backed and operator evidence without clearing formal gates", () => {
+describe("source evidence bridge", () => {
+  it("credits source-backed and operator evidence without clearing source gates", () => {
     const report = buildFormalEvidenceBridgeReport({
       generatedAtUtc: "2026-05-24T00:00:00.000Z",
       currentHead: "head",
@@ -91,7 +91,7 @@ describe("formal evidence bridge", () => {
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
   });
 
-  it("fails validation if operator revenue clears the formal provider gate", () => {
+  it("fails validation if operator revenue clears the provider-backed source gate", () => {
     const report = buildFormalEvidenceBridgeReport({
       generatedAtUtc: "2026-05-24T00:00:00.000Z",
       currentHead: "head",
@@ -104,6 +104,6 @@ describe("formal evidence bridge", () => {
     });
     report.formalGateStatus.providerSmoke.cleared = true;
 
-    expect(validateFormalEvidenceBridgeReport(report)).toContain("operator revenue must not clear the formal provider gate.");
+    expect(validateFormalEvidenceBridgeReport(report)).toContain("operator revenue must not clear the provider-backed source gate.");
   });
 });

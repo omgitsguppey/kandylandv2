@@ -232,7 +232,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       freshnessScore: freshness.freshnessScore,
       partialCredit: round(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.operatorReported * freshness.freshnessScore),
       blocksLaunch: context.requiredForExit === true,
-      reason: "Operator-reported evidence is tracked but is not formal launch proof.",
+      reason: "Operator-reported context is tracked, but launch proof must come from site activity or provider-backed source records.",
     };
   }
 
@@ -262,7 +262,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       partialCredit: round(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady * freshness.freshnessScore),
       blocksLaunch: context.requiredForExit === true && requiresRuntime,
       reason: requiresRuntime
-        ? "Source-ready evidence earns source credit, but runtime proof is still required."
+        ? "Source-ready evidence earns source credit, but deployed runtime route evidence is still required."
         : "Source-ready evidence earns source credit only.",
     };
   }
@@ -275,7 +275,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       freshnessScore: freshness.freshnessScore,
       partialCredit: round(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady * freshness.freshnessScore),
       blocksLaunch: false,
-      reason: "Source-only behavior evidence earns source credit but does not clear formal runtime, provider, or admin truth gates.",
+      reason: "Source behavior evidence earns source credit; runtime, provider-backed, and admin truth lanes need matching site activity records before clearing.",
     };
   }
 
@@ -292,7 +292,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       freshnessScore: freshness.freshnessScore,
       partialCredit: 0,
       blocksLaunch: context.requiredForExit === true,
-      reason: artifact.detail || "Required formal evidence is missing.",
+      reason: artifact.detail || "Required source evidence is missing.",
     };
   }
 
@@ -331,7 +331,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       freshnessScore: freshness.freshnessScore,
       partialCredit: round(credit),
       blocksLaunch: context.requiredForExit === true && freshness.freshness !== "fresh",
-      reason: freshness.freshness === "fresh" ? "Fresh formal evidence passed." : freshness.reason,
+      reason: freshness.freshness === "fresh" ? "Fresh source evidence passed." : freshness.reason,
     };
   }
 

@@ -448,7 +448,7 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
 function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "targetedBehaviorTests") {
     if (gate.status === "Source validation only") {
-      return `${gate.status}: ${gate.label} - Source behavior passed; formal runtime, provider, and admin proof stay separate.`;
+      return `${gate.status}: ${gate.label} - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
@@ -461,15 +461,15 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "runtimeProviderSmoke") {
     if (gate.status === "External proof required") {
       if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
-        return `${gate.status}: ${gate.label} - Refresh formal provider proof and deployed runtime smoke evidence.`;
+        return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
       }
-      return `${gate.status}: ${gate.label} - Attach formal provider proof and keep deployed runtime smoke current.`;
+      return `${gate.status}: ${gate.label} - Produce provider-backed site activity and keep deployed runtime route evidence current.`;
     }
     if (gate.status === "Stale evidence") {
-      return `${gate.status}: ${gate.label} - Refresh formal provider and deployed runtime smoke evidence.`;
+      return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
     }
     if (gate.status === "Runtime unverified" || gate.status === "Ready with smoke required") {
-      return `${gate.status}: ${gate.label} - Deployed runtime/provider proof is still required.`;
+      return `${gate.status}: ${gate.label} - Deployed runtime and provider-backed source evidence are still required.`;
     }
   }
 
@@ -478,7 +478,7 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
       if (gate.status === "External proof required" && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
         return `${gate.status}: ${gate.label} - Refresh the redacted production admin truth sample.`;
       }
-      return `${gate.status}: ${gate.label} - Attach a redacted production admin truth sample.`;
+      return `${gate.status}: ${gate.label} - Produce a redacted admin source activity sample.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the redacted admin truth sample.`;
@@ -522,7 +522,7 @@ export function evidenceArtifactEvidence(artifact: PublicBetaEvidenceArtifact | 
     ...(artifact.generatedAtUtc ? [`generatedAtUtc=${artifact.generatedAtUtc}`] : []),
     ...(artifact.sourceCommit ? [`sourceCommit=${artifact.sourceCommit}`] : []),
     `artifactDetail=${normalizeTechnicalFreshnessTerms(artifact.detail)}`,
-    ...artifact.evidence,
+    ...artifact.evidence.map(normalizeTechnicalFreshnessTerms),
   ]));
 }
 
@@ -783,7 +783,7 @@ export function buildPublicBetaEvidenceGates(input: {
     evidence.targetedBehaviorEvidence,
     targetedBehaviorPassed
       ? "Targeted behavior evidence was supplied."
-      : "No formal targeted behavior evidence artifact was supplied.",
+      : "No targeted source behavior evidence artifact was supplied.",
   );
   const targetedBehaviorEvidence = evidence.targetedBehaviorEvidence
     ? evidenceArtifactEvidence(evidence.targetedBehaviorEvidence)
@@ -844,11 +844,11 @@ export function buildPublicBetaEvidenceGates(input: {
   }
   const providerSmokeDetail = evidenceArtifactDetail(
     evidence.providerSmokeEvidence,
-    providerSmokePassed ? "Provider smoke evidence was supplied." : "No formal provider smoke evidence artifact was supplied.",
+    providerSmokePassed ? "Provider-backed site activity evidence was supplied." : "No provider-backed site activity evidence artifact was supplied.",
   );
   const runtimeSmokeDetail = evidenceArtifactDetail(
     evidence.runtimeSmokeEvidence,
-    runtimeSmokePassed ? "Runtime smoke evidence was supplied." : "No formal runtime smoke evidence artifact was supplied.",
+    runtimeSmokePassed ? "Runtime route evidence was supplied." : "No deployed runtime route evidence artifact was supplied.",
   );
   const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
     ? "Provider and runtime smoke artifacts passed."
@@ -1015,7 +1015,7 @@ export function buildPublicBetaEvidenceGates(input: {
     freshnessScore: Math.min(providerQuality.freshnessScore, runtimeQuality.freshnessScore),
     partialCredit: roundScore(runtimeProviderFormalCredit),
     blocksLaunch: providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
-    reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear formal provider or deployed runtime smoke.`,
+    reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed site activity or deployed runtime route evidence.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
   const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence);
@@ -1025,7 +1025,7 @@ export function buildPublicBetaEvidenceGates(input: {
     evidence.adminTruthSampleEvidence,
     adminTruthSamplePassed
       ? "Admin truth/sample evidence was supplied."
-      : "No admin truth sample evidence artifact was supplied.",
+      : "No admin source activity sample evidence artifact was supplied.",
   );
   const adminTruthSampleEvidence = Array.from(new Set([
     `adminTruthSampleArtifactStatus=${adminTruthSampleStatus}`,
@@ -1055,7 +1055,7 @@ export function buildPublicBetaEvidenceGates(input: {
     blocksLaunch: adminBaseQuality.blocksLaunch,
     reason: adminBaseQuality.quality === "formal_passed"
       ? adminBaseQuality.reason
-      : "Admin source evidence earns partial bridge confidence but does not clear the production admin truth sample gate.",
+      : "Admin source evidence earns partial bridge confidence; the admin lane needs a matching source activity sample before clearing.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
   const adminTruthSampleFreshnessUnknown = adminBaseQuality.freshness === "unknown";
   let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "External proof required";
@@ -1263,7 +1263,7 @@ export function buildPublicBetaEvidenceGates(input: {
       status: algorithmicEvidencePolicy.overallStatus === "algorithmic_evidence_policy_ready" ? "Ready" : "Needs review",
       detail: "Non-UI runtime, telemetry, admin source, provider signal, cost, and refresh confidence are scored separately from deterministic UI surface coverage.",
       evidence: algorithmicCoverageEvidence,
-      recommendedAction: "Use algorithmic evidence for non-UI confidence while keeping visual, provider, runtime, and admin formal gates explicit.",
+      recommendedAction: "Use algorithmic evidence for non-UI confidence while keeping UI source coverage, provider-backed activity, runtime route, and admin truth lanes explicit.",
       quality: {
         quality: algorithmicEvidencePolicy.validationFailures.length > 0 ? "failed" : "formal_partial",
         confidence: algorithmicEvidencePolicy.validationFailures.length > 0 ? 0 : 0.72,
@@ -1275,7 +1275,7 @@ export function buildPublicBetaEvidenceGates(input: {
         blocksLaunch: false,
         reason: algorithmicEvidencePolicy.validationFailures.length > 0
           ? algorithmicEvidencePolicy.validationFailures.join("; ")
-          : "Algorithmic evidence coverage is partial non-UI confidence and does not clear formal gates.",
+          : "Algorithmic evidence coverage is partial non-UI confidence and does not clear source lanes that still lack matching site activity records.",
       },
       gateRequiredForExit: false,
       sourceCredit: algorithmicEvidencePolicy.nonUiAlgorithmicCoverageScore,
@@ -1291,8 +1291,8 @@ export function buildPublicBetaEvidenceGates(input: {
       weight: 0,
       status: formalEvidenceBridge.validationFailures.length > 0 ? "Needs review" : "Ready",
       detail: formalEvidenceBridge.formalGapsRemaining.length > 0
-        ? `Evidence bridge is current; remaining formal gap(s): ${formalEvidenceBridge.formalGapsRemaining.join(", ")}.`
-        : "Evidence bridge is current and formal gaps are cleared.",
+        ? `Evidence bridge is current; remaining source gap(s): ${formalEvidenceBridge.formalGapsRemaining.join(", ")}.`
+        : "Evidence bridge is current and source gaps are cleared.",
       evidence: [
         `formalProviderGateCleared=${formalEvidenceBridge.formalGateStatus.providerSmoke.cleared}`,
         `deployedRuntimeSmokeCleared=${formalEvidenceBridge.formalGateStatus.deployedRuntimeSmoke.cleared}`,
@@ -1302,7 +1302,7 @@ export function buildPublicBetaEvidenceGates(input: {
         `debugRuntimeEvidenceCredit=${formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit}`,
         ...formalEvidenceBridge.evidenceClasses.map((entry) => `evidenceClass=${entry}`),
       ],
-      recommendedAction: "Use bridge confidence for score clarity only; attach any remaining formal evidence before clearing launch gates.",
+      recommendedAction: "Use bridge confidence for score clarity only; produce any remaining source activity records before clearing launch gates.",
       quality: {
         quality: formalEvidenceBridge.validationFailures.length > 0 ? "failed" : "formal_partial",
         confidence: formalEvidenceBridge.validationFailures.length > 0 ? 0 : Math.max(
@@ -1326,7 +1326,7 @@ export function buildPublicBetaEvidenceGates(input: {
         blocksLaunch: false,
         reason: formalEvidenceBridge.validationFailures.length > 0
           ? formalEvidenceBridge.validationFailures.join("; ")
-          : "Evidence bridge is partial confidence and does not clear formal gates.",
+          : "Evidence bridge is partial confidence and does not clear source lanes that still lack matching site activity records.",
       },
       gateRequiredForExit: false,
       sourceCredit: Math.max(
@@ -1851,11 +1851,11 @@ export function buildPublicBetaScoreReport(
     evidence: options.evidence,
   });
   const nuancedScoreExplanation = [
-    "Source-ready evidence earns source health credit without becoming runtime proof.",
+    "Source-ready evidence earns source health credit without becoming deployed runtime truth.",
     "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
     "Debug signal score impact is counted from actionable groups, not raw quiet catalog rows.",
     "Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only to reproduce source-reported UI issues.",
-    "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
+    "Provider-backed site activity, deployed runtime route evidence, and admin source samples remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",
   ].map(normalizeTechnicalFreshnessTerms);

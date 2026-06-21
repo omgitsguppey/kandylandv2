@@ -42,7 +42,7 @@ const adminSourceSample = {
   path: "agent/state/admin-truth-source-sample.generated.json",
   status: "source_ready_admin_truth_sample",
   passed: false,
-  detail: "Source-backed admin truth wiring is present; formal admin truth sample remains missing.",
+  detail: "Source-backed admin truth wiring is present; admin source activity sample remains missing.",
   evidence: [
     "sourceTruthStatus=source_backed",
     "productionSampleAttached=false",
@@ -90,7 +90,7 @@ describe("algorithmic evidence policy", () => {
     expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
   });
 
-  it("treats operator revenue, source runtime, and admin source samples as partial without clearing formal gates", () => {
+  it("treats operator revenue, source runtime, and admin source samples as partial without clearing source gates", () => {
     const report = buildAlgorithmicEvidencePolicyReport({
       debugRuntimeEvidence: sourceReadyDebugRuntime,
       realUsageConfidenceEvidence: realUsageConfidence,
@@ -129,7 +129,7 @@ describe("algorithmic evidence policy", () => {
           path: "agent/state/provider-smoke-evidence.generated.json",
           status: "missing_formal_evidence",
           passed: false,
-          detail: "No formal provider artifact.",
+          detail: "No provider-backed source artifact.",
           evidence: ["providerArtifactStatus=missing_formal_evidence"],
         },
         runtimeSmokeEvidence: {

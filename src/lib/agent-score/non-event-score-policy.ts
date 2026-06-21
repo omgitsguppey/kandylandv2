@@ -194,8 +194,8 @@ export function classifyNonEventScoreImpact(input: NonEventScoreImpactInput): No
         scoreDimensionsAffected: ["runtimeHealth", "evidenceCompleteness"],
         scorePenalty: 0,
         countsAsRegression: false,
-        reason: "A formal provider, runtime, or admin gate still needs real evidence; it is not missing activity.",
-        nextAction: "Attach the required formal evidence through the approved non-production-read lane.",
+        reason: "A provider, runtime, or admin lane still needs matching site activity/source evidence; it is not missing future activity.",
+        nextAction: "Produce the required source activity record through the approved non-production-read lane.",
       };
     case "cost_owner_review":
       return {
@@ -282,14 +282,14 @@ const DIMENSION_REASONS: Record<ScoreReportDimension, Omit<ScoreDimensionExplana
   runtimeHealth: {
     target: 80,
     blockerType: "formal_runtime_evidence",
-    reason: "Runtime health is below target because formal runtime/admin evidence remains incomplete, not because future activity is absent.",
-    nextExactAction: "Attach approved runtime/provider/admin evidence without promoting local validators to deployed proof.",
+    reason: "Runtime health is below target because runtime/admin source evidence remains incomplete, not because future activity is absent.",
+    nextExactAction: "Produce approved runtime/provider/admin source evidence without promoting unrelated local validators to deployed truth.",
   },
   evidenceCompleteness: {
     target: 80,
     blockerType: "formal_runtime_evidence",
-    reason: "Evidence completeness is below target because required formal evidence gates are incomplete, not because activity is missing.",
-    nextExactAction: "Complete the exact formal evidence gates listed in the beta score report.",
+    reason: "Evidence completeness is below target because required source evidence lanes are incomplete, not because activity is missing.",
+    nextExactAction: "Complete the exact source evidence lanes listed in the beta score report.",
   },
   freshness: {
     target: 80,

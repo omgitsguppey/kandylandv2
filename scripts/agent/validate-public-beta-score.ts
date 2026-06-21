@@ -406,8 +406,8 @@ if (report) {
     if (operatorRevenueSmokeExists) {
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke", "runtimeProviderSmoke evidence");
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.amountUsdConfirmed=", "runtimeProviderSmoke evidence");
-      requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.formalProviderSmokePassed=false", "runtimeProviderSmoke evidence");
-      requireIncludes(runtimeProviderSmokeGate.detail, "Formal provider evidence is still separate.", "runtimeProviderSmoke detail");
+      requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.providerBackedSiteActivityPassed=false", "runtimeProviderSmoke evidence");
+      requireIncludes(runtimeProviderSmokeGate.detail, "provider-backed site activity evidence is still separate.", "runtimeProviderSmoke detail");
       if (runtimeProviderSmokeGate.status === "Ready") {
         failures.push("Operator-confirmed revenue smoke must not make runtimeProviderSmoke Ready.");
       }
@@ -506,7 +506,7 @@ const staleScoreTruthPatterns = [
   ["hasTargetedBehaviorEvidence:", " false"].join(""),
   ["function ", "hasProviderSmokeEvidence"].join(""),
   ["provider smoke", " missing"].join(""),
-  ["formal provider smoke evidence", " is missing"].join(""),
+  ["provider-backed site activity evidence", " is missing"].join(""),
   ["hasAdminTruthSampleEvidence: ", "Object.values(debugEvidence)", ".some"].join(""),
   ["VISUAL_EVIDENCE_FILES", ".some"].join(""),
 ];

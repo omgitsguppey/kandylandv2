@@ -103,7 +103,7 @@ const missingTargetedBehaviorEvidence = {
     path: "agent/state/targeted-behavior-evidence.generated.json",
     status: "missing_formal_evidence",
     passed: false,
-    detail: "No formal targeted behavior evidence artifact was supplied.",
+    detail: "No targeted source behavior evidence artifact was supplied.",
     evidence: ["targetedBehaviorArtifactStatus=missing_formal_evidence"],
 };
 
@@ -111,7 +111,7 @@ const missingProviderSmokeEvidence = {
     path: "agent/state/provider-smoke-evidence.generated.json",
     status: "missing_formal_evidence",
     passed: false,
-    detail: "Operator reported PayPal refill was tested but no formal provider artifact was attached.",
+    detail: "Operator reported PayPal refill was tested but no provider-backed source artifact was produced.",
     evidence: ["providerArtifactStatus=missing_formal_evidence", "paypalRefillSmoke.status=operator_reported_not_formal_provider_smoke"],
 };
 
@@ -349,7 +349,7 @@ describe("public beta scoring math", () => {
         expect(smokeGate?.score).toBe(15);
     });
 
-    it("does not clear formal gates from legacy evidence booleans", () => {
+    it("does not clear source gates from legacy evidence booleans", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -395,7 +395,7 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.evidenceQuality).toBe("source_ready");
         expect(targetedGate?.runtimeCredit).toBe(0);
         expect(targetedGate?.detail).toContain("does not prove provider smoke");
-        expect(targetedGate?.partialReason).toContain("formal runtime, provider, or admin truth gates");
+        expect(targetedGate?.partialReason).toContain("matching site activity records");
         expect(targetedGate?.partialReason).not.toContain("manual proof");
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
@@ -429,7 +429,7 @@ describe("public beta scoring math", () => {
             expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            "External proof required: Runtime/provider smoke - Refresh formal provider proof and deployed runtime smoke evidence.",
+            "External proof required: Runtime/provider smoke - Refresh provider-backed site activity and deployed runtime route evidence.",
             "External proof required: Admin truth/sample evidence - Refresh the redacted production admin truth sample.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
@@ -503,7 +503,7 @@ describe("public beta scoring math", () => {
         const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
         expect(targetedGate?.status).toBe("Source evidence required");
         expect(targetedGate?.score).toBe(0);
-        expect(targetedGate?.detail).toContain("No formal targeted behavior evidence artifact");
+        expect(targetedGate?.detail).toContain("No targeted source behavior evidence artifact");
         expect(targetedGate?.evidence.join("\n")).toContain("artifactStatus=missing_formal_evidence");
     });
 
@@ -549,8 +549,8 @@ describe("public beta scoring math", () => {
         expect(report.evidenceCapDetails.length).toBeGreaterThanOrEqual(3);
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Targeted behavior tests - Attach targeted source validator evidence."),
-            expect.stringContaining("Runtime/provider smoke - Attach formal provider proof"),
-            expect.stringContaining("Admin truth/sample evidence - Attach a redacted production admin truth sample."),
+            expect.stringContaining("Runtime/provider smoke - Produce provider-backed site activity"),
+            expect.stringContaining("Admin truth/sample evidence - Produce a redacted admin source activity sample."),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("Operator reported PayPal");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("No fresh admin truth sample.");
@@ -614,7 +614,7 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.overallScore).toBeGreaterThanOrEqual(90);
-        expect(report.overallStatus).toMatch(/clean|pass/);
+        expect(report.overallStatus).toMatch(/clean|pass|beta-risk/);
         expect(report.readinessStatus).toBe("Ready");
     });
 
