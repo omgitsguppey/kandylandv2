@@ -51,11 +51,11 @@ export const PUBLIC_BETA_EVIDENCE_SCORE_CAPS = {
 } as const;
 
 export const PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS = {
-  sourceHealth: 22,
-  runtimeHealth: 25,
-  evidenceCompleteness: 22,
-  freshness: 12,
-  costRisk: 9,
+  sourceHealth: 18,
+  runtimeHealth: 30,
+  evidenceCompleteness: 25,
+  freshness: 10,
+  costRisk: 7,
   regressionRisk: 10,
 } as const;
 
@@ -63,6 +63,7 @@ export const PUBLIC_BETA_EVIDENCE_QUALITY_SCORES = {
   formalPassed: 1,
   formalPartial: 0.7,
   sourceReady: 0.55,
+  sourceActivity: 0.72,
   operatorReported: 0.25,
   ownerReview: 0.4,
   staleDecayMin: 0.2,

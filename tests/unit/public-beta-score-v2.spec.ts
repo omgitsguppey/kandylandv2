@@ -207,6 +207,73 @@ describe("public beta score v2 health model", () => {
     expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
   });
 
+  it("weights first-party site activity above generic source-ready proof without clearing launch gates", () => {
+    const genericSourceReport = buildReport({
+      providerSmokeEvidence: {
+        path: "agent/state/provider-smoke-evidence.generated.json",
+        status: "missing_formal_evidence",
+        passed: false,
+        detail: "Provider-backed site activity is still missing.",
+        evidence: ["providerArtifactStatus=missing_formal_evidence"],
+      },
+      runtimeSmokeEvidence: {
+        path: "agent/state/runtime-smoke-evidence.generated.json",
+        status: "runtime_unverified",
+        passed: false,
+        detail: "Deployed route evidence is still missing.",
+        evidence: ["runtimeArtifactStatus=runtime_unverified"],
+      },
+      sourceBackedRuntimeConfidenceEvidence: {
+        path: "agent/state/source-backed-runtime-confidence.generated.json",
+        status: "source_ready_runtime_confidence",
+        passed: true,
+        detail: "Generic source-ready runtime confidence is present.",
+        evidence: ["source_ready"],
+        generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: "head",
+      },
+    });
+    const siteActivityReport = buildReport({
+      providerSmokeEvidence: {
+        path: "agent/state/provider-smoke-evidence.generated.json",
+        status: "missing_formal_evidence",
+        passed: false,
+        detail: "Provider-backed site activity is still missing.",
+        evidence: ["providerArtifactStatus=missing_formal_evidence"],
+      },
+      runtimeSmokeEvidence: {
+        path: "agent/state/runtime-smoke-evidence.generated.json",
+        status: "runtime_unverified",
+        passed: false,
+        detail: "Deployed route evidence is still missing.",
+        evidence: ["runtimeArtifactStatus=runtime_unverified"],
+      },
+      sourceBackedRuntimeConfidenceEvidence: {
+        path: "agent/state/live-evidence-gate-replacement.generated.json",
+        status: "source_ready_live_activity_confirmed",
+        passed: true,
+        detail: "First-party site activity is present.",
+        evidence: [
+          "liveRuntimeEvidence.firstPartySiteActivityConfirmed=3",
+          "sourceBackedRuntimeConfidence=72",
+        ],
+        generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: "head",
+      },
+    });
+
+    const genericGate = genericSourceReport.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+    const siteActivityGate = siteActivityReport.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+
+    expect(genericGate?.sourceCredit).toBe(55);
+    expect(siteActivityGate?.sourceCredit).toBe(72);
+    expect(siteActivityGate?.sourceCredit).toBeGreaterThan(genericGate?.sourceCredit ?? 0);
+    expect(siteActivityGate?.status).toBe("Source evidence required");
+    expect(siteActivityReport.launchGateStatus).not.toBe("launch_ready");
+    expect(siteActivityReport.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+    expect(siteActivityReport.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
+  });
+
   it("penalizes stale source reports through freshness and regression dimensions", () => {
     const report = buildReport({
       ...formalPassedEvidence,

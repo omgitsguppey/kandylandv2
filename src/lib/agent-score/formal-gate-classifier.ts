@@ -76,6 +76,24 @@ function nextActionFor(input: FormalGateClassifierInput, status: FormalGateClass
   return "Keep this item out of the source-fix queue unless a source failure is present.";
 }
 
+function reasonFor(status: FormalGateClassifierStatus, formalOrExternal: boolean) {
+  if (status === "provider_artifact_required") {
+    return "Provider-backed site activity evidence is required and must not be treated as a source-code fix.";
+  }
+  if (status === "deployed_runtime_required") {
+    return "Deployed runtime route evidence is required and must not be treated as a source-code fix.";
+  }
+  if (status === "admin_sample_required" || status === "source_ready_formal_missing") {
+    return "A redacted admin source activity sample is required and must not be treated as a source-code fix.";
+  }
+  if (status === "operator_artifact_required") {
+    return "Operator source context is required and must not be treated as a source-code fix.";
+  }
+  return formalOrExternal
+    ? "This item requires typed source activity evidence or operator context and must not be treated as a source-code fix."
+    : "No source-code failure is present in this gate classification.";
+}
+
 export function classifyFormalGate(input: FormalGateClassifierInput): FormalGateClassifierResult {
   const haystack = searchable(input);
   const lower = haystack.toLowerCase();
@@ -110,9 +128,7 @@ export function classifyFormalGate(input: FormalGateClassifierInput): FormalGate
     notSourceBug: queueClassification !== "source_fix_first",
     evidencePath: evidencePathFor(input, status),
     nextAction: nextActionFor(input, status),
-    reason: formalOrExternal
-      ? "This item requires source activity or operator context and must not be treated as a source-code fix."
-      : "No source-code failure is present in this gate classification.",
+    reason: reasonFor(status, formalOrExternal),
   };
 }
 

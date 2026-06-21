@@ -127,7 +127,7 @@ function rootCauseFor(
   if (dimension === "evidenceCompleteness" || dimension === "runtimeHealth" || dimension === "overallHealthScore") {
     return {
       rootCause: "formal_evidence_gate_required",
-      nextAction: `Attach formal provider, deployed runtime, and production admin truth evidence before clearing beta gates. Remaining gates: ${input.formalGatesRemaining.join(", ") || "none listed"}.`,
+      nextAction: `Produce provider-backed site activity, deployed route, and redacted admin source activity evidence before clearing beta gates. Remaining source evidence lanes: ${input.formalGatesRemaining.join(", ") || "none listed"}.`,
     };
   }
   if (dimension === "freshness") {

@@ -79,7 +79,8 @@ describe("score dimension 80 lock", () => {
 
     expect(report.dimensionsBelow80).toEqual(["evidenceCompleteness"]);
     expect(report.below80RootCauses.evidenceCompleteness?.rootCause).toBe("formal_evidence_gate_required");
-    expect(report.below80RootCauses.evidenceCompleteness?.nextAction).toContain("formal provider");
+    expect(report.below80RootCauses.evidenceCompleteness?.nextAction).toContain("provider-backed site activity");
+    expect(report.below80RootCauses.evidenceCompleteness?.nextAction).not.toMatch(/attach formal provider|production admin truth/iu);
     expect(validateScoreDimension80LockReport(report)).toEqual([]);
   });
 

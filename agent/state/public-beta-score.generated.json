@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-21T19:45:01.047Z",
-  "currentHead": "5e8e46d860bb6e85f12e764180b5fb6577f36a21",
+  "generatedAt": "2026-06-21T20:00:57.681Z",
+  "currentHead": "39946feada964f281f20331272f6c6f222743a3b",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -18,10 +18,10 @@
   "launchBlockers": [
     "Provider-backed site activity + deployed route evidence: Source evidence required"
   ],
-  "healthScore": 89.31,
+  "healthScore": 90.16,
   "healthScoreBreakdown": {
     "sourceHealth": {
-      "weight": 22,
+      "weight": 18,
       "score": 97.2,
       "reasons": [
         "scannerScore=100",
@@ -29,7 +29,7 @@
       ]
     },
     "runtimeHealth": {
-      "weight": 25,
+      "weight": 30,
       "score": 91.11,
       "reasons": [
         "Provider-backed site activity + deployed route evidence runtimeCredit=75.56",
@@ -41,7 +41,7 @@
       ]
     },
     "evidenceCompleteness": {
-      "weight": 22,
+      "weight": 25,
       "score": 95.2,
       "reasons": [
         "Deterministic UI surface coverage is source-owned and runs before any visual review.",
@@ -54,7 +54,7 @@
       ]
     },
     "freshness": {
-      "weight": 12,
+      "weight": 10,
       "score": 91.88,
       "reasons": [
         "Source safety freshness=fresh",
@@ -69,7 +69,7 @@
       ]
     },
     "costRisk": {
-      "weight": 9,
+      "weight": 7,
       "score": 42,
       "reasons": [
         "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
@@ -223,7 +223,7 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "overallHealthScore": {
-      "after": 89.31,
+      "after": 90.16,
       "target": 80,
       "status": "meets_target",
       "blockerType": "formal_runtime_evidence",
@@ -517,10 +517,10 @@
       "confidence": "medium",
       "evidenceQuality": "source_ready",
       "freshness": "stale",
-      "sourceCredit": 33,
+      "sourceCredit": 42,
       "runtimeCredit": 80,
-      "evidenceCredit": 33,
-      "riskPenalty": 67,
+      "evidenceCredit": 42,
+      "riskPenalty": 58,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
@@ -634,7 +634,7 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 67.04/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 89.31/100 currently maps to launch gate owner_review.",
+    "evidenceScoreMeaning": "Evidence score 67.04/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 90.16/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
       "Source validation only: Targeted behavior tests - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.",
       "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
@@ -894,7 +894,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-21T19:45:01.047Z",
+      "generatedAtUtc": "2026-06-21T20:00:57.681Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -910,7 +910,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T18:39:12.677Z",
-      "ageHours": 1.0967694444444445,
+      "ageHours": 1.3625011111111112,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -925,7 +925,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T18:39:13.840Z",
-      "ageHours": 1.096446388888889,
+      "ageHours": 1.3621780555555556,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -940,7 +940,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T14:02:46.213Z",
-      "ageHours": 5.704120555555556,
+      "ageHours": 5.969852222222222,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -955,7 +955,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T19:36:03.006Z",
-      "ageHours": 0.14945583333333334,
+      "ageHours": 0.4151875,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -970,7 +970,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T18:39:12.859Z",
-      "ageHours": 1.0967188888888888,
+      "ageHours": 1.3624505555555555,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -985,7 +985,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T18:39:13.169Z",
-      "ageHours": 1.0966327777777778,
+      "ageHours": 1.3623644444444445,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1000,7 +1000,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:56:20.304Z",
-      "ageHours": 59.8113175,
+      "ageHours": 60.07704916666667,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1015,7 +1015,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:56:14.715Z",
-      "ageHours": 59.81287,
+      "ageHours": 60.078601666666664,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1030,7 +1030,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T04:55:54.539Z",
-      "ageHours": 14.818474444444444,
+      "ageHours": 15.084206111111111,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1045,7 +1045,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T18:39:33.111Z",
-      "ageHours": 1.0910933333333332,
+      "ageHours": 1.356825,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1060,7 +1060,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T18:39:25.929Z",
-      "ageHours": 1.0930883333333334,
+      "ageHours": 1.35882,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1075,7 +1075,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T19:36:24.249Z",
-      "ageHours": 0.143555,
+      "ageHours": 0.4092866666666667,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -1090,7 +1090,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:06.814Z",
-      "ageHours": 59.79839805555556,
+      "ageHours": 60.06412972222222,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1105,7 +1105,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:23.473Z",
-      "ageHours": 59.793770555555554,
+      "ageHours": 60.05950222222222,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1120,7 +1120,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:29.221Z",
-      "ageHours": 59.79217388888889,
+      "ageHours": 60.05790555555556,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1135,7 +1135,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T13:29:23.027Z",
-      "ageHours": 6.2605611111111115,
+      "ageHours": 6.526292777777778,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1150,7 +1150,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:52.099Z",
-      "ageHours": 59.78581888888889,
+      "ageHours": 60.05155055555556,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,

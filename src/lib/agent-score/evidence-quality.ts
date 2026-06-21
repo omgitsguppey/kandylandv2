@@ -96,6 +96,12 @@ function normalizeStatus(status: unknown) {
   return String(status ?? "").toLowerCase();
 }
 
+function sourceReadyCreditForEvidence(text: string) {
+  return /first[-_\s]?party|site activity|user activity|real[_\s-]?usage|behaviorMathConfidence|watch[-_\s]?session|person metrics|liveRuntimeEvidence|sourceBackedRuntimeConfidence|admin source activity|sampleCount=[1-9]/iu.test(text)
+    ? PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceActivity
+    : PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady;
+}
+
 export function evidenceArtifactStatusText(
   artifact: PublicBetaEvidenceArtifact | undefined,
   fallbackStatus = "missing_formal_evidence",
@@ -254,16 +260,19 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
     || status.includes("source_complete")
   ) {
     const requiresRuntime = context.requiresRuntimeProof === true || status.includes("runtime_proof");
+    const sourceCredit = sourceReadyCreditForEvidence(`${status}\n${text}`);
     return {
       quality: "source_ready",
-      confidence: PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady,
+      confidence: sourceCredit,
       freshness: freshness.freshness,
       freshnessScore: freshness.freshnessScore,
-      partialCredit: round(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady * freshness.freshnessScore),
+      partialCredit: round(sourceCredit * freshness.freshnessScore),
       blocksLaunch: context.requiredForExit === true && requiresRuntime,
       reason: requiresRuntime
-        ? "Source-ready evidence earns source credit, but deployed runtime route evidence is still required."
-        : "Source-ready evidence earns source credit only.",
+        ? "Source-ready activity evidence earns source credit, but deployed runtime route evidence is still required."
+        : sourceCredit > PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady
+          ? "Source-ready activity evidence earns elevated source credit without clearing provider/runtime/admin gates."
+          : "Source-ready evidence earns source credit only.",
     };
   }
 
