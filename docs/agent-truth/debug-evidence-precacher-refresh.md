@@ -1,11 +1,11 @@
 # Debug Evidence Precatcher Refresh
 
-Generated: 2026-05-24T19:14:40.638Z
+Generated: 2026-06-21T19:17:52.690Z
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T19:14:40.510Z",
-  "currentHead": "145ff4fcf1feb61d371938dde42927b29268850a",
+  "generatedAtUtc": "2026-06-21T19:17:52.641Z",
+  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
   "debugEvidenceAgeBefore": 443.4,
   "debugEvidenceAgeAfter": 0,
   "precatcherAgeBefore": 443.4,
@@ -19,7 +19,7 @@ Generated: 2026-05-24T19:14:40.638Z
   "deployedRuntimeCallsRequired": false,
   "findingsZeroUnknownAfter": false,
   "nextExactSteps": [
-    "Attach deployed runtime smoke separately; this source-only refresh does not clear formal runtime evidence gates."
+    "Attach deployed route evidence separately; this source-only refresh does not clear deployed route evidence."
   ]
 }
 ```

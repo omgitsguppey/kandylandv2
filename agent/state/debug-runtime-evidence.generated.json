@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-19T14:34:02.017Z",
-  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+  "generatedAtUtc": "2026-06-21T19:16:51.544Z",
+  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
   "debugPanelSourceSnapshotStatus": "stale",
   "routeDiagnosticsStatus": "source_ready",
   "runtimeWarningStoreStatus": "source_ready",
@@ -11,7 +11,7 @@
   "criticalRuntimeIssueCount": 0,
   "unresolvedWarningCount": 0,
   "unknownEvidenceCount": 0,
-  "sourceBackedRuntimeConfidence": 0,
+  "sourceBackedRuntimeConfidence": 100,
   "validatorResults": [
     {
       "command": "npm run check:debug-panel-output-triage",
@@ -27,7 +27,7 @@
     }
   ],
   "reportKey": "debug-runtime-evidence",
-  "sourceCommit": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+  "sourceCommit": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
   "status": "partial_debug_runtime_evidence",
   "passed": false,
   "launchGateImpact": "does_not_clear_deployed_runtime_smoke",
@@ -50,12 +50,12 @@
     "criticalRuntimeIssueCount=0",
     "unresolvedWarningCount=0",
     "unknownEvidenceCount=0",
-    "sourceBackedRuntimeConfidence=0",
+    "sourceBackedRuntimeConfidence=100",
     "launchGateImpact=does_not_clear_deployed_runtime_smoke",
     "formalProviderSmokeCleared=false",
     "deployedRuntimeSmokeCleared=false"
   ],
-  "nextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
+  "nextAction": "Use this as source-backed debug/runtime evidence only; attach deployed route evidence before treating deployed-route gates as current.",
   "summary": {
     "debugRuntimeEvidenceStatus": "partial_debug_runtime_evidence",
     "checkedSources": 5,

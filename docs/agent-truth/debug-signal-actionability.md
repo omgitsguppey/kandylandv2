@@ -1,64 +1,64 @@
 # Debug Signal Actionability
 
-Generated: 2026-06-19T18:23:54.359Z
+Generated: 2026-06-21T19:16:51.868Z
 Status: pass
-Current head: 17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1
+Current head: cbf48ed3419f240b49c9a2a17772476af2efd36c
 
 ## Contract
 
 - Default debug output shows only fix_now, score_impacting, evidence_required, and formal_gate signals.
 - Quiet future activity, informational, duplicate, superseded, and not_actionable signals stay hidden by default.
-- Formal gates remain evidence gates and do not become telemetry bugs.
-- This pass does not fake evidence, fake activity, read production data, deploy, or clear formal gates.
+- Schema formal_gate entries remain typed evidence gates and do not become telemetry bugs.
+- This pass does not fake evidence, fake activity, read production data, deploy, or clear provider-backed site activity, deployed route, or admin source activity sample gates.
 
 ## Actionability Summary
 
-- Total signals: 29
-- Unique signals: 29
-- Default visible: 29
+- Total signals: 25
+- Unique signals: 25
+- Default visible: 25
 - Hidden by default: 0
 - Quiet future activity: 0
 - Duplicate signals collapsed: 0
-- Formal gates: 9
+- Typed evidence gates (formal_gate): 5
 
 ## Score Dimensions
 
-- sourceHealth: 91.7 -> 91.7; target=80; status=target_met; next=No score-80 action required for this dimension.
-- runtimeHealth: 67.75 -> 71.2; target=80; status=below_target; next=Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof.
-- evidenceCompleteness: 39.25 -> 43.4; target=80; status=below_target; next=Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity.
-- freshness: 62.86 -> 75.63; target=80; status=below_target; next=Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score.
+- sourceHealth: 91.7 -> 97.2; target=80; status=target_met; next=No score-80 action required for this dimension.
+- runtimeHealth: 67.75 -> 91.11; target=80; status=target_met; next=No score-80 action required for this dimension.
+- evidenceCompleteness: 39.25 -> 95.2; target=80; status=target_met; next=No score-80 action required for this dimension.
+- freshness: 62.86 -> 91.88; target=80; status=target_met; next=No score-80 action required for this dimension.
 - costRisk: 42 -> 42; target=80; status=below_target; next=Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads.
 - regressionRisk: 42 -> 94; target=80; status=target_met; next=No score-80 action required for this dimension.
-- overallHealthScore: 62.15 -> 70.79; target=80; status=below_target; next=Complete every below-target dimension next action, then rerun score:beta and check:beta-score.
+- overallHealthScore: 62.15 -> 89.31; target=80; status=target_met; next=No score-80 action required for this dimension.
 
 ## Prioritized Default Signals
 
-- P1 formal_gate beta-cap-external-proof-required-runtime-provider-smoke-1: impact=71.2; owner=provider_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 formal_gate beta-cap-external-proof-required-admin-truth-sample-evidence-2: impact=43.4; owner=admin_debug; next=Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
-- P1 formal_gate formal-evidence-admin-truth-sample-evidence: impact=8.32; owner=admin_debug; next=Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
-- P1 formal_gate formal-evidence-runtime-provider-smoke: impact=5.76; owner=provider_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 formal_gate debug-panel-provider-smoke: impact=4; owner=admin_debug; next=Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.
+- P1 formal_gate beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1: impact=91.11; owner=provider_evidence; next=Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.
+- P1 formal_gate formal-evidence-provider-backed-site-activity-deployed-route-evidence: impact=4.07; owner=provider_evidence; next=Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.
+- P1 score_impacting debug-panel-provider-smoke: impact=4; owner=admin_debug; next=Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.
+- P1 score_impacting debug-panel-public-beta-score: impact=4; owner=admin_debug; next=Use the canonical beta score and cap reasons as the primary Phase 1 queue.
+- P1 score_impacting debug-panel-score-cap-reasons: impact=4; owner=admin_debug; next=Work the visible cap reasons in order instead of hiding them in Debug.
 - P1 score_impacting stale-artifact-agent-state-overnight-final-integration-lock-generated-json: impact=2; owner=evidence; next=Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
-- P2 score_impacting beta-cap-stale-evidence-report-freshness-and-pr-integrity-3: impact=43.4; owner=evidence; next=Refresh the required generated reports before treating the beta evidence snapshot as current.
-- P2 score_impacting score-drag-evidencecompletenessscore: impact=8.32; owner=beta_score; next=Work the score dimension owner lane and refresh score-80 path lock.
-- P2 score_impacting score-drag-costriskscore: impact=5.8; owner=cost; next=Work the score dimension owner lane and refresh score-80 path lock.
-- P2 formal_gate score-drag-runtimehealthscore: impact=5.76; owner=runtime_evidence; next=Attach deployed runtime smoke evidence before treating runtime health as proven.
-- P2 score_impacting score-drag-freshnessscore: impact=2.44; owner=beta_score; next=Work the score dimension owner lane and refresh score-80 path lock.
+- P2 score_impacting score-drag-costriskscore: impact=5.22; owner=cost; next=Work the score dimension owner lane and refresh score-80 path lock.
+- P2 formal_gate score-drag-runtimehealthscore: impact=4.07; owner=runtime_evidence; next=Attach deployed route evidence before treating runtime health as current.
 - P2 formal_gate cost-cost-risk-0: impact=2; owner=cost; next=Keep this cost lane in owner review until external billing/provider evidence is attached.
-- P2 formal_gate debug-panel-admin-truth-samples: impact=1; owner=admin_debug; next=Attach a fresh first-party admin truth sample before upgrading this gate.
+- P2 formal_gate formal-evidence-admin-source-activity-sample-evidence: impact=1.76; owner=admin_debug; next=Attach a redacted admin source activity sample before clearing the admin source sample gate.
+- P2 score_impacting score-drag-evidencecompletenessscore: impact=1.76; owner=beta_score; next=Work the score dimension owner lane and refresh score-80 path lock.
+- P2 score_impacting debug-panel-admin-truth-samples: impact=1; owner=admin_debug; next=Attach a fresh redacted admin source activity sample before upgrading this gate.
 - P2 score_impacting debug-panel-analytics-rewire: impact=1; owner=admin_debug; next=Leave the item labeled as evidence or archive until a focused refresh command exists.
 - P2 score_impacting debug-panel-creator-connection-audit: impact=1; owner=admin_debug; next=Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.
-- P2 score_impacting debug-panel-public-beta-score: impact=1; owner=admin_debug; next=Use the canonical beta score and cap reasons as the primary Phase 1 queue.
 - P2 score_impacting debug-panel-report-content-protection: impact=1; owner=admin_debug; next=Keep missing state visible until an owning generator is identified.
 - P2 score_impacting debug-panel-report-public-beta-score: impact=1; owner=admin_debug; next=Run npm run score:beta when this stale warning must be refreshed.
-- P2 formal_gate debug-panel-runtime-evidence: impact=1; owner=admin_debug; next=Run formal deployed runtime smoke before marking runtime/provider smoke complete.
-- P2 score_impacting debug-panel-score-cap-reasons: impact=1; owner=admin_debug; next=Work the visible cap reasons in order instead of hiding them in Debug.
+- P2 score_impacting debug-panel-runtime-evidence: impact=1; owner=admin_debug; next=Attach current deployed route evidence before marking provider-backed site activity + deployed route evidence complete.
+- P2 score_impacting debug-panel-system-health: impact=1; owner=admin_debug; next=Run npm run check:admin-truth if that command owns the missing artifact; otherwise keep the Debug state missing.
+- P2 score_impacting debug-panel-targeted-behavior-evidence: impact=1; owner=admin_debug; next=Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.
+- P2 score_impacting stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json: impact=1; owner=evidence; next=Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
 
 ## Duplicate Parents
 
 - stale-artifact-agent-state-overnight-final-integration-lock-generated-json: stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json
 - cost-cost-risk-0: cost-cost-risk-1, cost-cost-risk-2, cost-cost-risk-3
-- debug-panel-analytics-rewire: debug-panel-recovery-evidence, debug-panel-report-speed-security, debug-panel-report-codebase-hardening, debug-panel-report-device-ui, debug-panel-report-device-layout, debug-panel-report-hydration, debug-panel-report-sitewide-image, debug-panel-report-cloud-cost, debug-panel-report-sql-mirror, debug-panel-report-telemetry-parity, debug-panel-report-precatch-runtime, debug-panel-report-creator-lane, debug-panel-report-creator-lane-legacy, debug-panel-report-orphaned-logic
+- debug-panel-analytics-rewire: debug-panel-recovery-evidence, debug-panel-report-speed-security, debug-panel-report-codebase-hardening, debug-panel-report-device-ui, debug-panel-report-device-layout, debug-panel-report-hydration, debug-panel-report-sitewide-image, debug-panel-report-google-cost, debug-panel-report-cloud-cost, debug-panel-report-sql-mirror, debug-panel-report-telemetry-parity, debug-panel-report-precatch-runtime, debug-panel-report-creator-lane, debug-panel-report-creator-lane-legacy, debug-panel-report-orphaned-logic
 - debug-panel-report-content-protection: debug-panel-report-gumdrop-economy, debug-panel-report-event-catalog, debug-panel-report-watch-time-truth, debug-panel-report-debug-evidence, debug-panel-report-support-recovery
 
 ## Old Logic Classification
@@ -459,18 +459,36 @@ Current head: 17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1
 
 ## Dirty Files
 
-- Total: 2
+- Total: 18
 - Unsafe unknown: 0
 - Protected runtime changes: 0
 
 ### Classification Counts
 
-- stale_generated_artifact_to_regenerate: 2
+- current_generated_artifact_to_commit: 2
+- documentation_artifact_expected: 1
+- stale_generated_artifact_to_regenerate: 15
 
 ### Dirty File Samples
 
-- agent/state/blocked-refresh-queue-resolver.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/blocked-refresh-queue-resolver.md: stale_generated_artifact_to_regenerate
+- agent/state/behavior-math-verification.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-evidence-index.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-evidence-precacher-refresh.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-recovery-playbooks.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-runtime-evidence.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-signal-actionability.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-signal-grouping.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/precatch-runtime-issues.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/sitewide-image-optimization-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/targeted-behavior-evidence.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-evidence-precacher-refresh.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-recovery-playbooks.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-runtime-evidence.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-signal-actionability.md: documentation_artifact_expected
+- docs/agent-truth/debug-signal-grouping.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/sitewide-image-optimization-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/targeted-behavior-evidence.md: stale_generated_artifact_to_regenerate
 
 ## Validation Failures
 

@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-06-21T12:46:57.621Z",
+  "generatedAtUtc": "2026-06-21T19:17:30.459Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "85941b670184f7ea84ba7850ddd9a7d58f9a1352",
-  "latestCodeVersion": "85941b670184f7ea84ba7850ddd9a7d58f9a1352",
-  "currentHead": "85941b670184f7ea84ba7850ddd9a7d58f9a1352",
+  "sourceCommit": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+  "latestCodeVersion": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -35,7 +35,7 @@
         "overnight-wiring-integrity",
         "mobile-ui-final-lock"
       ],
-      "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0"
+      "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c"
     },
     {
       "id": "media-discovery-score-lock",
@@ -56,7 +56,7 @@
         "creator-profile-mobile-timeline",
         "creator-broadcast-timeline-prep"
       ],
-      "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0"
+      "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c"
     },
     {
       "id": "creator-monetization-readiness-lock",
@@ -79,7 +79,7 @@
         "creator-pricing-wiring",
         "gumdrop-economy-accuracy"
       ],
-      "currentHead": "6e903936b"
+      "currentHead": "a72e819a4"
     },
     {
       "id": "auth-readiness-lock",

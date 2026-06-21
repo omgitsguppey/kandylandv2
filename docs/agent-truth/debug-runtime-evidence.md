@@ -1,8 +1,8 @@
 # Debug Runtime Evidence
 
-Generated: 2026-06-19T14:34:02.017Z
+Generated: 2026-06-21T19:16:51.544Z
 
-Latest code version: fbc3a07e813b938bea6c96792ccb9e54d8596734
+Latest code version: cbf48ed3419f240b49c9a2a17772476af2efd36c
 
 ## Summary
 
@@ -12,7 +12,7 @@ Latest code version: fbc3a07e813b938bea6c96792ccb9e54d8596734
 - Critical runtime issues: 0
 - Unresolved warnings: 0
 - Unknown evidence count: 0
-- Source-backed runtime confidence: 0
+- Source-backed runtime confidence: 100
 - Launch gate impact: `does_not_clear_deployed_runtime_smoke`
 
 ## Source Status
@@ -34,4 +34,4 @@ Latest code version: fbc3a07e813b938bea6c96792ccb9e54d8596734
 
 ## Evidence Boundary
 
-This is source-backed debug/runtime evidence. It does not clear deployed runtime smoke, provider smoke, or admin truth sample evidence.
+This is source-backed debug/runtime evidence. It does not clear deployed route evidence, provider-backed site activity, or admin source activity sample evidence.

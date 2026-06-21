@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-signal-grouping",
-  "generatedAtUtc": "2026-06-03T04:57:54.953Z",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "generatedAtUtc": "2026-06-21T19:16:51.924Z",
+  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
   "status": "pass",
   "productionReadsRequired": false,
   "fakeActivityUsed": false,
@@ -11,41 +11,41 @@
     "clearsFormalAdminTruth": false
   },
   "scoreBefore": {
-    "sourceHealth": 100,
-    "runtimeHealth": 91.4,
-    "evidenceCompleteness": 91.4,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
     "freshness": 91.88,
-    "costRisk": 92.5,
+    "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 93.99
+    "overallHealthScore": 89.31
   },
   "scoreAfter": {
-    "sourceHealth": 100,
-    "runtimeHealth": 91.4,
-    "evidenceCompleteness": 91.4,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
     "freshness": 91.88,
-    "costRisk": 92.5,
+    "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 93.99
+    "overallHealthScore": 89.31
   },
   "metrics": {
     "sourceHealth": {
-      "before": 100,
-      "after": 100,
+      "before": 97.2,
+      "after": 97.2,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "runtimeHealth": {
-      "before": 91.4,
-      "after": 91.4,
+      "before": 91.11,
+      "after": 91.11,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "evidenceCompleteness": {
-      "before": 91.4,
-      "after": 91.4,
+      "before": 95.2,
+      "after": 95.2,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
@@ -58,11 +58,11 @@
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "costRisk": {
-      "before": 92.5,
-      "after": 92.5,
+      "before": 42,
+      "after": 42,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No score-80 action required for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads."
     },
     "regressionRisk": {
       "before": 94,
@@ -72,186 +72,59 @@
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "overallHealthScore": {
-      "before": 93.99,
-      "after": 93.99,
+      "before": 89.31,
+      "after": 89.31,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     }
   },
-  "rawSignalCount": 446,
-  "groupedSignalCount": 17,
-  "rawP1P2SignalCount": 30,
-  "p1P2GroupCount": 16,
-  "quietFutureActivityRawCount": 416,
+  "rawSignalCount": 50,
+  "groupedSignalCount": 13,
+  "rawP1P2SignalCount": 25,
+  "p1P2GroupCount": 12,
+  "quietFutureActivityRawCount": 25,
   "quietFutureActivityGroupCount": 1,
   "actionableFutureActivitySignalCount": 0,
-  "duplicateSignalsCollapsed": 429,
+  "duplicateSignalsCollapsed": 37,
   "defaultDebugPanel": {
     "showsGroupedSignals": true,
     "rawRowsDefaultVisible": false,
     "futureActivityCatalogCollapsed": true,
-    "visibleGroupCount": 16,
+    "visibleGroupCount": 12,
     "hiddenGroupCount": 1
   },
   "groups": [
     {
-      "groupId": "evidence-evidence-evidence-evidence-freshness-freshness-evidence-score-impacting",
-      "groupLabel": "Evidence",
-      "count": 6,
-      "examples": [
-        {
-          "signalId": "stale-artifact-runtime-provider-smoke",
-          "signalType": "evidence",
-          "severity": "p1",
-          "featureId": "evidence",
-          "eventFamily": "evidence",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 16.33,
-          "sourceFiles": [
-            "runtime_provider_smoke",
-            "debug_runtime_evidence",
-            "visual_manual_smoke",
-            "admin_truth_sample_evidence"
-          ]
-        },
-        {
-          "signalId": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
-          "signalType": "evidence",
-          "severity": "p1",
-          "featureId": "evidence",
-          "eventFamily": "evidence",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 2,
-          "sourceFiles": [
-            "agent/state/overnight-final-integration-lock.generated.json"
-          ]
-        },
-        {
-          "signalId": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
-          "signalType": "evidence",
-          "severity": "p2",
-          "featureId": "evidence",
-          "eventFamily": "evidence",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 1.8,
-          "sourceFiles": [
-            "agent/state/beta-evidence-gap-map.generated.json"
-          ]
-        },
-        {
-          "signalId": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
-          "signalType": "evidence",
-          "severity": "p2",
-          "featureId": "evidence",
-          "eventFamily": "evidence",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 1.6,
-          "sourceFiles": [
-            "agent/state/beta-evidence-lane-prep.generated.json"
-          ]
-        },
-        {
-          "signalId": "stale-artifact-agent-state-beta-freshness-language-generated-json",
-          "signalType": "evidence",
-          "severity": "p2",
-          "featureId": "evidence",
-          "eventFamily": "evidence",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 1.4,
-          "sourceFiles": [
-            "agent/state/beta-freshness-language.generated.json"
-          ]
-        }
-      ],
-      "rootCause": "evidence",
-      "actionability": "score_impacting",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "freshness"
-      ],
-      "estimatedPointImpact": 16.33,
-      "owner": "evidence",
-      "nextAction": "Attach formal evidence before clearing this beta gate.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "runtime_provider_smoke",
-        "debug_runtime_evidence",
-        "visual_manual_smoke",
-        "admin_truth_sample_evidence",
-        "agent/state/overnight-final-integration-lock.generated.json",
-        "agent/state/beta-evidence-gap-map.generated.json",
-        "agent/state/beta-evidence-lane-prep.generated.json",
-        "agent/state/beta-freshness-language.generated.json",
-        "agent/state/final-pr-stale-cleanup.generated.json"
-      ]
-    },
-    {
-      "groupId": "beta-score-beta-score-beta-score-beta-score-evidencecompleteness-evidencecompleteness-beta-score-score-impacting",
-      "groupLabel": "Beta score",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "score-drag-evidencecompletenessscore",
-          "signalType": "beta_score",
-          "severity": "p1",
-          "featureId": "beta_score",
-          "eventFamily": "beta_score",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 12,
-          "sourceFiles": [
-            "agent/state/score-80-path-lock.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        }
-      ],
-      "rootCause": "beta_score",
-      "actionability": "score_impacting",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "evidenceCompleteness"
-      ],
-      "estimatedPointImpact": 12,
-      "owner": "beta_score",
-      "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
-      "groupId": "debug-panel-debug-panel-debug-panel-debug-panel-evidencecompleteness-evidencecompleteness-admin-debug-score-impacting",
+      "groupId": "debug-panel-debug-panel-debug-panel-debug-panel-freshness-freshness-admin-debug-score-impacting",
       "groupLabel": "Debug panel",
-      "count": 5,
+      "count": 9,
       "examples": [
+        {
+          "signalId": "debug-panel-provider-smoke",
+          "signalType": "debug_panel",
+          "severity": "p1",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "freshness",
+          "scoreDimensionsAffected": [
+            "freshness"
+          ],
+          "estimatedPointImpact": 4,
+          "sourceFiles": [
+            "agent/state/provider-smoke-evidence.generated.json"
+          ],
+          "validator": "npm run check:provider-smoke-evidence"
+        },
         {
           "signalId": "debug-panel-public-beta-score",
           "signalType": "debug_panel",
           "severity": "p1",
           "featureId": "debug_panel",
           "eventFamily": "debug_panel",
-          "metricFamily": "evidenceCompleteness",
+          "metricFamily": "freshness",
           "scoreDimensionsAffected": [
-            "evidenceCompleteness"
+            "freshness"
           ],
           "estimatedPointImpact": 4,
           "sourceFiles": [
@@ -265,9 +138,9 @@
           "severity": "p1",
           "featureId": "debug_panel",
           "eventFamily": "debug_panel",
-          "metricFamily": "evidenceCompleteness",
+          "metricFamily": "freshness",
           "scoreDimensionsAffected": [
-            "evidenceCompleteness"
+            "freshness"
           ],
           "estimatedPointImpact": 4,
           "sourceFiles": [
@@ -276,133 +149,20 @@
           "validator": "npm run check:beta-score"
         },
         {
-          "signalId": "debug-panel-report-content-protection",
+          "signalId": "debug-panel-admin-truth-samples",
           "signalType": "debug_panel",
           "severity": "p2",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 1,
-          "sourceFiles": [
-            "agent/state/content-protection.generated.json",
-            "agent/state/gumdrop-economy.generated.json",
-            "agent/state/event-catalog-telemetry.generated.json",
-            "agent/state/watch-time-rollup-truth.generated.json",
-            "agent/state/debug-evidence-pipeline.generated.json",
-            "agent/state/support-recovery-flows.generated.json"
-          ],
-          "validator": "npm run check:content-protection"
-        },
-        {
-          "signalId": "debug-panel-report-public-beta-score",
-          "signalType": "debug_panel",
-          "severity": "p2",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 1,
-          "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        },
-        {
-          "signalId": "debug-panel-system-health",
-          "signalType": "debug_panel",
-          "severity": "p2",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 1,
-          "sourceFiles": [
-            "agent/state/admin-truth.generated.json"
-          ],
-          "validator": "npm run check:admin-truth"
-        }
-      ],
-      "rootCause": "debug_panel",
-      "actionability": "score_impacting",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "evidenceCompleteness"
-      ],
-      "estimatedPointImpact": 4,
-      "owner": "admin_debug",
-      "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/content-protection.generated.json",
-        "agent/state/gumdrop-economy.generated.json",
-        "agent/state/event-catalog-telemetry.generated.json",
-        "agent/state/watch-time-rollup-truth.generated.json",
-        "agent/state/debug-evidence-pipeline.generated.json",
-        "agent/state/support-recovery-flows.generated.json",
-        "agent/state/admin-truth.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
-      "groupId": "debug-panel-debug-panel-debug-panel-debug-panel-freshness-freshness-admin-debug-score-impacting",
-      "groupLabel": "Debug panel",
-      "count": 6,
-      "examples": [
-        {
-          "signalId": "debug-panel-final-launch-readiness",
-          "signalType": "debug_panel",
-          "severity": "p1",
           "featureId": "debug_panel",
           "eventFamily": "debug_panel",
           "metricFamily": "freshness",
           "scoreDimensionsAffected": [
             "freshness"
           ],
-          "estimatedPointImpact": 4,
+          "estimatedPointImpact": 1,
           "sourceFiles": [
-            "agent/state/final-launch-readiness-report.generated.json"
+            "agent/state/admin-truth-sample-evidence.generated.json"
           ],
-          "validator": "npm run check:final-launch-readiness-report"
-        },
-        {
-          "signalId": "debug-panel-launch-pr-triage",
-          "signalType": "debug_panel",
-          "severity": "p1",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 4,
-          "sourceFiles": [
-            "agent/state/launch-pr-triage.generated.json"
-          ],
-          "validator": "npm run check:launch-pr-triage"
-        },
-        {
-          "signalId": "debug-panel-launch-readiness",
-          "signalType": "debug_panel",
-          "severity": "p1",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 4,
-          "sourceFiles": [
-            "agent/state/launch-readiness-report.generated.json"
-          ],
-          "validator": "npm run check:launch-readiness-final"
+          "validator": "npm run check:admin-truth-sample-evidence"
         },
         {
           "signalId": "debug-panel-analytics-rewire",
@@ -434,22 +194,6 @@
             "agent/state/orphaned-logic-score.generated.json"
           ],
           "validator": "npm run check:analytics-rewire-phase-one"
-        },
-        {
-          "signalId": "debug-panel-creator-connection-audit",
-          "signalType": "debug_panel",
-          "severity": "p2",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 1,
-          "sourceFiles": [
-            "agent/state/user-facing-feature-connection-audit.generated.json"
-          ],
-          "validator": "npm run check:user-facing-feature-connection-audit"
         }
       ],
       "rootCause": "debug_panel",
@@ -460,12 +204,12 @@
       ],
       "estimatedPointImpact": 4,
       "owner": "admin_debug",
-      "nextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
+      "nextAction": "Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.",
       "hiddenByDefault": false,
       "sourceFiles": [
-        "agent/state/final-launch-readiness-report.generated.json",
-        "agent/state/launch-pr-triage.generated.json",
-        "agent/state/launch-readiness-report.generated.json",
+        "agent/state/provider-smoke-evidence.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/admin-truth-sample-evidence.generated.json",
         "agent/state/analytics-rewire-phase-one.generated.json",
         "agent/state/lost-data-recovery-dry-run.generated.json",
         "agent/state/speed-security-hardening.generated.json",
@@ -483,26 +227,110 @@
         "agent/state/creator-lane-legacy-truth-inventory.generated.json",
         "agent/state/orphaned-logic-score.generated.json",
         "agent/state/user-facing-feature-connection-audit.generated.json",
+        "agent/state/runtime-smoke-evidence.generated.json",
         "agent/state/targeted-behavior-evidence.generated.json"
       ],
-      "validator": "npm run check:final-launch-readiness-report"
+      "validator": "npm run check:provider-smoke-evidence"
     },
     {
-      "groupId": "beta-score-beta-score-beta-score-beta-score-freshness-freshness-beta-score-score-impacting",
-      "groupLabel": "Beta score",
-      "count": 1,
+      "groupId": "evidence-evidence-evidence-evidence-freshness-freshness-evidence-score-impacting",
+      "groupLabel": "Evidence",
+      "count": 3,
       "examples": [
         {
-          "signalId": "score-drag-freshnessscore",
-          "signalType": "beta_score",
-          "severity": "p2",
-          "featureId": "beta_score",
-          "eventFamily": "beta_score",
+          "signalId": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
+          "signalType": "evidence",
+          "severity": "p1",
+          "featureId": "evidence",
+          "eventFamily": "evidence",
           "metricFamily": "freshness",
           "scoreDimensionsAffected": [
             "freshness"
           ],
-          "estimatedPointImpact": 7.07,
+          "estimatedPointImpact": 2,
+          "sourceFiles": [
+            "agent/state/overnight-final-integration-lock.generated.json"
+          ]
+        },
+        {
+          "signalId": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
+          "signalType": "evidence",
+          "severity": "p2",
+          "featureId": "evidence",
+          "eventFamily": "evidence",
+          "metricFamily": "freshness",
+          "scoreDimensionsAffected": [
+            "freshness"
+          ],
+          "estimatedPointImpact": 1,
+          "sourceFiles": [
+            "agent/state/beta-evidence-gap-map.generated.json"
+          ]
+        },
+        {
+          "signalId": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+          "signalType": "evidence",
+          "severity": "p2",
+          "featureId": "evidence",
+          "eventFamily": "evidence",
+          "metricFamily": "freshness",
+          "scoreDimensionsAffected": [
+            "freshness"
+          ],
+          "estimatedPointImpact": 1,
+          "sourceFiles": [
+            "agent/state/current-beta-exit-status.generated.json"
+          ]
+        }
+      ],
+      "rootCause": "evidence",
+      "actionability": "score_impacting",
+      "severity": "p1",
+      "scoreDimensionsAffected": [
+        "freshness"
+      ],
+      "estimatedPointImpact": 2,
+      "owner": "evidence",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/overnight-final-integration-lock.generated.json",
+        "agent/state/beta-evidence-gap-map.generated.json",
+        "agent/state/current-beta-exit-status.generated.json"
+      ]
+    },
+    {
+      "groupId": "beta-score-beta-score-beta-score-beta-score-evidencecompleteness-evidencecompleteness-beta-score-score-impacting",
+      "groupLabel": "Beta score",
+      "count": 2,
+      "examples": [
+        {
+          "signalId": "beta-cap-source-validation-only-targeted-behavior-tests-0",
+          "signalType": "beta_score",
+          "severity": "p2",
+          "featureId": "beta_score",
+          "eventFamily": "beta_score",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 95.2,
+          "sourceFiles": [
+            "agent/state/public-beta-score.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        },
+        {
+          "signalId": "score-drag-evidencecompletenessscore",
+          "signalType": "beta_score",
+          "severity": "p2",
+          "featureId": "beta_score",
+          "eventFamily": "beta_score",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 1.76,
           "sourceFiles": [
             "agent/state/score-80-path-lock.generated.json"
           ],
@@ -513,13 +341,14 @@
       "actionability": "score_impacting",
       "severity": "p2",
       "scoreDimensionsAffected": [
-        "freshness"
+        "evidenceCompleteness"
       ],
-      "estimatedPointImpact": 7.07,
+      "estimatedPointImpact": 95.2,
       "owner": "beta_score",
-      "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "nextAction": "Keep targeted behavior checks as source-only evidence; keep provider-backed site activity, runtime/deployed route evidence, and admin source activity sample gates separate.",
       "hiddenByDefault": false,
       "sourceFiles": [
+        "agent/state/public-beta-score.generated.json",
         "agent/state/score-80-path-lock.generated.json"
       ],
       "validator": "npm run check:beta-score"
@@ -539,7 +368,7 @@
           "scoreDimensionsAffected": [
             "costRisk"
           ],
-          "estimatedPointImpact": 4,
+          "estimatedPointImpact": 5.22,
           "sourceFiles": [
             "agent/state/score-80-path-lock.generated.json"
           ],
@@ -552,8 +381,146 @@
       "scoreDimensionsAffected": [
         "costRisk"
       ],
-      "estimatedPointImpact": 4,
+      "estimatedPointImpact": 5.22,
       "owner": "cost",
+      "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ],
+      "validator": "npm run check:beta-score"
+    },
+    {
+      "groupId": "debug-panel-debug-panel-debug-panel-debug-panel-evidencecompleteness-evidencecompleteness-admin-debug-score-impacting",
+      "groupLabel": "Debug panel",
+      "count": 2,
+      "examples": [
+        {
+          "signalId": "debug-panel-report-content-protection",
+          "signalType": "debug_panel",
+          "severity": "p2",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 1,
+          "sourceFiles": [
+            "agent/state/content-protection.generated.json",
+            "agent/state/gumdrop-economy.generated.json",
+            "agent/state/event-catalog-telemetry.generated.json",
+            "agent/state/watch-time-rollup-truth.generated.json",
+            "agent/state/debug-evidence-pipeline.generated.json",
+            "agent/state/support-recovery-flows.generated.json"
+          ],
+          "validator": "npm run check:content-protection"
+        },
+        {
+          "signalId": "debug-panel-system-health",
+          "signalType": "debug_panel",
+          "severity": "p2",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 1,
+          "sourceFiles": [
+            "agent/state/admin-truth.generated.json"
+          ],
+          "validator": "npm run check:admin-truth"
+        }
+      ],
+      "rootCause": "debug_panel",
+      "actionability": "score_impacting",
+      "severity": "p2",
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness"
+      ],
+      "estimatedPointImpact": 1,
+      "owner": "admin_debug",
+      "nextAction": "Keep missing state visible until an owning generator is identified.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/content-protection.generated.json",
+        "agent/state/gumdrop-economy.generated.json",
+        "agent/state/event-catalog-telemetry.generated.json",
+        "agent/state/watch-time-rollup-truth.generated.json",
+        "agent/state/debug-evidence-pipeline.generated.json",
+        "agent/state/support-recovery-flows.generated.json",
+        "agent/state/admin-truth.generated.json"
+      ],
+      "validator": "npm run check:content-protection"
+    },
+    {
+      "groupId": "beta-score-beta-score-beta-score-beta-score-freshness-freshness-beta-score-score-impacting",
+      "groupLabel": "Beta score",
+      "count": 1,
+      "examples": [
+        {
+          "signalId": "score-drag-freshnessscore",
+          "signalType": "beta_score",
+          "severity": "p2",
+          "featureId": "beta_score",
+          "eventFamily": "beta_score",
+          "metricFamily": "freshness",
+          "scoreDimensionsAffected": [
+            "freshness"
+          ],
+          "estimatedPointImpact": 0.97,
+          "sourceFiles": [
+            "agent/state/score-80-path-lock.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        }
+      ],
+      "rootCause": "beta_score",
+      "actionability": "score_impacting",
+      "severity": "p2",
+      "scoreDimensionsAffected": [
+        "freshness"
+      ],
+      "estimatedPointImpact": 0.97,
+      "owner": "beta_score",
+      "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ],
+      "validator": "npm run check:beta-score"
+    },
+    {
+      "groupId": "beta-score-beta-score-beta-score-beta-score-sourcehealth-sourcehealth-beta-score-score-impacting",
+      "groupLabel": "Beta score",
+      "count": 1,
+      "examples": [
+        {
+          "signalId": "score-drag-sourcehealthscore",
+          "signalType": "beta_score",
+          "severity": "p2",
+          "featureId": "beta_score",
+          "eventFamily": "beta_score",
+          "metricFamily": "sourceHealth",
+          "scoreDimensionsAffected": [
+            "sourceHealth"
+          ],
+          "estimatedPointImpact": 0.62,
+          "sourceFiles": [
+            "agent/state/score-80-path-lock.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        }
+      ],
+      "rootCause": "beta_score",
+      "actionability": "score_impacting",
+      "severity": "p2",
+      "scoreDimensionsAffected": [
+        "sourceHealth"
+      ],
+      "estimatedPointImpact": 0.62,
+      "owner": "beta_score",
       "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "hiddenByDefault": false,
       "sourceFiles": [
@@ -576,7 +543,7 @@
           "scoreDimensionsAffected": [
             "regressionRisk"
           ],
-          "estimatedPointImpact": 1,
+          "estimatedPointImpact": 0.6,
           "sourceFiles": [
             "agent/state/score-80-path-lock.generated.json"
           ],
@@ -589,7 +556,7 @@
       "scoreDimensionsAffected": [
         "regressionRisk"
       ],
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 0.6,
       "owner": "beta_score",
       "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "hiddenByDefault": false,
@@ -599,86 +566,12 @@
       "validator": "npm run check:beta-score"
     },
     {
-      "groupId": "beta-score-beta-score-beta-score-beta-score-sourcehealth-sourcehealth-beta-score-evidence-required",
-      "groupLabel": "Beta score",
-      "count": 1,
+      "groupId": "formal-gate-attach-redacted-provider-backed-site-activity-evidence-and-deployed-route-evidence-before-clearing-this-beta",
+      "groupLabel": "Typed evidence gate: Provider-backed site activity + deployed route evidence",
+      "count": 2,
       "examples": [
         {
-          "signalId": "score-drag-sourcehealthscore",
-          "signalType": "beta_score",
-          "severity": "p2",
-          "featureId": "beta_score",
-          "eventFamily": "beta_score",
-          "metricFamily": "sourceHealth",
-          "scoreDimensionsAffected": [
-            "sourceHealth"
-          ],
-          "estimatedPointImpact": 0,
-          "sourceFiles": [
-            "agent/state/score-80-path-lock.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        }
-      ],
-      "rootCause": "beta_score",
-      "actionability": "evidence_required",
-      "severity": "p2",
-      "scoreDimensionsAffected": [
-        "sourceHealth"
-      ],
-      "estimatedPointImpact": 0,
-      "owner": "beta_score",
-      "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
-      "groupId": "formal-gate-attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admin-truth-evidence-gate-admin-",
-      "groupLabel": "Formal evidence gate: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
-          "signalType": "formal_gate",
-          "severity": "p1",
-          "featureId": "formal_gate",
-          "eventFamily": "formal_gate",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 91.4,
-          "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        }
-      ],
-      "rootCause": "blocked_formal_evidence",
-      "actionability": "formal_gate",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "evidenceCompleteness"
-      ],
-      "estimatedPointImpact": 91.4,
-      "owner": "admin_debug",
-      "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
-      "groupId": "formal-gate-attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta-gate-provider-evidence",
-      "groupLabel": "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
+          "signalId": "beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1",
           "signalType": "formal_gate",
           "severity": "p1",
           "featureId": "formal_gate",
@@ -687,11 +580,26 @@
           "scoreDimensionsAffected": [
             "runtimeHealth"
           ],
-          "estimatedPointImpact": 91.4,
+          "estimatedPointImpact": 91.11,
           "sourceFiles": [
             "agent/state/public-beta-score.generated.json"
           ],
           "validator": "npm run check:beta-score"
+        },
+        {
+          "signalId": "formal-evidence-provider-backed-site-activity-deployed-route-evidence",
+          "signalType": "formal_gate",
+          "severity": "p1",
+          "featureId": "formal_gate",
+          "eventFamily": "formal_gate",
+          "metricFamily": "runtimeHealth",
+          "scoreDimensionsAffected": [
+            "runtimeHealth"
+          ],
+          "estimatedPointImpact": 4.07,
+          "sourceFiles": [
+            "provider_backed_site_activity_deployed_route_evidence"
+          ]
         }
       ],
       "rootCause": "blocked_formal_evidence",
@@ -700,68 +608,32 @@
       "scoreDimensionsAffected": [
         "runtimeHealth"
       ],
-      "estimatedPointImpact": 91.4,
+      "estimatedPointImpact": 91.11,
       "owner": "provider_evidence",
-      "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "nextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
       "hiddenByDefault": false,
       "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
+        "agent/state/public-beta-score.generated.json",
+        "provider_backed_site_activity_deployed_route_evidence"
       ],
       "validator": "npm run check:beta-score"
     },
     {
-      "groupId": "formal-gate-attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta-gate-runtime-evidence",
-      "groupLabel": "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-2",
-          "signalType": "formal_gate",
-          "severity": "p1",
-          "featureId": "formal_gate",
-          "eventFamily": "formal_gate",
-          "metricFamily": "runtimeHealth",
-          "scoreDimensionsAffected": [
-            "runtimeHealth"
-          ],
-          "estimatedPointImpact": 91.4,
-          "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        }
-      ],
-      "rootCause": "blocked_formal_evidence",
-      "actionability": "formal_gate",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "runtimeHealth"
-      ],
-      "estimatedPointImpact": 91.4,
-      "owner": "runtime_evidence",
-      "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
-      "groupId": "formal-gate-attach-deployed-runtime-smoke-evidence-before-treating-runtime-health-as-proven-runtime-evidence",
-      "groupLabel": "Formal evidence gate: Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "groupId": "formal-gate-attach-deployed-route-evidence-before-treating-runtime-health-as-current-runtime-evidence",
+      "groupLabel": "Typed evidence gate: Attach deployed route evidence before treating runtime health as current.",
       "count": 1,
       "examples": [
         {
           "signalId": "score-drag-runtimehealthscore",
           "signalType": "formal_gate",
-          "severity": "p1",
+          "severity": "p2",
           "featureId": "formal_gate",
           "eventFamily": "formal_gate",
           "metricFamily": "runtimeHealth",
           "scoreDimensionsAffected": [
             "runtimeHealth"
           ],
-          "estimatedPointImpact": 16.33,
+          "estimatedPointImpact": 4.07,
           "sourceFiles": [
             "agent/state/score-80-path-lock.generated.json"
           ],
@@ -770,13 +642,13 @@
       ],
       "rootCause": "blocked_formal_evidence",
       "actionability": "formal_gate",
-      "severity": "p1",
+      "severity": "p2",
       "scoreDimensionsAffected": [
         "runtimeHealth"
       ],
-      "estimatedPointImpact": 16.33,
+      "estimatedPointImpact": 4.07,
       "owner": "runtime_evidence",
-      "nextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "nextAction": "Attach deployed route evidence before treating runtime health as current.",
       "hiddenByDefault": false,
       "sourceFiles": [
         "agent/state/score-80-path-lock.generated.json"
@@ -784,119 +656,8 @@
       "validator": "npm run check:beta-score"
     },
     {
-      "groupId": "formal-gate-attach-a-fresh-first-party-admin-truth-sample-before-upgrading-this-gate-admin-debug",
-      "groupLabel": "Formal evidence gate: Attach a fresh first-party admin truth sample before upgrading this gate.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "debug-panel-admin-truth-samples",
-          "signalType": "formal_gate",
-          "severity": "p1",
-          "featureId": "formal_gate",
-          "eventFamily": "formal_gate",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 4,
-          "sourceFiles": [
-            "agent/state/admin-truth-sample-evidence.generated.json"
-          ],
-          "validator": "npm run check:admin-truth-sample-evidence"
-        }
-      ],
-      "rootCause": "blocked_formal_evidence",
-      "actionability": "formal_gate",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "freshness"
-      ],
-      "estimatedPointImpact": 4,
-      "owner": "admin_debug",
-      "nextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/admin-truth-sample-evidence.generated.json"
-      ],
-      "validator": "npm run check:admin-truth-sample-evidence"
-    },
-    {
-      "groupId": "formal-gate-attach-or-generate-formal-provider-smoke-evidence-do-not-convert-operator-reported-paypal-into-a-pass-admin-",
-      "groupLabel": "Formal evidence gate: Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "debug-panel-provider-smoke",
-          "signalType": "formal_gate",
-          "severity": "p1",
-          "featureId": "formal_gate",
-          "eventFamily": "formal_gate",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 4,
-          "sourceFiles": [
-            "agent/state/provider-smoke-evidence.generated.json"
-          ],
-          "validator": "npm run check:provider-smoke-evidence"
-        }
-      ],
-      "rootCause": "blocked_formal_evidence",
-      "actionability": "formal_gate",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "freshness"
-      ],
-      "estimatedPointImpact": 4,
-      "owner": "admin_debug",
-      "nextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/provider-smoke-evidence.generated.json"
-      ],
-      "validator": "npm run check:provider-smoke-evidence"
-    },
-    {
-      "groupId": "formal-gate-run-formal-deployed-runtime-smoke-before-marking-runtime-provider-smoke-complete-admin-debug",
-      "groupLabel": "Formal evidence gate: Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "debug-panel-runtime-evidence",
-          "signalType": "formal_gate",
-          "severity": "p1",
-          "featureId": "formal_gate",
-          "eventFamily": "formal_gate",
-          "metricFamily": "freshness",
-          "scoreDimensionsAffected": [
-            "freshness"
-          ],
-          "estimatedPointImpact": 4,
-          "sourceFiles": [
-            "agent/state/runtime-smoke-evidence.generated.json"
-          ],
-          "validator": "npm run check:runtime-smoke-evidence"
-        }
-      ],
-      "rootCause": "blocked_formal_evidence",
-      "actionability": "formal_gate",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "freshness"
-      ],
-      "estimatedPointImpact": 4,
-      "owner": "admin_debug",
-      "nextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/runtime-smoke-evidence.generated.json"
-      ],
-      "validator": "npm run check:runtime-smoke-evidence"
-    },
-    {
       "groupId": "formal-gate-keep-this-cost-lane-in-owner-review-until-external-billing-provider-evidence-is-attached-cost",
-      "groupLabel": "Formal evidence gate: Keep this cost lane in owner review until external billing/provider evidence is attached.",
+      "groupLabel": "Typed evidence gate: Keep this cost lane in owner review until external billing/provider evidence is attached.",
       "count": 1,
       "examples": [
         {
@@ -932,9 +693,44 @@
       "validator": "npm run check:beta-score"
     },
     {
+      "groupId": "formal-gate-attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-sample-gate-admin-debug",
+      "groupLabel": "Typed evidence gate: Admin source activity sample",
+      "count": 1,
+      "examples": [
+        {
+          "signalId": "formal-evidence-admin-source-activity-sample-evidence",
+          "signalType": "formal_gate",
+          "severity": "p2",
+          "featureId": "formal_gate",
+          "eventFamily": "formal_gate",
+          "metricFamily": "freshness",
+          "scoreDimensionsAffected": [
+            "freshness"
+          ],
+          "estimatedPointImpact": 1.76,
+          "sourceFiles": [
+            "admin_source_activity_sample_evidence"
+          ]
+        }
+      ],
+      "rootCause": "blocked_formal_evidence",
+      "actionability": "formal_gate",
+      "severity": "p2",
+      "scoreDimensionsAffected": [
+        "freshness"
+      ],
+      "estimatedPointImpact": 1.76,
+      "owner": "admin_debug",
+      "nextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "admin_source_activity_sample_evidence"
+      ]
+    },
+    {
       "groupId": "quiet-future-activity-future-activity-catalog",
-      "groupLabel": "Future activity catalog (416 quiet placeholders)",
-      "count": 416,
+      "groupLabel": "Future activity catalog (25 quiet placeholders)",
+      "count": 25,
       "examples": [
         {
           "signalId": "future-activity-0",
@@ -1058,96 +854,85 @@
     }
   ],
   "dirtyFileSummary": {
-    "total": 166,
+    "total": 18,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 136,
-      "current_generated_artifact_to_commit": 3,
-      "documentation_artifact_expected": 2,
-      "validator_artifact_expected": 15,
-      "debug_grouping_source_change": 5,
-      "test_artifact_expected": 5
+      "stale_generated_artifact_to_regenerate": 15,
+      "current_generated_artifact_to_commit": 2,
+      "documentation_artifact_expected": 1
     },
     "unsafeUnknownCount": 0,
     "protectedRuntimeChangeCount": 0,
     "samples": [
       {
-        "path": "agent/state/activity-verification-engine.generated.json",
+        "path": "agent/state/behavior-math-verification.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/admin-truth-source-sample.generated.json",
+        "path": "agent/state/debug-evidence-index.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/algorithmic-evidence-policy.generated.json",
+        "path": "agent/state/debug-evidence-precacher-refresh.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "path": "agent/state/debug-recovery-playbooks.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+        "path": "agent/state/debug-runtime-evidence.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/analytics-hydration-consolidation.generated.json",
+        "path": "agent/state/debug-signal-actionability.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "path": "agent/state/debug-signal-grouping.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/precatch-runtime-issues.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/beta-evidence-gap-map.generated.json",
+        "path": "agent/state/public-beta-score.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/sitewide-image-optimization-cleanup.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/beta-evidence-lane-prep.generated.json",
+        "path": "agent/state/targeted-behavior-evidence.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/beta-freshness-language.generated.json",
+        "path": "docs/agent-truth/debug-evidence-precacher-refresh.md",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/chat-functionality-score-lock.generated.json",
+        "path": "docs/agent-truth/debug-recovery-playbooks.md",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/chat-gating-moderation.generated.json",
+        "path": "docs/agent-truth/debug-runtime-evidence.md",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/chat-realtime-cost-control.generated.json",
+        "path": "docs/agent-truth/debug-signal-actionability.md",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+        "path": "docs/agent-truth/debug-signal-grouping.md",
+        "classification": "documentation_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/sitewide-image-optimization-cleanup.md",
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/cost-owner-review-source-closure.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/cost-risk-exit-pass.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/creator-drop-status-metrics.generated.json",
+        "path": "docs/agent-truth/targeted-behavior-evidence.md",
         "classification": "stale_generated_artifact_to_regenerate"
       }
     ]

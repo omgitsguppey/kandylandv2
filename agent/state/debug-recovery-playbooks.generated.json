@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-19T18:17:13.962Z",
+  "generatedAtUtc": "2026-06-21T19:16:51.278Z",
   "reportKey": "debug-recovery-playbooks",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
-  "sourceCommit": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+  "sourceCommit": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
   "overallStatus": "pass",
   "playbookCount": 12,
   "validationFailures": [],
@@ -43,7 +43,7 @@
         "no_formal_gate_clear_without_artifact",
         "no_new_duplicate_system"
       ],
-      "evidenceOutcome": "Produces current generated evidence or stale_retired backlog state; does not clear formal provider/runtime/manual/admin gates.",
+      "evidenceOutcome": "Produces current generated evidence or stale_retired backlog state; does not clear provider-backed site activity, deployed route, admin source activity sample, or external owner-review gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "freshness",
@@ -63,7 +63,7 @@
       "triggerPatterns": [
         "debug runtime evidence unknown",
         "runtimeHealth low with runtime_unverified",
-        "source-ready runtime confidence but deployed runtime smoke missing"
+        "source-ready runtime confidence but deployed route evidence missing"
       ],
       "sourceFiles": [
         "src/lib/debug/debug-backlog-builder.ts",
@@ -82,10 +82,10 @@
       ],
       "fixes": [
         "Classify unknown runtime evidence as source_ready, runtime_unverified, blocked_external, or formal_missing.",
-        "Connect source-ready runtime confidence to the runtime/provider smoke evidence text only as partial confidence.",
-        "Leave deployed runtime smoke blocked until a formal runtime-smoke artifact exists."
+        "Connect source-ready runtime confidence to provider-backed site activity and deployed route evidence text only as source confidence.",
+        "Leave deployed route evidence blocked until a deployed-route evidence artifact exists."
       ],
-      "evidenceOutcome": "Runtime debug item becomes classified with exact next action; does not clear formal deployed runtime evidence.",
+      "evidenceOutcome": "Runtime debug item becomes classified with exact next action; does not clear deployed route evidence.",
       "scoringImpactEstimate": {
         "dimensions": [
           "runtimeHealth",
@@ -112,7 +112,7 @@
       "triggerPatterns": [
         "admin truth/sample evidence unknown",
         "Admin Debug shows missing or unavailable source truth",
-        "beta cap formal admin truth sample required"
+        "beta cap admin source activity sample required"
       ],
       "sourceFiles": [
         "src/lib/admin-debug-control-tower.ts",
@@ -133,9 +133,9 @@
       "fixes": [
         "Keep unavailable admin truth labeled unavailable, stale, or formal_missing.",
         "Wire source-truth sample evidence into Admin Debug summary only when the generated artifact is current.",
-        "Do not mark admin truth/sample evidence Ready unless a formal sample artifact is attached."
+        "Do not mark admin source activity sample evidence Ready unless a redacted sample artifact is attached."
       ],
-      "evidenceOutcome": "Admin truth issue receives current source sample or formal_missing classification; does not clear formal admin truth gate.",
+      "evidenceOutcome": "Admin truth issue receives current source sample or formal_missing classification; does not clear admin source activity sample gate.",
       "scoringImpactEstimate": {
         "dimensions": [
           "evidenceCompleteness",
@@ -184,7 +184,7 @@
         "Add typed fallback copy only through the error dictionary and route diagnostics helpers.",
         "Keep route output degraded until the exact validator confirms the mapping."
       ],
-      "evidenceOutcome": "Route issue maps to typed diagnostic and validator evidence; does not clear formal runtime smoke.",
+      "evidenceOutcome": "Route issue maps to typed diagnostic and validator evidence; does not clear deployed route evidence.",
       "scoringImpactEstimate": {
         "dimensions": [
           "runtimeHealth",
@@ -234,7 +234,7 @@
         "If no consumer exists, archive the producer lane with archive_only classification.",
         "If the lane is source-ready but runtime-unverified, keep debug output degraded instead of healthy."
       ],
-      "evidenceOutcome": "Telemetry lane becomes linked, archived, or source_ready_evidence_gap; does not clear formal runtime evidence.",
+      "evidenceOutcome": "Telemetry lane becomes linked, archived, or source_ready_evidence_gap; does not clear deployed route evidence.",
       "scoringImpactEstimate": {
         "dimensions": [
           "sourceHealth",
@@ -283,7 +283,7 @@
         "Use watch_session_rollup only for watch-time confidence; never page duration.",
         "Keep unknown legacy as excluded evidence until a dry-run recovery contract maps it."
       ],
-      "evidenceOutcome": "Behavior metric gets exact/probable/weak/unknown confidence; does not clear formal manual or runtime gates.",
+      "evidenceOutcome": "Behavior metric gets exact/probable/weak/unknown confidence; does not clear deployed route, admin source activity sample, or external owner-review gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "evidenceCompleteness",
@@ -332,7 +332,7 @@
         "Use density variants when a shared component spans admin, user, and creator surfaces.",
         "Use browser reproduction only after source coverage reports a concrete UI issue that needs confirmation."
       ],
-      "evidenceOutcome": "Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear formal runtime/provider/admin truth gates.",
+      "evidenceOutcome": "Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear deployed route, provider-backed site activity, or admin source activity sample gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "evidenceCompleteness",
@@ -381,7 +381,7 @@
         "Keep external billing observation as owner_review until a human-owned billing artifact exists.",
         "Do not add cloud/provider calls to prove cost state."
       ],
-      "evidenceOutcome": "Cost lane becomes source_inventory_complete or owner_review; does not clear formal external billing proof.",
+      "evidenceOutcome": "Cost lane becomes source_inventory_complete or owner_review; does not clear external owner-review billing evidence.",
       "scoringImpactEstimate": {
         "dimensions": [
           "costRisk",
@@ -437,7 +437,7 @@
         "no_formal_gate_clear_without_artifact",
         "no_broad_refactor"
       ],
-      "evidenceOutcome": "Monolith risk gets owner, linked routes/metrics, and split plan; does not clear formal evidence.",
+      "evidenceOutcome": "Monolith risk gets owner, linked routes/metrics, and split plan; does not clear typed evidence gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "regressionRisk",
@@ -455,9 +455,9 @@
       "id": "fake_evidence_recovery",
       "title": "Fake Evidence Recovery",
       "triggerPatterns": [
-        "source-only output claimed as runtime proof",
-        "formal gate marked passed without artifact",
-        "provider/runtime smoke claimed from local validator"
+        "source-only output claimed as provider-backed site activity or deployed route evidence",
+        "typed evidence gate marked passed without artifact",
+        "provider-backed site activity or deployed route evidence claimed from local validator"
       ],
       "sourceFiles": [
         "src/lib/debug/ai-debug-critic.ts",
@@ -476,10 +476,10 @@
       ],
       "fixes": [
         "Downgrade the claim to source-only, operator_reported, source_ready, blocked_manual, or formal_missing.",
-        "Remove any language that says local/static/source validation passed deployed runtime, provider, or admin truth proof.",
-        "Require a generated formal artifact path before any formal gate can move to Ready."
+        "Remove any language that says local/static/source validation passed deployed route evidence, provider-backed site activity, or admin source activity sample gates.",
+        "Require a generated typed evidence artifact path before any evidence gate can move to Ready."
       ],
-      "evidenceOutcome": "Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/admin truth gates.",
+      "evidenceOutcome": "Evidence claim is corrected to source-only or formal_missing; does not clear provider-backed site activity, deployed route, or admin source activity sample gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "evidenceCompleteness",
@@ -530,7 +530,7 @@
         "Connect route response, page state, and admin/debug evidence without changing payment or chat behavior.",
         "Keep missing settings unavailable instead of silently defaulting to live."
       ],
-      "evidenceOutcome": "Creator settings lane becomes wired or unavailable with exact source reason; does not clear formal beta evidence.",
+      "evidenceOutcome": "Creator settings lane becomes wired or unavailable with exact source reason; does not clear typed beta evidence gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "sourceHealth",
@@ -579,7 +579,7 @@
         "Show missing metrics as collecting or unavailable, never proven zero without source evidence.",
         "Keep admin-only publish, approval, and rotation controls out of creator surfaces."
       ],
-      "evidenceOutcome": "Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/admin truth evidence.",
+      "evidenceOutcome": "Creator drop status/metrics become source-marked or unavailable; does not clear deployed route or admin source activity sample evidence.",
       "scoringImpactEstimate": {
         "dimensions": [
           "sourceHealth",

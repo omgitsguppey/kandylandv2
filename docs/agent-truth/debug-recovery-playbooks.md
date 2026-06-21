@@ -1,11 +1,11 @@
 # Debug Recovery Playbooks
 
-Status: source-only executable recovery map for high-impact debug categories. These playbooks do not authorize production reads, deploys, payment/GumDrop math changes, chat/nav edits, or formal gate clearance without artifacts.
+Status: source-only executable recovery map for high-impact debug categories. These playbooks do not authorize production reads, deploys, payment/GumDrop math changes, chat/nav edits, or provider-backed site activity, deployed route, or admin source activity sample clearance without artifacts.
 
 ## Summary
 
 - Playbooks: 12
-- Formal gates: remain separate from source-only recovery.
+- Typed evidence gates: remain separate from source-only recovery.
 - Default forbidden actions: no production reads, no deploy, no payment/GumDrop math changes, no chat/nav edits.
 
 ## Playbooks
@@ -39,13 +39,13 @@ Forbidden actions:
 - no_formal_gate_clear_without_artifact
 - no_new_duplicate_system
 
-Evidence outcome: Produces current generated evidence or stale_retired backlog state; does not clear formal provider/runtime/manual/admin gates.
-Scoring impact: freshness, regressionRisk; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Produces current generated evidence or stale_retired backlog state; does not clear provider-backed site activity, deployed route, admin source activity sample, or external owner-review gates.
+Scoring impact: freshness, regressionRisk; estimated 2 point(s); typed evidence gates clear=false
 
 ### Debug Runtime Unknown Recovery
 
 - ID: `debug_runtime_unknown_recovery`
-- Trigger patterns: `debug runtime evidence unknown`, `runtimeHealth low with runtime_unverified`, `source-ready runtime confidence but deployed runtime smoke missing`
+- Trigger patterns: `debug runtime evidence unknown`, `runtimeHealth low with runtime_unverified`, `source-ready runtime confidence but deployed route evidence missing`
 - Source files: `src/lib/debug/debug-backlog-builder.ts`, `src/lib/debug/debug-backlog-contract.ts`, `agent/state/debug-runtime-evidence.generated.json`, `agent/state/source-backed-runtime-confidence.generated.json`
 
 Commands:
@@ -59,8 +59,8 @@ Validators:
 
 Fixes:
 - Classify unknown runtime evidence as source_ready, runtime_unverified, blocked_external, or formal_missing.
-- Connect source-ready runtime confidence to the runtime/provider smoke evidence text only as partial confidence.
-- Leave deployed runtime smoke blocked until a formal runtime-smoke artifact exists.
+- Connect source-ready runtime confidence to provider-backed site activity and deployed route evidence text only as source confidence.
+- Leave deployed route evidence blocked until a deployed-route evidence artifact exists.
 
 Forbidden actions:
 - no_production_reads
@@ -69,13 +69,13 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Runtime debug item becomes classified with exact next action; does not clear formal deployed runtime evidence.
-Scoring impact: runtimeHealth, evidenceCompleteness; estimated 3 point(s); formal gates clear=false
+Evidence outcome: Runtime debug item becomes classified with exact next action; does not clear deployed route evidence.
+Scoring impact: runtimeHealth, evidenceCompleteness; estimated 3 point(s); typed evidence gates clear=false
 
 ### Admin Truth Unknown Recovery
 
 - ID: `admin_truth_unknown_recovery`
-- Trigger patterns: `admin truth/sample evidence unknown`, `Admin Debug shows missing or unavailable source truth`, `beta cap formal admin truth sample required`
+- Trigger patterns: `admin truth/sample evidence unknown`, `Admin Debug shows missing or unavailable source truth`, `beta cap admin source activity sample required`
 - Source files: `src/lib/admin-debug-control-tower.ts`, `src/lib/admin-debug-summary-cards.ts`, `scripts/agent/validate-admin-truth-source-sample.ts`, `agent/state/admin-truth-source-sample.generated.json`
 
 Commands:
@@ -91,7 +91,7 @@ Validators:
 Fixes:
 - Keep unavailable admin truth labeled unavailable, stale, or formal_missing.
 - Wire source-truth sample evidence into Admin Debug summary only when the generated artifact is current.
-- Do not mark admin truth/sample evidence Ready unless a formal sample artifact is attached.
+- Do not mark admin source activity sample evidence Ready unless a redacted sample artifact is attached.
 
 Forbidden actions:
 - no_production_reads
@@ -100,8 +100,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Admin truth issue receives current source sample or formal_missing classification; does not clear formal admin truth gate.
-Scoring impact: evidenceCompleteness, freshness; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Admin truth issue receives current source sample or formal_missing classification; does not clear admin source activity sample gate.
+Scoring impact: evidenceCompleteness, freshness; estimated 2 point(s); typed evidence gates clear=false
 
 ### Route 500 Recovery
 
@@ -130,8 +130,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Route issue maps to typed diagnostic and validator evidence; does not clear formal runtime smoke.
-Scoring impact: runtimeHealth, regressionRisk; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Route issue maps to typed diagnostic and validator evidence; does not clear deployed route evidence.
+Scoring impact: runtimeHealth, regressionRisk; estimated 2 point(s); typed evidence gates clear=false
 
 ### Telemetry Orphan Recovery
 
@@ -161,8 +161,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Telemetry lane becomes linked, archived, or source_ready_evidence_gap; does not clear formal runtime evidence.
-Scoring impact: sourceHealth, evidenceCompleteness; estimated 3 point(s); formal gates clear=false
+Evidence outcome: Telemetry lane becomes linked, archived, or source_ready_evidence_gap; does not clear deployed route evidence.
+Scoring impact: sourceHealth, evidenceCompleteness; estimated 3 point(s); typed evidence gates clear=false
 
 ### Behavior Math Unknown Recovery
 
@@ -191,8 +191,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Behavior metric gets exact/probable/weak/unknown confidence; does not clear formal manual or runtime gates.
-Scoring impact: evidenceCompleteness, regressionRisk; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Behavior metric gets exact/probable/weak/unknown confidence; does not clear deployed route, admin source activity sample, or external owner-review gates.
+Scoring impact: evidenceCompleteness, regressionRisk; estimated 2 point(s); typed evidence gates clear=false
 
 ### Mobile Scale Residual Recovery
 
@@ -221,8 +221,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear formal runtime/provider/admin truth gates.
-Scoring impact: evidenceCompleteness, regressionRisk; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear deployed route, provider-backed site activity, or admin source activity sample gates.
+Scoring impact: evidenceCompleteness, regressionRisk; estimated 2 point(s); typed evidence gates clear=false
 
 ### Cost Owner Review Recovery
 
@@ -251,8 +251,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Cost lane becomes source_inventory_complete or owner_review; does not clear formal external billing proof.
-Scoring impact: costRisk, regressionRisk; estimated 4 point(s); formal gates clear=false
+Evidence outcome: Cost lane becomes source_inventory_complete or owner_review; does not clear external owner-review billing evidence.
+Scoring impact: costRisk, regressionRisk; estimated 4 point(s); typed evidence gates clear=false
 
 ### Monolith Growth Recovery
 
@@ -282,13 +282,13 @@ Forbidden actions:
 - no_formal_gate_clear_without_artifact
 - no_broad_refactor
 
-Evidence outcome: Monolith risk gets owner, linked routes/metrics, and split plan; does not clear formal evidence.
-Scoring impact: regressionRisk, sourceHealth; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Monolith risk gets owner, linked routes/metrics, and split plan; does not clear typed evidence gates.
+Scoring impact: regressionRisk, sourceHealth; estimated 2 point(s); typed evidence gates clear=false
 
 ### Fake Evidence Recovery
 
 - ID: `fake_evidence_recovery`
-- Trigger patterns: `source-only output claimed as runtime proof`, `formal gate marked passed without artifact`, `provider/runtime smoke claimed from local validator`
+- Trigger patterns: `source-only output claimed as provider-backed site activity or deployed route evidence`, `typed evidence gate marked passed without artifact`, `provider-backed site activity or deployed route evidence claimed from local validator`
 - Source files: `src/lib/debug/ai-debug-critic.ts`, `src/lib/agent-score/evidence-quality.ts`, `src/lib/agent-score/core.ts`, `agent/state/ai-debug-critic.generated.json`
 
 Commands:
@@ -302,8 +302,8 @@ Validators:
 
 Fixes:
 - Downgrade the claim to source-only, operator_reported, source_ready, blocked_manual, or formal_missing.
-- Remove any language that says local/static/source validation passed deployed runtime, provider, or admin truth proof.
-- Require a generated formal artifact path before any formal gate can move to Ready.
+- Remove any language that says local/static/source validation passed deployed route evidence, provider-backed site activity, or admin source activity sample gates.
+- Require a generated typed evidence artifact path before any evidence gate can move to Ready.
 
 Forbidden actions:
 - no_production_reads
@@ -312,8 +312,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/admin truth gates.
-Scoring impact: evidenceCompleteness, runtimeHealth; estimated 5 point(s); formal gates clear=false
+Evidence outcome: Evidence claim is corrected to source-only or formal_missing; does not clear provider-backed site activity, deployed route, or admin source activity sample gates.
+Scoring impact: evidenceCompleteness, runtimeHealth; estimated 5 point(s); typed evidence gates clear=false
 
 ### Creator Settings Unwired Recovery
 
@@ -342,8 +342,8 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Creator settings lane becomes wired or unavailable with exact source reason; does not clear formal beta evidence.
-Scoring impact: sourceHealth, evidenceCompleteness; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Creator settings lane becomes wired or unavailable with exact source reason; does not clear typed beta evidence gates.
+Scoring impact: sourceHealth, evidenceCompleteness; estimated 2 point(s); typed evidence gates clear=false
 
 ### Creator Drop Status Unwired Recovery
 
@@ -372,5 +372,5 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/admin truth evidence.
-Scoring impact: sourceHealth, evidenceCompleteness; estimated 2 point(s); formal gates clear=false
+Evidence outcome: Creator drop status/metrics become source-marked or unavailable; does not clear deployed route or admin source activity sample evidence.
+Scoring impact: sourceHealth, evidenceCompleteness; estimated 2 point(s); typed evidence gates clear=false
