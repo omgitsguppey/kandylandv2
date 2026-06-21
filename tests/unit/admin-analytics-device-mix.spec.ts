@@ -74,7 +74,7 @@ describe("buildAdminAnalyticsDeviceMixModel", () => {
     expect(model.sourceTruth).toBe("ga4_evidence_only");
     expect(model.freshnessState).toBe("external_evidence_required");
     expect(model.sourceLabel).toBe("Vendor evidence only");
-    expect(model.freshnessLabel).toBe("External proof required");
+    expect(model.freshnessLabel).toBe("Source evidence required");
     expect(model.truthState).toBe("degraded");
     expect(model.rows[0]?.deviceCategory).toBe("mobile");
     expect(model.rows[0]?.sessionSharePct).toBeCloseTo(9019 / 10154, 4);
