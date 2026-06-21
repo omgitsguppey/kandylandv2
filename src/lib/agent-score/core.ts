@@ -1580,6 +1580,7 @@ function launchGateStatusFrom(input: {
   if (input.launchBlockers.length === 0 && input.evidenceCompletenessScore >= 95 && input.runtimeHealthScore >= 95) {
     return "launch_ready";
   }
+  if (input.launchBlockers.length > 0) return "source_ready";
   if (input.costOwnerReview) return "owner_review";
   if (input.evidenceCompletenessScore >= 90) return "evidence_complete";
   if (input.runtimeHealthScore >= 70) return "runtime_proven";

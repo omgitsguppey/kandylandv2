@@ -175,7 +175,9 @@ describe("public beta score v2 health model", () => {
 
     expect(report.sourceHealthScore).toBeGreaterThan(70);
     expect(report.runtimeHealthScore).toBeLessThan(report.sourceHealthScore);
+    expect(report.launchGateStatus).toBe("source_ready");
     expect(report.launchGateStatus).not.toBe("launch_ready");
+    expect(report.launchGateStatus).not.toBe("owner_review");
     expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
     expect(report.overallScore).toBeGreaterThan(report.evidenceScore);
   });
