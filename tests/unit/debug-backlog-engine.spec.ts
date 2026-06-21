@@ -47,7 +47,7 @@ describe("debug backlog engine", () => {
         ],
         evidenceCapDetails: [
           "Source evidence required: Provider-backed site activity + deployed route evidence - Attach deployed route evidence; do not treat local static validators as route evidence.",
-          "Source evidence required: Admin source activity sample - Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+          "Source evidence required: Admin source activity sample - Attach a redacted admin source activity sample before clearing the admin source activity sample gate.",
           "UI source coverage required: Source coverage - Run deterministic UI source checks before optional visual reproduction.",
         ],
       },
@@ -104,7 +104,7 @@ describe("debug backlog engine", () => {
     expect(backlog.some((item) => item.source === "route_diagnostics" && item.fixClass === "route_fix")).toBe(true);
     expect(backlog.every((item) => item.owner && item.surface && item.sourceFiles.length > 0 && item.scoreDimensionImpact.length > 0)).toBe(true);
     expect(backlog.map((item) => item.title)).toEqual(expect.arrayContaining([
-      "Provider and route evidence required",
+      "Site activity evidence required",
       "Admin source activity sample required",
       "UI source coverage required",
     ]));

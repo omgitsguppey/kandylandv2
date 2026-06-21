@@ -321,18 +321,18 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
 
   if (runtime || provider) {
     return {
-      title: "Provider and route evidence required",
+      title: "Site activity evidence required",
       severity: "p1" as const,
       status: "blocked_external" as const,
       fixClass: "manual_required" as const,
       evidenceStatus: runtime ? "runtime_unverified" as const : "external_required" as const,
       owner: provider ? "provider_evidence" : "runtime_evidence",
       surface: "runtime_evidence",
-      exactNextAction: "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
+      exactNextAction: "Attach redacted site activity evidence and deployed route evidence before clearing this beta gate.",
       evidenceReason: rawReason || "Provider-backed site activity or deployed route evidence is missing.",
       sourceMessage: /operator-confirmed|operator confirmed|paypal/iu.test(cap)
-        ? "Payment context is product context only; provider-backed site activity and deployed route evidence are still required."
-        : "Provider-backed site activity and deployed route evidence are still required.",
+        ? "Payment context is product context only; site activity evidence and deployed route evidence are still required."
+        : "Site activity evidence and deployed route evidence are still required.",
     };
   }
 
@@ -345,9 +345,9 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
       evidenceStatus: "formal_missing" as const,
       owner: "admin_debug",
       surface: "admin_debug",
-      exactNextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+      exactNextAction: "Attach a redacted admin source activity sample before clearing the admin source activity sample gate.",
       evidenceReason: rawReason || "A redacted admin source activity sample is missing.",
-      sourceMessage: "Admin source sample evidence is required.",
+      sourceMessage: "Admin source activity sample evidence is required.",
     };
   }
 
@@ -522,7 +522,7 @@ function buildAdminTruthItems(adminTruthSample?: AdminTruthSampleInput | null): 
 
   return [makeItem({
     id: "admin-truth-formal-sample-required",
-    title: "Admin source sample required",
+    title: "Admin source activity sample required",
     owner: "admin_debug",
     surface: "admin_debug",
     severity: "p1",
@@ -535,10 +535,10 @@ function buildAdminTruthItems(adminTruthSample?: AdminTruthSampleInput | null): 
     sourceRoute: "/admin/debug",
     evidenceStatus: "formal_missing",
     evidenceReason: "Source-ready admin model evidence exists, but no redacted admin source activity sample is attached.",
-    exactNextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+    exactNextAction: "Attach a redacted admin source activity sample before clearing the admin source activity sample gate.",
     sourceMessage: toText(adminTruthSample.status, "admin source activity sample is source-ready only"),
     sourceValidator: "npm run check:admin-truth-source-sample",
-    blockedReason: "Redacted admin source sample evidence is required.",
+    blockedReason: "Redacted admin source activity sample evidence is required.",
   })];
 }
 

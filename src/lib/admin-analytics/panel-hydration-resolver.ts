@@ -423,7 +423,7 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
   const remainingBlockers = [
     ...liveEvidenceContribution.blocked.map((panelId) => `${panelId}: panel hydration gap`),
     ...liveEvidenceContribution.runtimeEvidenceRequired.map((panelId) => `${panelId}: deployed route evidence required`),
-    ...liveEvidenceContribution.adminTruthSourceRequired.map((panelId) => `${panelId}: admin source sample required`),
+    ...liveEvidenceContribution.adminTruthSourceRequired.map((panelId) => `${panelId}: admin source activity sample required`),
     ...liveEvidenceContribution.externalRequired.map((panelId) => `${panelId}: external source required`),
   ];
   const report: AnalyticsPanelHydrationReport = {
