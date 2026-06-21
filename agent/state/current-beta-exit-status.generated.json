@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T04:20:47.170Z",
+  "generatedAtUtc": "2026-06-21T04:28:13.558Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "864ab03d8b6e3700e1963e3fcc98e4d869ed4b23",
+  "currentHead": "cfea9add32d99eccdbc371e36934a57906f0b194",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -58,7 +58,7 @@
       },
       {
         "id": "providerSmoke",
-        "label": "Provider smoke",
+        "label": "Provider-backed site activity evidence",
         "truthState": "external_evidence_required",
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_provider_smoke_evidence",
@@ -66,11 +66,11 @@
         "captureStatus": "missing",
         "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
         "canClearGate": false,
-        "nextAction": "Attach redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+        "nextAction": "Attach redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
       },
       {
         "id": "runtimeSmoke",
-        "label": "Runtime smoke",
+        "label": "Deployed route evidence",
         "truthState": "external_evidence_required",
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_runtime_smoke_evidence",
@@ -78,11 +78,11 @@
         "captureStatus": "complete",
         "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
         "canClearGate": false,
-        "nextAction": "Attach or refresh deployed runtime smoke evidence for the current code version."
+        "nextAction": "Attach or refresh deployed route evidence for the current code version."
       },
       {
         "id": "adminTruthSample",
-        "label": "Admin truth sample",
+        "label": "Admin source sample evidence",
         "truthState": "admin_truth_source_required",
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_admin_truth_sample_evidence",
@@ -90,7 +90,7 @@
         "captureStatus": "stale",
         "sourceCommit": "6e27a8290729f24a26801bc4434e723033a5b383",
         "canClearGate": false,
-        "nextAction": "Attach or refresh a redacted admin truth sample for the current code version."
+        "nextAction": "Attach or refresh a redacted admin source sample for the current code version."
       }
     ]
   },
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-21T04:20:47.170Z",
+      "generatedAtUtc": "2026-06-21T04:28:13.558Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -449,7 +449,7 @@
       "evidence": [
         "agent/state/provider-smoke-evidence.generated.json"
       ],
-      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+      "nextAction": "Attach redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
     }
   ],
   "deferredOwnerReview": [
@@ -469,9 +469,9 @@
   "nextExactSteps": [
     "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface issue before optional browser reproduction.",
     "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
-    "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider source evidence.",
-    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime source evidence.",
-    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted production admin truth samples.",
+    "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider-backed site activity evidence.",
+    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed route evidence.",
+    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source samples.",
     "Reference agent/state/evidence-capture-status.generated.json.",
     "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked."
   ]
