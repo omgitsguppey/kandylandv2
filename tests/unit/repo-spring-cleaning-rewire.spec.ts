@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildRepoSpringCleaningRewireReport,
+  compactRepoSpringCleaningRewireReport,
   validateRepoSpringCleaningRewireReport,
 } from "../../scripts/agent/validate-repo-spring-cleaning-rewire";
 
@@ -47,8 +48,10 @@ describe("repo spring cleaning rewire inventory", () => {
       finding.findingKey === "creator-dashboard-settings-hub-fake-live-risk");
 
     expect(creatorHub?.routeOrComponent).toBe("CreatorDashboardSettingsHub");
-    expect(creatorHub?.sourceMetadataPresent).toBe(false);
-    expect(creatorHub?.brokenOrSelfLoopLinks).toBe(true);
+    expect(creatorHub?.sourceMetadataPresent).toBe(true);
+    expect(creatorHub?.brokenOrSelfLoopLinks).toBe(false);
+    expect(creatorHub?.cleanupType).toBe("keep_current_authority");
+    expect(creatorHub?.actualApiOrSource).toBe("/api/creator/settings source freshness metadata");
     expect(creatorHub?.usageEvidence.length).toBeGreaterThan(0);
   });
 
@@ -87,5 +90,26 @@ describe("repo spring cleaning rewire inventory", () => {
       "watch-time-test-contract-lock",
       "generated-report-owner-and-staleness-cleanup",
     ]));
+  });
+
+  it("keeps the persisted artifact compact while preserving full in-memory counts", () => {
+    const compact = compactRepoSpringCleaningRewireReport(REPORT, {
+      generatedReportInventoryCap: 12,
+      cleanupCandidatesCap: 8,
+    });
+
+    expect(validateRepoSpringCleaningRewireReport(REPORT)).toEqual([]);
+    expect(compact.summary).toEqual(REPORT.summary);
+    expect(compact.generatedReportInventory.length).toBeLessThan(REPORT.generatedReportInventory.length);
+    expect(compact.generatedReportInventoryTotalCount).toBe(REPORT.generatedReportInventory.length);
+    expect(compact.generatedReportInventoryEmittedCount).toBe(12);
+    expect(compact.generatedReportInventoryOmittedCount).toBe(
+      REPORT.generatedReportInventory.length - 12,
+    );
+    expect(compact.generatedReportInventoryCapReason).toContain("validated in memory");
+    expect(compact.cleanupCandidates.length).toBeLessThan(REPORT.cleanupCandidates.length);
+    expect(compact.cleanupCandidatesTotalCount).toBe(REPORT.cleanupCandidates.length);
+    expect(compact.cleanupCandidatesEmittedCount).toBe(8);
+    expect(compact.cleanupCandidatesOmittedCount).toBe(REPORT.cleanupCandidates.length - 8);
   });
 });

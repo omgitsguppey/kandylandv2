@@ -99,12 +99,20 @@ export type RepoSpringCleaningRewireReport = {
     p3Count: number;
   };
   generatedReportInventory: GeneratedReportInventoryItem[];
+  generatedReportInventoryTotalCount?: number;
+  generatedReportInventoryEmittedCount?: number;
+  generatedReportInventoryOmittedCount?: number;
+  generatedReportInventoryCapReason?: string;
   doctrineConflicts: InventoryFinding[];
   validatorConflicts: InventoryFinding[];
   legacyLaneCandidates: InventoryFinding[];
   fakeAuthorityRisks: InventoryFinding[];
   disconnectedUiSurfaces: DisconnectedUiSurfaceFinding[];
   cleanupCandidates: InventoryFinding[];
+  cleanupCandidatesTotalCount?: number;
+  cleanupCandidatesEmittedCount?: number;
+  cleanupCandidatesOmittedCount?: number;
+  cleanupCandidatesCapReason?: string;
   recommendedSections: RecommendedSection[];
   recommendedFixOrder: RecommendedFix[];
 };
@@ -137,6 +145,8 @@ const LAUNCH_READINESS_CONSUMER_PATHS = [
   "docs/agent-truth/launch-pr-triage.md",
 ];
 
+const textReadCache = new Map<string, string>();
+
 const OWNER_SCRIPT_HINTS: Record<string, string> = {
   "codebase-junk-cleanup.generated.json": "scripts/agent/scan-codebase-junk.ts",
   "public-beta-score.generated.json": "scripts/agent/score-public-beta-readiness.ts",
@@ -159,7 +169,10 @@ function normalizePath(value: string) {
 
 function readText(root: string, relativePath: string) {
   const fullPath = repoPath(root, relativePath);
-  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+  if (textReadCache.has(fullPath)) return textReadCache.get(fullPath) ?? "";
+  const source = existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+  textReadCache.set(fullPath, source);
+  return source;
 }
 
 function readJson(root: string, relativePath: string): Record<string, unknown> {
@@ -283,6 +296,9 @@ function buildUsageEvidence(root: string, trackedFiles: string[], candidate: str
 
   for (const file of trackedFiles) {
     if (file === candidate) continue;
+    if (file === "package-lock.json" || file === "tsconfig.tsbuildinfo") continue;
+    if (file.startsWith("agent/state/") || file.startsWith("agent/context/") || file.startsWith("agent/index/")) continue;
+    if (file.startsWith(".next/") || file.startsWith("coverage/") || file.startsWith("reports/")) continue;
     if (!/\.(ts|tsx|js|jsx|mjs|cjs|md|json)$/u.test(file)) continue;
     const source = readText(root, file);
     if (!source) continue;
@@ -988,31 +1004,45 @@ function buildDisconnectedUiSurfaces(root: string, trackedFiles: string[]) {
     const duplicateRoutes = matches.filter((route, index) => matches.indexOf(route) !== index);
     return duplicateRoutes.map((route) => `${file}:${route}`);
   });
+  const creatorStatsPresenceLive = creatorHub.includes("stats ? \"live\" : \"unavailable\"");
+  const creatorRepeatedDashboardLinks = (creatorHub.match(/\/dashboard\/creator/g) ?? []).length;
+  const creatorRouteHasSourceFreshness = creatorRoute.includes("sourceFreshness");
+  const creatorHasUnavailableHandling = creatorHub.includes("unavailable");
+  const creatorHasSelfLoopLinks = creatorRepeatedDashboardLinks > 1;
+  const creatorDashboardNeedsReview = creatorStatsPresenceLive || !creatorRouteHasSourceFreshness || creatorHasSelfLoopLinks;
 
   return [
     uiFinding(
       "creator-dashboard-settings-hub-fake-live-risk",
       "creator dashboard",
-      "P0",
-      "CreatorDashboardSettingsHub can mark stats live without source samples",
-      "The component marks stats live from object presence and also contains creator dashboard self-loop links.",
+      creatorDashboardNeedsReview ? "P0" : "P3",
+      creatorDashboardNeedsReview
+        ? "CreatorDashboardSettingsHub can mark stats live without source samples"
+        : "CreatorDashboardSettingsHub source freshness lane is connected",
+      creatorDashboardNeedsReview
+        ? "The component still has creator dashboard stats/source wiring that needs review."
+        : "The creator settings route now exposes source freshness and the component has unavailable handling without dashboard self-loop links.",
       [
         "src/components/Creators/CreatorDashboardSettingsHub.tsx",
         "src/app/api/creator/settings/route.ts",
       ],
       [
-        `statsPresenceLive=${creatorHub.includes("stats ? \"live\" : \"unavailable\"")}`,
-        `repeatedDashboardCreatorLinks=${(creatorHub.match(/\/dashboard\/creator/g) ?? []).length}`,
-        `routeHasSourceFreshness=${creatorRoute.includes("sourceFreshness")}`,
+        `statsPresenceLive=${creatorStatsPresenceLive}`,
+        `repeatedDashboardCreatorLinks=${creatorRepeatedDashboardLinks}`,
+        `routeHasSourceFreshness=${creatorRouteHasSourceFreshness}`,
       ],
-      "needs_human_review",
-      "Add source/sample metadata and replace self-loop links with usable settings, broadcast, profile, or analytics destinations.",
+      creatorDashboardNeedsReview ? "needs_human_review" : "keep_current_authority",
+      creatorDashboardNeedsReview
+        ? "Add source/sample metadata and replace self-loop links with usable settings, broadcast, profile, or analytics destinations."
+        : "Keep the connected source-freshness mapping; rerun this inventory if the creator settings contract changes.",
       "CreatorDashboardSettingsHub",
       "Creator settings API with source freshness/sample metadata",
-      "/api/creator/settings stats object presence",
-      creatorRoute.includes("sourceFreshness"),
-      creatorHub.includes("unavailable"),
-      (creatorHub.match(/\/dashboard\/creator/g) ?? []).length > 1,
+      creatorDashboardNeedsReview
+        ? "/api/creator/settings stats object presence"
+        : "/api/creator/settings source freshness metadata",
+      creatorRouteHasSourceFreshness,
+      creatorHasUnavailableHandling,
+      creatorHasSelfLoopLinks,
       buildUsageEvidence(root, trackedFiles, "src/components/Creators/CreatorDashboardSettingsHub.tsx", 8),
     ),
     uiFinding(
@@ -1399,6 +1429,82 @@ function buildSummary(report: Omit<RepoSpringCleaningRewireReport, "summary">): 
   };
 }
 
+type CompactReportOptions = {
+  generatedReportInventoryCap?: number;
+  cleanupCandidatesCap?: number;
+};
+
+const DEFAULT_GENERATED_REPORT_INVENTORY_CAP = 60;
+const DEFAULT_CLEANUP_CANDIDATES_CAP = 20;
+
+const SEVERITY_RANK: Record<Severity, number> = {
+  P0: 0,
+  P1: 1,
+  P2: 2,
+  P3: 3,
+};
+
+function rankGeneratedReportInventoryItem(item: GeneratedReportInventoryItem) {
+  if (item.action === "stale_authority_risk") return 0;
+  if (item.consumedByScore || item.consumedByAdminDebug || item.consumedByLaunchReadiness) return 1;
+  if (item.freshness === "stale") return 2;
+  if (item.action === "needs_owner") return 3;
+  if (item.action === "archive_candidate") return 4;
+  return 5;
+}
+
+function rankFinding(item: InventoryFinding) {
+  if (item.cleanupType === "keep_current_authority") return 10;
+  if (item.cleanupType === "needs_human_review") return 0;
+  if (item.cleanupType === "validator_replacement_candidate") return 1;
+  if (item.cleanupType === "merge_candidate") return 2;
+  if (item.cleanupType === "duplicate_report_candidate") return 3;
+  if (item.cleanupType === "legacy_lane_candidate") return 4;
+  if (item.cleanupType === "archive_candidate") return 5;
+  return 6;
+}
+
+export function compactRepoSpringCleaningRewireReport(
+  report: RepoSpringCleaningRewireReport,
+  options: CompactReportOptions = {},
+): RepoSpringCleaningRewireReport {
+  const generatedReportInventoryCap = options.generatedReportInventoryCap
+    ?? DEFAULT_GENERATED_REPORT_INVENTORY_CAP;
+  const cleanupCandidatesCap = options.cleanupCandidatesCap
+    ?? DEFAULT_CLEANUP_CANDIDATES_CAP;
+
+  const generatedReportInventory = [...report.generatedReportInventory]
+    .sort((left, right) =>
+      rankGeneratedReportInventoryItem(left) - rankGeneratedReportInventoryItem(right)
+      || left.path.localeCompare(right.path))
+    .slice(0, generatedReportInventoryCap);
+  const cleanupCandidates = [...report.cleanupCandidates]
+    .sort((left, right) =>
+      SEVERITY_RANK[left.severity] - SEVERITY_RANK[right.severity]
+      || rankFinding(left) - rankFinding(right)
+      || left.findingKey.localeCompare(right.findingKey))
+    .slice(0, cleanupCandidatesCap);
+
+  return {
+    ...report,
+    generatedReportInventory,
+    generatedReportInventoryTotalCount: report.generatedReportInventory.length,
+    generatedReportInventoryEmittedCount: generatedReportInventory.length,
+    generatedReportInventoryOmittedCount: Math.max(
+      0,
+      report.generatedReportInventory.length - generatedReportInventory.length,
+    ),
+    generatedReportInventoryCapReason:
+      "Full inventory is validated in memory; the generated artifact keeps consumed, stale, and high-risk samples plus summary counts.",
+    cleanupCandidates,
+    cleanupCandidatesTotalCount: report.cleanupCandidates.length,
+    cleanupCandidatesEmittedCount: cleanupCandidates.length,
+    cleanupCandidatesOmittedCount: Math.max(0, report.cleanupCandidates.length - cleanupCandidates.length),
+    cleanupCandidatesCapReason:
+      "Full cleanup candidate list is validated in memory; the generated artifact keeps the highest-risk candidates plus summary counts.",
+  };
+}
+
 export function buildRepoSpringCleaningRewireReport(options: {
   root?: string;
   now?: Date;
@@ -1579,7 +1685,7 @@ function validateRepoFiles(root: string, report: RepoSpringCleaningRewireReport)
 function writeReport(root: string, report: RepoSpringCleaningRewireReport) {
   const fullPath = repoPath(root, REPORT_PATH);
   mkdirSync(dirname(fullPath), { recursive: true });
-  writeFileSync(fullPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  writeFileSync(fullPath, `${JSON.stringify(compactRepoSpringCleaningRewireReport(report), null, 2)}\n`, "utf8");
 }
 
 function main() {
