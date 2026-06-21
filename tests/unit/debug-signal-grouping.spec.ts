@@ -109,7 +109,7 @@ describe("debug signal grouping", () => {
     expect(groups.every((group) => group.count === 1 && group.hiddenByDefault === false)).toBe(true);
   });
 
-  it("groups formal gate duplicates by gate and keeps them visible as evidence work", () => {
+  it("groups formal_gate duplicates by gate and keeps them visible as typed evidence work", () => {
     const groups = groupDebugSignals([
       {
         signalId: "provider-smoke-a",
@@ -121,7 +121,7 @@ describe("debug signal grouping", () => {
         scoreDimensionsAffected: ["runtimeHealth"],
         estimatedPointImpact: 16.33,
         owner: "runtime_evidence",
-        nextAction: "Attach formal provider/runtime smoke evidence.",
+        nextAction: "Attach redacted provider-backed site activity evidence and deployed route evidence.",
         sourceFiles: ["agent/state/public-beta-score.generated.json"],
       },
       {
@@ -134,7 +134,7 @@ describe("debug signal grouping", () => {
         scoreDimensionsAffected: ["evidenceCompleteness"],
         estimatedPointImpact: 4.5,
         owner: "runtime_evidence",
-        nextAction: "Attach formal provider/runtime smoke evidence.",
+        nextAction: "Attach redacted provider-backed site activity evidence and deployed route evidence.",
         sourceFiles: ["agent/state/debug-runtime-evidence.generated.json"],
       },
     ]);
@@ -148,6 +148,8 @@ describe("debug signal grouping", () => {
       estimatedPointImpact: 16.33,
     });
     expect(groups[0].scoreDimensionsAffected).toEqual(["runtimeHealth", "evidenceCompleteness"]);
+    expect(groups[0].groupLabel).toBe("Typed evidence gate: Provider-backed site activity + deployed route evidence");
+    expect(JSON.stringify(groups)).not.toMatch(/formal provider\/runtime smoke|runtime\/provider smoke|deployed runtime smoke/iu);
     expect(validateDebugSignalGroups(groups, 2)).toEqual([]);
   });
 });

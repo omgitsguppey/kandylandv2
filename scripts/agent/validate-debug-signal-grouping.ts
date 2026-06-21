@@ -158,7 +158,7 @@ function classifyDirtyFile(path: string): DirtyFileClassification {
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-liveness-audit.md") return "documentation_artifact_expected";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
-  if (normalized === "src/lib/debug/debug-signal-grouping.ts") return "debug_grouping_source_change";
+  if (normalized === "src/lib/debug/debug-signal-grouping.ts" || normalized === "src/lib/debug/debug-signal-actionability.ts") return "debug_grouping_source_change";
   if (normalized === "src/lib/debug/debug-backlog-builder.ts" || normalized === "src/lib/debug/debug-backlog-contract.ts") return "debug_backlog_source_change";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "debug_panel_source_change";
   if (normalized === "src/lib/privacy/consent-tracking-policy.ts") return "debug_grouping_source_change";
@@ -238,7 +238,7 @@ function buildScores(finalLock: JsonRecord | null, publicBetaScore: JsonRecord |
       status: after >= 80 ? "target_met" : "below_target",
       nextExactAction: after >= 80
         ? "No score-80 action required for this dimension."
-        : text(actionMetric.nextExactAction, text(finalMetric.nextExactAction, "Work the highest grouped score-impacting signal without clearing formal gates falsely.")),
+        : text(actionMetric.nextExactAction, text(finalMetric.nextExactAction, "Work the highest grouped score-impacting signal without claiming provider-backed site activity, deployed route evidence, or admin source activity sample evidence from source-only validation.")),
     };
     scoreBefore[dimension] = before;
     scoreAfter[dimension] = after;
@@ -432,8 +432,8 @@ function renderDoc(report: DebugSignalGroupingReport) {
     "",
     "- Default debug output uses grouped root-cause signals, not raw duplicate rows.",
     "- Quiet future activity is one collapsed catalog group and is hidden from default warnings.",
-    "- Formal gates stay evidence gates and unique critical issues remain individual.",
-    "- This pass does not fake activity, fake evidence, read production data, deploy, or clear formal gates.",
+    "- Schema formal_gate groups stay typed evidence gates and unique critical issues remain individual.",
+    "- This pass does not fake activity, fake evidence, read production data, deploy, or clear provider-backed site activity, deployed route, or admin source activity sample gates.",
     "",
     "## Grouping Summary",
     "",
