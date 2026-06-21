@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T18:07:07.207Z",
-  "currentHead": "5a0432affe578dbeaa83ad87ee289b9bcc001d6f",
-  "betaScore": 76.88,
+  "generatedAtUtc": "2026-06-21T02:02:31.865Z",
+  "currentHead": "e54ddb5d808eaab37e27af564710c6ee01ec68ac",
+  "betaScore": 73.57,
   "betaStatus": "External proof required",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
@@ -13,10 +13,22 @@
   "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
   "remainingBlockers": [
     {
+      "id": "ui_source_coverage_stale",
+      "severity": "P1",
+      "status": "stale_evidence",
+      "nextAction": "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction."
+    },
+    {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
       "status": "external_evidence_required",
       "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
+    },
+    {
+      "id": "runtime_smoke_evidence_stale",
+      "severity": "P1",
+      "status": "stale_evidence",
+      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
       "id": "admin_truth_sample_evidence_missing",
@@ -41,7 +53,7 @@
     {
       "id": "ui-source-coverage",
       "title": "Run UI source coverage evidence",
-      "goal": "Let deterministic source coverage evidence report UI surface gaps before optional browser or screenshot reproduction.",
+      "goal": "Let deterministic source coverage evidence report UI surface gaps before optional browser reproduction.",
       "commands": [
         "npm run check:ui-visual-smoke-minimal",
         "npm run check:evidence-capture-status",
@@ -84,7 +96,7 @@
     {
       "id": "uiSourceCoverage",
       "label": "UI source coverage",
-      "truthState": "capture_artifact_attached",
+      "truthState": "stale_evidence",
       "sourceStatus": "complete",
       "nextAction": "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction."
     },
@@ -98,7 +110,7 @@
     {
       "id": "runtimeSmoke",
       "label": "Runtime smoke",
-      "truthState": "capture_artifact_attached",
+      "truthState": "stale_evidence",
       "sourceStatus": "complete",
       "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },

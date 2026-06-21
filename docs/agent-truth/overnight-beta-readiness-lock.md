@@ -1,12 +1,12 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-06-20T18:07:07.207Z
+Generated: 2026-06-21T02:02:31.865Z
 
-Latest code version: 5a0432affe578dbeaa83ad87ee289b9bcc001d6f
+Latest code version: e54ddb5d808eaab37e27af564710c6ee01ec68ac
 
 ## Status
 
-- Beta score: 76.88
+- Beta score: 73.57
 - Beta status: External proof required
 - Creator dashboard error status: passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2
 - Source truth status: passed; active=12; supporting=6; retiredLaunchArtifacts=3
@@ -19,15 +19,17 @@ Latest code version: 5a0432affe578dbeaa83ad87ee289b9bcc001d6f
 
 ## Evidence Truth States
 
-- UI source coverage: capture_artifact_attached (complete)
+- UI source coverage: stale_evidence (complete)
 - Provider smoke: external_evidence_required (missing)
-- Runtime smoke: capture_artifact_attached (complete)
+- Runtime smoke: stale_evidence (complete)
 - Admin truth sample: admin_truth_source_required (stale)
 - Beta exit review: blocked_by_formal_evidence
 
 ## Remaining Blockers
 
+- P1 ui_source_coverage_stale: Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction.
 - P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
+- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
 - P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 - P2 cloud_cost_owner_review: Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.
@@ -35,7 +37,7 @@ Latest code version: 5a0432affe578dbeaa83ad87ee289b9bcc001d6f
 ## Next-Day Prompts
 
 1. Run UI source coverage evidence
-   - Goal: Let deterministic source coverage evidence report UI surface gaps before optional browser or screenshot reproduction.
+   - Goal: Let deterministic source coverage evidence report UI surface gaps before optional browser reproduction.
    - Commands: npm run check:ui-visual-smoke-minimal; npm run check:evidence-capture-status; npm run check:current-beta-exit-status
 2. Attach provider and runtime smoke evidence
    - Goal: Attach redacted PayPal/GumDrop provider smoke and deployed runtime smoke artifacts.

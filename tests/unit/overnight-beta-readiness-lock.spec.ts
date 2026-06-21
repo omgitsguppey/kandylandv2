@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -111,6 +113,14 @@ function reportFixture(
 }
 
 describe("overnight beta readiness lock validator", () => {
+  it("uses source coverage language instead of screenshot checklist fallbacks", () => {
+    const source = readFileSync("scripts/agent/validate-overnight-beta-readiness-lock.ts", "utf8");
+
+    expect(source).toContain("source_surface_checks_current");
+    expect(source).not.toContain("source_only_screenshotEvidenceAttached_false");
+    expect(source).not.toContain("- Visual evidence:");
+  });
+
   it("blocks beta exit when evidence is missing", () => {
     const report = reportFixture({ betaExitReviewState: "ready_for_review" });
 
