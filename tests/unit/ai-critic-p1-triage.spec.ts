@@ -33,7 +33,7 @@ function backlogItem(overrides: Partial<DebugBacklogItem>): DebugBacklogItem {
 describe("ai critic p1 triage", () => {
   it("classifies source evidence gates away from source request changes while UI coverage remains source-refreshable", () => {
     expect(classifyBacklogAction(backlogItem({
-      exactNextAction: "Produce deployed runtime route evidence.",
+      exactNextAction: "Produce deployed route evidence.",
     }))).toBe("blocked_formal_evidence");
     expect(classifyBacklogAction(backlogItem({
       exactNextAction: "Run UI source coverage before optional visual reproduction.",
@@ -74,7 +74,7 @@ describe("ai critic p1 triage", () => {
       scoreBefore: 65.8,
       scoreAfter: 65.8,
       currentHead: "test",
-      formalEvidenceGates: ["UI source coverage", "Runtime/provider smoke"],
+      formalEvidenceGates: ["UI source coverage", "Provider-backed site activity + deployed route evidence"],
       resolvedSourceFixes: [{
         id: "source-route",
         title: "Route diagnostic mapping fixed",
@@ -93,6 +93,8 @@ describe("ai critic p1 triage", () => {
     expect(report.p1Ranking[0]?.id).toBe("manual-visual");
     expect(report.p2DeferredCount).toBe(1);
     expect(report.fixedThisPass.map((item) => item.id)).toContain("source-route");
+    expect(report.notes.join(" ")).toContain("admin source activity sample");
+    expect(report.notes.join(" ")).not.toMatch(/admin truth sample|runtime\/provider smoke|manual proof|screenshot proof/iu);
     expect(validateAiCriticP1TriageReport(report)).toEqual([]);
   });
 
@@ -112,7 +114,7 @@ describe("ai critic p1 triage", () => {
         scoreBefore: 65.8,
         scoreAfter: 65.8,
         currentHead: "test",
-        formalEvidenceGates: ["Runtime/provider smoke"],
+        formalEvidenceGates: ["Provider-backed site activity + deployed route evidence"],
       }),
       criticStatusAfter: "request_changes" as const,
     };

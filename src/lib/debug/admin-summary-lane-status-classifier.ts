@@ -110,8 +110,8 @@ export function classifyAdminSummaryLaneStatus(input: AdminSummaryLaneStatusInpu
       laneId: input.laneId,
       status: "formal_gate_required",
       displayState: "blocked",
-      reason: "Formal evidence is required and cannot be replaced by source status.",
-      nextAction: "Attach the required formal evidence artifact.",
+      reason: "A typed evidence gate is required and cannot be replaced by source status.",
+      nextAction: "Attach the lane's required typed evidence artifact before clearing this gate.",
       liveDisplayAllowed: false,
     };
   }
@@ -191,4 +191,3 @@ export function classifyAdminSummaryLaneStatus(input: AdminSummaryLaneStatusInpu
     liveDisplayAllowed: false,
   };
 }
-

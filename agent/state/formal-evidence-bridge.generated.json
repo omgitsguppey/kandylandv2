@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T13:37:30.578Z",
+  "generatedAtUtc": "2026-06-21T19:35:58.151Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "fdd95181543a028b61f1ced9d9f8b81282d3516c",
+  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -23,7 +23,7 @@
     "runtimeConfidenceScore": 100,
     "realUsageConfidenceScore": 72,
     "adminSourceConfidenceScore": 0,
-    "debugRuntimeConfidenceScore": 0,
+    "debugRuntimeConfidenceScore": 100,
     "runtimeSubstituteEvidenceScore": 75.56
   },
   "operatorSignalStatus": {
@@ -107,7 +107,7 @@
     "overallHealthScore": 89.31
   },
   "scoreDimensionImpact": {
-    "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
+    "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime route evidence.",
     "evidenceCompleteness": "Source-backed and operator-confirmed context can reduce empty-evidence language, but clearing requires matching site activity records."
   },
   "nextExactSteps": [

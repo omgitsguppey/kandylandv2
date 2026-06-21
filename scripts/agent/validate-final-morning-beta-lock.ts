@@ -286,16 +286,16 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
   ].some((status) => status !== "complete" && !/^formal_.*passed$/u.test(status ?? ""));
   const remainingBlockers = [
     evidence.formalProviderSmokeStatus === "missing_formal_evidence" || evidence.formalProviderSmokeStatus === "missing"
-      ? { id: "formal_provider_smoke_missing", severity: "P1" as const, status: evidence.formalProviderSmokeStatus ?? "missing", nextAction: "Attach formal provider/app artifact only when the operator chooses to clear provider smoke." }
+      ? { id: "formal_provider_smoke_missing", severity: "P1" as const, status: evidence.formalProviderSmokeStatus ?? "missing", nextAction: "Produce provider-backed site activity evidence only when the operator chooses to clear the provider lane." }
       : null,
     evidence.uiSourceCoverageStatus !== "complete"
       ? { id: "ui_source_coverage_missing", severity: "P1" as const, status: evidence.uiSourceCoverageStatus ?? "missing", nextAction: "Run deterministic UI source coverage and fix source-reported gaps before optional visual review." }
       : null,
     evidence.runtimeEvidenceStatus !== "complete"
-      ? { id: "runtime_evidence_missing", severity: "P1" as const, status: evidence.runtimeEvidenceStatus ?? "missing", nextAction: "Attach deployed runtime smoke evidence." }
+      ? { id: "runtime_evidence_missing", severity: "P1" as const, status: evidence.runtimeEvidenceStatus ?? "missing", nextAction: "Produce deployed route evidence." }
       : null,
     evidence.adminTruthEvidenceStatus !== "complete"
-      ? { id: "admin_truth_evidence_missing", severity: "P1" as const, status: evidence.adminTruthEvidenceStatus ?? "missing", nextAction: "Attach a redacted admin truth sample artifact." }
+      ? { id: "admin_truth_evidence_missing", severity: "P1" as const, status: evidence.adminTruthEvidenceStatus ?? "missing", nextAction: "Produce a redacted admin source activity sample artifact." }
       : null,
     staleArtifacts.length > 0
       ? { id: "stale_artifacts_need_refresh", severity: "P2" as const, status: "refresh_actions_available", nextAction: "Run listed refresh commands before relying on stale supporting reports." }
@@ -340,14 +340,14 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
       { lane: "formal_provider_smoke", status: evidence.formalProviderSmokeStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Attach formal artifact only when available." },
       { lane: "ui_source_coverage", status: evidence.uiSourceCoverageStatus ?? "missing", gateImpact: "source_validation_lane", nextAction: "Run UI source coverage before optional visual review." },
       { lane: "runtime_smoke", status: evidence.runtimeEvidenceStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Attach deployed runtime proof." },
-      { lane: "admin_truth_sample", status: evidence.adminTruthEvidenceStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Attach redacted admin truth sample." },
+      { lane: "admin_truth_sample", status: evidence.adminTruthEvidenceStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Produce redacted admin source activity sample." },
     ],
     refreshPlan,
     remainingBlockers,
     nextExactSteps: [
       "Keep operator-confirmed GumDrop revenue smoke represented as product signal only.",
       "Do not clear formal provider smoke until a formal provider/app artifact exists.",
-      "Run UI source coverage first; attach runtime smoke and admin truth sample evidence before beta exit review.",
+      "Run UI source coverage first; produce deployed route and admin source activity sample evidence before beta exit review.",
       "Use stale artifact refresh commands before relying on supporting reports.",
     ],
   };

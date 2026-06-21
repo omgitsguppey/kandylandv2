@@ -1,11 +1,11 @@
 # AI Critic P1 Triage
 
-Status: source-backed score triage for AI critic request-change cleanup. Formal/manual evidence gates remain separate and are not cleared by this pass.
+Status: source-backed score triage for AI critic request-change cleanup. Typed evidence gates and operator-context lanes remain separate and are not cleared by this pass.
 
-- Score: 73.57 -> 73.57
-- Critic status: pass -> pass
-- P1 fixed/deferred: 1/8
-- P2 deferred: 26
+- Score: 89.31 -> 89.31
+- Critic status: blocked -> blocked
+- P1 fixed/deferred: 1/7
+- P2 deferred: 25
 
 ## Fixed This Pass
 
@@ -13,17 +13,15 @@ Status: source-backed score triage for AI critic request-change cleanup. Formal/
 
 ## Top P1 Queue
 
-- 1. beta-cap-external-proof-required-runtime-provider-smoke-1: 60.45 (blocked_formal_evidence) - Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- 2. beta-cap-external-proof-required-admin-truth-sample-evidence-2: 55.11 (blocked_formal_evidence) - Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
-- 3. formal-evidence-admin-truth-sample-evidence: 11.32 (blocked_formal_evidence) - Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
-- 4. score-drag-evidencecompletenessscore: 11.32 (needs_refresh) - Work the score dimension owner lane and refresh score-80 path lock.
-- 5. formal-evidence-runtime-provider-smoke: 5.76 (blocked_formal_evidence) - Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- 6. admin-truth-formal-sample-required: 4.5 (blocked_formal_evidence) - Attach a redacted production admin truth sample before clearing the formal admin truth gate.
-- 7. debug-panel-provider-smoke: 4 (blocked_formal_evidence) - Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.
-- 8. stale-artifact-agent-state-overnight-final-integration-lock-generated-json: 2 (needs_refresh) - Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
+- 1. beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1: 91.11 (blocked_formal_evidence) - Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.
+- 2. admin-truth-formal-sample-required: 4.5 (blocked_formal_evidence) - Attach a redacted admin source activity sample before clearing the admin source sample gate.
+- 3. formal-evidence-provider-backed-site-activity-deployed-route-evidence: 4.07 (blocked_formal_evidence) - Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.
+- 4. debug-panel-provider-smoke: 4 (blocked_formal_evidence) - Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.
+- 5. debug-panel-public-beta-score: 4 (needs_refresh) - Use the canonical beta score and cap reasons as the primary Phase 1 queue.
+- 6. debug-panel-score-cap-reasons: 4 (needs_refresh) - Work the visible cap reasons in order instead of hiding them in Debug.
+- 7. stale-artifact-agent-state-overnight-final-integration-lock-generated-json: 2 (needs_refresh) - Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 
-## Formal Evidence Gates
+## Typed Evidence Gates
 
-- Runtime/provider smoke: External proof required
-- Admin truth/sample evidence: External proof required
+- Provider-backed site activity + deployed route evidence: Source evidence required
 

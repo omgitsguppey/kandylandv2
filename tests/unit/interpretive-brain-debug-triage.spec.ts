@@ -64,7 +64,7 @@ describe("interpretive brain debug triage", () => {
         gateId: "runtime-provider-smoke",
         status: "formal_artifact_missing",
         owner: "operator",
-        nextAction: "Attach formal deployed runtime/provider smoke evidence before clearing the beta gate.",
+        nextAction: "Produce provider-backed site activity and deployed route evidence before clearing the beta gate.",
       }],
       sourceEvidence: [{
         evidenceId: "source-ready",

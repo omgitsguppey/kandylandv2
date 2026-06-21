@@ -94,7 +94,7 @@ function severityWeight(severity: DebugBacklogSeverity) {
 export function classifyBacklogAction(item: Pick<DebugBacklogItem, "status" | "fixClass" | "evidenceStatus" | "exactNextAction" | "blockedReason">): AiCriticP1TriageItem["actionClass"] {
   const text = `${item.status} ${item.fixClass} ${item.evidenceStatus} ${item.exactNextAction} ${item.blockedReason ?? ""}`.toLowerCase();
   if (/ui source coverage|visual|screenshot|manual qa|manual smoke/.test(text)) return "needs_refresh";
-  if (/formal|provider|deployed runtime|runtime smoke|admin truth sample|production sample|blocked_manual|blocked_external|external_required/.test(text)) {
+  if (/formal|provider|provider-backed site activity|deployed route evidence|deployed runtime|runtime smoke|admin truth sample|admin source activity sample|production sample|blocked_manual|blocked_external|external_required/.test(text)) {
     return "blocked_formal_evidence";
   }
   if (item.evidenceStatus === "stale" || item.fixClass === "evidence_refresh") return "needs_refresh";
@@ -212,7 +212,7 @@ export function buildAiCriticP1TriageReport(input: AiCriticP1TriageInput): AiCri
     ],
     notes: [
       "AI critic request_changes was caused by stale/source-evidence items being treated as code-change work.",
-      "Provider-backed, runtime, UI source, and admin truth sample gates remain blocked until matching source records exist.",
+      "Provider-backed site activity, deployed route evidence, UI source coverage, and admin source activity sample gates remain blocked until matching source records exist.",
       "P2 work is deferred while P1 source evidence and score-impact lanes remain higher priority.",
     ],
   };

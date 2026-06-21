@@ -87,6 +87,9 @@ describe("launch blocker evidence closure", () => {
 
     expect(report.status).toBe("pass");
     expect(report.formalGatesCleared).toBe(false);
+    expect(report.blockers.runtimeProviderSmoke.label).toBe("Provider-backed site activity + deployed route evidence");
+    expect(report.blockers.runtimeProviderSmoke.currentStatus).toBe("Provider-backed site activity + deployed route evidence: Source evidence required");
+    expect(report.blockers.runtimeProviderSmoke.nextAction).toBe("Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate.");
     expect(report.blockers.runtimeProviderSmoke.classification).toBe("external_or_runtime_artifact_required");
     expect(report.blockers.runtimeProviderSmoke.sourceConfidenceStatus).toBe("source_confidence_ready");
     expect(report.blockers.runtimeProviderSmoke.operatorConfirmedReady).toBe(true);
@@ -98,6 +101,10 @@ describe("launch blocker evidence closure", () => {
     expect(report.remainingLaunchBlockers).toEqual(
       expect.arrayContaining(["formal_provider_smoke", "deployed_runtime_smoke", "production_admin_truth_sample"]),
     );
+    expect(JSON.stringify({
+      blocker: report.blockers.runtimeProviderSmoke,
+      reference: report.blockerReferenceClassification[0],
+    })).not.toMatch(/Runtime\/provider smoke|formal provider smoke|deployed runtime smoke/iu);
     expect(validateLaunchBlockerEvidenceClosureReport(report)).toEqual([]);
   });
 

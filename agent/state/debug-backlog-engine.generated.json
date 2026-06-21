@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-06-21T18:46:50.467Z",
+  "generatedAtUtc": "2026-06-21T19:42:12.778Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "96f65d3c093572d8d48861aa00f3935d824f71aa",
+  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
   "oldScore": 41.92,
   "newScore": 84,
   "publicBetaStatus": "warning",
   "readinessStatus": "Source evidence required",
   "summary": {
-    "total": 31,
+    "total": 33,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 7,
-      "p2": 23,
+      "p2": 25,
       "p3": 0,
       "info": 1
     },
     "byStatus": {
-      "open": 23,
+      "open": 25,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 1,
@@ -33,12 +33,12 @@
       "admin_truth": 2,
       "mobile_ui": 0,
       "cost": 2,
-      "evidence": 2,
+      "evidence": 4,
       "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 15,
+      "evidence_refresh": 17,
       "stale_retire": 1,
       "algorithm_refine": 0,
       "route_fix": 1,
@@ -47,18 +47,18 @@
       "manual_required": 5,
       "no_action": 1
     },
-    "open": 23,
+    "open": 25,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 2,
     "blockedExternal": 4,
     "staleRetired": 1,
     "sourceFixable": 9,
-    "evidenceRefreshable": 15,
+    "evidenceRefreshable": 17,
     "sourceTruthStates": {
       "source_backed": 0,
       "source_fixable": 8,
-      "source_refresh_required": 15,
+      "source_refresh_required": 17,
       "runtime_proof_required": 3,
       "provider_or_external_proof_required": 1,
       "admin_truth_source_required": 2,
@@ -72,19 +72,19 @@
     "p0P1GroupOpen": 4,
     "p2GroupOpen": 11,
     "p1P2GroupOpen": 15,
-    "rawP1P2SignalCount": 30,
+    "rawP1P2SignalCount": 32,
     "groupedSignalCount": 16,
     "defaultVisibleGroups": 16,
     "hiddenByDefaultGroups": 0,
-    "defaultVisible": 31,
+    "defaultVisible": 33,
     "hiddenByDefault": 0,
     "quietFutureActivity": 0,
     "duplicateSignalsCollapsed": 0,
     "formalGates": 6,
-    "scoreImpacting": 31,
+    "scoreImpacting": 33,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 25,
+      "score_impacting": 27,
       "evidence_required": 0,
       "formal_gate": 6,
       "quiet_future_activity": 0,
@@ -95,17 +95,17 @@
     }
   },
   "actionabilitySummary": {
-    "totalSignals": 31,
-    "uniqueSignals": 31,
-    "defaultVisibleCount": 31,
+    "totalSignals": 33,
+    "uniqueSignals": 33,
+    "defaultVisibleCount": 33,
     "hiddenByDefaultCount": 0,
     "quietFutureActivityCount": 0,
     "duplicateSignalCount": 0,
     "formalGateCount": 6,
-    "scoreImpactingCount": 31,
+    "scoreImpactingCount": 33,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 25,
+      "score_impacting": 27,
       "evidence_required": 0,
       "formal_gate": 6,
       "quiet_future_activity": 0,
@@ -560,6 +560,42 @@
         "duplicateChildren": []
       },
       {
+        "signalId": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+        "sourceFiles": [
+          "agent/state/beta-evidence-gap-map.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-gap-map-was-generated-from-an-older-code-version-refresh-this-repo",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+        "sourceFiles": [
+          "agent/state/current-beta-exit-status.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
+        "duplicateChildren": []
+      },
+      {
         "signalId": "score-drag-freshnessscore",
         "signalType": "beta_score",
         "severity": "p2",
@@ -752,7 +788,7 @@
       ],
       "sourceRoute": "agent/state/public-beta-score.generated.json",
       "evidenceStatus": "runtime_unverified",
-      "evidenceReason": "Produce provider-backed site activity and keep deployed runtime route evidence current.",
+      "evidenceReason": "Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
       "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
       "sourceMessage": "Provider-backed site activity and deployed route evidence are still required.",
       "sourceValidator": "npm run check:beta-score",
@@ -934,7 +970,9 @@
       "estimatedPointImpact": 2,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
-      "duplicateChildren": []
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json"
+      ]
     },
     {
       "id": "score-drag-costriskscore",
@@ -1557,6 +1595,62 @@
       "estimatedPointImpact": 1,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|route_diagnostics|admin_debug|runtimeHealth,regressionRisk|inspect-the-route-diagnostic-owner-and-fix-the-route-source-or-keep-the-warning-",
+      "duplicateChildren": []
+    },
+    {
+      "id": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
+      "title": "Refresh stale artifact: agent/state/beta-evidence-gap-map.generated.json",
+      "owner": "evidence",
+      "surface": "agent_state",
+      "severity": "p2",
+      "source": "evidence",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 1,
+      "sourceFiles": [
+        "agent/state/beta-evidence-gap-map.generated.json"
+      ],
+      "sourceRoute": "agent/state/beta-evidence-gap-map.generated.json",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
+      "exactNextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "sourceMessage": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
+      "refreshCommand": "npm run check:beta-evidence-gap-map",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-gap-map-was-generated-from-an-older-code-version-refresh-this-repo",
+      "duplicateChildren": []
+    },
+    {
+      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
+      "owner": "evidence",
+      "surface": "agent_state",
+      "severity": "p2",
+      "source": "evidence",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 1,
+      "sourceFiles": [
+        "agent/state/current-beta-exit-status.generated.json"
+      ],
+      "sourceRoute": "agent/state/current-beta-exit-status.generated.json",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "sourceMessage": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "refreshCommand": "npm run check:current-beta-exit-status",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
       "duplicateChildren": []
     },
     {

@@ -30,5 +30,29 @@ describe("canonical business truth status", () => {
     expect(result.purchaseSourceClass).toBe("operator_confirmed_provider_formal_missing");
     expect(result.watchSourceClass).toBe("valid_watch_time");
     expect(result.watchMetricCanUsePageTime).toBe(false);
+    expect(result.nextAction).toContain("admin source activity sample");
+    expect(result.nextAction).not.toMatch(/first-party admin truth|formal gate|manual proof|screenshot proof/iu);
+  });
+
+  it("keeps admin sample compatibility status while rendering typed evidence gate copy", () => {
+    const result = classifyCanonicalBusinessTruthStatus({
+      generatedAt: Date.now() - 10 * 60_000,
+      sourceFreshness: "current",
+      sourceTruth: "canonical",
+      confidenceScore: 92,
+      totalUsers: 864,
+      verifiedPurchases: 67,
+      totalRevenueUsd: 573,
+      trackedUnwraps: 210,
+      validWatchTimeMs: 21 * 60_000,
+      formalAdminSampleStatus: "missing_formal_artifact",
+      watchTimeSource: "valid_watch_time",
+    });
+
+    expect(result.formalAdminSampleRequired).toBe(true);
+    expect(result.freshnessCause).toBe("admin source activity sample missing");
+    expect(result.freshnessExplanation).toContain("admin source activity sample evidence");
+    expect(result.nextAction).toBe("Produce a redacted admin source activity sample before clearing the typed evidence gate.");
+    expect(`${result.freshnessExplanation} ${result.nextAction}`).not.toMatch(/first-party admin truth|formal gate|manual proof|screenshot proof/iu);
   });
 });

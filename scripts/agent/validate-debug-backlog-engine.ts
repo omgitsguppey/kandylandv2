@@ -239,9 +239,9 @@ function writeDoc(report: ReturnType<typeof buildReport>) {
     "## Strict Gates",
     "",
     "- The engine does not clear beta exit readiness.",
-    "- Formal provider smoke remains blocked without formal artifact.",
-    "- Deployed runtime smoke remains blocked without deployed runtime proof.",
-    "- Admin truth sample remains blocked until a redacted first-party sample is attached.",
+    "- Provider-backed site activity evidence remains blocked without its typed evidence artifact.",
+    "- Deployed route evidence remains blocked without deployed route evidence.",
+    "- Admin source activity sample remains blocked until a redacted source activity sample is attached.",
   ];
   writeFileSync(docPath, `${lines.join("\n")}\n`, "utf8");
 }

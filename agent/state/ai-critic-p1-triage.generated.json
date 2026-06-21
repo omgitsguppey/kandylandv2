@@ -1,26 +1,26 @@
 {
-  "generatedAtUtc": "2026-06-21T03:25:26.722Z",
+  "generatedAtUtc": "2026-06-21T19:40:30.254Z",
   "reportKey": "ai-critic-p1-triage",
-  "currentHead": "bb7e2c67c3df73feccad7418321e51101d1f86e4",
-  "scoreBefore": 73.57,
-  "scoreAfter": 73.57,
-  "criticStatusBefore": "pass",
-  "criticStatusAfter": "pass",
-  "p1Count": 8,
-  "p2Count": 26,
+  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
+  "scoreBefore": 89.31,
+  "scoreAfter": 89.31,
+  "criticStatusBefore": "blocked",
+  "criticStatusAfter": "blocked",
+  "p1Count": 7,
+  "p2Count": 25,
   "p1FixedCount": 1,
-  "p1DeferredCount": 8,
-  "p2DeferredCount": 26,
+  "p1DeferredCount": 7,
+  "p2DeferredCount": 25,
   "p1Ranking": [
     {
       "rank": 1,
-      "id": "beta-cap-external-proof-required-runtime-provider-smoke-1",
-      "title": "Runtime and provider proof required",
+      "id": "beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1",
+      "title": "Provider and route evidence required",
       "severity": "p1",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
-      "scoreImpact": 60.45,
-      "weightedScoreImpact": 241.8,
+      "scoreImpact": 91.11,
+      "weightedScoreImpact": 364.44,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -29,103 +29,15 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ]
     },
     {
       "rank": 2,
-      "id": "beta-cap-external-proof-required-admin-truth-sample-evidence-2",
-      "title": "Admin truth sample required",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 55.11,
-      "weightedScoreImpact": 220.44,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 3,
-      "id": "formal-evidence-admin-truth-sample-evidence",
-      "title": "Admin truth sample required",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 11.32,
-      "weightedScoreImpact": 45.28,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceFiles": [
-        "admin_truth_sample_evidence"
-      ]
-    },
-    {
-      "rank": 4,
-      "id": "score-drag-evidencecompletenessscore",
-      "title": "Score drag: evidenceCompletenessScore",
-      "severity": "p1",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "scoreImpact": 11.32,
-      "weightedScoreImpact": 45.28,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 5,
-      "id": "formal-evidence-runtime-provider-smoke",
-      "title": "Runtime and provider proof required",
-      "severity": "p1",
-      "owner": "provider_evidence",
-      "surface": "runtime_evidence",
-      "scoreImpact": 5.76,
-      "weightedScoreImpact": 23.04,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "runtime_provider_smoke"
-      ]
-    },
-    {
-      "rank": 6,
       "id": "admin-truth-formal-sample-required",
-      "title": "Admin truth sample requires formal proof",
+      "title": "Admin source sample required",
       "severity": "p1",
       "owner": "admin_debug",
       "surface": "admin_debug",
@@ -139,14 +51,36 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth gate.",
+      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
       "sourceFiles": [
         "agent/state/admin-truth-source-sample.generated.json",
         "src/lib/admin-debug-control-tower.ts"
       ]
     },
     {
-      "rank": 7,
+      "rank": 3,
+      "id": "formal-evidence-provider-backed-site-activity-deployed-route-evidence",
+      "title": "Provider and route evidence required",
+      "severity": "p1",
+      "owner": "provider_evidence",
+      "surface": "runtime_evidence",
+      "scoreImpact": 4.07,
+      "weightedScoreImpact": 16.28,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
+      "sourceFiles": [
+        "provider_backed_site_activity_deployed_route_evidence"
+      ]
+    },
+    {
+      "rank": 4,
       "id": "debug-panel-provider-smoke",
       "title": "Provider smoke",
       "severity": "p1",
@@ -162,13 +96,57 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.",
       "sourceFiles": [
         "agent/state/provider-smoke-evidence.generated.json"
       ]
     },
     {
-      "rank": 8,
+      "rank": 5,
+      "id": "debug-panel-public-beta-score",
+      "title": "Public beta score",
+      "severity": "p1",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 4,
+      "weightedScoreImpact": 16,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 6,
+      "id": "debug-panel-score-cap-reasons",
+      "title": "Score cap reasons",
+      "severity": "p1",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 4,
+      "weightedScoreImpact": 16,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 7,
       "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
       "title": "Stale artifact: agent/state/overnight-final-integration-lock.generated.json",
       "severity": "p1",
@@ -198,8 +176,8 @@
       "severity": "p2",
       "owner": "cost",
       "surface": "cost",
-      "scoreImpact": 5.8,
-      "weightedScoreImpact": 17.4,
+      "scoreImpact": 5.22,
+      "weightedScoreImpact": 15.66,
       "fixClass": "cost_guard",
       "actionClass": "needs_code_change",
       "sourceFixable": true,
@@ -220,8 +198,8 @@
       "severity": "p2",
       "owner": "runtime_evidence",
       "surface": "beta_score",
-      "scoreImpact": 5.76,
-      "weightedScoreImpact": 17.28,
+      "scoreImpact": 4.07,
+      "weightedScoreImpact": 12.21,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -230,57 +208,13 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "exactNextAction": "Attach deployed route evidence before treating runtime health as current.",
       "sourceFiles": [
         "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
       "rank": 3,
-      "id": "score-drag-freshnessscore",
-      "title": "Score drag: freshnessScore",
-      "severity": "p2",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "scoreImpact": 3.66,
-      "weightedScoreImpact": 10.98,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 4,
-      "id": "score-drag-sourcehealthscore",
-      "title": "Score drag: sourceHealthScore",
-      "severity": "p2",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "scoreImpact": 2.08,
-      "weightedScoreImpact": 6.24,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 5,
       "id": "cost-cost-risk-0",
       "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "severity": "p2",
@@ -302,7 +236,7 @@
       ]
     },
     {
-      "rank": 6,
+      "rank": 4,
       "id": "telemetry-lane-telemetry-lane-admin-snapshots",
       "title": "Telemetry lane needs closure: telemetry-lane-admin-snapshots",
       "severity": "p2",
@@ -324,7 +258,7 @@
       ]
     },
     {
-      "rank": 7,
+      "rank": 5,
       "id": "telemetry-lane-telemetry-lane-bigquery-export",
       "title": "Telemetry lane needs closure: telemetry-lane-bigquery-export",
       "severity": "p2",
@@ -346,7 +280,7 @@
       ]
     },
     {
-      "rank": 8,
+      "rank": 6,
       "id": "telemetry-lane-telemetry-lane-ingest",
       "title": "Telemetry lane needs closure: telemetry-lane-ingest",
       "severity": "p2",
@@ -368,7 +302,7 @@
       ]
     },
     {
-      "rank": 9,
+      "rank": 7,
       "id": "telemetry-lane-telemetry-lane-materializers",
       "title": "Telemetry lane needs closure: telemetry-lane-materializers",
       "severity": "p2",
@@ -390,7 +324,7 @@
       ]
     },
     {
-      "rank": 10,
+      "rank": 8,
       "id": "telemetry-lane-telemetry-lane-user-events",
       "title": "Telemetry lane needs closure: telemetry-lane-user-events",
       "severity": "p2",
@@ -412,7 +346,7 @@
       ]
     },
     {
-      "rank": 11,
+      "rank": 9,
       "id": "telemetry-lane-telemetry-lane-watch-time",
       "title": "Telemetry lane needs closure: telemetry-lane-watch-time",
       "severity": "p2",
@@ -434,6 +368,50 @@
       ]
     },
     {
+      "rank": 10,
+      "id": "formal-evidence-admin-source-activity-sample-evidence",
+      "title": "Admin source activity sample required",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1.76,
+      "weightedScoreImpact": 5.28,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+      "sourceFiles": [
+        "admin_source_activity_sample_evidence"
+      ]
+    },
+    {
+      "rank": 11,
+      "id": "score-drag-evidencecompletenessscore",
+      "title": "Score drag: evidenceCompletenessScore",
+      "severity": "p2",
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 1.76,
+      "weightedScoreImpact": 5.28,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ]
+    },
+    {
       "rank": 12,
       "id": "debug-panel-admin-truth-samples",
       "title": "Admin truth samples",
@@ -450,7 +428,7 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+      "exactNextAction": "Attach a fresh redacted admin source activity sample before upgrading this gate.",
       "sourceFiles": [
         "agent/state/admin-truth-sample-evidence.generated.json"
       ]
@@ -482,6 +460,7 @@
         "agent/state/device-layout-score.generated.json",
         "agent/state/hydration-performance.generated.json",
         "agent/state/sitewide-image-optimization.generated.json",
+        "agent/state/google-cost-bleed.generated.json",
         "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
         "agent/state/sql-mirror-status.generated.json",
         "agent/state/telemetry-parity-score.generated.json",
@@ -515,28 +494,6 @@
     },
     {
       "rank": 15,
-      "id": "debug-panel-public-beta-score",
-      "title": "Public beta score",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 16,
       "id": "debug-panel-report-content-protection",
       "title": "Generated report freshness: content protection",
       "severity": "p2",
@@ -563,7 +520,7 @@
       ]
     },
     {
-      "rank": 17,
+      "rank": 16,
       "id": "debug-panel-report-public-beta-score",
       "title": "Generated report freshness: public beta score",
       "severity": "p2",
@@ -585,7 +542,7 @@
       ]
     },
     {
-      "rank": 18,
+      "rank": 17,
       "id": "debug-panel-runtime-evidence",
       "title": "Runtime evidence",
       "severity": "p2",
@@ -601,35 +558,13 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+      "exactNextAction": "Attach current deployed route evidence before marking provider-backed site activity + deployed route evidence complete.",
       "sourceFiles": [
         "agent/state/runtime-smoke-evidence.generated.json"
       ]
     },
     {
-      "rank": 19,
-      "id": "debug-panel-score-cap-reasons",
-      "title": "Score cap reasons",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 20,
+      "rank": 18,
       "id": "debug-panel-system-health",
       "title": "System health",
       "severity": "p2",
@@ -651,7 +586,7 @@
       ]
     },
     {
-      "rank": 21,
+      "rank": 19,
       "id": "debug-panel-targeted-behavior-evidence",
       "title": "Targeted behavior evidence",
       "severity": "p2",
@@ -673,7 +608,29 @@
       ]
     },
     {
-      "rank": 22,
+      "rank": 20,
+      "id": "route-diagnostic-targeted-behavior-evidence",
+      "title": "Targeted behavior evidence only proves focused validators; it does not prove visual confirmation, provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1,
+      "weightedScoreImpact": 3,
+      "fixClass": "route_fix",
+      "actionClass": "needs_code_change",
+      "sourceFixable": true,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
+      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
+      "sourceFiles": [
+        "agent/state/targeted-behavior-evidence.generated.json"
+      ]
+    },
+    {
+      "rank": 21,
       "id": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
       "title": "Refresh stale artifact: agent/state/beta-evidence-gap-map.generated.json",
       "severity": "p2",
@@ -695,9 +652,9 @@
       ]
     },
     {
-      "rank": 23,
-      "id": "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
+      "rank": 22,
+      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
       "severity": "p2",
       "owner": "evidence",
       "surface": "agent_state",
@@ -711,20 +668,42 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
       "sourceFiles": [
-        "agent/state/beta-evidence-lane-prep.generated.json"
+        "agent/state/current-beta-exit-status.generated.json"
+      ]
+    },
+    {
+      "rank": 23,
+      "id": "score-drag-freshnessscore",
+      "title": "Score drag: freshnessScore",
+      "severity": "p2",
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 0.97,
+      "weightedScoreImpact": 2.91,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
       "rank": 24,
-      "id": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/mobile-ui-final-lock.generated.json",
+      "id": "score-drag-sourcehealthscore",
+      "title": "Score drag: sourceHealthScore",
       "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 0.62,
+      "weightedScoreImpact": 1.86,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -733,35 +712,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceFiles": [
-        "agent/state/mobile-ui-final-lock.generated.json"
+        "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
       "rank": 25,
-      "id": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
-      "title": "Refresh stale artifact: agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-      "sourceFiles": [
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-      ]
-    },
-    {
-      "rank": 26,
       "id": "score-drag-regressionriskscore",
       "title": "Score drag: regressionRiskScore",
       "severity": "p2",
@@ -810,13 +767,13 @@
   "deferred": [
     {
       "rank": 1,
-      "id": "beta-cap-external-proof-required-runtime-provider-smoke-1",
-      "title": "Runtime and provider proof required",
+      "id": "beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1",
+      "title": "Provider and route evidence required",
       "severity": "p1",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
-      "scoreImpact": 60.45,
-      "weightedScoreImpact": 241.8,
+      "scoreImpact": 91.11,
+      "weightedScoreImpact": 364.44,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -825,103 +782,15 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ]
     },
     {
       "rank": 2,
-      "id": "beta-cap-external-proof-required-admin-truth-sample-evidence-2",
-      "title": "Admin truth sample required",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 55.11,
-      "weightedScoreImpact": 220.44,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 3,
-      "id": "formal-evidence-admin-truth-sample-evidence",
-      "title": "Admin truth sample required",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 11.32,
-      "weightedScoreImpact": 45.28,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceFiles": [
-        "admin_truth_sample_evidence"
-      ]
-    },
-    {
-      "rank": 4,
-      "id": "score-drag-evidencecompletenessscore",
-      "title": "Score drag: evidenceCompletenessScore",
-      "severity": "p1",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "scoreImpact": 11.32,
-      "weightedScoreImpact": 45.28,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 5,
-      "id": "formal-evidence-runtime-provider-smoke",
-      "title": "Runtime and provider proof required",
-      "severity": "p1",
-      "owner": "provider_evidence",
-      "surface": "runtime_evidence",
-      "scoreImpact": 5.76,
-      "weightedScoreImpact": 23.04,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "runtime_provider_smoke"
-      ]
-    },
-    {
-      "rank": 6,
       "id": "admin-truth-formal-sample-required",
-      "title": "Admin truth sample requires formal proof",
+      "title": "Admin source sample required",
       "severity": "p1",
       "owner": "admin_debug",
       "surface": "admin_debug",
@@ -935,14 +804,36 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth gate.",
+      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
       "sourceFiles": [
         "agent/state/admin-truth-source-sample.generated.json",
         "src/lib/admin-debug-control-tower.ts"
       ]
     },
     {
-      "rank": 7,
+      "rank": 3,
+      "id": "formal-evidence-provider-backed-site-activity-deployed-route-evidence",
+      "title": "Provider and route evidence required",
+      "severity": "p1",
+      "owner": "provider_evidence",
+      "surface": "runtime_evidence",
+      "scoreImpact": 4.07,
+      "weightedScoreImpact": 16.28,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
+      "sourceFiles": [
+        "provider_backed_site_activity_deployed_route_evidence"
+      ]
+    },
+    {
+      "rank": 4,
       "id": "debug-panel-provider-smoke",
       "title": "Provider smoke",
       "severity": "p1",
@@ -958,13 +849,57 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.",
       "sourceFiles": [
         "agent/state/provider-smoke-evidence.generated.json"
       ]
     },
     {
-      "rank": 8,
+      "rank": 5,
+      "id": "debug-panel-public-beta-score",
+      "title": "Public beta score",
+      "severity": "p1",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 4,
+      "weightedScoreImpact": 16,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 6,
+      "id": "debug-panel-score-cap-reasons",
+      "title": "Score cap reasons",
+      "severity": "p1",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 4,
+      "weightedScoreImpact": 16,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 7,
       "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
       "title": "Stale artifact: agent/state/overnight-final-integration-lock.generated.json",
       "severity": "p1",
@@ -992,8 +927,8 @@
       "severity": "p2",
       "owner": "cost",
       "surface": "cost",
-      "scoreImpact": 5.8,
-      "weightedScoreImpact": 17.4,
+      "scoreImpact": 5.22,
+      "weightedScoreImpact": 15.66,
       "fixClass": "cost_guard",
       "actionClass": "needs_code_change",
       "sourceFixable": true,
@@ -1014,8 +949,8 @@
       "severity": "p2",
       "owner": "runtime_evidence",
       "surface": "beta_score",
-      "scoreImpact": 5.76,
-      "weightedScoreImpact": 17.28,
+      "scoreImpact": 4.07,
+      "weightedScoreImpact": 12.21,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -1024,57 +959,13 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "exactNextAction": "Attach deployed route evidence before treating runtime health as current.",
       "sourceFiles": [
         "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
       "rank": 3,
-      "id": "score-drag-freshnessscore",
-      "title": "Score drag: freshnessScore",
-      "severity": "p2",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "scoreImpact": 3.66,
-      "weightedScoreImpact": 10.98,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 4,
-      "id": "score-drag-sourcehealthscore",
-      "title": "Score drag: sourceHealthScore",
-      "severity": "p2",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "scoreImpact": 2.08,
-      "weightedScoreImpact": 6.24,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 5,
       "id": "cost-cost-risk-0",
       "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "severity": "p2",
@@ -1096,7 +987,7 @@
       ]
     },
     {
-      "rank": 6,
+      "rank": 4,
       "id": "telemetry-lane-telemetry-lane-admin-snapshots",
       "title": "Telemetry lane needs closure: telemetry-lane-admin-snapshots",
       "severity": "p2",
@@ -1118,7 +1009,7 @@
       ]
     },
     {
-      "rank": 7,
+      "rank": 5,
       "id": "telemetry-lane-telemetry-lane-bigquery-export",
       "title": "Telemetry lane needs closure: telemetry-lane-bigquery-export",
       "severity": "p2",
@@ -1140,7 +1031,7 @@
       ]
     },
     {
-      "rank": 8,
+      "rank": 6,
       "id": "telemetry-lane-telemetry-lane-ingest",
       "title": "Telemetry lane needs closure: telemetry-lane-ingest",
       "severity": "p2",
@@ -1162,7 +1053,7 @@
       ]
     },
     {
-      "rank": 9,
+      "rank": 7,
       "id": "telemetry-lane-telemetry-lane-materializers",
       "title": "Telemetry lane needs closure: telemetry-lane-materializers",
       "severity": "p2",
@@ -1184,7 +1075,7 @@
       ]
     },
     {
-      "rank": 10,
+      "rank": 8,
       "id": "telemetry-lane-telemetry-lane-user-events",
       "title": "Telemetry lane needs closure: telemetry-lane-user-events",
       "severity": "p2",
@@ -1206,7 +1097,7 @@
       ]
     },
     {
-      "rank": 11,
+      "rank": 9,
       "id": "telemetry-lane-telemetry-lane-watch-time",
       "title": "Telemetry lane needs closure: telemetry-lane-watch-time",
       "severity": "p2",
@@ -1228,6 +1119,50 @@
       ]
     },
     {
+      "rank": 10,
+      "id": "formal-evidence-admin-source-activity-sample-evidence",
+      "title": "Admin source activity sample required",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1.76,
+      "weightedScoreImpact": 5.28,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+      "sourceFiles": [
+        "admin_source_activity_sample_evidence"
+      ]
+    },
+    {
+      "rank": 11,
+      "id": "score-drag-evidencecompletenessscore",
+      "title": "Score drag: evidenceCompletenessScore",
+      "severity": "p2",
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 1.76,
+      "weightedScoreImpact": 5.28,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ]
+    },
+    {
       "rank": 12,
       "id": "debug-panel-admin-truth-samples",
       "title": "Admin truth samples",
@@ -1244,7 +1179,7 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+      "exactNextAction": "Attach a fresh redacted admin source activity sample before upgrading this gate.",
       "sourceFiles": [
         "agent/state/admin-truth-sample-evidence.generated.json"
       ]
@@ -1276,6 +1211,7 @@
         "agent/state/device-layout-score.generated.json",
         "agent/state/hydration-performance.generated.json",
         "agent/state/sitewide-image-optimization.generated.json",
+        "agent/state/google-cost-bleed.generated.json",
         "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
         "agent/state/sql-mirror-status.generated.json",
         "agent/state/telemetry-parity-score.generated.json",
@@ -1309,28 +1245,6 @@
     },
     {
       "rank": 15,
-      "id": "debug-panel-public-beta-score",
-      "title": "Public beta score",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 16,
       "id": "debug-panel-report-content-protection",
       "title": "Generated report freshness: content protection",
       "severity": "p2",
@@ -1357,7 +1271,7 @@
       ]
     },
     {
-      "rank": 17,
+      "rank": 16,
       "id": "debug-panel-report-public-beta-score",
       "title": "Generated report freshness: public beta score",
       "severity": "p2",
@@ -1379,7 +1293,7 @@
       ]
     },
     {
-      "rank": 18,
+      "rank": 17,
       "id": "debug-panel-runtime-evidence",
       "title": "Runtime evidence",
       "severity": "p2",
@@ -1395,35 +1309,13 @@
       "manualOnly": true,
       "status": "deferred",
       "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+      "exactNextAction": "Attach current deployed route evidence before marking provider-backed site activity + deployed route evidence complete.",
       "sourceFiles": [
         "agent/state/runtime-smoke-evidence.generated.json"
       ]
     },
     {
-      "rank": 19,
-      "id": "debug-panel-score-cap-reasons",
-      "title": "Score cap reasons",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 20,
+      "rank": 18,
       "id": "debug-panel-system-health",
       "title": "System health",
       "severity": "p2",
@@ -1445,7 +1337,7 @@
       ]
     },
     {
-      "rank": 21,
+      "rank": 19,
       "id": "debug-panel-targeted-behavior-evidence",
       "title": "Targeted behavior evidence",
       "severity": "p2",
@@ -1467,7 +1359,29 @@
       ]
     },
     {
-      "rank": 22,
+      "rank": 20,
+      "id": "route-diagnostic-targeted-behavior-evidence",
+      "title": "Targeted behavior evidence only proves focused validators; it does not prove visual confirmation, provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1,
+      "weightedScoreImpact": 3,
+      "fixClass": "route_fix",
+      "actionClass": "needs_code_change",
+      "sourceFixable": true,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
+      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
+      "sourceFiles": [
+        "agent/state/targeted-behavior-evidence.generated.json"
+      ]
+    },
+    {
+      "rank": 21,
       "id": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
       "title": "Refresh stale artifact: agent/state/beta-evidence-gap-map.generated.json",
       "severity": "p2",
@@ -1489,9 +1403,9 @@
       ]
     },
     {
-      "rank": 23,
-      "id": "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
+      "rank": 22,
+      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
       "severity": "p2",
       "owner": "evidence",
       "surface": "agent_state",
@@ -1505,20 +1419,42 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
       "sourceFiles": [
-        "agent/state/beta-evidence-lane-prep.generated.json"
+        "agent/state/current-beta-exit-status.generated.json"
+      ]
+    },
+    {
+      "rank": 23,
+      "id": "score-drag-freshnessscore",
+      "title": "Score drag: freshnessScore",
+      "severity": "p2",
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 0.97,
+      "weightedScoreImpact": 2.91,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
       "rank": 24,
-      "id": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/mobile-ui-final-lock.generated.json",
+      "id": "score-drag-sourcehealthscore",
+      "title": "Score drag: sourceHealthScore",
       "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 0.62,
+      "weightedScoreImpact": 1.86,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -1527,35 +1463,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceFiles": [
-        "agent/state/mobile-ui-final-lock.generated.json"
+        "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
       "rank": 25,
-      "id": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
-      "title": "Refresh stale artifact: agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-      "sourceFiles": [
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-      ]
-    },
-    {
-      "rank": 26,
       "id": "score-drag-regressionriskscore",
       "title": "Score drag: regressionRiskScore",
       "severity": "p2",
@@ -1578,21 +1492,19 @@
     }
   ],
   "topRemainingScoreDrag": [
-    "beta-cap-external-proof-required-runtime-provider-smoke-1: 60.45 (blocked_formal_evidence)",
-    "beta-cap-external-proof-required-admin-truth-sample-evidence-2: 55.11 (blocked_formal_evidence)",
-    "formal-evidence-admin-truth-sample-evidence: 11.32 (blocked_formal_evidence)",
-    "score-drag-evidencecompletenessscore: 11.32 (needs_refresh)",
-    "formal-evidence-runtime-provider-smoke: 5.76 (blocked_formal_evidence)",
+    "beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1: 91.11 (blocked_formal_evidence)",
     "admin-truth-formal-sample-required: 4.5 (blocked_formal_evidence)",
+    "formal-evidence-provider-backed-site-activity-deployed-route-evidence: 4.07 (blocked_formal_evidence)",
     "debug-panel-provider-smoke: 4 (blocked_formal_evidence)",
+    "debug-panel-public-beta-score: 4 (needs_refresh)",
+    "debug-panel-score-cap-reasons: 4 (needs_refresh)",
     "stale-artifact-agent-state-overnight-final-integration-lock-generated-json: 2 (needs_refresh)"
   ],
   "duplicateSystemsTracked": true,
   "monolithRisksTracked": true,
   "fakeEvidenceBlocked": true,
   "formalEvidenceGates": [
-    "Runtime/provider smoke: External proof required",
-    "Admin truth/sample evidence: External proof required"
+    "Provider-backed site activity + deployed route evidence: Source evidence required"
   ],
   "requiredValidators": [
     "npm run check:ai-critic-p1-triage",
@@ -1603,7 +1515,7 @@
   ],
   "notes": [
     "AI critic request_changes was caused by stale/source-evidence items being treated as code-change work.",
-    "Provider-backed, runtime, UI source, and admin truth sample gates remain blocked until matching source records exist.",
+    "Provider-backed site activity, deployed route evidence, UI source coverage, and admin source activity sample gates remain blocked until matching source records exist.",
     "P2 work is deferred while P1 source evidence and score-impact lanes remain higher priority."
   ]
 }

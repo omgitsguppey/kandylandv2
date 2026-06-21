@@ -1,6 +1,8 @@
 export type PublicBetaCapDisplayState =
     | "source_only"
+    | "site_activity_evidence_required"
     | "external_proof_required"
+    | "admin_source_activity_sample_required"
     | "admin_truth_sample_required"
     | "refresh_due"
     | "review";
@@ -33,7 +35,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
             ? "Produce redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh."
             : "Produce redacted provider-backed site activity evidence and deployed route evidence.";
         return {
-            state: "external_proof_required",
+            state: "site_activity_evidence_required",
             label: "Site activity evidence required",
             detail: /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
                 ? `The payment note is product context only. ${providerProofDetail}`
@@ -43,7 +45,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
 
     if (/admin truth|sample evidence|truth sample/iu.test(normalized)) {
         return {
-            state: "admin_truth_sample_required",
+            state: "admin_source_activity_sample_required",
             label: "Admin source activity sample required",
             detail: "Produce a fresh redacted admin source activity sample before clearing this gate.",
         };
@@ -75,11 +77,15 @@ export function formatPublicBetaCapDetailForAdmin(detail?: string) {
 
 export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[]) {
     const sourceOnlyCount = displays.filter((entry) => entry.state === "source_only").length;
-    const externalProofCount = displays.filter((entry) => entry.state === "external_proof_required" || entry.state === "admin_truth_sample_required").length;
+    const typedEvidenceCount = displays.filter((entry) =>
+        entry.state === "site_activity_evidence_required"
+        || entry.state === "external_proof_required"
+        || entry.state === "admin_source_activity_sample_required"
+        || entry.state === "admin_truth_sample_required").length;
     const refreshCount = displays.filter((entry) => entry.state === "refresh_due").length;
     const reviewCount = displays.filter((entry) => entry.state === "review").length;
     const summary = [
-        externalProofCount ? `${externalProofCount} source evidence gate${externalProofCount === 1 ? "" : "s"}` : null,
+        typedEvidenceCount ? `${typedEvidenceCount} source evidence gate${typedEvidenceCount === 1 ? "" : "s"}` : null,
         refreshCount ? `${refreshCount} refresh item${refreshCount === 1 ? "" : "s"}` : null,
         sourceOnlyCount ? `${sourceOnlyCount} source check${sourceOnlyCount === 1 ? "" : "s"}` : null,
         reviewCount ? `${reviewCount} review item${reviewCount === 1 ? "" : "s"}` : null,
@@ -87,12 +93,14 @@ export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[])
 
     return {
         sourceOnlyCount,
-        externalProofCount,
+        externalProofCount: typedEvidenceCount,
+        typedEvidenceCount,
         refreshCount,
         reviewCount,
-        needsFormalProof: externalProofCount > 0,
-        needsRefresh: externalProofCount === 0 && refreshCount > 0,
-        needsReview: externalProofCount === 0 && refreshCount === 0 && (sourceOnlyCount > 0 || reviewCount > 0),
+        needsTypedEvidence: typedEvidenceCount > 0,
+        needsFormalProof: typedEvidenceCount > 0,
+        needsRefresh: typedEvidenceCount === 0 && refreshCount > 0,
+        needsReview: typedEvidenceCount === 0 && refreshCount === 0 && (sourceOnlyCount > 0 || reviewCount > 0),
         summary,
     };
 }
@@ -105,7 +113,7 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
     if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
     if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
     if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
-    if (/stale evidence/iu.test(combined)) return "Refresh or proof needed";
+    if (/stale evidence/iu.test(combined)) return "Refresh or evidence needed";
     if (/ready/iu.test(status)) return "Ready";
     return status.replaceAll("_", " ").replace(/\b\w/gu, (char) => char.toUpperCase());
 }

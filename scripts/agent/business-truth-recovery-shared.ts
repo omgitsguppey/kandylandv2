@@ -153,10 +153,11 @@ export function validateCanonicalBusinessTruthStatusReport(report: ReturnType<ty
   if (report.opsHealthInherited) failures.push("stale business truth degrades ops-health directly.");
   if (report.confidenceScore < 80 && report.status === "healthy_current") failures.push("confidence below 80 displays healthy_current.");
   if (report.sourceFreshness === "stale" && !report.freshnessCause) failures.push("sourceFreshness=stale lacks exact cause.");
-  if (/generated recently/iu.test(report.freshnessExplanation) && !/source inputs stale|head mismatch|formal/iu.test(report.freshnessExplanation)) failures.push("generatedAt recent but freshness stale has no explanation.");
+  if (/generated recently/iu.test(report.freshnessExplanation) && !/source inputs stale|head mismatch|admin source activity sample/iu.test(report.freshnessExplanation)) failures.push("generatedAt recent but freshness stale has no explanation.");
   if (!report.revenueSourceClass || !report.purchaseSourceClass) failures.push("revenue source class missing.");
   if (!report.watchSourceClass || report.watchMetricCanUsePageTime) failures.push("watch source class missing or can use page time.");
   if (report.refreshCommand !== "npm run check:admin-truth-source-sample") failures.push("business truth lacks refresh command.");
+  if (/first-party admin truth|formal gate|formal evidence gate|manual proof|screenshot proof/iu.test(`${report.freshnessExplanation} ${report.nextExactSteps.join(" ")}`)) failures.push("canonical business truth status emits stale formal/manual proof wording.");
   return failures;
 }
 
@@ -186,7 +187,7 @@ export function buildCanonicalBusinessTruthRefreshReport(input: Partial<Canonica
     staleReason: decision.freshnessCause,
     nextExactSteps: [
       "Refresh admin truth source sample with npm run check:admin-truth-source-sample.",
-      "Keep formal admin sample required until redacted first-party evidence is attached.",
+      "Keep the admin source activity sample required until redacted source activity evidence is attached.",
       "Review 74% confidence before calling business truth healthy.",
     ],
   };
@@ -284,11 +285,11 @@ export function buildDebugCockpitBatch8CleanupReport(input: { currentHead?: stri
     dirtyFileClassifications: dirtyFileClassifications(),
     remainingGaps: [
       "Business truth confidence remains below 80 until bounded admin truth source sample is refreshed and reviewed.",
-      "Formal admin sample remains required before clearing the formal evidence gate.",
+      "Admin source activity sample remains required before clearing the typed evidence gate.",
     ],
     nextExactSteps: [
       "Refresh admin truth source sample with npm run check:admin-truth-source-sample.",
-      "Attach redacted first-party admin truth sample for formal evidence closure.",
+      "Produce a redacted admin source activity sample for typed evidence closure.",
       "Keep recovery playbook CTAs collapsed unless a matching active issue returns.",
     ],
   };

@@ -288,7 +288,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     scoreBefore: before,
     scoreAfter: estimatedAfter(before, gates),
     scoreDimensionImpact: {
-      runtimeHealth: "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
+      runtimeHealth: "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime route evidence.",
       evidenceCompleteness: "Source-backed and operator-confirmed context can reduce empty-evidence language, but clearing requires matching site activity records.",
     },
     nextExactSteps: sourceGapsRemaining.map((gap) => `${gap}: produce the matching source activity record before clearing the lane.`),

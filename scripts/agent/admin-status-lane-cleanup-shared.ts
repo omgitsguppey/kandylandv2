@@ -105,6 +105,7 @@ export function buildAdminSummaryLaneStatusClassifierReport(input: BuildInput = 
     classifyAdminSummaryLaneStatus({ laneId: "collecting", sourceContractPresent: true, telemetryMapped: true, expectedRuntimeActivity: true, sampleLoaded: false, counts: [0] }),
     classifyAdminSummaryLaneStatus({ laneId: "stale", sourceContractPresent: true, sampleLoaded: true, artifactCurrent: false, artifactRefreshCommand: "npm run check:lane-owner" }),
     classifyAdminSummaryLaneStatus({ laneId: "source_missing", sourceContractPresent: false }),
+    classifyAdminSummaryLaneStatus({ laneId: "typed_evidence_gate", sourceContractPresent: true, formalGateRequired: true }),
   ];
   return withValidation({
     reportKey: "admin-summary-lane-status-classifier",
@@ -133,6 +134,8 @@ export function validateAdminSummaryLaneStatusClassifierReport(report: ReturnTyp
   if (!report.statusVocabulary.includes("source_ready_collecting")) failures.push("status vocabulary missing from debug output.");
   if (!report.decisions.some((decision) => decision.status === "stale_artifact_refresh_required" && decision.displayState === "stale")) failures.push("live + stale appears without stale artifact explanation.");
   if (!report.decisions.some((decision) => decision.status === "source_missing_actionable")) failures.push("source missing is hidden as info.");
+  if (!report.decisions.some((decision) => decision.status === "formal_gate_required" && /typed evidence artifact/iu.test(decision.nextAction))) failures.push("typed evidence gate lacks normalized next action.");
+  if (report.decisions.some((decision) => /formal evidence artifact|manual proof|screenshot proof/iu.test(`${decision.reason} ${decision.nextAction}`))) failures.push("admin summary status emits stale formal/manual proof wording.");
   return failures;
 }
 

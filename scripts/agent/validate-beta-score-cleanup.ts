@@ -169,7 +169,7 @@ export function buildBetaScoreCleanupReport(head = currentHead()): BetaScoreClea
         "Source safety contributes 25 points because deterministic scanner findings are clean.",
         "Targeted behavior contributes 20 points because source/economy/user-creator validators pass.",
         "Freshness integrity contributes 10 points because legacy launch reports are retired from required freshness math and current source evidence artifacts are represented.",
-        "Visual/manual, runtime/provider, admin truth, and debug/runtime evidence lanes still score zero until formal artifacts exist.",
+        "Visual/manual compatibility, provider-backed site activity, deployed route, admin source activity, and debug/runtime evidence lanes still score zero until typed artifacts exist.",
       ],
       missingEvidenceCaps: evidenceCapDetails,
       scannerScoreWarning: "Scanner score 100 is scanner-only source hygiene and must never be read as beta readiness.",
@@ -183,9 +183,9 @@ export function buildBetaScoreCleanupReport(head = currentHead()): BetaScoreClea
     ],
     nextExactSteps: [
       "Run UI source coverage before optional visual reproduction.",
-      "Attach formal provider smoke evidence before clearing provider caps.",
-      "Attach deployed runtime smoke evidence before clearing runtime caps.",
-      "Attach a fresh admin truth sample before clearing admin truth caps.",
+      "Produce provider-backed site activity evidence before clearing provider caps.",
+      "Produce deployed route evidence before clearing runtime caps.",
+      "Produce a fresh admin source activity sample before clearing admin caps.",
       "Review Cloud Run/App Hosting, Cloud SQL/Data Connect, and Gemini/Vertex cost lanes with owner evidence before beta exit.",
     ],
   };

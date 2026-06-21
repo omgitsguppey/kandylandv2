@@ -243,7 +243,7 @@ function classifyLaunchBlocker(label: string): FinalProductIntegrityLaunchBlocke
       label,
       classification: "formal_evidence_required",
       formalGateCleared: false,
-      nextAction: "Attach the required formal runtime, provider, or admin truth artifact before clearing this gate.",
+      nextAction: "Produce the required deployed route, provider-backed site activity, or admin source activity artifact before clearing this gate.",
     };
   }
   if (normalized.includes("stale")) {
@@ -452,24 +452,24 @@ export function buildFinalProductIntegrityLockReport(input: {
         gateId: "runtime-provider-smoke",
         status: "formal_artifact_missing",
         owner: "operator",
-        nextAction: "Attach formal deployed runtime/provider smoke evidence before clearing the beta gate.",
+        nextAction: "Produce provider-backed site activity and deployed route evidence before clearing the beta gate.",
       },
       {
         gateId: "admin-truth-sample",
         status: "formal_artifact_missing",
         owner: "admin-debug",
-        nextAction: "Attach a redacted first-party admin truth sample before clearing the formal admin truth gate.",
+        nextAction: "Produce a redacted admin source activity sample before clearing the admin evidence gate.",
       },
     ],
     runtimeSample: [{
       sampleId: "deployed-runtime-smoke",
       status: "runtime_unverified",
-      nextAction: "Run and attach deployed runtime smoke evidence outside source-only validation.",
+      nextAction: "Produce deployed route evidence outside source-only validation.",
     }],
     adminTruthSample: [{
       sampleId: "admin-truth-production-sample",
       status: "formal_artifact_missing",
-      nextAction: "Attach redacted production admin truth sample evidence before clearing this gate.",
+      nextAction: "Produce redacted admin source activity sample evidence before clearing this gate.",
     }],
   });
   const interpretiveReport = buildInterpretiveBrainDebugTriageReport({

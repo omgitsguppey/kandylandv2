@@ -129,14 +129,14 @@ function scoreDimensionInputs(snapshot: ReturnType<typeof scoreSnapshot>) {
     {
       dimension: "runtimeHealth" as const,
       score: snapshot.runtimeHealth,
-      reason: "Runtime/provider smoke is formal-evidence gated.",
-      nextAction: "Attach formal deployed runtime/provider smoke evidence before clearing runtime beta gates.",
+      reason: "Provider-backed site activity and deployed route evidence are source-evidence gated.",
+      nextAction: "Produce provider-backed site activity and deployed route evidence before clearing runtime beta gates.",
     },
     {
       dimension: "evidenceCompleteness" as const,
       score: snapshot.evidenceCompleteness,
-      reason: "Evidence completeness depends on source, formal, and admin truth artifacts.",
-      nextAction: "Attach missing formal/admin evidence or keep the gate classified.",
+      reason: "Evidence completeness depends on source, deployed route, and admin source activity artifacts.",
+      nextAction: "Produce missing source/admin evidence or keep the gate classified.",
     },
     {
       dimension: "freshness" as const,
@@ -284,22 +284,22 @@ export function buildAndWriteInterpretiveBrainDebugTriageReport() {
       gateId: "runtime-provider-smoke",
       status: "formal_artifact_missing",
       owner: "operator",
-      nextAction: "Attach formal deployed runtime/provider smoke evidence before clearing the beta gate.",
+      nextAction: "Produce provider-backed site activity and deployed route evidence before clearing the beta gate.",
     }, {
       gateId: "admin-truth-sample",
       status: "formal_artifact_missing",
       owner: "admin-debug",
-      nextAction: "Attach a redacted first-party admin truth sample before clearing the formal admin truth gate.",
+      nextAction: "Produce a redacted admin source activity sample before clearing the admin evidence gate.",
     }],
     runtimeSample: [{
       sampleId: "deployed-runtime-smoke",
       status: "runtime_unverified",
-      nextAction: "Run and attach deployed runtime smoke evidence outside source-only validation.",
+      nextAction: "Produce deployed route evidence outside source-only validation.",
     }],
     adminTruthSample: [{
       sampleId: "admin-truth-production-sample",
       status: "formal_artifact_missing",
-      nextAction: "Attach redacted production admin truth sample evidence before clearing this gate.",
+      nextAction: "Produce redacted admin source activity sample evidence before clearing this gate.",
     }],
     staleArtifact: [{
       artifactPath: "agent/state/public-beta-score.generated.json",

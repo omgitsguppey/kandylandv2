@@ -204,9 +204,9 @@ export function buildBetaHealthAlgorithmV2Report(head = currentHead()): BetaHeal
     prCleanupActions: ["open_pr_count_start=0", "open_pr_count_end_pending_final_check"],
     nextFixOrder: [
       "Run deterministic UI source coverage and use visual reproduction only for source-reported issues.",
-      "Attach formal provider smoke evidence.",
-      "Attach deployed runtime smoke evidence.",
-      "Attach admin truth sample evidence.",
+      "Produce provider-backed site activity evidence.",
+      "Produce deployed route evidence.",
+      "Produce admin source activity sample evidence.",
       "Resolve owner-review cloud/AI cost lanes with provider evidence.",
     ],
   };

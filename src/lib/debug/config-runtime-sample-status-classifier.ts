@@ -73,7 +73,7 @@ export function classifyConfigRuntimeSampleStatus(input: ConfigRuntimeSampleInpu
       status: "stale_artifact_refresh_required",
       displayState: "stale",
       artifactFreshness: "stale",
-      reason: "Artifact freshness is stale; this is not source or runtime proof.",
+      reason: "Artifact freshness is stale; this is not source health or deployed route evidence.",
       nextAction: refreshCommand(input),
       runtimeLiveAllowed: false,
     };
@@ -97,8 +97,8 @@ export function classifyConfigRuntimeSampleStatus(input: ConfigRuntimeSampleInpu
       status: "formal_gate_required",
       displayState: "blocked",
       artifactFreshness,
-      reason: "Formal evidence is required and cannot be replaced by source status.",
-      nextAction: "Attach the required formal evidence artifact.",
+      reason: "A typed evidence gate is required and cannot be replaced by source status.",
+      nextAction: "Attach the lane's required typed evidence artifact before clearing this gate.",
       runtimeLiveAllowed: false,
     };
   }
@@ -193,4 +193,3 @@ export function classifyConfigRuntimeSampleStatus(input: ConfigRuntimeSampleInpu
     runtimeLiveAllowed: false,
   };
 }
-

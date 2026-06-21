@@ -4,9 +4,9 @@ Generated Batch 8 cleanup evidence. Business truth remains separate from ops-hea
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T18:02:57.916Z",
+  "generatedAtUtc": "2026-06-21T19:36:15.911Z",
   "reportKey": "canonical-business-truth-status",
-  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
   "status": "low_confidence_review",
   "sourceFreshness": "stale",
   "confidenceScore": 74,
@@ -19,7 +19,7 @@ Generated Batch 8 cleanup evidence. Business truth remains separate from ops-hea
   "watchSourceClass": "valid_watch_time",
   "watchMetricCanUsePageTime": false,
   "nextExactSteps": [
-    "Confidence 74%: review required; refresh the bounded admin truth source sample."
+    "Confidence 74%: review required; refresh the bounded admin source activity sample."
   ]
 }
 ```

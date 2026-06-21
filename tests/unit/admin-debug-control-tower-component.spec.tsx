@@ -229,6 +229,7 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Control Tower");
         expect(container.textContent).toContain("Public Beta");
         expect(container.textContent).toContain("Money + Cost");
+        expect(container.textContent).toContain("source evidence boundaries");
         expect(container.textContent).toContain("Support message detail route returned forbidden.");
         expect(container.textContent).toContain("Last updated");
         expect(container.textContent).toContain("Why this state");
@@ -238,6 +239,7 @@ describe("DebugControlTower", () => {
         expect(container.textContent).not.toContain("Source score");
         expect(container.textContent).not.toContain("0h old");
         expect(container.textContent).not.toContain("admin truth source required");
+        expect(container.textContent).not.toContain("source proof boundaries");
         expect(container.textContent).not.toContain("Device + UI");
         expect(container.textContent).not.toContain("secret support body");
     });
@@ -346,6 +348,8 @@ describe("DebugControlTower", () => {
             expect(container.textContent).toContain("Site activity evidence required");
             expect(container.textContent).toContain("Produce redacted provider-backed site activity evidence");
             expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
+            expect(container.innerHTML).toContain('data-public-beta-evidence-state="site_activity_evidence_required"');
+            expect(container.innerHTML).not.toContain('data-public-beta-evidence-state="external_proof_required"');
             expect(container.textContent).not.toContain("Runtime/provider smoke");
             expect(container.textContent).not.toContain("deployed runtime smoke");
             expect(container.textContent).not.toContain("formal provider");
@@ -400,6 +404,10 @@ describe("DebugControlTower", () => {
             expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
             expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
             expect(container.textContent).toContain("Admin source activity sample required");
+            expect(container.innerHTML).toContain('data-public-beta-evidence-state="site_activity_evidence_required"');
+            expect(container.innerHTML).toContain('data-public-beta-evidence-state="admin_source_activity_sample_required"');
+            expect(container.innerHTML).not.toContain('data-public-beta-evidence-state="external_proof_required"');
+            expect(container.innerHTML).not.toContain('data-public-beta-evidence-state="admin_truth_sample_required"');
             expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(publicBetaText).not.toContain("0 findings");
             expect(container.textContent).not.toContain("ERROR");

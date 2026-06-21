@@ -185,11 +185,11 @@ export function buildDebugCockpitBatch9CleanupReport(input: {
     scoreAfter: input.scoreAfter ?? readNumber(publicBeta?.score) ?? 79,
     scoreDimensions: scoreDimensionsFromPublicBeta(publicBeta),
     remainingGaps: [
-      "Formal provider/runtime/admin evidence gates remain separate from this source security fix.",
+      "Provider-backed site activity, deployed route evidence, and admin source activity sample gates remain separate from this source security fix.",
       ...(remainingStaleArtifacts.length > 0 ? ["Some generated artifacts still require refresh or same-commit head explanation."] : []),
     ],
     nextExactSteps: [
-      "Attach formal evidence artifacts outside source-code cleanup when available.",
+      "Produce provider-backed site activity, deployed route evidence, and admin source activity sample evidence outside source-code cleanup when available.",
       "Rerun beta score after this commit lands if a same-commit generated artifact head needs post-commit refresh.",
     ],
   };

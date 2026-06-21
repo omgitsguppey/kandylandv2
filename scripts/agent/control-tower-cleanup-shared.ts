@@ -353,12 +353,12 @@ export function buildDebugCockpitBatch7ControlTowerCleanupReport(input: { curren
     remainingGaps: [
       "Provider-backed site activity evidence remains required.",
       "Deployed route activity evidence remains required.",
-      "Redacted first-party admin truth sample remains required.",
+      "Redacted admin source activity sample remains required.",
     ],
     nextExactSteps: [
       "Produce provider-backed site activity evidence before clearing provider-backed lanes.",
       "Produce deployed route activity evidence before clearing runtime lanes.",
-      "Attach redacted first-party admin truth sample before clearing admin truth gate.",
+      "Produce a redacted admin source activity sample before clearing the typed admin evidence gate.",
     ],
   };
 }
@@ -383,11 +383,11 @@ export function validateControlTowerReportFreshnessCleanupReport(report: ReturnT
 
 export function validateControlTowerFormalGateDisplayReport(report: ReturnType<typeof buildControlTowerFormalGateDisplayReport>) {
   const failures: string[] = [];
-  if (report.sourceBugGateCount > 0) failures.push("formal provider/runtime/admin gates appear as source-code bugs.");
-  if (report.gates.runtimeProvider.formalProviderGateCleared) failures.push("operator payment confirmation clears formal provider smoke.");
-  if (report.gates.deployedRuntime.deployedRuntimeGateCleared) failures.push("local validators clear deployed runtime smoke.");
+  if (report.sourceBugGateCount > 0) failures.push("typed provider/runtime/admin evidence gates appear as source-code bugs.");
+  if (report.gates.runtimeProvider.formalProviderGateCleared) failures.push("operator payment confirmation clears provider-backed site activity evidence.");
+  if (report.gates.deployedRuntime.deployedRuntimeGateCleared) failures.push("local validators clear deployed route evidence.");
   if (report.gates.adminTruth.adminTruthStatus !== "source_ready_formal_admin_sample_required") failures.push("admin truth source-ready appears unknown.");
-  if (report.formalGatesRemaining.length !== 3) failures.push("formal gate lacks exact evidence path.");
+  if (report.formalGatesRemaining.length !== 3) failures.push("typed evidence gate lacks exact evidence path.");
   return failures;
 }
 
@@ -403,10 +403,10 @@ export function validateControlTowerOperatorQueueCleanupReport(report: ReturnTyp
 
 export function validateDebugCockpitBatch7ControlTowerCleanupReport(report: ReturnType<typeof buildDebugCockpitBatch7ControlTowerCleanupReport>) {
   const failures: string[] = [];
-  if (report.canonicalScoreAfter.score !== 79) failures.push("Control Tower shows stale score when current score artifact exists.");
+  if (report.canonicalScoreAfter.score <= report.canonicalScoreBefore.score) failures.push("Control Tower shows stale score when current score artifact exists.");
   if (report.staleReportsBefore < 6) failures.push("6 stale reports remain unclassified.");
   if (!report.retiredReports.includes("agent/state/score-80-path-lock.generated.json")) failures.push("score-80-path-lock remains active if superseded.");
-  if (report.scoreImpactQueueAfter.some((artifact) => /runtime_provider_smoke|debug_runtime_evidence|admin_truth/iu.test(artifact))) failures.push("formal evidence gates appear as source bugs.");
+  if (report.scoreImpactQueueAfter.some((artifact) => /runtime_provider_smoke|debug_runtime_evidence|admin_truth/iu.test(artifact))) failures.push("typed evidence gates appear as source bugs.");
   if (report.adminTruthStatusAfter === "unknown") failures.push("admin truth remains unknown when source-ready.");
   if (report.telemetryParityStatusAfter !== "clean_current") failures.push("telemetry parity clean/current appears stale.");
   if (report.costLaneQueueStatus !== "collapsed_score_impact_zero") failures.push("cost score impact 0 appears in fix-first.");
@@ -421,7 +421,7 @@ export function renderControlTowerCleanupDoc(title: string, report: Record<strin
   return [
     `# ${title}`,
     "",
-    "Generated Control Tower cleanup evidence. Formal gates remain visible but are not source-code bugs.",
+    "Generated Control Tower cleanup evidence. Typed evidence gates remain visible but are not source-code bugs.",
     "",
     "```json",
     JSON.stringify(report, null, 2),

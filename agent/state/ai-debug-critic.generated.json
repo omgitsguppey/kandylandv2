@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-21T03:25:26.586Z",
+  "generatedAt": "2026-06-21T19:40:30.130Z",
   "reportKey": "ai-debug-critic",
-  "criticStatus": "pass",
+  "criticStatus": "blocked",
   "checks": [
     {
       "id": "no_patch_on_top_of_stale_logic",
@@ -66,7 +66,7 @@
   ],
   "findings": [
     {
-      "id": "no_patch_on_top_of_stale_logic-32762012",
+      "id": "no_patch_on_top_of_stale_logic-97975000",
       "check": "no_patch_on_top_of_stale_logic",
       "severity": "warning",
       "actionClass": "needs_refresh",
@@ -75,46 +75,98 @@
       "sourceFiles": [
         "agent/state/admin-truth-sample-evidence.generated.json",
         "agent/state/beta-evidence-gap-map.generated.json",
-        "agent/state/beta-evidence-lane-prep.generated.json",
-        "agent/state/mobile-ui-final-lock.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
         "agent/state/overnight-final-integration-lock.generated.json",
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/public-beta-score.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json",
         "agent/state/targeted-behavior-evidence.generated.json",
-        "agent/state/user-facing-feature-connection-audit.generated.json",
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
+        "agent/state/user-facing-feature-connection-audit.generated.json"
       ],
       "requiredFix": "Keep the stale backlog item visible in the owning evidence or refresh lane until the required artifact changes.",
       "suggestedValidators": [
         "npm run check:ai-debug-critic",
         "npm run check:debug-backlog-engine"
       ]
+    },
+    {
+      "id": "no_duplicate_systems-246470861",
+      "check": "no_duplicate_systems",
+      "severity": "blocker",
+      "actionClass": "needs_code_change",
+      "title": "Potential duplicate debug system",
+      "detail": "The changed files look like a parallel debug, telemetry, score, or evidence system instead of a refinement of the canonical lane.",
+      "sourceFiles": [
+        "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"
+      ],
+      "requiredFix": "Refactor into the existing debug backlog, evidence, telemetry, or score owner instead of adding a parallel system.",
+      "suggestedValidators": [
+        "npm run check:agent-context",
+        "npm run check:ai-debug-critic",
+        "npm run check:debug-backlog-engine"
+      ]
+    },
+    {
+      "id": "no_monolith_growth_without_split_plan-1772590454",
+      "check": "no_monolith_growth_without_split_plan",
+      "severity": "required",
+      "actionClass": "needs_code_change",
+      "title": "Monolith split plan required",
+      "detail": "A changed source file exceeds the repo module-size budget.",
+      "sourceFiles": [
+        "src/lib/agent-score/formal-evidence-bridge.ts",
+        "src/lib/product-integrity/final-product-integrity-lock.ts"
+      ],
+      "requiredFix": "Split logic into contract, builder, validator, and view/source helpers or document a bounded split plan.",
+      "suggestedValidators": [
+        "npm run check:ai-debug-critic",
+        "npm run check:code-organization"
+      ]
     }
   ],
-  "requiredFixes": [],
+  "requiredFixes": [
+    "Refactor into the existing debug backlog, evidence, telemetry, or score owner instead of adding a parallel system.",
+    "Split logic into contract, builder, validator, and view/source helpers or document a bounded split plan."
+  ],
   "suggestedValidators": [
+    "npm run check:agent-context",
     "npm run check:ai-critic-p1-triage",
     "npm run check:ai-debug-critic",
     "npm run check:beta-score",
+    "npm run check:code-organization",
     "npm run check:debug-backlog-engine",
     "npm run check:debug-evidence-pipeline",
     "npm run score:beta"
   ],
   "unsafeChanges": [],
-  "duplicateSystems": [],
-  "monolithRisks": [],
+  "duplicateSystems": [
+    "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"
+  ],
+  "monolithRisks": [
+    {
+      "file": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "lineCount": 335,
+      "limit": 300,
+      "splitPlanRequired": true
+    },
+    {
+      "file": "src/lib/product-integrity/final-product-integrity-lock.ts",
+      "lineCount": 553,
+      "limit": 300,
+      "splitPlanRequired": true
+    }
+  ],
   "evidenceMisclassificationRisks": [],
   "sourceOnly": true,
   "externalAiCallsAllowed": false,
   "summary": {
-    "totalFindings": 1,
-    "blockedFindings": 0,
-    "requiredFindings": 0,
+    "totalFindings": 3,
+    "blockedFindings": 1,
+    "requiredFindings": 1,
     "warningFindings": 1,
     "unsafeChangeCount": 0,
-    "duplicateSystemCount": 0,
-    "monolithRiskCount": 0,
+    "duplicateSystemCount": 1,
+    "monolithRiskCount": 2,
     "evidenceMisclassificationRiskCount": 0
   }
 }

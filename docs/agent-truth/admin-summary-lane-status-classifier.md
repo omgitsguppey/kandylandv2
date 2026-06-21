@@ -1,7 +1,7 @@
 # Admin summary lane status classifier
 
-Generated: 2026-06-16T17:29:28.604Z
-Head: 096cab329c009d4440dc3dc65f4118497ce521b1
+Generated: 2026-06-21T19:36:09.615Z
+Head: 187d6964a50ddf5a4077b19e88471c7e23414b75
 
 ## Status
 
@@ -13,34 +13,34 @@ Validation failures: none
 {
   "reportKey": "admin-summary-lane-status-classifier",
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
-    "freshness": 67.5,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 69.89
+    "overallHealthScore": 89.31
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
-    "freshness": 67.5,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 69.89
+    "overallHealthScore": 89.31
   },
   "scoreDimensions": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
-    "freshness": 67.5,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 69.89
+    "overallHealthScore": 89.31
   },
-  "currentHead": "096cab329c009d4440dc3dc65f4118497ce521b1",
-  "generatedAtUtc": "2026-06-16T17:29:28.604Z",
+  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
+  "generatedAtUtc": "2026-06-21T19:36:09.615Z",
   "statusVocabulary": [
     "healthy_current",
     "healthy_proven_zero",
@@ -85,6 +85,14 @@ Validation failures: none
       "displayState": "degraded",
       "reason": "Required source contract or source summary is missing.",
       "nextAction": "Wire the lane to its source contract or summary artifact.",
+      "liveDisplayAllowed": false
+    },
+    {
+      "laneId": "typed_evidence_gate",
+      "status": "formal_gate_required",
+      "displayState": "blocked",
+      "reason": "A typed evidence gate is required and cannot be replaced by source status.",
+      "nextAction": "Attach the lane's required typed evidence artifact before clearing this gate.",
       "liveDisplayAllowed": false
     }
   ],

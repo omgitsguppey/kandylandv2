@@ -58,7 +58,7 @@ describe("beta health algorithm v2 evidence quality", () => {
     expect(quality.partialCredit).toBeGreaterThan(0);
     expect(quality.partialCredit).toBeLessThan(0.7);
     expect(quality.blocksLaunch).toBe(true);
-    expect(quality.reason).toContain("runtime proof");
+    expect(quality.reason).toContain("deployed runtime route evidence");
   });
 
   it("keeps operator-reported provider smoke low confidence and launch-blocking", () => {

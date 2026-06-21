@@ -92,6 +92,8 @@ describe("source evidence bridge", () => {
       "deployed_route_activity",
       "admin_source_activity_sample",
     ]);
+    expect(report.scoreDimensionImpact.runtimeHealth).toContain("deployed runtime route evidence");
+    expect(report.scoreDimensionImpact.runtimeHealth).not.toContain("deployed runtime smoke");
     expect(report.nextExactSteps.join("\n")).not.toContain("formal_provider_smoke");
     expect(report.scoreAfter.evidenceCompleteness).toBeGreaterThan(report.scoreBefore.evidenceCompleteness);
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);

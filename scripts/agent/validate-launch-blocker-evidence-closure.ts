@@ -347,10 +347,17 @@ function buildRuntimeProviderClosure(input: {
     || /source_ready/iu.test(stringValue(input.debugRuntimeEvidence.status));
   const operatorReady = boolValue(operatorSignal.operatorConfirmedRevenue) && !boolValue(operatorSignal.formalProviderGateCleared);
   const formalCleared = providerCleared && runtimeCleared;
+  const currentStatus = stringValue(
+    arrayValue(input.publicBetaScore.launchBlockers).find((entry) =>
+      /Runtime\/provider smoke|Provider-backed site activity \+ deployed route evidence/iu.test(String(entry))),
+    "Provider-backed site activity + deployed route evidence: Source evidence required",
+  )
+    .replace(/Runtime\/provider smoke/giu, "Provider-backed site activity + deployed route evidence")
+    .replace(/Runtime unverified/giu, "Source evidence required");
   return {
     id: "runtimeProviderSmoke",
-    label: "Runtime/provider smoke",
-    currentStatus: stringValue(arrayValue(input.publicBetaScore.launchBlockers).find((entry) => /Runtime\/provider smoke/iu.test(String(entry))), "Runtime/provider smoke: Runtime unverified"),
+    label: "Provider-backed site activity + deployed route evidence",
+    currentStatus,
     classification: formalCleared ? "can_close_now" : "external_or_runtime_artifact_required",
     classificationDetails: [
       ...(providerCleared ? [] : ["formal_artifact_missing" as const]),
@@ -375,8 +382,8 @@ function buildRuntimeProviderClosure(input: {
       "formalGateCanClearFromSource=false",
     ],
     nextAction: formalCleared
-      ? "Keep formal provider and deployed runtime smoke artifacts fresh."
-      : "Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate.",
+      ? "Keep provider-backed site activity and deployed route evidence artifacts fresh."
+      : "Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate.",
   };
 }
 
@@ -554,9 +561,9 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
     dirtyFiles,
     blockerReferenceClassification: [
       {
-        reference: "Runtime/provider smoke: Runtime unverified",
+        reference: "Provider-backed site activity + deployed route evidence: Source evidence required",
         classification: runtimeProviderSmoke.classification,
-        reason: "Source/runtime confidence and operator revenue are confidence signals only; formal provider and deployed runtime artifacts remain required.",
+        reason: "Source/runtime confidence and operator revenue are confidence signals only; provider-backed site activity and deployed runtime route evidence artifacts remain required.",
       },
       {
         reference: "Admin truth/sample evidence: Ready with smoke required",
@@ -614,6 +621,17 @@ export function validateLaunchBlockerEvidenceClosureReport(report: LaunchBlocker
     report.blockers.adminTruthSample.classification === "can_close_now"
     && report.blockers.adminTruthSample.missingArtifact
   ) failures.push("formal gate falsely cleared.");
+  const runtimeProviderVisibleText = [
+    report.blockers.runtimeProviderSmoke.label,
+    report.blockers.runtimeProviderSmoke.currentStatus,
+    report.blockers.runtimeProviderSmoke.nextAction,
+    ...report.blockerReferenceClassification
+      .filter((entry) => entry.reference.includes("Provider-backed site activity") || /Runtime\/provider smoke/iu.test(entry.reference))
+      .flatMap((entry) => [entry.reference, entry.reason]),
+  ].join("\n");
+  if (/Runtime\/provider smoke|formal provider smoke|deployed runtime smoke/iu.test(runtimeProviderVisibleText)) {
+    failures.push("runtime/provider launch blocker must use typed site-activity/deployed-route wording.");
+  }
   if (report.formalEvidenceImpact !== "classification_only_does_not_clear_formal_gates") failures.push("formal gate falsely cleared.");
   if (report.openPrIntegrity.unclassifiedOpenPrCount > 0) failures.push("open PRs unclassified.");
   if (report.openPrIntegrity.evidenceUnavailable && report.blockers.reportFreshnessPrIntegrity.classification === "can_close_now") {

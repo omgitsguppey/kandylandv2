@@ -2,20 +2,20 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-06-21T18:46:50.467Z
-Current HEAD: 96f65d3c093572d8d48861aa00f3935d824f71aa
+Generated: 2026-06-21T19:42:12.778Z
+Current HEAD: 187d6964a50ddf5a4077b19e88471c7e23414b75
 Score: 41.92 -> 84
 Readiness: Source evidence required
 
 ## Summary
 
-- Total backlog items: 31
+- Total backlog items: 33
 - Open P0/P1 items: 7
-- Evidence refreshable: 15
+- Evidence refreshable: 17
 - Source-fixable: 9
-- Source truth states: source_fixable=8, source_refresh_required=15, runtime_proof_required=3, provider_or_external_proof_required=1, admin_truth_source_required=2, stale_evidence_archive=1, not_actionable=1
+- Source truth states: source_fixable=8, source_refresh_required=17, runtime_proof_required=3, provider_or_external_proof_required=1, admin_truth_source_required=2, stale_evidence_archive=1, not_actionable=1
 - Stale retired: 1
-- Default-visible actionability signals: 31
+- Default-visible actionability signals: 33
 - Hidden-by-default actionability signals: 0
 - Quiet future activity: 0
 - Duplicate signals collapsed: 0
@@ -37,6 +37,6 @@ Readiness: Source evidence required
 ## Strict Gates
 
 - The engine does not clear beta exit readiness.
-- Formal provider smoke remains blocked without formal artifact.
-- Deployed runtime smoke remains blocked without deployed runtime proof.
-- Admin truth sample remains blocked until a redacted first-party sample is attached.
+- Provider-backed site activity evidence remains blocked without its typed evidence artifact.
+- Deployed route evidence remains blocked without deployed route evidence.
+- Admin source activity sample remains blocked until a redacted source activity sample is attached.

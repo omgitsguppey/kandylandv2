@@ -96,6 +96,7 @@ export function buildConfigRuntimeSampleStatusClassifierReport(input: BuildInput
     classifyConfigRuntimeSampleStatus({ laneId: "runtime_zero", laneKind: "runtime_sample", configSourceHealthy: true, counts: [0], sampleLoaded: false }),
     classifyConfigRuntimeSampleStatus({ laneId: "runtime_proven_zero", laneKind: "runtime_sample", sourceWindowPresent: true, sourceWindowProvesZero: true, counts: [0] }),
     classifyConfigRuntimeSampleStatus({ laneId: "stale", laneKind: "config", configSourceHealthy: true, artifactCurrent: false, artifactRefreshCommand: "npm run check:owner" }),
+    classifyConfigRuntimeSampleStatus({ laneId: "typed_evidence_gate", laneKind: "mixed", sourceContractPresent: true, formalGateRequired: true }),
   ];
   return withValidation({
     reportKey: "config-runtime-sample-status-classifier",
@@ -126,6 +127,8 @@ export function validateConfigRuntimeSampleStatusClassifierReport(report: Return
   if (!report.decisions.some((decision) => decision.status === "stale_artifact_refresh_required" && decision.artifactFreshness === "stale")) failures.push("stale artifact badge is conflated with runtime/source failure.");
   if (report.decisions.some((decision) => decision.status === "source_ready_collecting" && decision.runtimeLiveAllowed)) failures.push("source-ready collecting is treated as healthy runtime sample.");
   if (report.decisions.some((decision) => decision.status === "unknown" && !decision.nextAction)) failures.push("unknown status lacks exact next action.");
+  if (!report.decisions.some((decision) => decision.status === "formal_gate_required" && /typed evidence artifact/iu.test(decision.nextAction))) failures.push("typed evidence gate lacks normalized next action.");
+  if (report.decisions.some((decision) => /formal evidence artifact|runtime proof|manual proof|screenshot proof/iu.test(`${decision.reason} ${decision.nextAction}`))) failures.push("config runtime status emits stale formal/manual proof wording.");
   return failures;
 }
 

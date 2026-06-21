@@ -176,7 +176,7 @@ describe("public beta score v2 health model", () => {
     expect(report.sourceHealthScore).toBeGreaterThan(70);
     expect(report.runtimeHealthScore).toBeLessThan(report.sourceHealthScore);
     expect(report.launchGateStatus).not.toBe("launch_ready");
-    expect(report.launchBlockers.join("\n")).toContain("Runtime/provider smoke");
+    expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
     expect(report.overallScore).toBeGreaterThan(report.evidenceScore);
   });
 
@@ -204,7 +204,7 @@ describe("public beta score v2 health model", () => {
 
     expect(report.launchGateStatus).not.toBe("launch_ready");
     expect(report.runtimeHealthScore).toBeLessThan(100);
-    expect(report.launchBlockers.join("\n")).toContain("Runtime/provider smoke");
+    expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
   });
 
   it("penalizes stale source reports through freshness and regression dimensions", () => {

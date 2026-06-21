@@ -35,4 +35,20 @@ describe("admin summary lane status classifier", () => {
       nextAction: "npm run check:telemetry-trigger-test-matrix",
     });
   });
+
+  it("keeps the compatibility status while rendering typed evidence gate copy", () => {
+    const decision = classifyAdminSummaryLaneStatus({
+      laneId: "admin_source_sample",
+      sourceContractPresent: true,
+      formalGateRequired: true,
+    });
+
+    expect(decision).toMatchObject({
+      status: "formal_gate_required",
+      displayState: "blocked",
+      nextAction: "Attach the lane's required typed evidence artifact before clearing this gate.",
+      liveDisplayAllowed: false,
+    });
+    expect(`${decision.reason} ${decision.nextAction}`).not.toMatch(/formal evidence artifact|manual proof|screenshot proof/iu);
+  });
 });

@@ -1,8 +1,8 @@
 # Source Evidence Bridge
 
-Generated: 2026-06-21T13:37:30.578Z
+Generated: 2026-06-21T19:35:58.151Z
 
-Current head: fdd95181543a028b61f1ced9d9f8b81282d3516c
+Current head: 187d6964a50ddf5a4077b19e88471c7e23414b75
 
 ## Summary
 

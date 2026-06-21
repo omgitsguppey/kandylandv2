@@ -211,7 +211,7 @@ function renderDoc(report: ReturnType<typeof buildAiCriticP1TriageReport>) {
   return [
     "# AI Critic P1 Triage",
     "",
-    "Status: source-backed score triage for AI critic request-change cleanup. Formal/manual evidence gates remain separate and are not cleared by this pass.",
+    "Status: source-backed score triage for AI critic request-change cleanup. Typed evidence gates and operator-context lanes remain separate and are not cleared by this pass.",
     "",
     `- Score: ${report.scoreBefore} -> ${report.scoreAfter}`,
     `- Critic status: ${report.criticStatusBefore} -> ${report.criticStatusAfter}`,
@@ -228,7 +228,7 @@ function renderDoc(report: ReturnType<typeof buildAiCriticP1TriageReport>) {
     "",
     ...report.p1Ranking.slice(0, 12).map((item) => `- ${item.rank}. ${item.id}: ${item.scoreImpact} (${item.actionClass}) - ${item.exactNextAction}`),
     "",
-    "## Formal Evidence Gates",
+    "## Typed Evidence Gates",
     "",
     ...report.formalEvidenceGates.map((gate) => `- ${gate}`),
     "",
@@ -241,7 +241,7 @@ const files = changedFiles();
 const backlog = buildCurrentBacklog();
 const aiCritic = buildAiDebugCriticReport({
   changedFiles: files,
-  proposedFixSummary: "Classifies AI critic feedback into source changes, formal evidence artifacts, refresh work, and operator UI confirmation without clearing runtime or provider gates.",
+  proposedFixSummary: "Classifies AI critic feedback into source changes, typed evidence artifacts, refresh work, and operator UI confirmation without clearing deployed route or provider-backed site activity gates.",
   debugBacklog: backlog,
   betaScoreBlockers: collectBetaBlockers(),
   doctrineIndex: readJson("agent/context/doctrine.index.json") ?? undefined,

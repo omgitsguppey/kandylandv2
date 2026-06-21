@@ -108,7 +108,7 @@ function watchSourceClass(input: CanonicalBusinessTruthStatusInput): CanonicalBu
 function freshnessCause(input: CanonicalBusinessTruthStatusInput) {
   if (input.currentHead && input.artifactHead && input.currentHead !== input.artifactHead) return "head mismatch";
   if (text(input.sourceFreshness) === "stale") return "stale source inputs";
-  if (text(input.formalAdminSampleStatus).includes("missing")) return "stale formal evidence";
+  if (text(input.formalAdminSampleStatus).includes("missing")) return "admin source activity sample missing";
   if (text(input.sourceFreshness).includes("failed") || text(input.sourceFreshness).includes("unavailable")) return "source missing";
   if ((input.issues ?? []).some((issue) => /stale/iu.test(issue.message))) return "stale source inputs";
   return "current source inputs";
@@ -143,19 +143,19 @@ export function classifyCanonicalBusinessTruthStatus(
       ? `Snapshot stale: source inputs stale even though the report was generated recently.`
       : cause === "head mismatch"
         ? "Snapshot stale: artifact head does not match the current source head."
-        : cause === "stale formal evidence"
-          ? "Snapshot stale: formal admin/provider evidence is still missing."
+        : cause === "admin source activity sample missing"
+          ? "Snapshot stale: admin source activity sample evidence is still missing."
           : cause === "source missing"
             ? "Business truth source is missing or unavailable."
             : "Business truth source inputs are current.",
     confidenceReviewRequired,
     refreshCommand: REFRESH_COMMAND,
     nextAction: confidenceReviewRequired
-      ? `Confidence ${confidenceScore}%: review required; refresh the bounded admin truth source sample.`
+      ? `Confidence ${confidenceScore}%: review required; refresh the bounded admin source activity sample.`
       : sourceFreshness === "stale"
         ? `Refresh stale business truth with ${REFRESH_COMMAND}.`
         : formalAdminSampleRequired
-          ? "Attach redacted first-party admin truth sample before clearing the formal gate."
+          ? "Produce a redacted admin source activity sample before clearing the typed evidence gate."
           : "No business truth action required.",
     userSourceClass: sourceClassForTruth(input.sourceTruth),
     purchaseSourceClass: commerceSourceClass(input),

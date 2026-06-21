@@ -30,6 +30,9 @@ describe("debug cockpit batch9 cleanup report", () => {
     expect(report.directRequestJsonRemaining).toBe(false);
     expect(report.gumdropMathChanged).toBe(false);
     expect(report.authGuardChanged).toBe(false);
+    expect(report.remainingGaps.join(" ")).toMatch(/provider-backed site activity/iu);
+    expect(report.nextExactSteps.join(" ")).toContain("admin source activity sample evidence");
+    expect(`${report.remainingGaps.join(" ")} ${report.nextExactSteps.join(" ")}`).not.toMatch(/formal provider\/runtime\/admin evidence|formal evidence artifacts|manual proof|screenshot proof/iu);
     expect(validateDebugCockpitBatch9CleanupReport(report)).toEqual([]);
   });
 });

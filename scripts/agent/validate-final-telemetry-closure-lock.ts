@@ -268,17 +268,17 @@ function missingEvidence(currentBetaExitStatus: JsonObject | null): FinalTelemet
     {
       id: "provider-smoke",
       status: String(summary.providerSmokeStatus ?? "missing"),
-      nextAction: "Attach formal provider smoke evidence before beta exit review.",
+      nextAction: "Produce provider-backed site activity evidence before beta exit review.",
     },
     {
       id: "runtime-smoke",
       status: String(summary.runtimeSmokeStatus ?? "missing"),
-      nextAction: "Attach deployed runtime smoke evidence before beta exit review.",
+      nextAction: "Produce deployed route evidence before beta exit review.",
     },
     {
       id: "admin-truth-sample",
       status: String(summary.adminTruthSampleStatus ?? "missing"),
-      nextAction: "Attach fresh admin truth sample evidence before beta exit review.",
+      nextAction: "Produce fresh admin source activity sample evidence before beta exit review.",
     },
   ];
   return evidence.filter((entry) => !isFormalEvidenceComplete(entry.status));
@@ -365,7 +365,7 @@ export function buildFinalTelemetryClosureLockReport(
     ],
     nextExactSteps: [
       "Add or restore check:client-tracking-toggle-semantics as a dedicated closure artifact if the queued toggle phase did not land.",
-      "Run UI source coverage and attach formal provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.",
+      "Run UI source coverage and produce provider-backed site activity, deployed route, and admin source activity sample evidence before beta exit review.",
       "Collect runtime evidence for watch-time, materializers, BigQuery/cloud export, and GA4 evidence refresh before marking those lanes live.",
     ],
   };

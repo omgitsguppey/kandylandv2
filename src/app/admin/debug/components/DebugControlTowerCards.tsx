@@ -25,7 +25,7 @@ export const SECTION_COPY: Record<AdminDebugControlTowerSection, { title: string
     beta_readiness: { title: "Beta Readiness", subtitle: "Release evidence, blockers, and refresh work that affects beta signoff.", icon: ShieldCheck },
     live_issues: { title: "Current Issues", subtitle: "Grouped runtime evidence with raw details kept behind drilldown.", icon: Radar },
     device_ui: { title: "Device + UI", subtitle: "Device layout, image loading, and protected preview checks.", icon: LayoutGrid },
-    money_cost: { title: "Money + Cost", subtitle: "Treasury labels, cost guardrails, and source proof boundaries.", icon: DollarSign },
+    money_cost: { title: "Money + Cost", subtitle: "Treasury labels, cost guardrails, and source evidence boundaries.", icon: DollarSign },
     telemetry_behavior: { title: "Telemetry + Behavior", subtitle: "Event, identity, watch-time, and behavior source agreement.", icon: Signal },
     support_creator: { title: "Support + Creator Monetization", subtitle: "Support access, creator status, and paid-GD surface checks.", icon: LifeBuoy },
 };
@@ -84,7 +84,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         && report.topFindings.some(isSourceOnlyEvidenceFinding)
         && !report.topFindings.some(isTypedEvidenceGateFinding)
         && !refreshGateOnly;
-    const proofBoundaryOnly = !hasFindings
+    const typedEvidenceBoundaryOnly = !hasFindings
         && sourceEvidenceGateOnly
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
     const reportStatusLabel = (() => {
@@ -103,7 +103,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     if (report.freshness === "failed") {
         return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "The source evidence could not be read and cannot clear this lane." };
     }
-    if (proofBoundaryOnly) {
+    if (typedEvidenceBoundaryOnly) {
         return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Site activity evidence required", findingLabel: evidenceGateOnly ? findingLabel : "Source evidence lane", sourceDetail: "Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves." };
     }
     if (sourceOnlyGateOnly) return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source checks only", findingLabel: evidenceGateOnly ? findingLabel : "Source-only evidence", sourceDetail: "Source validators passed; deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks remain separate source lanes." };

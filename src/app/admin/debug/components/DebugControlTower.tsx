@@ -98,12 +98,12 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
         .filter((report) => report.truthState !== "live" || report.criticalCount > 0 || report.findingCount > 0)
         .slice(0, 5);
     const visibleNextActions = model?.nextActions.slice(0, 3) ?? [];
-    const publicBetaNeedsFormalProof = canonicalBetaCapSummary.needsFormalProof;
+    const publicBetaNeedsTypedEvidence = canonicalBetaCapSummary.needsTypedEvidence;
     const publicBetaNeedsRefresh = canonicalBetaCapSummary.needsRefresh;
     const publicBetaNeedsReview = canonicalBetaCapSummary.needsReview;
     const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
-    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" || publicBetaNeedsRefresh ? "stale" : (publicBetaNeedsFormalProof || publicBetaNeedsReview) ? "review" : failedReportWithFindings ? "failed" : "live";
-    const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Source evidence" : publicBetaNeedsRefresh ? "Refresh due" : publicBetaNeedsReview ? "Review" : undefined;
+    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" || publicBetaNeedsRefresh ? "stale" : (publicBetaNeedsTypedEvidence || publicBetaNeedsReview) ? "review" : failedReportWithFindings ? "failed" : "live";
+    const publicBetaBadgeLabel = publicBetaNeedsTypedEvidence ? "Source evidence" : publicBetaNeedsRefresh ? "Refresh due" : publicBetaNeedsReview ? "Review" : undefined;
     const publicBetaReadinessReason = model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "";
     const publicBetaReadinessStatusLabel = model ? formatPublicBetaReadinessStatusForAdmin({
         status: model.canonicalPublicBetaReadinessStatus,

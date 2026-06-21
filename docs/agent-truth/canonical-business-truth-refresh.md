@@ -4,9 +4,9 @@ Generated Batch 8 cleanup evidence. Business truth remains separate from ops-hea
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T18:03:11.571Z",
+  "generatedAtUtc": "2026-06-21T19:36:16.210Z",
   "reportKey": "canonical-business-truth-refresh",
-  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
   "refreshPolicy": "bounded_snapshot_only",
   "productionReadRequired": false,
   "safeRefreshCommands": [
@@ -43,7 +43,7 @@ Generated Batch 8 cleanup evidence. Business truth remains separate from ops-hea
   "staleReason": "stale source inputs",
   "nextExactSteps": [
     "Refresh admin truth source sample with npm run check:admin-truth-source-sample.",
-    "Keep formal admin sample required until redacted first-party evidence is attached.",
+    "Keep the admin source activity sample required until redacted source activity evidence is attached.",
     "Review 74% confidence before calling business truth healthy."
   ]
 }

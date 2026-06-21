@@ -1,7 +1,7 @@
 # Final Telemetry Closure Lock
 
-Generated: 2026-06-21T14:21:26.639Z
-Current code version: a9f39a0099cec5fcc649a288d00b9c70b05143ff
+Generated: 2026-06-21T19:36:03.006Z
+Current code version: 187d6964a50ddf5a4077b19e88471c7e23414b75
 
 ## Summary
 
@@ -50,8 +50,8 @@ Current code version: a9f39a0099cec5fcc649a288d00b9c70b05143ff
 
 ## Missing Evidence
 
-- provider-smoke: stale_provider_smoke_evidence; next: Attach formal provider smoke evidence before beta exit review.
-- runtime-smoke: stale_runtime_smoke_evidence; next: Attach deployed runtime smoke evidence before beta exit review.
+- provider-smoke: stale_provider_smoke_evidence; next: Produce provider-backed site activity evidence before beta exit review.
+- runtime-smoke: stale_runtime_smoke_evidence; next: Produce deployed route evidence before beta exit review.
 
 ## Disabled Telemetry Behavior
 
@@ -68,5 +68,5 @@ Current code version: a9f39a0099cec5fcc649a288d00b9c70b05143ff
 ## Next Exact Steps
 
 1. Add or restore check:client-tracking-toggle-semantics as a dedicated closure artifact if the queued toggle phase did not land.
-2. Run UI source coverage and attach formal provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.
+2. Run UI source coverage and produce provider-backed site activity, deployed route, and admin source activity sample evidence before beta exit review.
 3. Collect runtime evidence for watch-time, materializers, BigQuery/cloud export, and GA4 evidence refresh before marking those lanes live.

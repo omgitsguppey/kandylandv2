@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T18:13:37.594Z",
+  "generatedAtUtc": "2026-06-21T19:37:12.241Z",
   "reportKey": "beta-health-algorithm-v2",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
   "summary": {
     "scoreVersion": "beta_health_v2",
     "binaryEvidenceGatesRemoved": true,
@@ -63,9 +63,9 @@
   ],
   "nextFixOrder": [
     "Run deterministic UI source coverage and use visual reproduction only for source-reported issues.",
-    "Attach formal provider smoke evidence.",
-    "Attach deployed runtime smoke evidence.",
-    "Attach admin truth sample evidence.",
+    "Produce provider-backed site activity evidence.",
+    "Produce deployed route evidence.",
+    "Produce admin source activity sample evidence.",
     "Resolve owner-review cloud/AI cost lanes with provider evidence."
   ]
 }

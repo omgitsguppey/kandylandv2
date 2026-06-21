@@ -3,15 +3,15 @@
 Artifact: `agent/state/beta-score-cleanup.generated.json`
 Validator: `npm run check:beta-score-cleanup`
 
-Generated: 2026-06-19T15:05:02.381Z
-Current source head: `e947d82891dfc7957cb4b9b9972d6378605a927d`
+Generated: 2026-06-21T19:37:12.441Z
+Current source head: `187d6964a50ddf5a4077b19e88471c7e23414b75`
 
 ## Summary
 
-- Beta score: 76.88/100, `External proof required`.
+- Beta score: 84/100, `Source evidence required`.
 - Scanner score: 100/100. This is scanner-only source hygiene, not beta readiness.
-- Evidence score: 46/100.
-- Evidence caps represented: 3.
+- Evidence score: 67.04/100.
+- Evidence caps represented: 2.
 - Cost-readiness lanes represented: 4.
 - Beta exit review can start: no.
 
@@ -20,13 +20,12 @@ Current source head: `e947d82891dfc7957cb4b9b9972d6378605a927d`
 - Source safety contributes 25 points because deterministic scanner findings are clean.
 - Targeted behavior contributes 20 points because source/economy/user-creator validators pass.
 - Freshness integrity contributes 10 points because legacy launch reports are retired from required freshness math and current source evidence artifacts are represented.
-- Visual/manual, runtime/provider, admin truth, and debug/runtime evidence lanes still score zero until formal artifacts exist.
+- Visual/manual compatibility, provider-backed site activity, deployed route, admin source activity, and debug/runtime evidence lanes still score zero until typed artifacts exist.
 
 Missing evidence caps:
 
-- Source validation only: Targeted behavior tests - Source behavior passed; formal runtime, provider, and admin proof stay separate.
-- External proof required: Runtime/provider smoke - Refresh formal provider proof and deployed runtime smoke evidence.
-- External proof required: Admin truth/sample evidence - Refresh the redacted production admin truth sample.
+- Source validation only: Targeted behavior tests - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.
+- Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.
 
 Scanner score 100 is scanner-only source hygiene and must never be read as beta readiness.
 
@@ -52,7 +51,7 @@ These lanes are source inventory and owner-review signals. `not_detected_in_repo
 ## Next Exact Steps
 
 1. Run UI source coverage before optional visual reproduction.
-2. Attach formal provider smoke evidence before clearing provider caps.
-3. Attach deployed runtime smoke evidence before clearing runtime caps.
-4. Attach a fresh admin truth sample before clearing admin truth caps.
+2. Produce provider-backed site activity evidence before clearing provider caps.
+3. Produce deployed route evidence before clearing runtime caps.
+4. Produce a fresh admin source activity sample before clearing admin caps.
 5. Review Cloud Run/App Hosting, Cloud SQL/Data Connect, and Gemini/Vertex cost lanes with owner evidence before beta exit.

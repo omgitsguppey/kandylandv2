@@ -73,6 +73,16 @@ describe("beta freshness language", () => {
     );
   });
 
+  it("normalizes legacy smoke/proof labels to typed site-activity evidence names", () => {
+    expect(
+      normalizeTechnicalFreshnessTerms(
+        "Runtime/provider smoke: Provider smoke: Payment context recorded. Runtime smoke: Keep deployed runtime smoke fresh. Attach provider smoke evidence.",
+      ),
+    ).toBe(
+      "provider-backed site activity + deployed route evidence: Provider-backed site activity: Payment context recorded. Deployed route evidence: Keep deployed runtime route evidence fresh. Produce provider-backed site activity evidence.",
+    );
+  });
+
   it("builds refresh guidance for known reports", () => {
     expect(getRefreshCommandForReport("agent/state/public-beta-score.generated.json")).toEqual({
       reportPath: "agent/state/public-beta-score.generated.json",
