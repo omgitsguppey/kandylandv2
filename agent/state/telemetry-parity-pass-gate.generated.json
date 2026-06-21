@@ -1,7 +1,7 @@
 {
   "reportKey": "telemetry-parity-pass-gate",
-  "generatedAtUtc": "2026-06-09T02:53:39.302Z",
-  "currentHead": "592022cba3f12d9d1a948d43ae822438b1d8f800",
+  "generatedAtUtc": "2026-06-21T04:33:29.039Z",
+  "currentHead": "89ee7595b232c449cf94ad88a0b9b208d81c3c20",
   "gate": {
     "status": "fail",
     "sourceParityStatus": "fail",
@@ -29,21 +29,21 @@
         "status": "missing",
         "required": false,
         "evidenceKind": "runtime",
-        "nextAction": "Attach fresh route-health/runtime smoke evidence for telemetry ingest and analytics display paths."
+        "nextAction": "Attach fresh deployed route-health evidence for telemetry ingest and analytics display paths."
       },
       {
         "proofClass": "provider_smoke",
         "status": "missing",
         "required": false,
         "evidenceKind": "provider",
-        "nextAction": "Attach formal redacted provider smoke evidence; source parity cannot clear this gate."
+        "nextAction": "Attach redacted provider-backed site activity evidence; source parity cannot clear this gate."
       },
       {
         "proofClass": "admin_truth_sample",
         "status": "missing",
         "required": false,
         "evidenceKind": "admin",
-        "nextAction": "Attach a fresh redacted Admin Truth sample with source freshness and sample counts."
+        "nextAction": "Attach a fresh redacted admin source sample with source freshness and sample counts."
       }
     ],
     "missingProofClasses": [

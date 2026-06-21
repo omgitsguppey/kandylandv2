@@ -53,7 +53,7 @@ describe("telemetry parity pass gate", () => {
     expect(gate.displaySummary).toContain("Sample presence confirmed");
   });
 
-  it("allows source parity to pass without clearing formal proof gates", () => {
+  it("allows source parity to pass without clearing required evidence classes", () => {
     const gate = buildTelemetryParityPassGate({
       eventSampleCount: 500,
       canonicalSampleCount: 500,

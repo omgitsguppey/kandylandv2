@@ -117,7 +117,7 @@ export function buildTelemetryParityPassGate(input: {
       required: requiredProofClasses.includes("source_parity"),
       evidenceKind: "source_only",
       nextAction: sourceParityPassAllowed
-        ? "Source telemetry parity is present; this does not prove runtime, provider, or admin truth."
+        ? "Source telemetry parity is present; this does not prove deployed route, provider-backed site activity, or admin source sample evidence."
         : "Restore source telemetry parity before considering final evidence gates.",
     },
     {
@@ -125,21 +125,21 @@ export function buildTelemetryParityPassGate(input: {
       status: proofStatus.runtime_route_health ?? "missing",
       required: requiredProofClasses.includes("runtime_route_health"),
       evidenceKind: "runtime",
-      nextAction: "Attach fresh route-health/runtime smoke evidence for telemetry ingest and analytics display paths.",
+      nextAction: "Attach fresh deployed route-health evidence for telemetry ingest and analytics display paths.",
     },
     {
       proofClass: "provider_smoke",
       status: proofStatus.provider_smoke ?? "missing",
       required: requiredProofClasses.includes("provider_smoke"),
       evidenceKind: "provider",
-      nextAction: "Attach formal redacted provider smoke evidence; source parity cannot clear this gate.",
+      nextAction: "Attach redacted provider-backed site activity evidence; source parity cannot clear this gate.",
     },
     {
       proofClass: "admin_truth_sample",
       status: proofStatus.admin_truth_sample ?? "missing",
       required: requiredProofClasses.includes("admin_truth_sample"),
       evidenceKind: "admin",
-      nextAction: "Attach a fresh redacted Admin Truth sample with source freshness and sample counts.",
+      nextAction: "Attach a fresh redacted admin source sample with source freshness and sample counts.",
     },
   ];
   const missingProofClasses = proofClasses
@@ -161,11 +161,11 @@ export function buildTelemetryParityPassGate(input: {
     blockers.has("refresh_failures_present")
       ? "Fix analytics refresh failures before promoting event sample parity."
       : missingProofClasses.includes("runtime_route_health")
-        ? "Source parity may pass, but final telemetry lock still needs runtime route-health evidence."
-        : missingProofClasses.includes("provider_smoke")
-          ? "Source parity may pass, but final telemetry lock still needs formal provider smoke evidence."
+      ? "Source parity may pass, but final telemetry lock still needs runtime route-health evidence."
+      : missingProofClasses.includes("provider_smoke")
+          ? "Source parity may pass, but final telemetry lock still needs provider-backed site activity evidence."
           : missingProofClasses.includes("admin_truth_sample")
-            ? "Source parity may pass, but final telemetry lock still needs a redacted admin truth sample."
+            ? "Source parity may pass, but final telemetry lock still needs a redacted admin source sample."
       : blockers.has("low_confidence") && eventSourcePresent && sampleSourcePresent
         ? "Event source and sample source are present; confidence is too low to promote telemetry parity."
         : blockers.has("missing_event_source") || blockers.has("missing_sample_source")
@@ -176,7 +176,7 @@ export function buildTelemetryParityPassGate(input: {
   const displaySummary = sourceParityPassAllowed && !finalPassAllowed
     ? `Source telemetry parity passes, but final proof is blocked by missing ${missingProofClasses.join(", ")}.`
     : finalPassAllowed
-      ? "Source telemetry parity and all required formal proof classes are present."
+      ? "Source telemetry parity and all required evidence classes are present."
     : input.canonicalSampleCount > 0
       ? "Sample presence confirmed, parity blocked by low confidence or refresh failures."
       : "Telemetry parity blocked because required samples are missing.";
