@@ -277,6 +277,51 @@ describe("user management refactor contract", () => {
     expect(model.personMetricConfidence.lowConfidenceMetrics[0].explanation).toContain("creator_fan_pass_started");
   });
 
+  it("blocks global activity counts when user parity is missing", () => {
+    const model = buildUserManagementSummary({
+      user: user(),
+      analytics: analytics(),
+      summary: summary(),
+      personMetricsHydration: hydration({
+        userParityStatus: {
+          visits: {
+            metricId: "visits",
+            state: "bridge_missing",
+            globalCount: 8,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global visits activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
+          page_views: {
+            metricId: "page_views",
+            state: "bridge_missing",
+            globalCount: 8,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global page_views activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
+        } as PersonMetricsHydrationReport["userParityStatus"],
+      }),
+      generatedAtUtc: "2026-05-23T12:00:00.000Z",
+    });
+
+    expect(model.activitySummary.state).toBe("partial");
+    expect(model.activitySummary.sessions).toBe(3);
+    expect(model.activitySummary.visits).toBeNull();
+    expect(model.activitySummary.pageViews).toBeNull();
+    expect(model.activitySummary.provenZero).toBe(false);
+    expect(model.activitySummary.missingSource).toContain("visits: bridge_missing");
+    expect(model.activitySummary.missingSource).toContain("page_views: bridge_missing");
+  });
+
   it("reports the refactor lane and score impact without protected runtime changes", () => {
     const report = buildUserManagementRefactorReport({
       users: [user()],

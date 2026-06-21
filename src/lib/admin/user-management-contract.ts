@@ -1,6 +1,7 @@
 import type { PersonMetricId } from "@/lib/analytics/person-metrics-contract";
 import type {
   PersonMetricHydrationStatus,
+  PersonMetricUserParityStatus,
   PersonMetricsHydrationReport,
 } from "@/lib/analytics/person-metrics-hydration";
 import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
@@ -221,6 +222,27 @@ function metricCount(report: PersonMetricsHydrationReport | null | undefined, me
   return typeof count === "number" && Number.isFinite(count) ? count : null;
 }
 
+function userParityBlocker(report: PersonMetricsHydrationReport | null | undefined, metricId: PersonMetricId) {
+  const parity = report?.userParityStatus?.[metricId];
+  return parity?.blocksUserParity ? parity : null;
+}
+
+function userScopedMetricCount(report: PersonMetricsHydrationReport | null | undefined, metricId: PersonMetricId, fallback: number | null = null) {
+  if (userParityBlocker(report, metricId)) return null;
+  const count = metricCount(report, metricId);
+  return count ?? fallback;
+}
+
+function userParityMissingSource(report: PersonMetricsHydrationReport | null | undefined, metricIds: readonly PersonMetricId[]) {
+  const blockers = metricIds
+    .map((metricId) => userParityBlocker(report, metricId))
+    .filter((parity): parity is PersonMetricUserParityStatus => Boolean(parity));
+  if (blockers.length === 0) return null;
+  return blockers
+    .map((parity) => `${parity.metricId}: ${parity.state}; ${parity.debugNextAction}`)
+    .join(" ");
+}
+
 function bestMetricConfidence(report: PersonMetricsHydrationReport | null | undefined, metricIds: readonly PersonMetricId[]) {
   const rank: Record<IdentityConfidence, number> = { unknown: 0, weak: 1, inferred: 2, linked: 3, exact: 4 };
   return metricIds
@@ -286,27 +308,28 @@ function lowConfidenceMetrics(report: PersonMetricsHydrationReport | null | unde
 }
 
 function activityState(analytics?: UserAnalytics | null, report?: PersonMetricsHydrationReport | null): UserManagementSummary["activitySummary"] {
+  const parityMissingSource = userParityMissingSource(report, ACTIVITY_METRICS);
   if (analytics) {
     return {
-      state: analytics.metricTruthLabel === "partial" || analytics.recoveredFromFacts ? "partial" : "live",
+      state: analytics.metricTruthLabel === "partial" || analytics.recoveredFromFacts || parityMissingSource ? "partial" : "live",
       totalEvents: analytics.eventCount,
-      sessions: analytics.sessionCount,
-      visits: metricCount(report, "visits"),
-      activeDays: metricCount(report, "active_days"),
-      pageViews: analytics.viewCount,
-      provenZero: analytics.eventCount === 0,
-      missingSource: null,
+      sessions: userScopedMetricCount(report, "sessions", analytics.sessionCount),
+      visits: userScopedMetricCount(report, "visits"),
+      activeDays: userScopedMetricCount(report, "active_days"),
+      pageViews: userScopedMetricCount(report, "page_views", analytics.viewCount),
+      provenZero: !parityMissingSource && analytics.eventCount === 0,
+      missingSource: parityMissingSource,
     };
   }
   return {
     state: "collecting",
     totalEvents: null,
-    sessions: metricCount(report, "sessions"),
-    visits: metricCount(report, "visits"),
-    activeDays: metricCount(report, "active_days"),
-    pageViews: metricCount(report, "page_views"),
+    sessions: userScopedMetricCount(report, "sessions"),
+    visits: userScopedMetricCount(report, "visits"),
+    activeDays: userScopedMetricCount(report, "active_days"),
+    pageViews: userScopedMetricCount(report, "page_views"),
     provenZero: false,
-    missingSource: "analytics_users_rollup or analytics_user_daily detail source not loaded for this user.",
+    missingSource: parityMissingSource ?? "analytics_users_rollup or analytics_user_daily detail source not loaded for this user.",
   };
 }
 
