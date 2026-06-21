@@ -617,6 +617,15 @@ export type LaunchCriticalRecoveryCoverageReport = {
     observedFirstPartyRequired: true;
     modeledOrInferredCanCalibrateOnly: true;
     minObservedFirstPartyCoveragePercent: typeof LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT;
+    requiredObservedFirstPartyFamilyCount: number;
+    observedFirstPartyFamilyCount: number;
+    observedFirstPartyCoveragePercent: number;
+    observedFirstPartyFamilyGapCount: number;
+    calibrationOnlyFamilyCount: number;
+    inferredLegacyFamilyCount: number;
+    cachedSnapshotFamilyCount: number;
+    missingSourceFamilyCount: number;
+    productTruthEligibleFamilyCount: number;
     status: "pass" | "blocked";
     reason: string;
     nextAction: string;
@@ -3597,7 +3606,14 @@ export function buildLaunchCriticalRecoveryCoverageReport(input: {
     sourceRoleCounts,
     evidenceKindCounts,
   } = countLaunchCriticalSourceStates(familySourceStates);
-  const sourceCoverageStatus = observedFirstPartyCoveragePercent >= LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT ? "pass" : "blocked";
+  const requiredObservedFirstPartyFamilyCount = Math.ceil(
+    (LAUNCH_CRITICAL_EVENT_FAMILIES.length * LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT) / 100,
+  );
+  const observedFirstPartyFamilyGapCount = Math.max(
+    0,
+    requiredObservedFirstPartyFamilyCount - observedFirstPartyFamilyCount,
+  );
+  const sourceCoverageStatus = observedFirstPartyFamilyGapCount === 0 ? "pass" : "blocked";
 
   return {
     reportKey: "launch-critical-analytics-recovery-coverage",
@@ -3627,6 +3643,15 @@ export function buildLaunchCriticalRecoveryCoverageReport(input: {
       observedFirstPartyRequired: true,
       modeledOrInferredCanCalibrateOnly: true,
       minObservedFirstPartyCoveragePercent: LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT,
+      requiredObservedFirstPartyFamilyCount,
+      observedFirstPartyFamilyCount,
+      observedFirstPartyCoveragePercent,
+      observedFirstPartyFamilyGapCount,
+      calibrationOnlyFamilyCount: sourceRoleCounts.calibration_only,
+      inferredLegacyFamilyCount: sourceCoverageStateCounts.inferred_legacy,
+      cachedSnapshotFamilyCount: sourceCoverageStateCounts.cached_snapshot,
+      missingSourceFamilyCount: sourceCoverageStateCounts.source_missing,
+      productTruthEligibleFamilyCount,
       status: sourceCoverageStatus,
       reason: sourceCoverageStatus === "pass"
         ? `Observed first-party or server-owned launch-critical coverage meets the ${LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT}% recovery calibration floor.`

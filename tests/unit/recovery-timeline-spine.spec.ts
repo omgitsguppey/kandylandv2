@@ -1794,6 +1794,15 @@ describe("recovery timeline spine", () => {
         observedFirstPartyRequired: true,
         modeledOrInferredCanCalibrateOnly: true,
         minObservedFirstPartyCoveragePercent: LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT,
+        requiredObservedFirstPartyFamilyCount: 13,
+        observedFirstPartyFamilyCount: 13,
+        observedFirstPartyCoveragePercent: 100,
+        observedFirstPartyFamilyGapCount: 0,
+        calibrationOnlyFamilyCount: 0,
+        inferredLegacyFamilyCount: 0,
+        cachedSnapshotFamilyCount: 0,
+        missingSourceFamilyCount: 0,
+        productTruthEligibleFamilyCount: 13,
         status: "pass",
       },
       dedupeRules: RECOVERY_METRIC_DEDUPE_RULES,
@@ -1918,6 +1927,17 @@ describe("recovery timeline spine", () => {
     });
     expect(report.sourceCoverageStatus).toBe("blocked");
     expect(report.holdbackValidation.status).toBe("blocked");
+    expect(report.holdbackValidation).toMatchObject({
+      requiredObservedFirstPartyFamilyCount: 13,
+      observedFirstPartyFamilyCount: 0,
+      observedFirstPartyCoveragePercent: 0,
+      observedFirstPartyFamilyGapCount: 13,
+      calibrationOnlyFamilyCount: 13,
+      inferredLegacyFamilyCount: 0,
+      cachedSnapshotFamilyCount: 0,
+      missingSourceFamilyCount: 0,
+      productTruthEligibleFamilyCount: 0,
+    });
     expect(report.holdbackValidation.reason).toContain(`cannot clear the ${LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT}% first-party recovery calibration floor`);
     expect(report.familySourceStates.every((family) => family.sourceCoverageState === "modeled_second_source")).toBe(true);
     expect(report.familySourceStates.every((family) => family.sourceRole === "calibration_only")).toBe(true);

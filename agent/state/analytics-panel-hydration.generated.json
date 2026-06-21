@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-21T01:12:06.045Z",
-  "currentHead": "6e27a8290729f24a26801bc4434e723033a5b383",
+  "generatedAtUtc": "2026-06-21T01:19:15.537Z",
+  "currentHead": "4d54e41c4321de14762abd92f3954332661b997b",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -357,39 +357,28 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 6,
+    "total": 4,
     "byClassification": {
-      "current_generated_artifact_to_commit": 1,
-      "validator_artifact_expected": 1,
-      "launch_analytics_recovery_source_expected": 1,
-      "source_agreement_failure_classification_required": 1,
-      "test_artifact_expected": 2
+      "stale_generated_artifact_to_regenerate": 1,
+      "launch_analytics_recovery_source_expected": 3
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "agent/state/admin-truth-sample-evidence.generated.json",
-        "classification": "current_generated_artifact_to_commit"
+        "path": "agent/state/recovery-timeline-spine.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "scripts/agent/validate-admin-truth-sample-evidence.ts",
-        "classification": "validator_artifact_expected"
+        "path": "scripts/agent/validate-recovery-timeline-spine.ts",
+        "classification": "launch_analytics_recovery_source_expected"
       },
       {
         "path": "src/lib/analytics/recovery-timeline-spine.ts",
         "classification": "launch_analytics_recovery_source_expected"
       },
       {
-        "path": "src/lib/analytics/source-agreement-detail.ts",
-        "classification": "source_agreement_failure_classification_required"
-      },
-      {
-        "path": "tests/unit/evidence-artifact-schemas.spec.ts",
-        "classification": "test_artifact_expected"
-      },
-      {
-        "path": "tests/unit/source-agreement-failure-detail.spec.ts",
-        "classification": "test_artifact_expected"
+        "path": "tests/unit/recovery-timeline-spine.spec.ts",
+        "classification": "launch_analytics_recovery_source_expected"
       }
     ],
     "sampleTruncated": false

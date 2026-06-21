@@ -586,6 +586,12 @@ function main() {
       && launchCoverage.holdbackValidation.modeledOrInferredCanCalibrateOnly
       && launchCoverage.targetCoveragePercent === LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT
       && launchCoverage.holdbackValidation.minObservedFirstPartyCoveragePercent === LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT
+      && launchCoverage.holdbackValidation.requiredObservedFirstPartyFamilyCount === LAUNCH_CRITICAL_EVENT_FAMILIES.length
+      && launchCoverage.holdbackValidation.observedFirstPartyFamilyCount === launchCoverage.observedFirstPartyFamilyCount
+      && launchCoverage.holdbackValidation.observedFirstPartyCoveragePercent === launchCoverage.observedFirstPartyCoveragePercent
+      && launchCoverage.holdbackValidation.observedFirstPartyFamilyGapCount === 0
+      && launchCoverage.holdbackValidation.calibrationOnlyFamilyCount === 0
+      && launchCoverage.holdbackValidation.productTruthEligibleFamilyCount === launchCoverage.productTruthEligibleFamilyCount
       && launchCoverage.familySourceStates.length === LAUNCH_CRITICAL_EVENT_FAMILIES.length
       && launchCoverage.familySourceStates.every((entry) => entry.observedFirstParty && entry.productTruthEligible),
     launchFamilySourceRolesAndMathReasons: launchCoverage.familySourceStates.every((entry) =>

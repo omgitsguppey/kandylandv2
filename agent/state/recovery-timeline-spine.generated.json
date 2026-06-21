@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-06-21T01:13:55.698Z",
+  "generatedAtUtc": "2026-06-21T01:23:30.326Z",
   "reportKey": "recovery-timeline-spine",
   "version": "2026.06.recovery-timeline-spine.1",
   "status": "pass",
@@ -238,6 +238,15 @@
         "observedFirstPartyRequired": true,
         "modeledOrInferredCanCalibrateOnly": true,
         "minObservedFirstPartyCoveragePercent": 95,
+        "requiredObservedFirstPartyFamilyCount": 13,
+        "observedFirstPartyFamilyCount": 13,
+        "observedFirstPartyCoveragePercent": 100,
+        "observedFirstPartyFamilyGapCount": 0,
+        "calibrationOnlyFamilyCount": 0,
+        "inferredLegacyFamilyCount": 0,
+        "cachedSnapshotFamilyCount": 0,
+        "missingSourceFamilyCount": 0,
+        "productTruthEligibleFamilyCount": 13,
         "status": "pass",
         "reason": "Observed first-party or server-owned launch-critical coverage meets the 95% recovery calibration floor.",
         "nextAction": "Keep dedupe and identity stitching active while late-arriving evidence remains inside the 12-day window."
