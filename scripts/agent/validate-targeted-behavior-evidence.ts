@@ -68,7 +68,7 @@ const ROOT = join(__dirname, "..", "..");
 const ARTIFACT_PATH = "agent/state/targeted-behavior-evidence.generated.json";
 const DOC_PATH = "docs/agent-truth/targeted-behavior-evidence.md";
 
-const DOES_NOT_PROVE = "Does not prove provider_smoke, runtime_smoke, admin_truth_sample, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.";
+const DOES_NOT_PROVE = "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.";
 const DOES_NOT_CLEAR = ["provider_smoke", "runtime_smoke", "admin_truth_sample"];
 
 export const SUPERSEDED_TARGETED_BEHAVIOR_VALIDATORS = [
@@ -316,8 +316,8 @@ export function buildTargetedBehaviorEvidenceReport(
     visualQaPerformed: false,
     realDeviceSmokePerformed: false,
     detail: passed
-      ? "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence."
-      : "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
+      ? "Current implemented source behavior validators passed. This is targeted behavior evidence only; provider-backed site activity, deployed route, and admin source sample evidence remain separate."
+      : "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only; provider-backed site activity, deployed route, and admin source sample evidence remain separate.",
     summary: passed
       ? "Targeted behavior evidence was rebuilt from current lock validators, replacing obsolete per-surface source behavior artifacts."
       : "Targeted behavior evidence was rebuilt with blocked or unavailable validator lanes recorded.",
@@ -337,9 +337,9 @@ export function buildTargetedBehaviorEvidenceReport(
       targetedBehaviorGatePassed: passed,
       notes: [
         "This artifact is source-backed targeted behavior evidence only.",
-        "It cannot replace provider smoke, runtime smoke, or production admin truth samples.",
+        "It cannot replace provider-backed site activity, deployed route, or admin source sample evidence.",
         "Obsolete per-surface validators are superseded by current lock validators instead of being counted as current failures.",
-        "Beta exit readiness must stay false until formal evidence lanes are attached.",
+        "Beta exit readiness must stay false until required evidence lanes are attached.",
       ],
     },
   };
@@ -389,14 +389,14 @@ Validator: \`npm run check:targeted-behavior-evidence\`
 
 ## Scope
 
-This artifact records source-backed targeted behavior validator results from the latest code version. It is not runtime smoke, provider evidence, or production admin truth sample evidence.
+This artifact records source-backed targeted behavior validator results from the latest code version. It is not deployed route, provider-backed site activity, or admin source sample evidence.
 
 ## Summary
 
 - Source commit: \`${report.sourceCommit}\`
 - Latest code version: \`${report.latestCodeVersion}\`
 - Passed: ${report.passed}
-- Formal evidence impact: \`${report.formalEvidenceImpact}\`
+- Evidence impact: \`${report.formalEvidenceImpact}\`
 - Does not clear: ${report.doesNotClear.map((gate) => `\`${gate}\``).join(", ")}
 
 ## Validator Results
@@ -415,7 +415,7 @@ ${report.notCovered.map((item) => `- ${item}`).join("\n")}
 
 ## Readiness Impact
 
-Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace provider smoke, runtime smoke, real-device smoke, deployed runtime smoke, or production admin truth samples.
+Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace provider-backed site activity, deployed route, real-device, or admin source sample evidence.
 `;
 }
 
@@ -426,11 +426,10 @@ function main() {
     latestCodeVersion: head,
     validatorResults: validatorResultsForHead(head),
     notCovered: [
-      "provider smoke",
-      "runtime smoke",
-      "admin truth sample",
-      "real-device smoke",
-      "deployed runtime smoke",
+      "provider-backed site activity evidence",
+      "deployed route evidence",
+      "admin source sample evidence",
+      "real-device evidence",
     ],
   });
 

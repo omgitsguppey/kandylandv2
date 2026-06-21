@@ -23,7 +23,7 @@ function result(overrides: Partial<TargetedBehaviorValidatorResult> = {}): Targe
 }
 
 describe("targeted behavior evidence", () => {
-  it("passes for current source-only behavior evidence without clearing formal gates", () => {
+  it("passes for current source-only behavior evidence without clearing required evidence lanes", () => {
     const report = buildTargetedBehaviorEvidenceReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
       latestCodeVersion: head,
@@ -36,7 +36,7 @@ describe("targeted behavior evidence", () => {
           surfaces: ["mobile_ui"],
         }),
       ],
-      notCovered: ["provider smoke"],
+      notCovered: ["provider-backed site activity evidence"],
     });
 
     expect(report.status).toBe("passed");
