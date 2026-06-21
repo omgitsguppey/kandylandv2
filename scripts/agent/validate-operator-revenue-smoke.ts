@@ -52,7 +52,7 @@ function positiveAmount(value: unknown) {
 }
 
 function plainLanguageNote() {
-  return "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
+  return "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.";
 }
 
 function currentHead() {
@@ -80,7 +80,7 @@ export function buildOperatorRevenueSmokeReport(options: BuildOptions): Operator
       providerSmokeGateStatus: "missing_formal_evidence",
       betaGateImpact: "product_signal_only",
       canStartBetaExitReview: false,
-      nextAction: "Optional formal provider/app artifact if operator chooses; not required for acknowledging the sale.",
+      nextAction: "Optional provider-backed site activity artifact if operator chooses; not required for acknowledging the sale.",
     },
     plainLanguageNote: plainLanguageNote(),
     evidenceSeparation: {
@@ -99,9 +99,9 @@ export function buildOperatorRevenueSmokeReport(options: BuildOptions): Operator
     ],
     nextExactSteps: [
       "Keep revenue smoke classified as operator_confirmed_revenue_smoke.",
-      "Keep provider smoke gate classified as missing_formal_evidence until a formal artifact exists.",
+      "Keep provider lane classified as missing_formal_evidence until provider-backed site activity evidence exists.",
       "Do not mark beta exit ready from operator confirmation alone.",
-      "If desired later, attach redacted formal provider/app evidence under agent/evidence/provider-smoke/.",
+      "If desired later, attach redacted provider-backed site activity evidence under agent/evidence/provider-smoke/.",
     ],
   };
 }
@@ -130,7 +130,7 @@ export function validateOperatorRevenueSmokeReport(
     failures.push("providerArtifactAttached must remain false until a formal artifact exists.");
   }
   if (summary.formalProviderSmokePassed !== false || summary.providerSmokeGateStatus !== "missing_formal_evidence") {
-    failures.push("operator-confirmed revenue smoke must not be treated as formal provider proof.");
+    failures.push("operator-confirmed revenue smoke must not be treated as provider-backed site activity evidence.");
   }
   if (summary.betaGateImpact !== "product_signal_only") {
     failures.push("operator confirmation must keep betaGateImpact as product_signal_only.");
@@ -138,20 +138,20 @@ export function validateOperatorRevenueSmokeReport(
   if (summary.canStartBetaExitReview !== false) {
     failures.push("operator-confirmed revenue smoke alone must not mark beta exit ready.");
   }
-  if (!summary.nextAction.includes("Optional formal provider/app artifact")) {
-    failures.push("nextAction must make formal provider/app artifact optional for acknowledgement.");
+  if (!summary.nextAction.includes("Optional provider-backed site activity artifact")) {
+    failures.push("nextAction must make provider-backed site activity evidence optional for acknowledgement.");
   }
   if (report.plainLanguageNote !== plainLanguageNote()) {
-    failures.push("plainLanguageNote must separate operator-confirmed payment context from formal provider evidence.");
+    failures.push("plainLanguageNote must separate operator-confirmed payment context from provider-backed site activity evidence.");
   }
   if (!report.evidenceSeparation?.acknowledgedAsRealProductSignal) {
     failures.push("operator payment must be acknowledged as real product signal.");
   }
   if (!report.evidenceSeparation?.formalProviderEvidenceRequiredForGate) {
-    failures.push("formal provider evidence must remain required for the provider gate.");
+    failures.push("provider-backed site activity evidence must remain required for the provider lane.");
   }
   if (report.evidenceSeparation?.providerScreenshotsDemanded) {
-    failures.push("validator must not demand provider screenshots for acknowledging the operator-confirmed sale.");
+    failures.push("validator must not demand provider visual artifacts for acknowledging the operator-confirmed sale.");
   }
   if (
     report.evidenceSeparation?.productionReadsPerformed
@@ -189,14 +189,14 @@ Latest code version: ${report.currentHead}
 - Product: ${report.summary.product}
 - Confirmation source: ${report.summary.confirmationSource}
 - Provider artifact attached: ${report.summary.providerArtifactAttached}
-- Formal provider smoke passed: ${report.summary.formalProviderSmokePassed}
+- Provider-backed site activity evidence passed: ${report.summary.formalProviderSmokePassed}
 - Provider smoke gate: ${report.summary.providerSmokeGateStatus}
 - Beta gate impact: ${report.summary.betaGateImpact}
 - Beta exit review can start from this alone: ${report.summary.canStartBetaExitReview}
 
 ${report.plainLanguageNote}
 
-This is real product signal and should improve confidence notes. It is not formal provider-attached proof and does not clear the provider smoke gate.
+This is real product signal and should improve confidence notes. It is not provider-backed site activity evidence and does not clear the provider lane.
 
 ## Next Action
 

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T18:05:44.270Z",
+  "generatedAtUtc": "2026-06-21T04:52:49.538Z",
   "reportKey": "operator-revenue-smoke",
-  "currentHead": "5a0432affe578dbeaa83ad87ee289b9bcc001d6f",
+  "currentHead": "5499abae52f5a06e06141b42046b09469c4502d0",
   "summary": {
     "revenueSmokeStatus": "operator_confirmed_revenue_smoke",
     "amountUsdConfirmed": 50,
@@ -12,9 +12,9 @@
     "providerSmokeGateStatus": "missing_formal_evidence",
     "betaGateImpact": "product_signal_only",
     "canStartBetaExitReview": false,
-    "nextAction": "Optional formal provider/app artifact if operator chooses; not required for acknowledging the sale."
+    "nextAction": "Optional provider-backed site activity artifact if operator chooses; not required for acknowledging the sale."
   },
-  "plainLanguageNote": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
+  "plainLanguageNote": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.",
   "evidenceSeparation": {
     "acknowledgedAsRealProductSignal": true,
     "formalProviderEvidenceRequiredForGate": true,
@@ -31,8 +31,8 @@
   ],
   "nextExactSteps": [
     "Keep revenue smoke classified as operator_confirmed_revenue_smoke.",
-    "Keep provider smoke gate classified as missing_formal_evidence until a formal artifact exists.",
+    "Keep provider lane classified as missing_formal_evidence until provider-backed site activity evidence exists.",
     "Do not mark beta exit ready from operator confirmation alone.",
-    "If desired later, attach redacted formal provider/app evidence under agent/evidence/provider-smoke/."
+    "If desired later, attach redacted provider-backed site activity evidence under agent/evidence/provider-smoke/."
   ]
 }

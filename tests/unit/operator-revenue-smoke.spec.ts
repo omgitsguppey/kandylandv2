@@ -24,7 +24,7 @@ function reportFixture(overrides: Partial<OperatorRevenueSmokeReport> = {}): Ope
 }
 
 describe("operator revenue smoke", () => {
-  it("records the operator-confirmed GumDrop payment without treating it as provider proof", () => {
+  it("records the operator-confirmed GumDrop payment without treating it as provider-backed site activity evidence", () => {
     const report = reportFixture();
 
     expect(report.summary.revenueSmokeStatus).toBe("operator_confirmed_revenue_smoke");
@@ -37,7 +37,7 @@ describe("operator revenue smoke", () => {
     expect(validateOperatorRevenueSmokeReport(report, "head")).toEqual([]);
   });
 
-  it("fails if operator confirmation is promoted to formal provider proof", () => {
+  it("fails if operator confirmation is promoted to provider-backed site activity evidence", () => {
     const report = reportFixture({
       summary: {
         ...reportFixture().summary,
@@ -47,7 +47,7 @@ describe("operator revenue smoke", () => {
     });
 
     const failures = validateOperatorRevenueSmokeReport(report, "head");
-    expect(failures).toContain("operator-confirmed revenue smoke must not be treated as formal provider proof.");
+    expect(failures).toContain("operator-confirmed revenue smoke must not be treated as provider-backed site activity evidence.");
     expect(failures).toContain("operator confirmation must keep betaGateImpact as product_signal_only.");
   });
 
@@ -70,7 +70,7 @@ describe("operator revenue smoke", () => {
     });
 
     expect(validateOperatorRevenueSmokeReport(report, "head")).toContain(
-      "plainLanguageNote must separate operator-confirmed payment context from formal provider evidence.",
+      "plainLanguageNote must separate operator-confirmed payment context from provider-backed site activity evidence.",
     );
   });
 
