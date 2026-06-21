@@ -45,8 +45,7 @@ export type PublicBetaReadinessStatus =
   | "Blocked"
   | "Unknown evidence"
   | "Stale evidence"
-  | "Runtime unverified"
-  | "Visual QA required";
+  | "Runtime unverified";
 export type PublicBetaDocsBasis = "google" | "apple" | "kandydrops" | "repo";
 export type PublicBetaHealthDimension =
   | "sourceHealth"
@@ -401,13 +400,12 @@ const READINESS_STATUS_RANK: Record<PublicBetaReadinessStatus, number> = {
   "Source validation only": 1,
   "Ready with smoke required": 2,
   "Runtime unverified": 3,
-  "Visual QA required": 4,
-  "Source evidence required": 5,
-  "Unknown evidence": 6,
-  "Needs review": 7,
-  "Stale evidence": 8,
-  "External proof required": 9,
-  Blocked: 10,
+  "Source evidence required": 4,
+  "Unknown evidence": 5,
+  "Needs review": 6,
+  "Stale evidence": 7,
+  "External proof required": 8,
+  Blocked: 9,
 };
 
 function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
@@ -418,7 +416,7 @@ function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
 function readinessStatusToLegacyStatus(status: PublicBetaReadinessStatus, score: number, hasCritical: boolean): PublicBetaStatus {
   if (status === "Blocked" || hasCritical) return "fail";
   if (status === "External proof required" || status === "Stale evidence" || status === "Needs review") return "beta-risk";
-  if (status === "Source evidence required" || status === "Unknown evidence" || status === "Visual QA required" || status === "Runtime unverified") return "warning";
+  if (status === "Source evidence required" || status === "Unknown evidence" || status === "Runtime unverified") return "warning";
   if (status === "Source validation only" || status === "Ready with smoke required") return score >= PUBLIC_BETA_STATUS_THRESHOLDS.pass ? "pass" : "warning";
   return resolvePublicBetaStatus(score, hasCritical);
 }
@@ -434,8 +432,6 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.staleEvidence;
     case "Runtime unverified":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.runtimeUnverified;
-    case "Visual QA required":
-      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.visualQaRequired;
     case "Unknown evidence":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.unknownEvidence;
     case "Needs review":

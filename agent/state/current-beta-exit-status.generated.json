@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T19:46:29.312Z",
+  "generatedAtUtc": "2026-06-21T01:53:42.056Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "53112b169e7e3e1599b1d651059bec9134249602",
+  "currentHead": "891f6d1ed21c4ade52a1fdbd18f0771fc2e7fe9a",
   "summary": {
     "betaVersion": "1.6.9",
     "betaScore": 73.57,
@@ -88,7 +88,7 @@
         "sourceStatus": "stale_admin_truth_sample_evidence",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
         "captureStatus": "stale",
-        "sourceCommit": "abe95d7eb82c56a1f8d4492a17f22dc15196d231",
+        "sourceCommit": "6e27a8290729f24a26801bc4434e723033a5b383",
         "canClearGate": false,
         "nextAction": "Attach or refresh a redacted admin truth sample for the current code version."
       }
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T19:46:29.312Z",
+      "generatedAtUtc": "2026-06-21T01:53:42.056Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T19:45:44.444Z",
-      "ageHours": 0.012463333333333333,
+      "generatedAtUtc": "2026-06-21T01:52:36.716Z",
+      "ageHours": 0.01815,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,

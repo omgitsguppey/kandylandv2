@@ -100,7 +100,6 @@ function validateEvidenceGate(gate: PublicBetaEvidenceGate, index: number) {
     "Unknown evidence",
     "Stale evidence",
     "Runtime unverified",
-    "Visual QA required",
   ].includes(gate.status)) {
     failures.push(`evidenceGates[${index}].status is invalid.`);
   }
@@ -250,7 +249,6 @@ if (report) {
     "Unknown evidence",
     "Stale evidence",
     "Runtime unverified",
-    "Visual QA required",
   ].includes(report.readinessStatus)) {
     failures.push("readinessStatus must be an honest evidence-aware readiness status.");
   }

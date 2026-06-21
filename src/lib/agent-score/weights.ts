@@ -44,7 +44,6 @@ export const PUBLIC_BETA_EVIDENCE_WEIGHTS = {
 export const PUBLIC_BETA_EVIDENCE_SCORE_CAPS = {
   readyWithSmokeRequired: 94,
   runtimeUnverified: 89,
-  visualQaRequired: 89,
   unknownEvidence: 84,
   needsReview: 79,
   staleEvidence: 79,
