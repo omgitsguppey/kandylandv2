@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-06-21T03:07:41.565Z",
+  "generatedAtUtc": "2026-06-21T12:44:31.108Z",
   "reportKey": "self-healing-refresh-queue",
-  "currentHead": "523d99a7c36ec53c55949148e6bd21e93f951ece",
-  "sourceCommit": "523d99a7c36ec53c55949148e6bd21e93f951ece",
+  "currentHead": "4cb0a7dedd114ff4a1a32d680676d69208844dcf",
+  "sourceCommit": "4cb0a7dedd114ff4a1a32d680676d69208844dcf",
   "overallStatus": "pass",
   "queue": [
     {
       "artifact": "agent/state/score-80-path-lock.generated.json",
       "staleReason": "source_backed",
       "refreshCommand": "npm run check:beta-score",
-      "scoreImpactEstimate": 8.32,
+      "scoreImpactEstimate": 11.32,
       "owner": "repo",
       "dependencyOrder": 1,
       "canRunAutomatically": true,
@@ -79,8 +79,8 @@
     },
     {
       "artifact": "agent/state/mobile-ui-final-lock.generated.json",
-      "staleReason": "stale_source_version",
-      "refreshCommand": "npm run check:mobile-ui-final-lock",
+      "staleReason": "UI source coverage required",
+      "refreshCommand": "npm run check:ui-visual-smoke-minimal",
       "scoreImpactEstimate": 1,
       "owner": "mobile",
       "dependencyOrder": 7,
@@ -91,8 +91,8 @@
     },
     {
       "artifact": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "staleReason": "stale_source_version",
-      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
+      "staleReason": "UI source coverage required",
+      "refreshCommand": "npm run check:ui-visual-smoke-minimal",
       "scoreImpactEstimate": 1,
       "owner": "mobile",
       "dependencyOrder": 8,
@@ -214,7 +214,7 @@
     "total": 17,
     "automatic": 12,
     "blocked": 5,
-    "totalScoreImpactEstimate": 43.4
+    "totalScoreImpactEstimate": 46.4
   },
   "integration": {
     "betaScoreRefreshPlan": true,

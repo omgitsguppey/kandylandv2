@@ -1,13 +1,13 @@
 # Self-Healing Refresh Queue
 
-Status: source-only stale artifact refresh queue. It orders registered refresh commands and blocks formal evidence/manual/provider/runtime proof until artifacts are attached.
+Status: source-only stale artifact refresh queue. It orders registered refresh commands and keeps provider-backed, deployed route, and admin source activity evidence in their own lanes.
 
 ## Summary
 
 - Queue entries: 17
 - Automatic entries: 12
 - Blocked entries: 5
-- Estimated score impact: 43.4
+- Estimated score impact: 46.4
 
 ## Queue
 
@@ -16,7 +16,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Owner: repo
 - Stale reason: source_backed
 - Refresh command: `npm run check:beta-score`
-- Score impact estimate: 8.32
+- Score impact estimate: 11.32
 - Can run automatically: true
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
@@ -74,8 +74,8 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 ### 7. agent/state/mobile-ui-final-lock.generated.json
 
 - Owner: mobile
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:mobile-ui-final-lock`
+- Stale reason: UI source coverage required
+- Refresh command: `npm run check:ui-visual-smoke-minimal`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
@@ -84,8 +84,8 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 ### 8. agent/state/user-loading-wallet-mobile-refinement.generated.json
 
 - Owner: mobile
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:user-loading-wallet-mobile-refinement`
+- Stale reason: UI source coverage required
+- Refresh command: `npm run check:ui-visual-smoke-minimal`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none

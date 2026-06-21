@@ -62,10 +62,8 @@ export interface SelfHealingRefreshQueueReport {
 
 type SourceEvidenceKind = "runtime" | "provider" | "admin_truth" | "generic";
 
-const FORMAL_EVIDENCE_PATTERN = /\battach formal|formal provider|formal runtime|admin truth sample|provider smoke|runtime smoke/i;
-const LEGACY_SCREENSHOT_EVIDENCE_PATTERN =
-  /\b(manual screenshot|screenshot evidence|visual\/manual screenshot|targeted visual\/manual|operator screenshot|manual visual|visual manual|visual proof|visual evidence|visual qa|manual ui evidence|manual mobile ui evidence)\b/i;
-const LEGACY_MANUAL_UI_PROOF_PATTERN = /\bmanual proof\b/i;
+const BLOCKED_EVIDENCE_LANE_PATTERN = /\battach formal|formal provider|formal runtime|admin truth sample|provider smoke|runtime smoke/i;
+const UI_SOURCE_EVIDENCE_REQUEST_PATTERN = /\b(screenshot|visual|browser|surface|modal|dialog|drawer|layout|mobile|desktop)\b/i;
 const UI_EVIDENCE_CONTEXT_PATTERN = /\b(ui|visual|browser|surface|modal|dialog|drawer|layout|mobile|desktop|screenshot)\b/i;
 const FORBIDDEN_COMMAND_PATTERN = /\b(firebase deploy|gcloud|deploy|production read|paypal|provider call)\b/i;
 const UI_SOURCE_COVERAGE_REFRESH_COMMAND = "npm run check:ui-visual-smoke-minimal";
@@ -100,9 +98,9 @@ function formalEvidenceKind(value: string): SourceEvidenceKind | null {
   const normalized = normalizeFormalEvidenceText(value);
   if (!normalized) return null;
   if (/\b(admin truth sample evidence|admin truth sample|admin sample required|truth sample|admin source activity sample|admin source sample)\b/u.test(normalized)) return "admin_truth";
-  if (/\b(provider smoke evidence|provider smoke|formal provider|external proof|required provider|provider backed|provider source|provider manual proof)\b/u.test(normalized)) return "provider";
+  if (/\b(provider smoke evidence|provider smoke|formal provider|external proof|required provider|provider backed|provider source)\b/u.test(normalized)) return "provider";
   if (/\b(runtime smoke evidence|runtime smoke|debug runtime evidence|deployed runtime|runtime route evidence|formal runtime)\b/u.test(normalized)) return "runtime";
-  if (FORMAL_EVIDENCE_PATTERN.test(value)) return "generic";
+  if (BLOCKED_EVIDENCE_LANE_PATTERN.test(value)) return "generic";
   return null;
 }
 
@@ -110,13 +108,12 @@ function isFormalEvidenceRefresh(command: string, artifact: string, status = "")
   return formalEvidenceKind(`${command} ${artifact} ${status}`) !== null;
 }
 
-function isLegacyScreenshotEvidenceText(value: string) {
-  return LEGACY_SCREENSHOT_EVIDENCE_PATTERN.test(value)
-    || (LEGACY_MANUAL_UI_PROOF_PATTERN.test(value) && UI_EVIDENCE_CONTEXT_PATTERN.test(value));
+function isUiSourceEvidenceRequest(value: string) {
+  return UI_SOURCE_EVIDENCE_REQUEST_PATTERN.test(value) && UI_EVIDENCE_CONTEXT_PATTERN.test(value);
 }
 
 function normalizeRefreshCommand(command: string, artifact: string, status = "") {
-  if (isLegacyScreenshotEvidenceText(`${command} ${artifact} ${status}`)) {
+  if (isUiSourceEvidenceRequest(`${command} ${artifact} ${status}`)) {
     return UI_SOURCE_COVERAGE_REFRESH_COMMAND;
   }
   const kind = formalEvidenceKind(`${command} ${artifact} ${status}`);
@@ -128,7 +125,7 @@ function normalizeRefreshCommand(command: string, artifact: string, status = "")
 }
 
 function normalizeStaleReason(status: string | undefined, command: string, artifact: string) {
-  if (isLegacyScreenshotEvidenceText(`${command} ${artifact} ${status ?? ""}`)) {
+  if (isUiSourceEvidenceRequest(`${command} ${artifact} ${status ?? ""}`)) {
     return "UI source coverage required";
   }
   return status ?? "score_impact";
@@ -242,7 +239,7 @@ function buildScoreImpactEntries(
               ? ""
               : "No registered refresh command.",
         source: "score_impact",
-        expectedOutcome: isLegacyScreenshotEvidenceText(`${item.refreshCommand ?? ""} ${item.id} ${item.status ?? ""}`)
+        expectedOutcome: isUiSourceEvidenceRequest(`${item.refreshCommand ?? ""} ${item.id} ${item.status ?? ""}`)
           ? "Run deterministic UI source coverage and fix any source-reported UI surface gap; browser reproduction is optional evidence only."
           : formal
           ? formalEvidenceExpectedOutcome(item.id)

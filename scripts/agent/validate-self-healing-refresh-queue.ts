@@ -107,7 +107,7 @@ function renderDoc(report: SelfHealingRefreshQueueReport) {
   return [
     "# Self-Healing Refresh Queue",
     "",
-    "Status: source-only stale artifact refresh queue. It orders registered refresh commands and blocks formal evidence/manual/provider/runtime proof until artifacts are attached.",
+    "Status: source-only stale artifact refresh queue. It orders registered refresh commands and keeps provider-backed, deployed route, and admin source activity evidence in their own lanes.",
     "",
     "## Summary",
     "",

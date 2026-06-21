@@ -90,13 +90,13 @@ describe("self-healing refresh queue", () => {
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
-  it("normalizes legacy screenshot proof commands into UI source coverage", () => {
+  it("routes UI evidence requests into deterministic source coverage", () => {
     const report = buildSelfHealingRefreshQueue({
       refreshPlan: [],
       scoreImpactArtifacts: [
         {
           id: "agent/state/ui-visual-smoke-minimal.generated.json",
-          status: "blocked_source_evidence: targeted visual/manual screenshot required",
+          status: "blocked_source_evidence: targeted visual source evidence required",
           pointImpact: 2,
           refreshCommand: "Produce UI source coverage evidence, then run npm run check:evidence-capture-status",
         },
@@ -110,23 +110,23 @@ describe("self-healing refresh queue", () => {
       canRunAutomatically: true,
       blockedReason: "",
     });
-    expect(JSON.stringify(report)).not.toContain("manual screenshot");
+    expect(JSON.stringify(report)).not.toContain("screenshot required");
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
-  it("normalizes generic manual UI proof into source coverage without touching provider proof", () => {
+  it("normalizes UI evidence requests into source coverage without touching provider evidence lanes", () => {
     const report = buildSelfHealingRefreshQueue({
       refreshPlan: [],
       scoreImpactArtifacts: [
         {
           id: "ui_source_coverage",
-          status: "manual proof required for mobile UI surface",
+          status: "source evidence required for mobile UI surface",
           pointImpact: 2,
           refreshCommand: "Produce UI source coverage evidence, then run npm run check:evidence-capture-status",
         },
         {
-          id: "provider_manual_proof",
-          status: "manual proof required for provider smoke",
+          id: "provider_source_evidence",
+          status: "source evidence required for provider-backed site activity",
           pointImpact: 4,
           refreshCommand: "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
         },
@@ -139,7 +139,7 @@ describe("self-healing refresh queue", () => {
       canRunAutomatically: true,
       blockedReason: "",
     });
-    expect(report.queue.find((entry) => entry.artifact === "provider_manual_proof")).toMatchObject({
+    expect(report.queue.find((entry) => entry.artifact === "provider_source_evidence")).toMatchObject({
       staleReason: "Provider-backed site activity required",
       canRunAutomatically: false,
       blockedReason: expect.stringContaining("provider-backed site activity evidence required"),
