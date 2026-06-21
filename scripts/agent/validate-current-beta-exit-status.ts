@@ -670,7 +670,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed route evidence.",
       "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source activity samples.",
       `Reference ${evidenceCaptureStatusRelativePath}.`,
-      "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+      "Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked.",
     ],
     refreshedArtifacts: Array.from(new Set([...report.refreshedArtifacts, reportRelativePath])),
     checksRun: report.checksRun.map((check) =>
@@ -918,7 +918,7 @@ export function validateCurrentBetaExitStatusReport(
   if (!nextSteps.includes(evidenceCaptureStatusRelativePath)) {
     failures.push(`nextExactSteps must reference ${evidenceCaptureStatusRelativePath}.`);
   }
-  if (!nextSteps.includes("Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.")) {
+  if (!nextSteps.includes("Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked.")) {
     failures.push("nextExactSteps must include the error handling source-ready manual testing note.");
   }
 

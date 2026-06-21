@@ -199,7 +199,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
       "Reference agent/state/evidence-capture-status.generated.json.",
-      "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+      "Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked.",
     ],
   };
 
@@ -530,7 +530,7 @@ describe("current beta exit status validator", () => {
         "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
         "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
         "Reference agent/state/evidence-capture-status.generated.json.",
-        "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+        "Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked.",
       ],
     });
 

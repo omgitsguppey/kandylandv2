@@ -351,11 +351,11 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     options.laneStatuses.uiSurfaceCoverageEvidence === "complete"
       ? "UI surface coverage is source-checked; visual review is optional follow-up only after a source-reported UI issue."
       : "UI surface coverage needs deterministic source validation before optional browser reproduction.",
-    "runtime watch-time source lane is source-ready but still needs deployed playback proof.",
+    "runtime watch-time source lane is source-ready but still needs deployed playback activity evidence.",
     `live runtime evidence bridge: ${liveRuntimeEvidence.statusSummary}`,
   ];
   const operatorConfirmedEvidence = operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
-    ? ["operator-confirmed GumDrop revenue smoke is recorded as product signal only."]
+    ? ["operator-confirmed GumDrop revenue activity is recorded as product signal only."]
     : [];
   const protectedProofLanes = [
     "provider-backed activity",
@@ -437,7 +437,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider-backed site activity evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once deployed route evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin source activity sample evidence is expected to be complete.",
-      "Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.",
+      "Run npm run check:beta-evidence-lane-prep to see every source-evidence lane with checklist, validator, and launch impact.",
       ...uniqueRefreshCommands(refreshPlan).map((command) => `Refresh generated status with ${command}.`),
     ],
     refreshPlan,
@@ -512,7 +512,7 @@ export function validateEvidenceCaptureStatusReport(
   }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
   if (operatorRevenueSmoke?.revenueSmokeStatus === "operator_confirmed_revenue_smoke") {
-    if (!Array.isArray(report.operatorConfirmedEvidence) || !report.operatorConfirmedEvidence.some((entry) => /operator-confirmed GumDrop revenue smoke/iu.test(entry))) {
+    if (!Array.isArray(report.operatorConfirmedEvidence) || !report.operatorConfirmedEvidence.some((entry) => /operator-confirmed GumDrop revenue activity/iu.test(entry))) {
       failures.push("operatorConfirmedEvidence must acknowledge operator-confirmed revenue smoke.");
     }
     if (!(typeof operatorRevenueSmoke.amountUsdConfirmed === "number" && operatorRevenueSmoke.amountUsdConfirmed > 0) || operatorRevenueSmoke.product !== "GumDrops") {
