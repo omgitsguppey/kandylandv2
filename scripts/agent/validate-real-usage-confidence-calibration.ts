@@ -135,6 +135,39 @@ function readTelemetryClosure(): RealUsageConfidenceCalibrationInput["telemetryC
   return { laneStatus };
 }
 
+function readActivityVerification(): RealUsageConfidenceCalibrationInput["activityVerification"] {
+  const parsed = readJson("agent/state/activity-verification-engine.generated.json");
+  const summary = record(parsed?.summary);
+  const formalGateImpact = record(parsed?.formalGateImpact);
+  const features = Array.isArray(parsed?.features)
+    ? parsed.features.map((entry) => {
+        const feature = record(entry);
+        return {
+          featureId: stringValue(feature.featureId),
+          scoreEligible: booleanValue(feature.scoreEligible),
+          verificationStatus: stringValue(feature.verificationStatus),
+          confidenceScore: numberValue(feature.confidenceScore),
+          evidence: Array.isArray(feature.evidence) ? feature.evidence.map((item) => String(item)) : [],
+        };
+      })
+    : [];
+  return {
+    status: stringValue(parsed?.status),
+    fakeActivityUsed: booleanValue(parsed?.fakeActivityUsed),
+    productionReadsRequired: booleanValue(parsed?.productionReadsRequired),
+    formalGateImpact: {
+      clearsFormalProvider: booleanValue(formalGateImpact.clearsFormalProvider),
+      clearsDeployedRuntime: booleanValue(formalGateImpact.clearsDeployedRuntime),
+      clearsFormalAdminTruth: booleanValue(formalGateImpact.clearsFormalAdminTruth),
+    },
+    summary: {
+      verifiedByActivity: numberValue(summary.verifiedByActivity),
+      sourceReadyNoActivity: numberValue(summary.sourceReadyNoActivity),
+    },
+    features,
+  };
+}
+
 function write(path: string, value: string) {
   const fullPath = join(ROOT, path);
   mkdirSync(dirname(fullPath), { recursive: true });
@@ -158,6 +191,7 @@ function renderDoc(report: RealUsageConfidenceCalibrationReport) {
     `- Operator revenue source role: ${report.operatorConfirmedRevenueSmoke.sourceRole}`,
     `- Formal provider gate cleared: ${report.formalGateImpact.clearsFormalProvider}`,
     `- Deployed runtime gate cleared: ${report.formalGateImpact.clearsDeployedRuntime}`,
+    `- Source activity flows: ${Object.values(report.perFlowConfidence).filter((flow) => flow.sourceActivityCount > 0).length}`,
     "",
     "## Behavior Math Connection",
     "",
@@ -171,7 +205,7 @@ function renderDoc(report: RealUsageConfidenceCalibrationReport) {
     "## Per-Flow Confidence",
     "",
     ...Object.values(report.perFlowConfidence).map((flow) =>
-      `- ${flow.flowId}: ${flow.confidenceClass}; score=${flow.confidenceScore}; observedCount=${flow.observedCount}; source=${flow.sourcePath}; next=${flow.nextAction}`),
+      `- ${flow.flowId}: ${flow.confidenceClass}; score=${flow.confidenceScore}; observedCount=${flow.observedCount}; sourceActivity=${flow.sourceActivityCount}; source=${flow.sourcePath}; next=${flow.nextAction}`),
     "",
     "## Limits",
     "",
@@ -192,6 +226,7 @@ const report = buildRealUsageConfidenceCalibration({
   behaviorMath: readBehaviorMath(),
   operatorRevenueSmoke: readOperatorRevenueSmoke(),
   telemetryClosure: readTelemetryClosure(),
+  activityVerification: readActivityVerification(),
 });
 const failures = validateRealUsageConfidenceCalibration(report);
 

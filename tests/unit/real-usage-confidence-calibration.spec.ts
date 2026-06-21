@@ -7,6 +7,37 @@ import {
   type RealUsageConfidenceCalibrationInput,
 } from "@/lib/analytics/real-usage-confidence-calibration";
 
+const ACTIVITY_VERIFICATION: RealUsageConfidenceCalibrationInput["activityVerification"] = {
+  status: "pass",
+  fakeActivityUsed: false,
+  productionReadsRequired: false,
+  formalGateImpact: {
+    clearsFormalProvider: false,
+    clearsDeployedRuntime: false,
+    clearsFormalAdminTruth: false,
+  },
+  summary: {
+    verifiedByActivity: 2,
+    sourceReadyNoActivity: 4,
+  },
+  features: [
+    {
+      featureId: "creator_profile",
+      scoreEligible: true,
+      verificationStatus: "verified_by_activity",
+      confidenceScore: 86,
+      evidence: ["activityEvents=1"],
+    },
+    {
+      featureId: "drops",
+      scoreEligible: true,
+      verificationStatus: "verified_by_activity",
+      confidenceScore: 86,
+      evidence: ["activityEvents=1"],
+    },
+  ],
+};
+
 function input(overrides: Partial<RealUsageConfidenceCalibrationInput> = {}): RealUsageConfidenceCalibrationInput {
   return {
     currentHead: "abc123",
@@ -145,6 +176,43 @@ describe("real usage confidence calibration", () => {
     });
     expect(report.perFlowConfidence.creator_profile_timeline.confidenceClass).toBe("unknown_legacy");
     expect(report.perFlowConfidence.creator_profile_timeline.confidenceScore).toBe(0);
+    expect(validateRealUsageConfidenceCalibration(report)).toEqual([]);
+  });
+
+  it("uses verified activity as source-only flow confidence without observed proof", () => {
+    const report = buildRealUsageConfidenceCalibration(input({
+      activityVerification: ACTIVITY_VERIFICATION,
+    }));
+
+    expect(report.perFlowConfidence.creator_profile_timeline.sourceActivityCount).toBe(1);
+    expect(report.perFlowConfidence.creator_profile_timeline.sourceActivityStatus).toBe("verified_by_activity");
+    expect(report.perFlowConfidence.creator_profile_timeline.confidenceScore).toBe(86);
+    expect(report.perFlowConfidence.creator_profile_timeline.observedCount).toBe(0);
+    expect(report.perFlowConfidence.drops_unlock_open.sourceActivityCount).toBe(1);
+    expect(report.perFlowConfidence.drops_unlock_open.confidenceScore).toBe(86);
+    expect(report.formalGateImpact.clearsFormalProvider).toBe(false);
+    expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
+    expect(validateRealUsageConfidenceCalibration(report)).toEqual([]);
+  });
+
+  it("ignores fake or gate-clearing activity verification input", () => {
+    const report = buildRealUsageConfidenceCalibration(input({
+      activityVerification: {
+        ...ACTIVITY_VERIFICATION,
+        fakeActivityUsed: true,
+        formalGateImpact: {
+          clearsFormalProvider: true,
+          clearsDeployedRuntime: true,
+          clearsFormalAdminTruth: true,
+        },
+      },
+    }));
+
+    expect(report.perFlowConfidence.drops_unlock_open.sourceActivityCount).toBe(0);
+    expect(report.perFlowConfidence.drops_unlock_open.sourceActivityStatus).toBe("not_available");
+    expect(report.perFlowConfidence.drops_unlock_open.confidenceScore).toBe(70);
+    expect(report.formalGateImpact.clearsFormalProvider).toBe(false);
+    expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
     expect(validateRealUsageConfidenceCalibration(report)).toEqual([]);
   });
 

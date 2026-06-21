@@ -93,6 +93,27 @@ export type RealUsageConfidenceCalibrationInput = {
   telemetryClosure?: {
     laneStatus?: Partial<Record<TelemetryLaneId, string>>;
   };
+  activityVerification?: {
+    status?: string;
+    fakeActivityUsed?: boolean;
+    productionReadsRequired?: boolean;
+    formalGateImpact?: {
+      clearsFormalProvider?: boolean;
+      clearsDeployedRuntime?: boolean;
+      clearsFormalAdminTruth?: boolean;
+    };
+    summary?: {
+      verifiedByActivity?: number;
+      sourceReadyNoActivity?: number;
+    };
+    features?: Array<{
+      featureId?: string;
+      scoreEligible?: boolean;
+      verificationStatus?: string;
+      confidenceScore?: number;
+      evidence?: string[];
+    }>;
+  };
 };
 
 export type RealUsagePerFlowConfidence = {
@@ -101,6 +122,8 @@ export type RealUsagePerFlowConfidence = {
   confidenceClass: RealUsageConfidenceClass;
   confidenceScore: number;
   observedCount: number;
+  sourceActivityCount: number;
+  sourceActivityStatus: "verified_by_activity" | "source_ready_no_activity" | "not_available";
   sourcePath: string;
   sourceStatus: string;
   telemetryLaneId: TelemetryLaneId;
@@ -109,6 +132,19 @@ export type RealUsagePerFlowConfidence = {
   evidence: string[];
   limitations: RealUsageCalibrationLimit[];
   nextAction: string;
+};
+
+const ACTIVITY_FEATURE_TO_FLOW: Partial<Record<string, RealUsageCalibrationFlowId>> = {
+  user_dashboard: "user_dashboard",
+  drops: "drops_unlock_open",
+  creator_dashboard: "creator_dashboard",
+  creator_settings: "creator_settings",
+  creator_drop_manager: "creator_drop_manager",
+  creator_profile: "creator_profile_timeline",
+  broadcasts: "broadcast_source",
+  fan_pass: "fan_pass_source",
+  wallet: "wallet_refill",
+  behavior_tracking: "runtime_watch_source",
 };
 
 export type RealUsageConfidenceCalibrationReport = {
@@ -281,6 +317,26 @@ function sourceSignalReady(signal: RealUsageCalibrationSignalLike | null | undef
   return signal?.status === "source_ready" || signal?.status === "observed";
 }
 
+function activityVerificationCanContribute(input: RealUsageConfidenceCalibrationInput) {
+  const activity = input.activityVerification;
+  if (!activity) return false;
+  if (activity.status !== "pass" && activity.status !== "source_ready_activity_verification") return false;
+  if (activity.fakeActivityUsed === true || activity.productionReadsRequired === true) return false;
+  if (activity.formalGateImpact?.clearsFormalProvider === true) return false;
+  if (activity.formalGateImpact?.clearsDeployedRuntime === true) return false;
+  if (activity.formalGateImpact?.clearsFormalAdminTruth === true) return false;
+  return true;
+}
+
+function activityForFlow(input: RealUsageConfidenceCalibrationInput, flowId: RealUsageCalibrationFlowId) {
+  if (!activityVerificationCanContribute(input)) return [];
+  return (input.activityVerification?.features ?? []).filter((feature) =>
+    feature.scoreEligible === true
+    && feature.verificationStatus === "verified_by_activity"
+    && ACTIVITY_FEATURE_TO_FLOW[String(feature.featureId ?? "")] === flowId,
+  );
+}
+
 function hasPositiveRevenueContext(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
@@ -328,17 +384,30 @@ function buildFlow(
   const operatorRecognized = operatorRevenueRecognized(input);
   const telemetryReady = laneReady(input, config.lane);
   const hasSourceSignal = sourceSignalReady(signal);
+  const activityFeatures = activityForFlow(input, flowId);
+  const activityConfidence = activityFeatures.length > 0
+    ? Math.max(...activityFeatures.map((feature) => feature.confidenceScore ?? 0))
+    : 0;
+  const hasSourceActivity = activityFeatures.length > 0;
+  const sourceActivityStatus: RealUsagePerFlowConfidence["sourceActivityStatus"] = hasSourceActivity
+    ? "verified_by_activity"
+    : activityVerificationCanContribute(input) && input.activityVerification?.summary?.sourceReadyNoActivity
+      ? "source_ready_no_activity"
+      : "not_available";
   const sourcePath = signal?.sourcePath || config.sourcePath;
-  const unknownLegacy = config.defaultClass === "unknown_legacy" && behaviorConnection.unknownLegacyExcluded;
-  const unavailable = !unknownLegacy && !telemetryReady && !hasSourceSignal;
+  const unknownLegacy = config.defaultClass === "unknown_legacy" && behaviorConnection.unknownLegacyExcluded && !hasSourceActivity;
+  const unavailable = !unknownLegacy && !telemetryReady && !hasSourceSignal && !hasSourceActivity;
+  const activityBackedDefaultClass: RealUsageConfidenceClass = hasSourceActivity && config.defaultClass === "unknown_legacy"
+    ? "inferred_from_validated_path"
+    : config.defaultClass;
   const confidenceClass: RealUsageConfidenceClass = unknownLegacy
       ? "unknown_legacy"
       : unavailable
         ? "unavailable"
-        : config.defaultClass;
+        : activityBackedDefaultClass;
   const confidenceScore = confidenceClass === "unknown_legacy" || confidenceClass === "unavailable"
       ? 0
-      : config.sourceReadyScore;
+      : Math.max(config.sourceReadyScore, activityConfidence);
 
   return {
     flowId,
@@ -346,8 +415,12 @@ function buildFlow(
     confidenceClass,
     confidenceScore: clampScore(confidenceScore),
     observedCount: 0,
+    sourceActivityCount: activityFeatures.length,
+    sourceActivityStatus,
     sourcePath,
-    sourceStatus: signal?.status ?? (telemetryReady ? "source_ready_graph_mapped" : "missing_or_unknown"),
+    sourceStatus: hasSourceActivity
+      ? "source_ready_activity_verification"
+      : signal?.status ?? (telemetryReady ? "source_ready_graph_mapped" : "missing_or_unknown"),
     telemetryLaneId: config.lane,
     operatorConfirmed: Boolean(operatorRecognized && flowId === "wallet_refill"),
     behaviorMathLinked: config.lane === "behavior_signal"
@@ -358,6 +431,8 @@ function buildFlow(
       `telemetryLane=${config.lane}`,
       `telemetryReady=${telemetryReady}`,
       `sourceSignalReady=${hasSourceSignal}`,
+      `sourceActivityCount=${activityFeatures.length}`,
+      `sourceActivityStatus=${sourceActivityStatus}`,
       "observedCount=0",
       ...(operatorRecognized && flowId === "wallet_refill" ? ["operatorContextOnly=true"] : []),
       ...(signal?.evidence ?? []),
@@ -425,6 +500,8 @@ export function buildRealUsageConfidenceCalibration(
       `calibratedConfidenceScore=${calibratedConfidenceScore}`,
       `runtimeHealthCredit=${clampScore(Math.max(calibratedConfidenceScore, input.realUsageConfidence?.confidenceScore ?? 0))}`,
       `operatorConfirmedRevenueRecognized=${operatorRevenueRecognized(input)}`,
+      `activityVerification.verifiedByActivity=${input.activityVerification?.summary?.verifiedByActivity ?? 0}`,
+      `activityVerification.fakeActivityUsed=${input.activityVerification?.fakeActivityUsed === true}`,
       `disabledTrackingSuppressed=${behaviorMathConnection.disabledTrackingSuppressed}`,
       `unknownLegacyExcluded=${behaviorMathConnection.unknownLegacyExcluded}`,
       "formalGatesCleared=false",
@@ -492,6 +569,9 @@ export function validateRealUsageConfidenceCalibration(
     if (!flow.sourcePath) failures.push(`${flowId} lacks source path.`);
     if (!flow.nextAction) failures.push(`${flowId} lacks next action.`);
     if (flow.observedCount !== 0) failures.push(`${flowId} treats context/source-ready confidence as observed proof.`);
+    if (flow.sourceActivityCount > 0 && flow.sourceActivityStatus !== "verified_by_activity") {
+      failures.push(`${flowId} has source activity count without verified source activity status.`);
+    }
     if (flow.confidenceClass === "unknown_legacy" && flow.confidenceScore !== 0) {
       failures.push(`${flowId} unknown legacy counts as known user behavior.`);
     }
