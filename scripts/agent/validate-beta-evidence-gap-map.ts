@@ -132,9 +132,9 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       exactFolder: "agent/evidence/provider-smoke",
       exactTemplate: "agent/evidence/provider-smoke/evidence.template.json",
       exactCheckCommand: "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
-      scoreImpact: "Raises provider/runtime confidence after redacted provider proof is attached.",
+      scoreImpact: "Raises provider/runtime confidence after redacted provider-backed site activity evidence is attached.",
       launchImpact: "Required for beta exit; operator reports alone remain non-passing.",
-      nextAction: "Attach redacted provider smoke proof with request/response summary or provider status packet.",
+      nextAction: "Produce redacted provider-backed site activity evidence with request/response summary or provider status packet.",
     }),
     lane({
       id: "runtime_smoke",
@@ -146,8 +146,8 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       exactTemplate: "agent/evidence/runtime-smoke/evidence.template.json",
       exactCheckCommand: "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
       scoreImpact: "Raises runtime health when deployed route loading and critical flows are proven.",
-      launchImpact: "Required for beta exit; local static validators are not deployed runtime proof.",
-      nextAction: "Attach deployed runtime smoke proof for critical user and creator routes.",
+      launchImpact: "Required for beta exit; local static validators are not deployed route evidence.",
+      nextAction: "Produce deployed route evidence for critical user and creator routes.",
     }),
     lane({
       id: "admin_truth_sample",
@@ -159,8 +159,8 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       exactTemplate: "agent/evidence/admin-truth-sample/evidence.template.json",
       exactCheckCommand: "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
       scoreImpact: "Raises admin truth confidence when a fresh redacted source sample is attached.",
-      launchImpact: "Required for beta exit; debug presence without formal sample is not enough.",
-      nextAction: "Attach a fresh redacted admin truth sample artifact.",
+      launchImpact: "Required for beta exit; debug presence without an admin source activity sample is not enough.",
+      nextAction: "Produce a fresh redacted admin source activity sample.",
     }),
     lane({
       id: "runtime_watch_time_v2_deployed_proof",
@@ -186,9 +186,9 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       exactFolder: "agent/evidence/provider-smoke",
       exactTemplate: "agent/evidence/provider-smoke/evidence.template.json",
       exactCheckCommand: "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
-      scoreImpact: "Could raise provider and payment confidence after formal redacted revenue proof is attached.",
-      launchImpact: `${input.operatorRevenueSmokeNote} Operator-confirmed revenue is product signal only and must not be treated as passed formal provider evidence.`,
-      nextAction: "Optional: attach redacted formal proof for the operator-confirmed GumDrop payment under provider smoke evidence if the operator chooses.",
+      scoreImpact: "Could raise provider and payment confidence after redacted provider-backed revenue source evidence is attached.",
+      launchImpact: `${input.operatorRevenueSmokeNote} Operator-confirmed revenue is product signal only and must not be treated as passed provider-backed site activity evidence.`,
+      nextAction: "Optional: attach redacted provider-backed site activity evidence for the operator-confirmed GumDrop payment if the operator chooses.",
     }),
     lane({
       id: "final_cost_owner_review",
@@ -241,11 +241,11 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
     exactRefreshCommands: input.exactRefreshCommands ?? uniqueRefreshCommands(refreshPlan),
     nextExactSteps: [
       `1. ${input.operatorRevenueSmokeNote}`,
-      "2. Optional formal provider/app artifact for the operator-confirmed GumDrop payment can be stored under agent/evidence/provider-smoke/; it is not required for acknowledging the sale.",
+      "2. Optional provider-backed site activity artifact for the operator-confirmed GumDrop payment can be stored under agent/evidence/provider-smoke/; it is not required for acknowledging the sale.",
       "3. Run deterministic UI surface coverage and fix any source-reported user, creator, or admin surface gap.",
-      "4. Attach deployed runtime smoke evidence for route loading and critical flows under agent/evidence/runtime-smoke/.",
-      "5. Attach a fresh redacted admin truth sample under agent/evidence/admin-truth-sample/.",
-      "6. Attach deployed runtime watch-time v2 playback proof under runtime smoke evidence.",
+      "4. Produce deployed route evidence for route loading and critical flows under agent/evidence/runtime-smoke/.",
+      "5. Produce a fresh redacted admin source activity sample under agent/evidence/admin-truth-sample/.",
+      "6. Produce deployed watch-time v2 playback evidence under runtime route evidence.",
       "7. Attach owner-reviewed Cloud SQL/Gemini/cost console evidence without treating source-only inventory as pass.",
       "8. Keep speed/security P2 backlog visible for owner review.",
     ],
@@ -298,7 +298,7 @@ function buildFromWorkspace() {
   });
 
   const operatorRevenueSmokeNote = readString(operatorSmoke.plainLanguageNote)
-    || "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
+    || "Operator-confirmed GumDrop revenue was recorded as product context; provider-backed site activity evidence is still separate.";
   const revenueProviderStatus = readString(operatorSummary.revenueSmokeStatus) === "operator_confirmed_revenue_smoke"
     ? "operator_confirmed_revenue_smoke"
     : readString(paypal.status) === "operator_reported_not_formal_provider_smoke"
@@ -368,12 +368,12 @@ export function validateBetaEvidenceGapMapReport(report: BetaEvidenceGapMapRepor
     && /operator_(reported|confirmed)/iu.test(revenue.status)
     && /\b(formal_provider_smoke_passed|formal_revenue_smoke_passed|passed_formal_evidence)\b/iu.test(`${revenue.status} ${revenue.launchImpact}`)
   ) {
-    failures.push("operator revenue smoke must not be treated as formal evidence.");
+    failures.push("operator revenue smoke must not be treated as provider-backed site activity evidence.");
   }
   if (report.canStartBetaExitReview && report.evidenceLanes.some((entry) => entry.requiredForExit && /missing|unverified|unknown|operator_(reported|confirmed)|source_ready|runtime_proof_required/iu.test(entry.status))) {
     failures.push("canStartBetaExitReview must remain false while required evidence lanes are missing.");
   }
-  if (revenue?.status === "operator_confirmed_revenue_smoke" && !revenue.launchImpact.includes("Formal provider evidence is still separate.")) {
+  if (revenue?.status === "operator_confirmed_revenue_smoke" && !revenue.launchImpact.toLowerCase().includes("provider-backed site activity evidence is still separate.")) {
     failures.push("operator-confirmed revenue smoke must include the plain-language separation note.");
   }
   const watch = laneMap.get("runtime_watch_time_v2_deployed_proof");
