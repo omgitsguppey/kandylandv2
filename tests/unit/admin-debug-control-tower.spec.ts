@@ -173,6 +173,35 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Stale evidence:");
     });
 
+    it("reads current provider-backed site activity caps without old smoke labels", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 84,
+            overallStatus: "warning",
+            readinessStatus: "Source evidence required",
+            readinessStatusReason: "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+            evidenceCapDetails: [
+                "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+            ],
+            sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+        const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("Site activity evidence required");
+        expect(model.canonicalPublicBetaCapDetails).toEqual([
+            "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+        ]);
+        expect(publicBeta?.topFindings[0]?.title).toBe("Provider and route evidence required");
+        expect(publicBeta?.topFindings[0]?.humanReadableWarning).toContain("Produce redacted provider-backed site activity evidence.");
+        expect(publicBeta?.topFindings[0]?.humanReadableWarning).toContain("Deployed route evidence is recorded; keep it fresh.");
+        expect(JSON.stringify(model)).not.toMatch(/runtime\/provider smoke|formal provider smoke|deployed runtime smoke|first-party admin sample/iu);
+    });
+
     it("formats zero-finding operator report statuses as evidence states", () => {
         expect(formatOperatorReportStatusForAdmin(reportCard({
             status: "DELAYED",

@@ -591,7 +591,9 @@ function normalizePublicBetaCapDetailForAdminModel(detail: string) {
     const reason = normalized
         .replace(/^Targeted behavior tests\s*[-:]\s*/iu, "")
         .replace(/^Runtime\/provider smoke\s*[-:]\s*/iu, "")
+        .replace(/^Provider-backed site activity \+ deployed route evidence\s*[-:]\s*/iu, "")
         .replace(/^Admin truth\/sample evidence\s*[-:]\s*/iu, "")
+        .replace(/^Admin source activity sample(?: evidence)?\s*[-:]\s*/iu, "")
         .replace(/^Report freshness and PR integrity\s*[-:]\s*/iu, "")
         .replace(/\bAttach redacted provider-backed site activity evidence\b/giu, "Produce redacted provider-backed site activity evidence")
         .replace(/\bAttach a redacted admin source sample\b/giu, "Produce a redacted admin source activity sample")
@@ -604,7 +606,7 @@ function normalizePublicBetaCapDetailForAdminModel(detail: string) {
         return `Source validation only: Targeted behavior tests - ${reason || "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks stay separate."}`;
     }
 
-    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke")) {
+    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke") || lower.includes("provider-backed site activity") || lower.includes("deployed route evidence") || lower.includes("deployed runtime route evidence")) {
         return `Source evidence required: Provider-backed site activity + deployed route evidence - ${reason || "Produce redacted provider-backed site activity evidence and deployed route evidence before clearing this gate."}`;
     }
 
@@ -628,7 +630,7 @@ function publicBetaEvidenceGateEvidence(detail: string) {
 
 function normalizePublicBetaReadinessStatusForAdminModel(status: string, reason: string, capDetails: string[]) {
     const combined = [status, reason, ...capDetails].filter(Boolean).join(" ");
-    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
+    if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
     if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older|source metadata is stale/iu.test(combined)) return "Report refresh needed";
     if (/targeted behavior tests|source checks|source validation only/iu.test(combined)) return "Source checks only";
     if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
@@ -662,11 +664,11 @@ function normalizePublicBetaEvidenceGateFinding(
         };
     }
 
-    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke")) {
+    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke") || lower.includes("provider-backed site activity") || lower.includes("deployed route evidence") || lower.includes("deployed runtime route evidence")) {
         const operatorContext = /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
             ? " The payment note is product context only and does not clear provider-backed site activity evidence."
             : "";
-        const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true/iu.test(normalized);
+        const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true|deployed (runtime )?route evidence (is )?(current|recorded)|deployed route evidence is recorded/iu.test(normalized);
         const runtimeContext = runtimeRecorded
             ? " Deployed route evidence is recorded; keep it fresh."
             : " Deployed route evidence is still required.";
