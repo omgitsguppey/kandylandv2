@@ -721,6 +721,67 @@ describe("public beta scoring math", () => {
         expect(smokeGate?.sourceCredit).toBeGreaterThan(0);
     });
 
+    it("clears connected site-activity lanes when first-party activity says provider evidence is not required", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: missingProviderSmokeEvidence,
+                runtimeSmokeEvidence: freshEvidence.runtimeSmokeEvidence,
+                sourceBackedRuntimeConfidenceEvidence: {
+                    path: "agent/state/live-evidence-gate-replacement.generated.json",
+                    status: "source_ready_live_activity_confirmed",
+                    passed: true,
+                    detail: "First-party site activity is present and no provider-backed lane is required.",
+                    evidence: [
+                        "liveRuntimeEvidence.firstPartySiteActivityConfirmed=3",
+                        "liveRuntimeEvidence.providerRequired=0",
+                        "liveRuntimeEvidence.blockedSiteActivityLanes=0",
+                        "launchGateImpact=site_activity_can_clear_connected_site_activity_lanes",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).toBe("Ready");
+        expect(smokeGate?.blocksLaunch).toBe(false);
+        expect(smokeGate?.score).toBeGreaterThan(0);
+        expect(report.launchBlockers.join("\n")).not.toContain("Provider-backed site activity + deployed route evidence");
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);
+    });
+
+    it("does not clear provider-required activity from first-party source confidence alone", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: missingProviderSmokeEvidence,
+                runtimeSmokeEvidence: freshEvidence.runtimeSmokeEvidence,
+                sourceBackedRuntimeConfidenceEvidence: {
+                    path: "agent/state/live-evidence-gate-replacement.generated.json",
+                    status: "source_ready_live_activity_confirmed",
+                    passed: true,
+                    detail: "First-party site activity is present but provider-backed evidence is required.",
+                    evidence: [
+                        "liveRuntimeEvidence.firstPartySiteActivityConfirmed=3",
+                        "liveRuntimeEvidence.providerRequired=1",
+                        "liveRuntimeEvidence.blockedSiteActivityLanes=0",
+                        "launchGateImpact=site_activity_can_clear_connected_site_activity_lanes",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).toBe("Source evidence required");
+        expect(smokeGate?.blocksLaunch).toBe(true);
+        expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
+    });
+
     it("allows ready only when scanner and evidence gates are fresh", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),

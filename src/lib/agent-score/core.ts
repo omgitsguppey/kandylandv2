@@ -540,6 +540,16 @@ function evidenceArtifactNumber(artifact: PublicBetaEvidenceArtifact | undefined
   return evidenceArtifactNumericValue(artifact, key);
 }
 
+function sourceActivityClearsProviderLane(artifact: PublicBetaEvidenceArtifact | undefined) {
+  if (!artifact) return false;
+  const status = String(evidenceArtifactStatus(artifact, "missing_or_unknown"));
+  if (!status.includes("source_ready")) return false;
+  return (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0) > 0
+    && (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.providerRequired") ?? 1) === 0
+    && (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.blockedSiteActivityLanes") ?? 1) === 0
+    && evidenceArtifactEvidence(artifact).some((line) => line.includes("launchGateImpact=site_activity_can_clear_connected_site_activity_lanes"));
+}
+
 function hasDebugEvidence(debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>) {
   if (!debugEvidence) return false;
   for (const entries of Object.values(debugEvidence)) {
@@ -860,16 +870,18 @@ export function buildPublicBetaEvidenceGates(input: {
   const runtimeSmokePassed = evidenceArtifactPassed(evidence.runtimeSmokeEvidence);
   const providerSmokeStatus = String(evidenceArtifactStatus(evidence.providerSmokeEvidence));
   const runtimeSmokeStatus = String(evidenceArtifactStatus(evidence.runtimeSmokeEvidence, "runtime_unverified"));
-  const runtimeProviderSmokePassed = providerSmokePassed && runtimeSmokePassed;
+  const providerLaneSatisfiedBySourceActivity = sourceActivityClearsProviderLane(evidence.sourceBackedRuntimeConfidenceEvidence);
+  const runtimeProviderSmokePassed = (providerSmokePassed || providerLaneSatisfiedBySourceActivity) && runtimeSmokePassed;
   const providerNeedsFormalProof = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
   const runtimeNeedsFormalProof = /runtime_unverified|missing_formal_evidence|tracked_not_passing|missing_or_unknown/iu.test(runtimeSmokeStatus);
-  const runtimeProviderSmokeFreshnessUnknown = providerQuality.freshness === "unknown" || runtimeQuality.freshness === "unknown";
+  const runtimeProviderSmokeFreshnessUnknown = (!providerLaneSatisfiedBySourceActivity && providerQuality.freshness === "unknown")
+    || runtimeQuality.freshness === "unknown";
   let runtimeProviderSmokeStatus: PublicBetaReadinessStatus = "Ready with smoke required";
   if (runtimeProviderSmokePassed && !runtimeProviderSmokeFreshnessUnknown) {
     runtimeProviderSmokeStatus = "Ready";
   } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
     runtimeProviderSmokeStatus = "Needs review";
-  } else if (providerNeedsFormalProof || runtimeNeedsFormalProof) {
+  } else if ((providerNeedsFormalProof && !providerLaneSatisfiedBySourceActivity) || runtimeNeedsFormalProof) {
     runtimeProviderSmokeStatus = "Source evidence required";
   } else if (
     providerQuality.freshness === "stale"
@@ -893,7 +905,7 @@ export function buildPublicBetaEvidenceGates(input: {
   );
   const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
     ? "Provider-backed site activity and deployed route evidence artifacts passed."
-    : `Provider-backed site activity: ${providerSmokeDetail} Deployed route evidence: ${runtimeSmokePassed && !providerSmokePassed ? "Deployed runtime route evidence is current." : runtimeSmokeDetail}`;
+    : `Provider-backed site activity: ${providerLaneSatisfiedBySourceActivity ? "First-party site activity shows no provider-backed evidence is required for the connected lane." : providerSmokeDetail} Deployed route evidence: ${runtimeSmokePassed && (!providerSmokePassed || providerLaneSatisfiedBySourceActivity) ? "Deployed runtime route evidence is current." : runtimeSmokeDetail}`;
   const runtimeProviderSmokeEvidence = Array.from(new Set([
     `providerArtifactStatus=${providerSmokeStatus}`,
     `runtimeArtifactStatus=${runtimeSmokeStatus}`,
@@ -1047,6 +1059,8 @@ export function buildPublicBetaEvidenceGates(input: {
   const runtimeProviderQuality = {
     quality: providerQuality.quality === "formal_passed" && runtimeQuality.quality === "formal_passed"
       ? "formal_passed"
+      : providerLaneSatisfiedBySourceActivity && runtimeSmokePassed
+        ? "source_ready"
       : providerQuality.quality === "operator_reported"
         ? "operator_reported"
         : runtimeQuality.quality === "source_ready"
@@ -1057,11 +1071,13 @@ export function buildPublicBetaEvidenceGates(input: {
     confidence: runtimeProviderSmokePassed
       ? Math.min(providerQuality.confidence, runtimeQuality.confidence)
       : Math.max(Math.min(providerQuality.confidence, runtimeQuality.confidence), runtimeProviderBridgeCredit * 0.9),
-    freshness: providerQuality.freshness === "fresh" ? runtimeQuality.freshness : providerQuality.freshness,
-    freshnessScore: Math.min(providerQuality.freshnessScore, runtimeQuality.freshnessScore),
-    partialCredit: roundScore(Math.max(runtimeProviderFormalCredit, runtimeProviderSourceActivityCredit / 100)),
-    blocksLaunch: providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
-    reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed site activity or deployed runtime route evidence.`,
+    freshness: providerLaneSatisfiedBySourceActivity ? runtimeQuality.freshness : providerQuality.freshness === "fresh" ? runtimeQuality.freshness : providerQuality.freshness,
+    freshnessScore: providerLaneSatisfiedBySourceActivity ? runtimeQuality.freshnessScore : Math.min(providerQuality.freshnessScore, runtimeQuality.freshnessScore),
+    partialCredit: runtimeProviderSmokePassed ? 1 : roundScore(Math.max(runtimeProviderFormalCredit, runtimeProviderSourceActivityCredit / 100)),
+    blocksLaunch: providerLaneSatisfiedBySourceActivity && runtimeSmokePassed ? false : providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
+    reason: providerLaneSatisfiedBySourceActivity
+      ? `${runtimeProviderSmokeDetail} Provider-specific proof remains separate only for lanes that declare provider evidence is required.`
+      : `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed site activity or deployed runtime route evidence.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
   const adminTruthSampleStatus = String(evidenceArtifactStatus(evidence.adminTruthSampleEvidence, "missing_or_unknown"));
