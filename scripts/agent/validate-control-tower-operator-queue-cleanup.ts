@@ -6,8 +6,8 @@ import {
 
 const report = buildControlTowerOperatorQueueCleanupReport({
   scoreImpactQueue: [
-    { artifact: "runtime_provider_smoke", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Attach formal provider smoke evidence", canRunAutomatically: false },
-    { artifact: "debug_runtime_evidence", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Attach deployed runtime smoke evidence", canRunAutomatically: false },
+    { artifact: "runtime_provider_smoke", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Produce provider-backed site activity evidence", canRunAutomatically: false },
+    { artifact: "debug_runtime_evidence", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Produce deployed route activity evidence", canRunAutomatically: false },
     { artifact: "agent/state/score-80-path-lock.generated.json", scoreImpactEstimate: 8, staleReason: "superseded", refreshCommand: "npm run check:beta-score", canRunAutomatically: true },
     { artifact: "cost-owner-review", scoreImpactEstimate: 0, staleReason: "score impact: 0", refreshCommand: "npm run check:google-cost", canRunAutomatically: false },
   ],

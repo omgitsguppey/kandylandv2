@@ -306,8 +306,8 @@ export function buildDebugCockpitBatch7ControlTowerCleanupReport(input: { curren
   const operatorQueue = buildControlTowerOperatorQueueCleanupReport({
     currentHead,
     scoreImpactQueue: [
-      { artifact: "runtime_provider_smoke", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Attach formal provider smoke evidence", canRunAutomatically: false },
-      { artifact: "debug_runtime_evidence", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Attach deployed runtime smoke evidence", canRunAutomatically: false },
+      { artifact: "runtime_provider_smoke", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Produce provider-backed site activity evidence", canRunAutomatically: false },
+      { artifact: "debug_runtime_evidence", scoreImpactEstimate: 16, staleReason: "Runtime unverified", refreshCommand: "Produce deployed route activity evidence", canRunAutomatically: false },
       { artifact: "agent/state/score-80-path-lock.generated.json", scoreImpactEstimate: 8, staleReason: "superseded", refreshCommand: "npm run check:beta-score", canRunAutomatically: true },
       { artifact: "cost-owner-review", scoreImpactEstimate: 0, staleReason: "score impact: 0", refreshCommand: "npm run check:google-cost", canRunAutomatically: false },
     ],
@@ -351,13 +351,13 @@ export function buildDebugCockpitBatch7ControlTowerCleanupReport(input: { curren
     scoreDimensions,
     dirtyFileClassifications: dirtyFileClassifications(),
     remainingGaps: [
-      "Formal provider smoke evidence remains required.",
-      "Deployed runtime smoke evidence remains required.",
+      "Provider-backed site activity evidence remains required.",
+      "Deployed route activity evidence remains required.",
       "Redacted first-party admin truth sample remains required.",
     ],
     nextExactSteps: [
-      "Attach formal provider smoke evidence before clearing provider gate.",
-      "Attach deployed runtime smoke evidence before clearing runtime gate.",
+      "Produce provider-backed site activity evidence before clearing provider-backed lanes.",
+      "Produce deployed route activity evidence before clearing runtime lanes.",
       "Attach redacted first-party admin truth sample before clearing admin truth gate.",
     ],
   };
