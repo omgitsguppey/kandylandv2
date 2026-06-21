@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-06-19T18:04:27.418Z`
-- Current head: `79598a740b349732332b6e1751ca9d8f5b3933dc`
+- Generated: `2026-06-21T02:17:58.943Z`
+- Current head: `a264c232bdfaea10532430a688c0b80e56d7cf2b`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-19T18:04:27.418Z",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "generatedAtUtc": "2026-06-21T02:17:58.943Z",
+  "currentHead": "a264c232bdfaea10532430a688c0b80e56d7cf2b",
   "broadManualGatesBefore": [
     "manual production smoke",
     "admin truth/sample evidence",
@@ -128,9 +128,9 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "freshness": 1
       },
       "betaExitImpact": "blocks_until_live_source_connected",
-      "fallbackIfMissing": "source_missing auth liveness must replace visual proof shortcuts",
-      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace visual proof shortcuts.",
-      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not visual proof blockers."
+      "fallbackIfMissing": "source_missing auth liveness must replace browser-diagnostic shortcuts",
+      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace browser-diagnostic shortcuts.",
+      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "wallet_payment_gumdrop_ledger",
@@ -144,8 +144,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
-          "generatedAtUtc": "2026-06-19T16:01:04.591Z"
+          "currentHead": "98a767ae8bbcfcaca5374eb269fc921144337367",
+          "generatedAtUtc": "2026-06-20T19:23:29.121Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -241,7 +241,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior",
       "reason": "No clearing live evidence source was found. classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior.",
-      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "creator_profile_discovery_follow",
@@ -292,7 +292,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing creator liveness remains a live evidence blocker, not a visual QA item",
       "reason": "No clearing live evidence source was found. source_missing creator liveness remains a live evidence blocker, not a visual QA item.",
-      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "creator_monetization_fan_pass_entitlements",
@@ -306,8 +306,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
-          "generatedAtUtc": "2026-06-19T16:01:04.591Z"
+          "currentHead": "98a767ae8bbcfcaca5374eb269fc921144337367",
+          "generatedAtUtc": "2026-06-20T19:23:29.121Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -393,7 +393,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "redacted chat live evidence source is required; screenshots prove layout only",
       "reason": "No clearing live evidence source was found. redacted chat live evidence source is required; screenshots prove layout only.",
-      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "daily_tasks_reward_reset",
@@ -443,7 +443,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "task reward proof stays in event/ledger summaries, not screenshots",
       "reason": "No clearing live evidence source was found. task reward proof stays in event/ledger summaries, not screenshots.",
-      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "notifications_pwa_permission_token_intent",
@@ -493,7 +493,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "operator visual QA only checks prompt layout, not token registration truth",
       "reason": "No clearing live evidence source was found. operator visual QA only checks prompt layout, not token registration truth.",
-      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "account_settings_delete_export_support",
@@ -543,7 +543,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "screenshots do not prove support/account action backend behavior",
       "reason": "No clearing live evidence source was found. screenshots do not prove support/account action backend behavior.",
-      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "media_upload_access",
@@ -593,7 +593,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source contract can guide checks but cannot clear live media evidence",
       "reason": "No clearing live evidence source was found. source contract can guide checks but cannot clear live media evidence.",
-      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "search_discovery",
@@ -643,7 +643,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing search liveness remains a live evidence issue",
       "reason": "No clearing live evidence source was found. source_missing search liveness remains a live evidence issue.",
-      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "admin_debug_user_management",
@@ -693,7 +693,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "admin truth remains source_missing/formal_missing unless a redacted summary is attached",
       "reason": "No clearing live evidence source was found. admin truth remains source_missing/formal_missing unless a redacted summary is attached.",
-      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "route_runtime_error_health",
@@ -846,9 +846,9 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "freshness": 1
       },
       "betaExitImpact": "blocks_until_live_source_connected",
-      "fallbackIfMissing": "source_missing auth liveness must replace visual proof shortcuts",
-      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace visual proof shortcuts.",
-      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not visual proof blockers."
+      "fallbackIfMissing": "source_missing auth liveness must replace browser-diagnostic shortcuts",
+      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace browser-diagnostic shortcuts.",
+      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "drops_open_unlock_unwrap_watch",
@@ -908,7 +908,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior",
       "reason": "No clearing live evidence source was found. classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior.",
-      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "creator_profile_discovery_follow",
@@ -959,7 +959,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing creator liveness remains a live evidence blocker, not a visual QA item",
       "reason": "No clearing live evidence source was found. source_missing creator liveness remains a live evidence blocker, not a visual QA item.",
-      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "chat_open_thread_message_block_error",
@@ -1009,7 +1009,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "redacted chat live evidence source is required; screenshots prove layout only",
       "reason": "No clearing live evidence source was found. redacted chat live evidence source is required; screenshots prove layout only.",
-      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "daily_tasks_reward_reset",
@@ -1059,7 +1059,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "task reward proof stays in event/ledger summaries, not screenshots",
       "reason": "No clearing live evidence source was found. task reward proof stays in event/ledger summaries, not screenshots.",
-      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "notifications_pwa_permission_token_intent",
@@ -1109,7 +1109,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "operator visual QA only checks prompt layout, not token registration truth",
       "reason": "No clearing live evidence source was found. operator visual QA only checks prompt layout, not token registration truth.",
-      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "account_settings_delete_export_support",
@@ -1159,7 +1159,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "screenshots do not prove support/account action backend behavior",
       "reason": "No clearing live evidence source was found. screenshots do not prove support/account action backend behavior.",
-      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "media_upload_access",
@@ -1209,7 +1209,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source contract can guide checks but cannot clear live media evidence",
       "reason": "No clearing live evidence source was found. source contract can guide checks but cannot clear live media evidence.",
-      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "search_discovery",
@@ -1259,7 +1259,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing search liveness remains a live evidence issue",
       "reason": "No clearing live evidence source was found. source_missing search liveness remains a live evidence issue.",
-      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "admin_debug_user_management",
@@ -1309,7 +1309,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "admin truth remains source_missing/formal_missing unless a redacted summary is attached",
       "reason": "No clearing live evidence source was found. admin truth remains source_missing/formal_missing unless a redacted summary is attached.",
-      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not visual proof blockers."
+      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not browser-diagnostic blockers."
     },
     {
       "systemId": "route_runtime_error_health",

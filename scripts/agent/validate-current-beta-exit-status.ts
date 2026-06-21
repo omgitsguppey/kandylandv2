@@ -607,12 +607,12 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
       "runtime-smoke",
       "admin-truth-sample",
       "provider-smoke",
-      "visual_manual_smoke_missing",
+      "ui_source_coverage_missing",
       "screenshot_evidence_missing",
       "ui-surface-coverage",
     ]);
   const remainingBlockers = [
-    ...report.remainingBlockers.filter((blocker) => !legacyUiVisualBlockerIds.has(blocker.id) && !/screenshot|visual_manual/iu.test(blocker.id)),
+    ...report.remainingBlockers.filter((blocker) => !legacyUiVisualBlockerIds.has(blocker.id) && !/screenshot/iu.test(blocker.id)),
     ...(summary.visualEvidenceStatus === "source_surface_checks_current" ? [] : [{
       id: "ui-surface-coverage",
       severity: "P1" as const,

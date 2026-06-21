@@ -216,7 +216,7 @@ describe("live evidence gate replacement", () => {
     })).toEqual([]);
   });
 
-  it("does not let generic user activity satisfy provider, admin, billing, or visual proof", () => {
+  it("does not let generic user activity satisfy provider, admin, billing, or browser diagnostics", () => {
     const root = tempRoot();
     writeJson(root, "agent/evidence/live-runtime-activity/recent-activity.export.json", {
       reportKey: "live-runtime-activity-export",

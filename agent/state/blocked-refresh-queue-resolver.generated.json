@@ -1,16 +1,16 @@
 {
-  "generatedAtUtc": "2026-06-19T18:23:41.787Z",
+  "generatedAtUtc": "2026-06-21T02:17:57.543Z",
   "reportKey": "blocked-refresh-queue-resolver",
-  "currentHead": "17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1",
+  "currentHead": "a264c232bdfaea10532430a688c0b80e56d7cf2b",
   "status": "pass",
-  "oldScore": 70.79,
-  "newScore": 70.79,
+  "oldScore": 73.57,
+  "newScore": 73.57,
   "blockedCount": 5,
   "resolvedEntries": [
     {
       "artifact": "admin_truth_sample_evidence",
       "owner": "admin",
-      "scoreImpactEstimate": 8.32,
+      "scoreImpactEstimate": 11.32,
       "classification": "blocked_formal_evidence",
       "originalBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
       "resolvedBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
@@ -71,12 +71,93 @@
   "refreshableBlockedEntries": [],
   "obsoleteEntriesRetired": [],
   "formalGateImpact": {
-    "clearsVisualManual": false,
+    "clearsUiSourceCoverage": false,
     "clearsRuntime": false,
     "clearsProvider": false,
     "clearsAdminTruth": false
   },
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated validator requested by this batch."
+    },
+    {
+      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated validator requested by this batch."
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated validator requested by this batch."
+    },
+    {
+      "path": "src/lib/debug/debug-operator-cockpit.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts."
+    },
+    {
+      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts."
+    },
+    {
+      "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated unit coverage requested by this batch."
+    },
+    {
+      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated unit coverage requested by this batch."
+    },
+    {
+      "path": "tests/unit/score-80-refresh-queue-execution.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated unit coverage requested by this batch."
+    },
+    {
+      "path": "tests/unit/self-healing-refresh-queue.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated unit coverage requested by this batch."
+    }
+  ],
   "openPrs": [
     {
       "number": 278,

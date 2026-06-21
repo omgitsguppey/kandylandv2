@@ -119,7 +119,7 @@ describe("self-healing refresh queue", () => {
       refreshPlan: [],
       scoreImpactArtifacts: [
         {
-          id: "visual_manual_smoke",
+          id: "ui_source_coverage",
           status: "manual proof required for mobile UI surface",
           pointImpact: 2,
           refreshCommand: "Attach manual visual evidence, then run npm run check:evidence-capture-status",
@@ -133,7 +133,7 @@ describe("self-healing refresh queue", () => {
       ],
     });
 
-    expect(report.queue.find((entry) => entry.artifact === "visual_manual_smoke")).toMatchObject({
+    expect(report.queue.find((entry) => entry.artifact === "ui_source_coverage")).toMatchObject({
       staleReason: "UI source coverage required",
       refreshCommand: "npm run check:ui-visual-smoke-minimal",
       canRunAutomatically: true,

@@ -91,7 +91,7 @@ export type Score80RefreshQueueExecutionReport = {
     nextAction: string;
   }>;
   formalGateImpact: {
-    clearsVisualManual: boolean;
+    clearsUiSourceCoverage: boolean;
     clearsRuntime: boolean;
     clearsProvider: boolean;
     clearsAdminTruth: boolean;
@@ -126,7 +126,7 @@ const DEFAULT_COMMAND_RESULTS: Score80RefreshCommandResult[] = [
   result("Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status", "blocked", "debug_runtime_evidence", "blocked_formal_evidence", "Formal deployed runtime artifact required; source queue cannot generate proof."),
   result("Attach formal provider smoke evidence, then run npm run check:evidence-capture-status", "blocked", "runtime_provider_smoke", "blocked_formal_evidence", "Formal provider artifact required; source queue cannot generate proof."),
   result("Attach admin truth sample evidence, then run npm run check:evidence-capture-status", "blocked", "admin_truth_sample_evidence", "blocked_formal_evidence", "Formal admin truth sample artifact required; source queue cannot generate proof."),
-  result("npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status", "blocked", "visual_manual_smoke", "safe_automatic_refresh", "UI issues must be discovered by deterministic source coverage before optional visual reproduction."),
+  result("npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status", "blocked", "ui_source_coverage", "safe_automatic_refresh", "UI issues must be discovered by deterministic source coverage before optional browser reproduction."),
 ];
 
 function result(
@@ -192,13 +192,18 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^docs\/agent-truth\//u.test(path)) {
     return { path, classification: "documentation_artifact_expected", reason: "Generated agent-truth documentation refreshed by queue validators." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated queue execution validator requested by this pass." };
   }
-  if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|overnight-beta-readiness-lock|score-80-refresh-queue-execution)\.spec\.ts$/u.test(path)) {
+  if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|live-evidence-gate-replacement|overnight-beta-readiness-lock|score-80-refresh-queue-execution|self-healing-refresh-queue)\.spec\.ts$/u.test(path)) {
     return { path, classification: "test_artifact_expected", reason: "Dedicated queue execution unit coverage requested by this pass." };
   }
-  if (path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx" || path === "src/lib/debug/debug-backlog-builder.ts") {
+  if (
+    path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
+    || path === "src/lib/debug/debug-backlog-builder.ts"
+    || path === "src/lib/debug/debug-operator-cockpit.ts"
+    || path === "src/lib/release-readiness/live-evidence-resolver.ts"
+  ) {
     return { path, classification: "validator_artifact_expected", reason: "Admin/debug source wording now routes UI work through source coverage." };
   }
   if (path === "package.json") {
@@ -284,7 +289,7 @@ export function buildScore80RefreshQueueExecutionReport(
     blockedEntries: commandResults.filter((entry) => entry.status === "blocked" || entry.status === "failed" || entry.classification.startsWith("blocked_")),
     staleArtifactsStillTracked: input.staleArtifactsStillTracked ?? staleArtifacts(rootDir),
     formalGateImpact: {
-      clearsVisualManual: false,
+      clearsUiSourceCoverage: false,
       clearsRuntime: false,
       clearsProvider: false,
       clearsAdminTruth: false,

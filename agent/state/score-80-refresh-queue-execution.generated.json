@@ -1,16 +1,16 @@
 {
-  "generatedAtUtc": "2026-06-19T18:24:23.755Z",
+  "generatedAtUtc": "2026-06-21T02:17:58.923Z",
   "reportKey": "score-80-refresh-queue-execution",
-  "currentHead": "17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1",
+  "currentHead": "a264c232bdfaea10532430a688c0b80e56d7cf2b",
   "status": "pass",
   "oldScore": 77.76,
-  "newScore": 70.79,
-  "distanceTo80": 9.21,
+  "newScore": 73.57,
+  "distanceTo80": 6.43,
   "queueSummary": {
-    "totalEntries": 16,
-    "automaticEntries": 11,
+    "totalEntries": 17,
+    "automaticEntries": 12,
     "blockedEntries": 5,
-    "sourceQueueCommandCount": 16
+    "sourceQueueCommandCount": 17
   },
   "queueEntriesRun": 15,
   "queueEntriesSkipped": 2,
@@ -187,9 +187,9 @@
     {
       "command": "npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status",
       "status": "blocked",
-      "queueArtifact": "visual_manual_smoke",
+      "queueArtifact": "ui_source_coverage",
       "classification": "safe_automatic_refresh",
-      "reason": "UI issues must be discovered by deterministic source coverage before optional visual reproduction."
+      "reason": "UI issues must be discovered by deterministic source coverage before optional browser reproduction."
     }
   ],
   "refreshedArtifacts": [
@@ -277,9 +277,9 @@
     {
       "command": "npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status",
       "status": "blocked",
-      "queueArtifact": "visual_manual_smoke",
+      "queueArtifact": "ui_source_coverage",
       "classification": "safe_automatic_refresh",
-      "reason": "UI issues must be discovered by deterministic source coverage before optional visual reproduction."
+      "reason": "UI issues must be discovered by deterministic source coverage before optional browser reproduction."
     }
   ],
   "staleArtifactsStillTracked": [
@@ -291,7 +291,7 @@
     }
   ],
   "formalGateImpact": {
-    "clearsVisualManual": false,
+    "clearsUiSourceCoverage": false,
     "clearsRuntime": false,
     "clearsProvider": false,
     "clearsAdminTruth": false
@@ -303,12 +303,17 @@
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
     {
-      "path": "agent/state/debug-signal-actionability.generated.json",
+      "path": "agent/state/current-beta-exit-status.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
     {
-      "path": "agent/state/score-80-path-lock.generated.json",
+      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
@@ -318,14 +323,59 @@
       "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
     {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
     {
-      "path": "docs/agent-truth/score-80-path-lock.md",
+      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated queue execution validator requested by this pass."
+    },
+    {
+      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated queue execution validator requested by this pass."
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated queue execution validator requested by this pass."
+    },
+    {
+      "path": "src/lib/debug/debug-operator-cockpit.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Admin/debug source wording now routes UI work through source coverage."
+    },
+    {
+      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Admin/debug source wording now routes UI work through source coverage."
+    },
+    {
+      "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated queue execution unit coverage requested by this pass."
+    },
+    {
+      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated queue execution unit coverage requested by this pass."
+    },
+    {
+      "path": "tests/unit/score-80-refresh-queue-execution.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated queue execution unit coverage requested by this pass."
+    },
+    {
+      "path": "tests/unit/self-healing-refresh-queue.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated queue execution unit coverage requested by this pass."
     }
   ],
   "openPrs": [

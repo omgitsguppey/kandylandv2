@@ -64,7 +64,7 @@ export interface ResolvedBlockedRefreshQueueEntry {
   resolvedBlockedReason: string;
   nextAction: string;
   canRunAutomatically: boolean;
-  formalGate: "runtime" | "provider" | "admin_truth" | "visual_manual" | "none";
+  formalGate: "runtime" | "provider" | "admin_truth" | "ui_source_coverage" | "none";
   scoreTreatment:
     | "blocked_formal_evidence_not_auto_refreshable"
     | "resolved_source_refreshable"
@@ -84,7 +84,7 @@ export interface BlockedRefreshQueueResolverReport {
   refreshableBlockedEntries: ResolvedBlockedRefreshQueueEntry[];
   obsoleteEntriesRetired: ResolvedBlockedRefreshQueueEntry[];
   formalGateImpact: {
-    clearsVisualManual: boolean;
+    clearsUiSourceCoverage: boolean;
     clearsRuntime: boolean;
     clearsProvider: boolean;
     clearsAdminTruth: boolean;
@@ -189,10 +189,10 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^docs\/agent-truth\//u.test(path)) {
     return { path, classification: "documentation_artifact_expected", reason: "Agent-truth documentation for the blocked refresh resolver." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-health-algorithm-v2|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-freshness-index|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|final-phase-cleanup-lock|final-telemetry-closure-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-ui-parity|user-creator-visual-confirmation|user-loading-wallet-mobile-refinement)\.ts$/u.test(path)) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-health-algorithm-v2|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-freshness-index|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|final-phase-cleanup-lock|final-telemetry-closure-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-ui-parity|user-creator-visual-confirmation|user-loading-wallet-mobile-refinement)\.ts$/u.test(path)) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated validator requested by this batch." };
   }
-  if (/^tests\/unit\/(ai-critic-p1-triage|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-freshness-index|evidence-readiness-checklists|final-morning-beta-lock|final-phase-cleanup-lock|overnight-beta-readiness-lock|targeted-behavior-evidence-repair)\.spec\.ts$/u.test(path)) {
+  if (/^tests\/unit\/(ai-critic-p1-triage|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-freshness-index|evidence-readiness-checklists|final-morning-beta-lock|final-phase-cleanup-lock|live-evidence-gate-replacement|overnight-beta-readiness-lock|score-80-refresh-queue-execution|self-healing-refresh-queue|targeted-behavior-evidence-repair)\.spec\.ts$/u.test(path)) {
     return { path, classification: "test_artifact_expected", reason: "Dedicated unit coverage requested by this batch." };
   }
   if (
@@ -201,10 +201,11 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
     || path === "src/lib/admin-debug-control-tower.ts"
     || path === "src/lib/debug/ai-critic-p1-triage.ts"
     || path === "src/lib/debug/debug-backlog-builder.ts"
+    || path === "src/lib/debug/debug-operator-cockpit.ts"
     || path === "src/lib/debug/recovery-playbooks.ts"
     || path === "src/lib/release-readiness/live-evidence-resolver.ts"
   ) {
-    return { path, classification: "real_source_change_needs_review", reason: "Admin/debug copy now routes visual work through UI source coverage instead of visual proof shortcuts." };
+    return { path, classification: "real_source_change_needs_review", reason: "Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts." };
   }
   if (path === "src/lib/agent-score/self-healing-refresh-queue.ts" || path === "package.json") {
     return { path, classification: "real_source_change_needs_review", reason: "Scoped queue/source wiring needed to replace generic blocked reasons." };
@@ -254,10 +255,10 @@ function exactReason(entry: QueueEntryInput) {
         action: "Attach admin truth sample evidence, then run npm run check:evidence-capture-status.",
         gate: "admin_truth" as const,
       };
-    case "visual_manual_smoke":
+    case "ui_source_coverage":
       return {
-        reason: "source_validation_required: deterministic UI source coverage must run before optional visual reproduction; screenshots are not required to discover UI issues.",
-        action: "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps; use screenshots only to reproduce a reported issue.",
+        reason: "source_validation_required: deterministic UI source coverage must run before optional browser reproduction.",
+        action: "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps; use browser diagnostics only to reproduce a reported issue.",
         gate: "none" as const,
       };
     default:
@@ -269,7 +270,7 @@ function classifyBlockedEntry(entry: QueueEntryInput): ResolvedBlockedRefreshQue
   const text = `${entry.artifact} ${entry.staleReason} ${entry.refreshCommand} ${entry.blockedReason}`.toLowerCase();
   const exact = exactReason(entry);
   if (exact) {
-    const uiSourceCoverage = entry.artifact === "visual_manual_smoke";
+    const uiSourceCoverage = entry.artifact === "ui_source_coverage";
     return {
       artifact: entry.artifact,
       owner: entry.owner,
@@ -289,8 +290,8 @@ function classifyBlockedEntry(entry: QueueEntryInput): ResolvedBlockedRefreshQue
       owner: entry.owner,
       scoreImpactEstimate: entry.scoreImpactEstimate,
       classification: "failed_validator",
-      originalBlockedReason: "source_validation_required: deterministic UI source coverage must report the issue before optional visual reproduction.",
-      resolvedBlockedReason: "source_validation_required: deterministic UI source coverage must report the issue before optional visual reproduction.",
+      originalBlockedReason: "source_validation_required: deterministic UI source coverage must report the issue before optional browser reproduction.",
+      resolvedBlockedReason: "source_validation_required: deterministic UI source coverage must report the issue before optional browser reproduction.",
       nextAction: entry.refreshCommand || "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap.",
       canRunAutomatically: entry.canRunAutomatically,
       formalGate: "none",
@@ -307,7 +308,7 @@ function classifyBlockedEntry(entry: QueueEntryInput): ResolvedBlockedRefreshQue
       resolvedBlockedReason: "manual_evidence: operator artifact required; source queue cannot generate it.",
       nextAction: entry.refreshCommand || "Attach manual/operator evidence.",
       canRunAutomatically: entry.canRunAutomatically,
-      formalGate: "visual_manual",
+      formalGate: "none",
       scoreTreatment: "blocked_formal_evidence_not_auto_refreshable",
     };
   }
@@ -372,7 +373,7 @@ export function buildBlockedRefreshQueueResolverReport(
     refreshableBlockedEntries: resolvedEntries.filter((entry) => entry.scoreTreatment === "requires_follow_up"),
     obsoleteEntriesRetired: resolvedEntries.filter((entry) => entry.classification === "obsolete_artifact"),
     formalGateImpact: {
-      clearsVisualManual: false,
+      clearsUiSourceCoverage: false,
       clearsRuntime: false,
       clearsProvider: false,
       clearsAdminTruth: false,
@@ -434,7 +435,7 @@ export function validateBlockedRefreshQueueResolverReport(report: BlockedRefresh
   if (unclassifiedPrs.length > 0) {
     failures.push(`open PRs unclassified: ${unclassifiedPrs.map((pr) => `#${pr.number}`).join(", ")}`);
   }
-  const expected = ["debug_runtime_evidence", "runtime_provider_smoke", "admin_truth_sample_evidence", "visual_manual_smoke"];
+  const expected = ["debug_runtime_evidence", "runtime_provider_smoke", "admin_truth_sample_evidence", "ui_source_coverage"];
   const missingExpected = expected.filter((artifact) => !report.resolvedEntries.some((entry) => entry.artifact === artifact));
   if (report.blockedCount === 4 && missingExpected.length > 0) {
     failures.push(`expected blocked refresh entries missing classification: ${missingExpected.join(", ")}`);
@@ -448,7 +449,7 @@ function renderDoc(report: BlockedRefreshQueueResolverReport) {
     "",
     `Status: ${report.status}`,
     "",
-    "This pass resolves the blocked self-healing refresh queue rows by routing UI visual work through deterministic source coverage first and keeping runtime, provider, and admin truth blockers non-automatic.",
+    "This pass resolves the blocked self-healing refresh queue rows by routing UI source checks through deterministic source coverage first and keeping runtime, provider, and admin truth blockers non-automatic.",
     "",
     "## Score",
     "",

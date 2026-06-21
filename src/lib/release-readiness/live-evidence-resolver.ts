@@ -43,7 +43,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     ],
     freshnessWindowHours: 24,
     minimumAcceptableSignal: "auth_session_established or auth_session_restored observed in bounded live window",
-    sourceOnlyFallback: "source_missing auth liveness must replace visual proof shortcuts",
+    sourceOnlyFallback: "source_missing auth liveness must replace browser-diagnostic shortcuts",
     scoreImpact: { runtimeHealth: 1, evidenceCompleteness: 2, freshness: 1 },
   },
   {
@@ -723,7 +723,7 @@ function reasonForDecision(seed: EvidenceSystemSeed, status: LiveEvidenceStatus)
 function nextActionForDecision(seed: EvidenceSystemSeed, status: LiveEvidenceStatus) {
   if (status === "live_evidence_replaced") return "Keep the live evidence source fresh and redacted.";
   if (status === "source_only_evidence" || status === "current_warning") return `Connect or attach ${seed.expectedLiveEvidenceSource}; keep source-only evidence labeled as source-only.`;
-  if (status === "source_missing_live_evidence") return `Add or attach ${seed.expectedLiveEvidenceSource}; classify missing lanes as source_missing, not visual proof blockers.`;
+  if (status === "source_missing_live_evidence") return `Add or attach ${seed.expectedLiveEvidenceSource}; classify missing lanes as source_missing, not browser-diagnostic blockers.`;
   if (status === "external_provider_required") return "Attach redacted provider/payment proof without exposing raw provider IDs.";
   if (status === "external_billing_required") return "Attach external billing review for cost lanes.";
   return "Use browser reproduction only after source coverage reports a concrete UI issue.";

@@ -7,13 +7,13 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 ## Score
 
 - Old score: 77.76
-- New score: 70.79
-- Distance to 80: 9.21
+- New score: 73.57
+- Distance to 80: 6.43
 
 ## Queue Execution
 
-- Queue entries in latest queue: 16
-- Automatic entries in latest queue: 11
+- Queue entries in latest queue: 17
+- Automatic entries in latest queue: 12
 - Blocked entries in latest queue: 5
 - Commands passed: 15
 - Commands skipped: 2
@@ -30,7 +30,7 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 - debug_runtime_evidence: blocked_formal_evidence; Formal deployed runtime artifact required; source queue cannot generate proof.
 - runtime_provider_smoke: blocked_formal_evidence; Formal provider artifact required; source queue cannot generate proof.
 - admin_truth_sample_evidence: blocked_formal_evidence; Formal admin truth sample artifact required; source queue cannot generate proof.
-- visual_manual_smoke: safe_automatic_refresh; UI issues must be discovered by deterministic source coverage before optional visual reproduction.
+- ui_source_coverage: safe_automatic_refresh; UI issues must be discovered by deterministic source coverage before optional browser reproduction.
 
 ## Refreshed Artifacts
 
@@ -62,11 +62,21 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 ## Dirty File Classification
 
 - agent/state/blocked-refresh-queue-resolver.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/debug-signal-actionability.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/score-80-path-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/live-evidence-gate-replacement.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - docs/agent-truth/blocked-refresh-queue-resolver.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/debug-signal-actionability.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/score-80-path-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/live-evidence-gate-replacement.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- scripts/agent/validate-blocked-refresh-queue-resolver.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-current-beta-exit-status.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- src/lib/debug/debug-operator-cockpit.ts: validator_artifact_expected; Admin/debug source wording now routes UI work through source coverage.
+- src/lib/release-readiness/live-evidence-resolver.ts: validator_artifact_expected; Admin/debug source wording now routes UI work through source coverage.
+- tests/unit/blocked-refresh-queue-resolver.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/live-evidence-gate-replacement.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/score-80-refresh-queue-execution.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/self-healing-refresh-queue.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
 
 ## Validation
 

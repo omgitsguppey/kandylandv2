@@ -68,7 +68,7 @@ describe("score 80 refresh queue execution", () => {
     expect(report.queueEntriesRun).toBe(2);
     expect(report.queueEntriesBlocked).toBe(1);
     expect(report.formalGateImpact).toEqual({
-      clearsVisualManual: false,
+      clearsUiSourceCoverage: false,
       clearsRuntime: false,
       clearsProvider: false,
       clearsAdminTruth: false,

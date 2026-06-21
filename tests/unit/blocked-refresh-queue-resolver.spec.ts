@@ -44,8 +44,8 @@ const blockedQueue = [
     expectedOutcome: "Remain blocked until a human attaches the admin truth sample artifact.",
   },
   {
-    artifact: "visual_manual_smoke",
-    staleReason: "Visual QA required: Visual/manual smoke",
+    artifact: "ui_source_coverage",
+    staleReason: "Source coverage required: UI source checks",
     refreshCommand: "npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status",
     scoreImpactEstimate: 12,
     owner: "manual",
@@ -53,7 +53,7 @@ const blockedQueue = [
     canRunAutomatically: false,
     blockedReason: "source_validation_required: deterministic UI source coverage must run before optional visual reproduction.",
     source: "score_impact",
-    expectedOutcome: "Run source coverage and fix reported UI surface gaps before optional visual reproduction.",
+    expectedOutcome: "Run source coverage and fix reported UI surface gaps before optional browser reproduction.",
   },
 ] as const;
 
@@ -82,7 +82,7 @@ describe("blocked refresh queue resolver", () => {
     expect(report.resolvedEntries).toHaveLength(4);
     expect(report.refreshableBlockedEntries).toEqual([]);
     expect(report.formalGateImpact).toEqual({
-      clearsVisualManual: false,
+      clearsUiSourceCoverage: false,
       clearsRuntime: false,
       clearsProvider: false,
       clearsAdminTruth: false,
@@ -91,15 +91,15 @@ describe("blocked refresh queue resolver", () => {
       "debug_runtime_evidence",
       "runtime_provider_smoke",
       "admin_truth_sample_evidence",
-      "visual_manual_smoke",
+      "ui_source_coverage",
     ]);
     expect(report.resolvedEntries.filter((entry) => entry.classification === "blocked_formal_evidence")).toHaveLength(3);
-    expect(report.resolvedEntries.find((entry) => entry.artifact === "visual_manual_smoke")).toMatchObject({
+    expect(report.resolvedEntries.find((entry) => entry.artifact === "ui_source_coverage")).toMatchObject({
       classification: "failed_validator",
       formalGate: "none",
       scoreTreatment: "resolved_source_refreshable",
     });
-    expect(report.resolvedEntries.find((entry) => entry.artifact === "visual_manual_smoke")?.nextAction).toContain("check:ui-visual-smoke-minimal");
+    expect(report.resolvedEntries.find((entry) => entry.artifact === "ui_source_coverage")?.nextAction).toContain("check:ui-visual-smoke-minimal");
     expect(validateBlockedRefreshQueueResolverReport(report)).toEqual([]);
   });
 
@@ -129,7 +129,7 @@ describe("blocked refresh queue resolver", () => {
       refreshableBlockedEntries: [],
       obsoleteEntriesRetired: [],
       formalGateImpact: {
-        clearsVisualManual: false,
+        clearsUiSourceCoverage: false,
         clearsRuntime: false,
         clearsProvider: false,
         clearsAdminTruth: false,

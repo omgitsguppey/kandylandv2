@@ -2,12 +2,12 @@
 
 Status: pass
 
-This pass resolves the blocked self-healing refresh queue rows by routing UI visual work through deterministic source coverage first and keeping runtime, provider, and admin truth blockers non-automatic.
+This pass resolves the blocked self-healing refresh queue rows by routing UI source checks through deterministic source coverage first and keeping runtime, provider, and admin truth blockers non-automatic.
 
 ## Score
 
-- Old score: 70.79
-- New score: 70.79
+- Old score: 73.57
+- New score: 73.57
 
 ## Blocked Entries
 
@@ -18,7 +18,7 @@ This pass resolves the blocked self-healing refresh queue rows by routing UI vis
 ### admin_truth_sample_evidence
 
 - Owner: admin
-- Score impact estimate: 8.32
+- Score impact estimate: 11.32
 - Classification: blocked_formal_evidence
 - Formal gate: admin_truth
 - Score treatment: blocked_formal_evidence_not_auto_refreshable
@@ -72,7 +72,22 @@ This pass resolves the blocked self-healing refresh queue rows by routing UI vis
 
 ## Dirty File Classification
 
-- None
+- agent/state/blocked-refresh-queue-resolver.generated.json: current_generated_artifact_to_commit; Generated score/debug evidence artifact refreshed by this resolver.
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit; Generated score/debug evidence artifact refreshed by this resolver.
+- agent/state/live-evidence-gate-replacement.generated.json: current_generated_artifact_to_commit; Generated score/debug evidence artifact refreshed by this resolver.
+- agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated score/debug evidence artifact refreshed by this resolver.
+- docs/agent-truth/blocked-refresh-queue-resolver.md: documentation_artifact_expected; Agent-truth documentation for the blocked refresh resolver.
+- docs/agent-truth/live-evidence-gate-replacement.md: documentation_artifact_expected; Agent-truth documentation for the blocked refresh resolver.
+- docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Agent-truth documentation for the blocked refresh resolver.
+- scripts/agent/validate-blocked-refresh-queue-resolver.ts: validator_artifact_expected; Dedicated validator requested by this batch.
+- scripts/agent/validate-current-beta-exit-status.ts: validator_artifact_expected; Dedicated validator requested by this batch.
+- scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated validator requested by this batch.
+- src/lib/debug/debug-operator-cockpit.ts: real_source_change_needs_review; Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts.
+- src/lib/release-readiness/live-evidence-resolver.ts: real_source_change_needs_review; Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts.
+- tests/unit/blocked-refresh-queue-resolver.spec.ts: test_artifact_expected; Dedicated unit coverage requested by this batch.
+- tests/unit/live-evidence-gate-replacement.spec.ts: test_artifact_expected; Dedicated unit coverage requested by this batch.
+- tests/unit/score-80-refresh-queue-execution.spec.ts: test_artifact_expected; Dedicated unit coverage requested by this batch.
+- tests/unit/self-healing-refresh-queue.spec.ts: test_artifact_expected; Dedicated unit coverage requested by this batch.
 
 ## Validation
 
