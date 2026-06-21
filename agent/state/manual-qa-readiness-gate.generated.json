@@ -1,7 +1,7 @@
 {
   "reportKey": "manual-qa-readiness-gate",
-  "generatedAtUtc": "2026-05-26T23:03:33.780Z",
-  "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+  "generatedAtUtc": "2026-06-21T04:12:43.360Z",
+  "currentHead": "456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34",
   "manualQaRecommended": false,
   "betaExitReady": false,
   "prerequisites": [
@@ -39,7 +39,7 @@
       "id": "formal-items-operator-only",
       "status": "operator_only",
       "severity": "manual_required",
-      "exactNextAction": "Formal provider/runtime/admin/manual evidence remains operator-owned and cannot be cleared by Codex."
+      "exactNextAction": "Provider-backed site activity, deployed route evidence, redacted admin source samples, and external billing review remain owner-scoped and cannot be cleared by unrelated source checks."
     }
   ],
   "releaseCriticalGaps": [

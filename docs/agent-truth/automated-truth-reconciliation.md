@@ -5,23 +5,23 @@ Validator: `npm run check:automated-truth-reconciliation`
 
 ## Summary
 
-- Generated: `2026-06-19T02:02:14.240Z`
-- Current head: `20de2ac21a0bf5b003eab4838cf42b1c49820e9d`
+- Generated: `2026-06-21T04:14:06.921Z`
+- Current head: `456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34`
 - Validation status: `pass`
 
 ## Evidence Boundary
 
-This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, manual visual QA, payment runtime, or GumDrop math changes. Formal provider/runtime/admin/manual gates remain unproven unless explicitly attached as formal artifacts.
+This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, payment runtime, or GumDrop math changes. Provider-backed site activity, deployed route evidence, and redacted admin source samples remain unproven unless explicitly attached as typed evidence artifacts.
 
 ## Report
 
 ```json
 {
   "reportKey": "automated-truth-reconciliation",
-  "generatedAtUtc": "2026-06-19T02:02:14.240Z",
-  "currentHead": "20de2ac21a0bf5b003eab4838cf42b1c49820e9d",
+  "generatedAtUtc": "2026-06-21T04:14:06.921Z",
+  "currentHead": "456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34",
   "reportFormat": "compact_summary_full_detail_derivable",
-  "betaScore": 77.2,
+  "betaScore": 86.83,
   "betaScoreProofStatus": "proven_current",
   "manualQaRecommended": false,
   "releaseCriticalGapCount": 1,
@@ -33,9 +33,9 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
   "securityPrCount": 3,
   "unclassifiedDirtyFiles": [],
   "formalEvidenceStillMissing": [
-    "runtime/provider smoke",
-    "admin truth/sample evidence",
-    "manual production smoke",
+    "provider-backed site activity evidence",
+    "deployed route evidence",
+    "redacted admin source sample",
     "external billing review"
   ],
   "releaseCriticalGaps": [

@@ -1,18 +1,18 @@
 {
-  "generatedAtUtc": "2026-06-21T02:50:25.762Z",
+  "generatedAtUtc": "2026-06-21T04:10:49.578Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "2c237ad2644314be914c0acf08a833f8135d5e5f",
+  "currentHead": "456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34",
   "summary": {
     "betaVersion": "1.6.15",
-    "betaScore": 73.57,
-    "betaStatus": "External proof required",
+    "betaScore": 84,
+    "betaStatus": "Source evidence required",
     "scoreVersion": "beta_health_v2",
-    "healthScore": 73.57,
+    "healthScore": 86.83,
     "launchGateStatus": "owner_review",
     "sourceHealthScore": 97.2,
-    "runtimeHealthScore": 60.45,
-    "evidenceCompletenessScore": 55.11,
-    "freshnessScore": 83.75,
+    "runtimeHealthScore": 83.74,
+    "evidenceCompletenessScore": 92,
+    "freshnessScore": 91.88,
     "costRiskScore": 42,
     "regressionRiskScore": 94,
     "sourceCleanupP0": 0,
@@ -64,7 +64,7 @@
         "sourceStatus": "stale_provider_smoke_evidence",
         "sourcePath": "agent/state/provider-smoke-evidence.generated.json",
         "captureStatus": "missing",
-        "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+        "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
         "canClearGate": false,
         "nextAction": "Attach redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
       },
@@ -76,7 +76,7 @@
         "sourceStatus": "stale_runtime_smoke_evidence",
         "sourcePath": "agent/state/runtime-smoke-evidence.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+        "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
         "canClearGate": false,
         "nextAction": "Attach or refresh deployed runtime smoke evidence for the current code version."
       },
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-21T02:50:25.762Z",
+      "generatedAtUtc": "2026-06-21T04:10:49.578Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -151,16 +151,16 @@
       "artifactPath": "agent/state/public-beta-score.generated.json",
       "reportKey": "public-beta-score",
       "label": "Public beta score",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-06-21T01:52:36.716Z",
-      "ageHours": 0.16531916666666666,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-06-21T04:06:44.834Z",
+      "ageHours": 0.06798444444444444,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Public beta score was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
-      "formalEvidenceGateCanClear": false
+      "message": "Public beta score is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
@@ -299,14 +299,6 @@
     }
   ],
   "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/public-beta-score.generated.json",
-      "reportKey": "public-beta-score",
-      "status": "stale_source_version",
-      "message": "Public beta score was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
-      "refreshCommand": "npm run score:beta && npm run check:beta-score"
-    },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",

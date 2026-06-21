@@ -127,7 +127,7 @@ const missingAdminTruthEvidence = {
     path: "agent/state/admin-truth-sample-evidence.generated.json",
     status: "missing_or_unknown",
     passed: false,
-    detail: "No fresh admin truth sample.",
+    detail: "No admin source activity sample.",
     evidence: ["adminTruthSampleArtifactStatus=missing_or_unknown", "sampleCount=0"],
 };
 
@@ -184,7 +184,7 @@ describe("public beta scoring math", () => {
         expect(report.scannerStatus).toBe("clean");
         expect(report.scoreExplanation.scannerScoreMeaning).toContain("scanner-only");
         expect(report.scoreExplanation.betaExitBlockedBy).toEqual(expect.arrayContaining([
-            expect.stringContaining("Runtime/provider smoke"),
+            expect.stringContaining("Provider-backed site activity + deployed route evidence"),
         ]));
         expect(report.overallStatus).not.toBe("clean");
         expect(report.readinessStatus).not.toBe("Ready");
@@ -429,8 +429,8 @@ describe("public beta scoring math", () => {
             expect.objectContaining({ id: "adminTruthSamples", status: "Stale evidence", score: 0 }),
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            "Stale evidence: Runtime/provider smoke - Refresh provider-backed site activity and deployed runtime route evidence.",
-            "Stale evidence: Admin truth/sample evidence - Refresh the redacted admin truth sample.",
+            "Stale evidence: Provider-backed site activity + deployed route evidence - Refresh provider-backed site activity and deployed runtime route evidence.",
+            "Stale evidence: Admin source sample evidence - Refresh the redacted admin truth sample.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -461,8 +461,8 @@ describe("public beta scoring math", () => {
             expect.objectContaining({ id: "runtimeProviderSmoke", status: "Unknown evidence", score: 0 }),
             expect.objectContaining({ id: "adminTruthSamples", status: "Unknown evidence", score: 0 }),
         ]));
-        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Runtime/provider smoke");
-        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Admin truth/sample evidence");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Provider-backed site activity + deployed route evidence");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Admin source sample evidence");
     });
 
     it("keeps missing_or_unknown admin truth from passing", () => {
@@ -549,13 +549,13 @@ describe("public beta scoring math", () => {
         expect(report.evidenceCapDetails.length).toBeGreaterThanOrEqual(3);
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Targeted behavior tests - Attach targeted source validator evidence."),
-            expect.stringContaining("Runtime/provider smoke - Produce provider-backed site activity"),
-            expect.stringContaining("Admin truth/sample evidence - Produce a redacted admin source activity sample."),
+            expect.stringContaining("Provider-backed site activity + deployed route evidence - Produce provider-backed site activity"),
+            expect.stringContaining("Admin source sample evidence - Produce a redacted admin source activity sample."),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("Operator reported PayPal");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("No fresh admin truth sample.");
-        expect(report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke")?.detail).toContain("Provider smoke:");
-        expect(report.evidenceGates.find((gate) => gate.id === "adminTruthSamples")?.detail).toContain("No fresh admin truth sample.");
+        expect(report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke")?.detail).toContain("Provider-backed site activity:");
+        expect(report.evidenceGates.find((gate) => gate.id === "adminTruthSamples")?.detail).toContain("No admin source activity sample");
     });
 
     it("does not use final launch report text as provider smoke truth", () => {

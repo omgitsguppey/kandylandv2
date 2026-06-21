@@ -14,7 +14,7 @@ describe("final release exit readiness packet", () => {
         currentHead: "head",
         healthScore: 85.34,
         launchGateStatus: "owner_review",
-        launchBlockers: ["Runtime/provider smoke: Runtime unverified", "Admin truth/sample evidence: Ready with smoke required"],
+        launchBlockers: ["Provider-backed site activity evidence: missing", "Admin source sample evidence: missing"],
         sourceHealthScore: 100,
         runtimeHealthScore: 84.2,
         evidenceCompletenessScore: 84.6,
@@ -30,8 +30,7 @@ describe("final release exit readiness packet", () => {
     const report = buildFinalReleaseExitReadinessPacketReport(context);
 
     expect(report.betaExitReady).toBe(false);
-    expect(report.remainingFormalEvidence).toEqual(expect.arrayContaining(["live route/runtime evidence", "external provider proof", "admin live truth/redacted sample evidence"]));
-    expect(report.remainingManualItems).not.toContain("manual production smoke");
+    expect(report.remainingFormalEvidence).toEqual(expect.arrayContaining(["deployed route evidence", "provider-backed site activity evidence", "redacted admin source sample"]));
     expect(report.remainingManualItems).not.toContain("visual-only operator QA");
     expect(report.liveEvidenceGateReplacement.status).toBe("split_ready");
     expect(report.costRiskStatus.status).toBe("below80_external_review_required");

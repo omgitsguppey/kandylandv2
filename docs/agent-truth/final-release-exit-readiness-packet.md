@@ -5,8 +5,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 
 ## Summary
 
-- Generated: `2026-06-19T18:08:31.766Z`
-- Current head: `79598a740b349732332b6e1751ca9d8f5b3933dc`
+- Generated: `2026-06-21T04:15:01.421Z`
+- Current head: `456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34`
 - Status: `pass`
 
 ## Report
@@ -14,41 +14,35 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 ```json
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-06-19T18:08:31.766Z",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
-  "scoreBefore": 70.79,
-  "scoreAfter": 70.79,
+  "generatedAtUtc": "2026-06-21T04:15:01.421Z",
+  "currentHead": "456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34",
+  "scoreBefore": 86.83,
+  "scoreAfter": 86.83,
   "scoreDimensions": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 43.4,
-    "freshness": 75.63,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 83.74,
+    "evidenceCompleteness": 92,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 70.79
+    "overallHealthScore": 86.83
   },
   "betaExitReady": false,
   "launchGateStatus": "owner_review",
   "launchBlockers": [
-    "Runtime/provider smoke: External proof required",
-    "Admin truth/sample evidence: External proof required",
-    "Report freshness and PR integrity: Stale evidence"
+    "Provider-backed site activity + deployed route evidence: Source evidence required",
+    "Admin source sample evidence: Source evidence required"
   ],
   "blockerClassifications": [
     {
-      "blocker": "Runtime/provider smoke: External proof required",
+      "blocker": "Provider-backed site activity + deployed route evidence: Source evidence required",
       "classification": "split_live_runtime_and_external_provider_required",
-      "nextExactAction": "Attach deployed live route/runtime evidence where available and formal provider proof for provider flows."
+      "nextExactAction": "Attach deployed route evidence where available and provider-backed site activity evidence for provider flows."
     },
     {
-      "blocker": "Admin truth/sample evidence: External proof required",
+      "blocker": "Admin source sample evidence: Source evidence required",
       "classification": "live_admin_truth_or_redacted_sample_required",
-      "nextExactAction": "Attach a redacted live admin truth summary or classify the source as source_missing."
-    },
-    {
-      "blocker": "Report freshness and PR integrity: Stale evidence",
-      "classification": "external_review_required",
-      "nextExactAction": "Classify and close the release blocker through its owner lane."
+      "nextExactAction": "Attach a redacted admin source sample or classify the source as source_missing."
     }
   ],
   "formalEvidenceLedger": [
@@ -75,34 +69,34 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "whatItDoesNotProve": "It does not prove production traffic behavior."
     },
     {
-      "category": "live route/runtime evidence",
+      "category": "deployed route evidence",
       "status": "formal_missing",
       "artifactPath": "agent/state/live-evidence-gate-replacement.generated.json + deployed route summary",
       "owner": "operator/runtime owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Connect redacted live route/runtime summaries for source_missing product systems.",
-      "whatItDoesNotProve": "Source-safe route harnesses and browser reproduction do not prove deployed runtime behavior."
+      "nextExactAction": "Connect redacted deployed route summaries for source_missing product systems.",
+      "whatItDoesNotProve": "Source-safe route harnesses and optional visual reproduction do not prove deployed route behavior."
     },
     {
-      "category": "external provider proof",
+      "category": "provider-backed site activity evidence",
       "status": "formal_missing",
       "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
       "owner": "operator/provider owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach redacted formal provider proof for PayPal/provider flows without raw provider IDs.",
-      "whatItDoesNotProve": "Operator-confirmed revenue and live ledger summaries do not prove provider UI/webhook truth."
+      "nextExactAction": "Attach redacted provider-backed site activity evidence for PayPal/provider flows without raw provider IDs.",
+      "whatItDoesNotProve": "Source checks and operator comments do not prove provider UI/webhook truth."
     },
     {
-      "category": "admin live truth/redacted sample evidence",
+      "category": "redacted admin source sample",
       "status": "formal_missing",
       "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json + live admin summary",
       "owner": "operator/admin owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; browser reproduction cannot clear this gate.",
-      "whatItDoesNotProve": "Admin source schema and browser reproduction do not prove production admin truth."
+      "nextExactAction": "Attach a redacted admin source sample or keep admin truth source_missing; optional visual reproduction cannot clear this gate.",
+      "whatItDoesNotProve": "Admin source schema and optional visual reproduction do not prove production admin truth."
     },
     {
       "category": "debug/runtime evidence",
@@ -113,7 +107,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "owner": "debug/runtime evidence owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
-      "nextExactAction": "Use debug evidence as source confidence only until deployed runtime smoke is attached.",
+      "nextExactAction": "Use debug evidence as source confidence only until deployed route evidence is attached.",
       "whatItDoesNotProve": "It does not prove the deployed app is smoke-tested."
     },
     {
@@ -132,12 +126,12 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "category": "evidence bridge",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
-      "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-      "generatedAtUtc": "2026-06-03T18:49:48.720Z",
+      "currentHead": "42be9be767fc81370662e9a84f6673b1284d203e",
+      "generatedAtUtc": "2026-06-20T17:41:56.663Z",
       "owner": "evidence bridge owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
-      "nextExactAction": "Keep the bridge explicit about formal versus source-only evidence.",
+      "nextExactAction": "Keep the bridge explicit about typed provider, deployed route, admin source, and source-only evidence.",
       "whatItDoesNotProve": "It cannot convert source evidence into provider/runtime proof."
     },
     {
@@ -199,7 +193,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
   "adminTruthRedactionPacket": {
     "status": "schema_ready_formal_sample_missing",
     "missingFormalProof": [
-      "redacted production admin truth sample",
+      "redacted admin source sample",
       "operator attestation optional"
     ]
   },
@@ -219,14 +213,14 @@ Validator: `npm run check:final-release-exit-readiness-packet`
   },
   "releaseNotesIntegrity": {
     "status": "pass",
-    "currentVersion": "1.6.9"
+    "currentVersion": "1.6.15"
   },
   "liveEvidenceGateReplacement": {
     "status": "split_ready",
     "broadManualGatesAfter": [
-      "external provider proof",
-      "external billing review",
-      "source_missing live evidence lanes"
+      "provider/payment source evidence required",
+      "external billing source evidence required",
+      "source_missing site activity lanes"
     ],
     "sourceMissingLiveEvidenceCount": 11,
     "visualOnlyManualGateCount": 0,
@@ -236,17 +230,17 @@ Validator: `npm run check:final-release-exit-readiness-packet`
   "costRiskStatus": {
     "score": 42,
     "status": "below80_external_review_required",
-    "nextExactAction": "Complete external billing review; source guards alone cannot lift costRisk above formal review."
+    "nextExactAction": "Complete external billing review; source guards alone cannot lift costRisk above owner review."
   },
   "evidenceCompletenessStatus": {
-    "score": 43.4,
-    "status": "below80_requires_formal_evidence",
-    "nextExactAction": "Attach missing formal runtime/provider/admin evidence."
+    "score": 92,
+    "status": "meets_source_target",
+    "nextExactAction": "Keep typed evidence blockers explicit even if source score is above 80."
   },
   "freshnessStatus": {
-    "score": 75.63,
-    "status": "below80_refresh_required",
-    "nextExactAction": "Refresh stale required artifacts through their owning validators."
+    "score": 91.88,
+    "status": "meets_source_target",
+    "nextExactAction": "Keep current-head artifacts fresh after this commit."
   },
   "remainingManualItems": [
     "source_missing live evidence lanes",
@@ -254,9 +248,9 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "open PR owner review"
   ],
   "remainingFormalEvidence": [
-    "live route/runtime evidence",
-    "external provider proof",
-    "admin live truth/redacted sample evidence",
+    "deployed route evidence",
+    "provider-backed site activity evidence",
+    "redacted admin source sample",
     "cost review",
     "PR integrity",
     "external billing review"
@@ -562,8 +556,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
   ],
   "nextExactSteps": [
     "Connect redacted live evidence sources for source_missing product systems.",
-    "Attach formal provider proof for external PayPal/provider flows.",
-    "Attach redacted live admin truth summary or production admin truth sample evidence.",
+    "Attach provider-backed site activity evidence for external PayPal/provider flows.",
+    "Attach redacted admin source sample evidence.",
     "Complete external billing review.",
     "Review/cherry-pick/defer/close all open PRs.",
     "Keep deterministic UI source coverage current; use optional visual reproduction only for source-reported UI issues."
@@ -586,7 +580,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a typed evidence artifact for that category.
 
 ## Validation
 

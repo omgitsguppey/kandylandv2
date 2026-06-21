@@ -5,21 +5,21 @@ Validator: `npm run check:manual-qa-readiness-gate`
 
 ## Summary
 
-- Generated: `2026-05-26T23:03:33.780Z`
-- Current head: `ab170d4c0157ad2529b1e5c606d5ca65db1b3346`
+- Generated: `2026-06-21T04:12:43.360Z`
+- Current head: `456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34`
 - Validation status: `pass`
 
 ## Evidence Boundary
 
-This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, manual visual QA, payment runtime, or GumDrop math changes. Formal provider/runtime/admin/manual gates remain unproven unless explicitly attached as formal artifacts.
+This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, payment runtime, or GumDrop math changes. Provider-backed site activity, deployed route evidence, and redacted admin source samples remain unproven unless explicitly attached as typed evidence artifacts.
 
 ## Report
 
 ```json
 {
   "reportKey": "manual-qa-readiness-gate",
-  "generatedAtUtc": "2026-05-26T23:03:33.780Z",
-  "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+  "generatedAtUtc": "2026-06-21T04:12:43.360Z",
+  "currentHead": "456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34",
   "manualQaRecommended": false,
   "betaExitReady": false,
   "prerequisites": [
@@ -57,7 +57,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "id": "formal-items-operator-only",
       "status": "operator_only",
       "severity": "manual_required",
-      "exactNextAction": "Formal provider/runtime/admin/manual evidence remains operator-owned and cannot be cleared by Codex."
+      "exactNextAction": "Provider-backed site activity, deployed route evidence, redacted admin source samples, and external billing review remain owner-scoped and cannot be cleared by unrelated source checks."
     }
   ],
   "releaseCriticalGaps": [

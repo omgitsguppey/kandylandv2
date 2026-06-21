@@ -7,7 +7,11 @@ describe("automated truth reconciliation", () => {
     const report = buildAutomatedTruthReconciliationReport(process.cwd());
     expect(report.manualQaRecommended).toBe(false);
     expect(report.securityPrs.length).toBeGreaterThanOrEqual(1);
-    expect(report.formalEvidenceStillMissing).toContain("runtime/provider smoke");
+    expect(report.formalEvidenceStillMissing).toEqual(expect.arrayContaining([
+      "provider-backed site activity evidence",
+      "deployed route evidence",
+      "redacted admin source sample",
+    ]));
     expect(validateAutomatedTruthReconciliationReport(report)).toEqual([]);
   }, 120000);
 });

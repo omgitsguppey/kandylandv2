@@ -440,7 +440,7 @@ function currentDirtyFiles(root: string) {
 
 export function classifyTruthReconciliationDirtyFile(path: string) {
   const normalized = normalizePath(path);
-  if (/^agent\/state\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|public-beta-score|current-beta-exit-status|final-current-head-score-refresh|final-release-exit-readiness-packet|overnight-beta-readiness-lock)\.generated\.json$/u.test(normalized)) {
+  if (/^agent\/state\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|public-beta-score|current-beta-exit-status|final-current-head-score-refresh|final-release-exit-readiness-packet|final-operator-evidence-needed|overnight-beta-readiness-lock)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
   if (/^agent\/state\/(activity-verification-engine|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.generated\.json$/u.test(normalized)) {
@@ -449,7 +449,7 @@ export function classifyTruthReconciliationDirtyFile(path: string) {
   if (/^agent\/state\/(analytics-panel-hydration|launch-analytics-recovery)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
-  if (/^docs\/agent-truth\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|final-current-head-score-refresh|final-release-exit-readiness-packet|overnight-beta-readiness-lock)\.md$/u.test(normalized)) {
+  if (/^docs\/agent-truth\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|final-current-head-score-refresh|final-release-exit-readiness-packet|final-operator-evidence-needed|overnight-beta-readiness-lock)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (/^docs\/agent-truth\/(analytics-panel-hydration|launch-analytics-recovery)\.md$/u.test(normalized)) {
@@ -458,11 +458,14 @@ export function classifyTruthReconciliationDirtyFile(path: string) {
   if (/^docs\/agent-truth\/(activity-verification-engine|current-beta-exit-status|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
-  if (/^src\/lib\/release-readiness\/(automated-truth-reconciliation|claim-truth-auditor|validator-authority-auditor|wiring-truth-auditor|score-truth-auditor|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate)\.ts$/u.test(normalized)) {
+  if (/^src\/lib\/release-readiness\/(automated-truth-reconciliation|final-release-readiness|final-beta-exit-closure|claim-truth-auditor|validator-authority-auditor|wiring-truth-auditor|score-truth-auditor|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate)\.ts$/u.test(normalized)) {
     return "real_source_change_needs_review";
   }
   if (/^src\/lib\/release-readiness\/(live-evidence-gate-contract|live-evidence-resolver)\.ts$/u.test(normalized)) {
     return "real_source_change_needs_review";
+  }
+  if (normalized === "src/lib/agent-score/core.ts" || normalized === "tests/unit/public-beta-score.spec.ts") {
+    return "release_artifact_expected";
   }
   if (/^scripts\/agent\/(truth-reconciliation-report-runner|validate-(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation))\.ts$/u.test(normalized)) {
     return "release_artifact_expected";
@@ -470,7 +473,7 @@ export function classifyTruthReconciliationDirtyFile(path: string) {
   if (normalized === "scripts/agent/score-public-beta-readiness.ts" || /^scripts\/agent\/validate-(current-beta-exit-status|evidence-capture-status)\.ts$/u.test(normalized)) {
     return "release_artifact_expected";
   }
-  if (/^tests\/unit\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation)\.spec\.ts$/u.test(normalized)) {
+  if (/^tests\/unit\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|final-release-exit-readiness-packet|final-operator-evidence-needed)\.spec\.ts$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (/^tests\/unit\/(current-beta-exit-status|evidence-capture-status|live-evidence-gate-replacement)\.spec\.ts$/u.test(normalized)) {
@@ -558,7 +561,7 @@ export function buildClaimTruthAuditReport(root: string): ClaimTruthAuditReport 
         exactNextAction: proofStatus === "proven_current"
           ? "Keep validator, artifact, and source wiring current."
           : proofStatus === "formal_evidence_required"
-            ? "Attach formal operator/provider/runtime/admin evidence; do not clear this by source validation."
+            ? "Attach typed provider, deployed route, or admin source evidence; do not clear this by unrelated source validation."
             : proofStatus === "operator_manual_required"
               ? "Operator must complete manual evidence outside Codex source gates."
               : "Refresh or wire the referenced validator, package script, test, source, and artifact.",
@@ -856,7 +859,7 @@ export function buildManualQaReadinessGateReport(root: string): ManualQaReadines
     { id: "security-prs-handled-or-blocked", status: securityPrs.length === 0 ? "passed" : "blocked", severity: "release_critical", exactNextAction: "Review and cherry-pick or explicitly defer security PRs #304 and #293 before manual QA starts." },
     { id: "half-implementation-zero-release-critical", status: half.releaseCriticalFindings.length === 0 ? "passed" : "blocked", severity: "release_critical", exactNextAction: "Fix release-critical half-implementation findings." },
     { id: "wiring-release-critical-zero", status: wiring.releaseCriticalGaps.length === 0 ? "passed" : "blocked", severity: "release_critical", exactNextAction: "Repair missing release-critical source wiring." },
-    { id: "formal-items-operator-only", status: "operator_only", severity: "manual_required", exactNextAction: "Formal provider/runtime/admin/manual evidence remains operator-owned and cannot be cleared by Codex." },
+    { id: "formal-items-operator-only", status: "operator_only", severity: "manual_required", exactNextAction: "Provider-backed site activity, deployed route evidence, redacted admin source samples, and external billing review remain owner-scoped and cannot be cleared by unrelated source checks." },
   ];
   const releaseCriticalGaps = prerequisites.filter((entry) => entry.status === "blocked").map((entry) => entry.id);
   const report: ManualQaReadinessGateReport = {
@@ -892,7 +895,7 @@ export function buildAutomatedTruthReconciliationReport(root: string): Automated
   const manual = buildManualQaReadinessGateReport(root);
   const prs = openPullRequests(root);
   const dirtyFiles = currentDirtyFiles(root).map((path) => ({ path, classification: classifyTruthReconciliationDirtyFile(path) }));
-  const formalEvidenceStillMissing = ["runtime/provider smoke", "admin truth/sample evidence", "manual production smoke", "external billing review"];
+  const formalEvidenceStillMissing = ["provider-backed site activity evidence", "deployed route evidence", "redacted admin source sample", "external billing review"];
   const releaseCriticalGaps = Array.from(new Set([
     ...manual.releaseCriticalGaps,
     ...wiring.releaseCriticalGaps.map((entry) => entry.laneId),
@@ -1076,7 +1079,7 @@ Validator: \`${TRUTH_RECONCILIATION_OUTPUTS[kind].checkScript}\`
 
 ## Evidence Boundary
 
-This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, payment runtime, or GumDrop math changes. Formal provider/runtime/admin evidence gates remain unproven unless explicitly attached as formal artifacts.
+This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, payment runtime, or GumDrop math changes. Provider-backed site activity, deployed route evidence, and redacted admin source samples remain unproven unless explicitly attached as typed evidence artifacts.
 
 ## Report
 

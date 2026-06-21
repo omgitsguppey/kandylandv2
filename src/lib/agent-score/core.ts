@@ -851,8 +851,8 @@ export function buildPublicBetaEvidenceGates(input: {
     runtimeSmokePassed ? "Runtime route evidence was supplied." : "No deployed runtime route evidence artifact was supplied.",
   );
   const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
-    ? "Provider and runtime smoke artifacts passed."
-    : `Provider smoke: ${providerSmokeDetail} Runtime smoke: ${runtimeSmokeDetail}`;
+    ? "Provider-backed site activity and deployed route evidence artifacts passed."
+    : `Provider-backed site activity: ${providerSmokeDetail} Deployed route evidence: ${runtimeSmokeDetail}`;
   const runtimeProviderSmokeEvidence = Array.from(new Set([
     `providerArtifactStatus=${providerSmokeStatus}`,
     `runtimeArtifactStatus=${runtimeSmokeStatus}`,
@@ -1029,7 +1029,7 @@ export function buildPublicBetaEvidenceGates(input: {
   const adminTruthSampleDetail = evidenceArtifactDetail(
     evidence.adminTruthSampleEvidence,
     adminTruthSamplePassed
-      ? "Admin truth/sample evidence was supplied."
+      ? "Admin source sample evidence was supplied."
       : "No admin source activity sample evidence artifact was supplied.",
   );
   const adminTruthSampleEvidence = Array.from(new Set([
@@ -1122,7 +1122,7 @@ export function buildPublicBetaEvidenceGates(input: {
         debugRuntimeEvidenceQuality.partialCredit,
         (evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0) / 100,
       )),
-      reason: "Source-backed debug/runtime confidence is counted for Studio health without clearing deployed runtime smoke.",
+      reason: "Source-backed debug/runtime confidence is counted for Studio health without clearing deployed route evidence.",
     } satisfies ReturnType<typeof resolveEvidenceQuality>
     : {
     quality: debugEvidenceAvailable || formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit > 0 ? "formal_partial" : "missing",
@@ -1195,12 +1195,12 @@ export function buildPublicBetaEvidenceGates(input: {
     }),
     buildEvidenceGate({
       id: "runtimeProviderSmoke",
-      label: "Runtime/provider smoke",
+      label: "Provider-backed site activity + deployed route evidence",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke,
       status: runtimeProviderSmokeStatus,
       detail: runtimeProviderSmokeDetail,
       evidence: runtimeProviderEvidenceWithSourceConfidence,
-      recommendedAction: "Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
+      recommendedAction: "Keep provider-backed site activity and deployed route evidence current before clearing launch readiness.",
       quality: runtimeProviderQuality,
       gateRequiredForExit: true,
       sourceCredit: Math.max(
@@ -1214,12 +1214,12 @@ export function buildPublicBetaEvidenceGates(input: {
     }),
     buildEvidenceGate({
       id: "adminTruthSamples",
-      label: "Admin truth/sample evidence",
+      label: "Admin source sample evidence",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples,
       status: adminTruthSampleStatusLabel,
       detail: adminTruthSampleDetail,
       evidence: adminTruthSampleEvidence,
-      recommendedAction: "Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
+      recommendedAction: "Require a redacted admin source sample before rendering zero/live/healthy as launch truth.",
       quality: adminQuality,
       gateRequiredForExit: true,
       sourceCredit: adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
@@ -1251,8 +1251,8 @@ export function buildPublicBetaEvidenceGates(input: {
         : "Source evidence required",
       detail: debugRuntimeEvidenceArtifactReady
         ? runtimeQuality.quality === "formal_passed"
-          ? "source-backed debug/runtime evidence is current and deployed runtime smoke is attached."
-          : "source-backed debug/runtime evidence checked debug sources without clearing deployed runtime smoke."
+          ? "source-backed debug/runtime evidence is current and deployed route evidence is attached."
+          : "source-backed debug/runtime evidence checked debug sources without clearing deployed route evidence."
         : debugEvidenceAvailable
         ? "Runtime debug evidence is present in the score input."
         : "Debug evidence is empty, so absence of runtime issues is unknown.",
@@ -1594,7 +1594,7 @@ function buildStudioDashboard(input: {
       score: input.runtimeHealthScore,
       status: studioStatusFromScore(input.runtimeHealthScore),
       source: "runtimeHealthScore",
-      detail: "Shows source-backed runtime confidence without clearing formal deployed runtime smoke.",
+      detail: "Shows source-backed runtime confidence without clearing typed deployed route evidence.",
     },
     {
       id: "sourceQuality",

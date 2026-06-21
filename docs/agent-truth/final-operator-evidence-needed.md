@@ -1,14 +1,14 @@
 # Final Operator Evidence Needed
 
-Generated: 2026-06-19T18:13:01.243Z
-Current HEAD: 79598a740b349732332b6e1751ca9d8f5b3933dc
+Generated: 2026-06-21T04:12:26.017Z
+Current HEAD: 456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34
 Validation failures: 0
 
 ```json
 {
   "reportKey": "final-operator-evidence-needed",
-  "generatedAtUtc": "2026-06-19T18:13:01.243Z",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "generatedAtUtc": "2026-06-21T04:12:26.017Z",
+  "currentHead": "456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34",
   "betaExitReady": false,
   "deferredDependencyPrs": [
     294,
@@ -22,13 +22,13 @@ Validation failures: 0
     {
       "id": "formal-provider-smoke",
       "owner": "operator",
-      "exactArtifactRequired": "Redacted provider/payment smoke artifact with timestamp, environment, and non-sensitive transaction/status proof.",
+      "exactArtifactRequired": "Redacted provider-backed site activity artifact with timestamp, environment, and non-sensitive transaction/status proof.",
       "acceptableEvidenceFormat": "Markdown or JSON packet with redacted provider status, request/response summary, or transaction receipt fields.",
       "whatItProves": "Provider/payment path works in the intended deployed environment.",
       "whatItDoesNotProve": "It does not prove source validators or local mocks are deployed runtime proof.",
       "blocksBetaExitReady": true,
       "affectsScoreOnly": false,
-      "nextExactAction": "Attach redacted provider smoke artifact after operator-run production or staging smoke."
+      "nextExactAction": "Attach redacted provider-backed site activity artifact after bounded production or staging activity."
     },
     {
       "id": "deployed-runtime-smoke",
@@ -50,7 +50,7 @@ Validation failures: 0
       "whatItDoesNotProve": "It does not prove external billing review.",
       "blocksBetaExitReady": true,
       "affectsScoreOnly": false,
-      "nextExactAction": "Attach redacted admin truth sample packet."
+      "nextExactAction": "Attach redacted admin source sample packet."
     },
     {
       "id": "external-billing-review",
@@ -58,21 +58,21 @@ Validation failures: 0
       "exactArtifactRequired": "External billing review note for Cloud Run/App Hosting, Firestore, BigQuery/export, Cloud SQL/Data Connect, and AI surfaces.",
       "acceptableEvidenceFormat": "Operator-signed review note with exported summaries or billing-console values redacted for account details.",
       "whatItProves": "Cost risk has external billing evidence.",
-      "whatItDoesNotProve": "It does not prove product correctness or runtime smoke.",
+      "whatItDoesNotProve": "It does not prove product correctness or deployed route evidence.",
       "blocksBetaExitReady": true,
       "affectsScoreOnly": false,
       "nextExactAction": "Complete external billing review and attach redacted evidence."
     },
     {
-      "id": "manual-production-smoke",
+      "id": "site-activity-evidence-export",
       "owner": "operator",
-      "exactArtifactRequired": "Manual production smoke checklist with timestamp, environment, role, and result.",
-      "acceptableEvidenceFormat": "Markdown checklist or JSON status packet.",
-      "whatItProves": "Critical flows were manually exercised in production or approved staging.",
-      "whatItDoesNotProve": "It does not prove source-only validators are runtime proof.",
+      "exactArtifactRequired": "Privacy-safe site activity export with timestamp, environment, role, route/action, and result state.",
+      "acceptableEvidenceFormat": "Markdown or JSON status packet derived from site activity, route contracts, client error logs, or hydration markers.",
+      "whatItProves": "Critical flows produced typed site activity evidence in production or approved staging.",
+      "whatItDoesNotProve": "It does not prove provider billing or production database truth.",
       "blocksBetaExitReady": true,
       "affectsScoreOnly": false,
-      "nextExactAction": "Run manual production smoke after automated blockers stay closed."
+      "nextExactAction": "Attach privacy-safe site activity evidence after automated blockers stay closed."
     }
   ],
   "validationFailures": []

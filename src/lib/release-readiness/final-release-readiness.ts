@@ -748,36 +748,36 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       whatItDoesNotProve: "It does not prove production traffic behavior.",
     },
     {
-      category: "live route/runtime evidence",
+      category: "deployed route evidence",
       status: "formal_missing",
       artifactPath: "agent/state/live-evidence-gate-replacement.generated.json + deployed route summary",
       owner: "operator/runtime owner",
       blocksBetaExit: true,
       blocksScoreOnly: false,
       nextExactAction: sourceMissingLiveEvidenceCount > 0
-        ? "Connect redacted live route/runtime summaries for source_missing product systems."
-        : "Attach deployed route/runtime summary evidence before clearing this gate.",
-      whatItDoesNotProve: "Source-safe route harnesses and browser reproduction do not prove deployed runtime behavior.",
+        ? "Connect redacted deployed route summaries for source_missing product systems."
+        : "Attach deployed route evidence before clearing this gate.",
+      whatItDoesNotProve: "Source-safe route harnesses and optional visual reproduction do not prove deployed route behavior.",
     },
     {
-      category: "external provider proof",
+      category: "provider-backed site activity evidence",
       status: "formal_missing",
       artifactPath: "agent/state/provider-smoke-evidence.generated.json",
       owner: "operator/provider owner",
       blocksBetaExit: true,
       blocksScoreOnly: false,
-      nextExactAction: "Attach redacted formal provider proof for PayPal/provider flows without raw provider IDs.",
-      whatItDoesNotProve: "Operator-confirmed revenue and live ledger summaries do not prove provider UI/webhook truth.",
+      nextExactAction: "Attach redacted provider-backed site activity evidence for PayPal/provider flows without raw provider IDs.",
+      whatItDoesNotProve: "Source checks and operator comments do not prove provider UI/webhook truth.",
     },
     {
-      category: "admin live truth/redacted sample evidence",
+      category: "redacted admin source sample",
       status: "formal_missing",
       artifactPath: "agent/state/admin-truth-redaction-packet.generated.json + live admin summary",
       owner: "operator/admin owner",
       blocksBetaExit: true,
       blocksScoreOnly: false,
-      nextExactAction: "Attach a redacted live admin truth summary or keep admin truth source_missing; browser reproduction cannot clear this gate.",
-      whatItDoesNotProve: "Admin source schema and browser reproduction do not prove production admin truth.",
+      nextExactAction: "Attach a redacted admin source sample or keep admin truth source_missing; optional visual reproduction cannot clear this gate.",
+      whatItDoesNotProve: "Admin source schema and optional visual reproduction do not prove production admin truth.",
     },
     {
       category: "debug/runtime evidence",
@@ -788,7 +788,7 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       owner: "debug/runtime evidence owner",
       blocksBetaExit: false,
       blocksScoreOnly: true,
-      nextExactAction: "Use debug evidence as source confidence only until deployed runtime smoke is attached.",
+      nextExactAction: "Use debug evidence as source confidence only until deployed route evidence is attached.",
       whatItDoesNotProve: "It does not prove the deployed app is smoke-tested.",
     },
     {
@@ -812,7 +812,7 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       owner: "evidence bridge owner",
       blocksBetaExit: false,
       blocksScoreOnly: true,
-      nextExactAction: "Keep the bridge explicit about formal versus source-only evidence.",
+      nextExactAction: "Keep the bridge explicit about typed provider, deployed route, admin source, and source-only evidence.",
       whatItDoesNotProve: "It cannot convert source evidence into provider/runtime proof.",
     },
     {
@@ -978,8 +978,8 @@ export function validateFormalEvidenceStatusLedgerReport(report: FormalEvidenceS
     if (!category.whatItDoesNotProve) failures.push("evidence category lacks whatItDoesNotProve.");
     if (category.blocksBetaExit && !category.nextExactAction) failures.push("blocker lacks nextExactAction.");
     if (/runtime|provider/u.test(category.category) && category.status === "formal_passed" && /source|operator/iu.test(category.whatItDoesNotProve)) failures.push("formal gate passes from source-only evidence.");
-    if (category.category === "external provider proof" && category.status !== "formal_missing") failures.push("operator-confirmed evidence is mislabeled formal provider proof.");
-    if (category.category === "admin live truth/redacted sample evidence" && category.status !== "formal_missing") failures.push("admin source evidence is mislabeled production admin truth.");
+    if (category.category === "provider-backed site activity evidence" && category.status !== "formal_missing") failures.push("operator-confirmed evidence is mislabeled provider-backed site activity evidence.");
+    if (category.category === "redacted admin source sample" && category.status !== "formal_missing") failures.push("admin source evidence is mislabeled production admin truth.");
   }
   return Array.from(new Set(failures));
 }
@@ -1067,7 +1067,7 @@ export function buildAdminTruthRedactionPacketReport(context: ReleaseReadinessCo
       costSummary: "source guard/external review status",
       missingFormalProof: "explicit formal_missing list",
     },
-    missingFormalProof: ["redacted production admin truth sample", "operator attestation optional"],
+    missingFormalProof: ["redacted admin source sample", "operator attestation optional"],
     linkedToBetaExitStatus: true,
     validationFailures: [],
   };
@@ -1079,7 +1079,7 @@ export function validateAdminTruthRedactionPacketReport(report: AdminTruthRedact
   const failures: string[] = [];
   if (!report.redactionPolicy) failures.push("packet schema missing redaction policy.");
   if (report.redactionPolicy.forbiddenRawFields.length === 0) failures.push("sensitive field allowed.");
-  if (report.sampleSource !== "none_attached" && report.missingFormalProof.length > 0) failures.push("admin truth sample gate can pass without packet or explicit formal_missing.");
+  if (report.sampleSource !== "none_attached" && report.missingFormalProof.length > 0) failures.push("admin source sample gate can pass without packet or explicit formal_missing.");
   if (!report.currentHead || !report.environment) failures.push("redacted sample lacks currentHead/environment.");
   if (!report.linkedToBetaExitStatus) failures.push("admin truth evidence not linked to beta exit status.");
   return Array.from(new Set(failures));
@@ -1182,7 +1182,7 @@ function releaseEvidenceGateSet(context: ReleaseReadinessContext) {
     owner: "release notes",
     validator: "npm run check:release-notes-integrity",
     nextExactAction: "Keep public release notes free of beta-exit, provider-proof, and runtime-proof claims.",
-    doesNotProve: "Release notes do not prove runtime health, provider smoke, or rollback success.",
+    doesNotProve: "Release notes do not prove deployed route health, provider-backed site activity, or rollback success.",
   });
   const envGate = releaseGate({
     gateId: "env-contract",
@@ -1200,7 +1200,7 @@ function releaseEvidenceGateSet(context: ReleaseReadinessContext) {
   });
   const providerGate = releaseGate({
     gateId: "provider-smoke-evidence",
-    label: "Provider smoke evidence",
+    label: "Provider-backed site activity evidence",
     evidenceKind: "provider_proof",
     status: artifactPassed(provider)
       ? "passed"
@@ -1214,13 +1214,13 @@ function releaseEvidenceGateSet(context: ReleaseReadinessContext) {
     owner: "operator/provider owner",
     validator: "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
     nextExactAction: artifactPassed(provider)
-      ? "Keep redacted provider smoke evidence fresh."
-      : "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",
+      ? "Keep redacted provider-backed site activity evidence fresh."
+      : "Attach redacted provider-backed site activity evidence; operator-reported provider success is not enough.",
     doesNotProve: "Source tests and operator comments do not prove PayPal/provider callbacks or provider UI/webhook behavior.",
   });
   const runtimeGate = releaseGate({
     gateId: "runtime-smoke-evidence",
-    label: "Deployed runtime smoke evidence",
+    label: "Deployed route evidence",
     evidenceKind: "runtime_redacted",
     status: artifactPassed(runtime) ? "passed" : "missing_external_evidence",
     artifactPath: "agent/state/runtime-smoke-evidence.generated.json",
@@ -1230,13 +1230,13 @@ function releaseEvidenceGateSet(context: ReleaseReadinessContext) {
     owner: "operator/runtime owner",
     validator: "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
     nextExactAction: artifactPassed(runtime)
-      ? "Keep deployed runtime smoke evidence fresh."
-      : "Attach deployed runtime smoke evidence before clearing runtime signoff.",
+      ? "Keep deployed route evidence fresh."
+      : "Attach deployed route evidence before clearing runtime signoff.",
     doesNotProve: "Source-safe harnesses do not prove deployed runtime behavior.",
   });
   const adminGate = releaseGate({
     gateId: "admin-truth-sample-evidence",
-    label: "Admin truth sample evidence",
+    label: "Admin source sample evidence",
     evidenceKind: "admin_operator_evidence",
     status: artifactPassed(admin) ? "passed" : "missing_external_evidence",
     artifactPath: "agent/state/admin-truth-sample-evidence.generated.json",
@@ -1246,8 +1246,8 @@ function releaseEvidenceGateSet(context: ReleaseReadinessContext) {
     owner: "operator/admin owner",
     validator: "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
     nextExactAction: artifactPassed(admin)
-      ? "Keep redacted admin truth sample evidence fresh."
-      : "Attach redacted admin truth sample evidence; source labels alone do not clear this gate.",
+      ? "Keep redacted admin source sample evidence fresh."
+      : "Attach redacted admin source sample evidence; source labels alone do not clear this gate.",
     doesNotProve: "Admin source schema does not prove production admin truth.",
   });
   const incidentGate = releaseGate({
@@ -1316,12 +1316,12 @@ export function buildReleaseRollbackIncidentReadinessReport(context: ReleaseRead
       notificationPwa: "Verify prompt/token registration does not expose raw tokens.",
       adminDebugFallback: "Admin debug should show stale/failed labels rather than green fallback.",
     },
-    rollbackTriggerConditions: ["checkout/provider typed failures", "GumDrop ledger mismatch", "auth session lockout", "admin debug false-green state", "runtime smoke failure", "cost spike requiring rollback"],
+    rollbackTriggerConditions: ["checkout/provider typed failures", "GumDrop ledger mismatch", "auth session lockout", "admin debug false-green state", "deployed route evidence failure", "cost spike requiring rollback"],
     rollbackProcedure: ["Identify last known good commit.", "Revert or reset deployment target to last known good through operator-approved deploy process.", "Do not mutate production or provider data during rollback.", "Record rollback commit, owner, time, and evidence packet."],
     postRollbackVerification: ["Run source checks for beta score and release notes.", "Run operator production smoke after rollback deployment.", "Verify wallet/payment, GumDrop ledger, auth/session, analytics ingest, chat, notifications, and admin debug states."],
     incidentSeverityLevels: [
       { severity: "sev1", trigger: "payment, auth, or ledger integrity failure", owner: "operator/on-call placeholder" },
-      { severity: "sev2", trigger: "runtime smoke or admin truth failure", owner: "operator/runtime owner placeholder" },
+      { severity: "sev2", trigger: "deployed route or admin source sample failure", owner: "operator/runtime owner placeholder" },
       { severity: "sev3", trigger: "non-blocking display, stale artifact, or PR hygiene issue", owner: "repo maintainer placeholder" },
     ],
     validationFailures: [],
@@ -1341,7 +1341,7 @@ export function validateReleaseRollbackIncidentReadinessReport(report: ReleaseRo
   }
   if (!report.providerEvidence || !report.runtimeEvidence || !report.adminTruthEvidence) failures.push("external evidence gates missing.");
   if (report.providerEvidence?.status === "operator_reported_only" && report.providerEvidence.blocking !== true) failures.push("operator-reported provider evidence must remain blocking.");
-  if (report.providerEvidence?.status === "passed" && report.providerEvidence.evidenceKind !== "provider_proof") failures.push("provider evidence pass must come from provider proof.");
+  if (report.providerEvidence?.status === "passed" && report.providerEvidence.evidenceKind !== "provider_proof") failures.push("provider evidence pass must come from provider-backed site activity evidence.");
   if (report.runtimeEvidence?.status === "passed" && report.runtimeEvidence.evidenceKind !== "runtime_redacted") failures.push("runtime evidence pass must be runtime evidence.");
   if (report.adminTruthEvidence?.status === "passed" && report.adminTruthEvidence.evidenceKind !== "admin_operator_evidence") failures.push("admin truth pass must be admin/operator evidence.");
   if (!report.envContractEvidence || report.envContractEvidence.doesNotProve.length === 0) failures.push("env contract boundary missing.");
@@ -1358,7 +1358,7 @@ export function validateReleaseRollbackIncidentReadinessReport(report: ReleaseRo
 export function buildReleaseNotesIntegrityReport(context: ReleaseReadinessContext): ReleaseNotesIntegrityReport {
   const serialized = JSON.stringify(context.releaseNotes);
   const claimsBetaExit = /beta exit ready|betaExitReady"?\s*:\s*true|formally ready/iu.test(serialized);
-  const claimsProviderRuntimeProof = /formal provider proof|deployed runtime proof|provider smoke passed/iu.test(serialized);
+  const claimsProviderRuntimeProof = /provider-backed site activity evidence passed|deployed route evidence passed/iu.test(serialized);
   const exposesSensitiveInternals = /access token|fcm token|raw email|private media url|provider order id/iu.test(serialized);
   const report: ReleaseNotesIntegrityReport = {
     reportKey: "release-notes-integrity",
@@ -1408,9 +1408,9 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
         ? "live_admin_truth_or_redacted_sample_required"
         : "external_review_required",
     nextExactAction: /runtime|provider/iu.test(blocker)
-      ? "Attach deployed live route/runtime evidence where available and formal provider proof for provider flows."
+      ? "Attach deployed route evidence where available and provider-backed site activity evidence for provider flows."
       : /admin|truth|sample/iu.test(blocker)
-        ? "Attach a redacted live admin truth summary or classify the source as source_missing."
+        ? "Attach a redacted admin source sample or classify the source as source_missing."
         : "Classify and close the release blocker through its owner lane.",
   }));
   const betaExitReady = false;
@@ -1448,12 +1448,12 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
     costRiskStatus: {
       score: costScore,
       status: costScore < 80 ? "below80_external_review_required" : "meets_source_target",
-      nextExactAction: costScore < 80 ? "Complete external billing review; source guards alone cannot lift costRisk above formal review." : "Keep source cost guards current.",
+      nextExactAction: costScore < 80 ? "Complete external billing review; source guards alone cannot lift costRisk above owner review." : "Keep source cost guards current.",
     },
     evidenceCompletenessStatus: {
       score: evidenceScore,
       status: evidenceScore < 80 ? "below80_requires_formal_evidence" : "meets_source_target",
-      nextExactAction: evidenceScore < 80 ? "Attach missing formal runtime/provider/admin evidence." : "Keep formal evidence blockers explicit even if source score is above 80.",
+      nextExactAction: evidenceScore < 80 ? "Attach missing typed provider, deployed route, and admin source evidence." : "Keep typed evidence blockers explicit even if source score is above 80.",
     },
     freshnessStatus: {
       score: freshnessScore,
@@ -1470,8 +1470,8 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
     remainingOpenPrs: context.openPrs,
     nextExactSteps: [
       "Connect redacted live evidence sources for source_missing product systems.",
-      "Attach formal provider proof for external PayPal/provider flows.",
-      "Attach redacted live admin truth summary or production admin truth sample evidence.",
+      "Attach provider-backed site activity evidence for external PayPal/provider flows.",
+      "Attach redacted admin source sample evidence.",
       "Complete external billing review.",
       context.openPrs.length > 0 ? "Review/cherry-pick/defer/close all open PRs." : "Keep open PR list empty or explicitly deferred before beta-exit signoff.",
       "Keep deterministic UI source coverage current; use optional visual reproduction only for source-reported UI issues.",
@@ -1492,7 +1492,7 @@ export function validateFinalReleaseExitReadinessPacketReport(report: FinalRelea
   if (!report.rollbackIncidentReadiness) failures.push("rollback plan missing.");
   if (!report.adminTruthRedactionPacket) failures.push("admin truth packet missing.");
   if (!report.liveEvidenceGateReplacement) failures.push("live evidence gate replacement missing.");
-  if (report.remainingManualItems.some((item) => /manual production smoke/iu.test(item))) failures.push("manual production smoke remains broad instead of split by evidence class.");
+  if (report.remainingManualItems.some((item) => /manual.*smoke|production.*smoke/iu.test(item))) failures.push("broad manual smoke remains instead of split typed site activity evidence.");
   if (report.remainingManualItems.some((item) => /\b(ui|visual|browser)\b/iu.test(item))) failures.push("UI reproduction must not remain a manual beta-exit item; use source coverage with optional reproduction only.");
   if (report.releaseNotesIntegrity.status !== "pass") failures.push("release notes stale.");
   if (report.costRiskStatus.score < 80 && !report.costRiskStatus.nextExactAction) failures.push("cost risk below80 lacks exact reason/action.");
@@ -1548,7 +1548,7 @@ ${JSON.stringify(report, null, 2)}
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a typed evidence artifact for that category.
 
 ## Validation
 
