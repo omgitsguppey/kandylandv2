@@ -20,15 +20,15 @@ const cockpitInput: DebugOperatorCockpitInput = {
   scoreImpactQueue: [
     {
       artifact: "runtime_provider_smoke",
-      staleReason: "Runtime unverified: Runtime/provider smoke",
-      refreshCommand: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      staleReason: "Provider-backed site activity + deployed route evidence required",
+      refreshCommand: "Attach redacted provider-backed site activity evidence, then run npm run check:evidence-capture-status",
       scoreImpactEstimate: 16.33,
       owner: "runtime",
       dependencyOrder: 1,
       canRunAutomatically: false,
-      blockedReason: "blocked_formal_evidence: formal provider smoke artifact required.",
+      blockedReason: "blocked_formal_evidence: provider-backed site activity evidence required.",
       source: "score_impact",
-      expectedOutcome: "Remain blocked until a human attaches the formal provider smoke artifact.",
+      expectedOutcome: "Remain blocked until redacted provider-backed site activity evidence is attached.",
     },
     {
       artifact: "agent/state/score-80-path-lock.generated.json",
@@ -72,8 +72,8 @@ const cockpitInput: DebugOperatorCockpitInput = {
       id: "runtime-provider-smoke",
       severity: "p1",
       owner: "runtime",
-      message: "Runtime unverified: Runtime/provider smoke",
-      nextAction: "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      message: "Provider-backed site activity + deployed route evidence required",
+      nextAction: "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
       truthState: "degraded",
     },
     {
@@ -87,8 +87,8 @@ const cockpitInput: DebugOperatorCockpitInput = {
   ],
   adminTruthStatus: {
     state: "degraded",
-    label: "Admin truth source sample: source_ready_formal_sample_required",
-    nextAction: "Attach a redacted first-party admin sample only if clearing the formal gate.",
+    label: "Admin source activity sample: source_ready_sample_required",
+    nextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
   },
   telemetryLaneStatus: {
     state: "live",
@@ -128,7 +128,7 @@ describe("debug cockpit batch 1 cleanup", () => {
   it("classifies source evidence gates as non-source bugs", () => {
     const runtimeGate = classifyFormalGate({
       id: "runtime_provider_smoke",
-      label: "Runtime/provider smoke",
+      label: "Provider-backed site activity + deployed route evidence",
       statusText: "Runtime unverified",
       nextAction: "Produce provider-backed site activity evidence.",
     });
@@ -157,6 +157,7 @@ describe("debug cockpit batch 1 cleanup", () => {
     expect(staleQueue?.items).toHaveLength(1);
     expect(JSON.stringify(staleQueue?.items)).toContain("public-beta-score");
     expect(JSON.stringify(warnings?.items)).not.toContain("Runtime unverified");
+    expect(JSON.stringify(cockpit)).not.toMatch(/runtime\/provider smoke|formal provider smoke|deployed runtime smoke|first-party admin sample|formal gate/iu);
     expect(cost?.state).toBe("live");
     expect(cost?.scoreImpactEstimate).toBe(0);
     expect(critic?.state).toBe("live");
@@ -176,5 +177,6 @@ describe("debug cockpit batch 1 cleanup", () => {
       expect.objectContaining({ artifact: "agent/state/score-80-path-lock.generated.json" }),
       expect.objectContaining({ artifact: "agent/state/final-launch-readiness-report.generated.json" }),
     ]));
+    expect(JSON.stringify(report)).not.toMatch(/formal provider smoke|runtime\/provider smoke|deployed runtime smoke|first-party admin sample|formal admin truth gate/iu);
   });
 });

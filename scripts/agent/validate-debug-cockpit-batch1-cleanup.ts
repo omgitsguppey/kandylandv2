@@ -62,6 +62,19 @@ function numberValue(value: unknown, fallback = 0) {
   return Number.isFinite(numeric) ? numeric : fallback;
 }
 
+function evidenceDisplayCopy(value: unknown) {
+  return text(value)
+    .replace(/formal runtime\/provider smoke/giu, "provider-backed site activity and deployed route evidence")
+    .replace(/runtime\/provider smoke/giu, "provider-backed site activity + deployed route evidence")
+    .replace(/formal provider smoke evidence/giu, "provider-backed site activity evidence")
+    .replace(/formal provider smoke/giu, "provider-backed site activity")
+    .replace(/deployed runtime smoke/giu, "deployed route evidence")
+    .replace(/first-party admin truth sample/giu, "admin source activity sample")
+    .replace(/first-party admin sample/giu, "admin source activity sample")
+    .replace(/formal admin truth gate/giu, "admin source sample gate")
+    .replace(/formal gate/giu, "typed evidence gate");
+}
+
 function recordArray(value: unknown): JsonObject[] {
   return Array.isArray(value)
     ? value.filter((entry): entry is JsonObject => Boolean(entry && typeof entry === "object" && !Array.isArray(entry)))
@@ -141,15 +154,15 @@ function adminTruthStatusAfter(): DebugOperatorStatusInput {
   if (/source_ready_admin_truth_sample|source_ready/iu.test(sourceStatus) && !formalPassed) {
     return {
       state: "degraded",
-      label: "Admin truth source sample: source_ready_formal_sample_required",
-      nextAction: "Attach a redacted first-party admin truth sample only when clearing the formal admin truth gate.",
+      label: "Admin source activity sample: source_ready_sample_required",
+      nextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
     };
   }
   if (formalPassed) {
     return {
       state: "live",
-      label: "Admin truth sample: formal_sample_attached",
-      nextAction: "Keep the formal admin truth sample fresh.",
+      label: "Admin source activity sample: sample_attached",
+      nextAction: "Keep the redacted admin source activity sample fresh.",
     };
   }
   return {
@@ -236,8 +249,8 @@ function staleArtifactsRetired() {
     {
       artifact: "agent/state/admin-truth-sample-evidence.generated.json",
       decision: "formal_gate_only_not_source_fix",
-      replacement: "agent/state/admin-truth-source-sample.generated.json + redacted first-party admin sample",
-      reason: "Source sample exists separately; formal admin sample remains a manual evidence requirement.",
+      replacement: "agent/state/admin-truth-source-sample.generated.json + redacted admin source activity sample",
+      reason: "Source sample exists separately; redacted admin source activity sample evidence remains required.",
     },
   ];
 }
@@ -298,12 +311,12 @@ const validationFailures = [
 
 const scoreQueueText = JSON.stringify(afterCockpit.defaultSections.find((section) => section.id === "score_impact_queue")?.items ?? []);
 if (/runtime_provider_smoke|Runtime unverified|provider smoke|admin_truth_sample_evidence/iu.test(scoreQueueText)) {
-  validationFailures.push("formal runtime/provider smoke appears as source-code fix.");
+  validationFailures.push("typed provider-backed site activity, deployed route, or admin source sample evidence appears as source-code fix.");
 }
 if (/score-80-path-lock/iu.test(scoreQueueText)) {
   validationFailures.push("obsolete score-80-path-lock remains score-impacting.");
 }
-const adminAfter = adminTruthStatusAfter().label.includes("source_ready_formal_sample_required")
+const adminAfter = /source_ready_(formal_)?sample_required|source_ready_admin_source_sample_required/iu.test(adminTruthStatusAfter().label)
   ? "source_ready_formal_sample_required"
   : adminTruthStatusAfter().state;
 if (adminAfter === "unknown" && read("agent/state/admin-truth-source-sample.generated.json")) {
@@ -350,19 +363,19 @@ const report = {
     id: section.id,
     state: section.state,
     scoreImpactEstimate: section.scoreImpactEstimate,
-    nextAction: section.nextAction,
+    nextAction: evidenceDisplayCopy(section.nextAction),
   })),
   sectionsAfter: afterCockpit.defaultSections.map((section) => ({
     id: section.id,
     state: section.state,
     scoreImpactEstimate: section.scoreImpactEstimate,
-    nextAction: section.nextAction,
+    nextAction: evidenceDisplayCopy(section.nextAction),
     itemCount: section.items.length,
   })),
   formalGates: [
-    classifyFormalGate({ id: "runtime_provider_smoke", statusText: "Runtime unverified", nextAction: "Attach formal provider smoke evidence." }),
-    classifyFormalGate({ id: "debug_runtime_evidence", statusText: "deployed runtime smoke required", nextAction: "Attach deployed runtime smoke evidence." }),
-    classifyFormalGate({ id: "admin_truth_sample_evidence", statusText: "source ready", nextAction: "Attach redacted first-party admin sample.", sourceReady: true }),
+    classifyFormalGate({ id: "runtime_provider_smoke", statusText: "provider-backed site activity required", nextAction: "Attach redacted provider-backed site activity evidence." }),
+    classifyFormalGate({ id: "debug_runtime_evidence", statusText: "deployed route evidence required", nextAction: "Attach deployed route evidence." }),
+    classifyFormalGate({ id: "admin_truth_sample_evidence", statusText: "source ready", nextAction: "Attach a redacted admin source activity sample.", sourceReady: true }),
   ],
   staleArtifactsRefreshed: [
     { artifact: "agent/state/public-beta-score.generated.json", refreshCommand: "npm run score:beta" },
@@ -386,15 +399,15 @@ const report = {
   scoreImpactingStaleArtifactCount: namedScoreImpactingStaleArtifactCount,
   collapsedInfoLaneCount: afterCockpit.defaultSections.filter((section) => section.state === "live" && section.scoreImpactEstimate === 0).length,
   remainingGaps: [
-    "formal provider smoke artifact required",
-    "deployed runtime smoke artifact required",
-    "redacted first-party admin sample required for formal gate",
+    "provider-backed site activity evidence required",
+    "deployed route evidence required",
+    "redacted admin source activity sample required for typed evidence gate",
     "external billing/provider review remains owner-supplied",
   ],
   nextExactSteps: [
-    "Attach formal provider smoke evidence before clearing provider gate.",
-    "Attach deployed runtime smoke evidence before clearing runtime gate.",
-    "Attach redacted first-party admin sample before clearing admin truth gate.",
+    "Attach redacted provider-backed site activity evidence before clearing the provider-backed site activity gate.",
+    "Attach deployed route evidence before clearing the deployed route gate.",
+    "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
     "Keep cost owner review collapsed until external billing artifact exists.",
   ],
   handledPrs: [
@@ -420,7 +433,7 @@ function renderDoc(value: typeof report) {
   return [
     "# Debug Cockpit Batch 1 Cleanup",
     "",
-    "Status: formal evidence gates are separate from source-fix work. Source/debug failures remain fix-first; formal and owner-review lanes stay visible in collapsed drilldown.",
+    "Status: typed evidence gates are separate from source-fix work. Source/debug failures remain fix-first; provider-backed site activity, deployed route, admin source sample, and owner-review lanes stay visible in collapsed drilldown.",
     "",
     `- Current HEAD: ${value.currentHead}`,
     `- Admin truth: ${value.adminTruthStatusBefore} -> ${value.adminTruthStatusAfter}`,
@@ -435,7 +448,7 @@ function renderDoc(value: typeof report) {
     "",
     ...value.staleArtifactsRetired.map((entry) => `- ${entry.artifact}: ${entry.decision}; replacement=${entry.replacement}`),
     "",
-    "## Remaining Formal Gates",
+    "## Remaining Typed Evidence Gates",
     "",
     ...value.remainingGaps.map((gap) => `- ${gap}`),
   ].join("\n");
