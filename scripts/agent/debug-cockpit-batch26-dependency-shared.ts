@@ -9,6 +9,79 @@ import type { PackageLockfileLike, PackageManifestLike } from "../../src/lib/deb
 
 type Report = Record<string, unknown>;
 
+const DETAIL_SAMPLE_LIMIT = 4;
+
+function compactList<T>(items: T[], limit = DETAIL_SAMPLE_LIMIT) {
+  return {
+    total: items.length,
+    emitted: Math.min(items.length, limit),
+    omitted: Math.max(0, items.length - limit),
+    sample: items.slice(0, limit),
+  };
+}
+
+function countBy<T>(items: T[], getKey: (item: T) => string | undefined) {
+  return items.reduce<Record<string, number>>((counts, item) => {
+    const key = getKey(item) || "unknown";
+    counts[key] = (counts[key] || 0) + 1;
+    return counts;
+  }, {});
+}
+
+function compactCompleteDependencyInventoryReport(inventory: ReturnType<typeof buildCompleteDependencyInventory>): Report {
+  return {
+    nodeVersion: inventory.nodeVersion,
+    totals: inventory.totals,
+    packageCountReconciliation: inventory.packageCountReconciliation,
+    rootPackageTimestampLabel: inventory.rootPackageTimestampLabel,
+    functionsPackageTimestampLabel: inventory.functionsPackageTimestampLabel,
+    dependencyFreshness: inventory.dependencyFreshness,
+    runtimeConnectivityChecks: inventory.runtimeConnectivityChecks,
+    packageSources: inventory.packageSources.map((source) => ({
+      name: source.name,
+      path: source.path,
+      sourceType: source.sourceType,
+      present: source.present,
+      dependencyCount: source.dependencies.length,
+      dependencyCountsByType: countBy(source.dependencies, (dependency) => dependency.dependencyType),
+      dependencyCountsByCategory: countBy(source.dependencies, (dependency) => dependency.category),
+      dependencySample: compactList(source.dependencies, 2),
+    })),
+    packageDependencies: compactList(inventory.packageDependencies),
+    transitiveAndOverrideTruth: compactList(inventory.transitiveAndOverrideTruth),
+    externalServiceDependencies: compactList(inventory.externalServiceDependencies),
+    expectedButAbsentDependencies: inventory.expectedButAbsentDependencies,
+    validatorAndScriptDependencies: compactList(inventory.validatorAndScriptDependencies),
+    compaction: {
+      fullInventoryValidatedInMemory: true,
+      strategy: "counts_plus_bounded_samples",
+      sampleLimit: DETAIL_SAMPLE_LIMIT,
+      fullDetailSource: "derive from package.json, functions/package.json, lockfiles, and source scans at validation time",
+    },
+  };
+}
+
+function compactDependencyInventoryDisplayReport(display: ReturnType<typeof buildDependencyInventoryDisplay>): Report {
+  return {
+    compactSummary: display.compactSummary,
+    drilldowns: {
+      everyDependency: compactList(display.drilldowns.everyDependency),
+      everyOverride: compactList(display.drilldowns.everyOverride),
+      everyExternalService: compactList(display.drilldowns.everyExternalService),
+      everyEnvConfigDependency: compactList(display.drilldowns.everyEnvConfigDependency),
+      expectedAbsentDependencies: display.drilldowns.expectedAbsentDependencies,
+    },
+    timestampLabels: display.timestampLabels,
+    runtimeCopy: display.runtimeCopy,
+    runtimeChecksSeparated: display.runtimeChecksSeparated,
+    compaction: {
+      fullDisplayValidatedInMemory: true,
+      strategy: "counts_plus_bounded_samples",
+      sampleLimit: DETAIL_SAMPLE_LIMIT,
+    },
+  };
+}
+
 function readJson<T>(filePath: string, fallback: T): T {
   try {
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
@@ -111,7 +184,7 @@ export function validateCompleteDependencyInventory() {
   expectPass(inventory.dependencyFreshness.every((entry) => entry.displayLabel !== "1980-01-01T00:00:01.000Z"), failures, "fake 1980 timestamp shown as real update time.");
   expectPass(inventory.externalServiceDependencies.length >= EXTERNAL_SERVICE_NAMES.length, failures, "external service dependency omitted.");
   expectPass(inventory.runtimeConnectivityChecks.packagePresenceIsRuntimeHealth === false, failures, "package presence claimed as runtime health.");
-  runValidation("complete-dependency-inventory", inventory as unknown as Report, failures, [
+  runValidation("complete-dependency-inventory", compactCompleteDependencyInventoryReport(inventory), failures, [
     "Complete dependency inventory reconciles root/functions direct dependencies, peer/optional slots, overrides, external services, expected-absent dependencies, and package freshness.",
     "Package presence remains inventory truth only and does not clear provider/runtime health.",
   ]);
@@ -148,7 +221,7 @@ export function validateDependencyPanelDisplayCleanup() {
   expectPass(ui.includes("External services and config dependencies") && ui.includes("expectedButAbsentDependencies"), failures, "selected groups hide dependencies.");
   expectPass(display.drilldowns.expectedAbsentDependencies.length > 0, failures, "expected absent deps hidden.");
   expectPass(inventory.totals.unknownDirectDeps >= 0 && ui.includes("Unknown direct deps"), failures, "unknown direct deps are not listed when present.");
-  runValidation("dependency-panel-display-cleanup", display as unknown as Report, failures, [
+  runValidation("dependency-panel-display-cleanup", compactDependencyInventoryDisplayReport(display), failures, [
     "Infrastructure panel shows compact counts with drilldowns for every package, override, external service, env/config dependency, and expected-absent dependency.",
     "Fake package mtimes are rendered as timestamp unavailable.",
   ]);
