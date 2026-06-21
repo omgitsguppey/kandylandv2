@@ -269,4 +269,21 @@ describe("person metrics hydration", () => {
       "permission_blocked",
     ]));
   });
+
+  it("uses the canonical individual-user parity resolver for explicit blocking states", () => {
+    const report = hydratePersonMetrics({
+      envelopes: [envelope({ eventName: "wallet_opened", eventId: "wallet_permission_override" })],
+      permissionBlockedMetricIds: ["wallet_opens"],
+    });
+
+    expect(report.scopes.global.metrics.wallet_opens.count).toBe(1);
+    expect(report.scopes.signedIn.metrics.wallet_opens.count).toBe(1);
+    expect(report.userParityStatus.wallet_opens).toMatchObject({
+      state: "permission_blocked",
+      blocksUserParity: true,
+      globalCount: 1,
+      signedInCount: 1,
+    });
+    expect(report.userParityStatus.wallet_opens.debugNextAction).toContain("permission_blocked instead of zero");
+  });
 });

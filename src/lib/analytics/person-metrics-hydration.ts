@@ -1,6 +1,10 @@
 import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
 import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
 import { validateEventEnvelope } from "@/lib/analytics/event-envelope-builder";
+import {
+  resolveIndividualUserMetricHydrationStatus,
+  type UserMetricHydrationStatus,
+} from "@/lib/identity-truth/individual-user-metric-truth";
 import type { LegacyEventRecoveryCandidate } from "@/lib/legacy/legacy-event-recovery-contract";
 
 import {
@@ -17,14 +21,7 @@ import {
 
 export type PersonMetricHydrationScope = "global" | "guest" | "signedIn" | "linkedPerson" | "creatorRole";
 export type PersonMetricHydrationState = "hydrated" | "collecting" | "unavailable";
-export type PersonMetricUserParityState =
-  | "hydrated"
-  | "collecting"
-  | "source_missing"
-  | "bridge_missing"
-  | "materializer_missing"
-  | "permission_blocked"
-  | "proven_zero";
+export type PersonMetricUserParityState = UserMetricHydrationStatus;
 
 export type PersonMetricScopeEntry = {
   metricId: PersonMetricId;
@@ -242,14 +239,14 @@ function userParityStatusForMetric(input: {
         : input.bridgeMissingMetricIds.has(input.metric.id) ? "bridge_missing"
           : input.sourceMissingMetricIds.has(input.metric.id) ? "source_missing"
             : null;
-  const state: PersonMetricUserParityState =
-    explicitState
-      ?? (userCount > 0 ? "hydrated"
-        : input.global.provenZero ? "proven_zero"
-          : input.global.count > 0 ? "bridge_missing"
-            : input.metricStatus.missingBridge ? "materializer_missing"
-              : input.metricStatus.missingProducer ? "source_missing"
-                : "collecting");
+  const state = resolveIndividualUserMetricHydrationStatus({
+    globalCount: input.global.count,
+    userCount,
+    provenZero: input.global.provenZero,
+    missingProducer: input.metricStatus.missingProducer,
+    missingBridge: input.metricStatus.missingBridge,
+    explicitState,
+  });
   const blocksUserParity = !["hydrated", "proven_zero", "collecting"].includes(state);
   const debugNextActionByState: Record<PersonMetricUserParityState, string> = {
     hydrated: "User/person metric is hydrated from canonical person-scoped event envelopes.",

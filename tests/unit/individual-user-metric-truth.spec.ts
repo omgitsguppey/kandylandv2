@@ -5,6 +5,7 @@ import { hydratePersonMetrics } from "@/lib/analytics/person-metrics-hydration";
 import {
   buildIndividualUserMetricTruthReport,
   INDIVIDUAL_USER_METRIC_TRUTH,
+  resolveIndividualUserMetricHydrationStatus,
 } from "@/lib/identity-truth/individual-user-metric-truth";
 
 describe("individual user metric truth", () => {
@@ -45,5 +46,37 @@ describe("individual user metric truth", () => {
     expect(report.metricStatus.notification_interactions.userHydrationStatus).toBe("permission_blocked");
     expect(report.metricStatus.runtime_watch_sessions.displayRule).toContain("not zero");
     expect(report.metricStatus.notification_interactions.displayRule).toContain("not zero");
+  });
+
+  it("publishes the canonical user metric hydration state chain", () => {
+    expect(resolveIndividualUserMetricHydrationStatus({
+      globalCount: 1,
+      userCount: 0,
+      provenZero: false,
+      missingProducer: null,
+      missingBridge: null,
+    })).toBe("bridge_missing");
+    expect(resolveIndividualUserMetricHydrationStatus({
+      globalCount: 0,
+      userCount: 0,
+      provenZero: false,
+      missingProducer: "wallet_opened",
+      missingBridge: "person_metrics.wallet_opens",
+    })).toBe("materializer_missing");
+    expect(resolveIndividualUserMetricHydrationStatus({
+      globalCount: 0,
+      userCount: 0,
+      provenZero: false,
+      missingProducer: "wallet_opened",
+      missingBridge: null,
+    })).toBe("source_missing");
+    expect(resolveIndividualUserMetricHydrationStatus({
+      globalCount: 1,
+      userCount: 1,
+      provenZero: false,
+      missingProducer: null,
+      missingBridge: null,
+      explicitState: "permission_blocked",
+    })).toBe("permission_blocked");
   });
 });
