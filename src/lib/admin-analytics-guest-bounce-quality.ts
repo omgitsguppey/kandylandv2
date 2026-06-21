@@ -38,7 +38,7 @@ export type AdminAnalyticsGuestBounceQualityModel = {
   visibleCopy: string;
   summaryFacts: string[];
   estimatedGuestViews: {
-    value: number;
+    value: number | null;
     display: string;
     sourceTruth: GuestQualityDiagnostics["estimatedSourceTruth"];
     canonicalSourceTruth: RecoveredLaunchMetricState["sourceTruth"];
@@ -74,7 +74,7 @@ export type AdminAnalyticsGuestBounceQualityModel = {
   };
   guestViews: {
     value: number | null;
-    source: "ga_estimate" | "first_party_semantic_batches";
+    source: "ga_estimate" | "first_party_semantic_batches" | "unavailable";
     formula: string | null;
   };
   guestViewsEstimated: boolean;
@@ -102,6 +102,10 @@ function formatCompactNumber(value: number) {
 
 function formatPercent(value: number) {
   return `${Math.round(value * 100)}%`;
+}
+
+function finiteNumberOrNull(value: number | null | undefined): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function deriveFreshnessState(input: {
@@ -167,22 +171,35 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     : null;
   const globalSemantic = findSemantic(input.semanticCategories, "global");
   const userSemantic = findSemantic(input.semanticCategories, "user");
-  const rawGuestViewsValue = input.guestTraffic?.truthLabel === "estimated"
-    ? input.guestTraffic?.estimatedGuestViews ?? 0
-    : input.guestTraffic?.exactGuestViews ?? globalSemantic?.viewCount ?? 0;
-  const guestEstimateClamped = rawGuestViewsValue < 0;
-  const guestViewsValue = Math.max(0, rawGuestViewsValue);
+  const guestTrafficTruthLabel = input.guestTraffic?.truthLabel ?? "unknown";
+  const exactGuestViewsValue = finiteNumberOrNull(input.guestTraffic?.exactGuestViews);
+  const estimatedGuestViewsValue = finiteNumberOrNull(input.guestTraffic?.estimatedGuestViews);
+  const semanticGuestViewsValue = finiteNumberOrNull(globalSemantic?.viewCount);
+  const rawGuestViewsValue = guestTrafficTruthLabel === "estimated"
+    ? estimatedGuestViewsValue
+    : guestTrafficTruthLabel === "exact"
+      ? exactGuestViewsValue
+      : hasResponse && semanticGuestViewsValue !== null
+        ? semanticGuestViewsValue
+        : null;
+  const guestTrafficRecoveryTruthLabel = guestTrafficTruthLabel !== "unknown"
+    ? guestTrafficTruthLabel
+    : rawGuestViewsValue !== null
+      ? "exact"
+      : "unknown";
+  const guestEstimateClamped = rawGuestViewsValue !== null && rawGuestViewsValue < 0;
+  const guestViewsValue = rawGuestViewsValue === null ? null : Math.max(0, rawGuestViewsValue);
   const estimatedFreshness = deriveFreshnessState({
     stale,
     refreshDue: cacheRefreshDue,
     lastUpdatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
   });
   const guestTrafficRecoveryMetric = buildGuestTrafficRecoveryMetricState({
-    truthLabel: input.guestTraffic?.truthLabel ?? "unknown",
+    truthLabel: guestTrafficRecoveryTruthLabel,
     generatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
     sourcePath: diagnostics.estimatedSourceTruth,
     fromCache: cacheRefreshDue,
-    sourceObserved: hasResponse && input.guestTraffic?.truthLabel !== "unknown",
+    sourceObserved: hasResponse && guestViewsValue !== null && guestTrafficRecoveryTruthLabel !== "unknown",
   });
   const signedInBounceValue = userSemantic?.viewCount
     ? (userSemantic.bounceCount ?? 0) / userSemantic.viewCount
@@ -253,7 +270,7 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     ],
     estimatedGuestViews: {
       value: guestViewsValue,
-      display: formatCompactNumber(guestViewsValue),
+      display: guestViewsValue === null ? "Unavailable" : formatCompactNumber(guestViewsValue),
       sourceTruth: diagnostics.estimatedSourceTruth,
       canonicalSourceTruth: guestTrafficRecoveryMetric.sourceTruth,
       sourceFreshnessState: guestTrafficRecoveryMetric.freshnessState,
@@ -270,7 +287,9 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
       lateArrivalWindowDays: guestTrafficRecoveryMetric.lateArrivalWindowDays,
       productTruthEligible: guestTrafficRecoveryMetric.productTruthEligible,
       missingVsZeroState: guestTrafficRecoveryMetric.missingVsZeroState,
-      explanation: diagnostics.estimatedFormula
+      explanation: guestViewsValue === null
+        ? "Guest view source unavailable for this range."
+        : diagnostics.estimatedFormula
         ? `${diagnostics.estimatedFormula}. This is an estimated guest-view total, not unique guest users.`
         : "Guest estimate formula unavailable.",
     },
@@ -302,8 +321,16 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     },
     guestViews: {
       value: guestViewsValue,
-      source: input.guestTraffic?.truthLabel === "estimated" ? "ga_estimate" : "first_party_semantic_batches",
-      formula: input.guestTraffic?.truthLabel === "estimated" ? "GA total views - identified first-party views" : "first-party guest/public views",
+      source: guestViewsValue === null
+        ? "unavailable"
+        : guestTrafficRecoveryTruthLabel === "estimated"
+          ? "ga_estimate"
+          : "first_party_semantic_batches",
+      formula: guestViewsValue === null
+        ? null
+        : guestTrafficRecoveryTruthLabel === "estimated"
+          ? "GA total views - identified first-party views"
+          : "first-party guest/public views",
     },
     guestViewsEstimated: input.guestTraffic?.truthLabel === "estimated",
     guestEstimateFormula: input.guestTraffic?.truthLabel === "estimated" ? "GA total views - identified first-party views" : null,

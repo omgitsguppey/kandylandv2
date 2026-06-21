@@ -1,11 +1,75 @@
 {
-  "currentVersion": "1.6.11",
-  "betaReleaseCounter": 611,
+  "currentVersion": "1.6.12",
+  "betaReleaseCounter": 612,
   "channel": "beta",
-  "generatedAt": "2026-06-21T00:16:07.804Z",
-  "generatedAtUtc": "2026-06-21T00:16:07.804Z",
-  "lastCommitSha": "9b61b5bd0133aaea9229283de0726d3efdf9b9f5",
+  "generatedAt": "2026-06-21T00:29:43.631Z",
+  "generatedAtUtc": "2026-06-21T00:29:43.631Z",
+  "lastCommitSha": "01ae229cd46fb1b62794309d23b0203e733e0a86",
   "notes": [
+    {
+      "version": "1.6.12",
+      "previousVersion": "1.6.11",
+      "betaReleaseCounter": 612,
+      "previousBetaReleaseCounter": 611,
+      "commitSha": "01ae229cd46fb1b62794309d23b0203e733e0a86",
+      "commitTitle": "analytics: keep guest source gaps out of zero estimates",
+      "commitCount": 2,
+      "commitShas": [
+        "b7cd7a3467d9f7cc63ec6e8729b2c7f93aefa315",
+        "01ae229cd46fb1b62794309d23b0203e733e0a86"
+      ],
+      "committedAt": "2026-06-21T00:29:25.000Z",
+      "generatedAt": "2026-06-21T00:29:43.630Z",
+      "committedAtUtc": "2026-06-21T00:29:25.000Z",
+      "generatedAtUtc": "2026-06-21T00:29:43.630Z",
+      "updatedAtUtc": "2026-06-21T00:29:43.630Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/canonical-math-ledger.generated.json",
+        "agent/state/count-deduplication-normalization.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/metric-canonicalization-legacy-recovery.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/canonical-math-ledger.md",
+        "docs/agent-truth/count-deduplication-normalization.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/admin-analytics-device-mix.ts",
+        "src/lib/admin-analytics-guest-bounce-quality.ts",
+        "src/lib/admin-analytics-region-demand.ts",
+        "src/lib/admin-analytics-top-paths.ts",
+        "src/lib/analytics/admin-analytics-display-state.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-device-mix.spec.ts",
+        "tests/unit/admin-analytics-guest-bounce-quality.spec.ts",
+        "tests/unit/admin-analytics-region-demand.spec.ts",
+        "tests/unit/admin-analytics-top-paths.spec.ts"
+      ],
+      "sourceCommit": "01ae229cd46fb1b62794309d23b0203e733e0a86"
+    },
     {
       "version": "1.6.11",
       "previousVersion": "1.6.10",
@@ -2227,44 +2291,6 @@
         "tests/unit/admin-analytics-page.spec.tsx"
       ],
       "sourceCommit": "e03a49c5ce8a670671c5b440496f8cb7bd07893f"
-    },
-    {
-      "version": "1.5.87",
-      "previousVersion": "1.5.86",
-      "betaReleaseCounter": 587,
-      "previousBetaReleaseCounter": 586,
-      "commitSha": "05f05c4d3941ab1999608032c4bd72e5da6064b2",
-      "commitTitle": "fix(admin): simplify surface actions",
-      "commitCount": 1,
-      "commitShas": [
-        "05f05c4d3941ab1999608032c4bd72e5da6064b2"
-      ],
-      "committedAt": "2026-06-18T04:06:35.000Z",
-      "generatedAt": "2026-06-18T04:21:01.560Z",
-      "committedAtUtc": "2026-06-18T04:06:35.000Z",
-      "generatedAtUtc": "2026-06-18T04:21:01.560Z",
-      "updatedAtUtc": "2026-06-18T04:21:01.560Z",
-      "category": "Fixed",
-      "title": "Admin moderation review is clearer",
-      "summary": "Admin moderation now separates weak evidence, missing proof, and confirmed review states more clearly.",
-      "userFacingTitle": "Admin moderation review is clearer",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Clarified admin moderation risk states without treating weak evidence as confirmed proof.",
-        "Kept missing evidence visible so review queues do not look healthier than they are."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "admin"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "docs/agent-truth/admin-moderation-real-risk.md",
-        "scripts/agent/validate-admin-moderation-real-risk.ts",
-        "src/components/Admin/AdminModerationConsole.tsx",
-        "tests/unit/admin-moderation-console-ui.spec.ts"
-      ],
-      "sourceCommit": "05f05c4d3941ab1999608032c4bd72e5da6064b2"
     }
   ]
 }

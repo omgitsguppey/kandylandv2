@@ -223,6 +223,27 @@ describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
     expect(model.chartCollapsedBecauseEmpty).toBe(true);
   });
 
+  it("does not turn missing guest traffic source into a zero estimate", () => {
+    const model = buildAdminAnalyticsGuestBounceQualityModel({
+      selectedRange: "30d",
+      semanticCategories: [],
+      loading: false,
+      overviewTruthState: "live",
+    });
+
+    expect(model.estimatedGuestViews.value).toBeNull();
+    expect(model.estimatedGuestViews.display).toBe("Unavailable");
+    expect(model.estimatedGuestViews.canonicalSourceTruth).toBe("source_missing");
+    expect(model.estimatedGuestViews.evidenceKind).toBe("missing");
+    expect(model.estimatedGuestViews.sourceFreshnessState).toBe("source_missing");
+    expect(model.estimatedGuestViews.productTruthEligible).toBe(false);
+    expect(model.estimatedGuestViews.missingVsZeroState).toBe("source_missing");
+    expect(model.guestViews.value).toBeNull();
+    expect(model.guestViews.source).toBe("unavailable");
+    expect(model.guestViews.formula).toBeNull();
+    expect(model.guestEstimateClamped).toBe(false);
+  });
+
   it("does not show signed-in bounce as zero without a denominator", () => {
     const model = buildAdminAnalyticsGuestBounceQualityModel({
       selectedRange: "7d",
