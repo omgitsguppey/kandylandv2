@@ -4,9 +4,9 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
 
 ```json
 {
-  "generatedAtUtc": "2026-06-20T18:01:06.956Z",
+  "generatedAtUtc": "2026-06-21T03:07:33.649Z",
   "reportKey": "control-tower-formal-gate-display",
-  "currentHead": "aa12e6692a62b9749ef6730e4c4331e85a622b43",
+  "currentHead": "523d99a7c36ec53c55949148e6bd21e93f951ece",
   "gates": {
     "runtimeProvider": {
       "gateId": "runtime_provider_smoke",
@@ -16,8 +16,8 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json"
       ],
-      "nextAction": "Attach formal provider and deployed runtime smoke artifacts before clearing this gate.",
-      "operatorSignal": "GumDrop payment operator-confirmed; formal provider artifact remains separate.",
+      "nextAction": "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
+      "operatorSignal": "GumDrop payment operator-confirmed; provider-backed source evidence remains separate.",
       "formalProviderGateCleared": false,
       "deployedRuntimeGateCleared": false,
       "adminTruthStatus": "not_admin_gate"
@@ -30,7 +30,7 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json"
       ],
-      "nextAction": "Attach formal provider and deployed runtime smoke artifacts before clearing this gate.",
+      "nextAction": "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
       "operatorSignal": null,
       "formalProviderGateCleared": false,
       "deployedRuntimeGateCleared": false,
@@ -42,9 +42,9 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
       "notSourceBug": true,
       "evidencePaths": [
         "agent/state/admin-truth-source-sample.generated.json",
-        "redacted first-party admin truth sample"
+        "redacted admin source activity sample"
       ],
-      "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin gate.",
+      "nextAction": "Produce a redacted admin source activity sample before clearing the admin lane.",
       "operatorSignal": null,
       "formalProviderGateCleared": false,
       "deployedRuntimeGateCleared": false,
@@ -57,7 +57,7 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
     "admin_truth_sample_artifact"
   ],
   "operatorConfirmedSignals": [
-    "GumDrop payment operator-confirmed; formal provider artifact remains separate."
+    "GumDrop payment operator-confirmed; provider-backed source evidence remains separate."
   ],
   "sourceBugGateCount": 0
 }

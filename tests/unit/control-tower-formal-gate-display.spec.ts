@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { buildFormalGateDisplay } from "@/lib/agent-score/formal-gate-display";
 
 describe("control tower formal gate display", () => {
-  it("keeps operator payment confirmation separate from formal provider and runtime smoke", () => {
+  it("keeps operator payment confirmation separate from provider-backed and runtime source evidence", () => {
     const display = buildFormalGateDisplay({
       gateId: "runtime_provider_smoke",
       operatorConfirmedPaymentUsd: 37.5,
@@ -34,6 +34,6 @@ describe("control tower formal gate display", () => {
     expect(display.displayStatus).toBe("source_ready_formal_missing");
     expect(display.adminTruthStatus).toBe("source_ready_formal_admin_sample_required");
     expect(display.notSourceBug).toBe(true);
-    expect(display.nextAction).toContain("redacted first-party admin truth sample");
+    expect(display.nextAction).toContain("redacted admin source activity sample");
   });
 });

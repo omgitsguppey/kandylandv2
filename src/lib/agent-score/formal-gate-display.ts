@@ -33,7 +33,7 @@ export type FormalGateDisplayResult = {
 const PROVIDER_PATH = "agent/state/provider-smoke-evidence.generated.json";
 const RUNTIME_PATH = "agent/state/runtime-smoke-evidence.generated.json";
 const ADMIN_SOURCE_PATH = "agent/state/admin-truth-source-sample.generated.json";
-const ADMIN_FORMAL_PATH = "redacted first-party admin truth sample";
+const ADMIN_FORMAL_PATH = "redacted admin source activity sample";
 
 export function buildFormalGateDisplay(input: FormalGateDisplayInput): FormalGateDisplayResult {
   const isAdmin = /admin_truth|admin-truth|admin sample/iu.test(input.gateId);
@@ -42,7 +42,7 @@ export function buildFormalGateDisplay(input: FormalGateDisplayInput): FormalGat
   const adminCleared = input.formalAdminTruthSampleAttached === true;
   const operatorProduct = /gumdrops/iu.test(input.operatorConfirmedProduct ?? "") ? "GumDrop" : input.operatorConfirmedProduct ?? "operator";
   const operatorSignal = typeof input.operatorConfirmedPaymentUsd === "number" && Number.isFinite(input.operatorConfirmedPaymentUsd) && input.operatorConfirmedPaymentUsd > 0
-    ? `${operatorProduct} payment operator-confirmed; formal provider artifact remains separate.`
+    ? `${operatorProduct} payment operator-confirmed; provider-backed source evidence remains separate.`
     : null;
   const displayStatus: FormalGateDisplayStatus = input.staleArtifact
     ? "stale_artifact"
@@ -63,8 +63,8 @@ export function buildFormalGateDisplay(input: FormalGateDisplayInput): FormalGat
     notSourceBug: true,
     evidencePaths,
     nextAction: isAdmin
-      ? "Attach a redacted first-party admin truth sample before clearing the formal admin gate."
-      : "Attach formal provider and deployed runtime smoke artifacts before clearing this gate.",
+      ? "Produce a redacted admin source activity sample before clearing the admin lane."
+      : "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
     operatorSignal,
     formalProviderGateCleared: providerCleared,
     deployedRuntimeGateCleared: runtimeCleared,

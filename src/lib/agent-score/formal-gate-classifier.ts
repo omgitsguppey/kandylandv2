@@ -59,20 +59,20 @@ function evidencePathFor(input: FormalGateClassifierInput, status: FormalGateCla
   if (status === "provider_artifact_required") return "agent/state/provider-smoke-evidence.generated.json";
   if (status === "deployed_runtime_required") return "agent/state/runtime-smoke-evidence.generated.json";
   if (status === "admin_sample_required" || status === "source_ready_formal_missing") {
-    return "agent/state/admin-truth-source-sample.generated.json + redacted first-party admin sample";
+    return "agent/state/admin-truth-source-sample.generated.json + redacted admin source activity sample";
   }
-  if (status === "operator_artifact_required") return "operator-supplied formal evidence artifact";
+  if (status === "operator_artifact_required") return "operator-supplied source activity context";
   return "source/debug lane";
 }
 
 function nextActionFor(input: FormalGateClassifierInput, status: FormalGateClassifierStatus) {
   if (input.nextAction) return input.nextAction;
-  if (status === "provider_artifact_required") return "Attach formal provider smoke evidence before clearing this gate.";
-  if (status === "deployed_runtime_required") return "Attach deployed runtime smoke evidence before clearing this gate.";
+  if (status === "provider_artifact_required") return "Produce provider-backed site activity evidence before clearing this gate.";
+  if (status === "deployed_runtime_required") return "Produce deployed runtime route evidence before clearing this gate.";
   if (status === "admin_sample_required" || status === "source_ready_formal_missing") {
-    return "Attach a redacted first-party admin truth sample before clearing the formal admin gate.";
+    return "Produce a redacted admin source activity sample before clearing the admin lane.";
   }
-  if (status === "operator_artifact_required") return "Attach the required operator artifact before clearing this gate.";
+  if (status === "operator_artifact_required") return "Produce the required operator source context before clearing this gate.";
   return "Keep this item out of the source-fix queue unless a source failure is present.";
 }
 
@@ -111,7 +111,7 @@ export function classifyFormalGate(input: FormalGateClassifierInput): FormalGate
     evidencePath: evidencePathFor(input, status),
     nextAction: nextActionFor(input, status),
     reason: formalOrExternal
-      ? "This item requires a formal/operator evidence artifact and must not be treated as a source-code fix."
+      ? "This item requires source activity or operator context and must not be treated as a source-code fix."
       : "No source-code failure is present in this gate classification.",
   };
 }

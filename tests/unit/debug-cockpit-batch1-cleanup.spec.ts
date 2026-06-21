@@ -125,12 +125,12 @@ const cockpitInput: DebugOperatorCockpitInput = {
 };
 
 describe("debug cockpit batch 1 cleanup", () => {
-  it("classifies formal evidence gates as non-source bugs", () => {
+  it("classifies source evidence gates as non-source bugs", () => {
     const runtimeGate = classifyFormalGate({
       id: "runtime_provider_smoke",
       label: "Runtime/provider smoke",
       statusText: "Runtime unverified",
-      nextAction: "Attach formal provider smoke evidence.",
+      nextAction: "Produce provider-backed site activity evidence.",
     });
 
     expect(runtimeGate.status).toBe("provider_artifact_required");

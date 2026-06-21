@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-20T17:28:50.798Z",
+  "generatedAtUtc": "2026-06-21T03:07:41.565Z",
   "reportKey": "self-healing-refresh-queue",
-  "currentHead": "dfe41db3c5a3fec9d5002f93b43ac6f6df9e8fe2",
-  "sourceCommit": "dfe41db3c5a3fec9d5002f93b43ac6f6df9e8fe2",
+  "currentHead": "523d99a7c36ec53c55949148e6bd21e93f951ece",
+  "sourceCommit": "523d99a7c36ec53c55949148e6bd21e93f951ece",
   "overallStatus": "pass",
   "queue": [
     {
@@ -42,11 +42,11 @@
       "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
     },
     {
-      "artifact": "agent/state/beta-evidence-gap-map.generated.json",
+      "artifact": "agent/state/current-beta-exit-status.generated.json",
       "staleReason": "stale_source_version",
-      "refreshCommand": "npm run check:beta-evidence-gap-map",
+      "refreshCommand": "npm run check:current-beta-exit-status",
       "scoreImpactEstimate": 1,
-      "owner": "evidence",
+      "owner": "beta",
       "dependencyOrder": 4,
       "canRunAutomatically": true,
       "blockedReason": "",
@@ -54,9 +54,9 @@
       "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
     },
     {
-      "artifact": "agent/state/beta-evidence-lane-prep.generated.json",
+      "artifact": "agent/state/beta-evidence-gap-map.generated.json",
       "staleReason": "stale_source_version",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep",
+      "refreshCommand": "npm run check:beta-evidence-gap-map",
       "scoreImpactEstimate": 1,
       "owner": "evidence",
       "dependencyOrder": 5,
@@ -66,9 +66,9 @@
       "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
     },
     {
-      "artifact": "agent/state/evidence-capture-status.generated.json",
+      "artifact": "agent/state/beta-evidence-lane-prep.generated.json",
       "staleReason": "stale_source_version",
-      "refreshCommand": "npm run check:evidence-capture-status",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "scoreImpactEstimate": 1,
       "owner": "evidence",
       "dependencyOrder": 6,
@@ -151,63 +151,63 @@
     },
     {
       "artifact": "admin_truth_sample_evidence",
-      "staleReason": "Admin sample required",
-      "refreshCommand": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
+      "staleReason": "Admin source sample required",
+      "refreshCommand": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 11.32,
       "owner": "admin",
       "dependencyOrder": 13,
       "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
+      "blockedReason": "blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
       "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the admin truth sample artifact."
+      "expectedOutcome": "Remain blocked until a redacted admin source activity sample is produced."
     },
     {
       "artifact": "runtime_provider_smoke",
-      "staleReason": "External proof required",
-      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "staleReason": "Provider-backed site activity required",
+      "refreshCommand": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 5.76,
       "owner": "runtime",
       "dependencyOrder": 14,
       "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
+      "blockedReason": "blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
       "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the formal provider smoke artifact."
+      "expectedOutcome": "Remain blocked until provider-backed site activity evidence is produced."
     },
     {
       "artifact": "agent/state/provider-smoke-evidence.generated.json",
-      "staleReason": "External proof required",
-      "refreshCommand": "npm run check:provider-smoke-evidence",
+      "staleReason": "Provider-backed site activity required",
+      "refreshCommand": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 4,
       "owner": "runtime",
       "dependencyOrder": 15,
       "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
+      "blockedReason": "blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
       "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the formal provider smoke artifact."
+      "expectedOutcome": "Remain blocked until provider-backed site activity evidence is produced."
     },
     {
       "artifact": "agent/state/admin-truth-sample-evidence.generated.json",
-      "staleReason": "Admin sample required",
-      "refreshCommand": "npm run check:admin-truth-sample-evidence",
+      "staleReason": "Admin source sample required",
+      "refreshCommand": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 1,
       "owner": "admin",
       "dependencyOrder": 16,
       "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
+      "blockedReason": "blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
       "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the admin truth sample artifact."
+      "expectedOutcome": "Remain blocked until a redacted admin source activity sample is produced."
     },
     {
       "artifact": "agent/state/runtime-smoke-evidence.generated.json",
-      "staleReason": "Deployed runtime proof required",
-      "refreshCommand": "npm run check:runtime-smoke-evidence",
+      "staleReason": "Deployed runtime route evidence required",
+      "refreshCommand": "Produce deployed runtime route evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 1,
       "owner": "runtime",
       "dependencyOrder": 17,
       "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
+      "blockedReason": "blocked_source_evidence: deployed runtime route evidence required; source/debug evidence is partial only.",
       "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the deployed runtime smoke artifact."
+      "expectedOutcome": "Remain blocked until deployed runtime route evidence is produced from source activity."
     }
   ],
   "summary": {

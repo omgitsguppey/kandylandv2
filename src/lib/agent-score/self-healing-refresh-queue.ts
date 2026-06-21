@@ -60,7 +60,7 @@ export interface SelfHealingRefreshQueueReport {
   validationFailures: string[];
 }
 
-type FormalEvidenceKind = "runtime" | "provider" | "admin_truth" | "generic";
+type SourceEvidenceKind = "runtime" | "provider" | "admin_truth" | "generic";
 
 const FORMAL_EVIDENCE_PATTERN = /\battach formal|formal provider|formal runtime|admin truth sample|provider smoke|runtime smoke/i;
 const LEGACY_SCREENSHOT_EVIDENCE_PATTERN =
@@ -96,12 +96,12 @@ function normalizeFormalEvidenceText(value: string) {
     .trim();
 }
 
-function formalEvidenceKind(value: string): FormalEvidenceKind | null {
+function formalEvidenceKind(value: string): SourceEvidenceKind | null {
   const normalized = normalizeFormalEvidenceText(value);
   if (!normalized) return null;
-  if (/\b(admin truth sample evidence|admin truth sample|admin sample required|truth sample)\b/u.test(normalized)) return "admin_truth";
-  if (/\b(provider smoke evidence|provider smoke|formal provider|external proof|required provider)\b/u.test(normalized)) return "provider";
-  if (/\b(runtime smoke evidence|runtime smoke|debug runtime evidence|deployed runtime|formal runtime)\b/u.test(normalized)) return "runtime";
+  if (/\b(admin truth sample evidence|admin truth sample|admin sample required|truth sample|admin source activity sample|admin source sample)\b/u.test(normalized)) return "admin_truth";
+  if (/\b(provider smoke evidence|provider smoke|formal provider|external proof|required provider|provider backed|provider source|provider manual proof)\b/u.test(normalized)) return "provider";
+  if (/\b(runtime smoke evidence|runtime smoke|debug runtime evidence|deployed runtime|runtime route evidence|formal runtime)\b/u.test(normalized)) return "runtime";
   if (FORMAL_EVIDENCE_PATTERN.test(value)) return "generic";
   return null;
 }
@@ -116,9 +116,15 @@ function isLegacyScreenshotEvidenceText(value: string) {
 }
 
 function normalizeRefreshCommand(command: string, artifact: string, status = "") {
-  return isLegacyScreenshotEvidenceText(`${command} ${artifact} ${status}`)
-    ? UI_SOURCE_COVERAGE_REFRESH_COMMAND
-    : command;
+  if (isLegacyScreenshotEvidenceText(`${command} ${artifact} ${status}`)) {
+    return UI_SOURCE_COVERAGE_REFRESH_COMMAND;
+  }
+  const kind = formalEvidenceKind(`${command} ${artifact} ${status}`);
+  if (kind === "runtime") return "Produce deployed runtime route evidence, then run npm run check:evidence-capture-status";
+  if (kind === "provider") return "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status";
+  if (kind === "admin_truth") return "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status";
+  if (kind === "generic") return "Produce matching source activity evidence, then run npm run check:evidence-capture-status";
+  return command;
 }
 
 function normalizeStaleReason(status: string | undefined, command: string, artifact: string) {
@@ -131,37 +137,37 @@ function normalizeStaleReason(status: string | undefined, command: string, artif
 function formalEvidenceBlockedReason(artifact: string) {
   const kind = formalEvidenceKind(artifact);
   if (kind === "runtime") {
-    return "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.";
+    return "blocked_source_evidence: deployed runtime route evidence required; source/debug evidence is partial only.";
   }
   if (kind === "provider") {
-    return "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.";
+    return "blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.";
   }
   if (kind === "admin_truth") {
-    return "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.";
+    return "blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.";
   }
-  return "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.";
+  return "blocked_source_evidence: matching source activity evidence required; source queue cannot generate it automatically.";
 }
 
 function formalEvidenceStaleReason(artifact: string) {
   const kind = formalEvidenceKind(artifact);
-  if (kind === "runtime") return "Deployed runtime proof required";
-  if (kind === "provider") return "External proof required";
-  if (kind === "admin_truth") return "Admin sample required";
-  return "Formal proof required";
+  if (kind === "runtime") return "Deployed runtime route evidence required";
+  if (kind === "provider") return "Provider-backed site activity required";
+  if (kind === "admin_truth") return "Admin source sample required";
+  return "Source activity evidence required";
 }
 
 function formalEvidenceExpectedOutcome(artifact: string) {
   const kind = formalEvidenceKind(artifact);
   if (kind === "runtime") {
-    return "Remain blocked until a human attaches the deployed runtime smoke artifact.";
+    return "Remain blocked until deployed runtime route evidence is produced from source activity.";
   }
   if (kind === "provider") {
-    return "Remain blocked until a human attaches the formal provider smoke artifact.";
+    return "Remain blocked until provider-backed site activity evidence is produced.";
   }
   if (kind === "admin_truth") {
-    return "Remain blocked until a human attaches the admin truth sample artifact.";
+    return "Remain blocked until a redacted admin source activity sample is produced.";
   }
-  return "Remain blocked until a human attaches the required formal artifact.";
+  return "Remain blocked until matching source activity evidence is produced.";
 }
 
 function isForbiddenCommand(command: string) {
@@ -336,7 +342,7 @@ export function validateSelfHealingRefreshQueue(report: SelfHealingRefreshQueueR
     if (entry.scoreImpactEstimate <= 0) failures.push(`${entry.artifact} has no score impact estimate.`);
     if (isForbiddenCommand(entry.refreshCommand)) failures.push(`${entry.artifact} contains forbidden command.`);
     if (entry.canRunAutomatically && isFormalEvidenceRefresh(entry.refreshCommand, entry.artifact, entry.staleReason)) {
-      failures.push(`${entry.artifact} suggests formal evidence refresh without artifact.`);
+      failures.push(`${entry.artifact} suggests automatic source evidence refresh for a blocked lane.`);
     }
     if (!entry.canRunAutomatically && !entry.blockedReason) failures.push(`${entry.artifact} is blocked without blocked reason.`);
   }

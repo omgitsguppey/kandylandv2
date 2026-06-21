@@ -66,7 +66,7 @@ describe("self-healing refresh queue", () => {
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
-  it("blocks formal evidence refreshes instead of suggesting fake automated proof", () => {
+  it("blocks source evidence lanes instead of suggesting fake automated proof", () => {
     const report = buildSelfHealingRefreshQueue({
       refreshPlan: [],
       scoreImpactArtifacts: [
@@ -74,16 +74,16 @@ describe("self-healing refresh queue", () => {
           id: "runtime_provider_smoke",
           status: "Runtime unverified: Runtime/provider smoke",
           pointImpact: 16.33,
-          refreshCommand: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+          refreshCommand: "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
         },
       ],
     });
 
     expect(report.queue[0]).toMatchObject({
       artifact: "runtime_provider_smoke",
-      staleReason: "External proof required",
+      staleReason: "Provider-backed site activity required",
       canRunAutomatically: false,
-      blockedReason: expect.stringContaining("formal provider smoke artifact required"),
+      blockedReason: expect.stringContaining("provider-backed site activity evidence required"),
     });
     expect(JSON.stringify(report)).not.toContain("Runtime unverified:");
     expect(JSON.stringify(report)).not.toContain("Unknown evidence:");
@@ -96,9 +96,9 @@ describe("self-healing refresh queue", () => {
       scoreImpactArtifacts: [
         {
           id: "agent/state/ui-visual-smoke-minimal.generated.json",
-          status: "blocked_formal_evidence: targeted visual/manual screenshot required",
+          status: "blocked_source_evidence: targeted visual/manual screenshot required",
           pointImpact: 2,
-          refreshCommand: "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
+          refreshCommand: "Produce UI source coverage evidence, then run npm run check:evidence-capture-status",
         },
       ],
     });
@@ -122,13 +122,13 @@ describe("self-healing refresh queue", () => {
           id: "ui_source_coverage",
           status: "manual proof required for mobile UI surface",
           pointImpact: 2,
-          refreshCommand: "Attach manual visual evidence, then run npm run check:evidence-capture-status",
+          refreshCommand: "Produce UI source coverage evidence, then run npm run check:evidence-capture-status",
         },
         {
           id: "provider_manual_proof",
           status: "manual proof required for provider smoke",
           pointImpact: 4,
-          refreshCommand: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+          refreshCommand: "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
         },
       ],
     });
@@ -140,9 +140,9 @@ describe("self-healing refresh queue", () => {
       blockedReason: "",
     });
     expect(report.queue.find((entry) => entry.artifact === "provider_manual_proof")).toMatchObject({
-      staleReason: "Formal proof required",
+      staleReason: "Provider-backed site activity required",
       canRunAutomatically: false,
-      blockedReason: expect.stringContaining("formal artifact required"),
+      blockedReason: expect.stringContaining("provider-backed site activity evidence required"),
     });
     expect(JSON.stringify(report)).not.toContain("manual visual");
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
@@ -176,21 +176,21 @@ describe("self-healing refresh queue", () => {
     expect(report.queue).toEqual([
       expect.objectContaining({
         artifact: "agent/state/provider-smoke-evidence.generated.json",
-        staleReason: "External proof required",
+        staleReason: "Provider-backed site activity required",
         canRunAutomatically: false,
-        blockedReason: expect.stringContaining("formal provider smoke artifact required"),
+        blockedReason: expect.stringContaining("provider-backed site activity evidence required"),
       }),
       expect.objectContaining({
         artifact: "agent/state/runtime-smoke-evidence.generated.json",
-        staleReason: "Deployed runtime proof required",
+        staleReason: "Deployed runtime route evidence required",
         canRunAutomatically: false,
-        blockedReason: expect.stringContaining("deployed runtime smoke artifact required"),
+        blockedReason: expect.stringContaining("deployed runtime route evidence required"),
       }),
       expect.objectContaining({
         artifact: "agent/state/admin-truth-sample-evidence.generated.json",
-        staleReason: "Admin sample required",
+        staleReason: "Admin source sample required",
         canRunAutomatically: false,
-        blockedReason: expect.stringContaining("admin truth sample artifact required"),
+        blockedReason: expect.stringContaining("redacted admin source activity sample required"),
       }),
     ]);
     expect(report.summary).toMatchObject({
