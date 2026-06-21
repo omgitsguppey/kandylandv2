@@ -487,6 +487,47 @@ describe("public beta scoring math", () => {
         expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(false);
     });
 
+    it("uses activity verification as source-only targeted behavior credit without clearing formal gates", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                targetedBehaviorEvidence: missingTargetedBehaviorEvidence,
+                behaviorMathEvidence: undefined,
+                providerSmokeEvidence: { ...missingProviderSmokeEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                runtimeSmokeEvidence: { ...runtimeUnverifiedEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                adminTruthSampleEvidence: missingAdminTruthEvidence,
+                activityVerificationEvidence: {
+                    path: "agent/state/activity-verification-engine.generated.json",
+                    status: "source_ready_activity_verification",
+                    passed: true,
+                    detail: "Source-backed activity verification found score-eligible first-party activity.",
+                    evidence: [
+                        "activityVerification.verifiedByActivity=3",
+                        "activityVerification.sourceReadyNoActivity=4",
+                        "activityVerification.scoreEligibleActivity=3",
+                        "activityVerification.confidenceScore=86",
+                        "activityVerification.formalGatesCleared=false",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+        const runtimeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+
+        expect(targetedGate?.status).toBe("Source validation only");
+        expect(targetedGate?.sourceCredit).toBe(86);
+        expect(targetedGate?.runtimeCredit).toBe(0);
+        expect(targetedGate?.evidence.join("\n")).toContain("activityVerificationSourceCredit=86");
+        expect(targetedGate?.evidence.join("\n")).toContain("activityVerification.verifiedByActivity=3");
+        expect(runtimeGate?.runtimeCredit).toBe(0);
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(false);
+    });
+
     it("does not score stale site activity and admin artifacts as current source evidence", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),

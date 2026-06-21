@@ -52,6 +52,7 @@ const LIVE_EVIDENCE_GATE_REPLACEMENT_PATH = "agent/state/live-evidence-gate-repl
 const REAL_USAGE_CONFIDENCE_PATH = "agent/state/real-usage-confidence.generated.json";
 const REAL_USAGE_CONFIDENCE_CALIBRATION_PATH = "agent/state/real-usage-confidence-calibration.generated.json";
 const BEHAVIOR_MATH_VERIFICATION_PATH = "agent/state/behavior-math-verification.generated.json";
+const ACTIVITY_VERIFICATION_ENGINE_PATH = "agent/state/activity-verification-engine.generated.json";
 const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
 const DEBUG_SIGNAL_GROUPING_PATH = "agent/state/debug-signal-grouping.generated.json";
 const EVENT_TRANSLATION_BRIDGE_PATH = "agent/state/event-translation-bridge.generated.json";
@@ -608,6 +609,75 @@ function readBehaviorMathEvidence(root: string): PublicBetaEvidenceArtifact {
   );
 }
 
+function readActivityVerificationEvidence(root: string): PublicBetaEvidenceArtifact {
+  const parsed = readJsonFile(root, ACTIVITY_VERIFICATION_ENGINE_PATH);
+  if (!parsed) {
+    return {
+      path: ACTIVITY_VERIFICATION_ENGINE_PATH,
+      status: "missing_or_unknown",
+      passed: false,
+      detail: "No activity verification artifact was supplied.",
+      evidence: [
+        `artifactPath=${ACTIVITY_VERIFICATION_ENGINE_PATH}`,
+        "artifactStatus=missing_or_unknown",
+        "artifactExists=false",
+      ],
+    };
+  }
+
+  const summary = readRecord(parsed.summary);
+  const formalGateImpact = readRecord(parsed.formalGateImpact);
+  const features = Array.isArray(parsed.features) ? parsed.features.map(readRecord) : [];
+  const scoreEligibleFeatures = features.filter((feature) => readBoolean(feature.scoreEligible) === true);
+  const confidenceScores = scoreEligibleFeatures
+    .map((feature) => readNumber(feature.confidenceScore) ?? 0)
+    .filter((score) => score > 0);
+  const confidenceScore = confidenceScores.length > 0
+    ? Math.max(...confidenceScores)
+    : readNumber(summary.verifiedByActivity) && readNumber(summary.verifiedByActivity)! > 0
+      ? 58
+      : 0;
+  const status = readString(parsed.status) ?? "missing_or_unknown";
+  const verifiedByActivity = readNumber(summary.verifiedByActivity) ?? 0;
+  const sourceReadyNoActivity = readNumber(summary.sourceReadyNoActivity) ?? 0;
+  const fakeActivityUsed = readBoolean(parsed.fakeActivityUsed) === true;
+  const productionReadsRequired = readBoolean(parsed.productionReadsRequired) === true;
+  const clearsFormalProvider = readBoolean(formalGateImpact.clearsFormalProvider) === true;
+  const clearsDeployedRuntime = readBoolean(formalGateImpact.clearsDeployedRuntime) === true;
+  const clearsFormalAdminTruth = readBoolean(formalGateImpact.clearsFormalAdminTruth) === true;
+  const passed = status === "pass"
+    && verifiedByActivity > 0
+    && !fakeActivityUsed
+    && !productionReadsRequired
+    && !clearsFormalProvider
+    && !clearsDeployedRuntime
+    && !clearsFormalAdminTruth;
+
+  return {
+    path: ACTIVITY_VERIFICATION_ENGINE_PATH,
+    status: passed ? "source_ready_activity_verification" : status,
+    passed,
+    detail: passed
+      ? "Source-backed activity verification found score-eligible first-party activity; provider, deployed runtime, and admin truth gates remain separate."
+      : "Activity verification did not find score-eligible source-backed activity.",
+    evidence: [
+      `activityVerification.status=${status}`,
+      `activityVerification.verifiedByActivity=${verifiedByActivity}`,
+      `activityVerification.sourceReadyNoActivity=${sourceReadyNoActivity}`,
+      `activityVerification.scoreEligibleActivity=${scoreEligibleFeatures.length}`,
+      `activityVerification.confidenceScore=${confidenceScore}`,
+      `activityVerification.fakeActivityUsed=${fakeActivityUsed}`,
+      `activityVerification.productionReadsRequired=${productionReadsRequired}`,
+      `activityVerification.formalProviderCleared=${clearsFormalProvider}`,
+      `activityVerification.deployedRuntimeCleared=${clearsDeployedRuntime}`,
+      `activityVerification.formalAdminTruthCleared=${clearsFormalAdminTruth}`,
+      "activityVerification.formalGatesCleared=false",
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
 function readDebugRuntimeEvidence(root: string): PublicBetaEvidenceArtifact {
   return readEvidenceArtifact(
     root,
@@ -871,6 +941,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       realUsageConfidenceEvidence: readRealUsageConfidenceEvidence(root),
       realUsageConfidenceCalibrationEvidence: readRealUsageConfidenceCalibrationEvidence(root),
       behaviorMathEvidence: readBehaviorMathEvidence(root),
+      activityVerificationEvidence: readActivityVerificationEvidence(root),
       uiSurfaceCoverageEvidence: readUiSurfaceCoverageEvidence(root),
       providerSmokeEvidence: readProviderSmokeEvidence(root),
       runtimeSmokeEvidence: readRuntimeSmokeEvidence(root),

@@ -209,6 +209,7 @@ export type PublicBetaEvidenceInput = {
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
   behaviorMathEvidence?: PublicBetaEvidenceArtifact;
+  activityVerificationEvidence?: PublicBetaEvidenceArtifact;
   uiSurfaceCoverageEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
@@ -790,6 +791,47 @@ export function buildPublicBetaEvidenceGates(input: {
       : evidence.openPrTriageFresh === false
         ? describeFreshnessState({ openPrTriageFresh: false }).userMessage
         : reportEvidence.detail;
+  const realUsageConfidenceStatus = String(evidenceArtifactStatus(
+    evidence.realUsageConfidenceEvidence,
+    "missing_or_unknown",
+  ));
+  const realUsageConfidenceQuality = resolveEvidenceQuality({
+    artifact: evidence.realUsageConfidenceEvidence,
+    context: {
+      currentHead,
+      lane: "real_usage_confidence",
+      requiredForExit: false,
+      requiresRuntimeProof: true,
+    },
+  });
+  const realUsageCalibrationStatus = String(evidenceArtifactStatus(
+    evidence.realUsageConfidenceCalibrationEvidence,
+    "missing_or_unknown",
+  ));
+  const realUsageCalibrationQuality = resolveEvidenceQuality({
+    artifact: evidence.realUsageConfidenceCalibrationEvidence,
+    context: {
+      currentHead,
+      lane: "real_usage_confidence_calibration",
+      requiredForExit: false,
+      requiresRuntimeProof: true,
+    },
+  });
+  const realUsageCalibrationCredit = realUsageCalibrationQuality.quality === "source_ready"
+    && realUsageCalibrationStatus.includes("source_ready")
+    ? Math.max(
+        realUsageCalibrationQuality.partialCredit * 100,
+        clamp(evidenceArtifactNumber(evidence.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit") ?? 0, 0, 100),
+      )
+    : 0;
+  const realUsageConfidenceCredit = realUsageConfidenceQuality.quality === "source_ready"
+    && realUsageConfidenceStatus.includes("source_ready")
+    ? Math.max(
+        realUsageConfidenceQuality.partialCredit * 100,
+        clamp(evidenceArtifactNumber(evidence.realUsageConfidenceEvidence, "confidenceScore") ?? 0, 0, 100),
+        realUsageCalibrationCredit,
+      )
+    : realUsageCalibrationCredit;
   const behaviorMathStatus = String(evidenceArtifactStatus(
     evidence.behaviorMathEvidence,
     "missing_or_unknown",
@@ -809,6 +851,26 @@ export function buildPublicBetaEvidenceGates(input: {
         clamp(evidenceArtifactNumber(evidence.behaviorMathEvidence, "behaviorMathConfidence") ?? 0, 0, 100),
       )
     : 0;
+  const activityVerificationStatus = String(evidenceArtifactStatus(
+    evidence.activityVerificationEvidence,
+    "missing_or_unknown",
+  ));
+  const activityVerificationQuality = resolveEvidenceQuality({
+    artifact: evidence.activityVerificationEvidence,
+    context: {
+      currentHead,
+      lane: "activity_verification",
+      requiredForExit: false,
+    },
+  });
+  const activityVerificationSourceCredit = activityVerificationQuality.quality === "source_ready"
+    && activityVerificationQuality.freshness === "fresh"
+    && (evidenceArtifactNumber(evidence.activityVerificationEvidence, "activityVerification.verifiedByActivity") ?? 0) > 0
+    ? Math.max(
+        activityVerificationQuality.partialCredit * 100,
+        clamp(evidenceArtifactNumber(evidence.activityVerificationEvidence, "activityVerification.confidenceScore") ?? 0, 0, 100),
+      )
+    : 0;
   const targetedQuality = resolveEvidenceQuality({
     artifact: evidence.targetedBehaviorEvidence,
     context: {
@@ -818,7 +880,13 @@ export function buildPublicBetaEvidenceGates(input: {
     },
   });
   const targetedBehaviorPassed = targetedQuality.quality === "formal_passed";
-  const targetedBehaviorDetail = behaviorMathSourceCredit > 0 && targetedQuality.quality === "missing"
+  const targetedSourceCredit = Math.max(
+    targetedQuality.partialCredit * 100,
+    realUsageConfidenceCredit,
+    behaviorMathSourceCredit,
+    activityVerificationSourceCredit,
+  );
+  const targetedBehaviorDetail = targetedSourceCredit > 0 && targetedQuality.quality === "missing"
     ? "Source-ready behavior math/site activity evidence was supplied; targeted behavior validator evidence is still required before treating targeted behavior tests as passed."
     : evidenceArtifactDetail(
         evidence.targetedBehaviorEvidence,
@@ -833,17 +901,29 @@ export function buildPublicBetaEvidenceGates(input: {
         ...evidenceArtifactEvidence(evidence.behaviorMathEvidence),
       ]
     : [];
+  const activityVerificationTargetedEvidence = evidence.activityVerificationEvidence
+    ? [
+        `activityVerificationStatus=${activityVerificationStatus}`,
+        `activityVerificationSourceCredit=${roundScore(activityVerificationSourceCredit)}`,
+        ...evidenceArtifactEvidence(evidence.activityVerificationEvidence),
+      ]
+    : [];
   const targetedBehaviorEvidence = evidence.targetedBehaviorEvidence
     ? [
         ...evidenceArtifactEvidence(evidence.targetedBehaviorEvidence),
         ...behaviorMathTargetedEvidence,
+        ...activityVerificationTargetedEvidence,
       ]
-    : ["targetedBehaviorArtifactStatus=missing_formal_evidence", ...behaviorMathTargetedEvidence];
+    : [
+        "targetedBehaviorArtifactStatus=missing_formal_evidence",
+        ...behaviorMathTargetedEvidence,
+        ...activityVerificationTargetedEvidence,
+      ];
   const targetedBehaviorStatus: PublicBetaReadinessStatus = targetedBehaviorPassed
     ? "Ready"
     : targetedQuality.freshness === "stale" || targetedQuality.freshness === "head_mismatch"
       ? "Stale evidence"
-      : targetedQuality.quality === "source_ready" || targetedQuality.quality === "formal_partial" || behaviorMathSourceCredit > 0
+      : targetedQuality.quality === "source_ready" || targetedQuality.quality === "formal_partial" || targetedSourceCredit > 0
         ? "Source validation only"
         : targetedQuality.quality === "failed"
         ? "Needs review"
@@ -929,47 +1009,6 @@ export function buildPublicBetaEvidenceGates(input: {
     && sourceBackedRuntimeConfidenceStatus.includes("source_ready")
     ? sourceBackedRuntimeConfidenceQuality.partialCredit * 100
     : 0;
-  const realUsageConfidenceStatus = String(evidenceArtifactStatus(
-    evidence.realUsageConfidenceEvidence,
-    "missing_or_unknown",
-  ));
-  const realUsageConfidenceQuality = resolveEvidenceQuality({
-    artifact: evidence.realUsageConfidenceEvidence,
-    context: {
-      currentHead,
-      lane: "real_usage_confidence",
-      requiredForExit: false,
-      requiresRuntimeProof: true,
-    },
-  });
-  const realUsageCalibrationStatus = String(evidenceArtifactStatus(
-    evidence.realUsageConfidenceCalibrationEvidence,
-    "missing_or_unknown",
-  ));
-  const realUsageCalibrationQuality = resolveEvidenceQuality({
-    artifact: evidence.realUsageConfidenceCalibrationEvidence,
-    context: {
-      currentHead,
-      lane: "real_usage_confidence_calibration",
-      requiredForExit: false,
-      requiresRuntimeProof: true,
-    },
-  });
-  const realUsageCalibrationCredit = realUsageCalibrationQuality.quality === "source_ready"
-    && realUsageCalibrationStatus.includes("source_ready")
-    ? Math.max(
-        realUsageCalibrationQuality.partialCredit * 100,
-        clamp(evidenceArtifactNumber(evidence.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit") ?? 0, 0, 100),
-      )
-    : 0;
-  const realUsageConfidenceCredit = realUsageConfidenceQuality.quality === "source_ready"
-    && realUsageConfidenceStatus.includes("source_ready")
-    ? Math.max(
-        realUsageConfidenceQuality.partialCredit * 100,
-        clamp(evidenceArtifactNumber(evidence.realUsageConfidenceEvidence, "confidenceScore") ?? 0, 0, 100),
-        realUsageCalibrationCredit,
-      )
-    : realUsageCalibrationCredit;
   const runtimeSmokeSubstituteMatrixStatus = String(evidenceArtifactStatus(
     evidence.runtimeSmokeSubstituteMatrixEvidence,
     "missing_or_unknown",
@@ -1255,7 +1294,7 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
       quality: targetedQuality,
       gateRequiredForExit: false,
-      sourceCredit: Math.max(targetedQuality.partialCredit * 100, realUsageConfidenceCredit, behaviorMathSourceCredit),
+      sourceCredit: targetedSourceCredit,
       runtimeCredit: 0,
     }),
     buildEvidenceGate({
