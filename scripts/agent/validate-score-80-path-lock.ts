@@ -95,7 +95,7 @@ const WEIGHTS: Array<[keyof Pick<Score80PathLockReport,
   | "costRiskScore"
   | "regressionRiskScore">, number, string]> = [
     ["sourceHealthScore", 25, "Source health is affected by failed or stale implemented source validators."],
-    ["runtimeHealthScore", 20, "Source-backed runtime confidence helps, but deployed runtime smoke remains missing."],
+    ["runtimeHealthScore", 20, "Source-backed runtime confidence helps, but deployed route evidence remains missing."],
     ["evidenceCompletenessScore", 20, "UI source coverage plus provider, runtime, and admin truth evidence is still required."],
     ["freshnessScore", 15, "Stale or missing generated evidence reports still decay freshness."],
     ["costRiskScore", 10, "Source cost readiness is partial while external billing owner review remains separate."],
@@ -166,6 +166,9 @@ function classifyDirtyPath(path: string, status: string): DirtyFile {
   }
   if (path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx" || path === "src/lib/debug/debug-backlog-builder.ts") {
     return { path, status, classification: "real_source_change_needs_review", action: "Commit admin/debug source coverage wording update." };
+  }
+  if (path === "src/lib/agent-score/score-80-reconciliation-lock.ts") {
+    return { path, status, classification: "real_source_change_needs_review", action: "Commit scoped score-80 reconciliation wording update." };
   }
   if (path === "package.json" || path === "package-lock.json") {
     return { path, status, classification: "real_source_change_needs_review", action: "Commit scoped package script update." };
@@ -247,10 +250,10 @@ function buildRemainingScoreDrag(scores: Pick<Score80PathLockReport,
 
 function refreshCommandForEvidenceGate(id: string) {
   if (id.includes("ui_source") || id.includes("visual")) return "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps; screenshots are optional reproduction only.";
-  if (id.includes("manual")) return "Attach structured evidence for the named manual gate, then run npm run check:evidence-capture-status";
-  if (id.includes("provider")) return "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status";
-  if (id.includes("runtime")) return "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status";
-  if (id.includes("admin")) return "Attach admin truth sample evidence, then run npm run check:evidence-capture-status";
+  if (id.includes("manual")) return "Produce structured source evidence for the named lane, then run npm run check:evidence-capture-status";
+  if (id.includes("provider")) return "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status";
+  if (id.includes("runtime")) return "Produce deployed route evidence, then run npm run check:evidence-capture-status";
+  if (id.includes("admin")) return "Produce admin source activity sample evidence, then run npm run check:evidence-capture-status";
   return "Run npm run check:evidence-capture-status";
 }
 
@@ -288,7 +291,7 @@ function buildArtifactBlockers(input: {
         refreshCommand: refreshCommandForEvidenceGate(id),
         nextAction: visualSourceCoverage
           ? "Run deterministic UI source coverage before optional browser reproduction."
-          : "Attach formal evidence before clearing this beta gate.",
+          : "Produce the matching source evidence before clearing this beta gate.",
       };
     });
   return [...formalEvidence, ...stale]
@@ -380,8 +383,8 @@ export function buildScore80PathLockReport(input: {
     openPrs: input.openPrs,
     evidenceStatus: input.evidenceStatus,
     nextThreeActions: [
-      "Attach deployed runtime smoke and provider smoke artifacts; source-backed confidence does not clear those gates.",
-      "Run UI source coverage and attach admin truth sample evidence so evidence completeness can move without fake proof.",
+      "Produce deployed route and provider-backed site activity evidence; source-backed confidence does not clear those gates.",
+      "Run UI source coverage and produce admin source activity sample evidence so evidence completeness can move without fake proof.",
       "Refresh or retire every stale score-impacting artifact using its listed command before re-running npm run score:beta.",
     ],
   };
@@ -467,7 +470,7 @@ ${dragRows}
 
 ## Artifacts Blocking 80
 
-| Artifact or gate | Status | Point impact | Refresh or proof action |
+| Artifact or gate | Status | Point impact | Refresh action |
 | --- | --- | ---: | --- |
 ${blockerRows}
 
@@ -496,7 +499,7 @@ ${report.nextThreeActions.map((step, index) => `${index + 1}. ${step}`).join("\n
 
 ## Boundary
 
-This lock refreshes source-backed score evidence and dirty-build prevention only. It does not mark beta exit ready and does not clear manual, provider, runtime, or admin truth gates without formal artifacts.
+This lock refreshes source-backed score evidence and dirty-build prevention only. It does not mark beta exit ready and does not clear provider-backed, deployed route, or admin source activity lanes without matching source evidence.
 `;
 }
 

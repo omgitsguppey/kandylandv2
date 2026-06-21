@@ -181,31 +181,31 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
       scoreDimension: "runtimeHealth",
       scoreImpactEstimate: 15,
       justification: `${runtimeRows} deployed route substitute rows still require a deployed route artifact before the protected lane clears.`,
-      nextAction: "Attach deployed route evidence; source/debug/telemetry proof remains partial only.",
+      nextAction: "Produce deployed route evidence; source/debug/telemetry confidence remains partial only.",
     },
   ];
 
   const remainingProviderRequiredItems: Score80RemainingItem[] = [
     {
-      id: "formal_provider_smoke",
+      id: "provider_backed_site_activity",
       label: "Provider-backed site activity evidence",
       proofType: "formal_provider_required",
       scoreDimension: "runtimeHealth",
       scoreImpactEstimate: 15,
       justification: "Operator-confirmed revenue is product confidence only and does not clear the provider artifact gate.",
-      nextAction: "Attach redacted provider-backed site activity artifact before clearing provider readiness.",
+      nextAction: "Produce redacted provider-backed site activity evidence before clearing provider readiness.",
     },
   ];
 
   const remainingAdminTruthItems: Score80RemainingItem[] = [
     {
-      id: "formal_admin_truth_sample",
-      label: "Admin source sample evidence",
+      id: "admin_source_activity_sample",
+      label: "Admin source activity sample evidence",
       proofType: "admin_truth_required",
       scoreDimension: "evidenceCompleteness",
       scoreImpactEstimate: 8,
       justification: "Admin source samples earn partial confidence, but current first-party admin source evidence is still missing.",
-      nextAction: "Attach redacted first-party admin source sample evidence and rerun the admin source sample validator.",
+      nextAction: "Produce redacted first-party admin source activity sample evidence and rerun the admin source activity sample validator.",
     },
   ];
 
@@ -321,7 +321,7 @@ export function validateScore80ReconciliationLock(report: Score80ReconciliationL
     failures.push("reconciliation lock must not clear provider-backed site activity lane.");
   }
   if (report.formalGateImpact.clearsFormalAdminTruth) {
-    failures.push("reconciliation lock must not clear admin source sample lane.");
+    failures.push("reconciliation lock must not clear admin source activity sample lane.");
   }
 
   if (report.currentScore < report.previousScore && report.scoreDropReason === "no_drop") {
