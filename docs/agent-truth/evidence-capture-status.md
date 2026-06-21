@@ -2,16 +2,16 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-21T02:41:53.034Z
+Generated: 2026-06-21T04:31:24.917Z
 
-Latest code version: `a5d8e7124557f69a6afa2c2934728eb4edbaa683`
+Latest code version: `b9b62edd078824ef5dc6c0e21df60a53a1881f43`
 
 ## Summary
 
 - UI surface coverage evidence: `complete`.
-- Provider smoke evidence: `missing`.
-- Runtime smoke evidence: `complete`.
-- Admin truth sample evidence: `stale`.
+- Provider-backed site activity evidence: `missing`.
+- Deployed route evidence: `complete`.
+- Admin source sample evidence: `stale`.
 - Templates created: 4.
 - Complete artifacts: 3.
 - Strict mode ready: yes.
@@ -20,9 +20,9 @@ Latest code version: `a5d8e7124557f69a6afa2c2934728eb4edbaa683`
 - Live runtime evidence: `live_runtime_evidence_bridge=not_observed_but_expected; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=0; not_observed_but_expected=7; runtime_export_required=3; provider_required=2; admin_truth_source_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json`.
 - Daily activity import path: `agent/evidence/live-runtime-activity/recent-activity.export.json`.
 - Operator confirmed amount/product: 50 GumDrops.
-- Formal provider proof from operator smoke: no.
+- Provider-backed evidence from operator confirmation: no.
 
-Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
+Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.
 
 Templates are scaffolding only. They use `template_not_evidence` and do not count as complete evidence.
 
@@ -35,8 +35,8 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 ## Missing Evidence
 
-- provider smoke evidence is missing.
-- admin truth sample evidence is stale.
+- provider-backed site activity evidence is missing.
+- admin source sample evidence is stale.
 
 ## Source-Ready Evidence
 
@@ -48,17 +48,17 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 - operator-confirmed GumDrop revenue smoke is recorded as product signal only.
 
-## Formal-Missing Evidence
+## Typed Evidence Still Required
 
-- provider smoke evidence is missing.
-- admin truth sample evidence is stale.
-- provider smoke remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.
-- live runtime evidence clears connected site-activity lanes; provider, admin, billing, or exact-user lanes need matching source exports before clearing.
+- provider-backed site activity evidence is missing.
+- admin source sample evidence is stale.
+- provider-backed site activity evidence remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.
+- site activity evidence clears connected site-activity lanes; provider-backed activity, admin source sample, billing, or exact-user lanes need matching source exports before clearing.
 
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current as a same-commit generated report snapshot. Command: `npm run check:current-beta-exit-status`.
 - agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
@@ -71,13 +71,13 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 ## Next Exact Steps
 
 1. Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface gaps before optional browser reproduction.
-2. Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.
-3. Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed runtime smoke evidence without provider/payment calls.
-4. Run npm run capture:truthful-evidence -- --admin-truth to generate a bounded redacted admin truth JSON sample without deployed route probes.
+2. Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider-backed site activity evidence is captured; redact provider tokens and secrets.
+3. Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed route evidence without provider/payment calls.
+4. Run npm run capture:truthful-evidence -- --admin-truth to generate a bounded redacted admin source sample without deployed route probes.
 5. Drop privacy-safe daily aggregate activity export at agent/evidence/live-runtime-activity/recent-activity.export.json.
-6. Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.
-7. Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.
-8. Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.
+6. Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider-backed site activity evidence is expected to be complete.
+7. Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once deployed route evidence is expected to be complete.
+8. Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin source sample evidence is expected to be complete.
 9. Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.
 10. Refresh generated status with npm run check:evidence-capture-status.
 11. Refresh generated status with npm run check:current-beta-exit-status.

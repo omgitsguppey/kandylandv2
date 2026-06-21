@@ -116,9 +116,9 @@ let currentCommitContext: { parentHead: string | null; changedFilesInHead: strin
 
 const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
   uiSurfaceCoverageEvidence: "UI surface coverage evidence",
-  providerSmokeEvidence: "provider smoke evidence",
-  runtimeSmokeEvidence: "runtime smoke evidence",
-  adminTruthSampleEvidence: "admin truth sample evidence",
+  providerSmokeEvidence: "provider-backed site activity evidence",
+  runtimeSmokeEvidence: "deployed route evidence",
+  adminTruthSampleEvidence: "admin source sample evidence",
 };
 
 function currentHead() {
@@ -358,15 +358,15 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     ? ["operator-confirmed GumDrop revenue smoke is recorded as product signal only."]
     : [];
   const protectedProofLanes = [
-    "provider",
-    ...(options.laneStatuses.adminTruthSampleEvidence === "complete" ? [] : ["admin"]),
+    "provider-backed activity",
+    ...(options.laneStatuses.adminTruthSampleEvidence === "complete" ? [] : ["admin source sample"]),
     "billing",
     "exact-user",
   ];
   const formalMissingEvidence = [
     ...missingEvidence,
-    "provider smoke remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.",
-    `live runtime evidence clears connected site-activity lanes; ${formatOrList(protectedProofLanes)} lanes need matching source exports before clearing.`,
+    "provider-backed site activity evidence remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.",
+    `site activity evidence clears connected site-activity lanes; ${formatOrList(protectedProofLanes)} lanes need matching source exports before clearing.`,
   ];
   const refreshPlan = buildRefreshPlan([
     reportRelativePath,
@@ -430,13 +430,13 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     completeEvidence,
     nextExactSteps: [
       "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface gaps before optional browser reproduction.",
-      "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.",
-      "Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed runtime smoke evidence without provider/payment calls.",
-      "Run npm run capture:truthful-evidence -- --admin-truth to generate a bounded redacted admin truth JSON sample without deployed route probes.",
+      "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider-backed site activity evidence is captured; redact provider tokens and secrets.",
+      "Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed route evidence without provider/payment calls.",
+      "Run npm run capture:truthful-evidence -- --admin-truth to generate a bounded redacted admin source sample without deployed route probes.",
       `Drop privacy-safe daily aggregate activity export at ${liveRuntimeEvidence.expectedImportPath}.`,
-      "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
-      "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.",
-      "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.",
+      "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider-backed site activity evidence is expected to be complete.",
+      "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once deployed route evidence is expected to be complete.",
+      "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin source sample evidence is expected to be complete.",
       "Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.",
       ...uniqueRefreshCommands(refreshPlan).map((command) => `Refresh generated status with ${command}.`),
     ],
@@ -504,10 +504,10 @@ export function validateEvidenceCaptureStatusReport(
   if (!report.sourceReadyEvidence.some((entry) => entry.includes("live runtime evidence bridge:"))) {
     failures.push("sourceReadyEvidence must include live runtime evidence bridge status.");
   }
-  if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider smoke remains source-required/iu.test(entry))) {
-    failures.push("formalMissingEvidence must keep provider smoke separated from operator confirmation and tied to provider/app source evidence.");
+  if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider-backed site activity evidence remains source-required/iu.test(entry))) {
+    failures.push("formalMissingEvidence must keep provider-backed site activity separated from operator confirmation and tied to provider/app source evidence.");
   }
-  if (!report.formalMissingEvidence.some((entry) => /clears connected site-activity lanes; provider, .*billing, .*exact-user lanes need matching source exports/iu.test(entry))) {
+  if (!report.formalMissingEvidence.some((entry) => /clears connected site-activity lanes; provider-backed activity, .*billing, .*exact-user lanes need matching source exports/iu.test(entry))) {
     failures.push("formalMissingEvidence must explain that live activity clears connected site lanes while protected lanes need matching source exports.");
   }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
@@ -519,7 +519,7 @@ export function validateEvidenceCaptureStatusReport(
       failures.push("operator-confirmed revenue smoke must keep amount/product fields.");
     }
     if (operatorRevenueSmoke.formalProviderSmokePassed || operatorRevenueSmoke.providerArtifactAttached) {
-      failures.push("operator-confirmed revenue smoke must not clear formal provider evidence.");
+      failures.push("operator-confirmed revenue smoke must not clear provider-backed site activity evidence.");
     }
     if (operatorRevenueSmoke.betaGateImpact !== "product_signal_only") {
       failures.push("operator-confirmed revenue smoke must be product_signal_only.");
@@ -596,9 +596,9 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     "## Summary",
     "",
     `- UI surface coverage evidence: \`${report.summary.uiSurfaceCoverageEvidence}\`.`,
-    `- Provider smoke evidence: \`${report.summary.providerSmokeEvidence}\`.`,
-    `- Runtime smoke evidence: \`${report.summary.runtimeSmokeEvidence}\`.`,
-    `- Admin truth sample evidence: \`${report.summary.adminTruthSampleEvidence}\`.`,
+    `- Provider-backed site activity evidence: \`${report.summary.providerSmokeEvidence}\`.`,
+    `- Deployed route evidence: \`${report.summary.runtimeSmokeEvidence}\`.`,
+    `- Admin source sample evidence: \`${report.summary.adminTruthSampleEvidence}\`.`,
     `- Templates created: ${report.summary.templatesCreated}.`,
     `- Complete artifacts: ${report.summary.completeArtifacts}.`,
     `- Strict mode ready: ${report.summary.strictModeReady ? "yes" : "no"}.`,
@@ -607,10 +607,10 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     `- Live runtime evidence: \`${report.summary.liveRuntimeEvidence.statusSummary}\`.`,
     `- Daily activity import path: \`${report.summary.liveRuntimeEvidence.expectedImportPath}\`.`,
     `- Operator confirmed amount/product: ${report.summary.operatorRevenueSmoke.amountUsdConfirmed ?? "n/a"} ${report.summary.operatorRevenueSmoke.product}.`,
-    `- Formal provider proof from operator smoke: ${report.summary.operatorRevenueSmoke.formalProviderSmokePassed ? "yes" : "no"}.`,
+    `- Provider-backed evidence from operator confirmation: ${report.summary.operatorRevenueSmoke.formalProviderSmokePassed ? "yes" : "no"}.`,
     "",
     report.summary.operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
-      ? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."
+      ? "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate."
       : "No operator-confirmed revenue smoke artifact is recorded.",
     "",
     "Templates are scaffolding only. They use `template_not_evidence` and do not count as complete evidence.",
@@ -631,7 +631,7 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     "",
     ...(report.operatorConfirmedEvidence.length > 0 ? report.operatorConfirmedEvidence.map((item) => `- ${item}`) : ["- None."]),
     "",
-    "## Formal-Missing Evidence",
+    "## Typed Evidence Still Required",
     "",
     ...(report.formalMissingEvidence.length > 0 ? report.formalMissingEvidence.map((item) => `- ${item}`) : ["- None."]),
     "",
