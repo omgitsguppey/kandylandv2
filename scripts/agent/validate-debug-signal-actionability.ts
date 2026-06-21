@@ -228,7 +228,7 @@ function buildScores(finalLock: JsonRecord | null, publicBetaScore: JsonRecord |
       status: after >= 80 ? "target_met" : "below_target",
       nextExactAction: after >= 80
         ? "No score-80 action required for this dimension."
-        : text(prior.nextExactAction) || "Work the highest actionability signal for this dimension without clearing formal gates falsely.",
+        : text(prior.nextExactAction) || "Work the highest actionability signal for this dimension without claiming provider-backed site activity, deployed route evidence, or admin source activity sample evidence from source-only validation.",
     };
     scoreBefore[dimension] = before;
     scoreAfter[dimension] = after;
@@ -414,7 +414,7 @@ export function validateDebugSignalActionabilityReport(report: DebugSignalAction
     failures.push("signal lacks owner or nextAction.");
   }
   if (report.actionabilitySummary.defaultVisibleSignals.some((signal) => signal.actionability === "formal_gate" && /telemetry/iu.test(signal.signalType))) {
-    failures.push("formal gate appears as telemetry bug.");
+    failures.push("formal_gate evidence item appears as telemetry bug.");
   }
   if (report.defaultDebugPanel.quietFutureActivityDefaultVisible !== false) {
     failures.push("debug panel default includes quiet future activity.");
@@ -460,8 +460,8 @@ function renderDoc(report: DebugSignalActionabilityReport) {
     "",
     "- Default debug output shows only fix_now, score_impacting, evidence_required, and formal_gate signals.",
     "- Quiet future activity, informational, duplicate, superseded, and not_actionable signals stay hidden by default.",
-    "- Formal gates remain evidence gates and do not become telemetry bugs.",
-    "- This pass does not fake evidence, fake activity, read production data, deploy, or clear formal gates.",
+    "- Schema formal_gate entries remain typed evidence gates and do not become telemetry bugs.",
+    "- This pass does not fake evidence, fake activity, read production data, deploy, or clear provider-backed site activity, deployed route, or admin source activity sample gates.",
     "",
     "## Actionability Summary",
     "",
@@ -471,7 +471,7 @@ function renderDoc(report: DebugSignalActionabilityReport) {
     `- Hidden by default: ${report.actionabilitySummary.hiddenByDefaultCount}`,
     `- Quiet future activity: ${report.actionabilitySummary.quietFutureActivityCount}`,
     `- Duplicate signals collapsed: ${report.actionabilitySummary.duplicateSignalCount}`,
-    `- Formal gates: ${report.actionabilitySummary.formalGateCount}`,
+    `- Typed evidence gates (formal_gate): ${report.actionabilitySummary.formalGateCount}`,
     "",
     "## Score Dimensions",
     "",

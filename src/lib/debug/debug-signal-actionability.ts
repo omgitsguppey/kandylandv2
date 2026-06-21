@@ -253,7 +253,7 @@ function validateScoredSignals(signals: DebugSignalActionabilityResult[]) {
       failures.push(`${signal.signalId} quiet future activity appears as P1/P2.`);
     }
     if (signal.actionability === "formal_gate" && /telemetry/iu.test(signal.signalType)) {
-      failures.push(`${signal.signalId} formal gate appears as telemetry bug.`);
+      failures.push(`${signal.signalId} formal_gate evidence item appears as telemetry bug.`);
     }
     if (
       ["fix_now", "score_impacting", "formal_gate"].includes(signal.actionability)

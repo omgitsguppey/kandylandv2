@@ -31,7 +31,7 @@ describe("debug signal actionability", () => {
     expect(scored.scoreDimensionsAffected).toEqual([]);
   });
 
-  it("classifies formal gates separately from telemetry bugs", () => {
+  it("classifies formal_gate evidence lanes separately from telemetry bugs", () => {
     const scored = classifyDebugSignalActionability({
       signalId: "provider-smoke",
       signalType: "telemetry",
@@ -40,14 +40,16 @@ describe("debug signal actionability", () => {
       scoreDimensionsAffected: ["runtimeHealth"],
       scoreImpact: 16.33,
       owner: "provider_evidence",
-      nextAction: "Attach formal provider smoke evidence.",
-      sourceMessage: "Runtime/provider smoke remains missing.",
+      nextAction: "Attach redacted provider-backed site activity evidence and deployed route evidence.",
+      sourceMessage: "Provider-backed site activity and deployed route evidence remain missing.",
     });
 
     expect(scored.actionability).toBe("formal_gate");
     expect(scored.signalType).toBe("formal_gate");
     expect(scored.defaultVisible).toBe(true);
     expect(scored.estimatedPointImpact).toBe(16.33);
+    expect(scored.nextAction).toContain("provider-backed site activity");
+    expect(scored.nextAction).not.toMatch(/formal provider smoke|runtime\/provider smoke/iu);
   });
 
   it("collapses duplicate debug signals under one parent and keeps score impact on the parent", () => {
@@ -60,7 +62,7 @@ describe("debug signal actionability", () => {
         scoreDimensionsAffected: ["runtimeHealth"],
         scoreImpact: 10,
         owner: "runtime_evidence",
-        nextAction: "Attach deployed runtime smoke.",
+        nextAction: "Attach deployed route evidence.",
       },
       {
         signalId: "runtime-smoke-b",
@@ -70,7 +72,7 @@ describe("debug signal actionability", () => {
         scoreDimensionsAffected: ["runtimeHealth"],
         scoreImpact: 2,
         owner: "admin_debug",
-        nextAction: "Same runtime smoke blocker.",
+        nextAction: "Same deployed route evidence blocker.",
       },
     ]);
 
@@ -112,7 +114,7 @@ describe("debug signal actionability", () => {
         runtimeHealthScore: 67.75,
         evidenceCompletenessScore: 39.25,
         evidenceCapDetails: [
-          "Runtime unverified: Runtime/provider smoke - Formal provider/runtime evidence is missing.",
+          "Source evidence required: Provider-backed site activity + deployed route evidence - Provider-backed site activity and deployed route evidence are missing.",
         ],
       },
       debugPanelItems: [
@@ -130,7 +132,7 @@ describe("debug signal actionability", () => {
 
     const summary = summarizeDebugBacklog(backlog);
     const quiet = backlog.find((item) => item.id === "debug-panel-future-activity-catalog");
-    const formal = backlog.find((item) => item.id.startsWith("beta-cap-runtime-unverified-runtime-provider-smoke"));
+    const formal = backlog.find((item) => item.id.startsWith("beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence"));
 
     expect(quiet?.actionability).toBe("quiet_future_activity");
     expect(quiet?.severity).toBe("info");
@@ -140,6 +142,7 @@ describe("debug signal actionability", () => {
     expect(summary.defaultVisible).toBe(1);
     expect(summary.quietFutureActivity).toBe(1);
     expect(summary.p0P1Open).toBe(1);
+    expect(JSON.stringify(backlog)).not.toMatch(/formal provider smoke|runtime\/provider smoke|deployed runtime smoke/iu);
     expect(validateDebugBacklog(backlog)).toEqual([]);
   });
 });
