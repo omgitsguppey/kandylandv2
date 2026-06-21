@@ -85,7 +85,7 @@ Beta health algorithm v2 layers a nuanced health model on top of these legacy-co
 - cost risk: Cloud Run, SQL/Data Connect, Gemini/Cloud Assist, BigQuery, and 4xx readiness
 - regression risk: outdated reports, open PR freshness, and high-blast changes after evidence
 
-Missing required evidence blocks launch and reduces confidence, but it does not erase unrelated source health. Source-ready evidence can raise `sourceHealthScore`; it cannot produce `runtimeHealthScore` proof or `launch_ready`. Owner-review cost lanes are partial risk, not passes.
+Missing required evidence blocks launch and reduces confidence, but it does not erase unrelated source health. Source-ready evidence can raise `sourceHealthScore`; it cannot produce provider-backed site activity, deployed route evidence, admin source activity evidence, or `launch_ready`. Owner-review cost lanes are partial risk, not passes.
 
 Generated reports are evidence snapshots, not doctrine. Reports older than 24 hours must be refreshed or treated as outdated evidence before a readiness claim is trusted.
 

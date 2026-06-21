@@ -386,7 +386,7 @@ describe("public beta scoring math", () => {
                 ...freshEvidence,
                 targetedBehaviorEvidence: {
                     ...freshEvidence.targetedBehaviorEvidence,
-                    detail: "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
+                    detail: "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not close provider-backed site activity, deployed route evidence, or admin source activity evidence.",
                     evidence: [
                         "targetedBehavior.status=passed",
                         "formalEvidenceImpact=source_behavior_only",
@@ -399,17 +399,17 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.status).toBe("Source validation only");
         expect(targetedGate?.evidenceQuality).toBe("source_ready");
         expect(targetedGate?.runtimeCredit).toBe(0);
-        expect(targetedGate?.detail).toContain("does not prove provider smoke");
+        expect(targetedGate?.detail).toContain("does not close provider-backed site activity");
         expect(targetedGate?.partialReason).toContain("matching site activity records");
         expect(targetedGate?.partialReason).not.toContain("manual proof");
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove visual review");
-        expect(targetedGate?.detail).toContain("does not prove provider smoke");
+        expect(targetedGate?.detail).toContain("does not close provider-backed site activity");
     });
 
-    it("does not score stale formal smoke and admin artifacts as current proof", () => {
+    it("does not score stale site activity and admin artifacts as current source evidence", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {

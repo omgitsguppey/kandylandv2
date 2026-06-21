@@ -1571,7 +1571,7 @@ function summarizeEvidenceGateStates(gates: PublicBetaEvidenceGate[]) {
 
   return {
     openGates,
-    detail: `Open evidence gates: ${summary}. Source checks stay separate from provider, deployed runtime, and admin truth proof.`,
+    detail: `Open evidence gates: ${summary}. Source checks stay separate from provider-backed site activity, deployed route evidence, and admin source activity evidence.`,
   };
 }
 
