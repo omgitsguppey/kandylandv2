@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-21T02:02:31.865Z",
-  "currentHead": "e54ddb5d808eaab37e27af564710c6ee01ec68ac",
+  "generatedAtUtc": "2026-06-21T02:50:25.708Z",
+  "currentHead": "2c237ad2644314be914c0acf08a833f8135d5e5f",
   "betaScore": 73.57,
   "betaStatus": "External proof required",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
@@ -122,5 +122,5 @@
       "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
     }
   ],
-  "betaExitReviewState": "blocked_by_formal_evidence"
+  "betaExitReviewState": "blocked_by_source_evidence"
 }

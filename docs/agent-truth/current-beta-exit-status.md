@@ -1,8 +1,8 @@
 # Current Beta Exit Status
 
-Generated: 2026-06-21T02:02:31.865Z
+Generated: 2026-06-21T02:50:25.708Z
 
-Latest code version: e54ddb5d808eaab37e27af564710c6ee01ec68ac
+Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
 
 ## Summary
 
@@ -30,7 +30,7 @@ Latest code version: e54ddb5d808eaab37e27af564710c6ee01ec68ac
 - Provider smoke: external_evidence_required; action=refresh_stale_evidence; source=stale_provider_smoke_evidence; capture=missing
 - Runtime smoke: external_evidence_required; action=refresh_stale_evidence; source=stale_runtime_smoke_evidence; capture=complete
 - Admin truth sample: admin_truth_source_required; action=refresh_stale_evidence; source=stale_admin_truth_sample_evidence; capture=stale
-- Beta exit review: blocked_by_formal_evidence
+- Beta exit review: blocked_by_source_evidence
 
 ## Refresh Plan
 

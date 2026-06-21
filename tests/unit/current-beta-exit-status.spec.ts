@@ -18,7 +18,7 @@ const operatorRevenueSmoke = JSON.parse(
 };
 const operatorRevenueSmokeAmount = operatorRevenueSmoke.summary?.amountUsdConfirmed ?? null;
 const operatorRevenueSmokeNote = operatorRevenueSmoke.plainLanguageNote
-  ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
+  ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.";
 
 function proofLanesFor(
   summary: Omit<CurrentBetaExitStatusReport["summary"], "proofLanes">,
@@ -50,7 +50,7 @@ function proofLanesFor(
       truthState: summary.providerSmokeStatus.startsWith("stale_")
         ? "external_evidence_required"
         : summary.providerSmokeStatus.includes("formal_provider_smoke_passed")
-          ? "current_formal_evidence"
+          ? "current_source_evidence"
           : "external_evidence_required",
       actionState: summary.providerSmokeStatus.startsWith("stale_")
         ? "refresh_stale_evidence"
@@ -70,7 +70,7 @@ function proofLanesFor(
       truthState: summary.runtimeSmokeStatus.startsWith("stale_")
         ? "external_evidence_required"
         : summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed")
-          ? "current_formal_evidence"
+          ? "current_source_evidence"
           : "external_evidence_required",
       actionState: summary.runtimeSmokeStatus.startsWith("stale_")
         ? "refresh_stale_evidence"
@@ -90,7 +90,7 @@ function proofLanesFor(
       truthState: summary.adminTruthSampleStatus.startsWith("stale_")
         ? "admin_truth_source_required"
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
-          ? "current_formal_evidence"
+          ? "current_source_evidence"
           : "admin_truth_source_required",
       actionState: summary.adminTruthSampleStatus.startsWith("stale_")
         ? "refresh_stale_evidence"
@@ -152,7 +152,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       liveRuntimeEvidenceStatus: "live_runtime_evidence_bridge=source_ready_waiting_for_activity; live_activity_confirmed=0; aggregate_activity_confirmed=0; not_observed_but_expected=6; provider_required=2; admin_truth_source_required=1; billing_required=1; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
       speedSecurityStatus: "51/beta-risk; findings=91; critical=0",
       releaseNotesStatus: "passed_same_commit_validator",
-      betaExitReviewState: "blocked_by_formal_evidence",
+      betaExitReviewState: "blocked_by_source_evidence",
       proofLanes: [],
     },
     checksRun: [
@@ -356,7 +356,7 @@ describe("current beta exit status validator", () => {
     });
   });
 
-  it("classifies stale formal proof lanes by required source action", () => {
+  it("classifies stale proof lanes by required source action", () => {
     const { proofLanes: _proofLanes, ...summaryWithoutProofLanes } = reportFixture().summary;
     const staleSummary = {
       ...summaryWithoutProofLanes,

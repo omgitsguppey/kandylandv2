@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T02:15:32.055Z",
+  "generatedAtUtc": "2026-06-21T02:50:25.762Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "a264c232bdfaea10532430a688c0b80e56d7cf2b",
+  "currentHead": "2c237ad2644314be914c0acf08a833f8135d5e5f",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 73.57,
@@ -42,7 +42,7 @@
     "liveRuntimeEvidenceStatus": "live_runtime_evidence_bridge=not_observed_but_expected; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=0; not_observed_but_expected=7; runtime_export_required=3; provider_required=2; admin_truth_source_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
     "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
-    "betaExitReviewState": "blocked_by_formal_evidence",
+    "betaExitReviewState": "blocked_by_source_evidence",
     "proofLanes": [
       {
         "id": "uiSurfaceCoverage",
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-21T02:15:32.055Z",
+      "generatedAtUtc": "2026-06-21T02:50:25.762Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -477,8 +477,8 @@
   "nextExactSteps": [
     "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface issue before optional browser reproduction.",
     "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
-    "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider proof.",
-    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime smoke proof.",
+    "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider source evidence.",
+    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime source evidence.",
     "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted production admin truth samples.",
     "Reference agent/state/evidence-capture-status.generated.json.",
     "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked."

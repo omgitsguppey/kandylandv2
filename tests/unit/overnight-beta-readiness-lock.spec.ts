@@ -107,7 +107,7 @@ function reportFixture(
         nextAction: "Attach admin truth sample evidence.",
       },
     ],
-    betaExitReviewState: "blocked_by_formal_evidence",
+    betaExitReviewState: "blocked_by_source_evidence",
     ...overrides,
   };
 }

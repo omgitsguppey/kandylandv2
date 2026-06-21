@@ -25,20 +25,18 @@ export type CurrentBetaExitProofLaneId =
   | "adminTruthSample";
 
 export type CurrentBetaExitProofTruthState =
-  | "current_formal_evidence"
+  | "current_source_evidence"
   | "stale_evidence"
   | "external_evidence_required"
-  | "manual_evidence_required"
   | "admin_truth_source_required"
   | "source_ui_surface_current"
   | "source_evidence_required"
-  | "source_only_not_formal"
+  | "source_only_not_clearing"
   | "unknown";
 
 export type CurrentBetaExitProofActionState =
   | "gate_cleared"
   | "refresh_stale_evidence"
-  | "attach_manual_evidence"
   | "attach_external_evidence"
   | "attach_admin_truth_sample"
   | "run_source_ui_checks"
@@ -47,7 +45,7 @@ export type CurrentBetaExitProofActionState =
 
 export type CurrentBetaExitReviewState =
   | "ready_for_review"
-  | "blocked_by_formal_evidence"
+  | "blocked_by_source_evidence"
   | "blocked_by_live_evidence"
   | "blocked_by_launch_gate";
 
@@ -314,7 +312,7 @@ function boolValue(value: unknown) {
   return value === true;
 }
 
-export function formalEvidenceStatus(
+export function sourceArtifactStatus(
   artifact: Record<string, unknown> | null,
   head: string,
   fallback: string,
@@ -363,7 +361,7 @@ function uiSurfaceCoverageIsCurrentByImpact(artifact: Record<string, unknown> | 
   return isGeneratedArtifactCurrent(version);
 }
 
-function formalStatusPassed(id: CurrentBetaExitProofLaneId, status: string) {
+function clearingStatusPassed(id: CurrentBetaExitProofLaneId, status: string) {
   if (id === "uiSurfaceCoverage") return /source_surface_checks_current|source_ui_surface_current|not_required/iu.test(status);
   if (id === "providerSmoke") return /formal_provider_smoke_passed|passed_formal_evidence/iu.test(status);
   if (id === "runtimeSmoke") return /formal_runtime_smoke_passed|passed_formal_evidence/iu.test(status);
@@ -378,7 +376,7 @@ function proofTruthStateFor(input: {
   head: string;
 }): CurrentBetaExitProofTruthState {
   const artifactStatus = stringValue(input.artifact?.overallStatus ?? input.artifact?.status, input.sourceStatus);
-  const hasFormalPassingStatus = formalStatusPassed(input.id, input.sourceStatus) || formalStatusPassed(input.id, artifactStatus);
+  const hasClearingStatus = clearingStatusPassed(input.id, input.sourceStatus) || clearingStatusPassed(input.id, artifactStatus);
   const isStaleSource = (
     artifactIsStale(input.artifact, input.head)
     && !(input.id === "uiSurfaceCoverage" && uiSurfaceCoverageIsCurrentByImpact(input.artifact))
@@ -386,26 +384,26 @@ function proofTruthStateFor(input: {
 
   if (input.id === "uiSurfaceCoverage") {
     if (isStaleSource) return "stale_evidence";
-    if (hasFormalPassingStatus) return "source_ui_surface_current";
+    if (hasClearingStatus) return "source_ui_surface_current";
     return "source_evidence_required";
   }
 
-  if (hasFormalPassingStatus) {
+  if (hasClearingStatus) {
     if (!isStaleSource && input.captureStatus === "complete") {
-      return "current_formal_evidence";
+      return "current_source_evidence";
     }
     if (input.id === "adminTruthSample") return "admin_truth_source_required";
     if (input.id === "providerSmoke" || input.id === "runtimeSmoke") return "external_evidence_required";
     return "stale_evidence";
   }
   if (/source_only/iu.test(input.sourceStatus)) {
-    return "source_only_not_formal";
+    return "source_only_not_clearing";
   }
   if (input.id === "adminTruthSample") {
     return "admin_truth_source_required";
   }
   if (/source_ready/iu.test(artifactStatus)) {
-    return "source_only_not_formal";
+    return "source_only_not_clearing";
   }
   if (input.id === "providerSmoke" || input.id === "runtimeSmoke") {
     return "external_evidence_required";
@@ -421,17 +419,15 @@ function proofActionStateFor(
   truthState: CurrentBetaExitProofTruthState,
   sourceStatus = "",
 ): CurrentBetaExitProofActionState {
-  if (truthState === "current_formal_evidence") return "gate_cleared";
+  if (truthState === "current_source_evidence") return "gate_cleared";
   if (truthState === "source_ui_surface_current") return "gate_cleared";
   if (truthState === "stale_evidence") return "refresh_stale_evidence";
   if (truthState === "source_evidence_required") return "run_source_ui_checks";
-  if (truthState === "source_only_not_formal") return "source_only_cannot_clear";
+  if (truthState === "source_only_not_clearing") return "source_only_cannot_clear";
   if (/^stale_/iu.test(sourceStatus) && (
-    truthState === "manual_evidence_required"
-    || truthState === "external_evidence_required"
+    truthState === "external_evidence_required"
     || truthState === "admin_truth_source_required"
   )) return "refresh_stale_evidence";
-  if (truthState === "manual_evidence_required") return "attach_manual_evidence";
   if (truthState === "admin_truth_source_required") return "attach_admin_truth_sample";
   if (truthState === "external_evidence_required") return "attach_external_evidence";
   return id === "adminTruthSample" ? "attach_admin_truth_sample" : "unknown";
@@ -457,7 +453,7 @@ function buildProofLane(input: {
     sourcePath: input.sourcePath,
     captureStatus: input.captureStatus,
     sourceCommit: artifactCommit(input.artifact),
-    canClearGate: truthState === "current_formal_evidence" || truthState === "source_ui_surface_current",
+    canClearGate: truthState === "current_source_evidence" || truthState === "source_ui_surface_current",
     nextAction: input.nextAction,
   };
 }
@@ -527,7 +523,7 @@ export function betaExitReviewStateFor(input: {
   liveRuntimeEvidenceStatus: string | undefined;
   proofLanes: CurrentBetaExitProofLane[];
 }): CurrentBetaExitReviewState {
-  if (input.proofLanes.some((lane) => lane.canClearGate !== true)) return "blocked_by_formal_evidence";
+  if (input.proofLanes.some((lane) => lane.canClearGate !== true)) return "blocked_by_source_evidence";
   if (liveRuntimeEvidenceBlocksReview(input.liveRuntimeEvidenceStatus)) return "blocked_by_live_evidence";
   if (input.launchGateStatus !== "launch_ready") return "blocked_by_launch_gate";
   return "ready_for_review";
@@ -543,10 +539,10 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
   const operator = readOperatorRevenueSmoke();
   const captureSummary = evidenceCapture?.summary ?? {};
   const generatedAtUtc = new Date().toISOString();
-  const providerSmokeStatus = formalEvidenceStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
-  const runtimeSmokeStatus = formalEvidenceStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
-  const adminTruthSampleStatus = formalEvidenceStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence");
-  const visualEvidenceStatus = formalEvidenceStatus(uiSurfaceCoverage, head, report.summary.visualEvidenceStatus, "stale_visual_evidence", {
+  const providerSmokeStatus = sourceArtifactStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
+  const runtimeSmokeStatus = sourceArtifactStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
+  const adminTruthSampleStatus = sourceArtifactStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence");
+  const visualEvidenceStatus = sourceArtifactStatus(uiSurfaceCoverage, head, report.summary.visualEvidenceStatus, "stale_visual_evidence", {
     artifactPath: uiSurfaceCoverageRelativePath,
     ownedSourcePaths: uiSurfaceCoverageOwnedInputPaths,
   });
@@ -594,7 +590,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     operatorRevenueSmokeFormalProviderSmokePassed: operator?.summary?.formalProviderSmokePassed ?? false,
     operatorRevenueSmokeBetaGateImpact: operator?.summary?.betaGateImpact ?? report.summary.operatorRevenueSmokeBetaGateImpact,
     operatorRevenueSmokeNote: operator?.plainLanguageNote
-      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
+      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.",
     liveRuntimeEvidenceStatus,
     betaExitReviewState: betaExitReviewStateFor({
       launchGateStatus,
@@ -645,8 +641,8 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     nextExactSteps: [
       "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface issue before optional browser reproduction.",
       "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
-      "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider proof.",
-      "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime smoke proof.",
+      "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider source evidence.",
+      "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime source evidence.",
       "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted production admin truth samples.",
       `Reference ${evidenceCaptureStatusRelativePath}.`,
       "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
@@ -737,7 +733,7 @@ export function validateCurrentBetaExitStatusReport(
     report.summary.betaExitReviewState === "ready_for_review"
     && liveRuntimeEvidenceBlocksReview(report.summary.liveRuntimeEvidenceStatus)
   ) {
-    failures.push("betaExitReviewState must not be ready_for_review while live runtime evidence bridge has formal or unobserved blockers.");
+    failures.push("betaExitReviewState must not be ready_for_review while live runtime evidence bridge has source-required or unobserved blockers.");
   }
   const costLaneValues = [
     report.summary.cloudRunCostReadiness,
@@ -784,17 +780,17 @@ export function validateCurrentBetaExitStatusReport(
     if (typeof lane.captureStatus !== "string" || lane.captureStatus.trim().length === 0) {
       failures.push(`${lane.id} proof lane must include captureStatus.`);
     }
-    if (/^stale_/iu.test(lane.sourceStatus) && lane.truthState === "current_formal_evidence") {
-      failures.push(`${lane.id} stale proof source must not clear a formal gate.`);
+    if (/^stale_/iu.test(lane.sourceStatus) && lane.truthState === "current_source_evidence") {
+      failures.push(`${lane.id} stale proof source must not clear a source gate.`);
     }
-    if (lane.canClearGate && lane.truthState !== "current_formal_evidence" && lane.truthState !== "source_ui_surface_current") {
-      failures.push(`${lane.id} proof lane canClearGate must only be true for current_formal_evidence or source_ui_surface_current.`);
+    if (lane.canClearGate && lane.truthState !== "current_source_evidence" && lane.truthState !== "source_ui_surface_current") {
+      failures.push(`${lane.id} proof lane canClearGate must only be true for current_source_evidence or source_ui_surface_current.`);
     }
     if (lane.actionState !== proofActionStateFor(lane.id, lane.truthState, lane.sourceStatus)) {
       failures.push(`${lane.id} proof lane actionState must be derived from truthState and sourceStatus.`);
     }
-    if (lane.truthState === "current_formal_evidence" && !formalStatusPassed(lane.id, lane.sourceStatus)) {
-      failures.push(`${lane.id} current_formal_evidence must come from a formal passed source status.`);
+    if (lane.truthState === "current_source_evidence" && !clearingStatusPassed(lane.id, lane.sourceStatus)) {
+      failures.push(`${lane.id} current_source_evidence must come from a clearing source status.`);
     }
   }
   const legacySummary = report.summary as Record<string, unknown>;
@@ -819,7 +815,7 @@ export function validateCurrentBetaExitStatusReport(
       ? summary.amountUsdConfirmed
       : null;
     const expectedNote = operatorRevenueSmoke.plainLanguageNote
-      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
+      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.";
     if (report.summary.operatorRevenueSmokeStatus !== "operator_confirmed_revenue_smoke") {
       failures.push("operator-confirmed revenue smoke must be represented in current beta exit status.");
     }
@@ -835,16 +831,16 @@ export function validateCurrentBetaExitStatusReport(
       || summary.providerArtifactAttached
       || summary.formalProviderSmokePassed
     ) {
-      failures.push("operator-confirmed revenue smoke must not clear formal provider evidence.");
+      failures.push("operator-confirmed revenue smoke must not clear provider source evidence.");
     }
     if (report.summary.operatorRevenueSmokeBetaGateImpact !== "product_signal_only") {
       failures.push("operator-confirmed revenue smoke betaGateImpact must be product_signal_only.");
     }
     if (report.summary.operatorRevenueSmokeNote !== expectedNote) {
-      failures.push("operator-confirmed revenue smoke note must separate product signal from formal provider evidence.");
+      failures.push("operator-confirmed revenue smoke note must separate product signal from provider source evidence.");
     }
     if (!["missing_formal_evidence", "operator_reported_not_formal_provider_smoke", "stale_provider_smoke_evidence"].includes(report.summary.providerSmokeStatus)) {
-      failures.push("provider smoke gate must remain missing/stale formal evidence after operator confirmation.");
+      failures.push("provider smoke gate must remain missing/stale provider source evidence after operator confirmation.");
     }
     if (summary.canStartBetaExitReview === true || report.summary.betaExitReviewState === "ready_for_review") {
       failures.push("operator-confirmed revenue smoke alone must not mark betaExitReviewState ready_for_review.");

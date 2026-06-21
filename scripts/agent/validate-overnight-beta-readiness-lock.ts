@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   betaExitReviewStateFor,
   buildProofLanes,
-  formalEvidenceStatus,
+  sourceArtifactStatus,
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitStatusReport,
 } from "./validate-current-beta-exit-status";
@@ -49,7 +49,7 @@ export type OvernightEvidenceCaptureLane = {
 export type OvernightBetaExitReviewState =
   | "ready_for_review"
   | "blocked_by_source_state"
-  | "blocked_by_formal_evidence";
+  | "blocked_by_source_evidence";
 
 export type OvernightBetaReadinessLockReport = {
   generatedAtUtc: string;
@@ -389,7 +389,7 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
     betaExitReviewState: !canStartEvidence
       ? "blocked_by_source_state"
       : evidenceCaptureStates.some((lane) => lane.truthState !== "capture_artifact_attached")
-        ? "blocked_by_formal_evidence"
+        ? "blocked_by_source_evidence"
         : "ready_for_review",
   };
 }
@@ -440,9 +440,9 @@ export function validateOvernightBetaReadinessLockReport(
     }
   }
   if (!Array.isArray(report.evidenceCaptureStates) || report.evidenceCaptureStates.length !== 4) {
-    failures.push("evidenceCaptureStates must include all four formal evidence lanes.");
+    failures.push("evidenceCaptureStates must include all four source evidence lanes.");
   }
-  if (!["ready_for_review", "blocked_by_source_state", "blocked_by_formal_evidence"].includes(report.betaExitReviewState)) {
+  if (!["ready_for_review", "blocked_by_source_state", "blocked_by_source_evidence"].includes(report.betaExitReviewState)) {
     failures.push("betaExitReviewState must be a source-derived truth state.");
   }
   if (!/\bp0=0\b/iu.test(report.cost4xxStatus) || !/\bp1=0\b/iu.test(report.cost4xxStatus)) {
@@ -462,10 +462,10 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
   const provider = readJson("agent/state/provider-smoke-evidence.generated.json");
   const runtime = readJson("agent/state/runtime-smoke-evidence.generated.json");
   const admin = readJson("agent/state/admin-truth-sample-evidence.generated.json");
-  const visualEvidenceStatus = formalEvidenceStatus(uiSurfaceCoverage, report.currentHead, "source_surface_checks_current", "stale_visual_evidence");
-  const providerSmokeStatus = formalEvidenceStatus(provider, report.currentHead, "missing_formal_evidence", "stale_provider_smoke_evidence");
-  const runtimeSmokeStatus = formalEvidenceStatus(runtime, report.currentHead, "runtime_unverified", "stale_runtime_smoke_evidence");
-  const adminTruthSampleStatus = formalEvidenceStatus(admin, report.currentHead, "missing_or_unknown", "stale_admin_truth_sample_evidence");
+  const visualEvidenceStatus = sourceArtifactStatus(uiSurfaceCoverage, report.currentHead, "source_surface_checks_current", "stale_visual_evidence");
+  const providerSmokeStatus = sourceArtifactStatus(provider, report.currentHead, "missing_formal_evidence", "stale_provider_smoke_evidence");
+  const runtimeSmokeStatus = sourceArtifactStatus(runtime, report.currentHead, "runtime_unverified", "stale_runtime_smoke_evidence");
+  const adminTruthSampleStatus = sourceArtifactStatus(admin, report.currentHead, "missing_or_unknown", "stale_admin_truth_sample_evidence");
   const proofLanes = buildProofLanes({
     head: report.currentHead,
     visualEvidenceStatus,
