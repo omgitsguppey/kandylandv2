@@ -105,6 +105,36 @@ function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 }
 
+function currentCommitOnlyRefreshesAdminTruthEvidence(expectedHead: string, artifactHead: string) {
+  try {
+    const parentHead = execFileSync("git", ["rev-parse", `${expectedHead}^`], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    if (parentHead !== artifactHead) return false;
+    const changedFiles = execFileSync("git", ["diff-tree", "--no-commit-id", "--name-only", "-r", expectedHead], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .split(/\r?\n/u)
+      .map((entry) => entry.trim().replace(/\\/g, "/"))
+      .filter(Boolean);
+    return changedFiles.length > 0 && changedFiles.every((entry) =>
+      entry.startsWith(`${evidenceFolder}/`)
+      || entry === "agent/state/admin-truth-sample-evidence.generated.json"
+      || entry === "agent/state/admin-truth-source-sample.generated.json"
+      || entry === "agent/state/evidence-capture-status.generated.json"
+      || entry === "agent/state/public-beta-score.generated.json"
+      || entry === "docs/agent-truth/admin-truth-source-sample.md"
+      || entry === "docs/agent-truth/evidence-capture-status.md"
+    );
+  } catch {
+    return false;
+  }
+}
+
 function hoursBetween(leftUtc: string, rightUtc: string) {
   const left = Date.parse(leftUtc);
   const right = Date.parse(rightUtc);
@@ -132,7 +162,10 @@ export function adminTruthSampleEvidenceStaleReasons(
       : "";
   if (!artifactHead) {
     reasons.push("admin truth complete evidence must include currentHead or sourceCommit to clear the current-code gate.");
-  } else if (artifactHead !== expectedHead) {
+  } else if (
+    artifactHead !== expectedHead
+    && !currentCommitOnlyRefreshesAdminTruthEvidence(expectedHead, artifactHead)
+  ) {
     reasons.push(`admin truth evidence currentHead ${artifactHead} does not match ${expectedHead}.`);
   }
 
