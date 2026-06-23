@@ -155,7 +155,7 @@ function FormSectionCard({
                     {summary ? <p className="mt-1 text-xs text-gray-400">{summary}</p> : null}
                     {errorSummary ? <p className="mt-1 text-xs font-semibold text-red-300">{errorSummary}</p> : null}
                 </div>
-                {open ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-500" /> : <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />}
+                {open ? <ChevronUp aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" /> : <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />}
             </button>
             {open ? <div className="border-t border-white/6 px-4 pb-4 pt-3">{children}</div> : null}
         </div>
@@ -209,7 +209,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                     <p className="mt-1 text-xs text-gray-400">{summary.replace(/[^\x20-\x7E]+/gu, " | ").replace(/\s+\|\s+\|/gu, " | ").trim()}</p>
                     {errorSummary ? <p className="mt-1 text-xs font-semibold text-red-300">{errorSummary}</p> : null}
                 </div>
-                {uploadsOpen ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-500" /> : <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />}
+                {uploadsOpen ? <ChevronUp aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" /> : <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />}
             </button>
 
             {uploadsOpen ? (

@@ -14272,3 +14272,9 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2024-05-18 #palette-chevron-aria-hidden PRE
+Adding `aria-hidden="true"` to structural `ChevronUp` and `ChevronDown` icons across the codebase to prevent redundant screen reader announcements when parent elements already use `aria-expanded`.
+
+## 2024-05-18 #palette-chevron-aria-hidden POST
+Applied `aria-hidden="true"` to structural `ChevronUp` and `ChevronDown` icons across components in `src/components/Navigation/`, `src/components/Dashboard/`, `src/components/Admin/`, `src/components/Feedback/`, `src/components/Creators/`, and `src/components/StickyFilterBar.tsx` to prevent redundant screen reader announcements. Typecheck and suite pass.

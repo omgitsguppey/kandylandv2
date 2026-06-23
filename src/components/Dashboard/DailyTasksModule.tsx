@@ -821,9 +821,9 @@ export function DailyTasksModule() {
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           {isExpanded ? (
-                            <ChevronUp className="h-4 w-4 text-gray-400" />
+                            <ChevronUp aria-hidden="true" className="h-4 w-4 text-gray-400" />
                           ) : (
-                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                            <ChevronDown aria-hidden="true" className="h-4 w-4 text-gray-400" />
                           )}
                         </div>
                       </div>
