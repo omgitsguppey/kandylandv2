@@ -14272,3 +14272,14 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [$(date +%Y-%m-%d) #creator-settings-ux] PRE: Add loading states and aria-busy to Creator settings buttons
+
+Scope started:
+- Adding `aria-busy={savingSection === "[section]"}` to all save buttons in `src/components/Creators/CreatorDashboardSettingsHub.tsx`.
+- Updating the button text to show a `Loader2` spinner and "Saving..." text when in the saving state.
+- Adding `flex items-center justify-center gap-2` to the buttons to properly align the spinner and text.
+
+Scope completed:
+- Replaced the generic save states on all settings sections with properly-aligned `Loader2` spinners, `aria-busy` attributes, and `aria-hidden` on the icons.
+- The UX changes do not break type validation.

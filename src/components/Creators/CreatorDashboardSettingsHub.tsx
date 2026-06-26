@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
+import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Loader2, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
 
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
@@ -913,8 +913,8 @@ export function CreatorDashboardSettingsHub() {
                   className="min-h-20 resize-y rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
                 />
               </label>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "profile_basics" ? "Saving..." : "Save profile"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "profile_basics"} aria-busy={savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="flex items-center justify-center gap-2 mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "profile_basics" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save profile"}
               </button>
             </div>
 
@@ -936,8 +936,8 @@ export function CreatorDashboardSettingsHub() {
                   />
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "fan_pass" ? "Saving..." : "Save Fan Pass"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "fan_pass"} aria-busy={savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="flex items-center justify-center gap-2 mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "fan_pass" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save Fan Pass"}
               </button>
             </div>
 
@@ -952,8 +952,8 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Enable live time" checked={controlPlaneSettings.callsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callsEnabled", value)} />
                 <NumberControl label="Call price per minute GD" value={controlPlaneSettings.callPriceGd} min={500} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callPriceGd", value)} />
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "gumdrop_experiences" ? "Saving..." : "Save experiences"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "gumdrop_experiences"} aria-busy={savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="flex items-center justify-center gap-2 mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "gumdrop_experiences" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save experiences"}
               </button>
             </div>
 
@@ -978,8 +978,8 @@ export function CreatorDashboardSettingsHub() {
                   </select>
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "broadcasts" ? "Saving..." : "Save broadcasts"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "broadcasts"} aria-busy={savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="flex items-center justify-center gap-2 mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "broadcasts" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save broadcasts"}
               </button>
             </div>
 
@@ -994,8 +994,8 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Show broadcasts" checked={controlPlaneSettings.showBroadcastsOnTimeline} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("showBroadcastsOnTimeline", value)} />
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-400">Drop approval, public discovery, and rotation stay admin-only.</p>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "timeline" ? "Saving..." : "Save timeline"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "timeline"} aria-busy={savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="flex items-center justify-center gap-2 mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "timeline" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save timeline"}
               </button>
             </div>
           </div>
