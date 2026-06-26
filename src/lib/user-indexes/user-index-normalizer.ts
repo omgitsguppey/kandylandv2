@@ -244,11 +244,29 @@ export function buildUserJourneyIndex(input: {
   identityLinkId?: string;
   facts: BehavioralTimelineFact[];
 }): UserJourneyIndex {
-  const sessionIds = Array.from(new Set(input.facts.map((fact) => fact.sessionId).filter((value): value is string => Boolean(value))));
-  const firstSeenAtMs = input.facts.reduce((min, fact) => Math.min(min, fact.timestampMs), Number.MAX_SAFE_INTEGER);
-  const firstPurchaseAtMs = input.facts.filter((fact) => fact.normalizedAction.includes("purchase")).reduce((min, fact) => Math.min(min, fact.timestampMs), Number.MAX_SAFE_INTEGER);
-  const firstUnlockAtMs = input.facts.filter((fact) => fact.normalizedAction.includes("unlock")).reduce((min, fact) => Math.min(min, fact.timestampMs), Number.MAX_SAFE_INTEGER);
-  const firstMessageAtMs = input.facts.filter((fact) => fact.normalizedAction.includes("message")).reduce((min, fact) => Math.min(min, fact.timestampMs), Number.MAX_SAFE_INTEGER);
+  const sessionIdSet = new Set<string>();
+  let firstSeenAtMs = Number.MAX_SAFE_INTEGER;
+  let firstPurchaseAtMs = Number.MAX_SAFE_INTEGER;
+  let firstUnlockAtMs = Number.MAX_SAFE_INTEGER;
+  let firstMessageAtMs = Number.MAX_SAFE_INTEGER;
+
+  for (const fact of input.facts) {
+    if (fact.sessionId) sessionIdSet.add(fact.sessionId);
+    if (fact.timestampMs < firstSeenAtMs) firstSeenAtMs = fact.timestampMs;
+
+    if (fact.normalizedAction.includes("purchase") && fact.timestampMs < firstPurchaseAtMs) {
+      firstPurchaseAtMs = fact.timestampMs;
+    }
+    if (fact.normalizedAction.includes("unlock") && fact.timestampMs < firstUnlockAtMs) {
+      firstUnlockAtMs = fact.timestampMs;
+    }
+    if (fact.normalizedAction.includes("message") && fact.timestampMs < firstMessageAtMs) {
+      firstMessageAtMs = fact.timestampMs;
+    }
+  }
+
+  const sessionIds = Array.from(sessionIdSet);
+
   const funnelStage: UserJourneyIndex["funnelStage"] = firstMessageAtMs < Number.MAX_SAFE_INTEGER
     ? "messaged"
     : firstUnlockAtMs < Number.MAX_SAFE_INTEGER
@@ -272,22 +290,49 @@ export function buildUserJourneyIndex(input: {
 }
 
 export function buildUserNotificationIndex(userId: string, facts: BehavioralTimelineFact[]): UserNotificationIndex {
-  const relevant = facts.filter((fact) => fact.actorUserId === userId && fact.normalizedAction.includes("notification"));
+  let notificationOpenCount = 0;
+  let notificationReadCount = 0;
+  let lastNotificationReadAtMs = 0;
+
+  for (const fact of facts) {
+    if (fact.actorUserId === userId && fact.normalizedAction.includes("notification")) {
+      notificationOpenCount++;
+      if (fact.normalizedAction.includes("notification_read")) {
+        notificationReadCount++;
+        if (fact.timestampMs > lastNotificationReadAtMs) {
+          lastNotificationReadAtMs = fact.timestampMs;
+        }
+      }
+    }
+  }
+
   return {
     userId,
-    notificationReadCount: relevant.filter((fact) => fact.normalizedAction.includes("notification_read")).length,
-    notificationOpenCount: relevant.length,
-    lastNotificationReadAtMs: relevant.filter((fact) => fact.normalizedAction.includes("notification_read")).reduce((max, fact) => Math.max(max, fact.timestampMs), 0),
+    notificationReadCount,
+    notificationOpenCount,
+    lastNotificationReadAtMs,
     updatedAtMs: Date.now(),
   };
 }
 
 export function buildUserContentConsumptionIndex(userId: string, facts: BehavioralTimelineFact[]): UserContentConsumptionIndex {
-  const relevant = facts.filter((fact) => fact.actorUserId === userId);
-  const viewedFileCount = relevant.filter((fact) => fact.normalizedAction.includes("file_viewed")).length;
-  const openedDropCount = relevant.filter((fact) => fact.normalizedAction.includes("drop_viewed") || fact.normalizedAction.includes("preview")).length;
-  const unwrappedDropCount = relevant.filter((fact) => fact.normalizedAction.includes("unlock")).length;
-  const hasServerWatch = relevant.some((fact) => (fact.sourceTruth === "server" || fact.sourceTruth === "canonical") && fact.normalizedAction.includes("watch"));
+  let viewedFileCount = 0;
+  let openedDropCount = 0;
+  let unwrappedDropCount = 0;
+  let hasServerWatch = false;
+
+  for (const fact of facts) {
+    if (fact.actorUserId !== userId) continue;
+
+    if (fact.normalizedAction.includes("file_viewed")) viewedFileCount++;
+    if (fact.normalizedAction.includes("drop_viewed") || fact.normalizedAction.includes("preview")) openedDropCount++;
+    if (fact.normalizedAction.includes("unlock")) unwrappedDropCount++;
+
+    if (!hasServerWatch && (fact.sourceTruth === "server" || fact.sourceTruth === "canonical") && fact.normalizedAction.includes("watch")) {
+      hasServerWatch = true;
+    }
+  }
+
   return {
     userId,
     validWatchTimeMs: 0,

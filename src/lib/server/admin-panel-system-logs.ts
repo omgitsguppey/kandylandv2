@@ -115,8 +115,14 @@ function buildLog(input: Omit<AdminPanelSystemLog, "updatedAtMs" | "reviewableSi
         reviewable: input.status !== "healthy",
         severity: input.status === "fail" ? "error" as const : input.status === "warn" ? "warn" as const : "info" as const,
     }));
-    const reviewableSignalCount = signals.filter((entry) => entry.reviewable).reduce((sum, entry) => sum + entry.count, 0);
-    const totalSignalCount = signals.reduce((sum, entry) => sum + entry.count, 0);
+    let reviewableSignalCount = 0;
+    let totalSignalCount = 0;
+    for (const entry of signals) {
+        totalSignalCount += entry.count;
+        if (entry.reviewable) {
+            reviewableSignalCount += entry.count;
+        }
+    }
     return {
         ...input,
         signalCount: reviewableSignalCount,
