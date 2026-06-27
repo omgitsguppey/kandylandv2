@@ -25,3 +25,6 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+## 2026-06-27 - Array find inside map loop optimization
+**Learning:** Found an O(N*M) time complexity loop where `.find()` is called inside `ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map` searching `adminMetricSnapshots`. This creates redundant linear scans inside loops for large collections.
+**Action:** Use a precomputed Map lookup by substituting the nested array `.find()` inside `.map()` with an O(1) `Map` keyed appropriately, achieving O(N + M) complexity instead. Used `typeof array[number]` for type safety.
