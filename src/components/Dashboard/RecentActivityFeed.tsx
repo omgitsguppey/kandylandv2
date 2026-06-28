@@ -738,7 +738,7 @@ export function RecentActivityFeed() {
                     aria-label={expanded ? "Collapse recent activity" : "Expand recent activity"}
                 >
                     {expanded ? "Collapse" : "View all"}
-                    {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    {expanded ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
                 </button>
             </div>
 
