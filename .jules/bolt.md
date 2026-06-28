@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2024-05-18 - Consolidate O(N*M) tab counting and filtering into a single O(N) pass
+**Learning:** Found an instance where an array was `.filter()`ed inside an iteration in a React hook closure for counting tab items (`REVIEW_TABS.reduce`). This is an O(N*M) operation that degrades performance linearly as elements or tabs grow, also resulting in redundant processing (such as regex matching or status classification).
+**Action:** When filtering or counting elements by status for UI tabs, implement a single-pass `for...of` loop over the elements first to group and tally metrics, turning O(N*M) into O(N).
