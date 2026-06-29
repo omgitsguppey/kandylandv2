@@ -63,7 +63,7 @@ export function AdminDashboardModule({
                         aria-label={`${resolvedOpen ? "Collapse" : "Expand"} ${title}`}
                         className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-full border border-white/10 bg-black/35 text-gray-300"
                     >
-                        <ChevronDown className={cn("h-4 w-4 transition-transform", resolvedOpen ? "rotate-180" : "rotate-0")} />
+                        <ChevronDown aria-hidden="true" className={cn("h-4 w-4 transition-transform", resolvedOpen ? "rotate-180" : "rotate-0")} />
                     </button>
                 </div>
             </div>
