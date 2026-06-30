@@ -2528,6 +2528,14 @@ function buildRolloutRegistryPanelState(input: {
         };
     });
 
+    // Performance optimization: Pre-compute Map to turn O(N^2) array.find into O(N) lookup
+    const rolloutItemsById = new Map<string, typeof rolloutItems[0]>();
+    for (const item of rolloutItems) {
+        if (item.id && !rolloutItemsById.has(item.id)) {
+            rolloutItemsById.set(item.id, item);
+        }
+    }
+
     const actorRows: RolloutActorEvaluationRow[] = input.rolloutSamples.map((sample) => {
         const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
         const roleRaw = toOptionalString(sample.role);
@@ -2538,7 +2546,7 @@ function buildRolloutRegistryPanelState(input: {
         const actorSource: RolloutActorEvaluationRow["actorSource"] = "representative_fixture";
         const actorId = null;
         const evaluations = assignments.map((assignment) => {
-                const match = rolloutItems.find((item) => item.id === toOptionalString(assignment.id));
+                const match = rolloutItemsById.get(toOptionalString(assignment.id) ?? "") ?? null;
                 const reasonRaw = toOptionalString(assignment.reason);
                 const assignedVariant = toOptionalString(assignment.variant) || "unknown";
                 const defaultVariant = toOptionalString(assignment.defaultVariant) || match?.defaultVariant || "unknown";
@@ -6203,12 +6211,22 @@ export async function GET(request: NextRequest) {
                     laneFailures: "full realtime lane failures remain in Admin Debug/client debug metadata",
                 },
             },
-            adminAnalyticsSnapshotMigration: {
-                surface: "admin-analytics-snapshot-migration",
-                snapshotFirstMigrationEnabled: true,
-                verifiedSnapshotFirstRenderPath: true,
-                manualRefreshEnabled: true,
-                realtimeUpgradeOptional: true,
+            adminAnalyticsSnapshotMigration: (() => {
+                // Performance optimization: Pre-compute Map to turn O(N^2) array.find into O(N) lookup
+                const adminMetricSnapshotsByModule = new Map<string, typeof adminMetricSnapshots[0]>();
+                for (const snapshot of adminMetricSnapshots) {
+                    const key = toOptionalString(snapshot.moduleKey);
+                    if (key && !adminMetricSnapshotsByModule.has(key)) {
+                        adminMetricSnapshotsByModule.set(key, snapshot);
+                    }
+                }
+
+                return {
+                    surface: "admin-analytics-snapshot-migration",
+                    snapshotFirstMigrationEnabled: true,
+                    verifiedSnapshotFirstRenderPath: true,
+                    manualRefreshEnabled: true,
+                    realtimeUpgradeOptional: true,
                 dataValidationFullListLocation: "Admin Debug validation groups; Admin Analytics may only show the compact Data Health summary.",
                 manualRefreshRoute: "/api/admin/analytics/refresh",
                 clientDebugWindow: "window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__",
@@ -6218,7 +6236,7 @@ export async function GET(request: NextRequest) {
                     unknownActorNeverPromotedToAuthenticatedUser: true,
                 },
                 modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
-                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
+                    const latestSnapshot = adminMetricSnapshotsByModule.get(entry.moduleKey) ?? null;
                     return {
                         moduleKey: entry.moduleKey,
                         label: entry.label,
@@ -6261,13 +6279,14 @@ export async function GET(request: NextRequest) {
                         fakeZeroPreventedPolicy: "Missing source values remain null/unavailable and are detailed in Debug.",
                     };
                 }),
-                compactAnalyticsRules: [
-                    "No giant empty charts.",
-                    "No repeated degraded badge spam.",
-                    "No backend jargon in visible operator copy.",
-                    "Detailed source, parity, legacy, and failure proof lives in Admin Debug.",
-                ],
-            },
+                    compactAnalyticsRules: [
+                        "No giant empty charts.",
+                        "No repeated degraded badge spam.",
+                        "No backend jargon in visible operator copy.",
+                        "Detailed source, parity, legacy, and failure proof lives in Admin Debug.",
+                    ],
+                };
+            })(),
             adminAnalyticsLegacyParity: buildAnalyticsLegacyParityDebugMetadata(),
             adminAnalyticsRecoveryEvidence: buildAdminAnalyticsRecoveryEvidenceDebugMetadata(),
             adminAnalyticsOverview: {
