@@ -12,3 +12,7 @@
 ## 2024-05-09 - Added aria-busy to Button component
 **Learning:** The core Button component visually indicated loading states with a spinner, but did not properly announce this asynchronous loading state to screen readers.
 **Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state to ensure screen readers are informed of the asynchronous process.
+
+## 2024-05-18 - Added proper ARIA states to CreateDropModal toggles
+**Learning:** Found `<button>` toggles in `src/components/Admin/CreateDropModal.tsx` that visually indicate expanded state with `ChevronUp`/`ChevronDown` but lacked accessible state management. Connecting `aria-expanded` to the button and adding `aria-hidden="true"` to the decorative chevrons significantly improves screen reader comprehension without relying on visual cues.
+**Action:** Always map React boolean visibility states to `aria-expanded` on their corresponding toggle triggers, and ensure visual state indicators (like chevrons) are marked `aria-hidden="true"` to prevent redundant/confusing announcements.
