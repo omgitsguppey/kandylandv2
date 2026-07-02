@@ -388,7 +388,6 @@ Legend:
 | `scripts/check-admin-analytics-daily-task-pipeline.ts` | Daily Task Pipeline guard. | Task lifecycle/speed/leaderboard truth. | high | yes |
 | `scripts/check-admin-data-validation-relocation.ts` | Data Validation relocation guard. | Debug validation placement. | medium | yes |
 | `scripts/check-notification-pipeline.ts` | Notification pipeline guard. | Dedupe/read/funnel truth. | high | yes |
-| `scripts/backfill-analytics-parity.ts` | Analytics parity backfill. | Legacy/source recovery. | high | audit |
 | `scripts/rebuild-analytics-truth.ts` | Analytics truth rebuild. | Truth layer rebuild. | high | yes |
 | `scripts/rebuild-behavioral-intelligence.ts` | Behavior rebuild. | Derived behavior, not canonical. | medium | audit |
 | `scripts/check-client-firestore-connectivity.ts` | Client Firestore listener/rules guard. | Listener source availability. | high | yes |
