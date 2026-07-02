@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T18:39:13.169Z",
+  "generatedAtUtc": "2026-07-02T02:37:48.512Z",
   "reportKey": "overnight-final-integration-lock",
-  "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
+  "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
   "summary": {
     "wiringIntegrityStatus": "stale",
     "telemetryOrphanStatus": "stale",
@@ -19,7 +19,7 @@
     "betaStatus": "Source evidence required",
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 7
+    "p2Count": 8
   },
   "dependencyStatus": [
     {
@@ -52,16 +52,16 @@
     },
     {
       "id": "mobile-ui-final-lock",
-      "status": "passed",
+      "status": "stale",
       "required": true,
-      "detail": "agent/state/mobile-ui-final-lock.generated.json is current.",
-      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for a72e819a487f49eec2d0611fffb8b5728c1bbb1c.",
+      "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
     },
     {
       "id": "final-telemetry-closure-lock",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for a9f39a0099cec5fcc649a288d00b9c70b05143ff.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 187d6964a50ddf5a4077b19e88471c7e23414b75.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
@@ -110,7 +110,7 @@
       "id": "current-beta-exit-status",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 0d37de032350c8cf27a328de002c5e96f9c06f82.",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 89dcec2decf1ea78c4b0af5fead46899597867f3.",
       "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     }
   ],
@@ -143,14 +143,20 @@
     },
     {
       "severity": "P2",
+      "id": "mobile-ui-final-lock",
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for a72e819a487f49eec2d0611fffb8b5728c1bbb1c.",
+      "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
+    },
+    {
+      "severity": "P2",
       "id": "final-telemetry-closure-lock",
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for a9f39a0099cec5fcc649a288d00b9c70b05143ff.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 187d6964a50ddf5a4077b19e88471c7e23414b75.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
       "severity": "P2",
       "id": "current-beta-exit-status",
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 0d37de032350c8cf27a328de002c5e96f9c06f82.",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 89dcec2decf1ea78c4b0af5fead46899597867f3.",
       "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     },
     {
@@ -174,7 +180,9 @@
     "Run npm run check:overnight-final-integration-lock after any follow-up lock refresh."
   ],
   "changedFiles": [
-    "agent/state/public-beta-score.generated.json"
+    "agent/state/person-metrics-hydration.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "docs/agent-truth/person-metrics-hydration.md"
   ],
   "untrackedFiles": [],
   "openPrs": []

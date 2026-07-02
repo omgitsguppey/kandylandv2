@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-07-02T02:36:15.334Z
+Generated: 2026-07-02T02:39:44.540Z
 Status: pass
-Current head: 2982089fbd0865f42473fb1e49020daf4f32a155
+Current head: b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff
 
 ## Contract
 
@@ -72,9 +72,13 @@ Current head: 2982089fbd0865f42473fb1e49020daf4f32a155
 
 ## Dirty Files
 
-- agent/state/generated-artifact-size-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
+- agent/state/overnight-final-integration-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/generated-artifact-size-policy.md: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/beta-evidence-gap-map.md: documentation_artifact_expected
+- docs/agent-truth/overnight-final-integration-lock.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 
 ## Active Old Logic

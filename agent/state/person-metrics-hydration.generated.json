@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-07-02T02:36:15.334Z",
+  "generatedAtUtc": "2026-07-02T02:39:44.540Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -423,23 +423,23 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "2982089fbd0865f42473fb1e49020daf4f32a155",
+  "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
   "dirtyFiles": {
-    "total": 4,
+    "total": 8,
     "emitted": 3,
-    "omitted": 1,
+    "omitted": 5,
     "sample": [
       {
-        "path": "agent/state/generated-artifact-size-policy.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/person-metrics-hydration.generated.json",
+        "path": "agent/state/beta-evidence-gap-map.generated.json",
         "classification": "current_generated_artifact_to_commit"
       },
       {
-        "path": "docs/agent-truth/generated-artifact-size-policy.md",
-        "classification": "stale_generated_artifact_to_regenerate"
+        "path": "agent/state/current-beta-exit-status.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/overnight-final-integration-lock.generated.json",
+        "classification": "current_generated_artifact_to_commit"
       }
     ]
   },

@@ -1,11 +1,11 @@
 # Beta Evidence Gap Map
 
-Generated: 2026-06-21T22:37:51.317Z
-Latest code version: 1b4036c23f875f8771e0bc51ca4e2e2aa24b8a7a
+Generated: 2026-07-02T02:37:57.695Z
+Latest code version: b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff
 
 ## Summary
 
-- Beta score/status: 84/Source evidence required
+- Beta score/status: 67.23/Stale evidence
 - Launch gate status: source_ready
 - Beta exit review ready: false
 
@@ -37,18 +37,17 @@ Latest code version: 1b4036c23f875f8771e0bc51ca4e2e2aa24b8a7a
 ## Stale Artifacts
 
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
 
 ## Refresh Plan
 
-- agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current because its owned source inputs did not change. Command: `npm run check:evidence-capture-status`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map is current because its owned source inputs did not change. Command: `npm run check:source-truth-authority-map`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock is current because its owned source inputs did not change. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock is current because its owned source inputs did not change. Command: `npm run check:mobile-ui-final-lock`.
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:overnight-final-integration-lock`.
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock is current for the latest code version. Command: `npm run check:overnight-final-integration-lock`.
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane is current because its owned source inputs did not change. Command: `npm run check:creator-settings-control-plane`.
 - agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics is current because its owned source inputs did not change. Command: `npm run check:creator-drop-status-metrics`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current because its owned source inputs did not change. Command: `npm run check:operator-revenue-smoke`.
