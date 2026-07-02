@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-06-21T04:58:42.241Z",
+  "generatedAtUtc": "2026-07-02T23:36:59.810Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "uiSurfaceCoverageScope": {
@@ -20,26 +20,26 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 64.5,
+      "score": 64.74,
       "note": "UI source coverage is the default readiness evidence; optional browser reproduction must follow a source-reported UI issue and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
   "runtimeSourceConfidence": {
     "category": "runtime_source_gate",
     "label": "Runtime source confidence",
-    "confidence": "formal",
+    "confidence": "partial",
     "score": 100,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-    "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-    "distinction": "current deployed route source evidence is attached",
-    "formalGateCleared": true,
-    "nextAction": "Keep deployed route evidence fresh."
+    "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+    "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
+    "formalGateCleared": false,
+    "nextAction": "Produce deployed runtime route evidence before clearing the runtime lane."
   },
   "telemetryConfidence": {
     "category": "telemetry_gate",
     "label": "Telemetry and behavior confidence",
     "confidence": "partial",
-    "score": 72,
+    "score": 73.45,
     "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
     "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
@@ -90,14 +90,15 @@
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 64.5,
+  "nonUiAlgorithmicCoverageScore": 64.74,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
-    "deployedRuntimeSmokeCleared": true,
+    "deployedRuntimeSmokeCleared": false,
     "formalProviderGateCleared": false,
     "formalAdminRuntimeSampleCleared": false
   },
   "remainingFormalEvidenceGates": [
+    "Runtime lane requires current deployed route evidence.",
     "Provider lane requires provider-backed site activity evidence.",
     "Admin lane requires a redacted source activity sample."
   ],
@@ -105,19 +106,19 @@
     {
       "category": "runtime_source_gate",
       "label": "Runtime source confidence",
-      "confidence": "formal",
+      "confidence": "partial",
       "score": 100,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-      "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-      "distinction": "current deployed route source evidence is attached",
-      "formalGateCleared": true,
-      "nextAction": "Keep deployed route evidence fresh."
+      "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+      "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
+      "formalGateCleared": false,
+      "nextAction": "Produce deployed runtime route evidence before clearing the runtime lane."
     },
     {
       "category": "telemetry_gate",
       "label": "Telemetry and behavior confidence",
       "confidence": "partial",
-      "score": 72,
+      "score": 73.45,
       "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
       "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
@@ -170,14 +171,14 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "e16a2ab4b02e3466204598a15222cd1ee498e086",
+  "currentHead": "474679f6687733f112332f91dd0d05792682a4af",
   "scoreProbe": {
-    "runtimeHealthScore": 83.74,
-    "evidenceCompletenessScore": 72,
+    "runtimeHealthScore": 74.4,
+    "evidenceCompletenessScore": 58.4,
     "readinessStatus": "Source evidence required",
     "launchBlockers": [
-      "Provider-backed site activity + deployed route evidence: Source evidence required",
-      "Admin source sample evidence: Source evidence required",
+      "Provider-backed site activity evidence: Source evidence required",
+      "Admin source activity sample evidence: Source evidence required",
       "Report freshness and PR integrity: Source evidence required"
     ]
   }

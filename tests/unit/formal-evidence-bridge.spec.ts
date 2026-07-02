@@ -65,7 +65,12 @@ describe("source evidence bridge", () => {
           path: "agent/state/runtime-smoke-substitute-matrix.generated.json",
           status: "source_ready_runtime_smoke_substitute_matrix",
           passed: true,
-          evidence: ["matrixRuntimeHealthCredit=75.56", "matrixEvidenceCompletenessCredit=62.67", "deployedRuntimeSmokeStillRequired=true"],
+          evidence: [
+            "matrixRuntimeHealthCredit=75.56",
+            "matrixRuntimeProviderActivityCredit=75.56",
+            "matrixEvidenceCompletenessCredit=62.67",
+            "deployedRuntimeSmokeStillRequired=true",
+          ],
         }),
         adminSourceSample: artifact({
           path: "agent/state/admin-truth-source-sample.generated.json",
@@ -116,11 +121,23 @@ describe("source evidence bridge", () => {
           passed: true,
           evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95"],
         }),
+        runtimeSubstituteMatrix: artifact({
+          path: "agent/state/runtime-smoke-substitute-matrix.generated.json",
+          status: "source_ready_runtime_smoke_substitute_matrix",
+          passed: true,
+          evidence: [
+            "matrixRuntimeHealthCredit=95",
+            "matrixRuntimeProviderActivityCredit=0",
+            "realUsageObservedSignals=0",
+            "realUsageObservedActivityCredit=0",
+          ],
+        }),
       },
     });
 
     expect(report.sourceConfidenceStatus.realUsageConfidenceScore).toBe(95);
     expect(report.sourceConfidenceStatus.realUsageObservedActivityScore).toBe(0);
+    expect(report.sourceConfidenceStatus.runtimeSubstituteEvidenceScore).toBe(0);
     expect(report.gates.runtimeProviderSmoke.evidenceCredit).toBe(0);
     expect(report.gates.runtimeProviderSmoke.runtimeCredit).toBe(0);
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);

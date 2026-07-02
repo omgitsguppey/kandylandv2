@@ -6,8 +6,8 @@ Deterministic UI surface coverage is source-owned. Screenshots are optional foll
 
 ## Coverage
 
-- runtime_source_gate: formal; score=100; source=`agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; current deployed route source evidence is attached
-- telemetry_gate: partial; score=72; source=`agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence
+- runtime_source_gate: partial; score=100; source=`agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; source-backed runtime confidence improves runtime health but does not clear deployed route evidence
+- telemetry_gate: partial; score=73.45; source=`agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence
 - admin_truth_gate: partial; score=55; source=`agent/state/admin-truth-source-sample.generated.json`; admin source sample earns partial confidence; clearing needs a matching source activity sample
 - provider_gate: partial; score=40; source=`agent/state/operator-revenue-smoke.generated.json`; operator-confirmed revenue smoke is partial product confidence only
 - cost_gate: partial; score=45; source=`agent/state/score-80-cost-readiness.generated.json`; source cost readiness can improve cost confidence; external billing review remains separate
@@ -16,12 +16,13 @@ Deterministic UI surface coverage is source-owned. Screenshots are optional foll
 ## Evidence Boundaries
 
 - UI surface coverage clears only the UI source gate: false
-- Deployed route evidence cleared: true
+- Deployed route evidence cleared: false
 - Provider-backed site activity cleared: false
 - Admin source activity sample cleared: false
 
 ## Remaining Evidence
 
+- Runtime lane requires current deployed route evidence.
 - Provider lane requires provider-backed site activity evidence.
 - Admin lane requires a redacted source activity sample.
 

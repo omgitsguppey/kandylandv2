@@ -70,6 +70,19 @@ const operatorRevenueSmoke = {
   ],
 } satisfies PublicBetaEvidenceArtifact;
 
+const runtimeSubstituteMatrixWithoutActivity = {
+  path: "agent/state/runtime-smoke-substitute-matrix.generated.json",
+  status: "source_ready_runtime_smoke_substitute_matrix",
+  passed: true,
+  detail: "Runtime smoke substitute matrix is source ready.",
+  evidence: [
+    "matrixRuntimeHealthCredit=95",
+    "matrixRuntimeProviderActivityCredit=0",
+    "realUsageObservedSignals=0",
+    "realUsageObservedActivityCredit=0",
+  ],
+} satisfies PublicBetaEvidenceArtifact;
+
 describe("algorithmic evidence policy", () => {
   it("keeps UI source coverage separate while freeing non-UI algorithmic evidence from visual artifact blocking", () => {
     const report = buildAlgorithmicEvidencePolicyReport({
@@ -121,6 +134,7 @@ describe("algorithmic evidence policy", () => {
     const report = buildAlgorithmicEvidencePolicyReport({
       realUsageConfidenceEvidence: realUsageConfidence,
       realUsageConfidenceCalibrationEvidence: realUsageCalibration,
+      runtimeSmokeSubstituteMatrixEvidence: runtimeSubstituteMatrixWithoutActivity,
       adminTruthSampleEvidence: adminSourceSample,
       operatorRevenueSmokeEvidence: operatorRevenueSmoke,
     });

@@ -187,10 +187,8 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
   const realUsageObservedActivityScore = (evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0) > 0
     ? realUsageConfidenceScore
     : 0;
-  const runtimeSubstituteEvidenceScore = Math.max(
-    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixEvidenceCompletenessCredit") ?? 0,
-    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeHealthCredit") ?? 0,
-  );
+  const runtimeSubstituteEvidenceScore =
+    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeProviderActivityCredit") ?? 0;
   const debugRuntimeConfidenceScore = evidenceArtifactNumericValue(artifacts.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
     ?? (evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? 55 : 0);
   const adminSourceConfidenceScore = evidenceArtifactHasSourceConfidence(artifacts.adminSourceSample) ? 65 : 0;

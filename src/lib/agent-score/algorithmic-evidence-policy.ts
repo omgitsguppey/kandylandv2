@@ -150,8 +150,8 @@ export function buildAlgorithmicEvidencePolicyReport(
   const sourceBackedRuntimeScore = evidenceArtifactNumericValue(input.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
     ?? evidenceArtifactNumericValue(input.sourceBackedRuntimeConfidenceEvidence, "sourceBackedRuntimeConfidence")
     ?? (evidenceArtifactHasSourceConfidence(input.sourceBackedRuntimeConfidenceEvidence) ? 55 : 0);
-  const runtimeSmokeSubstituteMatrixScore = evidenceArtifactNumericValue(input.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit")
-    ?? (evidenceArtifactHasSourceConfidence(input.runtimeSmokeSubstituteMatrixEvidence) ? 55 : 0);
+  const runtimeSmokeSubstituteMatrixScore =
+    evidenceArtifactNumericValue(input.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeProviderActivityCredit") ?? 0;
   const realUsageScore = evidenceArtifactNumericValue(input.realUsageConfidenceEvidence, "confidenceScore")
     ?? (evidenceArtifactHasSourceConfidence(input.realUsageConfidenceEvidence) ? 55 : 0);
   const realUsageCalibrationScore = evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit")
