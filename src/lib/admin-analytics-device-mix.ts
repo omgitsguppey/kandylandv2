@@ -5,7 +5,7 @@ import {
   resolveAdminAnalyticsRecoveryPanelFreshnessState,
   resolveAdminAnalyticsRecoveryPanelSourceTruth,
 } from "@/lib/analytics/admin-analytics-display-state";
-import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
+import { buildAdminAnalyticsGa4PageViewRecoveryMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   DeviceMixItem,
   DeviceMixPanelState,
@@ -84,23 +84,6 @@ function buildRecommendation(input: {
   return "Unknown device classification needs review before device-specific product decisions rely on it.";
 }
 
-function buildDeviceMixRecoveryMetadata(input: {
-  deviceCategory: DeviceMixRow["deviceCategory"];
-  sessions: number;
-  generatedAtMs: number | null | undefined;
-}) {
-  const sourceObserved = input.sessions > 0;
-  return buildRecoveredLaunchMetricState({
-    eventName: "page_view",
-    sourceObserved,
-    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
-    evidenceKind: sourceObserved ? "modeled" : "missing",
-    route: "admin_analytics_device_mix",
-    objectId: input.deviceCategory,
-    timestampMs: input.generatedAtMs ?? null,
-  });
-}
-
 export function buildAdminAnalyticsDeviceMixModel(input: {
   response?: Partial<HistoricalAnalyticsResponse> | null;
   selectedRange: RangeOption;
@@ -121,9 +104,10 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
     const engagedSessions =
       engagementRatePct !== null ? Math.round(sessions * engagementRatePct) : null;
     const sharePct = totalSessions > 0 ? sessions / totalSessions : 0;
-    const recoveryMetadata = buildDeviceMixRecoveryMetadata({
-      deviceCategory,
-      sessions,
+    const recoveryMetadata = buildAdminAnalyticsGa4PageViewRecoveryMetricState({
+      route: "admin_analytics_device_mix",
+      objectId: deviceCategory,
+      count: sessions,
       generatedAtMs: response?.generatedAtMs,
     });
     return {
@@ -166,9 +150,10 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
   const rows = sortDeviceRows(
     unknownSessions > 0
       ? (() => {
-        const recoveryMetadata = buildDeviceMixRecoveryMetadata({
-          deviceCategory: "unknown",
-          sessions: unknownSessions,
+        const recoveryMetadata = buildAdminAnalyticsGa4PageViewRecoveryMetricState({
+          route: "admin_analytics_device_mix",
+          objectId: "unknown",
+          count: unknownSessions,
           generatedAtMs: response?.generatedAtMs,
         });
         return [
@@ -208,7 +193,7 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
   const sourceTruth = resolveAdminAnalyticsRecoveryPanelSourceTruth({
     hasResponse: Boolean(response),
     rows,
-    fallbackSourceTruth: response ? "ga4" : "unknown",
+    fallbackSourceTruth: response ? "ga4_evidence_only" : "source_missing",
   });
   const freshnessState = resolveAdminAnalyticsRecoveryPanelFreshnessState({
     hasResponse: Boolean(response),

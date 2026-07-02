@@ -42,6 +42,7 @@ import {
   collapseLaunchRecoveryDayRanges,
   buildRecoveryMetricIdentityStitchingState,
   buildRecoveredLaunchMetricState,
+  buildAdminAnalyticsGa4PageViewRecoveryMetricState,
   buildRegionDemandRecoveryMetricState,
   buildTopDropConversionRecoveryMetricState,
   buildRecoveryTimelineEntryFromGa4Event,
@@ -117,6 +118,39 @@ describe("recovery timeline spine", () => {
       missingVsZeroState: "source_present",
     });
     expect(observed.dedupeKey).toContain("admin_analytics_region_demand");
+    expect(missing).toMatchObject({
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      freshnessState: "source_missing",
+      productTruthEligible: false,
+      missingVsZeroState: "source_missing",
+    });
+  });
+
+  it("centralizes admin analytics GA page-view recovery evidence for panel adapters", () => {
+    const observed = buildAdminAnalyticsGa4PageViewRecoveryMetricState({
+      route: "admin_analytics_top_paths",
+      objectId: "/drops",
+      count: 42,
+      generatedAtMs: Date.parse("2026-05-06T12:00:00.000Z"),
+    });
+    const missing = buildAdminAnalyticsGa4PageViewRecoveryMetricState({
+      route: "admin_analytics_device_mix",
+      objectId: "mobile",
+      count: 0,
+      generatedAtMs: Date.parse("2026-05-06T12:00:00.000Z"),
+    });
+
+    expect(observed).toMatchObject({
+      eventName: "page_view",
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      freshnessState: "external_evidence_required",
+      confidenceBand: "directional",
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
+    expect(observed.dedupeKey).toContain("admin_analytics_top_paths");
     expect(missing).toMatchObject({
       sourceTruth: "source_missing",
       evidenceKind: "missing",

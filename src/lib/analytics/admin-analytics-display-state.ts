@@ -166,6 +166,15 @@ export function resolveAdminAnalyticsRecoveryPanelSourceTruth(input: {
   if (rowSources.has("source_missing") && rowSources.size === 1) return "source_missing";
 
   switch (input.fallbackSourceTruth) {
+    case "first_party_event_fact":
+    case "server_ledger":
+    case "watch_session_rollup":
+    case "admin_action_fact":
+    case "ga4_evidence_only":
+    case "legacy_directional_only":
+    case "hot_cache_snapshot":
+    case "source_missing":
+      return input.fallbackSourceTruth;
     case "ga4":
       return "ga4_evidence_only";
     case "first_party":

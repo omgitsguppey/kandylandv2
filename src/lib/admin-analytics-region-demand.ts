@@ -159,7 +159,6 @@ export function buildAdminAnalyticsRegionDemandModel(input: {
   });
 
   const visibleCopy = [
-    "Raw geography with internal/admin traffic separated from external demand.",
     `Counts use ${state.countUnit} for the selected range.`,
     "Adjusted demand excludes proven admin-surface traffic only.",
     ...state.warnings,

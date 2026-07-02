@@ -5,7 +5,7 @@ import {
   resolveAdminAnalyticsRecoveryPanelFreshnessState,
   resolveAdminAnalyticsRecoveryPanelSourceTruth,
 } from "@/lib/analytics/admin-analytics-display-state";
-import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
+import { buildAdminAnalyticsGa4PageViewRecoveryMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   HistoricalAnalyticsResponse,
   PageItem,
@@ -141,23 +141,6 @@ function buildExplanation(input: {
   return "Views are GA page-path counts for the selected range, with engagement kept separate from share.";
 }
 
-function buildTopPathRecoveryMetadata(input: {
-  path: string;
-  views: number;
-  generatedAtMs: number | null | undefined;
-}) {
-  const sourceObserved = input.views > 0;
-  return buildRecoveredLaunchMetricState({
-    eventName: "page_view",
-    sourceObserved,
-    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
-    evidenceKind: sourceObserved ? "modeled" : "missing",
-    route: "admin_analytics_top_paths",
-    objectId: input.path,
-    timestampMs: input.generatedAtMs ?? null,
-  });
-}
-
 export function buildAdminAnalyticsTopPathsModel(input: {
   response?: Partial<HistoricalAnalyticsResponse> | null;
   selectedRange: RangeOption;
@@ -175,9 +158,10 @@ export function buildAdminAnalyticsTopPathsModel(input: {
     const views = Math.max(0, item.views);
     const avgTimeSeconds = Number.isFinite(item.avgTime) ? item.avgTime : null;
     const engagementRatePct = Number.isFinite(item.engagementRate) ? item.engagementRate : null;
-    const recoveryMetadata = buildTopPathRecoveryMetadata({
-      path,
-      views,
+    const recoveryMetadata = buildAdminAnalyticsGa4PageViewRecoveryMetricState({
+      route: "admin_analytics_top_paths",
+      objectId: path,
+      count: views,
       generatedAtMs: response?.generatedAtMs,
     });
     return {
@@ -231,7 +215,7 @@ export function buildAdminAnalyticsTopPathsModel(input: {
   const sourceTruth = resolveAdminAnalyticsRecoveryPanelSourceTruth({
     hasResponse: Boolean(response),
     rows,
-    fallbackSourceTruth: response ? "ga4" : "unknown",
+    fallbackSourceTruth: response ? "ga4_evidence_only" : "source_missing",
   });
   const freshnessState = resolveAdminAnalyticsRecoveryPanelFreshnessState({
     hasResponse: Boolean(response),

@@ -3439,6 +3439,24 @@ export function buildRecoveredLaunchMetricState(input: {
   };
 }
 
+export function buildAdminAnalyticsGa4PageViewRecoveryMetricState(input: {
+  route: string;
+  objectId: string;
+  count: number;
+  generatedAtMs?: number | null;
+}): RecoveredLaunchMetricState {
+  const sourceObserved = input.count > 0;
+  return buildRecoveredLaunchMetricState({
+    eventName: "page_view",
+    sourceObserved,
+    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
+    evidenceKind: sourceObserved ? "modeled" : "missing",
+    route: input.route,
+    objectId: input.objectId,
+    timestampMs: input.generatedAtMs ?? null,
+  });
+}
+
 export function buildRegionDemandRecoveryMetricState(input: {
   city?: string | null;
   country?: string | null;
@@ -3446,18 +3464,11 @@ export function buildRegionDemandRecoveryMetricState(input: {
   generatedAtMs?: number | null;
   objectId?: string | null;
 }): RecoveredLaunchMetricState {
-  const sourceObserved = input.rawCount > 0;
-  const objectId = input.objectId ??
-    `${input.country ?? "unknown_country"}:${input.city ?? "unknown_city"}`;
-
-  return buildRecoveredLaunchMetricState({
-    eventName: "page_view",
-    sourceObserved,
-    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
-    evidenceKind: sourceObserved ? "modeled" : "missing",
+  return buildAdminAnalyticsGa4PageViewRecoveryMetricState({
     route: "admin_analytics_region_demand",
-    objectId,
-    timestampMs: input.generatedAtMs ?? null,
+    objectId: input.objectId ?? `${input.country ?? "unknown_country"}:${input.city ?? "unknown_city"}`,
+    count: input.rawCount,
+    generatedAtMs: input.generatedAtMs,
   });
 }
 

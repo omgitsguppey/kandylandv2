@@ -11,6 +11,7 @@ import {
   resolveAdminAnalyticsLaunchRecoverySummary,
   resolveAdminAnalyticsOverviewFreshnessState,
   resolveAdminAnalyticsOverviewMetricState,
+  resolveAdminAnalyticsRecoveryPanelSourceTruth,
 } from "@/lib/analytics/admin-analytics-display-state";
 import {
   classifyAdminHotCacheFreshness,
@@ -306,6 +307,19 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     );
     expect(formatAdminAnalyticsSourceTruthLabel("missing")).toBe("Source missing");
     expect(formatAdminAnalyticsSourceTruthLabel(undefined)).toBe("Source missing");
+  });
+
+  it("accepts canonical recovery panel fallback source truth without legacy aliases", () => {
+    expect(resolveAdminAnalyticsRecoveryPanelSourceTruth({
+      hasResponse: true,
+      rows: [],
+      fallbackSourceTruth: "ga4_evidence_only",
+    })).toBe("ga4_evidence_only");
+    expect(resolveAdminAnalyticsRecoveryPanelSourceTruth({
+      hasResponse: true,
+      rows: [],
+      fallbackSourceTruth: "source_missing",
+    })).toBe("source_missing");
   });
 
   it("formats source state keys as plain status labels", () => {

@@ -2250,13 +2250,15 @@ for (const expected of [
   "buildAdminAnalyticsDeviceMixModel",
   "GA engaged sessions / GA sessions for each device category.",
   "Device mix is GA session-based, not authenticated-user based.",
-  "\"ga4\"",
+  "\"ga4_evidence_only\"",
   "Mobile is dominant; prioritize mobile layout, thumb-reach CTAs, and image payload limits.",
 ]) {
   requireIncludes(deviceMixHelper, expected, "Device mix truth helper");
 }
+requireNotIncludes(deviceMixHelper, 'fallbackSourceTruth: response ? "ga4"', "Device mix truth helper");
 for (const expected of [
   "buildAdminAnalyticsTopPathsModel",
+  "\"ga4_evidence_only\"",
   "\"high_volume_low_engagement\"",
   "\"zero_time\"",
   "\"creator\"",
@@ -2267,14 +2269,15 @@ for (const expected of [
 ]) {
   requireIncludes(topPathsHelper, expected, "Top paths truth helper");
 }
+requireNotIncludes(topPathsHelper, 'fallbackSourceTruth: response ? "ga4"', "Top paths truth helper");
 for (const expected of [
   "buildAdminAnalyticsRegionDemandModel",
-  "Raw geography with internal/admin traffic separated from external demand.",
   "Adjusted demand excludes proven admin-surface traffic only.",
   "Unknown city/country is a data-quality bucket",
 ]) {
   requireIncludes(regionDemandHelper, expected, "Region demand truth helper");
 }
+requireNotIncludes(regionDemandHelper, "Raw geography with internal/admin traffic separated from external demand.", "Region demand truth helper");
 for (const expected of [
     "buildAdminAnalyticsContentConversionModel",
     "\"drop_metadata_plus_unlock_rollups\"",

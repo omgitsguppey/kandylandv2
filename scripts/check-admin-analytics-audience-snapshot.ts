@@ -87,7 +87,7 @@ assertIncludes("top paths helper", topPathsHelper, "\"legal\"");
 assertIncludes("top paths helper", topPathsHelper, "\"dashboard\"");
 assertIncludes("top paths helper", topPathsHelper, "0s avg time on a legal/static path can reflect quick policy reads or immediate exits; verify timing source before treating it as zero engagement.");
 assertIncludes("region demand helper", regionDemandHelper, "buildAdminAnalyticsRegionDemandModel");
-assertIncludes("region demand helper", regionDemandHelper, "Raw geography with internal/admin traffic separated from external demand.");
+assertNotIncludes("region demand helper", regionDemandHelper, "Raw geography with internal/admin traffic separated from external demand.");
 assertIncludes("region demand helper", regionDemandHelper, "Adjusted demand excludes proven admin-surface traffic only.");
 assertIncludes("region demand helper", regionDemandHelper, "route-level admin exclusion did not hydrate");
 assertIncludes("region demand helper", regionDemandHelper, "Unknown city/country is a data-quality bucket");
