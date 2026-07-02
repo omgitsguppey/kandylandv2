@@ -177,18 +177,18 @@ function buildFinalProofClasses(sourceParityPass: boolean, currentHead: string):
       proofClass: "source_parity",
       evidenceKind: "source_only",
       nextAction: sourceParityPass
-        ? "Source parity is green; keep it separate from runtime/provider/admin proof."
+        ? "Source parity is green; keep it separate from deployed route, provider-backed site activity, and admin source activity evidence."
         : "Fix source parity before promoting telemetry readiness.",
     },
     {
       proofClass: "runtime_route_health",
       evidenceKind: "runtime",
-      nextAction: "Refresh formal runtime route-health evidence; source parity cannot clear runtime health.",
+      nextAction: "Refresh deployed route-health evidence; source parity cannot clear runtime health.",
     },
     {
       proofClass: "provider_smoke",
       evidenceKind: "provider",
-      nextAction: "Attach formal redacted provider smoke evidence; operator reports do not clear this gate.",
+      nextAction: "Attach redacted provider-backed site activity evidence; operator reports do not clear this gate.",
     },
     {
       proofClass: "admin_truth_sample",
@@ -399,9 +399,9 @@ export function buildFinalParityTelemetryLockReport(input: {
     canClearAdminTruthGate: proofClasses.find((proof) => proof.proofClass === "admin_truth_sample")?.status === "present",
     remainingGaps: [
       ...(missingProofClasses.length > 0
-        ? [`Formal proof classes still incomplete: ${missingProofClasses.join(", ")}.`]
+        ? [`Typed evidence classes still incomplete: ${missingProofClasses.join(", ")}.`]
         : []),
-      "Source parity is source-only evidence and does not prove runtime route health, provider smoke, or admin truth samples.",
+      "Source parity is source evidence only and does not clear deployed route health, provider-backed site activity, or admin source activity samples.",
       "Public beta score must remain capped/review until current-head external/runtime/admin evidence gates are attached.",
     ],
     nextExactSteps: [
@@ -450,31 +450,31 @@ export function validateFinalParityTelemetryLockReport(report: FinalParityTeleme
   if (!report.staleLogicRemoved) failures.push("stale parity logic remains active.");
   if (report.sourceParityStatus === "pass" && !report.canClearSourceGate) failures.push("source gate cannot clear despite source parity pass.");
   if (report.finalEvidenceStatus === "pass" && report.missingProofClasses.length > 0) {
-    failures.push("final evidence status cannot pass while proof classes are missing.");
+    failures.push("final evidence status cannot pass while evidence classes are missing.");
   }
   const proofStatus = (proofClass: TelemetryParityProofClass) =>
     report.proofClasses.find((proof) => proof.proofClass === proofClass)?.status ?? "missing";
   if (report.canClearRuntimeGate !== (proofStatus("runtime_route_health") === "present")) {
-    failures.push("runtime gate clear flag does not match runtime route-health proof status.");
+    failures.push("runtime gate clear flag does not match deployed route-health evidence status.");
   }
   if (report.canClearProviderGate !== (proofStatus("provider_smoke") === "present")) {
-    failures.push("provider gate clear flag does not match provider smoke proof status.");
+    failures.push("provider gate clear flag does not match provider-backed site activity evidence status.");
   }
   if (report.canClearAdminTruthGate !== (proofStatus("admin_truth_sample") === "present")) {
-    failures.push("admin truth gate clear flag does not match admin truth sample proof status.");
+    failures.push("admin truth gate clear flag does not match admin source activity sample evidence status.");
   }
   if (report.overallStatus === "pass" && report.finalEvidenceStatus !== "pass") {
     failures.push("overall status cannot pass without final evidence pass.");
   }
   if (report.gitStatus !== "available") {
-    failures.push(`git_required: final parity lock cannot clear current-head or dirty-tree proof while Git is unavailable (${report.degradationReason ?? "git unavailable"}).`);
+    failures.push(`git_required: final parity lock cannot clear current-head or dirty-tree evidence while Git is unavailable (${report.degradationReason ?? "git unavailable"}).`);
   }
   if (report.telemetryParityStatus === "pass" && report.finalEvidenceStatus !== "pass" && report.remainingGaps.length === 0) {
-    failures.push("source telemetry pass must declare remaining formal proof gaps.");
+    failures.push("source telemetry pass must declare remaining typed evidence gaps.");
   }
   for (const proofClass of ["source_parity", "runtime_route_health", "provider_smoke", "admin_truth_sample"] satisfies TelemetryParityProofClass[]) {
     if (!report.proofClasses.some((proof) => proof.proofClass === proofClass)) {
-      failures.push(`${proofClass} proof class missing from final parity telemetry lock.`);
+      failures.push(`${proofClass} evidence class missing from final parity telemetry lock.`);
     }
   }
   if (report.scoreDimensions.length === 0) failures.push("score dimensions missing.");
@@ -518,9 +518,9 @@ Status: ${report.overallStatus}
 - Can clear provider gate: ${report.canClearProviderGate}
 - Can clear admin truth gate: ${report.canClearAdminTruthGate}
 
-## Proof Classes
+## Evidence Classes
 
-| Proof class | Status | Evidence kind | Required | Next action |
+| Evidence class | Status | Evidence kind | Required | Next action |
 | --- | --- | --- | --- | --- |
 ${report.proofClasses.map((proof) => `| ${proof.proofClass} | ${proof.status} | ${proof.evidenceKind} | ${proof.required} | ${proof.nextAction} |`).join("\n")}
 
@@ -554,7 +554,7 @@ function main() {
     console.error(`final parity telemetry lock failed:\n${report.validationFailures.map((failure) => `- ${failure}`).join("\n")}`);
     process.exit(1);
   }
-  console.log(`final parity telemetry lock ${report.finalEvidenceStatus}: source=${report.sourceParityStatus}, missingProof=${report.missingProofClasses.join(", ") || "none"}, score=${report.scoreBefore}->${report.scoreAfter}`);
+  console.log(`final parity telemetry lock ${report.finalEvidenceStatus}: source=${report.sourceParityStatus}, missingEvidence=${report.missingProofClasses.join(", ") || "none"}, score=${report.scoreBefore}->${report.scoreAfter}`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

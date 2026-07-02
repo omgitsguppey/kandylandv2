@@ -174,7 +174,7 @@ export function buildTelemetryParityPassGate(input: {
             ? "Review telemetry confidence and source completeness before promoting parity."
             : "No action required.";
   const displaySummary = sourceParityPassAllowed && !finalPassAllowed
-    ? `Source telemetry parity passes, but final proof is blocked by missing ${missingProofClasses.join(", ")}.`
+    ? `Source telemetry parity passes, but final evidence is blocked by missing ${missingProofClasses.join(", ")}.`
     : finalPassAllowed
       ? "Source telemetry parity and all required evidence classes are present."
     : input.canonicalSampleCount > 0

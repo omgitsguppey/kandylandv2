@@ -36,7 +36,7 @@ describe("final parity telemetry lock", () => {
       "admin_truth_sample",
     ]);
     expect(report.missingProofClasses.length).toBeGreaterThan(0);
-    expect(report.remainingGaps.some((gap) => /formal proof classes still incomplete/iu.test(gap))).toBe(true);
+    expect(report.remainingGaps.some((gap) => /typed evidence classes still incomplete/iu.test(gap))).toBe(true);
     expect(report.debugLaneStatus).toBe("simplified");
     expect(report.staleLogicRemoved).toBe(true);
     expect(report.surfacesCovered.sort()).toEqual([...MAJOR_SURFACE_PARITY_IDS].sort());
@@ -47,7 +47,7 @@ describe("final parity telemetry lock", () => {
     expect(validateFinalParityTelemetryLockReport(report)).toEqual([]);
   });
 
-  it("rejects reports that claim final pass while formal proof is incomplete", () => {
+  it("rejects reports that claim final pass while typed evidence is incomplete", () => {
     const report = buildFinalParityTelemetryLockReport({
       currentHead: "test-head",
       dirtyFiles: [],
@@ -59,7 +59,7 @@ describe("final parity telemetry lock", () => {
     };
 
     expect(validateFinalParityTelemetryLockReport(invalidReport)).toEqual(expect.arrayContaining([
-      "final evidence status cannot pass while proof classes are missing.",
+      "final evidence status cannot pass while evidence classes are missing.",
     ]));
   });
 

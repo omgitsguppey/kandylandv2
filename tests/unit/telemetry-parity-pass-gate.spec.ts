@@ -89,9 +89,11 @@ describe("telemetry parity pass gate", () => {
       "provider_smoke_missing",
     ]));
     expect(gate.displaySummary).toContain("Source telemetry parity passes");
+    expect(gate.displaySummary).toContain("final evidence is blocked");
+    expect(gate.displaySummary).not.toContain("final proof");
   });
 
-  it("passes final parity only when every required proof class is present", () => {
+  it("passes final parity only when every required evidence class is present", () => {
     const gate = buildTelemetryParityPassGate({
       eventSampleCount: 500,
       canonicalSampleCount: 500,
