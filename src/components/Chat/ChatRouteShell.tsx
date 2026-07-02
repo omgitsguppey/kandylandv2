@@ -102,16 +102,16 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             mainElement.style.boxSizing = "border-box";
             mainElement.style.overflow = "hidden";
             mainElement.style.overscrollBehaviorY = "none";
-            mainElement.style.height = androidPwa
-                ? USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT
-                : iosPwaShell
-                    ? USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT
-                    : USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
-            mainElement.style.maxHeight = androidPwa
-                ? USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT
-                : iosPwaShell
-                    ? USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT
-                    : USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
+            if (androidPwa) {
+                mainElement.style.height = USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT;
+                mainElement.style.maxHeight = USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT;
+            } else if (iosPwaShell) {
+                mainElement.style.height = USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT;
+                mainElement.style.maxHeight = USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT;
+            } else {
+                mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
+                mainElement.style.maxHeight = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
+            }
             mainElement.style.minHeight = "0";
             if (androidPwa) {
                 mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT);
@@ -120,7 +120,8 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
                 mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT);
                 mainElement.style.paddingBottom = USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT;
             } else {
-                mainElement.style.paddingBottom = "var(--user-mobile-chat-bottom-reserved-height, 0px)";
+                mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", "0px");
+                mainElement.style.paddingBottom = "0px";
             }
 
             if (window.scrollY !== 0) {
