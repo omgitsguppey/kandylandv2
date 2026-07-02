@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-02T03:36:47.329Z",
+  "generatedAtUtc": "2026-07-02T03:53:26.719Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "400f61396ac8ddcfe5372aec697ecdedbbaff1d8",
+  "currentHead": "1f991afad9d98dc11f613808948f50b8538fbca1",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -52,7 +52,7 @@
         "sourceStatus": "source_surface_checks_current",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "53112b169e7e3e1599b1d651059bec9134249602",
+        "sourceCommit": "ce60538580b23f3f08c2785856636bac516d3819",
         "canClearGate": true,
         "nextAction": "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues."
       },
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T03:36:47.329Z",
+      "generatedAtUtc": "2026-07-02T03:53:26.719Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
