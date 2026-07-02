@@ -37,7 +37,7 @@ export function AdminStatusBadge({
 
   return (
     <span
-      title={title ?? `${getAdminStatusExplanation(state)} Debug: ${ADMIN_SURFACE_STATE_DETAIL[state]}`}
+      title={title ?? `${getAdminStatusExplanation(state)} ${ADMIN_SURFACE_STATE_DETAIL[state]}`}
       aria-label={accessibleLabel}
       className={cn(
         "inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold normal-case tracking-normal",
