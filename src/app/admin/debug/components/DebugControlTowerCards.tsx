@@ -3,6 +3,7 @@
 import { ChevronDown, DollarSign, LayoutGrid, LifeBuoy, Radar, ShieldCheck, Signal, type LucideIcon } from "lucide-react";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { resolvePublicBetaCapDetailForAdmin } from "@/lib/agent-score/formal-gate-display";
 import type { AdminDebugControlTowerSection, AdminDebugFindingCard, AdminDebugLiveIssueCard, AdminDebugReportCard, AdminDebugSeverity, AdminDebugTruthState, AdminDebugNextAction } from "@/lib/admin-debug-control-tower";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
@@ -39,16 +40,17 @@ export function toBadgeState(state: AdminDebugTruthState): AdminSurfaceState {
 }
 
 function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
-    return /source commit|current repo head|older than 72 hours|freshness|generated report|report metadata/u.test(`${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`.toLowerCase());
+    return findingDisplayState(finding) === "refresh_due";
 }
 
 function isEvidenceGateFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence|site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
+    return findingDisplayState(finding) !== "review" || /evidence gate/iu.test(finding.title);
 }
 
-const isSourceOnlyEvidenceFinding = (finding: AdminDebugFindingCard) => /source-only behavior evidence/u.test(finding.title.toLowerCase());
+const isSourceOnlyEvidenceFinding = (finding: AdminDebugFindingCard) => findingDisplayState(finding) === "source_only";
 
-const isTypedEvidenceGateFinding = (finding: AdminDebugFindingCard) => /site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
+const isTypedEvidenceGateFinding = (finding: AdminDebugFindingCard) => ["site_activity_evidence_required", "admin_source_activity_sample_required"].includes(findingDisplayState(finding));
+const findingDisplayState = (finding: AdminDebugFindingCard) => resolvePublicBetaCapDetailForAdmin(`${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`).state;
 
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const evidenceGateCount = report.evidenceGateCount ?? 0;

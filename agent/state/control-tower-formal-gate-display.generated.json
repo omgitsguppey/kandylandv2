@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T03:07:33.649Z",
+  "generatedAtUtc": "2026-07-02T03:24:53.056Z",
   "reportKey": "control-tower-formal-gate-display",
-  "currentHead": "523d99a7c36ec53c55949148e6bd21e93f951ece",
+  "currentHead": "7f310de8c547cb913967530cc009f5e7370e867b",
   "gates": {
     "runtimeProvider": {
       "gateId": "runtime_provider_smoke",

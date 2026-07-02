@@ -1288,21 +1288,24 @@ function cockpitStateFromReport(report: AdminDebugReportCard) {
 }
 
 function isRefreshOrMetadataFinding(finding: AdminDebugFindingCard) {
-    return /source commit|current repo head|older than 72 hours|freshness|generated report|report metadata/iu.test(
-        `${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`,
-    );
+    return findingDisplayState(finding) === "refresh_due";
 }
 
 function isEvidenceBoundaryFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence|site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|report refresh required|evidence gate/iu.test(finding.title);
+    return findingDisplayState(finding) !== "review" || /evidence gate/iu.test(finding.title);
 }
 
 function isSourceOnlyEvidenceFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence/iu.test(finding.title);
+    return findingDisplayState(finding) === "source_only";
 }
 
 function isTypedEvidenceFinding(finding: AdminDebugFindingCard) {
-    return /site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|external proof required/iu.test(finding.title);
+    const state = findingDisplayState(finding);
+    return state === "site_activity_evidence_required" || state === "admin_source_activity_sample_required";
+}
+
+function findingDisplayState(finding: AdminDebugFindingCard) {
+    return resolvePublicBetaCapDetailForAdmin(`${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`).state;
 }
 
 function hasSourceFindings(report: AdminDebugReportCard) {

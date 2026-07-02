@@ -97,7 +97,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
     return { state: "review", label: "Readiness unavailable", detail: "The public beta evidence gate did not provide a reason." };
   }
 
-  if (/targeted behavior tests/iu.test(normalized)) {
+  if (/source-only behavior evidence|targeted behavior tests/iu.test(normalized)) {
     return {
       state: "source_only",
       label: "Source-only evidence",
@@ -127,11 +127,13 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
     };
   }
 
-  if (/report freshness|pr integrity|freshness window|current-head|current head/iu.test(normalized)) {
+  if (/report refresh required|report freshness|pr integrity|freshness window|current-head|current head|source commit|older than 72 hours|generated report|report metadata/iu.test(normalized)) {
     return {
       state: "refresh_due",
       label: "Refresh due",
-      detail: count ? `${count} required generated reports are outside the freshness window.` : "Required generated reports are outside the freshness window.",
+      detail: /source metadata is stale/iu.test(normalized)
+        ? "Public beta score source metadata is stale."
+        : count ? `${count} required generated reports are outside the freshness window.` : "Required generated reports are outside the freshness window.",
     };
   }
 
@@ -142,6 +144,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
       .replace(/^Unknown evidence:\s*/iu, "")
       .replace(/^Stale evidence:\s*/iu, "")
       .replace(/^Runtime unverified:\s*/iu, "")
+      .replace(/^Needs review:\s*/iu, "")
       .trim() || "Evidence needs review.",
   };
 }
@@ -182,7 +185,7 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
   const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
   if (!combined.trim()) return "Readiness unavailable";
   if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
-  if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
+  if (/report refresh needed|report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
   if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
   if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
   if (/stale evidence/iu.test(combined)) return "Refresh or evidence needed";

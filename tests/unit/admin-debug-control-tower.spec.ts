@@ -114,7 +114,7 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaReadinessReason).toContain("3 required generated report");
         expect(model.canonicalPublicBetaEvidenceScore).toBe(25);
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Source evidence required: Provider-backed site activity + deployed route evidence"),
+            expect.stringContaining("Site activity evidence required"),
             expect.stringContaining("Admin source activity sample"),
             expect.stringContaining("Cost owner evidence"),
         ]));
@@ -157,17 +157,17 @@ describe("admin debug control tower model", () => {
             "Source-only behavior evidence",
             "Site activity evidence required",
             "Admin source activity sample required",
-            "Report refresh required",
+            "Refresh due",
         ]));
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Unknown evidence:");
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Stale evidence:");
         expect(publicBeta?.topFindings.flatMap((finding) => finding.evidence).join(" ")).not.toContain("Unknown evidence:");
         expect(publicBeta?.topFindings.flatMap((finding) => finding.evidence).join(" ")).not.toContain("Stale evidence:");
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Source validation only: Targeted behavior tests"),
-            expect.stringContaining("Source evidence required: Provider-backed site activity + deployed route evidence"),
-            expect.stringContaining("Source evidence required: Admin source activity sample"),
-            expect.stringContaining("Report refresh needed: Report freshness and PR integrity"),
+            expect.stringContaining("Source-only evidence"),
+            expect.stringContaining("Site activity evidence required"),
+            expect.stringContaining("Admin source activity sample required"),
+            expect.stringContaining("Refresh due"),
         ]));
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Unknown evidence:");
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Stale evidence:");
@@ -194,7 +194,7 @@ describe("admin debug control tower model", () => {
 
         expect(model.canonicalPublicBetaReadinessStatus).toBe("Site activity evidence required");
         expect(model.canonicalPublicBetaCapDetails).toEqual([
-            "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+            "Site activity evidence required: Produce redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh.",
         ]);
         expect(publicBeta?.topFindings[0]?.title).toBe("Site activity evidence required");
         expect(publicBeta?.topFindings[0]?.humanReadableWarning).toContain("Produce redacted provider-backed site activity evidence.");
@@ -322,7 +322,7 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Public beta score source metadata"),
         ]));
-        expect(model.canonicalPublicBetaCapDetails.join("\n")).toContain("Report refresh needed:");
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).toContain("Refresh due:");
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Stale evidence:");
         expect(model.canonicalPublicBetaSourceDrift).toBe("stale");
         expect(model.canonicalPublicBetaTruthState).toBe("stale");
