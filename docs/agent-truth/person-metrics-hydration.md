@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-19T14:47:30.353Z
+Generated: 2026-07-02T02:36:15.334Z
 Status: pass
-Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
+Current head: 2982089fbd0865f42473fb1e49020daf4f32a155
 
 ## Contract
 
@@ -10,7 +10,7 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 - Unknown legacy evidence never becomes exact user truth.
 - Checkout starts remain checkout intent, not payment approval.
 - Page duration never becomes watch time; watch sessions require runtime watch events.
-- Missing future activity is shown as collecting/unavailable with the exact producer event, not fake zero.
+- Missing source/person activity is shown as collecting/unavailable with the exact producer event, not fake zero.
 
 ## Debug Lane
 
@@ -72,12 +72,10 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
+- agent/state/generated-artifact-size-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/generated-artifact-size-policy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 
 ## Active Old Logic
 
