@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-07-02T12:40:00.492Z",
-  "currentHead": "4524e1de21e2d15d4ec54acc723a662bd4902cce",
+  "generatedAt": "2026-07-02T12:45:27.525Z",
+  "currentHead": "41523ca04410b6deb6b4bb53bfda5cba82cc66e8",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
   "sourceHealthScore": 97.35,
-  "runtimeHealthScore": 80.45,
-  "evidenceCompletenessScore": 95.2,
+  "runtimeHealthScore": 78.85,
+  "evidenceCompletenessScore": 92,
   "freshnessScore": 91.88,
   "costRiskScore": 42,
   "regressionRiskScore": 94,
@@ -16,9 +16,10 @@
   "nonEventScorePenaltyCount": 0,
   "launchGateStatus": "source_ready",
   "launchBlockers": [
-    "Provider-backed site activity evidence: Source evidence required"
+    "Provider-backed site activity evidence: Source evidence required",
+    "Admin source activity sample evidence: Source evidence required"
   ],
-  "healthScore": 86.99,
+  "healthScore": 85.71,
   "healthScoreBreakdown": {
     "sourceHealth": {
       "weight": 18,
@@ -30,10 +31,10 @@
     },
     "runtimeHealth": {
       "weight": 30,
-      "score": 80.45,
+      "score": 78.85,
       "reasons": [
         "Provider-backed site activity evidence runtimeCredit=75.56",
-        "Admin source activity sample evidence runtimeCredit=100",
+        "Admin source activity sample evidence runtimeCredit=92",
         "Debug/runtime evidence runtimeCredit=75.56",
         "Algorithmic non-UI evidence coverage runtimeCredit=75.56",
         "Evidence bridge runtimeCredit=75.56",
@@ -42,15 +43,15 @@
     },
     "evidenceCompleteness": {
       "weight": 25,
-      "score": 95.2,
+      "score": 92,
       "reasons": [
         "Deterministic UI surface coverage is source-owned and runs before any visual review.",
         "Quiet future activity does not reduce evidence completeness.",
         "Source safety evidenceCredit=100",
         "Provider-backed site activity evidence evidenceCredit=76",
-        "Admin source activity sample evidence evidenceCredit=100",
+        "Admin source activity sample evidence evidenceCredit=92",
         "Report freshness and PR integrity evidenceCredit=100",
-        "Evidence bridge evidenceCredit=100"
+        "Evidence bridge evidenceCredit=92"
       ]
     },
     "freshness": {
@@ -93,16 +94,16 @@
       {
         "id": "audienceActivity",
         "label": "Audience Activity",
-        "score": 80.45,
-        "status": "watching",
+        "score": 78.85,
+        "status": "needs_attention",
         "source": "runtimeHealthScore",
         "detail": "Estimated from codebase-verifiable activity, telemetry, runtime substitute, and source-ready signals."
       },
       {
         "id": "runtimeConfidence",
         "label": "Runtime Confidence",
-        "score": 80.45,
-        "status": "watching",
+        "score": 78.85,
+        "status": "needs_attention",
         "source": "runtimeHealthScore",
         "detail": "Shows source-backed runtime confidence without clearing typed deployed route evidence."
       },
@@ -125,25 +126,26 @@
       {
         "id": "adminHydration",
         "label": "Admin Hydration",
-        "score": 100,
+        "score": 92,
         "status": "healthy",
         "source": "adminTruthSamples gate",
-        "detail": "Keep the redacted first-party admin source activity JSON sample fresh."
+        "detail": "Produce a redacted admin source activity sample before clearing the admin source activity gate."
       },
       {
         "id": "needsProof",
         "label": "Evidence Gates",
-        "score": 95.2,
+        "score": 92,
         "status": "needs_proof",
         "source": "evidenceCompletenessScore",
-        "detail": "Open evidence gates: Source evidence required (1), Source validation only (1). Source checks stay separate from provider-backed site activity, deployed route evidence, and admin source activity evidence."
+        "detail": "Open evidence gates: Source evidence required (2), Source validation only (1). Source checks stay separate from provider-backed site activity, deployed route evidence, and admin source activity evidence."
       }
     ]
   },
   "launchClearance": {
     "status": "source_ready",
     "blockers": [
-      "Provider-backed site activity evidence: Source evidence required"
+      "Provider-backed site activity evidence: Source evidence required",
+      "Admin source activity sample evidence: Source evidence required"
     ],
     "formalGates": {
       "providerSmoke": {
@@ -158,8 +160,8 @@
       },
       "adminTruthSample": {
         "cleared": false,
-        "status": "formal_admin_truth_sample_passed",
-        "source": "agent/state/admin-truth-sample-evidence.generated.json"
+        "status": "source_ready_admin_truth_sample",
+        "source": "agent/state/admin-truth-source-sample.generated.json"
       },
       "uiSurfaceCoverage": {
         "cleared": false,
@@ -183,15 +185,15 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "runtimeHealth": {
-      "after": 80.45,
+      "after": 78.85,
       "target": 80,
-      "status": "meets_target",
+      "status": "below_target",
       "blockerType": "formal_runtime_evidence",
-      "reason": "Dimension meets target.",
-      "nextExactAction": "No score action needed for this dimension."
+      "reason": "Runtime health is below target because runtime/admin source evidence remains incomplete, not because future activity is absent.",
+      "nextExactAction": "Produce approved runtime/provider/admin source evidence without promoting unrelated local validators to deployed truth."
     },
     "evidenceCompleteness": {
-      "after": 95.2,
+      "after": 92,
       "target": 80,
       "status": "meets_target",
       "blockerType": "formal_runtime_evidence",
@@ -223,7 +225,7 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "overallHealthScore": {
-      "after": 86.99,
+      "after": 85.71,
       "target": 80,
       "status": "meets_target",
       "blockerType": "formal_runtime_evidence",
@@ -233,8 +235,8 @@
   },
   "scoreDeltaDrivers": [
     "sourceHealthScore=97.35",
-    "runtimeHealthScore=80.45",
-    "evidenceCompletenessScore=95.2",
+    "runtimeHealthScore=78.85",
+    "evidenceCompletenessScore=92",
     "freshnessScore=91.88",
     "costRiskScore=42",
     "regressionRiskScore=94",
@@ -242,7 +244,7 @@
     "actionableSignalGroupCount=12",
     "scoreDragSignalGroupCount=12",
     "nonEventScorePenaltyCount=0",
-    "launchBlockers=1"
+    "launchBlockers=2"
   ],
   "nuancedScoreExplanation": [
     "Source-ready evidence earns source health credit without becoming deployed runtime truth.",
@@ -257,7 +259,7 @@
   "overallStatus": "warning",
   "readinessStatus": "Source evidence required",
   "readinessStatusReason": "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
-  "evidenceScore": 67.04,
+  "evidenceScore": 66.08,
   "evidenceGates": [
     {
       "id": "sourceSafety",
@@ -470,45 +472,49 @@
       "id": "adminTruthSamples",
       "label": "Admin source activity sample evidence",
       "weight": 12,
-      "score": 12,
+      "score": 11.04,
       "maxScore": 12,
       "confidence": "high",
-      "evidenceQuality": "formal_passed",
+      "evidenceQuality": "source_ready",
       "freshness": "fresh",
-      "sourceCredit": 100,
-      "runtimeCredit": 100,
-      "evidenceCredit": 100,
-      "riskPenalty": 0,
-      "capImpact": 0,
+      "sourceCredit": 92,
+      "runtimeCredit": 92,
+      "evidenceCredit": 92,
+      "riskPenalty": 8,
+      "capImpact": 0.96,
       "gateRequiredForExit": true,
-      "blocksLaunch": false,
-      "status": "Ready",
-      "detail": "Keep the redacted first-party admin source activity JSON sample fresh.",
+      "blocksLaunch": true,
+      "partialReason": "Admin source evidence earns partial bridge confidence; the admin lane needs a matching source activity sample before clearing.",
+      "status": "Source evidence required",
+      "detail": "Produce a redacted admin source activity sample before clearing the admin source activity gate.",
       "evidence": [
-        "adminTruthSampleArtifactStatus=formal_admin_truth_sample_passed",
-        "artifactPath=agent/state/admin-truth-sample-evidence.generated.json",
-        "artifactStatus=formal_admin_truth_sample_passed",
-        "artifactPassed=true",
-        "generatedAtUtc=2026-07-02T02:59:25.211Z",
+        "adminTruthSampleArtifactStatus=source_ready_admin_truth_sample",
+        "artifactPath=agent/state/admin-truth-source-sample.generated.json",
+        "artifactStatus=source_ready_admin_truth_sample",
+        "artifactPassed=false",
+        "generatedAtUtc=2026-07-02T02:57:33.523Z",
         "sourceCommit=b0f74b9e016ed3eef9f51964c4cd7a3db866a99a",
-        "artifactDetail=Keep the redacted first-party admin source activity JSON sample fresh.",
-        "freshAdminTruthSampleAttached=true",
-        "readinessImpact.adminTruthSampleGatePassed=true",
-        "sampleCount=1",
-        "adminTruthCommandEvidence[0]=adminTruthSample.status=complete",
-        "adminTruthCommandEvidence[1]=adminTruthSample.completeArtifacts=3",
-        "adminTruthCommandEvidence[2]=adminTruthSample.passingArtifacts=1",
-        "adminTruthCommandEvidence[3]=adminTruthSample.launchHistoryCoverageArtifacts=0",
-        "adminTruthCommandEvidence[4]=adminTruthSample.staleArtifacts=2",
-        "adminTruthCommandEvidence[5]=productionSampleAttached=true",
-        "adminTruthCommandEvidence[6]=formalAdminTruthSamplePassed=true",
-        "adminTruthCommandEvidence[7]=adminTruthSample.passingArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json",
-        "adminTruthCommandEvidence[8]=adminTruthSample.staleArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
-        "adminTruthCommandEvidence[9]=adminTruthSample.staleArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json",
-        "adminTruthCommandEvidence[10]=adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match b0f74b9e016ed3eef9f51964c4cd7a3db866a99a.",
-        "adminTruthCommandEvidence[11]=adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-        "adminTruthCommandEvidence[12]=adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth evidence currentHead 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match b0f74b9e016ed3eef9f51964c4cd7a3db866a99a.",
-        "adminTruthCommandEvidence[13]=adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth sourceFreshnessUtc is older than 24h or missing."
+        "artifactDetail=Produce a redacted admin source activity sample before clearing the admin source activity gate.",
+        "sourceSampleStatus=source_ready_admin_truth_sample",
+        "productionSampleAttached=false",
+        "formalAdminTruthSamplePassed=false",
+        "formalRuntimeSampleAttached=false",
+        "launchGateImpact=partial_source_admin_truth_only",
+        "adminTruthSourceEvidence[0]=adminDebugControlTowerModelPresent=true",
+        "adminTruthSourceEvidence[1]=adminDebugRoutePresent=true",
+        "adminTruthSourceEvidence[2]=routeDiagnosticsPresent=true",
+        "adminTruthSourceEvidence[3]=debugEvidenceContractPresent=true",
+        "adminTruthSourceEvidence[4]=summaryCardsPresent=true",
+        "adminTruthSourceEvidence[5]=productionSampleAttached=false",
+        "adminTruthSourceEvidence[6]=formalRuntimeSampleAttached=false",
+        "adminTruthSourceEvidence[7]=formalAdminTruthSamplePassed=false",
+        "adminTruthSourceEvidence[8]=sourceTruthLabelsPresent=true",
+        "adminTruthSourceEvidence[9]=sourceTruthStatus=source_backed",
+        "adminTruthSourceEvidence[10]=telemetryHealthLaneStatus=partial",
+        "adminTruthSourceEvidence[11]=degradedOrUnavailableLaneCount=6",
+        "adminTruthSourceEvidence[12]=criticalAdminTruthIssueCount=0",
+        "adminTruthSourceEvidence[13]=fakeHealthyStateDetected=false",
+        "adminTruthSourceEvidence[14]=launchGateImpact=partial_source_admin_truth_only"
       ],
       "recommendedAction": "Require a redacted admin source activity sample before rendering zero/live/healthy as launch truth."
     },
@@ -588,10 +594,10 @@
       "confidence": "medium",
       "evidenceQuality": "formal_partial",
       "freshness": "fresh",
-      "sourceCredit": 51.5,
+      "sourceCredit": 60.67,
       "runtimeCredit": 75.56,
-      "evidenceCredit": 51.5,
-      "riskPenalty": 48.5,
+      "evidenceCredit": 60.67,
+      "riskPenalty": 39.33,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
@@ -599,7 +605,7 @@
       "status": "Ready",
       "detail": "Non-UI runtime, telemetry, admin source, provider signal, cost, and refresh confidence are scored separately from deterministic UI surface coverage.",
       "evidence": [
-        "nonUiAlgorithmicCoverageScore=51.5",
+        "nonUiAlgorithmicCoverageScore=60.67",
         "uiSourceCoverageBlocksNonUi=false",
         "uiVisualOperatorFinalChecklist=outside_codex_score",
         "deployedRuntimeSmokeCleared=false",
@@ -607,7 +613,7 @@
         "formalAdminRuntimeSampleCleared=false",
         "runtime_source_gate: confidence=partial; score=75.56; source=agent/state/person-metrics-hydration.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/live-evidence-gate-replacement.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
         "telemetry_gate: confidence=partial; score=73.45; source=agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
-        "admin_truth_gate: confidence=missing; score=0; source=agent/state/admin-truth-sample-evidence.generated.json; admin source sample earns partial confidence; clearing needs a matching source activity sample",
+        "admin_truth_gate: confidence=partial; score=55; source=agent/state/admin-truth-source-sample.generated.json; admin source sample earns partial confidence; clearing needs a matching source activity sample",
         "provider_gate: confidence=partial; score=40; source=agent/state/provider-smoke-evidence.generated.json; operator-confirmed revenue smoke is partial product confidence only",
         "cost_gate: confidence=partial; score=45; source=agent/state/score-80-cost-readiness.generated.json; source cost readiness can improve cost confidence; external billing review remains separate",
         "refresh_gate: confidence=partial; score=75; source=agent/state/self-healing-refresh-queue.generated.json; current refresh queue can satisfy source freshness ordering without creating deployed runtime truth"
@@ -623,13 +629,14 @@
       "confidence": "high",
       "evidenceQuality": "formal_partial",
       "freshness": "fresh",
-      "sourceCredit": 100,
+      "sourceCredit": 92,
       "runtimeCredit": 75.56,
-      "evidenceCredit": 100,
-      "riskPenalty": 0,
+      "evidenceCredit": 92,
+      "riskPenalty": 8,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
+      "partialReason": "Evidence bridge is partial confidence and does not clear source lanes that still lack matching site activity records.",
       "status": "Ready",
       "detail": "Evidence bridge is current; remaining source gap(s): provider_backed_site_activity, deployed_route_activity, admin_source_activity_sample.",
       "evidence": [
@@ -637,13 +644,14 @@
         "deployedRuntimeSmokeCleared=false",
         "formalAdminTruthSampleCleared=false",
         "runtimeProviderSmokeEvidenceCredit=75.56",
-        "adminTruthSamplesEvidenceCredit=0",
+        "adminTruthSamplesEvidenceCredit=65",
         "debugRuntimeEvidenceCredit=75.56",
         "evidenceClass=missing_formal_artifact",
         "evidenceClass=operator_confirmed_revenue",
         "evidenceClass=source_backed_runtime_confidence",
         "evidenceClass=real_usage_confidence",
         "evidenceClass=runtime_substitute_matrix",
+        "evidenceClass=admin_source_sample",
         "evidenceClass=debug_runtime_source_evidence"
       ],
       "recommendedAction": "Use bridge confidence for score clarity only; produce any remaining source activity records before clearing launch gates."
@@ -651,11 +659,13 @@
   ],
   "evidenceCapsApplied": [
     "Source validation only: Targeted behavior tests",
-    "Source evidence required: Provider-backed site activity evidence"
+    "Source evidence required: Provider-backed site activity evidence",
+    "Source evidence required: Admin source activity sample evidence"
   ],
   "evidenceCapDetails": [
     "Source validation only: Targeted behavior tests - Source behavior passed; deployed route evidence, provider-backed site activity, and admin source activity lanes still need their matching records.",
-    "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
+    "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+    "Source evidence required: Admin source activity sample evidence - Produce a redacted admin source activity sample."
   ],
   "evidenceWeights": {
     "sourceSafety": 22,
@@ -666,16 +676,18 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 67.04/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 86.99/100 currently maps to launch gate source_ready.",
+    "evidenceScoreMeaning": "Evidence score 66.08/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 85.71/100 currently maps to launch gate source_ready.",
     "missingEvidenceCaps": [
       "Source validation only: Targeted behavior tests - Source behavior passed; deployed route evidence, provider-backed site activity, and admin source activity lanes still need their matching records.",
-      "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
+      "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+      "Source evidence required: Admin source activity sample evidence - Produce a redacted admin source activity sample."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
     "sourcePassConfidence": "Source-pass lanes increase confidence, but source passing does not clear provider-backed site activity, deployed route, admin source activity, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
     "betaExitBlockedBy": [
       "Targeted behavior tests: Source validation only",
-      "Provider-backed site activity evidence: Source evidence required"
+      "Provider-backed site activity evidence: Source evidence required",
+      "Admin source activity sample evidence: Source evidence required"
     ]
   },
   "operatorFinalChecks": {
@@ -876,6 +888,7 @@
   "recommendedNextActions": [
     "Source validation only: Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
     "Source evidence required: Produce provider-backed site activity evidence; keep deployed route evidence current.",
+    "Source evidence required: Require a redacted admin source activity sample before rendering zero/live/healthy as launch truth.",
     "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
   ],
   "minimalVerificationCommands": [
@@ -907,7 +920,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 84/100 (Source evidence required; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 2 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 84/100 (Source evidence required; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 3 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],
@@ -926,7 +939,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T12:40:00.492Z",
+      "generatedAtUtc": "2026-07-02T12:45:27.525Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -939,16 +952,16 @@
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
       "label": "Current beta exit status",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-07-02T03:53:26.719Z",
-      "ageHours": 8.776048055555556,
+      "ageHours": 8.866890555555555,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Current beta exit status is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
@@ -957,7 +970,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-07-02T02:58:54.717Z",
-      "ageHours": 9.6849375,
+      "ageHours": 9.77578,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -972,7 +985,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T14:02:46.213Z",
-      "ageHours": 262.6206330555556,
+      "ageHours": 262.7114755555556,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -987,7 +1000,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T19:36:03.006Z",
-      "ageHours": 257.06596833333333,
+      "ageHours": 257.15681083333334,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -1002,7 +1015,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T18:39:12.859Z",
-      "ageHours": 258.01323138888887,
+      "ageHours": 258.1040738888889,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1017,7 +1030,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-07-02T02:51:43.990Z",
-      "ageHours": 9.804583888888889,
+      "ageHours": 9.89542638888889,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1032,7 +1045,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:56:20.304Z",
-      "ageHours": 316.72783,
+      "ageHours": 316.8186725,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1047,7 +1060,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:56:14.715Z",
-      "ageHours": 316.7293825,
+      "ageHours": 316.820225,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1062,7 +1075,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T04:55:54.539Z",
-      "ageHours": 271.7349869444445,
+      "ageHours": 271.8258294444444,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1077,7 +1090,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-07-02T02:53:27.343Z",
-      "ageHours": 9.775874722222222,
+      "ageHours": 9.866717222222222,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1092,7 +1105,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T18:39:25.929Z",
-      "ageHours": 258.0096008333333,
+      "ageHours": 258.1004433333333,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1107,7 +1120,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T19:36:24.249Z",
-      "ageHours": 257.0600675,
+      "ageHours": 257.15091,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -1122,7 +1135,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:06.814Z",
-      "ageHours": 316.71491055555555,
+      "ageHours": 316.80575305555556,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1137,7 +1150,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:23.473Z",
-      "ageHours": 316.7102830555556,
+      "ageHours": 316.80112555555553,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1152,7 +1165,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:29.221Z",
-      "ageHours": 316.7086863888889,
+      "ageHours": 316.7995288888889,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1167,7 +1180,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T13:29:23.027Z",
-      "ageHours": 263.1770736111111,
+      "ageHours": 263.2679161111111,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1182,7 +1195,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:52.099Z",
-      "ageHours": 316.70233138888887,
+      "ageHours": 316.7931738888889,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1192,6 +1205,14 @@
     }
   ],
   "staleArtifacts": [
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "reportKey": "current-beta-exit-status",
+      "status": "stale_source_version",
+      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
       "reportKey": "overnight-final-integration-lock",
