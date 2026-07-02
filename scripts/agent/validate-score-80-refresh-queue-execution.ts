@@ -10,6 +10,7 @@ const DOC_PATH = "docs/agent-truth/score-80-refresh-queue-execution.md";
 export type RefreshCommandStatus = "passed" | "failed" | "skipped" | "blocked";
 export type RefreshCommandClassification =
   | "safe_automatic_refresh"
+  | "blocked_source_activity_evidence"
   | "blocked_formal_evidence"
   | "blocked_existing_source_issue"
   | "blocked_dirty_or_pr_classification"
@@ -120,12 +121,12 @@ const DEFAULT_COMMAND_RESULTS: Score80RefreshCommandResult[] = [
   result("npm run check:global-marquee-truncated-titles", "passed", "agent/state/global-marquee-truncated-titles.generated.json", "safe_automatic_refresh", "Refreshed global marquee title rollout."),
   result("npm run check:evidence-capture-status", "passed", "agent/state/evidence-capture-status.generated.json", "safe_automatic_refresh", "Refreshed evidence capture status while keeping provider/runtime/admin evidence missing and UI coverage source-owned."),
   result("npm run check:operator-revenue-smoke", "passed", "agent/state/operator-revenue-smoke.generated.json", "safe_automatic_refresh", "Refreshed operator-confirmed revenue smoke as product signal only; provider-backed site activity lane remains missing_formal_evidence."),
-  result("npm run check:debug-runtime-evidence", "failed", "agent/state/debug-runtime-evidence.generated.json", "blocked_formal_evidence", "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth."),
-  result("npm run check:provider-smoke-evidence", "skipped", "agent/state/provider-smoke-evidence.generated.json", "blocked_formal_evidence", "Provider-backed site activity evidence is required; this pass cannot generate or clear it."),
-  result("npm run check:runtime-smoke-evidence", "skipped", "agent/state/runtime-smoke-evidence.generated.json", "blocked_formal_evidence", "Deployed runtime route evidence is required; this pass cannot generate or clear it."),
-  result("Produce deployed runtime route evidence, then run npm run check:evidence-capture-status", "blocked", "debug_runtime_evidence", "blocked_formal_evidence", "Deployed runtime route evidence required; source queue cannot generate it automatically."),
-  result("Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status", "blocked", "runtime_provider_smoke", "blocked_formal_evidence", "Provider-backed site activity evidence required; source queue cannot generate it automatically."),
-  result("Produce redacted admin source activity sample, then run npm run check:evidence-capture-status", "blocked", "admin_truth_sample_evidence", "blocked_formal_evidence", "Admin source activity sample evidence required; source queue cannot generate it automatically."),
+  result("npm run check:debug-runtime-evidence", "failed", "agent/state/debug-runtime-evidence.generated.json", "blocked_source_activity_evidence", "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth."),
+  result("npm run check:provider-smoke-evidence", "skipped", "agent/state/provider-smoke-evidence.generated.json", "blocked_source_activity_evidence", "Provider-backed site activity evidence is required; this pass cannot generate or clear it."),
+  result("npm run check:runtime-smoke-evidence", "skipped", "agent/state/runtime-smoke-evidence.generated.json", "blocked_source_activity_evidence", "Deployed runtime route evidence is required; this pass cannot generate or clear it."),
+  result("Produce deployed runtime route evidence, then run npm run check:evidence-capture-status", "blocked", "debug_runtime_evidence", "blocked_source_activity_evidence", "Deployed runtime route evidence required; source queue cannot generate it automatically."),
+  result("Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status", "blocked", "runtime_provider_smoke", "blocked_source_activity_evidence", "Provider-backed site activity evidence required; source queue cannot generate it automatically."),
+  result("Produce redacted admin source activity sample, then run npm run check:evidence-capture-status", "blocked", "admin_truth_sample_evidence", "blocked_source_activity_evidence", "Admin source activity sample evidence required; source queue cannot generate it automatically."),
   result("npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status", "blocked", "ui_source_coverage", "safe_automatic_refresh", "UI issues must be discovered by deterministic source coverage before optional browser reproduction."),
 ];
 

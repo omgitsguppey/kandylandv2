@@ -7,8 +7,8 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 ## Score
 
 - Old score: 77.76
-- New score: 90.16
-- Distance to 80: -10.16
+- New score: 86.99
+- Distance to 80: -6.99
 
 ## Queue Execution
 
@@ -24,12 +24,12 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 - agent/state/overnight-final-integration-lock.generated.json: blocked_dirty_or_pr_classification; Optional lock failed before this execution report existed because dirty files and open PRs were intentionally unclassified until this pass.
 - agent/state/final-pr-stale-cleanup.generated.json: blocked_dirty_or_pr_classification; Optional stale PR cleanup lane still requires this pass's PR and dirty-file classification and does not block source refresh execution.
 - agent/state/existing-algorithm-refinement.generated.json: blocked_existing_source_issue; Existing algorithm lane still reports telemetry classifier disabled/enabled modeling as a source issue; privacy implementation is in-flight-owned and was not modified here.
-- agent/state/debug-runtime-evidence.generated.json: blocked_formal_evidence; Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth.
-- agent/state/provider-smoke-evidence.generated.json: blocked_formal_evidence; Provider-backed site activity evidence is required; this pass cannot generate or clear it.
-- agent/state/runtime-smoke-evidence.generated.json: blocked_formal_evidence; Deployed runtime route evidence is required; this pass cannot generate or clear it.
-- debug_runtime_evidence: blocked_formal_evidence; Deployed runtime route evidence required; source queue cannot generate it automatically.
-- runtime_provider_smoke: blocked_formal_evidence; Provider-backed site activity evidence required; source queue cannot generate it automatically.
-- admin_truth_sample_evidence: blocked_formal_evidence; Admin source activity sample evidence required; source queue cannot generate it automatically.
+- agent/state/debug-runtime-evidence.generated.json: blocked_source_activity_evidence; Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth.
+- agent/state/provider-smoke-evidence.generated.json: blocked_source_activity_evidence; Provider-backed site activity evidence is required; this pass cannot generate or clear it.
+- agent/state/runtime-smoke-evidence.generated.json: blocked_source_activity_evidence; Deployed runtime route evidence is required; this pass cannot generate or clear it.
+- debug_runtime_evidence: blocked_source_activity_evidence; Deployed runtime route evidence required; source queue cannot generate it automatically.
+- runtime_provider_smoke: blocked_source_activity_evidence; Provider-backed site activity evidence required; source queue cannot generate it automatically.
+- admin_truth_sample_evidence: blocked_source_activity_evidence; Admin source activity sample evidence required; source queue cannot generate it automatically.
 - ui_source_coverage: safe_automatic_refresh; UI issues must be discovered by deterministic source coverage before optional browser reproduction.
 
 ## Refreshed Artifacts
@@ -61,13 +61,8 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 
 ## Dirty File Classification
 
-- agent/state/score-80-refresh-pass.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- docs/agent-truth/score-80-refresh-pass.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- scripts/agent/validate-score-80-refresh-pass.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
 - scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
-- scripts/agent/validate-score-impact-stale-artifact-sweep.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- tests/unit/score-80-refresh-queue-execution.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
 
 ## Validation
 
