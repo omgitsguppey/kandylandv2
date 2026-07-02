@@ -174,7 +174,6 @@ export function DebugTabAi({
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Workbench summary</p>
                                 <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <Pill label="Displayed source" value={displayedSourceLabel} tone={aiDebugData.response_state === "live" ? "good" : "warn"} />
                                     <Pill label="Fallback" value={workbench?.fallbackStatus?.replace(/_/g, " ") || "unknown"} tone={workbench?.fallbackStatus === "deterministic_fallback_summary" ? "warn" : "neutral"} />
                                     <Pill label="Planner" value={workbench?.livePlannerStatus?.replace(/_/g, " ") || "unknown"} tone={workbench?.livePlannerStatus === "ai_plan_ready" ? "good" : "neutral"} />
                                     <Pill label="Route preflight" value={workbench?.routePreflightStatus?.replace(/_/g, " ") || "unknown"} tone={workbench?.routePreflightStatus === "no_sample" ? "warn" : "neutral"} />
@@ -183,7 +182,6 @@ export function DebugTabAi({
                                     <Pill label="Prompt" value={aiDebugData.prompt_version} />
                                     <Pill label="Displayed summary" value={formatOptionalTimestamp(aiDebugData.displayed_summary_generated_at)} />
                                     <Pill label="Debug evidence" value={formatOptionalTimestamp(aiDebugData.debug_evidence_generated_at)} />
-                                    <Pill label="Runtime" value={aiDebugData.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData.runtime_ready ? "good" : "bad"} />
                                 </div>
                                 {aiDebugData.saved_summary_model && aiDebugData.saved_summary_model !== aiDebugData.resolved_model ? (
                                     <p className="mt-3 text-xs leading-6 text-amber-200">Saved summary model: {aiDebugData.saved_summary_model}. Current configured model: {aiDebugData.resolved_model}.</p>
@@ -242,10 +240,8 @@ export function DebugTabAi({
                                 <p className="mt-3 text-sm text-gray-200">{aiDebugData.apply_eligibility.state}</p>
                                 <p className="mt-2 text-xs text-gray-400">{aiDebugData.apply_eligibility.reason}</p>
                                 <p className="mt-2 text-xs text-gray-400">Rollback: {aiDebugData.rollback_note}</p>
-                                <p className="mt-2 text-xs text-gray-400">Last live model run: {formatOptionalTimestamp(aiDebugData.last_model_call_at)}</p>
                                 <p className="mt-2 text-xs text-gray-400">Model latency: {aiDebugData.last_model_latency_ms != null ? `${aiDebugData.last_model_latency_ms}ms` : "Not recorded"}</p>
                                 <p className="mt-2 text-xs text-gray-400">Fallback generated: {formatOptionalTimestamp(aiDebugData.last_fallback_generated_at)}</p>
-                                <p className="mt-2 text-xs text-gray-400">Fallback latency: {aiDebugData.last_fallback_latency_ms != null ? `${aiDebugData.last_fallback_latency_ms}ms` : "Not recorded"}</p>
                             </div>
                         </div>
                         <details className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
