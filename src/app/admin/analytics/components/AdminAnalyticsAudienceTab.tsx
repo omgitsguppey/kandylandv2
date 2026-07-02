@@ -120,9 +120,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     : audienceSnapshotModel.continuity.gapSeverity === "review"
       ? "Continuity needs review"
       : "Continuity verified";
-  const estimatedGuestDays = audienceSnapshotModel.recovery.mode === "estimated_guest_bridge"
-    ? audienceSnapshotModel.recovery.recoveredDays.length
-    : 0;
   const [topPathsSearch, setTopPathsSearch] = React.useState("");
   const [topPathsFilter, setTopPathsFilter] = React.useState<AudienceTopPathFilter>("all");
   const [topPathsPage, setTopPathsPage] = React.useState(1);
@@ -245,9 +242,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       <span>Expected {audienceSnapshotModel.continuity.expectedDays}</span>
                       <span>Present {audienceSnapshotModel.continuity.presentDays}</span>
                       <span>Missing {audienceSnapshotModel.continuity.missingDays.length}</span>
-                      <span>Recovered {audienceSnapshotModel.recovery.recoveredDays.length}</span>
-                      <span>Estimated guest {estimatedGuestDays}</span>
-                      <span>Unrecovered {audienceSnapshotModel.recovery.unrecoveredDays.length}</span>
                     </div>
                   </div>
                 </div>
