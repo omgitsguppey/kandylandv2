@@ -78,7 +78,7 @@ import {
     resolveAdminAnalyticsRecoveryPanelFreshnessState,
     resolveAdminAnalyticsRecoveryPanelSourceTruth,
 } from "@/lib/analytics/admin-analytics-display-state";
-import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
+import { buildTopDropConversionRecoveryMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
 const propertyId = getAdminAnalyticsPropertyId();
@@ -240,25 +240,6 @@ function formatTopDropUnwrapRate(unwraps: number, views: number) {
     if (unwraps > 0 && ratePct > 0 && ratePct < 0.1) return "<0.1%";
     if (ratePct < 10) return `${ratePct.toFixed(1)}%`;
     return `${Math.round(ratePct)}%`;
-}
-
-function buildTopDropConversionRecoveryMetadata(input: {
-    views: number;
-    unwraps: number;
-    dropId: string;
-    generatedAtMs: number | null;
-}) {
-    const sourceObserved = input.views > 0 || input.unwraps > 0;
-    const eventName = input.views > 0 ? "drop_preview_opened" : "drop_unlocked";
-    return buildRecoveredLaunchMetricState({
-        eventName,
-        sourceObserved,
-        sourceTruth: "first_party_event_fact",
-        evidenceKind: sourceObserved ? "observed" : "missing",
-        route: "admin_analytics_top_drop_conversion",
-        objectId: input.dropId,
-        timestampMs: input.generatedAtMs,
-    });
 }
 
 function isCanonicalAuthenticatedEventSample(data: Record<string, unknown>) {
@@ -1220,7 +1201,7 @@ async function GET_handler(request: NextRequest) {
                 const titleResolved = Boolean(drop.dropTitle && drop.dropTitle !== drop.dropId);
                 const views = Math.max(0, toNumber(drop.views));
                 const unwraps = Math.max(0, toNumber(drop.unlocks));
-                const recoveryMetadata = buildTopDropConversionRecoveryMetadata({
+                const recoveryMetadata = buildTopDropConversionRecoveryMetricState({
                     views,
                     unwraps,
                     dropId: drop.dropId,
@@ -1256,10 +1237,17 @@ async function GET_handler(request: NextRequest) {
                 };
             });
             const topDropConversionState = {
+                sourceTruth: resolveAdminAnalyticsRecoveryPanelSourceTruth({
+                    hasResponse: true,
+                    rows: topDropConversionRows,
+                    fallbackSourceTruth: "first_party",
+                }),
+                freshnessState: resolveAdminAnalyticsRecoveryPanelFreshnessState({
+                    hasResponse: true,
+                    rows: topDropConversionRows,
+                }),
                 generatedAtUtc: toUtcIsoOrNull(responseGeneratedAtMs) ?? new Date(0).toISOString(),
                 range: period ?? "30d",
-                sourceTruth: "drop_metadata_plus_rollups" as const,
-                freshnessState: topDropConversionRows.some((row) => row.dropIdentityState !== "resolved") ? "partial" as const : "recent" as const,
                 denominatorLabel: "validated views" as const,
                 numeratorLabel: "unwraps" as const,
                 page: 1,

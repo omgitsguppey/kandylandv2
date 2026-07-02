@@ -43,6 +43,7 @@ import {
   buildRecoveryMetricIdentityStitchingState,
   buildRecoveredLaunchMetricState,
   buildRegionDemandRecoveryMetricState,
+  buildTopDropConversionRecoveryMetricState,
   buildRecoveryTimelineEntryFromGa4Event,
   buildRecoveryTimelineEntryFromCanonicalEvent,
   classifyRecoveryMetricSourceEvidence,
@@ -122,6 +123,37 @@ describe("recovery timeline spine", () => {
       freshnessState: "source_missing",
       productTruthEligible: false,
       missingVsZeroState: "source_missing",
+    });
+  });
+
+  it("centralizes top drop conversion recovery evidence as first-party source truth", () => {
+    const observed = buildTopDropConversionRecoveryMetricState({
+      dropId: "drop_alpha",
+      views: 25,
+      unwraps: 5,
+      generatedAtMs: Date.parse("2026-05-06T12:00:00.000Z"),
+    });
+    const unwrapOnly = buildTopDropConversionRecoveryMetricState({
+      dropId: "drop_beta",
+      views: 0,
+      unwraps: 2,
+      generatedAtMs: Date.parse("2026-05-06T12:00:00.000Z"),
+    });
+
+    expect(observed).toMatchObject({
+      eventName: "drop_preview_opened",
+      sourceTruth: "first_party_event_fact",
+      freshnessState: "source_current",
+      evidenceKind: "observed",
+      productTruthEligible: true,
+      missingVsZeroState: "source_present",
+    });
+    expect(unwrapOnly).toMatchObject({
+      eventName: "drop_unlocked",
+      sourceTruth: "first_party_event_fact",
+      evidenceKind: "observed",
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
     });
   });
 

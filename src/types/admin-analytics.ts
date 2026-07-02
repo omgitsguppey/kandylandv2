@@ -235,8 +235,8 @@ export type TopDropConversionRow = {
   unwrapRateDisplay: string;
   revenueUsd?: number | null;
   gumdropsSpent?: number | null;
-  sourceTruth: string;
-  freshnessState: RecoveredLaunchMetricState["freshnessState"] | "live" | "recent" | "stale" | "partial" | "unknown";
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"];
+  freshnessState: RecoveredLaunchMetricState["freshnessState"];
   confidenceScore?: RecoveredLaunchMetricState["confidenceScore"];
   confidenceBand?: RecoveredLaunchMetricState["confidenceBand"];
   evidenceKind?: RecoveredLaunchMetricState["evidenceKind"];
@@ -253,8 +253,8 @@ export type TopDropConversionRow = {
 export type TopDropConversionState = {
   generatedAtUtc: string;
   range: string;
-  sourceTruth: "drop_metadata_plus_rollups" | "telemetry" | "mixed" | "fallback" | "unknown";
-  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"] | "mixed";
+  freshnessState: RecoveredLaunchMetricState["freshnessState"] | "refresh_due";
   denominatorLabel: "views" | "previews" | "validated views" | "drop detail views";
   numeratorLabel: "unwraps";
   page: number;

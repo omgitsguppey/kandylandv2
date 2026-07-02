@@ -6,7 +6,11 @@ import type {
   TopDropItem,
 } from "@/types/admin-analytics";
 import { safeRate } from "@/lib/deterministic-admin-truth";
-import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
+import { buildTopDropConversionRecoveryMetricState } from "@/lib/analytics/recovery-timeline-spine";
+import {
+  resolveAdminAnalyticsRecoveryPanelFreshnessState,
+  resolveAdminAnalyticsRecoveryPanelSourceTruth,
+} from "@/lib/analytics/admin-analytics-display-state";
 
 export type AdminAnalyticsTopDropConversionModel = TopDropConversionState & {
   selectedRange: RangeOption;
@@ -22,6 +26,24 @@ export type AdminAnalyticsTopDropConversionModel = TopDropConversionState & {
 };
 
 const DEFAULT_PAGE_SIZE = 10;
+
+function normalizeTopDropConversionSourceTruth(
+  value: ReturnType<typeof resolveAdminAnalyticsRecoveryPanelSourceTruth>,
+): TopDropConversionState["sourceTruth"] {
+  if (value === "ga4") return "ga4_evidence_only";
+  if (value === "first_party") return "first_party_event_fact";
+  if (value === "fallback" || value === "unknown") return "source_missing";
+  return value;
+}
+
+function normalizeTopDropConversionFreshnessState(
+  value: ReturnType<typeof resolveAdminAnalyticsRecoveryPanelFreshnessState>,
+): TopDropConversionState["freshnessState"] {
+  if (value === "live" || value === "recent") return "source_current";
+  if (value === "stale") return "refresh_due";
+  if (value === "partial" || value === "unknown") return "source_missing";
+  return value;
+}
 
 function shortDropId(dropId: string) {
   if (!dropId) return "missing";
@@ -49,7 +71,7 @@ function normalizeRow(drop: TopDropItem): TopDropConversionRow {
     : "resolved";
   const views = Math.max(0, Number(drop.views) || 0);
   const unwraps = Math.max(0, Number(drop.unlocks) || 0);
-  const recoveryMetadata = buildTopDropConversionRecoveryMetadata({
+  const recoveryMetadata = buildTopDropConversionRecoveryMetricState({
     views,
     unwraps,
     dropId: drop.dropId,
@@ -94,37 +116,30 @@ function normalizeRow(drop: TopDropItem): TopDropConversionRow {
   };
 }
 
-function buildTopDropConversionRecoveryMetadata(input: {
-  views: number;
-  unwraps: number;
-  dropId: string;
-  generatedAtMs: number | null;
-}) {
-  const sourceObserved = input.views > 0 || input.unwraps > 0;
-  const eventName = input.views > 0 ? "drop_preview_opened" : "drop_unlocked";
-  return buildRecoveredLaunchMetricState({
-    eventName,
-    sourceObserved,
-    sourceTruth: "first_party_event_fact",
-    evidenceKind: sourceObserved ? "observed" : "missing",
-    route: "admin_analytics_top_drop_conversion",
-    objectId: input.dropId,
-    timestampMs: input.generatedAtMs,
-  });
-}
-
 function buildFallbackState(input: {
   response?: Partial<HistoricalAnalyticsResponse> | null;
   selectedRange: RangeOption;
 }): TopDropConversionState {
   const rows = (input.response?.topDrops ?? []).map(normalizeRow);
+  const hasResponse = Boolean(input.response);
+  const sourceTruth = normalizeTopDropConversionSourceTruth(resolveAdminAnalyticsRecoveryPanelSourceTruth({
+    hasResponse,
+    rows,
+    fallbackSourceTruth: input.response?.topDrops ? "first_party" : null,
+  }));
+  const freshnessState = normalizeTopDropConversionFreshnessState(resolveAdminAnalyticsRecoveryPanelFreshnessState({
+    hasResponse,
+    rows,
+    fallbackFreshnessState: input.response?.topDrops ? "recent" : null,
+  }));
+
   return {
     generatedAtUtc: input.response?.generatedAtMs
       ? new Date(input.response.generatedAtMs).toISOString()
       : new Date(0).toISOString(),
     range: input.selectedRange,
-    sourceTruth: rows.length > 0 ? "fallback" : "unknown",
-    freshnessState: rows.length > 0 ? "partial" : "unknown",
+    sourceTruth,
+    freshnessState,
     denominatorLabel: "validated views",
     numeratorLabel: "unwraps",
     page: 1,
@@ -166,8 +181,8 @@ export function buildAdminAnalyticsTopDropConversionModel(input: {
       chartLabel: row.dropTitle.length > 18 ? `${row.dropTitle.slice(0, 18)}...` : row.dropTitle,
     })),
     denominatorCopy: `${baseState.denominatorLabel} source: drop rollups or validated drop counters for the selected range.`,
-    sourceCopy: baseState.sourceTruth === "drop_metadata_plus_rollups"
-      ? "Drop names come from metadata; unwrap counts come from access/drop rollups."
-      : "Drop conversion source is partial. Review source and freshness before treating rates as authoritative.",
+    sourceCopy: baseState.sourceTruth === "source_missing"
+      ? "Drop conversion source is missing. Review source and freshness before treating rates as authoritative."
+      : "Top drop conversion uses first-party source evidence for previews and unwraps.",
   };
 }

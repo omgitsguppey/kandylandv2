@@ -3461,6 +3461,26 @@ export function buildRegionDemandRecoveryMetricState(input: {
   });
 }
 
+export function buildTopDropConversionRecoveryMetricState(input: {
+  views: number;
+  unwraps: number;
+  dropId: string;
+  generatedAtMs?: number | null;
+}): RecoveredLaunchMetricState {
+  const sourceObserved = input.views > 0 || input.unwraps > 0;
+  const eventName = input.views > 0 ? "drop_preview_opened" : "drop_unlocked";
+
+  return buildRecoveredLaunchMetricState({
+    eventName,
+    sourceObserved,
+    sourceTruth: "first_party_event_fact",
+    evidenceKind: sourceObserved ? "observed" : "missing",
+    route: "admin_analytics_top_drop_conversion",
+    objectId: input.dropId,
+    timestampMs: input.generatedAtMs ?? null,
+  });
+}
+
 export function classifyRecoveryMetricSourceEvidence(input: {
   checkedCount?: number | null;
   estimatedCount?: number | null;
