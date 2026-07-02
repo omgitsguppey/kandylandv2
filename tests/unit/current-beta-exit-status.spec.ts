@@ -68,7 +68,7 @@ function proofLanesFor(
       id: "runtimeSmoke",
       label: "Deployed route evidence",
       truthState: summary.runtimeSmokeStatus.startsWith("stale_")
-        ? "external_evidence_required"
+        ? "stale_evidence"
         : summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed")
           ? "current_source_evidence"
           : "external_evidence_required",
@@ -375,7 +375,7 @@ describe("current beta exit status validator", () => {
     expect(report.summary.proofLanes).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: "uiSurfaceCoverage", truthState: "stale_evidence", actionState: "refresh_stale_evidence" }),
       expect.objectContaining({ id: "providerSmoke", truthState: "external_evidence_required", actionState: "refresh_stale_evidence" }),
-      expect.objectContaining({ id: "runtimeSmoke", truthState: "external_evidence_required", actionState: "refresh_stale_evidence" }),
+      expect.objectContaining({ id: "runtimeSmoke", truthState: "stale_evidence", actionState: "refresh_stale_evidence" }),
       expect.objectContaining({ id: "adminTruthSample", truthState: "admin_truth_source_required", actionState: "refresh_stale_evidence" }),
     ]));
   });

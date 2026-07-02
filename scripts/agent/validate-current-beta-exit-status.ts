@@ -415,7 +415,8 @@ function proofTruthStateFor(input: {
       return "current_source_evidence";
     }
     if (input.id === "adminTruthSample") return "admin_truth_source_required";
-    if (input.id === "providerSmoke" || input.id === "runtimeSmoke") return "external_evidence_required";
+    if (input.id === "providerSmoke") return "external_evidence_required";
+    if (input.id === "runtimeSmoke") return "stale_evidence";
     return "stale_evidence";
   }
   if (/source_only/iu.test(input.sourceStatus)) {
@@ -426,6 +427,9 @@ function proofTruthStateFor(input: {
   }
   if (/source_ready/iu.test(artifactStatus)) {
     return "source_only_not_clearing";
+  }
+  if (input.id === "runtimeSmoke" && isStaleSource) {
+    return "stale_evidence";
   }
   if (input.id === "providerSmoke" || input.id === "runtimeSmoke") {
     return "external_evidence_required";

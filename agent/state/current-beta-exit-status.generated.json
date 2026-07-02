@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-02T03:05:26.290Z",
+  "generatedAtUtc": "2026-07-02T03:19:39.001Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "d442a1a710e6463dc9fd53b28b2e10c543db9b95",
+  "currentHead": "092e8b0ffb621272cc384bb9b6e24897d4c639a8",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -71,7 +71,7 @@
       {
         "id": "runtimeSmoke",
         "label": "Deployed route evidence",
-        "truthState": "external_evidence_required",
+        "truthState": "stale_evidence",
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_runtime_smoke_evidence",
         "sourcePath": "agent/state/runtime-smoke-evidence.generated.json",
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T03:05:26.290Z",
+      "generatedAtUtc": "2026-07-02T03:19:39.001Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",

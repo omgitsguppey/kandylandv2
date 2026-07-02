@@ -453,7 +453,7 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
       const targetedArtifactMissing = gate.evidence.some((entry) => /targetedBehaviorArtifactStatus=missing_formal_evidence/iu.test(entry));
       return targetedArtifactMissing && gate.sourceCredit > gate.evidenceCredit
         ? `${gate.status}: ${gate.label} - Source activity evidence is present; attach targeted source validator evidence before treating targeted behavior tests as passed.`
-        : `${gate.status}: ${gate.label} - Source behavior passed; deployed route, provider-backed, and admin source activity lanes still need matching site activity records.`;
+        : `${gate.status}: ${gate.label} - Source behavior passed; deployed route evidence, provider-backed site activity, and admin source activity lanes still need their matching records.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
@@ -468,11 +468,11 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
     const providerMissing = /providerArtifactStatus=(missing_formal_evidence|operator_reported_not_formal_provider_smoke|missing_or_unknown)/iu.test(evidenceText);
     const runtimeCurrent = /runtimeArtifactStatus=(passed|formal_runtime_smoke_passed)|runtimeDeploymentSmokePassed=true|readinessImpact\.runtimeGatePassed=true/iu.test(evidenceText);
     if (gate.status === "External proof required" || gate.status === "Source evidence required") {
-      if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
-        return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
-      }
       if (providerMissing && runtimeCurrent) {
         return `${gate.status}: ${gate.label} - Produce provider-backed site activity evidence; deployed runtime route evidence is current.`;
+      }
+      if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
+        return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
       }
       return `${gate.status}: ${gate.label} - Produce provider-backed site activity and keep deployed runtime route evidence current.`;
     }
