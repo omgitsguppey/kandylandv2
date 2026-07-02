@@ -93,6 +93,15 @@ function readRealUsageConfidenceCalibration(): RuntimeSmokeSubstituteInput["real
   };
 }
 
+function readRealUsageConfidence(): RuntimeSmokeSubstituteInput["realUsageConfidence"] {
+  const parsed = readJson("agent/state/real-usage-confidence.generated.json");
+  return {
+    status: stringValue(parsed?.status),
+    confidenceScore: numberValue(parsed?.confidenceScore),
+    observedSignals: numberValue(parsed?.observedSignals),
+  };
+}
+
 function readBehaviorMath(): RuntimeSmokeSubstituteInput["behaviorMath"] {
   const parsed = readJson("agent/state/behavior-math-verification.generated.json");
   return {
@@ -133,6 +142,8 @@ function renderDoc(report: RuntimeSmokeSubstituteMatrixReport) {
     "",
     `- Status: ${report.status}`,
     `- Runtime health credit: ${report.matrixRuntimeHealthCredit}`,
+    `- Runtime/provider activity credit: ${report.matrixRuntimeProviderActivityCredit}`,
+    `- Observed real-usage signals: ${report.realUsageObservedSignals}`,
     `- Evidence completeness credit: ${report.matrixEvidenceCompletenessCredit}`,
     `- Source-proven rows: ${report.currentProofSummary.sourceProvenRows}`,
     `- Telemetry-proven rows: ${report.currentProofSummary.telemetryProvenRows}`,
@@ -164,6 +175,7 @@ const report = buildRuntimeSmokeSubstituteMatrix({
   generatedAtUtc: new Date().toISOString(),
   debugRuntimeEvidence: readDebugRuntimeEvidence(),
   sourceBackedRuntimeConfidence: readSourceBackedRuntimeConfidence(),
+  realUsageConfidence: readRealUsageConfidence(),
   realUsageConfidenceCalibration: readRealUsageConfidenceCalibration(),
   behaviorMath: readBehaviorMath(),
   adminTruthSample: readAdminTruthSample(),
@@ -184,5 +196,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Runtime smoke substitute matrix OK: runtimeCredit=${report.matrixRuntimeHealthCredit}, formalRuntimeRows=${report.currentProofSummary.formalRuntimeRequiredRows}.`,
+  `Runtime smoke substitute matrix OK: sourceMatrixCredit=${report.matrixRuntimeHealthCredit}, runtimeProviderActivityCredit=${report.matrixRuntimeProviderActivityCredit}, formalRuntimeRows=${report.currentProofSummary.formalRuntimeRequiredRows}.`,
 );

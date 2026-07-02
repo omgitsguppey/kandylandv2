@@ -942,7 +942,7 @@ describe("public beta scoring math", () => {
                     status: "source_ready_real_usage_confidence",
                     passed: true,
                     detail: "Source-backed real usage confidence is current.",
-                    evidence: ["confidenceScore=92", "formalGatesCleared=false"],
+                    evidence: ["confidenceScore=92", "observedSignals=4", "formalGatesCleared=false"],
                     generatedAtUtc: new Date().toISOString(),
                 },
                 runtimeSmokeSubstituteMatrixEvidence: {
@@ -950,7 +950,7 @@ describe("public beta scoring math", () => {
                     status: "source_ready_runtime_smoke_substitute_matrix",
                     passed: true,
                     detail: "Runtime smoke substitute matrix is source-ready.",
-                    evidence: ["matrixRuntimeHealthCredit=92", "deployedRuntimeSmokeStillRequired=true"],
+                    evidence: ["matrixRuntimeHealthCredit=92", "matrixRuntimeProviderActivityCredit=92", "deployedRuntimeSmokeStillRequired=true"],
                     generatedAtUtc: new Date().toISOString(),
                 },
                 debugRuntimeEvidenceArtifact: {
@@ -1051,7 +1051,20 @@ describe("public beta scoring math", () => {
                 targetedBehaviorEvidence: { ...missingTargetedBehaviorEvidence, generatedAtUtc: freshGeneratedAtUtc },
                 debugRuntimeEvidenceArtifact: undefined,
                 sourceBackedRuntimeConfidenceEvidence: undefined,
-                runtimeSmokeSubstituteMatrixEvidence: undefined,
+                runtimeSmokeSubstituteMatrixEvidence: {
+                    path: "agent/state/runtime-smoke-substitute-matrix.generated.json",
+                    status: "source_ready_runtime_smoke_substitute_matrix",
+                    passed: true,
+                    detail: "Runtime smoke substitute matrix is source-ready.",
+                    evidence: [
+                        "matrixRuntimeHealthCredit=95",
+                        "matrixRuntimeProviderActivityCredit=0",
+                        "realUsageObservedSignals=0",
+                        "realUsageObservedActivityCredit=0",
+                        "deployedRuntimeSmokeStillRequired=true",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
                 realUsageConfidenceEvidence: {
                     path: "agent/state/real-usage-confidence.generated.json",
                     status: "source_ready_real_usage_confidence",
@@ -1082,6 +1095,8 @@ describe("public beta scoring math", () => {
         expect(smokeGate?.evidence.join("\n")).toContain("realUsageConfidenceCredit=95");
         expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedSignals=0");
         expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
+        expect(smokeGate?.evidence.join("\n")).toContain("runtimeSmokeSubstituteMatrixCredit=95");
+        expect(smokeGate?.evidence.join("\n")).toContain("runtimeSmokeSubstituteMatrixActivityCredit=0");
     });
 
     it("dedupes duplicate findings and keeps the strongest evidence", () => {

@@ -6,8 +6,10 @@ Status: source-only deployed route substitute matrix. It reduces optional checks
 
 - Status: source_ready_runtime_smoke_substitute_matrix
 - Runtime health credit: 75.56
+- Runtime/provider activity credit: 0
+- Observed real-usage signals: 0
 - Evidence completeness credit: 70.17
-- Source-proven rows: 11
+- Source-proven rows: 12
 - Telemetry-proven rows: 7
 - Debug-proven rows: 0
 - Deployed route evidence rows: 10
@@ -18,7 +20,7 @@ Status: source-only deployed route substitute matrix. It reduces optional checks
 - route_loads: proof=source_proven; types=source,debug,formal_runtime; formalRuntime=true; score=84; next=Attach deployed route-load evidence before clearing the deployed route evidence lane.
 - auth_state: proof=source_proven; types=source,telemetry,debug,formal_runtime; formalRuntime=true; score=80; next=Attach deployed auth-state evidence before clearing the deployed route evidence lane.
 - wallet_balance_display: proof=source_proven; types=source; formalRuntime=false; score=45; next=Keep wallet balance display covered by deterministic source/UI coverage; do not change wallet runtime or GumDrop math.
-- gumdrop_refill_source_readiness: proof=operator_confirmed; types=source,telemetry,operator,formal_runtime; formalRuntime=true; score=92; next=Attach provider-backed refill evidence and deployed route evidence before clearing protected source-evidence lanes.
+- gumdrop_refill_source_readiness: proof=source_proven; types=source,telemetry,formal_runtime; formalRuntime=true; score=92; next=Attach provider-backed refill evidence and deployed route evidence before clearing protected source-evidence lanes.
 - creator_dashboard_load: proof=telemetry_proven; types=source,telemetry,debug,formal_runtime; formalRuntime=true; score=72; next=Attach deployed creator dashboard evidence before clearing the deployed route evidence lane.
 - creator_settings_save: proof=source_proven; types=source,telemetry,debug,formal_runtime; formalRuntime=true; score=58; next=Attach deployed creator settings save evidence before clearing the deployed route evidence lane.
 - creator_drop_manager_load: proof=telemetry_proven; types=source,telemetry,debug,formal_runtime; formalRuntime=true; score=76; next=Attach deployed creator drop manager evidence before clearing the deployed route evidence lane.

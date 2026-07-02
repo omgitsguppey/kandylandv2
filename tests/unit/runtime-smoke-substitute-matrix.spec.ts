@@ -29,6 +29,11 @@ function buildReport() {
         clearsFormalProvider: false,
       },
     },
+    realUsageConfidence: {
+      status: "source_ready_real_usage_confidence",
+      confidenceScore: 92,
+      observedSignals: 4,
+    },
     behaviorMath: {
       status: "live",
       overallScore: 100,
@@ -85,6 +90,33 @@ describe("runtime smoke substitute matrix", () => {
     expect(report.deployedRuntimeSmokeStillRequired).toBe(true);
     expect(report.currentProofSummary.formalRuntimeRequiredRows).toBeGreaterThan(0);
     expect(report.matrixRuntimeHealthCredit).toBeGreaterThan(0);
+    expect(report.matrixRuntimeProviderActivityCredit).toBeGreaterThan(0);
+  });
+
+  it("does not turn calibration-only confidence into runtime/provider activity credit", () => {
+    const report = buildRuntimeSmokeSubstituteMatrix({
+      currentHead: "abc123",
+      generatedAtUtc: "2026-05-21T12:00:00.000Z",
+      realUsageConfidence: {
+        status: "source_ready_real_usage_confidence",
+        confidenceScore: 95,
+        observedSignals: 0,
+      },
+      realUsageConfidenceCalibration: {
+        status: "source_ready_real_usage_confidence_calibrated",
+        runtimeHealthCredit: 95,
+        formalGateImpact: {
+          clearsDeployedRuntime: false,
+          clearsFormalProvider: false,
+        },
+      },
+    });
+
+    expect(report.matrixRuntimeHealthCredit).toBe(0);
+    expect(report.matrixRuntimeProviderActivityCredit).toBe(0);
+    expect(report.rows.gumdrop_refill_source_readiness.currentProofLevel).toBe("formal_runtime_required");
+    expect(report.evidence.join("\n")).toContain("realUsageObservedSignals=0");
+    expect(report.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
   });
 
   it("requires exact next actions for rows needing deployed route evidence", () => {

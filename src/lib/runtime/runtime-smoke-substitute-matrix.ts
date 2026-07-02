@@ -86,6 +86,11 @@ export type RuntimeSmokeSubstituteInput = {
       clearsFormalProvider?: boolean;
     };
   };
+  realUsageConfidence?: {
+    status?: string;
+    confidenceScore?: number;
+    observedSignals?: number;
+  };
   behaviorMath?: {
     status?: string;
     overallScore?: number;
@@ -137,7 +142,10 @@ export type RuntimeSmokeSubstituteMatrixReport = {
     debugProvenRows: number;
     formalRuntimeRequiredRows: number;
   };
+  realUsageObservedSignals: number;
+  realUsageObservedActivityCredit: number;
   matrixRuntimeHealthCredit: number;
+  matrixRuntimeProviderActivityCredit: number;
   matrixEvidenceCompletenessCredit: number;
   evidence: string[];
   nextAction: string;
@@ -455,8 +463,21 @@ function debugReady(input: RuntimeSmokeSubstituteInput) {
 
 function sourceReady(input: RuntimeSmokeSubstituteInput) {
   return String(input.sourceBackedRuntimeConfidence?.status ?? "").includes("source_ready")
-    || String(input.realUsageConfidenceCalibration?.status ?? "").includes("source_ready")
     || String(input.adminTruthSample?.status ?? "").includes("source_ready");
+}
+
+function realUsageObservedSignals(input: RuntimeSmokeSubstituteInput) {
+  return Math.max(0, input.realUsageConfidence?.observedSignals ?? 0);
+}
+
+function realUsageObservedActivityCredit(input: RuntimeSmokeSubstituteInput) {
+  if (realUsageObservedSignals(input) <= 0) return 0;
+  const confidenceReady = String(input.realUsageConfidence?.status ?? "").includes("source_ready");
+  const calibrationReady = String(input.realUsageConfidenceCalibration?.status ?? "").includes("source_ready");
+  return clampScore(Math.max(
+    confidenceReady ? input.realUsageConfidence?.confidenceScore ?? 0 : 0,
+    calibrationReady ? input.realUsageConfidenceCalibration?.runtimeHealthCredit ?? 0 : 0,
+  ));
 }
 
 function behaviorReady(input: RuntimeSmokeSubstituteInput) {
@@ -471,6 +492,7 @@ function proofLevel(config: typeof ROW_CONFIG[RuntimeSmokeSubstituteRowId], inpu
   }
   if (config.preferredProof === "operator_confirmed"
     && String(input.realUsageConfidenceCalibration?.status ?? "").includes("source_ready")
+    && realUsageObservedSignals(input) > 0
     && input.realUsageConfidenceCalibration?.formalGateImpact?.clearsFormalProvider !== true) {
     return "operator_confirmed";
   }
@@ -522,6 +544,9 @@ export function buildRuntimeSmokeSubstituteMatrix(input: RuntimeSmokeSubstituteI
       .reduce((sum, row) => sum + row.scoreImpactEstimate, 0)
       / Math.max(1, rowValues.filter((row) => row.scoreDimension === "runtimeHealth").length),
   );
+  const observedSignals = realUsageObservedSignals(input);
+  const observedActivityCredit = realUsageObservedActivityCredit(input);
+  const matrixRuntimeProviderActivityCredit = clampScore(Math.min(matrixRuntimeHealthCredit, observedActivityCredit));
   const matrixEvidenceCompletenessCredit = clampScore(
     sourceCreditRows
       .filter((row) => row.scoreDimension === "evidenceCompleteness")
@@ -549,10 +574,16 @@ export function buildRuntimeSmokeSubstituteMatrix(input: RuntimeSmokeSubstituteI
       debugProvenRows: rowValues.filter((row) => row.currentProofLevel === "debug_proven").length,
       formalRuntimeRequiredRows: rowValues.filter((row) => row.requiresFormalRuntime).length,
     },
+    realUsageObservedSignals: observedSignals,
+    realUsageObservedActivityCredit: observedActivityCredit,
     matrixRuntimeHealthCredit,
+    matrixRuntimeProviderActivityCredit,
     matrixEvidenceCompletenessCredit,
     evidence: [
       `matrixRuntimeHealthCredit=${matrixRuntimeHealthCredit}`,
+      `matrixRuntimeProviderActivityCredit=${matrixRuntimeProviderActivityCredit}`,
+      `realUsageObservedSignals=${observedSignals}`,
+      `realUsageObservedActivityCredit=${observedActivityCredit}`,
       `matrixEvidenceCompletenessCredit=${matrixEvidenceCompletenessCredit}`,
       `formalRuntimeRequiredRows=${rowValues.filter((row) => row.requiresFormalRuntime).length}`,
       "deployedRuntimeSmokeStillRequired=true",
@@ -581,6 +612,12 @@ export function validateRuntimeSmokeSubstituteMatrix(report: RuntimeSmokeSubstit
   if (report.formalGateImpact.clearsDeployedRuntime) failures.push("matrix must not clear deployed route evidence lane.");
   if (report.formalGateImpact.clearsFormalProvider) failures.push("matrix must not clear formal provider gate.");
   if (!report.deployedRuntimeSmokeStillRequired) failures.push("deployed route evidence must remain required.");
+  if (report.realUsageObservedSignals <= 0 && report.matrixRuntimeProviderActivityCredit > 0) {
+    failures.push("matrix runtime/provider activity credit requires observed real-usage signals.");
+  }
+  if (report.matrixRuntimeProviderActivityCredit > report.matrixRuntimeHealthCredit) {
+    failures.push("matrix runtime/provider activity credit cannot exceed matrix runtime health credit.");
+  }
   for (const id of RUNTIME_SMOKE_SUBSTITUTE_ROW_IDS) {
     const row = report.rows[id];
     if (!row) {

@@ -1047,10 +1047,14 @@ export function buildPublicBetaEvidenceGates(input: {
         clamp(evidenceArtifactNumber(evidence.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit") ?? 0, 0, 100),
       )
     : 0;
+  const runtimeSmokeSubstituteMatrixActivityCredit = runtimeSmokeSubstituteMatrixQuality.quality === "source_ready"
+    && runtimeSmokeSubstituteMatrixStatus.includes("source_ready")
+    ? clamp(evidenceArtifactNumber(evidence.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeProviderActivityCredit") ?? 0, 0, 100)
+    : 0;
   const runtimeProviderSourceActivityCredit = Math.max(
     sourceBackedRuntimeConfidenceCredit,
     realUsageObservedActivityCredit,
-    runtimeSmokeSubstituteMatrixCredit,
+    runtimeSmokeSubstituteMatrixActivityCredit,
   );
   const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
     ? 100
@@ -1091,6 +1095,7 @@ export function buildPublicBetaEvidenceGates(input: {
         ? [
             `runtimeSmokeSubstituteMatrixStatus=${runtimeSmokeSubstituteMatrixStatus}`,
             `runtimeSmokeSubstituteMatrixCredit=${roundScore(runtimeSmokeSubstituteMatrixCredit)}`,
+            `runtimeSmokeSubstituteMatrixActivityCredit=${roundScore(runtimeSmokeSubstituteMatrixActivityCredit)}`,
             ...evidenceArtifactEvidence(evidence.runtimeSmokeSubstituteMatrixEvidence),
           ]
         : []
@@ -1333,7 +1338,7 @@ export function buildPublicBetaEvidenceGates(input: {
         runtimeQuality.quality === "source_ready" ? runtimeQuality.partialCredit * 100 : 0,
         sourceBackedRuntimeConfidenceCredit,
         realUsageObservedActivityCredit,
-        runtimeSmokeSubstituteMatrixCredit,
+        runtimeSmokeSubstituteMatrixActivityCredit,
         runtimeProviderQuality.partialCredit * 100,
       ),
       runtimeCredit: runtimeProviderRuntimeCredit,
