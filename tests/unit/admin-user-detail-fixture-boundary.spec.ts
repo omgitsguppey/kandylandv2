@@ -39,9 +39,9 @@ describe("admin user detail fixture boundary", () => {
 
   it("does not collapse missing behavior metrics into zero-valued summary stats", () => {
     expect(source).toContain('return "No source";');
-    expect(source).toContain("formatBehaviorCountLabel(behaviorRollup?.totalActions ?? analytics?.eventCount)");
-    expect(source).toContain("formatBehaviorCountLabel(behaviorRollup?.views ?? analytics?.viewCount)");
-    expect(source).toContain("formatBehaviorCountLabel(behaviorRollup?.authEvents ?? analytics?.authSuccessCount)");
+    expect(source).toContain("formatBehaviorCountLabel(behaviorRollup?.totalActions)");
+    expect(source).toContain("formatBehaviorCountLabel(behaviorRollup?.views)");
+    expect(source).toContain("formatBehaviorCountLabel(behaviorRollup?.authEvents)");
     expect(source).toContain("if (!behaviorRollup)");
     expect(source).not.toContain("behaviorRollup?.watchTimeMs ?? 0");
     expect(source).not.toContain("analytics?.eventCount ?? 0).toLocaleString()");

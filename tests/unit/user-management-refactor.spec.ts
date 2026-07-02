@@ -314,6 +314,7 @@ describe("user management refactor contract", () => {
     });
 
     expect(model.activitySummary.state).toBe("partial");
+    expect(model.activitySummary.totalEvents).toBeNull();
     expect(model.activitySummary.sessions).toBe(3);
     expect(model.activitySummary.visits).toBeNull();
     expect(model.activitySummary.pageViews).toBeNull();
@@ -322,7 +323,7 @@ describe("user management refactor contract", () => {
     expect(model.activitySummary.missingSource).toContain("page_views: bridge_missing");
   });
 
-  it("blocks non-payment user-scoped drop and support counts when user parity is missing", () => {
+  it("blocks user-scoped wallet, payment, drop, and support counts when user parity is missing", () => {
     const model = buildUserManagementSummary({
       user: user(),
       analytics: analytics({ unwrapCount: 2 }),
@@ -377,6 +378,30 @@ describe("user management refactor contract", () => {
             blocksUserParity: true,
             debugNextAction: "Global support_account_actions activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
           },
+          wallet_opens: {
+            metricId: "wallet_opens",
+            state: "bridge_missing",
+            globalCount: 1,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global wallet_opens activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
+          payment_approvals: {
+            metricId: "payment_approvals",
+            state: "bridge_missing",
+            globalCount: 1,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global payment_approvals activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
         } as PersonMetricsHydrationReport["userParityStatus"],
       }),
       generatedAtUtc: "2026-05-23T12:00:00.000Z",
@@ -386,8 +411,8 @@ describe("user management refactor contract", () => {
     expect(model.dropUnwrapMetrics.unwraps).toBeNull();
     expect(model.dropUnwrapMetrics.creatorProfileViews).toBeNull();
     expect(model.supportAccountSafety.supportAccountActions).toBeNull();
-    expect(model.walletPaymentConfidence.walletOpens).toBe(1);
-    expect(model.walletPaymentConfidence.paymentApprovals).toBe(1);
+    expect(model.walletPaymentConfidence.walletOpens).toBeNull();
+    expect(model.walletPaymentConfidence.paymentApprovals).toBeNull();
   });
 
   it("reports the refactor lane and score impact without protected runtime changes", () => {
@@ -432,6 +457,8 @@ describe("user management refactor contract", () => {
     expect(adminUsersPage).toContain("data-admin-user-management-identity-handoff");
     expect(adminUsersPage).toContain("data-admin-user-management-consent-mode");
     expect(adminUsersPage).toContain("data-admin-user-management-metric-confidence");
+    expect(adminUsersPage).toContain("formatOptionalCount(managementSummary.activitySummary.totalEvents)");
+    expect(adminUsersPage).not.toContain("behaviorRollup?.totalActions ?? analytics.eventCount ?? 0");
     expect(adminUsersPage).toContain("<details");
     expect(adminUsersPage).not.toMatch(/<pre[\s\S]{0,200}JSON\.stringify/);
     expect(adminDebugSummary).toContain("user_management");

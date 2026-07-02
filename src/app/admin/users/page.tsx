@@ -463,6 +463,8 @@ export default function UserManagementPage() {
     });
     const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "Unavailable";
     const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "Unavailable";
+    const formatOptionalCount = (value: number | null | undefined) =>
+        typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "No source";
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
         !analytics || analytics.metricTruthLabel === "unknown" ? "Unavailable" : (value ?? 0).toLocaleString();
     const formatWatchHours = (watchTimeMs?: number, fallbackHours?: number) => {
@@ -1374,6 +1376,12 @@ export default function UserManagementPage() {
                                 });
                                 const onboardingBadge = getOnboardingBadge(user, analytics);
                                 const managementSummary = userManagementSummaryById.get(user.uid);
+                                const activityEventsLabel = managementSummary
+                                    ? formatOptionalCount(managementSummary.activitySummary.totalEvents)
+                                    : formatOptionalCount(behaviorRollup?.totalActions);
+                                const unwrapsLabel = managementSummary
+                                    ? formatOptionalCount(managementSummary.dropUnwrapMetrics.unwraps)
+                                    : formatOptionalCount(behaviorRollup?.unwraps);
                                 return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
                                     {/* Background Accent based on Role/Status */}
@@ -1457,11 +1465,11 @@ export default function UserManagementPage() {
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
-                                                    <span className="text-sm font-mono text-gray-300">{behaviorRollup?.totalActions ?? analytics.eventCount ?? 0}</span>
+                                                    <span className="text-sm font-mono text-gray-300">{activityEventsLabel}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Unwraps</span>
-                                                    <span className="text-sm font-mono text-gray-300">{behaviorRollup?.unwraps ?? analytics.unwrapCount ?? 0}</span>
+                                                    <span className="text-sm font-mono text-gray-300">{unwrapsLabel}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Watch</span>

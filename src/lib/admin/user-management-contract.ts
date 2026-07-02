@@ -312,7 +312,7 @@ function activityState(analytics?: UserAnalytics | null, report?: PersonMetricsH
   if (analytics) {
     return {
       state: analytics.metricTruthLabel === "partial" || analytics.recoveredFromFacts || parityMissingSource ? "partial" : "live",
-      totalEvents: analytics.eventCount,
+      totalEvents: parityMissingSource ? null : analytics.eventCount,
       sessions: userScopedMetricCount(report, "sessions", analytics.sessionCount),
       visits: userScopedMetricCount(report, "visits"),
       activeDays: userScopedMetricCount(report, "active_days"),
@@ -380,12 +380,12 @@ export function buildUserManagementSummary(input: UserManagementSummaryInput): U
       lowConfidenceMetrics: lowConfidence,
     },
     walletPaymentConfidence: {
-      walletOpens: metricCount(personMetricsHydration, "wallet_opens"),
-      packageSelections: metricCount(personMetricsHydration, "package_selections"),
-      checkoutStarts: metricCount(personMetricsHydration, "checkout_starts"),
-      paymentApprovals: metricCount(personMetricsHydration, "payment_approvals") ?? analytics?.purchaseCount ?? null,
-      paymentCancels: metricCount(personMetricsHydration, "payment_cancels"),
-      paymentFailures: metricCount(personMetricsHydration, "payment_failures"),
+      walletOpens: userScopedMetricCount(personMetricsHydration, "wallet_opens"),
+      packageSelections: userScopedMetricCount(personMetricsHydration, "package_selections"),
+      checkoutStarts: userScopedMetricCount(personMetricsHydration, "checkout_starts"),
+      paymentApprovals: userScopedMetricCount(personMetricsHydration, "payment_approvals", analytics?.purchaseCount ?? null),
+      paymentCancels: userScopedMetricCount(personMetricsHydration, "payment_cancels"),
+      paymentFailures: userScopedMetricCount(personMetricsHydration, "payment_failures"),
       confidence: bestMetricConfidence(personMetricsHydration, WALLET_METRICS),
       source: analytics?.commerceSourceLabel ?? "person_metrics_hydration",
     },
@@ -520,6 +520,7 @@ export function classifyUserManagementDirtyFile(path: string): UserManagementDir
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-user-detail-fixture-boundary.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/admin/user-management-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/users/page.tsx") return "real_source_change_needs_review";
