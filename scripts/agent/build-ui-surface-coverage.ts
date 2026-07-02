@@ -285,12 +285,12 @@ function buildSurfaceEntries() {
       const known_gap = compact([
         hydration_mode !== "static" && !canary.protected ? "hydration_sensitive_surface_missing_runtime_canary" : null,
         criticality !== "medium" && existing_tests.length === 0 ? "high_or_critical_surface_missing_coverage_lane" : null,
-        audit_target && audit_target.auth_required === "admin" ? "authenticated_admin_browser_evidence_pending" : null,
+        audit_target && audit_target.auth_required === "admin" ? "authenticated_admin_source_coverage_indexed_browser_optional" : null,
         audit_target && audit_target.auth_required !== "none" && audit_target.auth_required !== "admin" ? "auth_required_surface_not_in_guest_playwright_lane" : null,
       ])[0] ?? null;
       const coverage_notes = compact([
         blocking_required ? "Blocking public surface included in Playwright UI continuity lane." : null,
-        audit_target && audit_target.auth_required === "admin" ? "Admin surface owned by opt-in authenticated admin browser smoke lane." : null,
+        audit_target && audit_target.auth_required === "admin" ? "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only." : null,
         audit_target && audit_target.auth_required !== "none" ? `Auth-required surface indexed with ${audit_target.auth_required} audit requirement.` : null,
         !runtime_dependencies.length ? "No direct runtime dependency imports detected." : null,
         surfaceMap.domains.find((domain) => domain.path_prefixes.some((prefix) => repoPath.startsWith(prefix)))?.name

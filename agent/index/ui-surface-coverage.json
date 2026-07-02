@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-18T14:25:58.134Z",
+  "generatedAt": "2026-07-02T03:44:22.293Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -135,7 +135,7 @@
       "existing_tests": [
         "tests/ui-audits/admin-browser-surface-smoke.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": false,
@@ -158,7 +158,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -188,6 +188,7 @@
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-commerce-mobile.spec.ts",
         "tests/unit/admin-analytics-commerce-snapshot.spec.ts",
+        "tests/unit/admin-analytics-context.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
         "tests/unit/admin-analytics-debug-cost-reduction.spec.ts",
         "tests/unit/admin-analytics-device-mix.spec.ts",
@@ -195,6 +196,7 @@
         "tests/unit/admin-analytics-event-mix.spec.ts",
         "tests/unit/admin-analytics-fixture-boundary.spec.ts",
         "tests/unit/admin-analytics-guest-bounce-quality.spec.ts",
+        "tests/unit/admin-analytics-historical-content.spec.ts",
         "tests/unit/admin-analytics-historical-engagement.spec.ts",
         "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-traffic.spec.ts",
@@ -214,9 +216,12 @@
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-redirect-route.spec.ts",
         "tests/unit/admin-analytics-refresh-route.spec.ts",
+        "tests/unit/admin-analytics-region-demand.spec.ts",
         "tests/unit/admin-analytics-return-cadence.spec.ts",
+        "tests/unit/admin-analytics-shared.spec.ts",
         "tests/unit/admin-analytics-snapshot-error-language.spec.ts",
         "tests/unit/admin-analytics-source-hierarchy.spec.ts",
+        "tests/unit/admin-analytics-top-drop-conversion.spec.ts",
         "tests/unit/admin-analytics-top-paths.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-onboarding-analytics-mobile.spec.ts",
@@ -237,6 +242,7 @@
         "tests/unit/analytics-legacy-recovery-contract.spec.ts",
         "tests/unit/analytics-legacy-recovery-reconciliation.spec.ts",
         "tests/unit/analytics-metric-catalog.spec.ts",
+        "tests/unit/analytics-metrics.spec.ts",
         "tests/unit/analytics-panel-hydration.spec.ts",
         "tests/unit/analytics-rewire-phase-one.spec.ts",
         "tests/unit/analytics-semantics-final-lock.spec.ts",
@@ -247,7 +253,7 @@
         "tests/unit/guest-analytics-identity.spec.ts",
         "tests/unit/server-analytics-active-users.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -274,7 +280,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -298,13 +304,14 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
+        "tests/unit/admin-analytics-historical-content.spec.ts",
         "tests/unit/admin-content-error-language.spec.ts",
         "tests/unit/admin-content-page.spec.tsx",
         "tests/unit/admin-content-route.spec.ts",
         "tests/unit/content-protection-truth.spec.ts",
         "tests/unit/drops-content-route.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -331,7 +338,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -427,6 +434,7 @@
         "tests/unit/debug-cockpit-batch8-cleanup.spec.ts",
         "tests/unit/debug-cockpit-batch9-cleanup.spec.ts",
         "tests/unit/debug-cockpit-pr-finalization.spec.ts",
+        "tests/unit/debug-control-tower-cards.spec.tsx",
         "tests/unit/debug-evidence-contract.spec.ts",
         "tests/unit/debug-evidence-precacher-refresh.spec.ts",
         "tests/unit/debug-operator-cockpit.spec.ts",
@@ -446,7 +454,7 @@
         "tests/unit/telemetry-admin-debug-truth.spec.ts",
         "tests/unit/ui-debug-opt-in.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -473,7 +481,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -512,6 +520,7 @@
         "tests/unit/admin-drops-fixture-boundary.spec.ts",
         "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
         "tests/unit/drops-route.spec.ts",
@@ -522,7 +531,7 @@
         "tests/unit/server-drops.spec.ts",
         "tests/unit/utils/kandydrops-test-states.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -549,7 +558,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -573,7 +582,7 @@
         "tests/unit/platform-economy-treasury.spec.ts",
         "tests/unit/post-economy-creator-flow-qa.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": false,
@@ -596,7 +605,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "No direct runtime dependency imports detected.",
         "Mapped to app_routes."
@@ -624,7 +633,7 @@
         "tests/unit/chat-gating-moderation.spec.ts",
         "tests/unit/moderation-scrape-risk-score.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": false,
@@ -647,7 +656,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "No direct runtime dependency imports detected.",
         "Mapped to app_routes."
@@ -673,7 +682,7 @@
       "existing_tests": [
         "tests/ui-audits/admin-browser-surface-smoke.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": false,
@@ -696,7 +705,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -724,7 +733,7 @@
         "tests/unit/privacy-data-lifecycle-contract.spec.ts",
         "tests/unit/privacy-data-memory-writeback.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": false,
@@ -747,7 +756,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "No direct runtime dependency imports detected.",
         "Mapped to app_routes."
@@ -798,7 +807,7 @@
         "tests/unit/score-80-refresh-queue-execution.spec.ts",
         "tests/unit/self-healing-refresh-queue.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -825,7 +834,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -865,7 +874,7 @@
         "tests/unit/admin-roster-fixture-boundary.spec.ts",
         "tests/unit/admin-roster-route.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -892,7 +901,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -922,7 +931,7 @@
         "tests/unit/support-threads-index-repair.spec.ts",
         "tests/unit/support-threads-route.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": false,
@@ -945,7 +954,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "No direct runtime dependency imports detected.",
         "Mapped to app_routes."
@@ -1024,7 +1033,7 @@
         "tests/unit/username-suggestions-bench.spec.ts",
         "tests/unit/username-suggestions.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -1051,7 +1060,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -1093,7 +1102,7 @@
         "tests/unit/admin-users-route.spec.ts",
         "tests/unit/server-analytics-active-users.spec.ts"
       ],
-      "known_gap": "authenticated_admin_browser_evidence_pending",
+      "known_gap": "authenticated_admin_source_coverage_indexed_browser_optional",
       "blocking_required": false,
       "runtime_canary": {
         "protected": true,
@@ -1120,7 +1129,7 @@
         ]
       },
       "coverage_notes": [
-        "Admin surface owned by opt-in authenticated admin browser smoke lane.",
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -1207,6 +1216,7 @@
         "tests/unit/creator-drop-submit-repair.spec.ts",
         "tests/unit/creator-drop-workflow-contract.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/creator-experience-simplification.spec.ts",
         "tests/unit/creator-experiences-panel.spec.tsx",
         "tests/unit/creator-experiences.spec.ts",
@@ -1556,6 +1566,7 @@
         "tests/unit/creator-drop-submit-repair.spec.ts",
         "tests/unit/creator-drop-workflow-contract.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/creator-experience-simplification.spec.ts",
         "tests/unit/creator-experiences-panel.spec.tsx",
         "tests/unit/creator-experiences.spec.ts",
@@ -1687,6 +1698,7 @@
         "tests/unit/creator-drop-submit-repair.spec.ts",
         "tests/unit/creator-drop-workflow-contract.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/creator-experience-simplification.spec.ts",
         "tests/unit/creator-experiences-panel.spec.tsx",
         "tests/unit/creator-experiences.spec.ts",
@@ -1812,6 +1824,7 @@
         "tests/unit/creator-drop-submit-repair.spec.ts",
         "tests/unit/creator-drop-workflow-contract.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/creator-experience-simplification.spec.ts",
         "tests/unit/creator-experiences-panel.spec.tsx",
         "tests/unit/creator-experiences.spec.ts",
@@ -2013,6 +2026,7 @@
         "tests/unit/creator-drop-submit-repair.spec.ts",
         "tests/unit/creator-drop-workflow-contract.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/creator-experience-simplification.spec.ts",
         "tests/unit/creator-experiences-panel.spec.tsx",
         "tests/unit/creator-experiences.spec.ts",
@@ -2262,6 +2276,7 @@
         "tests/unit/admin-drops-fixture-boundary.spec.ts",
         "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
         "tests/unit/drops-route.spec.ts",
@@ -2307,6 +2322,7 @@
         "tests/unit/admin-drops-fixture-boundary.spec.ts",
         "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/creator-drops-route.spec.ts",
         "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
         "tests/unit/drops-route.spec.ts",
