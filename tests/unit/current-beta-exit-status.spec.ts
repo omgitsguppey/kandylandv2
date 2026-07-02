@@ -537,4 +537,13 @@ describe("current beta exit status validator", () => {
     expect(report.nextExactSteps.join("\n")).not.toMatch(/\bcurrent HEAD\b|\bHEAD\b|currentHead/u);
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
   });
+
+  it("treats UI source files as UI surface coverage inputs", () => {
+    const source = readFileSync(join(process.cwd(), "scripts/agent/validate-current-beta-exit-status.ts"), "utf8");
+
+    expect(source).toContain('"src/app/admin"');
+    expect(source).toContain('"src/app/dashboard"');
+    expect(source).toContain('"src/app/creators"');
+    expect(source).toContain('"src/components"');
+  });
 });

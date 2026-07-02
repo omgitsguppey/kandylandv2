@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -148,6 +148,15 @@ const missingAdminTruthEvidence = {
 };
 
 describe("public beta scoring math", () => {
+    it("treats UI source files as UI surface coverage inputs", () => {
+        const source = readFileSync(join(process.cwd(), "scripts/agent/validate-public-beta-score.ts"), "utf8");
+
+        expect(source).toContain('"src/app/admin"');
+        expect(source).toContain('"src/app/dashboard"');
+        expect(source).toContain('"src/app/creators"');
+        expect(source).toContain('"src/components"');
+    });
+
     it("applies severity, confidence, blast radius, and recency multipliers", () => {
         const finding = buildPublicBetaFinding({
             domain: "economy",

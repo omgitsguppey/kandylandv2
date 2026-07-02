@@ -179,9 +179,15 @@ const currentBetaExitOwnedInputPaths = [
   adminTruthSampleEvidenceRelativePath,
 ] as const;
 const uiSurfaceCoverageOwnedInputPaths = [
+  "agent/index/ui-surface-coverage.json",
   "scripts/agent/validate-ui-visual-smoke-minimal.ts",
   "scripts/agent/check-ui-surface-coverage.ts",
   "src/lib/evidence/ui-visual-smoke-contract.ts",
+  "src/lib/frontend-hardening",
+  "src/app/admin",
+  "src/app/dashboard",
+  "src/app/creators",
+  "src/components",
 ] as const;
 const adminTruthSampleOwnedInputPaths = [
   "scripts/agent/validate-admin-truth-sample-evidence.ts",
