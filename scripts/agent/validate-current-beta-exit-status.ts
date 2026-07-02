@@ -189,6 +189,21 @@ const uiSurfaceCoverageOwnedInputPaths = [
   "src/app/creators",
   "src/components",
 ] as const;
+const legacyUiVisualBlockerIds = new Set([
+  "runtime-smoke",
+  "admin-truth-sample",
+  "provider-smoke",
+  "ui_source_coverage_missing",
+  "ui_source_coverage_stale",
+  "screenshot_evidence_missing",
+  "ui-surface-coverage",
+]);
+const uiSourceCoverageBlockerIds = new Set([
+  "ui_source_coverage_missing",
+  "ui_source_coverage_stale",
+  "screenshot_evidence_missing",
+  "ui-surface-coverage",
+]);
 const adminTruthSampleOwnedInputPaths = [
   "scripts/agent/validate-admin-truth-sample-evidence.ts",
   "scripts/agent/validate-admin-truth-source-sample.ts",
@@ -365,6 +380,11 @@ function hasProofLaneArtifactDrift(report: CurrentBetaExitStatusReport, head: st
   }));
 
   return JSON.stringify(expectedLanes) !== JSON.stringify(currentLanes);
+}
+
+function hasUiSourceBlockerContradiction(report: CurrentBetaExitStatusReport) {
+  if (!clearingStatusPassed("uiSurfaceCoverage", report.summary.visualEvidenceStatus)) return false;
+  return report.remainingBlockers.some((blocker) => uiSourceCoverageBlockerIds.has(blocker.id) || /screenshot/iu.test(blocker.id));
 }
 
 function record(value: unknown): Record<string, unknown> {
@@ -690,17 +710,9 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     }),
     proofLanes,
   } satisfies CurrentBetaExitStatusReport["summary"];
-  const legacyUiVisualBlockerIds = new Set([
-      "runtime-smoke",
-      "admin-truth-sample",
-      "provider-smoke",
-      "ui_source_coverage_missing",
-      "screenshot_evidence_missing",
-      "ui-surface-coverage",
-    ]);
   const remainingBlockers = [
     ...report.remainingBlockers.filter((blocker) => !legacyUiVisualBlockerIds.has(blocker.id) && !/screenshot/iu.test(blocker.id)),
-    ...(summary.visualEvidenceStatus === "source_surface_checks_current" ? [] : [{
+    ...(clearingStatusPassed("uiSurfaceCoverage", summary.visualEvidenceStatus) ? [] : [{
       id: "ui-surface-coverage",
       severity: "P1" as const,
       status: summary.visualEvidenceStatus,
@@ -947,6 +959,9 @@ export function validateCurrentBetaExitStatusReport(
   if (uiSurfaceCoverageMissing && /\b(pass|passed|complete|completed|current)\b/iu.test(report.summary.visualEvidenceStatus)) {
     failures.push("UI surface coverage must not be marked current while source coverage is missing.");
   }
+  if (!uiSurfaceCoverageMissing && hasUiSourceBlockerContradiction(report)) {
+    failures.push("remainingBlockers must not include stale UI/screenshot blockers when UI source coverage is current.");
+  }
   if ((uiSurfaceCoverageMissing || providerMissing || runtimeMissing) && (report.remainingBlockers?.length ?? 0) === 0) {
     failures.push("remainingBlockers must not be empty while required evidence is missing.");
   }
@@ -1034,6 +1049,7 @@ function main() {
       || !isGeneratedArtifactCurrent(version)
       || hasRefreshPlanEntriesNowCurrent(report, head)
       || hasProofLaneArtifactDrift(report, head)
+      || hasUiSourceBlockerContradiction(report)
     ) {
       report = refreshReportFromCurrentArtifacts(report, head);
       writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);

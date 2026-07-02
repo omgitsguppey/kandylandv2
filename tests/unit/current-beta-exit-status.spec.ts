@@ -271,6 +271,24 @@ describe("current beta exit status validator", () => {
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
   });
 
+  it("rejects stale UI blockers after UI source coverage is current", () => {
+    const report = reportFixture({
+      remainingBlockers: [
+        {
+          id: "ui_source_coverage_stale",
+          severity: "P1",
+          status: "stale_evidence",
+          evidence: ["agent/state/ui-visual-smoke-minimal.generated.json"],
+          nextAction: "Run deterministic UI source coverage.",
+        },
+      ],
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "remainingBlockers must not include stale UI/screenshot blockers when UI source coverage is current.",
+    );
+  });
+
   it("refreshes report freshness rows when a dependency artifact now matches the current code version", () => {
     const refreshed = refreshPlanWithCurrentArtifactVersions({
       head: "current-head",
@@ -403,7 +421,7 @@ describe("current beta exit status validator", () => {
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "canStartManualScreenshotQa must not be emitted; use proofLanes truthState/actionState and betaExitReviewState.",
+      "canStartManualScreenshotQa must not be emitted; use proofLanes truthState/actionState and betaExitReviewState typed evidence state.",
     );
   });
 
