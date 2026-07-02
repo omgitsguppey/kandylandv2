@@ -17,6 +17,7 @@ import {
   classifyGeneratedArtifactFromGit,
   isGeneratedArtifactCurrent,
 } from "../../src/lib/agent-score/generated-artifact-version-policy";
+import { PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS } from "../../src/lib/agent-score/weights";
 
 type EvidenceStatus = "missing" | "incomplete" | "complete" | "stale";
 
@@ -203,6 +204,16 @@ function readReport(): EvidenceCaptureStatusReport | null {
   } catch {
     return null;
   }
+}
+
+export function isEvidenceCaptureStatusFreshEnough(
+  report: Pick<EvidenceCaptureStatusReport, "generatedAtUtc"> | null | undefined,
+  nowMs = Date.now(),
+) {
+  if (!report?.generatedAtUtc) return false;
+  const generatedMs = Date.parse(report.generatedAtUtc);
+  if (!Number.isFinite(generatedMs)) return false;
+  return (nowMs - generatedMs) / (60 * 60 * 1000) <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS;
 }
 
 function readString(value: unknown) {
@@ -659,7 +670,7 @@ function main() {
       ownedSourcePaths: [...evidenceCaptureOwnedInputPaths],
     })
     : null;
-  const report = !forceRefresh && existing && existingVersion && isGeneratedArtifactCurrent(existingVersion)
+  const report = !forceRefresh && existing && isEvidenceCaptureStatusFreshEnough(existing) && existingVersion && isGeneratedArtifactCurrent(existingVersion)
     ? existing
     : buildFromWorkspace();
   if (report !== existing) {

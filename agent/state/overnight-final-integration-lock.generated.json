@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-02T02:37:48.512Z",
+  "generatedAtUtc": "2026-07-02T02:51:43.990Z",
   "reportKey": "overnight-final-integration-lock",
-  "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+  "currentHead": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
   "summary": {
     "wiringIntegrityStatus": "stale",
     "telemetryOrphanStatus": "stale",
@@ -15,11 +15,11 @@
     "navUntouched": true,
     "openPrCount": 0,
     "dirtyFileStatus": "classified",
-    "betaScore": 84,
-    "betaStatus": "Source evidence required",
+    "betaScore": 67.23,
+    "betaStatus": "Stale evidence",
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 8
+    "p2Count": 7
   },
   "dependencyStatus": [
     {
@@ -108,10 +108,10 @@
     },
     {
       "id": "current-beta-exit-status",
-      "status": "stale",
+      "status": "passed",
       "required": true,
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 89dcec2decf1ea78c4b0af5fead46899597867f3.",
-      "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
+      "detail": "agent/state/current-beta-exit-status.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
     }
   ],
   "fixesApplied": [],
@@ -155,12 +155,6 @@
     },
     {
       "severity": "P2",
-      "id": "current-beta-exit-status",
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 89dcec2decf1ea78c4b0af5fead46899597867f3.",
-      "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
-    },
-    {
-      "severity": "P2",
       "id": "mobile_scale_residuals",
       "detail": "24 non-chat mobile scale patterns remain from the source sweep; no broad refactor was attempted in this final lock.",
       "nextAction": "Handle only owner-scoped surface fixes in future passes with source coverage first and optional visual reproduction after a source-reported issue."
@@ -180,9 +174,20 @@
     "Run npm run check:overnight-final-integration-lock after any follow-up lock refresh."
   ],
   "changedFiles": [
-    "agent/state/person-metrics-hydration.generated.json",
+    "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/creator-experience-simplification.generated.json",
+    "agent/state/creator-monetization-readiness-lock.generated.json",
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/final-parity-telemetry-lock.generated.json",
+    "agent/state/media-discovery-score-lock.generated.json",
     "agent/state/public-beta-score.generated.json",
-    "docs/agent-truth/person-metrics-hydration.md"
+    "agent/state/targeted-behavior-evidence.generated.json",
+    "agent/state/user-creator-ui-parity.generated.json",
+    "docs/agent-truth/beta-evidence-gap-map.md",
+    "docs/agent-truth/creator-monetization-readiness-lock.md",
+    "docs/agent-truth/final-parity-telemetry-lock.md",
+    "docs/agent-truth/media-discovery-score-lock.md",
+    "docs/agent-truth/targeted-behavior-evidence.md"
   ],
   "untrackedFiles": [],
   "openPrs": []

@@ -1,7 +1,7 @@
 {
   "reportKey": "media-discovery-score-lock",
-  "generatedAtUtc": "2026-06-21T18:40:54.003Z",
-  "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
+  "generatedAtUtc": "2026-07-02T02:51:10.597Z",
+  "currentHead": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
   "mediaUploadStatus": "pass",
   "privateMediaAccessStatus": "pass",
   "creatorDiscoveryStatus": "pass",
@@ -102,8 +102,8 @@
     "scripts/agent/validate-search-discovery-cost.ts": "pass",
     "tests/unit/search-discovery-cost.spec.ts": "pass"
   },
-  "scoreBefore": 83.39,
-  "scoreAfter": 83.39,
+  "scoreBefore": 67.23,
+  "scoreAfter": 67.23,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -127,10 +127,6 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/beta-evidence-lane-prep.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/creator-experience-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -139,20 +135,8 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/evidence-capture-status.generated.json",
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/mobile-ui-final-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/user-creator-ui-parity.generated.json",
@@ -163,19 +147,7 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/mobile-ui-final-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
       "classification": "stale_generated_artifact_to_regenerate"
     }
   ],

@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-06-21T19:17:30.459Z",
+  "generatedAtUtc": "2026-07-02T02:51:09.822Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
-  "latestCodeVersion": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
-  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+  "sourceCommit": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
+  "latestCodeVersion": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
+  "currentHead": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -197,7 +197,7 @@
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "5bd37e429242d5c9ebb2cfb75d84061c49af7991"
+      "currentHead": "0c90b795c9ae355d23b9bdd0c476643dcb889f8c"
     },
     {
       "id": "event-translation-bridge",
@@ -229,7 +229,7 @@
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
+      "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff"
     },
     {
       "id": "surface-state-parity",

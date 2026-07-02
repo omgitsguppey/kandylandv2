@@ -1,7 +1,7 @@
 {
   "reportKey": "creator-monetization-readiness-lock",
-  "generatedAtUtc": "2026-06-21T18:40:55.085Z",
-  "currentHead": "a72e819a4",
+  "generatedAtUtc": "2026-07-02T02:51:11.389Z",
+  "currentHead": "b40708089",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -40,10 +40,6 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/beta-evidence-lane-prep.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/creator-experience-simplification.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
@@ -52,27 +48,11 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/final-parity-telemetry-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/media-discovery-score-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/mobile-ui-final-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -84,27 +64,11 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/media-discovery-score-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/mobile-ui-final-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
       "classification": "documentation_artifact_expected"
     }
   ],

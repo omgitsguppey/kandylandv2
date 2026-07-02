@@ -1,8 +1,8 @@
 # Overnight Final Integration Lock
 
-Generated: 2026-07-02T02:37:48.512Z
+Generated: 2026-07-02T02:51:43.990Z
 
-Latest code version: b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff
+Latest code version: b4070808965ac7f5541abb1a19d85b48119ba1bc
 
 ## Summary
 
@@ -18,9 +18,9 @@ Latest code version: b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff
 - Nav untouched: true
 - Open PR count: 0
 - Dirty file status: classified
-- Beta score: 84
-- Beta status: Source evidence required
-- Findings: P0=0, P1=0, P2=8
+- Beta score: 67.23
+- Beta status: Stale evidence
+- Findings: P0=0, P1=0, P2=7
 
 ## Dependency Status
 
@@ -38,7 +38,7 @@ Latest code version: b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff
 | creator-profile-mobile-timeline | stale | no | agent/state/creator-profile-mobile-timeline.generated.json is stale for 79598a740b349732332b6e1751ca9d8f5b3933dc. | Run the owner check for creator-profile-mobile-timeline from current HEAD. |
 | global-marquee-truncated-titles | stale | no | agent/state/global-marquee-truncated-titles.generated.json is stale for 0659a3764bcb3ada363f4a30e741d6e59743781f. | Run the owner check for global-marquee-truncated-titles from current HEAD. |
 | public-beta-score | passed | yes | agent/state/public-beta-score.generated.json is current. | Keep current; do not mark runtime/manual evidence complete from source-only artifacts. |
-| current-beta-exit-status | stale | yes | agent/state/current-beta-exit-status.generated.json is stale for 89dcec2decf1ea78c4b0af5fead46899597867f3. | Run the owner check for current-beta-exit-status from current HEAD. |
+| current-beta-exit-status | passed | yes | agent/state/current-beta-exit-status.generated.json is current. | Keep current; do not mark runtime/manual evidence complete from source-only artifacts. |
 
 ## Fixes Applied
 
@@ -56,7 +56,6 @@ Latest code version: b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff
 - P2 creator-drop-status-metrics: agent/state/creator-drop-status-metrics.generated.json is stale for 0659a3764bcb3ada363f4a30e741d6e59743781f. Next: Run the owner check for creator-drop-status-metrics from current HEAD.
 - P2 mobile-ui-final-lock: agent/state/mobile-ui-final-lock.generated.json is stale for a72e819a487f49eec2d0611fffb8b5728c1bbb1c. Next: Run the owner check for mobile-ui-final-lock from current HEAD.
 - P2 final-telemetry-closure-lock: agent/state/final-telemetry-closure-lock.generated.json is stale for 187d6964a50ddf5a4077b19e88471c7e23414b75. Next: Run the owner check for final-telemetry-closure-lock from current HEAD.
-- P2 current-beta-exit-status: agent/state/current-beta-exit-status.generated.json is stale for 89dcec2decf1ea78c4b0af5fead46899597867f3. Next: Run the owner check for current-beta-exit-status from current HEAD.
 - P2 mobile_scale_residuals: 24 non-chat mobile scale patterns remain from the source sweep; no broad refactor was attempted in this final lock. Next: Handle only owner-scoped surface fixes in future passes with source coverage first and optional visual reproduction after a source-reported issue.
 
 ## Missing Evidence

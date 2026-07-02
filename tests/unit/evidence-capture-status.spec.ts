@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildEvidenceCaptureStatusReport,
+  isEvidenceCaptureStatusFreshEnough,
   validateEvidenceCaptureStatusReport,
 } from "../../scripts/agent/validate-evidence-capture-status";
 
@@ -119,5 +120,16 @@ describe("evidence capture status", () => {
     expect(validateEvidenceCaptureStatusReport(report, "head")).toContain(
       "evidence capture status currentHead must match git HEAD (head).",
     );
+  });
+
+  it("does not reuse an old evidence-capture artifact just because source inputs are unchanged", () => {
+    expect(isEvidenceCaptureStatusFreshEnough(
+      { generatedAtUtc: "2026-05-17T05:30:00.000Z" },
+      Date.parse("2026-05-19T06:00:00.000Z"),
+    )).toBe(false);
+    expect(isEvidenceCaptureStatusFreshEnough(
+      { generatedAtUtc: "2026-05-17T05:30:00.000Z" },
+      Date.parse("2026-05-17T06:00:00.000Z"),
+    )).toBe(true);
   });
 });

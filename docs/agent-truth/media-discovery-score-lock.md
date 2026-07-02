@@ -1,7 +1,7 @@
 # Media Discovery Score Lock
 
-Generated: 2026-06-21T18:40:54.003Z
-Head: a72e819a487f49eec2d0611fffb8b5728c1bbb1c
+Generated: 2026-07-02T02:51:10.597Z
+Head: b4070808965ac7f5541abb1a19d85b48119ba1bc
 Status: pass
 
 ## Summary
@@ -16,7 +16,7 @@ Status: pass
 - Debug visibility: pass
 - Sensitive route access: pass
 - Raw sensitive telemetry protected: true
-- Score: 83.39 -> 83.39
+- Score: 67.23 -> 67.23
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk
 
 ## Event Spines
@@ -59,19 +59,12 @@ Status: pass
 | File | Classification |
 | --- | --- |
 | agent/state/beta-evidence-gap-map.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/beta-evidence-lane-prep.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/creator-experience-simplification.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/current-beta-exit-status.generated.json | current_generated_artifact_to_commit |
-| agent/state/evidence-capture-status.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/mobile-ui-final-lock.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/overnight-final-integration-lock.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
+| agent/state/targeted-behavior-evidence.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/user-creator-ui-parity.generated.json | stale_generated_artifact_to_regenerate |
 | docs/agent-truth/beta-evidence-gap-map.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/beta-evidence-lane-prep.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/evidence-capture-status.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/mobile-ui-final-lock.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/overnight-final-integration-lock.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/targeted-behavior-evidence.md | stale_generated_artifact_to_regenerate |
 
 ## Remaining Gaps
 
