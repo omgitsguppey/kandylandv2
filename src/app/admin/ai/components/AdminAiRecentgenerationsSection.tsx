@@ -100,12 +100,6 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                                 />
                                             </div>
 
-                                            {job.validationWarnings && job.validationWarnings.length > 0 ? (
-                                                <div className="rounded-[0.95rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 break-words">
-                                                    Reference pool trimmed to model limit.
-                                                </div>
-                                            ) : null}
-
                                             <div>
                                                 <div className="mb-0.5 font-semibold text-white">Prompt provenance</div>
                                                 <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.workingPrompt || "Not recorded"}</pre>
