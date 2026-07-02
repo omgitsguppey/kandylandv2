@@ -27,7 +27,15 @@ const realUsageConfidence = {
   status: "source_ready_real_usage_confidence",
   passed: true,
   detail: "Real usage confidence is source ready.",
-  evidence: ["confidenceScore=92", "does_not_clear_formal_provider"],
+  evidence: ["confidenceScore=92", "observedSignals=0", "does_not_clear_formal_provider"],
+} satisfies PublicBetaEvidenceArtifact;
+
+const realUsageCalibration = {
+  path: "agent/state/real-usage-confidence-calibration.generated.json",
+  status: "source_ready_real_usage_confidence_calibrated",
+  passed: true,
+  detail: "Real usage confidence calibration is source ready.",
+  evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95"],
 } satisfies PublicBetaEvidenceArtifact;
 
 const behaviorMath = {
@@ -107,6 +115,20 @@ describe("algorithmic evidence policy", () => {
     expect(report.formalGateImpact.formalAdminRuntimeSampleCleared).toBe(false);
     expect(report.coverage.every((item) => item.sourcePath.length > 0)).toBe(true);
     expect(report.coverage.every((item) => item.distinction.length > 0)).toBe(true);
+  });
+
+  it("keeps real-usage calibration out of runtime credit when observed activity is missing", () => {
+    const report = buildAlgorithmicEvidencePolicyReport({
+      realUsageConfidenceEvidence: realUsageConfidence,
+      realUsageConfidenceCalibrationEvidence: realUsageCalibration,
+      adminTruthSampleEvidence: adminSourceSample,
+      operatorRevenueSmokeEvidence: operatorRevenueSmoke,
+    });
+
+    expect(report.telemetryConfidence.score).toBe(95);
+    expect(report.runtimeSourceConfidence.score).toBe(0);
+    expect(report.runtimeSourceConfidence.confidence).toBe("missing");
+    expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
   });
 
   it("does not let UI source coverage gaps block non-UI beta health dimensions", () => {

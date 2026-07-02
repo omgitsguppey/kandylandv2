@@ -157,13 +157,15 @@ export function buildAlgorithmicEvidencePolicyReport(
   const realUsageCalibrationScore = evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit")
     ?? evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "calibratedConfidenceScore")
     ?? (evidenceArtifactHasSourceConfidence(input.realUsageConfidenceCalibrationEvidence) ? 55 : 0);
+  const realUsageObservedActivityScore = (evidenceArtifactNumericValue(input.realUsageConfidenceEvidence, "observedSignals") ?? 0) > 0
+    ? Math.max(realUsageScore, realUsageCalibrationScore)
+    : 0;
   const runtimeSourceScore = deployedRuntimeSmokeCleared
     ? 100
     : Math.max(
         sourceBackedRuntimeScore,
         runtimeSmokeSubstituteMatrixScore,
-        realUsageScore,
-        realUsageCalibrationScore,
+        realUsageObservedActivityScore,
         evidenceArtifactHasSourceConfidence(input.debugRuntimeEvidence) ? 55 : 0,
       );
 
