@@ -8,6 +8,11 @@ import type { AdminTruthState } from "@/lib/admin-truth-state";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import type { SelfHealingRefreshQueueEntry } from "@/lib/agent-score/self-healing-refresh-queue";
 import {
+    formatPublicBetaCapDetailForAdmin,
+    formatPublicBetaReadinessStatusForAdmin,
+    resolvePublicBetaCapDetailForAdmin,
+} from "@/lib/agent-score/formal-gate-display";
+import {
     buildDebugOperatorCockpit,
     type DebugOperatorAiCriticFindingInput,
     type DebugOperatorCockpitReport,
@@ -579,63 +584,8 @@ function normalizeFinding(
     };
 }
 
-function stripEvidenceGatePrefix(detail: string) {
-    return detail
-        .replace(/^(unknown evidence|stale evidence|runtime unverified|external proof required|source evidence required|needs review|source validation only|report refresh needed):\s*/iu, "")
-        .trim();
-}
-
-function normalizePublicBetaCapDetailForAdminModel(detail: string) {
-    const normalized = stripEvidenceGatePrefix(detail);
-    const lower = normalized.toLowerCase();
-    const reason = normalized
-        .replace(/^Targeted behavior tests\s*[-:]\s*/iu, "")
-        .replace(/^Runtime\/provider smoke\s*[-:]\s*/iu, "")
-        .replace(/^Provider-backed site activity \+ deployed route evidence\s*[-:]\s*/iu, "")
-        .replace(/^Admin truth\/sample evidence\s*[-:]\s*/iu, "")
-        .replace(/^Admin source activity sample(?: evidence)?\s*[-:]\s*/iu, "")
-        .replace(/^Report freshness and PR integrity\s*[-:]\s*/iu, "")
-        .replace(/\bAttach redacted provider-backed site activity evidence\b/giu, "Produce redacted provider-backed site activity evidence")
-        .replace(/\bAttach a redacted admin source sample\b/giu, "Produce a redacted admin source activity sample")
-        .replace(/\bAttach a fresh redacted admin source sample\b/giu, "Produce a fresh redacted admin source activity sample")
-        .replace(/\badmin source sample\b/giu, "admin source activity sample")
-        .replace(/\badmin source samples\b/giu, "admin source activity samples")
-        .trim();
-
-    if (lower.includes("targeted behavior tests")) {
-        return `Source validation only: Targeted behavior tests - ${reason || "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks stay separate."}`;
-    }
-
-    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke") || lower.includes("provider-backed site activity") || lower.includes("deployed route evidence") || lower.includes("deployed runtime route evidence")) {
-        return `Source evidence required: Provider-backed site activity + deployed route evidence - ${reason || "Produce redacted provider-backed site activity evidence and deployed route evidence before clearing this gate."}`;
-    }
-
-    if (lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence")) {
-        return `Source evidence required: Admin source activity sample - ${reason || "Produce a fresh redacted admin source activity sample before clearing this gate."}`;
-    }
-
-    if (lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window") || lower.includes("current-head") || lower.includes("current head") || lower.includes("generated report")) {
-        return `Report refresh needed: Report freshness and PR integrity - ${reason || normalized}`;
-    }
-
-    return detail;
-}
-
 function publicBetaEvidenceGateEvidence(detail: string) {
-    return normalizePublicBetaCapDetailForAdminModel(detail)
-        .replace(/^(unknown evidence|stale evidence|runtime unverified):\s*/iu, "")
-        .trim()
-        .slice(0, 220);
-}
-
-function normalizePublicBetaReadinessStatusForAdminModel(status: string, reason: string, capDetails: string[]) {
-    const combined = [status, reason, ...capDetails].filter(Boolean).join(" ");
-    if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
-    if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older|source metadata is stale/iu.test(combined)) return "Report refresh needed";
-    if (/targeted behavior tests|source checks|source validation only/iu.test(combined)) return "Source checks only";
-    if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
-    if (/stale evidence/iu.test(combined)) return "Refresh or evidence needed";
-    return status;
+    return formatPublicBetaCapDetailForAdmin(detail).slice(0, 220);
 }
 
 function normalizePublicBetaEvidenceGateFinding(
@@ -644,11 +594,10 @@ function normalizePublicBetaEvidenceGateFinding(
     detail: string,
     index: number,
 ): AdminDebugFindingCard {
-    const normalized = stripEvidenceGatePrefix(detail);
-    const lower = normalized.toLowerCase();
+    const display = resolvePublicBetaCapDetailForAdmin(detail);
     const evidenceDetail = publicBetaEvidenceGateEvidence(detail);
 
-    if (lower.includes("targeted behavior tests")) {
+    if (display.state === "source_only") {
         return {
             id: `public-beta-source-only-${index}`,
             reportId: definition.id,
@@ -657,65 +606,55 @@ function normalizePublicBetaEvidenceGateFinding(
             title: "Source-only behavior evidence",
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: "Implemented behavior checks passed; deployed route, provider-backed site activity, admin source activity sample, and UI source contract evidence remain separate lanes.",
+            humanReadableWarning: display.detail,
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",
         };
     }
 
-    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke") || lower.includes("provider-backed site activity") || lower.includes("deployed route evidence") || lower.includes("deployed runtime route evidence")) {
-        const operatorContext = /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
-            ? " The payment note is product context only and does not clear provider-backed site activity evidence."
-            : "";
-        const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true|deployed (runtime )?route evidence (is )?(current|recorded)|deployed route evidence is recorded/iu.test(normalized);
-        const runtimeContext = runtimeRecorded
-            ? " Deployed route evidence is recorded; keep it fresh."
-            : " Deployed route evidence is still required.";
+    if (display.state === "site_activity_evidence_required") {
         return {
             id: `public-beta-runtime-provider-evidence-${index}`,
             reportId: definition.id,
             section: definition.section,
             severity: "major",
-            title: "Site activity evidence required",
+            title: display.label,
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: `Produce redacted provider-backed site activity evidence.${runtimeContext}${operatorContext}`,
+            humanReadableWarning: display.detail,
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",
         };
     }
 
-    if (lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence")) {
+    if (display.state === "admin_source_activity_sample_required") {
         return {
             id: `public-beta-admin-truth-sample-${index}`,
             reportId: definition.id,
             section: definition.section,
             severity: "major",
-            title: "Admin source activity sample required",
+            title: display.label,
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: "Produce a fresh redacted admin source activity sample before clearing this evidence gate.",
+            humanReadableWarning: display.detail,
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",
         };
     }
 
-    if (lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window") || lower.includes("current-head") || lower.includes("current head")) {
-        const count = normalized.match(/\b\d+\b/u)?.[0];
+    if (display.state === "refresh_due") {
         return {
             id: `public-beta-report-refresh-${index}`,
             reportId: definition.id,
             section: definition.section,
             severity: "major",
-            title: "Report refresh required",
+            title: display.label,
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: count
-                ? `${count} required generated reports are outside the freshness window.`
-                : "Required generated reports are outside the freshness window.",
+            humanReadableWarning: display.detail,
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "stale",
@@ -730,7 +669,7 @@ function normalizePublicBetaEvidenceGateFinding(
         title: "Evidence gate needs review",
         domain: "beta_readiness",
         filePath: relativePath,
-        humanReadableWarning: normalized || "Public beta evidence gate needs review.",
+        humanReadableWarning: display.detail,
         suggestedValidator: definition.command,
         evidence: [evidenceDetail],
         truthState: "unknown",
@@ -933,10 +872,10 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
     try {
         const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
         const commitState = readReportCommitState(raw, repoCurrentHead);
-        const capDetails = toStringArray(raw.evidenceCapDetails).map(normalizePublicBetaCapDetailForAdminModel);
+        const capDetails = toStringArray(raw.evidenceCapDetails).map(formatPublicBetaCapDetailForAdmin);
         const sourceDriftCap = commitState.sourceDrift === "stale"
             ? [
-                normalizePublicBetaCapDetailForAdminModel([
+                formatPublicBetaCapDetailForAdmin([
                     "Report freshness and PR integrity: Public beta score source metadata is stale",
                     commitState.sourceCommit ? `sourceCommit=${commitState.sourceCommit}` : null,
                     commitState.currentHead ? `reportCurrentHead=${commitState.currentHead}` : null,
@@ -947,14 +886,14 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
         const rawReadinessStatus = toStringValue(raw.readinessStatus, "unknown");
         const rawReadinessReason = toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied.");
         const canonicalCapDetails = [...sourceDriftCap, ...capDetails];
-        const canonicalReadinessReason = normalizePublicBetaCapDetailForAdminModel(commitState.sourceDrift === "stale"
+        const canonicalReadinessReason = formatPublicBetaCapDetailForAdmin(commitState.sourceDrift === "stale"
             ? `Report freshness and PR integrity: Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`
             : rawReadinessReason);
-        const canonicalReadinessStatus = normalizePublicBetaReadinessStatusForAdminModel(
-            commitState.sourceDrift === "stale" ? "Report refresh needed" : rawReadinessStatus,
-            canonicalReadinessReason,
-            canonicalCapDetails,
-        );
+        const canonicalReadinessStatus = formatPublicBetaReadinessStatusForAdmin({
+            status: commitState.sourceDrift === "stale" ? "Report refresh needed" : rawReadinessStatus,
+            reason: canonicalReadinessReason,
+            capDetails: canonicalCapDetails,
+        });
         return {
             canonicalPublicBetaScore: toNumber(raw.overallScore),
             canonicalPublicBetaStatus: commitState.sourceDrift === "stale"
