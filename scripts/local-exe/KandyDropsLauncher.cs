@@ -1,12 +1,14 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Sockets;
 using System.Threading;
 
 internal static class KandyDropsLauncher
 {
     private const string Host = "127.0.0.1";
-    private const string Port = "3000";
+    private const int Port = 3000;
+    private const int StartupTimeoutSeconds = 600;
 
     private static int Main()
     {
@@ -20,9 +22,9 @@ internal static class KandyDropsLauncher
         }
 
         string url = testMode
-            ? "http://" + Host + ":" + Port + "/api/admin-ui-test-session?redirect=/admin"
-            : "http://" + Host + ":" + Port + "/";
-        string command = "npm run build && npm run start -- --hostname " + Host + " --port " + Port;
+            ? "http://" + Host + ":" + Port.ToString() + "/api/admin-ui-test-session?redirect=/admin"
+            : "http://" + Host + ":" + Port.ToString() + "/";
+        string command = "npm run build && npm run start -- --hostname " + Host + " --port " + Port.ToString();
 
         Console.WriteLine(testMode
             ? "Starting KandyDrops local production test server with admin fixture access."
@@ -39,7 +41,7 @@ internal static class KandyDropsLauncher
             UseShellExecute = false,
         };
         startInfo.EnvironmentVariables["HOSTNAME"] = Host;
-        startInfo.EnvironmentVariables["PORT"] = Port;
+        startInfo.EnvironmentVariables["PORT"] = Port.ToString();
         startInfo.EnvironmentVariables["BROWSER"] = "none";
         startInfo.EnvironmentVariables["KANDYDROPS_LOCAL_EXE"] = testMode ? "test" : "connected_live";
         if (testMode)
@@ -55,7 +57,11 @@ internal static class KandyDropsLauncher
                 return 1;
             }
 
-            OpenBrowserWhenReady(url);
+            if (WaitForServerReady(server, TimeSpan.FromSeconds(StartupTimeoutSeconds)))
+            {
+                OpenBrowser(url);
+            }
+
             server.WaitForExit();
             return server.ExitCode;
         }
@@ -76,23 +82,65 @@ internal static class KandyDropsLauncher
         return "";
     }
 
-    private static void OpenBrowserWhenReady(string url)
+    private static bool WaitForServerReady(Process server, TimeSpan timeout)
     {
-        ThreadPool.QueueUserWorkItem(_ =>
+        DateTime deadline = DateTime.UtcNow.Add(timeout);
+        DateTime lastNotice = DateTime.MinValue;
+        Console.WriteLine("Waiting for local Next server to finish build and start...");
+
+        while (DateTime.UtcNow < deadline)
         {
-            Thread.Sleep(TimeSpan.FromSeconds(5));
             try
             {
-                Process.Start(new ProcessStartInfo
+                if (server.HasExited)
                 {
-                    FileName = url,
-                    UseShellExecute = true,
-                });
+                    Console.Error.WriteLine("The local server stopped before it was ready.");
+                    return false;
+                }
+
+                using (var client = new TcpClient())
+                {
+                    IAsyncResult result = client.BeginConnect(Host, Port, null, null);
+                    bool connected = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
+                    if (connected)
+                    {
+                        client.EndConnect(result);
+                        Console.WriteLine("Local server is ready.");
+                        return true;
+                    }
+                }
             }
             catch
             {
-                Console.WriteLine("Open the URL above once the server finishes starting.");
+                // The server is still building or starting.
             }
-        });
+
+            if ((DateTime.UtcNow - lastNotice).TotalSeconds >= 15)
+            {
+                Console.WriteLine("Still waiting for the local server...");
+                lastNotice = DateTime.UtcNow;
+            }
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
+
+        Console.Error.WriteLine("Timed out waiting for the local server. Open the URL above manually if it finishes later.");
+        return false;
+    }
+
+    private static void OpenBrowser(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true,
+            });
+        }
+        catch
+        {
+            Console.WriteLine("Open the URL above once the server finishes starting.");
+        }
     }
 }

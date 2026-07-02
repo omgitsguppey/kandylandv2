@@ -6,6 +6,7 @@ import type { UserProfile } from "@/types/db";
 export const ADMIN_UI_TEST_SESSION_STORAGE_KEY = "kandydrops.admin_ui_test_session.v1";
 export const ADMIN_UI_TEST_SESSION_COOKIE_KEY = "kandydrops_admin_ui_test_session_v1";
 export const ADMIN_UI_TEST_SESSION_ENV_FLAG = "NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION";
+export const ADMIN_UI_TEST_SESSION_LOCAL_EXE_FLAG = "KANDYDROPS_LOCAL_EXE";
 export const ADMIN_UI_TEST_SESSION_QUERY_PARAM = "adminUiTestSession";
 export const ADMIN_UI_TEST_SESSION_BOOTSTRAP_PATH = "/api/admin-ui-test-session";
 const DEFAULT_QUERY_SESSION_TTL_MS = 30 * 60 * 1000;
@@ -93,10 +94,12 @@ export function normalizeAdminUiTestSessionCookieValue(rawValue: string | null |
 export function isAdminUiTestSessionRuntimeEnabled(input: {
   nodeEnv?: string;
   envFlag?: string;
+  localExeMode?: string;
 } = {}) {
   const nodeEnv = input.nodeEnv ?? process.env.NODE_ENV;
   const envFlag = input.envFlag ?? process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
-  return nodeEnv !== "production" && envFlag === "1";
+  const localExeMode = input.localExeMode ?? process.env.KANDYDROPS_LOCAL_EXE;
+  return envFlag === "1" && (nodeEnv !== "production" || localExeMode === "test");
 }
 
 export function isAdminUiTestSessionUser(user: { providerData?: Array<{ providerId?: string | null }> } | null | undefined) {
@@ -186,8 +189,13 @@ export function resolveAdminUiTestSession(input: {
   nowMs?: number;
   nodeEnv?: string;
   envFlag?: string;
+  localExeMode?: string;
 }): AdminUiTestSessionResolution {
-  if (!isAdminUiTestSessionRuntimeEnabled({ nodeEnv: input.nodeEnv, envFlag: input.envFlag })) {
+  if (!isAdminUiTestSessionRuntimeEnabled({
+    nodeEnv: input.nodeEnv,
+    envFlag: input.envFlag,
+    localExeMode: input.localExeMode,
+  })) {
     return {
       status: "disabled",
       reason: `${ADMIN_UI_TEST_SESSION_ENV_FLAG} is not enabled outside production.`,

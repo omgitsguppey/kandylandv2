@@ -9,6 +9,7 @@ import {
   ADMIN_UI_TEST_SESSION_BOOTSTRAP_PATH,
   ADMIN_UI_TEST_SESSION_COOKIE_KEY,
   ADMIN_UI_TEST_SESSION_ENV_FLAG,
+  ADMIN_UI_TEST_SESSION_LOCAL_EXE_FLAG,
   ADMIN_UI_TEST_SESSION_QUERY_PARAM,
   ADMIN_UI_TEST_SESSION_STORAGE_KEY,
   buildAdminUiTestSessionStorageValue,
@@ -79,7 +80,7 @@ describe("admin UI test session", () => {
     }
   }
 
-  it("is hard-disabled in production even when the env flag is set", () => {
+  it("is hard-disabled in normal production even when the env flag is set", () => {
     const resolved = resolveAdminUiTestSession({
       rawValue: session(),
       nowMs: NOW,
@@ -91,6 +92,21 @@ describe("admin UI test session", () => {
     expect(resolved.user).toBeNull();
     expect(resolved.userProfile).toBeNull();
     expect(resolved.reason).toContain(ADMIN_UI_TEST_SESSION_ENV_FLAG);
+  });
+
+  it("allows the bounded local exe test launcher to use the fixture under next start", () => {
+    const resolved = resolveAdminUiTestSession({
+      rawValue: session(),
+      nowMs: NOW,
+      nodeEnv: "production",
+      envFlag: "1",
+      localExeMode: "test",
+    });
+
+    expect(resolved.status).toBe("ready");
+    expect(resolved.user?.providerData[0]?.providerId).toBe("admin-ui-test-session");
+    expect(resolved.reason).toBe("Local admin UI test session is ready.");
+    expect(ADMIN_UI_TEST_SESSION_LOCAL_EXE_FLAG).toBe("KANDYDROPS_LOCAL_EXE");
   });
 
   it("requires explicit local storage when non-production fixture mode is enabled", () => {
