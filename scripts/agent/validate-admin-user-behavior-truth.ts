@@ -142,6 +142,8 @@ assert(usersRoute.includes("pageSize: leaderboardPageSize"), "Behavior leaderboa
 assert(usersRoute.includes("filter: leaderboardFilter"), "Behavior leaderboard route must filter rows on the server.", failures);
 assert(usersRoute.includes("user.role !== \"user\""), "Behavior leaderboard must exclude admin and creator accounts from user ranking.", failures);
 assert(usersRoute.includes("computeBehaviorLeaderboardFallbackScore"), "Behavior leaderboard must provide deterministic fallback scoring when engagement scores are missing.", failures);
+assert(usersRoute.includes("behaviorConfidence: behaviorRollup?.confidenceScore ?? 0"), "Behavior leaderboard must not assign synthetic confidence when behavior rollup truth is missing.", failures);
+assert(!usersRoute.includes("behaviorRollup?.confidenceScore ?? 45"), "Behavior leaderboard must not use the old synthetic 45% confidence fallback.", failures);
 assert(usersRoute.includes("sourceTruth"), "Behavior leaderboard rows must expose source truth.", failures);
 assert(usersRoute.includes("freshnessState"), "Behavior leaderboard rows must expose freshness state.", failures);
 assert(usersRoute.includes('label: "Purchases"'), "User Management summary must expose a dedicated Purchases KPI.", failures);
@@ -157,7 +159,8 @@ assert(usersRoute.includes('/ ${formatCount(totalUsers)} users'), "Returned and 
 
 assert(behaviorValidator.includes("Insufficient signal"), "Behavioral confidence validator must enforce compact insufficient-signal state.", failures);
 assert(
-  behaviorValidator.includes(".slice(0, recommendationState.explanationEligible ? limit : Math.min(limit, 3))"),
+  behaviorValidator.includes("const recommendationLimit = recommendationState.explanationEligible ? limit : Math.min(limit, 3)")
+    && behaviorValidator.includes(".slice(0, recommendationLimit)"),
   "Behavioral confidence validator must enforce capped fallback recommendations.",
   failures,
 );

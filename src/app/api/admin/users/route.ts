@@ -594,7 +594,7 @@ function buildBehaviorLeaderboardPanel(input: {
             : "missing",
         engagementScore,
         valueScore: analytics?.valueScore ?? behaviorRollup?.value.valueScore ?? null,
-        behaviorConfidence: behaviorRollup?.confidenceScore ?? 45,
+        behaviorConfidence: behaviorRollup?.confidenceScore ?? 0,
         returnedInLast7d: (analytics?.lastSeenAt ?? 0) > (input.generatedAtMs - (7 * 24 * 60 * 60 * 1000)),
         lastSeenAtUtc: toUtcIsoStringOrNull(analytics?.lastSeenAt ?? 0),
         lastMeaningfulActionAtUtc: toUtcIsoStringOrNull(lastMeaningfulActionAt),
