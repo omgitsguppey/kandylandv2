@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-06-21T13:33:51.335Z`
-- Current head: `0d37de032350c8cf27a328de002c5e96f9c06f82`
+- Generated: `2026-07-02T12:29:24.892Z`
+- Current head: `d2052dad5174a63d7b021c99ac12165aa2c47800`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-21T13:33:51.335Z",
-  "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
+  "generatedAtUtc": "2026-07-02T12:29:24.892Z",
+  "currentHead": "d2052dad5174a63d7b021c99ac12165aa2c47800",
   "broadManualGatesBefore": [
     "site activity evidence export",
     "admin source sample evidence",
@@ -100,8 +100,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -144,16 +144,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
-          "generatedAtUtc": "2026-06-21T13:33:45.921Z"
+          "currentHead": "d2052dad5174a63d7b021c99ac12165aa2c47800",
+          "generatedAtUtc": "2026-07-02T04:00:02.790Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "provider_required",
@@ -195,8 +195,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -255,8 +255,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -306,16 +306,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
-          "generatedAtUtc": "2026-06-21T13:33:45.921Z"
+          "currentHead": "d2052dad5174a63d7b021c99ac12165aa2c47800",
+          "generatedAtUtc": "2026-07-02T04:00:02.790Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "provider_required",
@@ -357,16 +357,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -407,8 +407,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -465,8 +465,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -507,16 +507,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
+          "currentHead": "8b7541713aa9e996a592b7e2c5af9024b57002f4",
+          "generatedAtUtc": "2026-06-21T15:01:32.428Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -557,16 +557,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
+          "currentHead": "8b7541713aa9e996a592b7e2c5af9024b57002f4",
+          "generatedAtUtc": "2026-06-21T15:01:32.428Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -607,8 +607,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -657,16 +657,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:38.424Z"
+          "currentHead": "c42e13204e9def7042a988a33f7e140574cb9047",
+          "generatedAtUtc": "2026-06-21T14:53:53.719Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "admin_truth_source_required",
@@ -707,16 +707,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "route_health_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
+          "currentHead": "8b7541713aa9e996a592b7e2c5af9024b57002f4",
+          "generatedAtUtc": "2026-06-21T15:01:32.428Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -818,8 +818,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -862,8 +862,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -922,8 +922,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -973,16 +973,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1023,8 +1023,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -1081,8 +1081,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1123,16 +1123,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
+          "currentHead": "8b7541713aa9e996a592b7e2c5af9024b57002f4",
+          "generatedAtUtc": "2026-06-21T15:01:32.428Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1173,16 +1173,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
+          "currentHead": "8b7541713aa9e996a592b7e2c5af9024b57002f4",
+          "generatedAtUtc": "2026-06-21T15:01:32.428Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -1223,8 +1223,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
+          "currentHead": "b67a2eaf8e7e2da9abdc85cd45c850aa687cd2ff",
+          "generatedAtUtc": "2026-07-02T02:39:44.540Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -1273,16 +1273,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:38.424Z"
+          "currentHead": "c42e13204e9def7042a988a33f7e140574cb9047",
+          "generatedAtUtc": "2026-06-21T14:53:53.719Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "admin_truth_source_required",
@@ -1323,16 +1323,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "route_health_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
+          "currentHead": "8b7541713aa9e996a592b7e2c5af9024b57002f4",
+          "generatedAtUtc": "2026-06-21T15:01:32.428Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
+          "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+          "generatedAtUtc": "2026-06-21T19:16:51.544Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -1397,8 +1397,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
   "canClearAdminTruthGate": false,
   "doesNotProve": [
     "Does not prove deployed runtime behavior.",
-    "Does not prove provider smoke success.",
-    "Does not prove current admin truth samples.",
+    "Does not prove provider-backed site activity.",
+    "Does not prove current admin source activity samples.",
     "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
   ]
 }
@@ -1406,7 +1406,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a typed evidence artifact for that category.
+This source-generated packet does not prove deployed runtime, provider-backed site activity, billing, admin source activity, or optional visual reproduction unless the report explicitly includes a matching typed evidence artifact for that category.
 
 ## Validation
 

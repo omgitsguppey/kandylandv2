@@ -17,9 +17,11 @@ const ROOT = join(__dirname, "..", "..");
 const RUNTIME_FOLDER = "agent/evidence/runtime-smoke";
 const ADMIN_FOLDER = "agent/evidence/admin-truth-sample";
 const LAUNCH_COVERAGE_FOLDER = "agent/evidence/launch-analytics";
+const LIVE_RUNTIME_ACTIVITY_FOLDER = "agent/evidence/live-runtime-activity";
 const LAUNCH_RECOVERY_REPORT_PATH = "agent/state/launch-analytics-recovery.generated.json";
 const DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH = `${LAUNCH_COVERAGE_FOLDER}/launch-history-coverage.local.json`;
 const DEFAULT_IMPORTED_LAUNCH_COVERAGE_EXPORT_PATH = `${LAUNCH_COVERAGE_FOLDER}/launch-history-coverage.export.json`;
+const DEFAULT_LIVE_RUNTIME_ACTIVITY_EXPORT_PATH = `${LIVE_RUNTIME_ACTIVITY_FOLDER}/recent-activity.export.json`;
 const DEFAULT_APP_BASE_URL = "https://kandydrops.com";
 
 function readArgValue(args: readonly string[], name: string) {
@@ -34,18 +36,38 @@ function readArgValue(args: readonly string[], name: string) {
 export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
   const normalizedArgs = new Set(args.map((arg) => arg.trim()));
   const launchCoverageInputPath = readArgValue(args, "--launch-coverage-from");
+  const liveRuntimeActivityInputPath =
+    readArgValue(args, "--live-runtime-activity-from")
+    || readArgValue(args, "--live-activity-from")
+    || readArgValue(args, "--site-activity-from");
   const launchCoverageOutputPath =
     readArgValue(args, "--launch-coverage-output")
     || (launchCoverageInputPath
       ? DEFAULT_IMPORTED_LAUNCH_COVERAGE_EXPORT_PATH
       : DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH);
+  const liveRuntimeActivityOutputPath =
+    readArgValue(args, "--live-runtime-activity-output")
+    || DEFAULT_LIVE_RUNTIME_ACTIVITY_EXPORT_PATH;
   if (launchCoverageInputPath) {
     return {
       runtime: false,
       admin: false,
       launchCoverageInputPath,
       launchCoverageOutputPath,
+      liveRuntimeActivityInputPath: "",
+      liveRuntimeActivityOutputPath,
       reason: "explicit_launch_coverage_export",
+    };
+  }
+  if (liveRuntimeActivityInputPath) {
+    return {
+      runtime: false,
+      admin: false,
+      launchCoverageInputPath: "",
+      launchCoverageOutputPath,
+      liveRuntimeActivityInputPath,
+      liveRuntimeActivityOutputPath,
+      reason: "explicit_live_runtime_activity_export",
     };
   }
 
@@ -67,6 +89,8 @@ export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
       admin: captureAdmin,
       launchCoverageInputPath: "",
       launchCoverageOutputPath,
+      liveRuntimeActivityInputPath: "",
+      liveRuntimeActivityOutputPath,
       reason: captureAll
         ? "explicit_all"
         : "explicit_lane",
@@ -78,6 +102,8 @@ export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
     admin: true,
     launchCoverageInputPath: "",
     launchCoverageOutputPath,
+    liveRuntimeActivityInputPath: "",
+    liveRuntimeActivityOutputPath,
     reason: "source_safe_default",
   };
 }
@@ -258,6 +284,78 @@ function buildLaunchHistoryCoverageForEvidence(report: unknown) {
           : null,
       })),
     ...(normalizedCoverage?.eventFamilyCoverage ? { eventFamilyCoverage: normalizedCoverage.eventFamilyCoverage } : {}),
+  };
+}
+
+function safePrivacyEnvelope(value: unknown) {
+  const privacy = record(value);
+  return {
+    piiRedacted: boolValue(privacy.piiRedacted),
+    aggregateOnly: boolValue(privacy.aggregateOnly),
+    rawProviderIdsExcluded: boolValue(privacy.rawProviderIdsExcluded),
+    rawPaymentDataExcluded: boolValue(privacy.rawPaymentDataExcluded),
+  };
+}
+
+function normalizeLiveActivityRecord(value: unknown) {
+  const row = record(value);
+  const eventName = stringValue(row.eventName);
+  const count = numberValue(row.count);
+  const source = stringValue(row.source);
+  if (!eventName || count <= 0 || !source) return null;
+  return {
+    eventName,
+    count,
+    lastSeenAtUtc: stringValue(row.lastSeenAtUtc) || null,
+    source,
+    identityScope: stringValue(row.identityScope, "unknown"),
+    identityConfidence: stringValue(row.identityConfidence, "unknown"),
+    countsGlobal: boolValue(row.countsGlobal),
+    countsForExactUser: boolValue(row.countsForExactUser),
+  };
+}
+
+export function buildLiveRuntimeActivityExportDocument(input: unknown, options: {
+  generatedAtUtc: string;
+  sourceInputPath: string;
+  sourceInputHead?: string | null;
+}) {
+  const root = record(input);
+  const sourceWindow = record(root.sourceWindow);
+  const fromUtc = stringValue(sourceWindow.fromUtc);
+  const toUtc = stringValue(sourceWindow.toUtc);
+  if (!fromUtc || !toUtc) {
+    throw new Error("Live runtime activity input must include sourceWindow.fromUtc and sourceWindow.toUtc.");
+  }
+
+  const privacy = safePrivacyEnvelope(root.privacy);
+  if (!privacy.piiRedacted || !privacy.aggregateOnly || !privacy.rawProviderIdsExcluded || !privacy.rawPaymentDataExcluded) {
+    throw new Error("Live runtime activity input must declare a safe privacy envelope.");
+  }
+
+  const activity = arrayValue(root.activity)
+    .map(normalizeLiveActivityRecord)
+    .filter((row): row is NonNullable<ReturnType<typeof normalizeLiveActivityRecord>> => Boolean(row));
+  if (activity.length === 0) {
+    throw new Error("Live runtime activity input must include at least one positive activity row.");
+  }
+
+  return {
+    reportKey: "live-runtime-activity-export",
+    status: "complete",
+    generatedAtUtc: options.generatedAtUtc,
+    source: "redacted_live_runtime_activity_export",
+    sourceInputPath: options.sourceInputPath,
+    ...(options.sourceInputHead ? { sourceCommit: options.sourceInputHead } : {}),
+    sourceWindow: { fromUtc, toUtc },
+    privacy,
+    summary: {
+      activityRowCount: activity.length,
+      totalEventCount: activity.reduce((sum, row) => sum + row.count, 0),
+      globalActivityRowCount: activity.filter((row) => row.countsGlobal).length,
+      exactUserActivityRowCount: activity.filter((row) => row.countsForExactUser).length,
+    },
+    activity,
   };
 }
 
@@ -456,6 +554,24 @@ async function main() {
     mkdirSync(dirname(fullOutputPath), { recursive: true });
     writeFileSync(fullOutputPath, `${JSON.stringify(document, null, 2)}\n`);
     console.log(`Truthful evidence capture complete. mode=${mode.reason} launchCoverage=${mode.launchCoverageOutputPath}`);
+    return;
+  }
+  if (mode.liveRuntimeActivityInputPath) {
+    const input = readJson(mode.liveRuntimeActivityInputPath);
+    if (!input) throw new Error(`Live runtime activity input is missing or invalid JSON: ${mode.liveRuntimeActivityInputPath}`);
+    const document = buildLiveRuntimeActivityExportDocument(input, {
+      generatedAtUtc,
+      sourceInputPath: mode.liveRuntimeActivityInputPath,
+      sourceInputHead: stringValue(record(input).currentHead)
+        || stringValue(record(input).sourceCommit)
+        || stringValue(record(input).sourceHead)
+        || stringValue(record(input).commit)
+        || null,
+    });
+    const fullOutputPath = join(ROOT, mode.liveRuntimeActivityOutputPath);
+    mkdirSync(dirname(fullOutputPath), { recursive: true });
+    writeFileSync(fullOutputPath, `${JSON.stringify(document, null, 2)}\n`);
+    console.log(`Truthful evidence capture complete. mode=${mode.reason} liveRuntimeActivity=${mode.liveRuntimeActivityOutputPath}`);
     return;
   }
 

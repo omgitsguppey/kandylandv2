@@ -15,6 +15,7 @@ import {
   validateAdminTruthSampleEvidenceDocument,
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
 import {
+  buildLiveRuntimeActivityExportDocument,
   buildLaunchHistoryCoverageLocalExportDocument,
   buildLaunchHistoryCoverageReadinessForEvidence,
   resolveEvidenceCaptureMode,
@@ -27,6 +28,8 @@ describe("evidence artifact schemas", () => {
       admin: true,
       launchCoverageInputPath: "",
       launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      liveRuntimeActivityInputPath: "",
+      liveRuntimeActivityOutputPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
       reason: "source_safe_default",
     });
     expect(resolveEvidenceCaptureMode(["--admin-truth"])).toEqual({
@@ -34,6 +37,8 @@ describe("evidence artifact schemas", () => {
       admin: true,
       launchCoverageInputPath: "",
       launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      liveRuntimeActivityInputPath: "",
+      liveRuntimeActivityOutputPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
       reason: "explicit_lane",
     });
     expect(resolveEvidenceCaptureMode(["--runtime-smoke"])).toEqual({
@@ -41,6 +46,8 @@ describe("evidence artifact schemas", () => {
       admin: false,
       launchCoverageInputPath: "",
       launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      liveRuntimeActivityInputPath: "",
+      liveRuntimeActivityOutputPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
       reason: "explicit_lane",
     });
     expect(resolveEvidenceCaptureMode(["--all"])).toEqual({
@@ -48,6 +55,8 @@ describe("evidence artifact schemas", () => {
       admin: true,
       launchCoverageInputPath: "",
       launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      liveRuntimeActivityInputPath: "",
+      liveRuntimeActivityOutputPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
       reason: "explicit_all",
     });
     expect(resolveEvidenceCaptureMode(["--launch-coverage-from", "tmp/export.json"])).toEqual({
@@ -55,8 +64,118 @@ describe("evidence artifact schemas", () => {
       admin: false,
       launchCoverageInputPath: "tmp/export.json",
       launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+      liveRuntimeActivityInputPath: "",
+      liveRuntimeActivityOutputPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
       reason: "explicit_launch_coverage_export",
     });
+    expect(resolveEvidenceCaptureMode(["--live-runtime-activity-from", "tmp/activity.json"])).toEqual({
+      runtime: false,
+      admin: false,
+      launchCoverageInputPath: "",
+      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      liveRuntimeActivityInputPath: "tmp/activity.json",
+      liveRuntimeActivityOutputPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
+      reason: "explicit_live_runtime_activity_export",
+    });
+  });
+
+  it("builds the live runtime activity export without raw user/provider proof", () => {
+    const document = buildLiveRuntimeActivityExportDocument({
+      currentHead: "head-a",
+      sourceWindow: {
+        fromUtc: "2026-07-02T00:00:00.000Z",
+        toUtc: "2026-07-02T02:00:00.000Z",
+      },
+      privacy: {
+        piiRedacted: true,
+        aggregateOnly: true,
+        rawProviderIdsExcluded: true,
+        rawPaymentDataExcluded: true,
+      },
+      activity: [
+        {
+          eventName: "drop_preview_opened",
+          count: 4,
+          lastSeenAtUtc: "2026-07-02T01:55:00.000Z",
+          source: "analytics_event_facts",
+          identityScope: "anonymous_aggregate",
+          identityConfidence: "anonymous_aggregate",
+          countsGlobal: true,
+          countsForExactUser: false,
+        },
+      ],
+      rawUserEmail: "must-not-survive@example.test",
+      providerTransactionId: "provider-id-must-not-survive",
+    }, {
+      generatedAtUtc: "2026-07-02T02:00:00.000Z",
+      sourceInputPath: "tmp/activity.redacted.json",
+      sourceInputHead: "head-a",
+    });
+
+    expect(document).toMatchObject({
+      reportKey: "live-runtime-activity-export",
+      status: "complete",
+      source: "redacted_live_runtime_activity_export",
+      sourceCommit: "head-a",
+      sourceWindow: {
+        fromUtc: "2026-07-02T00:00:00.000Z",
+        toUtc: "2026-07-02T02:00:00.000Z",
+      },
+      privacy: {
+        piiRedacted: true,
+        aggregateOnly: true,
+        rawProviderIdsExcluded: true,
+        rawPaymentDataExcluded: true,
+      },
+      summary: {
+        activityRowCount: 1,
+        totalEventCount: 4,
+        globalActivityRowCount: 1,
+        exactUserActivityRowCount: 0,
+      },
+    });
+    expect(document.activity[0]).toMatchObject({
+      eventName: "drop_preview_opened",
+      count: 4,
+      source: "analytics_event_facts",
+      countsGlobal: true,
+      countsForExactUser: false,
+    });
+    expect(JSON.stringify(document)).not.toContain("must-not-survive");
+    expect(JSON.stringify(document)).not.toContain("provider-id-must-not-survive");
+  });
+
+  it("rejects live runtime activity exports without bounded privacy-safe source data", () => {
+    expect(() => buildLiveRuntimeActivityExportDocument({
+      sourceWindow: { fromUtc: "2026-07-02T00:00:00.000Z" },
+      privacy: {
+        piiRedacted: true,
+        aggregateOnly: true,
+        rawProviderIdsExcluded: true,
+        rawPaymentDataExcluded: true,
+      },
+      activity: [{ eventName: "drop_preview_opened", count: 1, source: "analytics_event_facts", countsGlobal: true }],
+    }, {
+      generatedAtUtc: "2026-07-02T02:00:00.000Z",
+      sourceInputPath: "tmp/activity.json",
+    })).toThrow(/sourceWindow\.fromUtc and sourceWindow\.toUtc/u);
+
+    expect(() => buildLiveRuntimeActivityExportDocument({
+      sourceWindow: {
+        fromUtc: "2026-07-02T00:00:00.000Z",
+        toUtc: "2026-07-02T02:00:00.000Z",
+      },
+      privacy: {
+        piiRedacted: true,
+        aggregateOnly: true,
+        rawProviderIdsExcluded: false,
+        rawPaymentDataExcluded: true,
+      },
+      activity: [{ eventName: "drop_preview_opened", count: 1, source: "analytics_event_facts", countsGlobal: true }],
+    }, {
+      generatedAtUtc: "2026-07-02T02:00:00.000Z",
+      sourceInputPath: "tmp/activity.json",
+    })).toThrow(/safe privacy envelope/u);
   });
 
   it("builds a compact launch coverage artifact from an approved redacted historical route export", () => {
