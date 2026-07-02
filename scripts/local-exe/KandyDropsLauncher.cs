@@ -22,12 +22,10 @@ internal static class KandyDropsLauncher
         string url = testMode
             ? "http://" + Host + ":" + Port + "/api/admin-ui-test-session?redirect=/admin"
             : "http://" + Host + ":" + Port + "/";
-        string command = testMode
-            ? "npm run dev -- --hostname " + Host + " --port " + Port
-            : "npm run build && npm run start -- --hostname " + Host + " --port " + Port;
+        string command = "npm run build && npm run start -- --hostname " + Host + " --port " + Port;
 
         Console.WriteLine(testMode
-            ? "Starting KandyDrops local admin fixture test server."
+            ? "Starting KandyDrops local production test server with admin fixture access."
             : "Starting KandyDrops connected local production server.");
         Console.WriteLine("Repo: " + repoRoot);
         Console.WriteLine("URL:  " + url);
