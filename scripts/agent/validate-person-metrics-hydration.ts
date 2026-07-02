@@ -26,6 +26,97 @@ const SCORE_DIMENSION_KEYS = [
   "regressionRisk",
 ] as const;
 
+const SAMPLE_LIMIT = 3;
+
+function compactList<T>(items: readonly T[], limit = SAMPLE_LIMIT) {
+  return {
+    total: items.length,
+    emitted: Math.min(items.length, limit),
+    omitted: Math.max(0, items.length - limit),
+    sample: items.slice(0, limit),
+  };
+}
+
+type FullPersonMetricsHydrationOutput = Omit<ReturnType<typeof buildPersonMetricsHydrationReport>, "status"> & {
+  status: "pass" | "review" | "fail";
+  currentHead: string;
+  dirtyFiles: Array<{ path: string; classification: string }>;
+  activeOldLogic: string[];
+  validationFailures: string[];
+};
+
+function compactPersonMetricsHydrationOutput(report: FullPersonMetricsHydrationOutput) {
+  const compactMetricStatus = compactList(Object.values(report.metricStatus).map((metric) => ({
+      metricId: metric.metricId,
+      state: metric.state,
+      count: metric.count,
+      confidence: metric.confidence,
+      provenZero: metric.provenZero,
+      sourceEventCount: metric.sourceEvents.length,
+      hydratedEventIdCount: metric.hydratedEventIds.length,
+      suppressedDuplicateCount: metric.suppressedDuplicateCount,
+      missingProducer: metric.missingProducer,
+      missingBridge: metric.missingBridge,
+      lowConfidenceReason: metric.lowConfidenceReason,
+      missingSourceExplanation: metric.state === "hydrated" ? "" : metric.missingSourceExplanation,
+  })), 8);
+  const compactScopes = Object.values(report.scopes).map((scope) => ({
+      scope: scope.scope,
+      totalCount: scope.totalCount,
+      lowConfidenceCount: scope.lowConfidenceCount,
+      metricCount: Object.keys(scope.metrics).length,
+      hydratedMetricIds: Object.values(scope.metrics)
+        .filter((metric) => metric.count > 0)
+        .map((metric) => metric.metricId),
+      provenZeroMetricIds: Object.values(scope.metrics)
+        .filter((metric) => metric.provenZero)
+        .map((metric) => metric.metricId),
+  }));
+  const compactUserParityStatus = compactList(Object.values(report.userParityStatus).map((metric) => ({
+      metricId: metric.metricId,
+      state: metric.state,
+      globalCount: metric.globalCount,
+      guestCount: metric.guestCount,
+      signedInCount: metric.signedInCount,
+      linkedPersonCount: metric.linkedPersonCount,
+      creatorRoleCount: metric.creatorRoleCount,
+      provenZero: metric.provenZero,
+      blocksUserParity: metric.blocksUserParity,
+      debugNextAction: metric.blocksUserParity ? metric.debugNextAction : "",
+  })), 8);
+
+  return {
+    ...report,
+    metricStatus: compactMetricStatus,
+    scopes: compactScopes,
+    userParityStatus: compactUserParityStatus,
+    lowConfidenceMetrics: compactList(report.lowConfidenceMetrics.map((metric) => ({
+      metricId: metric.metricId,
+      state: metric.state,
+      count: metric.count,
+      confidence: metric.confidence,
+      provenZero: metric.provenZero,
+      missingProducer: metric.missingProducer,
+      missingBridge: metric.missingBridge,
+      lowConfidenceReason: metric.lowConfidenceReason,
+    }))),
+    userParityGaps: compactList(report.userParityGaps),
+    dirtyFiles: compactList(report.dirtyFiles),
+    activeOldLogic: compactList(report.activeOldLogic),
+    compaction: {
+      fullReportValidatedInMemory: true,
+      strategy: "counts_plus_bounded_samples",
+      sampleLimit: SAMPLE_LIMIT,
+      omittedDetail: [
+        "full hydratedEventIds",
+        "full sourceEvents",
+        "full lowConfidenceMetrics list",
+        "full dirty file list",
+      ],
+    },
+  };
+}
+
 function run(command: string, args: readonly string[]) {
   try {
     return execFileSync(command, args, { cwd: ROOT, encoding: "utf8" }).trim();
@@ -159,7 +250,7 @@ function renderDoc(report: Omit<ReturnType<typeof buildPersonMetricsHydrationRep
     "- Unknown legacy evidence never becomes exact user truth.",
     "- Checkout starts remain checkout intent, not payment approval.",
     "- Page duration never becomes watch time; watch sessions require runtime watch events.",
-    "- Missing future activity is shown as collecting/unavailable with the exact producer event, not fake zero.",
+    "- Missing source/person activity is shown as collecting/unavailable with the exact producer event, not fake zero.",
     "",
     "## Debug Lane",
     "",
@@ -265,7 +356,15 @@ function main() {
     validationFailures: [...new Set(failures)],
   };
 
-  write(REPORT_PATH, `${JSON.stringify(output, null, 2)}\n`);
+  let compactOutput = compactPersonMetricsHydrationOutput(output);
+  let serializedReport = `${JSON.stringify(compactOutput, null, 2)}\n`;
+  if (serializedReport.length > 100_000) {
+    failures.push("person metrics hydration generated report is too large; keep full detail in source-derived validation, not generated state.");
+    output.validationFailures = [...new Set(failures)];
+    compactOutput = compactPersonMetricsHydrationOutput(output);
+    serializedReport = `${JSON.stringify(compactOutput, null, 2)}\n`;
+  }
+  write(REPORT_PATH, serializedReport);
   write(DOC_PATH, renderDoc(output));
 
   if (output.validationFailures.length > 0) {
