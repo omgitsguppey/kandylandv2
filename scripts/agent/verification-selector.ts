@@ -340,9 +340,9 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
     addSelection(selections, available, "fast", "npm run check:telemetry-dependency-graph", "Telemetry dependency graph should remain source-closed.");
     addSelection(selections, available, "fast", "npm run check:telemetry", "Telemetry or analytics semantics changed.");
     addSelection(selections, available, "fast", "npm run check:analytics-semantics", "Canonical analytics naming/schema must remain aligned.");
-    addSelection(selections, available, "fast", "npm run check:telemetry-parity-score", "Telemetry parity score catches broad source drift without runtime proof.");
+    addSelection(selections, available, "fast", "npm run check:telemetry-parity-score", "Telemetry parity score catches broad source drift without deployed route evidence.");
     addSelection(selections, available, "signoff", "npm run check:analytics:continuity", "Analytics continuity needs explicit signoff for behavioral/runtime changes.");
-    pushUnique(manualEvidenceRequirements, "telemetry_runtime: source checks cannot prove provider/runtime/admin sample evidence.");
+    pushUnique(manualEvidenceRequirements, "telemetry_runtime: source checks cannot clear provider-backed site activity, deployed route, or admin source activity sample evidence.");
   }
 
   if (touchesFunctions) {
@@ -362,7 +362,7 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
     addSelection(selections, available, "fast", "npm run check:unlock-telemetry-truth", "Unlock telemetry must remain source-truth aligned.");
     addSelection(selections, available, "signoff", "npm run check:legal-payment-copy", "Payment-adjacent user-facing copy/legal state needs signoff.");
     pushUnique(protectedDomainEscalations, "payment_economy_unlock: do not weaken source-of-funds, entitlement, provider callback, or locked content truth.");
-    pushUnique(manualEvidenceRequirements, "payment_provider: PayPal/provider success requires formal external smoke evidence, not source-only checks.");
+    pushUnique(manualEvidenceRequirements, "payment_provider: PayPal/provider success requires provider-backed site activity evidence, not source-only checks.");
   }
 
   if (touchesRules) {
@@ -467,7 +467,7 @@ function formatPlan(plan: VerificationPlan) {
   }
 
   if (plan.manualEvidenceRequirements.length > 0) {
-    lines.push("", "Manual evidence requirements:", ...plan.manualEvidenceRequirements.map((entry) => `- ${entry}`));
+    lines.push("", "Typed evidence requirements:", ...plan.manualEvidenceRequirements.map((entry) => `- ${entry}`));
   }
 
   if (plan.forbiddenByDefaultCommands.length > 0) {
