@@ -305,6 +305,62 @@ function hasRefreshPlanEntriesNowCurrent(report: CurrentBetaExitStatusReport, he
   });
 }
 
+function hasProofLaneArtifactDrift(report: CurrentBetaExitStatusReport, head: string) {
+  const evidenceCapture = readEvidenceCaptureStatus();
+  const captureSummary = evidenceCapture?.summary ?? {};
+  const uiSurfaceCoverage = readJson(uiSurfaceCoverageRelativePath);
+  const provider = readJson(providerSmokeEvidenceRelativePath);
+  const runtime = readJson(runtimeSmokeEvidenceRelativePath);
+  const admin = readJson(adminTruthSampleEvidenceRelativePath);
+  const expectedVisualStatus = sourceArtifactStatus(uiSurfaceCoverage, head, report.summary.visualEvidenceStatus, "stale_visual_evidence", {
+    artifactPath: uiSurfaceCoverageRelativePath,
+    ownedSourcePaths: uiSurfaceCoverageOwnedInputPaths,
+  });
+  const expectedProviderStatus = sourceArtifactStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
+  const expectedRuntimeStatus = sourceArtifactStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
+  const expectedAdminStatus = sourceArtifactStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence", {
+    artifactPath: adminTruthSampleEvidenceRelativePath,
+    ownedSourcePaths: adminTruthSampleOwnedInputPaths,
+  });
+
+  if (
+    expectedVisualStatus !== report.summary.visualEvidenceStatus
+    || expectedProviderStatus !== report.summary.providerSmokeStatus
+    || expectedRuntimeStatus !== report.summary.runtimeSmokeStatus
+    || expectedAdminStatus !== report.summary.adminTruthSampleStatus
+  ) {
+    return true;
+  }
+
+  const expectedLanes = buildProofLanes({
+    head,
+    visualEvidenceStatus: expectedVisualStatus,
+    providerSmokeStatus: expectedProviderStatus,
+    runtimeSmokeStatus: expectedRuntimeStatus,
+    adminTruthSampleStatus: expectedAdminStatus,
+    captureSummary,
+    uiSurfaceCoverage,
+    provider,
+    runtime,
+    admin,
+  }).map(({ truthState, actionState, sourceStatus, sourceCommit, canClearGate }) => ({
+    truthState,
+    actionState,
+    sourceStatus,
+    sourceCommit,
+    canClearGate,
+  }));
+  const currentLanes = (report.summary.proofLanes ?? []).map(({ truthState, actionState, sourceStatus, sourceCommit, canClearGate }) => ({
+    truthState,
+    actionState,
+    sourceStatus,
+    sourceCommit,
+    canClearGate,
+  }));
+
+  return JSON.stringify(expectedLanes) !== JSON.stringify(currentLanes);
+}
+
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
@@ -967,7 +1023,12 @@ function main() {
       changedFilesSinceArtifactHead: versionContext.changedFilesSinceArtifactHead,
       ownedSourcePaths: [...currentBetaExitOwnedInputPaths],
     });
-    if (forceRefresh || !isGeneratedArtifactCurrent(version) || hasRefreshPlanEntriesNowCurrent(report, head)) {
+    if (
+      forceRefresh
+      || !isGeneratedArtifactCurrent(version)
+      || hasRefreshPlanEntriesNowCurrent(report, head)
+      || hasProofLaneArtifactDrift(report, head)
+    ) {
       report = refreshReportFromCurrentArtifacts(report, head);
       writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
     }
