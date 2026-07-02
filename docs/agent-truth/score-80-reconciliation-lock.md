@@ -4,18 +4,18 @@ Status: score-80 path reconciled after AI critic, algorithmic evidence, real usa
 
 ## Summary
 
-- Previous score: 76.88
+- Previous score: 89.31
 - Current score: 84
 - Distance to 80: 0
 - Readiness status: Source evidence required
 - Can start beta exit review: false
-- P0/P1/P2: 0/8/26
+- P0/P1/P2: 0/7/25
 
 ## Dimensions
 
-- Source health: 97.2
-- Runtime health: 83.74
-- Evidence completeness: 92
+- Source health: 97.35
+- Runtime health: 80.45
+- Evidence completeness: 95.2
 - Freshness: 91.88
 - Cost risk: 42
 - Regression risk: 94
@@ -32,7 +32,7 @@ Status: score-80 path reconciled after AI critic, algorithmic evidence, real usa
 
 ## Provider Required
 
-- Provider-backed site activity evidence: formal_provider_required; next=Produce redacted provider-backed site activity evidence before clearing provider readiness.
+- Provider-backed site activity evidence: provider_backed_site_activity_required; next=Produce redacted provider-backed site activity evidence before clearing provider readiness.
 
 ## Admin Truth
 
@@ -55,8 +55,7 @@ Status: score-80 path reconciled after AI critic, algorithmic evidence, real usa
 
 ## Dirty File Classification
 
-- agent/state/score-80-path-lock.generated.json: current_generated_artifact_to_commit; Generated score/debug evidence artifact refreshed by requested validators.
-- docs/agent-truth/score-80-path-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by requested score/debug validators.
+- src/lib/agent-score/score-80-reconciliation-lock.ts: real_source_change_needs_review; Scoped score/evidence source wiring required for this cleanup batch.
 
 ## Open PR Classification
 

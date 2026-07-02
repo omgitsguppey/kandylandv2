@@ -2,6 +2,7 @@ export type Score80ProofType =
   | "algorithmic"
   | "source_fixable"
   | "runtime_required"
+  | "provider_backed_site_activity_required"
   | "formal_provider_required"
   | "admin_truth_required"
   | "owner_review";
@@ -189,7 +190,7 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
     {
       id: "provider_backed_site_activity",
       label: "Provider-backed site activity evidence",
-      proofType: "formal_provider_required",
+      proofType: "provider_backed_site_activity_required",
       scoreDimension: "runtimeHealth",
       scoreImpactEstimate: 15,
       justification: "Operator-confirmed revenue is product confidence only and does not clear the provider artifact gate.",
