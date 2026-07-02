@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-21T23:03:07.796Z",
-  "currentHead": "2dcb3be06dc03a5a438c050e6bc241b11a023ea7",
+  "generatedAtUtc": "2026-07-02T15:09:07.296Z",
+  "currentHead": "25e5a1c71fad2d2f974c4de44c5079a4a7cce1de",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -185,7 +185,7 @@
         ],
         "productTruthRole": "display_readiness_only",
         "promotionRule": "Use to decide panel display state; it does not promote product metrics without source truth.",
-        "localState": "partial",
+        "localState": "collecting",
         "coveredDayCount": null,
         "missingRanges": [],
         "primaryFor": [
@@ -281,19 +281,19 @@
   },
   "formalLaunchRange": {
     "launchStartDayKey": "2026-02-12",
-    "expectedThroughDayKey": "2026-06-21",
-    "expectedDayCount": 130,
+    "expectedThroughDayKey": "2026-07-02",
+    "expectedDayCount": 141,
     "localEvidenceDayCount": 3,
     "approvedCoverageDayCount": 0,
     "localEvidenceRanges": [
       "2026-02-12..2026-02-14"
     ],
     "unprovenRanges": [
-      "2026-02-12..2026-06-21"
+      "2026-02-12..2026-07-02"
     ],
     "state": "formal_proof_missing",
     "reason": "Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.",
-    "unprovenDayCount": 127,
+    "unprovenDayCount": 138,
     "dayCoverage": [
       {
         "dayKey": "2026-02-12",
@@ -956,35 +956,35 @@
         "nextAction": "Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day."
       }
     ],
-    "dayCoverageCount": 130,
+    "dayCoverageCount": 141,
     "dayCoverageTruncated": true,
-    "omittedDayCoverageCount": 116,
+    "omittedDayCoverageCount": 127,
     "dayCoverageSummary": {
-      "dayCount": 130,
+      "dayCount": 141,
       "confidenceBandCounts": {
         "verified": 1,
         "directional": 2,
-        "missing": 127
+        "missing": 138
       },
       "evidenceKindCounts": {
         "observed": 1,
         "modeled": 2,
-        "missing": 127
+        "missing": 138
       },
       "sourceTruthCounts": {
         "first_party_event_fact": 1,
         "ga4_evidence_only": 2,
-        "source_missing": 127
+        "source_missing": 138
       },
       "freshnessStateCounts": {
         "source_current": 1,
         "external_evidence_required": 2,
-        "source_missing": 127
+        "source_missing": 138
       },
       "sourceTruthStateCounts": {
         "mixed_evidence": 1,
         "second_source_only": 2,
-        "source_missing": 127
+        "source_missing": 138
       },
       "productTruthRecoveredDayCount": 1,
       "sourceCountsKnownDayCount": 3,
@@ -1017,7 +1017,9 @@
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json",
-      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json"
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json"
     ],
     "candidateLaunchCoverageInputStatuses": [
       {
@@ -1055,6 +1057,18 @@
         "state": "present_without_launch_history_coverage",
         "proofMode": "none",
         "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
       }
     ],
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
@@ -1065,7 +1079,7 @@
     "displaySummary": {
       "sourceLabel": "Mixed",
       "confidenceLabel": "review",
-      "coverageLabel": "1/130 product-truth launch days (evidence window 3) - evidence present 3/3 days",
+      "coverageLabel": "1/141 product-truth launch days (evidence window 3) - evidence present 3/3 days",
       "sourceWindowLabel": "Launch evidence window since 2026-02-12",
       "coverageDenominatorKind": "formal_launch_range",
       "missingRangeCount": 1,
@@ -1133,11 +1147,11 @@
       "coverageWindowKind": "fixture_only_local_window",
       "allLaunchRangeProven": false,
       "formalRangeStartDayKey": "2026-02-12",
-      "formalRangeEndDayKey": "2026-06-21",
-      "formalExpectedDayCount": 130,
+      "formalRangeEndDayKey": "2026-07-02",
+      "formalExpectedDayCount": 141,
       "evidenceDayCount": 3,
       "unprovenRanges": [
-        "2026-02-12..2026-06-21"
+        "2026-02-12..2026-07-02"
       ],
       "reason": "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Convert a redacted all-range historical route export with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` or place a complete redacted admin truth sample with launchHistoryCoverage day rows."
     },
@@ -2099,8 +2113,8 @@
             "drop_preview_opened",
             "drop_preview_page_viewed"
           ],
-          "activeSourceReferenceCount": 35,
-          "materializerReferenceCount": 24,
+          "activeSourceReferenceCount": 34,
+          "materializerReferenceCount": 23,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "first_party_event_fact",
           "freshnessState": "source_current",
@@ -2215,8 +2229,8 @@
             "drop_unwrapped",
             "entitlement_granted"
           ],
-          "activeSourceReferenceCount": 42,
-          "materializerReferenceCount": 30,
+          "activeSourceReferenceCount": 41,
+          "materializerReferenceCount": 29,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "server_ledger",
           "freshnessState": "source_current",
@@ -2911,8 +2925,8 @@
     },
     "formalLaunchDayCoverage": {
       "status": "complete",
-      "rowCount": 130,
-      "completeRowCount": 130,
+      "rowCount": 141,
+      "completeRowCount": 141,
       "requiredFields": [
         "sourceTruth",
         "freshnessState",
@@ -3433,7 +3447,7 @@
   },
   "adminPanelConnection": {
     "totalPanels": 41,
-    "hydratedPanels": 10,
+    "hydratedPanels": 0,
     "sourceMissingPanels": 0,
     "materializerMissingPanels": 0,
     "bridgeMissingPanels": 0,

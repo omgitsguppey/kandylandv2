@@ -1,30 +1,30 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-21T23:03:07.796Z",
-  "currentHead": "2dcb3be06dc03a5a438c050e6bc241b11a023ea7",
+  "generatedAtUtc": "2026-07-02T15:09:07.296Z",
+  "currentHead": "25e5a1c71fad2d2f974c4de44c5079a4a7cce1de",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
     "sourceHealth": 98.6,
-    "runtimeHealth": 85.34,
-    "evidenceCompleteness": 95.2,
+    "runtimeHealth": 78.85,
+    "evidenceCompleteness": 92,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 88.68
+    "overallHealthScore": 85.93
   },
   "totalPanels": 41,
-  "hydratedPanels": 10,
+  "hydratedPanels": 0,
   "stalePanels": 0,
   "collectingPanels": 0,
-  "sourceReadyWaitingForActivityPanels": 3,
-  "notObservedButExpectedPanels": 22,
+  "sourceReadyWaitingForActivityPanels": 9,
+  "notObservedButExpectedPanels": 25,
   "sourceMissingPanels": 0,
   "materializerMissingPanels": 0,
   "bridgeMissingPanels": 0,
   "runtimeEvidenceRequiredPanels": 2,
-  "adminTruthSourceRequiredPanels": 0,
+  "adminTruthSourceRequiredPanels": 1,
   "providerGatedPanels": 2,
   "externalRequiredPanels": 4,
   "permissionBlockedPanels": 0,
@@ -44,32 +44,32 @@
     },
     "auth": {
       "total": 3,
-      "hydrated": 2,
-      "collecting": 1,
+      "hydrated": 0,
+      "collecting": 3,
       "gaps": 0
     },
     "creators": {
       "total": 3,
-      "hydrated": 1,
-      "collecting": 2,
+      "hydrated": 0,
+      "collecting": 3,
       "gaps": 0
     },
     "drops": {
       "total": 2,
-      "hydrated": 1,
+      "hydrated": 0,
       "collecting": 1,
       "gaps": 0
     },
     "unlocks": {
       "total": 2,
-      "hydrated": 1,
-      "collecting": 1,
+      "hydrated": 0,
+      "collecting": 2,
       "gaps": 0
     },
     "watch": {
       "total": 2,
-      "hydrated": 2,
-      "collecting": 0,
+      "hydrated": 0,
+      "collecting": 2,
       "gaps": 0
     },
     "wallet": {
@@ -116,14 +116,14 @@
     },
     "search": {
       "total": 2,
-      "hydrated": 2,
-      "collecting": 0,
+      "hydrated": 0,
+      "collecting": 2,
       "gaps": 0
     },
     "support": {
       "total": 1,
-      "hydrated": 1,
-      "collecting": 0,
+      "hydrated": 0,
+      "collecting": 1,
       "gaps": 0
     },
     "errors": {
@@ -154,18 +154,18 @@
   "panelStatus": {
     "traffic_overview": "not_observed_but_expected",
     "active_users": "not_observed_but_expected",
-    "new_users_signups": "hydrated",
+    "new_users_signups": "not_observed_but_expected",
     "returning_users": "not_observed_but_expected",
     "guest_to_user_handoff": "not_observed_but_expected",
     "creator_count": "not_observed_but_expected",
     "creator_profile_views": "not_observed_but_expected",
-    "creator_follows": "hydrated",
-    "drops_live": "hydrated",
+    "creator_follows": "source_ready_waiting_for_activity",
+    "drops_live": "admin_truth_source_required",
     "drop_opens": "not_observed_but_expected",
-    "unlocks": "hydrated",
+    "unlocks": "source_ready_waiting_for_activity",
     "unwraps": "source_ready_waiting_for_activity",
-    "watch_time": "hydrated",
-    "completion_rate": "hydrated",
+    "watch_time": "source_ready_waiting_for_activity",
+    "completion_rate": "source_ready_waiting_for_activity",
     "wallet_opens": "not_observed_but_expected",
     "package_selections": "source_ready_waiting_for_activity",
     "checkout_starts": "source_ready_waiting_for_activity",
@@ -182,12 +182,12 @@
     "notification_prompts": "not_observed_but_expected",
     "notification_tokens": "not_observed_but_expected",
     "notification_intents": "not_observed_but_expected",
-    "auth_attempts_failures": "hydrated",
+    "auth_attempts_failures": "not_observed_but_expected",
     "session_restores": "not_observed_but_expected",
     "media_uploads_access_blocks": "not_observed_but_expected",
-    "search_queries": "hydrated",
-    "search_zero_results_clicks": "hydrated",
-    "support_account_actions": "hydrated",
+    "search_queries": "not_observed_but_expected",
+    "search_zero_results_clicks": "source_ready_waiting_for_activity",
+    "support_account_actions": "source_ready_waiting_for_activity",
     "error_rate_4xx": "runtime_evidence_required",
     "cost_risk": "external_required",
     "journey_funnel": "not_observed_but_expected",
@@ -195,6 +195,12 @@
     "debug_backlog": "runtime_evidence_required"
   },
   "topPanelHydrationFailures": [
+    {
+      "panelId": "drops_live",
+      "panelLabel": "Drops live",
+      "hydrationStatus": "admin_truth_source_required",
+      "nextExactAction": "Produce a redacted admin source activity sample for creator drop manager telemetry and canonical creator drop route facts."
+    },
     {
       "panelId": "payment_approvals",
       "panelLabel": "Payment approvals",
@@ -233,27 +239,21 @@
     }
   ],
   "liveEvidenceContribution": {
-    "contributes": [
-      "new_users_signups",
-      "creator_follows",
-      "drops_live",
-      "unlocks",
-      "watch_time",
-      "completion_rate",
-      "auth_attempts_failures",
-      "search_queries",
-      "search_zero_results_clicks",
-      "support_account_actions"
-    ],
+    "contributes": [],
     "collecting": [
       "traffic_overview",
       "active_users",
+      "new_users_signups",
       "returning_users",
       "guest_to_user_handoff",
       "creator_count",
       "creator_profile_views",
+      "creator_follows",
       "drop_opens",
+      "unlocks",
       "unwraps",
+      "watch_time",
+      "completion_rate",
       "wallet_opens",
       "package_selections",
       "checkout_starts",
@@ -267,8 +267,12 @@
       "notification_prompts",
       "notification_tokens",
       "notification_intents",
+      "auth_attempts_failures",
       "session_restores",
       "media_uploads_access_blocks",
+      "search_queries",
+      "search_zero_results_clicks",
+      "support_account_actions",
       "journey_funnel",
       "realtime_health"
     ],
@@ -277,7 +281,9 @@
       "error_rate_4xx",
       "debug_backlog"
     ],
-    "adminTruthSourceRequired": [],
+    "adminTruthSourceRequired": [
+      "drops_live"
+    ],
     "externalRequired": [
       "payment_approvals",
       "payment_failures",
@@ -285,6 +291,7 @@
       "cost_risk"
     ],
     "formalEvidenceRequired": [
+      "drops_live",
       "payment_approvals",
       "payment_failures",
       "gumdrop_balances",
@@ -294,18 +301,7 @@
     ]
   },
   "livePanelEvidenceSummary": {
-    "liveEvidencePanelIds": [
-      "new_users_signups",
-      "creator_follows",
-      "drops_live",
-      "unlocks",
-      "watch_time",
-      "completion_rate",
-      "auth_attempts_failures",
-      "search_queries",
-      "search_zero_results_clicks",
-      "support_account_actions"
-    ],
+    "liveEvidencePanelIds": [],
     "externalRequiredPanelIds": [
       "payment_approvals",
       "payment_failures",
@@ -313,10 +309,11 @@
       "cost_risk"
     ],
     "blockedPanelIds": [
+      "drops_live",
       "error_rate_4xx",
       "debug_backlog"
     ],
-    "blockedPanelCount": 2
+    "blockedPanelCount": 3
   },
   "betaGateImpact": {
     "betaExitReadyBefore": false,
@@ -324,6 +321,7 @@
     "remainingBlockers": [
       "error_rate_4xx: deployed route evidence required",
       "debug_backlog: deployed route evidence required",
+      "drops_live: admin source activity sample required",
       "payment_approvals: external source required",
       "payment_failures: external source required",
       "gumdrop_balances: external source required",
@@ -333,21 +331,22 @@
   "debugLane": {
     "label": "Analytics panel hydration",
     "totalPanels": 41,
-    "hydrated": 10,
+    "hydrated": 0,
     "stale": 0,
     "collecting": 0,
-    "sourceReadyWaitingForActivity": 3,
-    "notObservedButExpected": 22,
+    "sourceReadyWaitingForActivity": 9,
+    "notObservedButExpected": 25,
     "sourceMissing": 0,
     "materializerMissing": 0,
     "bridgeMissing": 0,
     "runtimeEvidenceRequired": 2,
-    "adminTruthSourceRequired": 0,
+    "adminTruthSourceRequired": 1,
     "providerGated": 2,
     "externalRequired": 4,
     "hiddenByRole": 0,
     "broken": 0,
     "topNextActions": [
+      "Drops live: Produce a redacted admin source activity sample for creator drop manager telemetry and canonical creator drop route facts.",
       "Payment approvals: Produce redacted source activity or external evidence for server purchase verification facts.",
       "Payment failures: Produce redacted source activity or external evidence for payment failure telemetry.",
       "GumDrop balances: Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider evidence.",

@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-21T23:03:07.796Z
-Current head: 2dcb3be06dc03a5a438c050e6bc241b11a023ea7
+Generated: 2026-07-02T15:09:07.296Z
+Current head: 25e5a1c71fad2d2f974c4de44c5079a4a7cce1de
 Status: source_agreement_failed
 
 ## Source Order
@@ -15,8 +15,8 @@ Status: source_agreement_failed
 - Launch coverage input: in_process_source_agreement_detail
 - Launch coverage input mode: fixture_only_local_window
 - Usable launch coverage input found: no
-- Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json
-- Candidate input states: agent/evidence/launch-analytics/launch-history-coverage.local.json=missing; agent/evidence/launch-analytics/launch-history-coverage.export.json=missing; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json=present_without_launch_history_coverage
+- Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json
+- Candidate input states: agent/evidence/launch-analytics/launch-history-coverage.local.json=missing; agent/evidence/launch-analytics/launch-history-coverage.export.json=missing; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json=present_without_launch_history_coverage
 - Panel hydration input: agent/state/analytics-panel-hydration.generated.json
 - GA4 read mode: generated/local evidence only; no provider call performed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed
@@ -41,7 +41,7 @@ Status: source_agreement_failed
 - user_person_metrics: person_metrics / validator_passed; role primary_person_truth; owner person metrics hydration; coverage n/a; boundary: Global activity does not clear user/person parity; missing person metrics stay missing until hydrated.
 - guest_to_user_handoff: first_party / source_mapped; role journey_linking_truth; owner identity handoff and analytics identity link; coverage n/a; boundary: Handoff links journeys but must not double-count guest and signed-in actions.
 - event_envelope_translation: first_party / validator_passed; role normalization_truth; owner event translation bridge and analytics event contract; coverage n/a; boundary: Source translation parity does not prove provider/runtime/admin truth.
-- admin_panel_hydration: mixed / partial; role display_readiness_only; owner admin analytics panel hydration; coverage n/a; boundary: Panels may be source-ready without runtime/admin truth evidence.
+- admin_panel_hydration: mixed / collecting; role display_readiness_only; owner admin analytics panel hydration; coverage n/a; boundary: Panels may be source-ready without runtime/admin truth evidence.
 - historical_snapshots: historicalSnapshot / fallback; role fallback_evidence_only; owner admin analytics historical snapshot; coverage 1; boundary: Historical snapshots explain gaps but do not overwrite first-party product truth.
 - legacy_support_snapshots: legacySupport / fallback; role fallback_evidence_only; owner legacy recovery/support snapshot lane; coverage 1; boundary: Legacy support remains recovery evidence only and cannot create current product truth.
 - ga4_export_api: ga4 / second_source; role second_source_evidence_only; owner GA4/external analytics truth lane; coverage 3; boundary: GA4 is second-source evidence and cannot replace identity, wallet, entitlement, purchase, or creator revenue truth.
@@ -49,15 +49,15 @@ Status: source_agreement_failed
 
 ## Launch Coverage
 
-- Formal range: 2026-02-12 to 2026-06-21
+- Formal range: 2026-02-12 to 2026-07-02
 - Formal range state: formal_proof_missing
-- Formal expected days: 130
+- Formal expected days: 141
 - Local evidence days: 3
 - Approved coverage days: 0
-- Formal day rows: 130
-- Unproven formal days: 127
+- Formal day rows: 141
+- Unproven formal days: 138
 - Local evidence ranges: 2026-02-12..2026-02-14
-- Unproven formal ranges: 2026-02-12..2026-06-21
+- Unproven formal ranges: 2026-02-12..2026-07-02
 - Formal range reason: Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.
 - Range: 2026-02-12 to 2026-02-14
 - Range proof: fixture_only_local_window
@@ -103,7 +103,7 @@ Status: source_agreement_failed
 - 2026-02-23: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
 - 2026-02-24: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
 - 2026-02-25: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 116 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
+- 127 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
 
 ## Daily Recovery Rows
 
@@ -167,7 +167,7 @@ Status: source_agreement_failed
 
 ## Admin Panel Connection
 
-- Hydrated panels: 10/41
+- Hydrated panels: 0/41
 - Source missing: 0
 - Materializer missing: 0
 - Bridge missing: 0
