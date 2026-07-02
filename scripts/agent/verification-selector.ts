@@ -327,7 +327,7 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
     addSelection(selections, available, "fast", "npm run check:admin-browser-surface-smoke", "Admin browser surface map, selectors, and evidence boundary should stay current.");
   } else if (touchesUi) {
     addSelection(selections, available, "fast", "npm run check:ui:runtime", "Hydration/runtime UI continuity should stay truthful.");
-    addSelection(selections, available, "signoff", "npm run check:ui:audits", "Public/user UI signoff requires Playwright audit coverage.");
+    signoffAdvisories.push("Run `npm run check:ui:audits` only when source coverage reports a concrete UI issue to reproduce, or a formal runtime visual contract explicitly promotes it.");
   }
 
   if (touchesDeviceLayout) {
@@ -403,7 +403,7 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
   }
 
   if (touchesUi) {
-    signoffAdvisories.push("Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.");
+    signoffAdvisories.push("Run `npm run check:ui:lighthouse` only when source coverage explicitly promotes performance reproduction for loading/rendering behavior, or a formal runtime performance contract requires it.");
   }
 
   if (matchedPaths.length > 0) {

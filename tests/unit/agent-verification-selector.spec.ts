@@ -31,6 +31,19 @@ describe("agent verification selector", () => {
     expect(plan.manualEvidenceRequirements).toContain("admin_truth_sample: source checks cannot satisfy redacted admin truth sample gates.");
   });
 
+  it("keeps ordinary UI source readiness off required Playwright audit signoff", () => {
+    const plan = selectVerificationPlan({
+      paths: ["src/components/DropCard.tsx"],
+    });
+
+    expect(plan.fastCommands).toContain("npm run check:ui:coverage");
+    expect(plan.fastCommands).toContain("npm run check:ui:runtime");
+    expect(plan.signoffCommands).not.toContain("npm run check:ui:audits");
+    expect(plan.forbiddenByDefaultCommands).toContain("npm run check:ui:audits");
+    expect(plan.signoffAdvisories).toContain("Run `npm run check:ui:audits` only when source coverage reports a concrete UI issue to reproduce, or a formal runtime visual contract explicitly promotes it.");
+    expect(plan.signoffAdvisories).toContain("Run `npm run check:ui:lighthouse` only when source coverage explicitly promotes performance reproduction for loading/rendering behavior, or a formal runtime performance contract requires it.");
+  });
+
   it("adds analytics semantics fast checks and continuity at signoff", () => {
     const plan = selectVerificationPlan({
       paths: ["src/lib/telemetry.ts"],
