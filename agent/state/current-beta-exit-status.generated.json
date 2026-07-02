@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-02T13:29:20.119Z",
+  "generatedAtUtc": "2026-07-02T13:46:16.494Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "380a0ba2161adcbfb40999a18dc8ad1816464e63",
+  "currentHead": "2da926d30b6ce836de783a69390b2c7be7ffd0eb",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -87,7 +87,7 @@
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_admin_truth_sample_evidence",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
-        "captureStatus": "complete",
+        "captureStatus": "stale",
         "sourceCommit": "41523ca04410b6deb6b4bb53bfda5cba82cc66e8",
         "canClearGate": false,
         "nextAction": "Produce or refresh a redacted admin source activity sample for the current code version."
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T13:29:20.119Z",
+      "generatedAtUtc": "2026-07-02T13:46:16.494Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
