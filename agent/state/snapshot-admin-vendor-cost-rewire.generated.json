@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-02T03:51:43.524Z",
+  "generatedAtUtc": "2026-07-02T12:33:25.485Z",
   "reportKey": "snapshot-admin-vendor-cost-rewire",
-  "currentHead": "0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602",
+  "currentHead": "ef707a73a5aa8ed9e798ed5d9b77046f0d25b77b",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
@@ -740,7 +740,7 @@
       "issueKey": "phase-one-source-report-head-mismatch",
       "severity": "P1",
       "title": "Phase One inventory report is not current with HEAD",
-      "description": "agent/state/analytics-rewire-phase-one.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602.",
+      "description": "agent/state/analytics-rewire-phase-one.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=ef707a73a5aa8ed9e798ed5d9b77046f0d25b77b.",
       "files": [
         "agent/state/analytics-rewire-phase-one.generated.json"
       ],
@@ -752,7 +752,7 @@
       "issueKey": "phase-two-source-report-head-mismatch",
       "severity": "P1",
       "title": "Phase Two identity/privacy report is not current with HEAD",
-      "description": "agent/state/identity-privacy-raw-ledger-rewire.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602.",
+      "description": "agent/state/identity-privacy-raw-ledger-rewire.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=ef707a73a5aa8ed9e798ed5d9b77046f0d25b77b.",
       "files": [
         "agent/state/identity-privacy-raw-ledger-rewire.generated.json"
       ],
@@ -764,7 +764,7 @@
       "issueKey": "phase-three-source-report-head-mismatch",
       "severity": "P1",
       "title": "Phase Three recovery dry-run report is not current with HEAD",
-      "description": "agent/state/lost-data-recovery-dry-run.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602.",
+      "description": "agent/state/lost-data-recovery-dry-run.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=ef707a73a5aa8ed9e798ed5d9b77046f0d25b77b.",
       "files": [
         "agent/state/lost-data-recovery-dry-run.generated.json"
       ],

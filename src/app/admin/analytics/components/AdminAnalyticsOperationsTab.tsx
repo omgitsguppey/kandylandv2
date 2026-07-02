@@ -17,7 +17,6 @@ import {
   resolveAdminAnalyticsLivePulseBadgeLabel,
 } from "@/lib/admin-analytics-contracts";
 import {
-  formatAdminAnalyticsEvidenceSourceLabel,
   formatAdminAnalyticsSourceStateLabel,
   formatAdminAnalyticsSourceTruthLabel,
 } from "@/lib/analytics/admin-analytics-display-state";
@@ -90,9 +89,6 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
   const mobileVisibleLiveSurfaces = livePulseModel.surfaces.slice(0, livePulseModel.mobileSurfaceRowsLimit);
   const hiddenLiveSurfaceCount = Math.max(0, livePulseModel.surfaces.length - mobileVisibleLiveSurfaces.length);
-  const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
-  const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
-  const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const guestEstimateFreshnessLabel = formatAdminAnalyticsSourceStateLabel(
     guestBounceQualityModel.estimatedGuestViews.freshnessState,
   );
@@ -1340,9 +1336,6 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <p>{guestBounceQualityModel.visibleCopy}</p>
                   <p className="mt-1 text-[10px] text-gray-400">
                     {guestBounceQualityModel.summaryFacts.join(" · ")}
-                  </p>
-                  <p className="mt-1 text-[10px] text-gray-400">
-                    {vendorEvidenceLabel} supports comparison only; recovery evidence remains {debugRecoveryLabel} and {recoveryReviewLabel}.
                   </p>
                 </div>
                 <AdminStatusBadge

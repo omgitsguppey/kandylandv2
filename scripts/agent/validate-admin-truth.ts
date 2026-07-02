@@ -91,7 +91,10 @@ for (const [label, source] of [
   requireIncludes(source, "data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"", label);
 }
 
-requireIncludes(operationsTab, "supports comparison only", "Admin Analytics Operations module");
+requireIncludes(operationsTab, "data-admin-analytics-raw-ledger-display=\"debug_only\"", "Admin Analytics Operations module");
+requireIncludes(operationsTab, "data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}", "Admin Analytics Operations module");
+requireNotIncludes(operationsTab, "supports comparison only", "Admin Analytics Operations module");
+requireNotIncludes(operationsTab, "recovery evidence remains", "Admin Analytics Operations module");
 
 if (failures.length > 0) {
   console.error("Admin truth validation failed:");
