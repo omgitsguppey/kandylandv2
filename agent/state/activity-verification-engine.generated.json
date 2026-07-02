@@ -1,7 +1,7 @@
 {
   "reportKey": "activity-verification-engine",
-  "generatedAtUtc": "2026-06-21T22:12:35.763Z",
-  "currentHead": "0c90b795c9ae355d23b9bdd0c476643dcb889f8c",
+  "generatedAtUtc": "2026-07-02T14:16:16.755Z",
+  "currentHead": "87894df057d204112538bfab4fa38036e1150254",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -30,7 +30,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -53,6 +54,7 @@
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=1",
+        "relevantEvents=1",
         "sourcePath=src/lib/features/feature-registration-registry.ts"
       ],
       "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
@@ -76,6 +78,7 @@
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=1",
+        "relevantEvents=1",
         "sourcePath=tests/unit/activity-verification-engine.spec.ts"
       ],
       "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
@@ -98,7 +101,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -120,7 +124,8 @@
         "materializerLanes=4",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -142,7 +147,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -164,7 +170,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -187,6 +194,7 @@
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=1",
+        "relevantEvents=1",
         "sourcePath=src/lib/behavioral/behavior-math-engine.ts"
       ],
       "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
@@ -209,7 +217,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -231,7 +240,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -253,7 +263,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -276,6 +287,7 @@
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=1",
+        "relevantEvents=1",
         "sourcePath=src/lib/features/feature-registration-registry.ts"
       ],
       "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
@@ -299,6 +311,7 @@
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=1",
+        "relevantEvents=1",
         "sourcePath=src/lib/features/feature-registration-registry.ts"
       ],
       "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
@@ -322,6 +335,7 @@
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=3",
+        "relevantEvents=3",
         "sourcePath=tests/unit/activity-verification-engine.spec.ts",
         "sourcePath=src/lib/features/feature-registration-registry.ts",
         "sourcePath=src/lib/behavioral/behavior-math-engine.ts"
@@ -346,7 +360,8 @@
         "materializerLanes=3",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -368,7 +383,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -390,7 +406,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -412,7 +429,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -434,7 +452,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -456,7 +475,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
@@ -478,7 +498,8 @@
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
-        "activityEvents=0"
+        "activityEvents=0",
+        "relevantEvents=0"
       ],
       "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     }
@@ -495,10 +516,10 @@
   },
   "validationFailures": [],
   "changedFiles": [
-    "agent/state/public-beta-score.generated.json",
-    "scripts/agent/score-public-beta-readiness.ts",
-    "src/lib/agent-score/core.ts",
-    "tests/unit/public-beta-score.spec.ts"
+    "agent/state/real-usage-confidence-calibration.generated.json",
+    "scripts/agent/validate-activity-verification-engine.ts",
+    "src/lib/analytics/activity-verification-engine.ts",
+    "tests/unit/activity-verification-engine.spec.ts"
   ],
   "protectedChanges": []
 }

@@ -140,6 +140,76 @@ describe("activity verification engine", () => {
     expect(validateActivityVerificationReport(report)).toEqual([]);
   });
 
+  it("keeps source-ready events out of observed activity scoring", () => {
+    const report = buildActivityVerificationReport({
+      features: [drops],
+      consentMode: "full_behavioral",
+      sourceEvents: [
+        {
+          featureId: "drops",
+          eventName: "drop_card_impression",
+          sourceKind: "source_ready",
+          guestId: "guest_1",
+          userId: "user_1",
+          sessionId: "session_1",
+          identityLinkId: "identity_link_1",
+          identityConfidence: 0.95,
+          materialized: true,
+          debugVisible: true,
+          sourcePath: "src/lib/features/feature-registration-registry.ts",
+        },
+      ],
+    });
+
+    expect(report.features[0]).toMatchObject({
+      guestActivitySeen: false,
+      userActivitySeen: false,
+      guestToUserLinked: false,
+      identifiableMetricAvailable: false,
+      behaviorMaterialized: false,
+      scoreEligible: false,
+      verificationStatus: "source_ready_no_activity",
+    });
+    expect(report.features[0].evidence).toEqual(expect.arrayContaining([
+      "activityEvents=0",
+      "relevantEvents=1",
+    ]));
+    expect(report.summary.verifiedByActivity).toBe(0);
+    expect(validateActivityVerificationReport(report)).toEqual([]);
+  });
+
+  it("keeps fake events out of observed activity scoring even before report validation fails them", () => {
+    const report = buildActivityVerificationReport({
+      features: [drops],
+      consentMode: "full_behavioral",
+      sourceEvents: [
+        {
+          featureId: "drops",
+          eventName: "drop_card_impression",
+          sourceKind: "fake",
+          guestId: "guest_1",
+          userId: "user_1",
+          sessionId: "session_1",
+          identityLinkId: "identity_link_1",
+          identityConfidence: 0.95,
+          materialized: true,
+          debugVisible: true,
+          sourcePath: "",
+        },
+      ],
+    });
+
+    expect(report.fakeActivityUsed).toBe(true);
+    expect(report.status).toBe("fail");
+    expect(report.features[0]).toMatchObject({
+      guestActivitySeen: false,
+      userActivitySeen: false,
+      scoreEligible: false,
+      verificationStatus: "source_ready_no_activity",
+    });
+    expect(report.validationFailures).toContain("activity verification report must not use fake activity.");
+  });
+
   it("fails validation when activity is fake or missing tracking has no backlog item", () => {
     const report = buildActivityVerificationReport({
       features: [{

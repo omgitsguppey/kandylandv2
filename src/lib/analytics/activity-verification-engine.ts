@@ -140,6 +140,10 @@ function sourcePathEvidence(events: readonly ActivitySourceEvent[]) {
     .filter((path): path is string => Boolean(path));
 }
 
+function isObservedActivityEvidence(event: ActivitySourceEvent) {
+  return event.sourceKind === "source_backed_fixture";
+}
+
 function featureSourceFiles(feature: FeatureRegistration) {
   return [
     "src/lib/analytics/activity-verification-engine.ts",
@@ -218,19 +222,20 @@ function confidenceForStatus(status: ActivityVerificationStatus) {
 
 function verifyFeature(feature: FeatureRegistration, events: readonly ActivitySourceEvent[], defaultConsentMode: ConsentMode): FeatureActivityVerification {
   const relevantEvents = eventsForFeature(feature, events);
+  const activityEvents = relevantEvents.filter(isObservedActivityEvidence);
   const eventConsentModes = relevantEvents.map((event) => normalizeConsentMode(event.consentMode ?? defaultConsentMode));
   const consentMode = eventConsentModes[0] ?? defaultConsentMode;
   const trackingComplete = hasTracking(feature, relevantEvents);
-  const hasActivity = relevantEvents.length > 0;
+  const hasActivity = activityEvents.length > 0;
   const hasLegacyUnknown = relevantEvents.some((event) => event.sourceKind === "unknown_legacy");
-  const guestActivitySeen = relevantEvents.some((event) => Boolean(event.guestId));
-  const userActivitySeen = relevantEvents.some((event) => Boolean(event.userId));
-  const guestToUserLinked = relevantEvents.some((event) => Boolean(event.guestId && event.userId && event.identityLinkId));
-  const identifiableMetricAvailable = relevantEvents.some((event) =>
+  const guestActivitySeen = activityEvents.some((event) => Boolean(event.guestId));
+  const userActivitySeen = activityEvents.some((event) => Boolean(event.userId));
+  const guestToUserLinked = activityEvents.some((event) => Boolean(event.guestId && event.userId && event.identityLinkId));
+  const identifiableMetricAvailable = activityEvents.some((event) =>
     Boolean(event.userId)
     && Number(event.identityConfidence ?? (event.identityLinkId ? 0.8 : 0)) >= 0.8,
   );
-  const behaviorMaterialized = relevantEvents.some((event) => event.materialized === true)
+  const behaviorMaterialized = activityEvents.some((event) => event.materialized === true)
     && feature.materializerLanes.length > 0;
   const debugVisible = feature.adminDebugVisibility.debugVisible
     && (relevantEvents.length === 0 || relevantEvents.some((event) => event.debugVisible !== false));
@@ -277,7 +282,8 @@ function verifyFeature(feature: FeatureRegistration, events: readonly ActivitySo
       `materializerLanes=${feature.materializerLanes.length}`,
       `debugVisible=${debugVisible}`,
       `consentMode=${consentMode}`,
-      `activityEvents=${relevantEvents.length}`,
+      `activityEvents=${activityEvents.length}`,
+      `relevantEvents=${relevantEvents.length}`,
       ...sourcePathEvidence(relevantEvents).map((path) => `sourcePath=${path}`),
     ],
     nextAction: verificationStatus === "verified_by_activity"

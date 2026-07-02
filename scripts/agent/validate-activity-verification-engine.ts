@@ -169,6 +169,22 @@ if (weakIdentity.features[0]?.scoreEligible) {
   failures.push("user-level metric is score eligible without identity confidence.");
 }
 
+const sourceReadyOnly = buildActivityVerificationReport({
+  features: [FEATURE_REGISTRATION_REGISTRY.find((feature) => feature.featureId === "drops")!],
+  sourceEvents: [{
+    ...sourceBackedActivityFixtures[0],
+    sourceKind: "source_ready",
+    sourcePath: "src/lib/features/feature-registration-registry.ts",
+  }],
+  consentMode: "full_behavioral",
+});
+if (sourceReadyOnly.features[0]?.verificationStatus !== "source_ready_no_activity"
+  || sourceReadyOnly.features[0]?.scoreEligible
+  || sourceReadyOnly.features[0]?.guestActivitySeen
+  || sourceReadyOnly.features[0]?.userActivitySeen) {
+  failures.push("source_ready events counted as observed user activity.");
+}
+
 const fakeActivity = buildActivityVerificationReport({
   features: [FEATURE_REGISTRATION_REGISTRY.find((feature) => feature.featureId === "drops")!],
   sourceEvents: [{
@@ -180,6 +196,9 @@ const fakeActivity = buildActivityVerificationReport({
 });
 if (!validateActivityVerificationReport(fakeActivity).includes("activity verification report must not use fake activity.")) {
   failures.push("fake activity was not rejected.");
+}
+if (fakeActivity.features[0]?.scoreEligible || fakeActivity.features[0]?.verificationStatus === "verified_by_activity") {
+  failures.push("fake activity counted as verified source activity.");
 }
 
 const changed = changedFiles();

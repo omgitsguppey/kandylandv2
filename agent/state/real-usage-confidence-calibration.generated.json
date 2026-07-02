@@ -1,8 +1,8 @@
 {
   "reportKey": "real-usage-confidence-calibration",
-  "generatedAtUtc": "2026-06-21T22:34:43.501Z",
-  "currentHead": "02f710f8bff412e949b9f30546940ac821d2ef43",
-  "sourceCommit": "02f710f8bff412e949b9f30546940ac821d2ef43",
+  "generatedAtUtc": "2026-07-02T14:16:16.458Z",
+  "currentHead": "87894df057d204112538bfab4fa38036e1150254",
+  "sourceCommit": "87894df057d204112538bfab4fa38036e1150254",
   "status": "source_ready_real_usage_confidence_calibrated",
   "detail": "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing formal gates.",
   "productionReadsRequired": false,
