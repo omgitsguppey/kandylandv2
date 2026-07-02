@@ -16,7 +16,9 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import { buildCommerceMetricsFromRollup } from "@/lib/admin-user-commerce";
 import {
+    buildAdminUserEngagementDay,
     buildAdminUserMetricIntegrity,
+    buildAdminUserValueDay,
 } from "@/lib/admin-user-metrics";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { toUserBehaviorTruthRollup } from "@/lib/server/user-behavior-truth-rollup";
@@ -28,11 +30,9 @@ import {
 } from "@/lib/watch-time-rollup-contract";
 import {
     buildUserEngagementScoreInputFromActivityDays,
-    type UserEngagementActivityDay,
 } from "@/lib/behavioral/user-engagement-score";
 import {
     buildUserValueScoreInputFromActivityDays,
-    type UserValueActivityDay,
 } from "@/lib/behavioral/user-value-score";
 import {
     toUserActionLedgerItem,
@@ -99,69 +99,6 @@ function readString(value: unknown, fallback = ""): string {
 
 function roundToSingleDecimal(value: number) {
     return Math.round((value + Number.EPSILON) * 10) / 10;
-}
-
-function buildUserEngagementDay(raw: Record<string, unknown>): UserEngagementActivityDay {
-    const timestampMs = Math.max(
-        toTimestampNumber(raw.lastSeenAt),
-        toTimestampNumber(raw.lastSeenAtMs),
-        toTimestampNumber(raw.updatedAt),
-        toTimestampNumber(raw.createdAt),
-    );
-    return {
-        timestampMs,
-        normalizedActionCount: readNumber(raw.eventCount),
-        unwrappedCount: Math.max(readNumber(raw.unwrapCount), readNumber(raw.unlockCount)),
-        validWatchMinutes: Math.round(readNumber(raw.watchSecondsTotal) / 60),
-        purchaseCount: Math.max(readNumber(raw.purchaseCount), readNumber(raw.purchaseTransactionCount)),
-        freeGdEarned: Math.max(
-            readNumber(raw.rewardGdEarned),
-            readNumber(raw.rewardGdEarnedTotal),
-            readNumber(raw.rewardGumDropsEarned),
-            readNumber(raw.rewardAmountEarned),
-            readNumber(raw.dailyRewardGd),
-            readNumber(raw.dailyRewardGdTotal),
-            readNumber(raw.freeGdEarned),
-        ),
-        hadVisit: readNumber(raw.viewCount) > 0 || readNumber(raw.watchSecondsTotal) > 0,
-        hadAuth: Math.max(readNumber(raw.authSuccessCount), readNumber(raw.signInCount)) > 0,
-    };
-}
-
-function buildUserValueDay(raw: Record<string, unknown>): UserValueActivityDay {
-    const grossRevenueUsd = Math.max(
-        readNumber(raw.grossRevenueUsdTotal),
-        readNumber(raw.grossRevenueUsd),
-    );
-    const purchaseCount = Math.max(
-        readNumber(raw.purchaseCount),
-        readNumber(raw.purchaseTransactionCount),
-        grossRevenueUsd > 0 ? 1 : 0,
-    );
-
-    return {
-        timestampMs: Math.max(
-            toTimestampNumber(raw.lastPurchaseAt),
-            toTimestampNumber(raw.lastSeenAt),
-            toTimestampNumber(raw.lastSeenAtMs),
-            toTimestampNumber(raw.updatedAt),
-            toTimestampNumber(raw.createdAt),
-        ),
-        grossRevenueUsd,
-        purchaseCount,
-        paidGdPurchased: Math.max(readNumber(raw.paidGumDropsTotal), readNumber(raw.paidGumDrops)),
-        bonusGdDelivered: Math.max(readNumber(raw.bonusGumDropsTotal), readNumber(raw.bonusGumDrops)),
-        rewardGdEarned: Math.max(
-            readNumber(raw.rewardGdEarned),
-            readNumber(raw.rewardGdEarnedTotal),
-            readNumber(raw.rewardGumDropsEarned),
-            readNumber(raw.rewardAmountEarned),
-            readNumber(raw.dailyRewardGd),
-            readNumber(raw.dailyRewardGdTotal),
-            readNumber(raw.freeGdEarned),
-        ),
-        unwrappedCount: Math.max(readNumber(raw.unwrapCount), readNumber(raw.unlockCount)),
-    };
 }
 
 async function GET_handler(
@@ -772,11 +709,11 @@ async function GET_handler(
             metrics: metricSnapshot,
         });
         const engagementInput = buildUserEngagementScoreInputFromActivityDays({
-            days: userDaily.map((day) => buildUserEngagementDay(day)),
+            days: userDaily.map((day) => buildAdminUserEngagementDay(day)),
             nowMs: Date.now(),
         });
         const valueInputFromDays = buildUserValueScoreInputFromActivityDays({
-            days: userDaily.map((day) => buildUserValueDay(day)),
+            days: userDaily.map((day) => buildAdminUserValueDay(day)),
             nowMs: Date.now(),
         });
         const watchBehaviorInput = buildWatchTimeRollupBehaviorInput({

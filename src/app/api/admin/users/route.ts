@@ -54,7 +54,9 @@ import {
   buildEmptyCommerceMetrics,
 } from "@/lib/admin-user-commerce";
 import {
+  buildAdminUserEngagementDay,
   buildAdminUserMetricIntegrity,
+  buildAdminUserValueDay,
   shouldRecoverAdminUserMetricsFromFacts,
 } from "@/lib/admin-user-metrics";
 import {
@@ -652,76 +654,6 @@ function buildBehaviorLeaderboardPanel(input: {
     warnings: rows.length === 0
       ? ["No behavior rollups available yet. Run behavior materializer or inspect event facts."]
       : [],
-  };
-}
-
-function buildUserEngagementDay(raw: Record<string, unknown>): UserEngagementActivityDay {
-  const timestampMs = Math.max(
-    toTimestampNumber(raw.lastSeenAt),
-    toTimestampNumber(raw.lastSeenAtMs),
-    toTimestampNumber(raw.updatedAt),
-    toTimestampNumber(raw.createdAt),
-  );
-  return {
-    timestampMs,
-    normalizedActionCount: Math.round(readMetric(raw, "eventCount")),
-    unwrappedCount: Math.round(Math.max(readMetric(raw, "unwrapCount"), readMetric(raw, "unlockCount"))),
-    validWatchMinutes: Math.round(readMetric(raw, "watchSecondsTotal") / 60),
-    purchaseCount: Math.round(readMetric(raw, "purchaseCount", "purchaseTransactionCount")),
-    freeGdEarned: Math.round(Math.max(
-      readMetric(raw, "rewardGdEarned"),
-      readMetric(raw, "rewardGdEarnedTotal"),
-      readMetric(raw, "rewardGumDropsEarned"),
-      readMetric(raw, "rewardAmountEarned"),
-      readMetric(raw, "dailyRewardGd"),
-      readMetric(raw, "dailyRewardGdTotal"),
-      readMetric(raw, "freeGdEarned"),
-    )),
-    hadVisit: readMetric(raw, "viewCount") > 0 || readMetric(raw, "watchSecondsTotal") > 0,
-    hadAuth: Math.max(readMetric(raw, "authSuccessCount"), readMetric(raw, "signInCount")) > 0,
-  };
-}
-
-function buildUserValueDay(raw: Record<string, unknown>): UserValueActivityDay {
-  const grossRevenueUsd = Math.max(
-    readMetric(raw, "grossRevenueUsdTotal"),
-    readMetric(raw, "grossRevenueUsd"),
-  );
-  const purchaseCount = Math.max(
-    readMetric(raw, "purchaseCount", "purchaseTransactionCount"),
-    grossRevenueUsd > 0 ? 1 : 0,
-  );
-  const paidGdPurchased = Math.max(
-    readMetric(raw, "paidGumDropsTotal"),
-    readMetric(raw, "paidGumDrops"),
-  );
-  const bonusGdDelivered = Math.max(
-    readMetric(raw, "bonusGumDropsTotal"),
-    readMetric(raw, "bonusGumDrops"),
-  );
-
-  return {
-    timestampMs: Math.max(
-      toTimestampNumber(raw.lastPurchaseAt),
-      toTimestampNumber(raw.lastSeenAt),
-      toTimestampNumber(raw.lastSeenAtMs),
-      toTimestampNumber(raw.updatedAt),
-      toTimestampNumber(raw.createdAt),
-    ),
-    grossRevenueUsd,
-    purchaseCount,
-    paidGdPurchased,
-    bonusGdDelivered,
-    rewardGdEarned: Math.max(
-      readMetric(raw, "rewardGdEarned"),
-      readMetric(raw, "rewardGdEarnedTotal"),
-      readMetric(raw, "rewardGumDropsEarned"),
-      readMetric(raw, "rewardAmountEarned"),
-      readMetric(raw, "dailyRewardGd"),
-      readMetric(raw, "dailyRewardGdTotal"),
-      readMetric(raw, "freeGdEarned"),
-    ),
-    unwrappedCount: Math.max(readMetric(raw, "unwrapCount"), readMetric(raw, "unlockCount")),
   };
 }
 
@@ -1531,14 +1463,14 @@ async function GET_handler(request: NextRequest) {
         days: userDailySnapshot.docs
           .map((doc) => doc.data() as Record<string, unknown>)
           .filter((raw) => (typeof raw.uid === "string" ? raw.uid : "") === user.uid)
-          .map((raw) => buildUserEngagementDay(raw)),
+          .map((raw) => buildAdminUserEngagementDay(raw)),
         nowMs: Date.now(),
       });
       const valueInputFromDays = buildUserValueScoreInputFromActivityDays({
         days: userDailySnapshot.docs
           .map((doc) => doc.data() as Record<string, unknown>)
           .filter((raw) => (typeof raw.uid === "string" ? raw.uid : "") === user.uid)
-          .map((raw) => buildUserValueDay(raw)),
+          .map((raw) => buildAdminUserValueDay(raw)),
         nowMs: Date.now(),
       });
       const behaviorRollup = buildUserBehaviorRollup({
@@ -1834,8 +1766,8 @@ async function GET_handler(request: NextRequest) {
       current.lastSeenAt = Math.max(current.lastSeenAt, toTimestampNumber(raw.lastSeenAt), toTimestampNumber(raw.lastSeenAtMs));
       current.lastPurchaseAt = Math.max(current.lastPurchaseAt, toTimestampNumber(raw.lastPurchaseAt));
       dailyAnalyticsByUser.set(uid, current);
-      engagementDays.push(buildUserEngagementDay(raw));
-      valueDays.push(buildUserValueDay(raw));
+      engagementDays.push(buildAdminUserEngagementDay(raw));
+      valueDays.push(buildAdminUserValueDay(raw));
       dailyEngagementDaysByUser.set(uid, engagementDays);
       dailyValueDaysByUser.set(uid, valueDays);
     });

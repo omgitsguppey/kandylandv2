@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildAdminUserEngagementDay,
+  buildAdminUserValueDay,
   buildAdminUserMetricIntegrity,
   scoreAdminUserEngagement,
   shouldRecoverAdminUserMetricsFromFacts,
@@ -13,6 +15,73 @@ import {
 import { buildAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
 
 describe("admin user metric source truth", () => {
+  it("converts analytics_user_daily rows into canonical engagement days", () => {
+    const timestamp = new Date("2026-05-17T12:00:00.000Z");
+    const day = buildAdminUserEngagementDay({
+      lastSeenAt: timestamp,
+      eventCount: 12.4,
+      unwrapCount: 2,
+      unlockCount: 5,
+      watchSecondsTotal: 185,
+      purchaseCount: 1,
+      purchaseTransactionCount: 3,
+      rewardGdEarned: 25,
+      rewardGumDropsEarned: 40,
+      freeGdEarned: 10,
+      viewCount: 0,
+      authSuccessCount: 0,
+      signInCount: 1,
+    });
+
+    expect(day).toEqual({
+      timestampMs: timestamp.getTime(),
+      normalizedActionCount: 12,
+      unwrappedCount: 5,
+      validWatchMinutes: 3,
+      purchaseCount: 3,
+      freeGdEarned: 40,
+      hadVisit: true,
+      hadAuth: true,
+    });
+  });
+
+  it("converts analytics_user_daily rows into canonical value days", () => {
+    const timestamp = new Date("2026-05-17T12:00:00.000Z");
+    const day = buildAdminUserValueDay({
+      lastPurchaseAt: timestamp,
+      grossRevenueUsdTotal: 0,
+      grossRevenueUsd: 7.5,
+      purchaseCount: 0,
+      purchaseTransactionCount: 2,
+      paidGumDropsTotal: 100,
+      paidGumDrops: 50,
+      bonusGumDropsTotal: 35,
+      bonusGumDrops: 80,
+      rewardGdEarnedTotal: 15,
+      dailyRewardGdTotal: 45,
+      unwrapCount: 1,
+      unlockCount: 4,
+    });
+
+    expect(day).toEqual({
+      timestampMs: timestamp.getTime(),
+      grossRevenueUsd: 7.5,
+      purchaseCount: 2,
+      paidGdPurchased: 100,
+      bonusGdDelivered: 80,
+      rewardGdEarned: 45,
+      unwrappedCount: 4,
+    });
+  });
+
+  it("keeps revenue-backed purchase activity from looking like zero", () => {
+    expect(buildAdminUserValueDay({
+      grossRevenueUsd: 12,
+      purchaseCount: 0,
+      purchaseTransactionCount: 0,
+    }).purchaseCount).toBe(1);
+  });
+
   it("keeps cached metric values visible while realtime transport refreshes", () => {
     const state = resolveAdminMetricState({
       hasUsableValue: true,

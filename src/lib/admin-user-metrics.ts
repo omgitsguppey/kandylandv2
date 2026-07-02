@@ -1,4 +1,6 @@
 import { computeUserEngagementScore } from "@/lib/behavioral/user-engagement-score";
+import type { UserEngagementActivityDay } from "@/lib/behavioral/user-engagement-score";
+import type { UserValueActivityDay } from "@/lib/behavioral/user-value-score";
 
 export type AdminMetricTruthLabel = "live" | "partial" | "stale" | "unknown";
 
@@ -36,6 +38,93 @@ export type AdminUserMetricSourceInput = {
   lastSeenAt?: number;
   metrics: AdminUserMetricSnapshot;
 };
+
+function toMetricTimestampMs(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (
+    value
+    && typeof value === "object"
+    && "toMillis" in value
+    && typeof (value as { toMillis: () => number }).toMillis === "function"
+  ) {
+    return (value as { toMillis: () => number }).toMillis();
+  }
+  if (value instanceof Date) return value.getTime();
+  return 0;
+}
+
+function readMetric(raw: Record<string, unknown>, ...keys: string[]) {
+  for (const key of keys) {
+    const value = raw[key];
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+  }
+  return 0;
+}
+
+function maxMetric(raw: Record<string, unknown>, ...keys: string[]) {
+  return Math.max(...keys.map((key) => readMetric(raw, key)));
+}
+
+export function buildAdminUserEngagementDay(raw: Record<string, unknown>): UserEngagementActivityDay {
+  const watchSecondsTotal = readMetric(raw, "watchSecondsTotal");
+  return {
+    timestampMs: Math.max(
+      toMetricTimestampMs(raw.lastSeenAt),
+      toMetricTimestampMs(raw.lastSeenAtMs),
+      toMetricTimestampMs(raw.updatedAt),
+      toMetricTimestampMs(raw.createdAt),
+    ),
+    normalizedActionCount: Math.round(readMetric(raw, "eventCount")),
+    unwrappedCount: Math.round(maxMetric(raw, "unwrapCount", "unlockCount")),
+    validWatchMinutes: Math.round(watchSecondsTotal / 60),
+    purchaseCount: Math.round(maxMetric(raw, "purchaseCount", "purchaseTransactionCount")),
+    freeGdEarned: Math.round(maxMetric(
+      raw,
+      "rewardGdEarned",
+      "rewardGdEarnedTotal",
+      "rewardGumDropsEarned",
+      "rewardAmountEarned",
+      "dailyRewardGd",
+      "dailyRewardGdTotal",
+      "freeGdEarned",
+    )),
+    hadVisit: readMetric(raw, "viewCount") > 0 || watchSecondsTotal > 0,
+    hadAuth: maxMetric(raw, "authSuccessCount", "signInCount") > 0,
+  };
+}
+
+export function buildAdminUserValueDay(raw: Record<string, unknown>): UserValueActivityDay {
+  const grossRevenueUsd = maxMetric(raw, "grossRevenueUsdTotal", "grossRevenueUsd");
+  const purchaseCount = Math.max(
+    maxMetric(raw, "purchaseCount", "purchaseTransactionCount"),
+    grossRevenueUsd > 0 ? 1 : 0,
+  );
+
+  return {
+    timestampMs: Math.max(
+      toMetricTimestampMs(raw.lastPurchaseAt),
+      toMetricTimestampMs(raw.lastSeenAt),
+      toMetricTimestampMs(raw.lastSeenAtMs),
+      toMetricTimestampMs(raw.updatedAt),
+      toMetricTimestampMs(raw.createdAt),
+    ),
+    grossRevenueUsd,
+    purchaseCount,
+    paidGdPurchased: maxMetric(raw, "paidGumDropsTotal", "paidGumDrops"),
+    bonusGdDelivered: maxMetric(raw, "bonusGumDropsTotal", "bonusGumDrops"),
+    rewardGdEarned: maxMetric(
+      raw,
+      "rewardGdEarned",
+      "rewardGdEarnedTotal",
+      "rewardGumDropsEarned",
+      "rewardAmountEarned",
+      "dailyRewardGd",
+      "dailyRewardGdTotal",
+      "freeGdEarned",
+    ),
+    unwrappedCount: maxMetric(raw, "unwrapCount", "unlockCount"),
+  };
+}
 
 export function shouldRecoverAdminUserMetricsFromFacts(input: {
   hasRollup: boolean;
