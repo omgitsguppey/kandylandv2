@@ -62,8 +62,13 @@ describe("score 80 path lock", () => {
     expect(report.artifactsBlocking80.find((entry) => entry.id === "ui_source_coverage")).toMatchObject({
       refreshCommand: expect.stringContaining("check:ui-visual-smoke-minimal"),
       nextAction: expect.stringContaining("deterministic UI source coverage"),
+      status: "UI source coverage: source evidence required",
     });
-    expect(JSON.stringify(report.artifactsBlocking80)).not.toContain("manual visual");
+    expect(JSON.stringify(report.artifactsBlocking80)).not.toMatch(/manual visual|Visual\/manual|Visual QA required/iu);
+    expect(report.artifactsBlocking80.find((entry) => entry.id === "provider_backed_site_activity_deployed_route_evidence")).toMatchObject({
+      status: "Provider-backed site activity + deployed route evidence: source evidence required",
+      refreshCommand: expect.stringContaining("provider-backed site activity"),
+    });
     expect(report.nextThreeActions).toHaveLength(3);
     expect(validateScore80PathLockReport(report)).toEqual([]);
   });

@@ -95,8 +95,8 @@ const WEIGHTS: Array<[keyof Pick<Score80PathLockReport,
   | "costRiskScore"
   | "regressionRiskScore">, number, string]> = [
     ["sourceHealthScore", 22, "Source health is affected by failed or stale implemented source validators."],
-    ["runtimeHealthScore", 25, "Source-backed runtime confidence helps, but deployed route evidence remains missing."],
-    ["evidenceCompletenessScore", 22, "UI source coverage plus provider, runtime, and admin truth evidence is still required."],
+    ["runtimeHealthScore", 25, "Source-backed runtime confidence helps, but deployed route evidence remains separately tracked."],
+    ["evidenceCompletenessScore", 22, "UI source coverage, provider-backed site activity, deployed route evidence, and admin source activity evidence are still tracked separately."],
     ["freshnessScore", 12, "Stale or missing generated evidence reports still decay freshness."],
     ["costRiskScore", 9, "Source cost readiness is partial while external billing owner review remains separate."],
     ["regressionRiskScore", 10, "Recent high-blast source changes keep regression risk from reaching zero."],
@@ -249,12 +249,62 @@ function buildRemainingScoreDrag(scores: Pick<Score80PathLockReport,
 }
 
 function refreshCommandForEvidenceGate(id: string) {
-  if (id.includes("ui_source") || id.includes("visual")) return "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps; screenshots are optional reproduction only.";
-  if (id.includes("manual")) return "Produce structured source evidence for the named lane, then run npm run check:evidence-capture-status";
+  if (id.includes("ui_source") || id.includes("visual")) return "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps; browser or screenshot reproduction is optional only after source reports a concrete issue.";
+  if (id.includes("manual")) return "Resolve this legacy manual-evidence alias into a typed source evidence lane, then run npm run check:evidence-capture-status";
   if (id.includes("provider")) return "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status";
-  if (id.includes("runtime")) return "Produce deployed route evidence, then run npm run check:evidence-capture-status";
+  if (id.includes("runtime") || id.includes("deployed_route")) return "Produce deployed route evidence, then run npm run check:evidence-capture-status";
   if (id.includes("admin")) return "Produce admin source activity sample evidence, then run npm run check:evidence-capture-status";
   return "Run npm run check:evidence-capture-status";
+}
+
+function normalizeEvidenceCap(cap: string) {
+  if (/visual\/manual smoke|visual qa|ui source coverage|ui surface coverage/iu.test(cap)) {
+    return {
+      id: "ui_source_coverage",
+      status: "UI source coverage: source evidence required",
+      lane: "ui_source_coverage",
+      nextAction: "Run deterministic UI source coverage before optional browser reproduction.",
+    };
+  }
+  if (/provider-backed site activity/iu.test(cap)) {
+    return {
+      id: "provider_backed_site_activity_evidence",
+      status: "Provider-backed site activity evidence: source evidence required",
+      lane: "provider_activity",
+      nextAction: "Produce provider-backed site activity evidence before clearing this beta gate.",
+    };
+  }
+  if (/deployed route evidence|deployed runtime route evidence/iu.test(cap)) {
+    return {
+      id: "deployed_route_evidence",
+      status: "Deployed route evidence: source evidence required",
+      lane: "deployed_route",
+      nextAction: "Produce deployed route evidence before clearing this beta gate.",
+    };
+  }
+  if (/runtime\/provider smoke|runtime unverified|provider smoke/iu.test(cap)) {
+    return {
+      id: "provider_backed_site_activity_deployed_route_evidence",
+      status: "Provider-backed site activity + deployed route evidence: source evidence required",
+      lane: "provider_runtime",
+      nextAction: "Produce provider-backed site activity and deployed route evidence before clearing this beta gate.",
+    };
+  }
+  if (/admin truth\/sample evidence|admin truth|admin source activity/iu.test(cap)) {
+    return {
+      id: "admin_source_activity_sample",
+      status: "Admin source activity sample: source evidence required",
+      lane: "admin_source_activity",
+      nextAction: "Produce admin source activity sample evidence before clearing this beta gate.",
+    };
+  }
+  const id = cap.replace(/^[^:]+:\s*/u, "").replace(/[^a-z0-9]+/giu, "_").replace(/^_|_$/gu, "").toLowerCase();
+  return {
+    id,
+    status: `${cap}: source evidence required`,
+    lane: id,
+    nextAction: "Produce the matching source evidence before clearing this beta gate.",
+  };
 }
 
 function buildArtifactBlockers(input: {
@@ -273,25 +323,20 @@ function buildArtifactBlockers(input: {
   const caps = Array.isArray(input.betaScore.evidenceCapsApplied) ? input.betaScore.evidenceCapsApplied as unknown[] : [];
   const formalEvidence = caps
     .map((cap) => String(cap))
-    .filter((cap) => /visual|manual|runtime|provider|admin/iu.test(cap))
+    .filter((cap) => /visual|manual|runtime|provider|admin|source activity|source evidence|deployed route/iu.test(cap))
     .map((cap) => {
-      const visualSourceCoverage = /visual\/manual smoke|visual qa|ui source coverage|ui surface coverage/iu.test(cap);
-      const id = visualSourceCoverage
-        ? "ui_source_coverage"
-        : cap.replace(/^[^:]+:\s*/u, "").replace(/[^a-z0-9]+/giu, "_").replace(/^_|_$/gu, "").toLowerCase();
-      const impact = /runtime|provider/iu.test(cap)
+      const normalized = normalizeEvidenceCap(cap);
+      const impact = /runtime|provider|deployed_route|provider_activity/iu.test(normalized.id)
         ? input.remainingScoreDrag.find((entry) => entry.dimension === "runtimeHealthScore")?.weightedPointImpact ?? 0
-        : /visual|manual|admin/iu.test(cap)
+        : /ui_source|admin/iu.test(normalized.id)
           ? input.remainingScoreDrag.find((entry) => entry.dimension === "evidenceCompletenessScore")?.weightedPointImpact ?? 0
           : 0;
       return {
-        id,
-        status: cap,
+        id: normalized.id,
+        status: normalized.status,
         pointImpact: round(impact),
-        refreshCommand: refreshCommandForEvidenceGate(id),
-        nextAction: visualSourceCoverage
-          ? "Run deterministic UI source coverage before optional browser reproduction."
-          : "Produce the matching source evidence before clearing this beta gate.",
+        refreshCommand: refreshCommandForEvidenceGate(normalized.id),
+        nextAction: normalized.nextAction,
       };
     });
   return [...formalEvidence, ...stale]
@@ -302,11 +347,21 @@ function evidenceStatusFromCapture(report: JsonRecord | null): EvidenceStatus[] 
   const summary = record(report?.summary);
   const operatorRevenue = record(summary.operatorRevenueSmoke);
   const runtimeSmokeStatus = stringValue(summary.runtimeSmokeEvidence, "missing");
+  const uiSurfaceCoverageStatus = stringValue(summary.uiSurfaceCoverageEvidence, "missing");
+  const adminTruthSampleStatus = stringValue(summary.adminTruthSampleEvidence, "missing");
   return [
-    { lane: "ui_source_coverage", status: stringValue(summary.uiSurfaceCoverageEvidence, "missing"), formalArtifactAttached: false },
+    {
+      lane: "ui_source_coverage",
+      status: uiSurfaceCoverageStatus === "complete" ? "ui_source_coverage_present" : uiSurfaceCoverageStatus,
+      formalArtifactAttached: false,
+    },
     { lane: "provider_smoke", status: stringValue(summary.providerSmokeEvidence, "missing"), formalArtifactAttached: booleanValue(operatorRevenue.providerArtifactAttached) },
     { lane: "runtime_smoke", status: runtimeSmokeStatus === "complete" ? "runtime_capture_present_formal_freshness_checked_separately" : runtimeSmokeStatus, formalArtifactAttached: false },
-    { lane: "admin_truth_sample", status: stringValue(summary.adminTruthSampleEvidence, "missing"), formalArtifactAttached: false },
+    {
+      lane: "admin_truth_sample",
+      status: adminTruthSampleStatus === "complete" ? "admin_source_activity_sample_present" : adminTruthSampleStatus,
+      formalArtifactAttached: false,
+    },
     { lane: "operator_revenue_smoke", status: stringValue(operatorRevenue.revenueSmokeStatus, "unknown"), formalArtifactAttached: booleanValue(operatorRevenue.formalProviderSmokePassed) },
   ];
 }
@@ -345,6 +400,15 @@ export function buildScore80PathLockReport(input: {
     betaScore: input.betaScore,
     remainingScoreDrag,
   });
+  const providerActivityBlocking = artifactsBlocking80.some((entry) => entry.id.includes("provider_backed_site_activity"));
+  const deployedRouteBlocking = artifactsBlocking80.some((entry) => entry.id === "deployed_route_evidence");
+  const firstEvidenceAction = providerActivityBlocking && deployedRouteBlocking
+    ? "Produce provider-backed site activity and deployed route evidence; source-backed confidence does not clear those gates."
+    : providerActivityBlocking
+      ? "Produce provider-backed site activity evidence; deployed route evidence stays separately tracked."
+      : deployedRouteBlocking
+        ? "Produce deployed route evidence; provider-backed site activity stays separately tracked."
+        : "Keep typed source-evidence lanes current without treating source confidence as provider or deployed-route proof.";
   const unsafeDirty = input.dirtyFiles.some((entry) => entry.classification === "unsafe_unknown");
   const unsafePr = input.openPrs.some((entry) => entry.classification === "unsafe_unknown" || !entry.classification);
   const dirtyCount = input.dirtyFiles.length;
@@ -383,7 +447,7 @@ export function buildScore80PathLockReport(input: {
     openPrs: input.openPrs,
     evidenceStatus: input.evidenceStatus,
     nextThreeActions: [
-      "Produce deployed route and provider-backed site activity evidence; source-backed confidence does not clear those gates.",
+      firstEvidenceAction,
       "Run UI source coverage and produce admin source activity sample evidence so evidence completeness can move without fake proof.",
       "Refresh or retire every stale score-impacting artifact using its listed command before re-running npm run score:beta.",
     ],

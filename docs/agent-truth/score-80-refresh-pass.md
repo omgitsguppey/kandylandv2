@@ -1,14 +1,14 @@
 # Score 80 Refresh Pass
 
-Generated: 2026-06-21T21:30:09.857Z
+Generated: 2026-07-02T03:42:12.752Z
 
-Latest code version: 1ddc3cba0fc63ef35363a9a0955f1115b8c36a94
+Latest code version: b6cfaa11446454d63d45ff0765d7b4d492f40770
 
 ## Summary
 
 - Old score: 41.92
-- New score: 90.16
-- Score delta: 48.24
+- New score: 86.99
+- Score delta: 45.07
 - Beta status: Source evidence required
 - Implemented lane artifacts checked: 12
 - Implemented lane artifacts refreshed: 0
@@ -56,9 +56,9 @@ Latest code version: 1ddc3cba0fc63ef35363a9a0955f1115b8c36a94
 
 ## Source/Live-Site Evidence Lanes
 
-- ui_source_coverage: unknown; beta exit gate=true
-- runtime_provider_smoke: unknown; beta exit gate=true
-- admin_truth_sample: unknown; beta exit gate=true
+- ui_source_coverage: source_readiness_unknown; beta exit gate=true
+- runtime_provider_smoke: provider_backed_site_activity_required; beta exit gate=true
+- admin_truth_sample: source_readiness_unknown; beta exit gate=true
 
 ## Next Exact Steps
 

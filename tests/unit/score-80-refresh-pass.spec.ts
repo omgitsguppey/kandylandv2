@@ -47,6 +47,10 @@ describe("score 80 refresh pass", () => {
     expect(report.summary.staleImplementedLaneArtifacts).toBe(0);
     expect(report.summary.betaExitReady).toBe(false);
     expect(report.nextExactSteps.join("\n")).not.toMatch(/formal manual|manual visual/iu);
+    expect(report.formalEvidenceGates[0]).toMatchObject({
+      id: "provider_smoke",
+      status: "missing_formal_evidence",
+    });
     expect(validateScore80RefreshPassReport(report)).toEqual([]);
   });
 

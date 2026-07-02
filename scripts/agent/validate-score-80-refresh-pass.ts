@@ -320,20 +320,31 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
 
 function formalEvidenceGatesFromScore(score: Record<string, unknown> | null): Score80FormalEvidenceGate[] {
   const launchBlockers = Array.isArray(score?.launchBlockers) ? score.launchBlockers.map(String) : [];
+  const blockerText = launchBlockers.join("\n");
+  const hasUiSourceCoverageBlocker = /Visual\/manual smoke|Visual QA required|UI source coverage|ui surface coverage/iu.test(blockerText);
+  const hasProviderActivityBlocker = /Provider-backed site activity evidence|Runtime\/provider smoke/iu.test(blockerText);
+  const hasDeployedRouteBlocker = /Deployed route evidence|Runtime\/provider smoke/iu.test(blockerText);
+  const hasAdminSourceActivityBlocker = /Admin truth\/sample evidence|admin source activity|admin truth sample/iu.test(blockerText);
   return [
     {
       id: "ui_source_coverage",
-      status: launchBlockers.some((blocker) => /Visual\/manual smoke|UI source coverage|ui surface coverage/iu.test(blocker)) ? "source_validation_required" : "unknown",
+      status: hasUiSourceCoverageBlocker ? "ui_source_coverage_required" : "source_readiness_unknown",
       betaExitGate: true,
     },
     {
       id: "runtime_provider_smoke",
-      status: launchBlockers.some((blocker) => /Runtime\/provider smoke/u.test(blocker)) ? "missing_formal_evidence" : "unknown",
+      status: hasProviderActivityBlocker && hasDeployedRouteBlocker
+        ? "provider_activity_and_deployed_route_evidence_required"
+        : hasProviderActivityBlocker
+          ? "provider_backed_site_activity_required"
+          : hasDeployedRouteBlocker
+            ? "deployed_route_evidence_required"
+            : "source_readiness_unknown",
       betaExitGate: true,
     },
     {
       id: "admin_truth_sample",
-      status: launchBlockers.some((blocker) => /Admin truth\/sample evidence/u.test(blocker)) ? "missing_formal_evidence" : "unknown",
+      status: hasAdminSourceActivityBlocker ? "admin_source_activity_required" : "source_readiness_unknown",
       betaExitGate: true,
     },
   ];

@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-06-21T21:30:09.857Z",
+  "generatedAtUtc": "2026-07-02T03:42:12.752Z",
   "reportKey": "score-80-refresh-pass",
-  "currentHead": "1ddc3cba0fc63ef35363a9a0955f1115b8c36a94",
+  "currentHead": "b6cfaa11446454d63d45ff0765d7b4d492f40770",
   "summary": {
     "oldScore": 41.92,
-    "newScore": 90.16,
+    "newScore": 86.99,
     "betaStatus": "Source evidence required",
-    "scoreDelta": 48.24,
+    "scoreDelta": 45.07,
     "implementedLaneArtifactsChecked": 12,
     "implementedLaneArtifactsRefreshed": 0,
     "staleImplementedLaneArtifacts": 12,
@@ -81,7 +81,7 @@
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
       "command": "npm run check:beta-evidence-gap-map",
       "status": "stale_blocked",
-      "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
+      "currentHead": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
       "refreshAction": "Run npm run check:beta-evidence-gap-map from the latest code version.",
       "scoreImpact": "still_stale_refresh_required"
     },
@@ -185,29 +185,34 @@
   "formalEvidenceGates": [
     {
       "id": "ui_source_coverage",
-      "status": "unknown",
+      "status": "source_readiness_unknown",
       "betaExitGate": true
     },
     {
       "id": "runtime_provider_smoke",
-      "status": "unknown",
+      "status": "provider_backed_site_activity_required",
       "betaExitGate": true
     },
     {
       "id": "admin_truth_sample",
-      "status": "unknown",
+      "status": "source_readiness_unknown",
       "betaExitGate": true
     }
   ],
   "prActions": [],
   "dirtyFileActions": [
     {
+      "path": "agent/state/score-80-path-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed generated report from focused validator."
+    },
+    {
       "path": "agent/state/score-80-refresh-pass.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit score-80 refresh report artifact."
     },
     {
-      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
+      "path": "docs/agent-truth/score-80-path-lock.md",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed generated report from focused validator."
     },
@@ -217,9 +222,9 @@
       "action": "Commit score-80 refresh report artifact."
     },
     {
-      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
+      "path": "scripts/agent/validate-score-80-path-lock.ts",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped validator and unit test for this pass."
     },
     {
       "path": "scripts/agent/validate-score-80-refresh-pass.ts",
@@ -227,12 +232,12 @@
       "action": "Commit scoped validator and unit test for this pass."
     },
     {
-      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "path": "tests/unit/score-80-path-lock.spec.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator and unit test for this pass."
     },
     {
-      "path": "scripts/agent/validate-score-impact-stale-artifact-sweep.ts",
+      "path": "tests/unit/score-80-refresh-pass.spec.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator and unit test for this pass."
     }
