@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-02T13:50:07.894Z",
+  "generatedAtUtc": "2026-07-02T14:00:26.282Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "833a419c47407a621def2a6740a0394fdf2f49e2",
+  "currentHead": "728d2635e469bfe8b7c23f2762dbca1a1fe95973",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -52,7 +52,7 @@
         "sourceStatus": "source_surface_checks_current",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "833a419c47407a621def2a6740a0394fdf2f49e2",
+        "sourceCommit": "728d2635e469bfe8b7c23f2762dbca1a1fe95973",
         "canClearGate": true,
         "nextAction": "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues."
       },
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T13:50:07.894Z",
+      "generatedAtUtc": "2026-07-02T14:00:26.282Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T13:49:50.583Z",
-      "ageHours": 0.004808611111111111,
+      "generatedAtUtc": "2026-07-02T14:00:04.269Z",
+      "ageHours": 0.006114722222222222,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
