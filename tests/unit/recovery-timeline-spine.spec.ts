@@ -42,6 +42,7 @@ import {
   collapseLaunchRecoveryDayRanges,
   buildRecoveryMetricIdentityStitchingState,
   buildRecoveredLaunchMetricState,
+  buildRegionDemandRecoveryMetricState,
   buildRecoveryTimelineEntryFromGa4Event,
   buildRecoveryTimelineEntryFromCanonicalEvent,
   classifyRecoveryMetricSourceEvidence,
@@ -89,6 +90,39 @@ describe("recovery timeline spine", () => {
     expect(RECOVERY_TIMELINE_SOURCE_PRECEDENCE.indexOf("ga4_evidence")).toBeGreaterThan(
       RECOVERY_TIMELINE_SOURCE_PRECEDENCE.indexOf("behavioral_timeline_fact"),
     );
+  });
+
+  it("centralizes region demand recovery evidence as modeled GA source truth", () => {
+    const observed = buildRegionDemandRecoveryMetricState({
+      city: "Austin",
+      country: "United States",
+      rawCount: 12,
+      generatedAtMs: Date.parse("2026-05-06T12:00:00.000Z"),
+    });
+    const missing = buildRegionDemandRecoveryMetricState({
+      city: null,
+      country: null,
+      rawCount: 0,
+      generatedAtMs: Date.parse("2026-05-06T12:00:00.000Z"),
+    });
+
+    expect(observed).toMatchObject({
+      eventName: "page_view",
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      freshnessState: "external_evidence_required",
+      confidenceBand: "directional",
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
+    expect(observed.dedupeKey).toContain("admin_analytics_region_demand");
+    expect(missing).toMatchObject({
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      freshnessState: "source_missing",
+      productTruthEligible: false,
+      missingVsZeroState: "source_missing",
+    });
   });
 
   it("classifies viewer sessions as telemetry behavior before identity-session text", () => {

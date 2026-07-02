@@ -3439,6 +3439,28 @@ export function buildRecoveredLaunchMetricState(input: {
   };
 }
 
+export function buildRegionDemandRecoveryMetricState(input: {
+  city?: string | null;
+  country?: string | null;
+  rawCount: number;
+  generatedAtMs?: number | null;
+  objectId?: string | null;
+}): RecoveredLaunchMetricState {
+  const sourceObserved = input.rawCount > 0;
+  const objectId = input.objectId ??
+    `${input.country ?? "unknown_country"}:${input.city ?? "unknown_city"}`;
+
+  return buildRecoveredLaunchMetricState({
+    eventName: "page_view",
+    sourceObserved,
+    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
+    evidenceKind: sourceObserved ? "modeled" : "missing",
+    route: "admin_analytics_region_demand",
+    objectId,
+    timestampMs: input.generatedAtMs ?? null,
+  });
+}
+
 export function classifyRecoveryMetricSourceEvidence(input: {
   checkedCount?: number | null;
   estimatedCount?: number | null;

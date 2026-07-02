@@ -14,7 +14,10 @@ import {
   toNumber,
   toStringValue,
 } from "./admin-analytics-shared";
-import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
+import {
+  buildRecoveredLaunchMetricState,
+  buildRegionDemandRecoveryMetricState,
+} from "@/lib/analytics/recovery-timeline-spine";
 import type { RegionDemandRow } from "@/types/admin-analytics";
 
 const DAY_KEY_PREFIX_PATTERN = /^(\d{4}-\d{2}-\d{2})/u;
@@ -127,24 +130,6 @@ function buildTrafficBucketRecoveryMetadata(input: {
     route: "admin_analytics_historical_traffic",
     objectId: input.bucketKey,
     timestampMs: bucketTimestampMs(input.bucketKey, input.timelineBucket),
-  });
-}
-
-function buildRegionDemandRecoveryMetadata(input: {
-  city: string | null;
-  country: string | null;
-  rawCount: number;
-  generatedAtMs: number | null | undefined;
-}) {
-  const sourceObserved = input.rawCount > 0;
-  return buildRecoveredLaunchMetricState({
-    eventName: "page_view",
-    sourceObserved,
-    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
-    evidenceKind: sourceObserved ? "modeled" : "missing",
-    route: "admin_analytics_region_demand",
-    objectId: `${input.country ?? "unknown_country"}:${input.city ?? "unknown_city"}`,
-    timestampMs: input.generatedAtMs ?? null,
   });
 }
 
@@ -654,7 +639,7 @@ export function buildHistoricalTrafficOverview(input: {
       } else {
         explanation = "GA route-level geography is unavailable for this range, so the panel cannot separate admin/internal traffic from raw city counts.";
       }
-      const recoveryMetadata = buildRegionDemandRecoveryMetadata({
+      const recoveryMetadata = buildRegionDemandRecoveryMetricState({
         city: row.city,
         country: row.country,
         rawCount,

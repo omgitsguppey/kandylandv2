@@ -74,6 +74,10 @@ import {
 import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence-policy";
 import { buildGa4EvidenceState } from "@/lib/analytics/ga4-truth";
 import { buildRefreshDiagnosticsFailureClusters } from "@/lib/analytics/refresh-diagnostics-failure-clusters";
+import {
+    resolveAdminAnalyticsRecoveryPanelFreshnessState,
+    resolveAdminAnalyticsRecoveryPanelSourceTruth,
+} from "@/lib/analytics/admin-analytics-display-state";
 import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
@@ -1975,6 +1979,16 @@ async function GET_handler(request: NextRequest) {
             const regionDemandFreshnessState = regionDemandUsedGeoPathFallback
                 ? "partial" as const
                 : "live" as const;
+            const regionDemandSourceTruth = resolveAdminAnalyticsRecoveryPanelSourceTruth({
+                hasResponse: true,
+                rows: regionDemandRows,
+                fallbackSourceTruth: regionDemandRows.length > 0 ? "ga4_evidence_only" : "source_missing",
+            });
+            const regionDemandPanelFreshnessState = resolveAdminAnalyticsRecoveryPanelFreshnessState({
+                hasResponse: true,
+                rows: regionDemandRows,
+                fallbackFreshnessState: regionDemandFreshnessState,
+            });
             const regionDemandCountUnit = regionDemandUsedGeoPathFallback ? "users" as const : "views" as const;
             const regionDemandWarnings = [
                 `Counts are GA4 ${regionDemandCountUnit}, not authenticated account totals.`,
@@ -1985,8 +1999,8 @@ async function GET_handler(request: NextRequest) {
             const regionDemandPanelState = {
                 generatedAtUtc: toUtcIsoOrNull(responseGeneratedAtMs) ?? new Date(0).toISOString(),
                 range: period ?? "30d",
-                sourceTruth: regionDemandUsedGeoPathFallback ? "ga4" : "mixed",
-                freshnessState: regionDemandFreshnessState,
+                sourceTruth: regionDemandSourceTruth,
+                freshnessState: regionDemandPanelFreshnessState,
                 filterMode: "comparison" as const,
                 countUnit: regionDemandCountUnit,
                 rawTotal: regionDemandRawTotal,

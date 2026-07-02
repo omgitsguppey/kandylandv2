@@ -5,7 +5,7 @@ import {
   resolveAdminAnalyticsRecoveryPanelFreshnessState,
   resolveAdminAnalyticsRecoveryPanelSourceTruth,
 } from "@/lib/analytics/admin-analytics-display-state";
-import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
+import { buildRegionDemandRecoveryMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   HistoricalAnalyticsResponse,
   RangeOption,
@@ -70,7 +70,7 @@ function normalizeFallbackRow(
   const city = row.city && row.city !== "Unknown" ? row.city : null;
   const country = row.country && row.country !== "Unknown" ? row.country : null;
   const rawCount = Math.max(0, row.users);
-  const recoveryMetadata = buildRegionDemandRecoveryMetadata({
+  const recoveryMetadata = buildRegionDemandRecoveryMetricState({
     rawCount,
     objectId: `${country ?? "unknown_country"}:${city ?? "unknown_city"}`,
     generatedAtMs,
@@ -104,23 +104,6 @@ function normalizeFallbackRow(
   };
 }
 
-function buildRegionDemandRecoveryMetadata(input: {
-  rawCount: number;
-  objectId: string;
-  generatedAtMs: number | null | undefined;
-}) {
-  const sourceObserved = input.rawCount > 0;
-  return buildRecoveredLaunchMetricState({
-    eventName: "page_view",
-    sourceObserved,
-    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
-    evidenceKind: sourceObserved ? "modeled" : "missing",
-    route: "admin_analytics_region_demand",
-    objectId: input.objectId,
-    timestampMs: input.generatedAtMs ?? null,
-  });
-}
-
 export function buildAdminAnalyticsRegionDemandModel(input: {
   response?: Partial<HistoricalAnalyticsResponse> | null;
   selectedRange: RangeOption;
@@ -138,7 +121,7 @@ export function buildAdminAnalyticsRegionDemandModel(input: {
     sourceTruth: resolveAdminAnalyticsRecoveryPanelSourceTruth({
       hasResponse: Boolean(input.response),
       rows: fallbackRows,
-      fallbackSourceTruth: fallbackRows.length > 0 ? "ga4" : "unknown",
+      fallbackSourceTruth: fallbackRows.length > 0 ? "ga4_evidence_only" : "source_missing",
     }),
     freshnessState: resolveAdminAnalyticsRecoveryPanelFreshnessState({
       hasResponse: Boolean(input.response),
