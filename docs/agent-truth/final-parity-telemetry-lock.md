@@ -1,7 +1,7 @@
 # Final Parity Telemetry Lock
 
-Generated: 2026-07-02T02:51:11.281Z
-Head: b4070808965ac7f5541abb1a19d85b48119ba1bc
+Generated: 2026-07-02T14:35:22.788Z
+Head: f9ff723647cf714ac1f4c7c6c89dc4db27f1531a
 Head source: git
 Git status: available
 Tooling degraded: false
@@ -20,20 +20,20 @@ Status: review
 - Stale parity logic removed: true
 - Surfaces covered: 17
 - Surfaces missing: 0
-- Score: 67.23 -> 67.23
+- Score: 85.93 -> 85.93
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, costRisk, freshness, regressionRisk
 - Can clear source gate: true
 - Can clear runtime gate: false
 - Can clear provider gate: false
 - Can clear admin truth gate: false
 
-## Proof Classes
+## Evidence Classes
 
-| Proof class | Status | Evidence kind | Required | Next action |
+| Evidence class | Status | Evidence kind | Required | Next action |
 | --- | --- | --- | --- | --- |
-| source_parity | present | source_only | true | Source parity is green; keep it separate from runtime/provider/admin proof. |
-| runtime_route_health | stale | runtime | true | Refresh formal runtime route-health evidence; source parity cannot clear runtime health. |
-| provider_smoke | stale | provider | true | Attach formal redacted provider smoke evidence; operator reports do not clear this gate. |
+| source_parity | present | source_only | true | Source parity is green; keep it separate from deployed route, provider-backed site activity, and admin source activity evidence. |
+| runtime_route_health | stale | runtime | true | Refresh deployed route-health evidence; source parity cannot clear runtime health. |
+| provider_smoke | stale | provider | true | Attach redacted provider-backed site activity evidence; operator reports do not clear this gate. |
 | admin_truth_sample | stale | admin | true | Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts. |
 
 ## Surface Locks
@@ -60,15 +60,15 @@ Status: review
 
 ## Remaining Gaps
 
-- Formal proof classes still incomplete: runtime_route_health, provider_smoke, admin_truth_sample.
-- Source parity is source-only evidence and does not prove runtime route health, provider smoke, or admin truth samples.
+- Typed evidence classes still incomplete: runtime_route_health, provider_smoke, admin_truth_sample.
+- Source parity is source evidence only and does not clear deployed route health, provider-backed site activity, or admin source activity samples.
 - Public beta score must remain capped/review until current-head external/runtime/admin evidence gates are attached.
 
 ## Next Exact Steps
 
 - Keep check:surface-parity-doctrine, check:surface-telemetry-parity, check:surface-state-parity, and check:role-permission-parity green before new surface work.
-- Refresh formal runtime route-health evidence; source parity cannot clear runtime health.
-- Attach formal redacted provider smoke evidence; operator reports do not clear this gate.
+- Refresh deployed route-health evidence; source parity cannot clear runtime health.
+- Attach redacted provider-backed site activity evidence; operator reports do not clear this gate.
 - Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts.
 - Run npm run check:final-parity-telemetry-lock after any parity, telemetry, state, role, or debug-lane change.
 

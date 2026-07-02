@@ -1,7 +1,7 @@
 {
   "reportKey": "final-parity-telemetry-lock",
-  "generatedAtUtc": "2026-07-02T02:51:11.281Z",
-  "currentHead": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
+  "generatedAtUtc": "2026-07-02T14:35:22.788Z",
+  "currentHead": "f9ff723647cf714ac1f4c7c6c89dc4db27f1531a",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "toolingDegraded": false,
@@ -1013,8 +1013,8 @@
       ]
     }
   ],
-  "scoreBefore": 67.23,
-  "scoreAfter": 67.23,
+  "scoreBefore": 85.93,
+  "scoreAfter": 85.93,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -1029,21 +1029,21 @@
       "status": "present",
       "required": true,
       "evidenceKind": "source_only",
-      "nextAction": "Source parity is green; keep it separate from runtime/provider/admin proof."
+      "nextAction": "Source parity is green; keep it separate from deployed route, provider-backed site activity, and admin source activity evidence."
     },
     {
       "proofClass": "runtime_route_health",
       "status": "stale",
       "required": true,
       "evidenceKind": "runtime",
-      "nextAction": "Refresh formal runtime route-health evidence; source parity cannot clear runtime health."
+      "nextAction": "Refresh deployed route-health evidence; source parity cannot clear runtime health."
     },
     {
       "proofClass": "provider_smoke",
       "status": "stale",
       "required": true,
       "evidenceKind": "provider",
-      "nextAction": "Attach formal redacted provider smoke evidence; operator reports do not clear this gate."
+      "nextAction": "Attach redacted provider-backed site activity evidence; operator reports do not clear this gate."
     },
     {
       "proofClass": "admin_truth_sample",
@@ -1063,54 +1063,17 @@
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "remainingGaps": [
-    "Formal proof classes still incomplete: runtime_route_health, provider_smoke, admin_truth_sample.",
-    "Source parity is source-only evidence and does not prove runtime route health, provider smoke, or admin truth samples.",
+    "Typed evidence classes still incomplete: runtime_route_health, provider_smoke, admin_truth_sample.",
+    "Source parity is source evidence only and does not clear deployed route health, provider-backed site activity, or admin source activity samples.",
     "Public beta score must remain capped/review until current-head external/runtime/admin evidence gates are attached."
   ],
   "nextExactSteps": [
     "Keep check:surface-parity-doctrine, check:surface-telemetry-parity, check:surface-state-parity, and check:role-permission-parity green before new surface work.",
-    "Refresh formal runtime route-health evidence; source parity cannot clear runtime health.",
-    "Attach formal redacted provider smoke evidence; operator reports do not clear this gate.",
+    "Refresh deployed route-health evidence; source parity cannot clear runtime health.",
+    "Attach redacted provider-backed site activity evidence; operator reports do not clear this gate.",
     "Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts.",
     "Run npm run check:final-parity-telemetry-lock after any parity, telemetry, state, role, or debug-lane change."
   ],
-  "dirtyFiles": [
-    {
-      "path": "agent/state/beta-evidence-gap-map.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-experience-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/media-discovery-score-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-creator-ui-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/beta-evidence-gap-map.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/media-discovery-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    }
-  ],
+  "dirtyFiles": [],
   "validationFailures": []
 }
