@@ -135,7 +135,7 @@ assertIncludes("audience component", component, "No paths match the current sear
 assertIncludes("audience component", component, "data-regions-source-truth");
 assertIncludes("audience component", component, "data-regions-filter-mode");
 assertIncludes("audience component", component, "data-regions-count-unit");
-assertIncludes("audience component", component, "Raw geography with internal/admin traffic separated from external demand.");
+assertNotIncludes("audience component", component, "Raw geography with internal/admin traffic separated from external demand.");
 assertIncludes("audience component", component, "External demand");
 assertIncludes("audience component", component, "Admin/internal excluded");
 assertIncludes("audience component", component, "Unknown location");

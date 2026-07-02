@@ -1321,7 +1321,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
             <SectionCard
               title="Regions"
-              subtitle="Raw geography with internal/admin traffic separated from external demand."
               icon={MapPin}
               rightSlot={(
                 <div className="flex flex-wrap items-center justify-end gap-2">

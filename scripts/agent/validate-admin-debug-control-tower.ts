@@ -2389,7 +2389,6 @@ for (const expected of [
   "data-regions-source-truth",
   "data-regions-filter-mode",
   "data-regions-count-unit",
-  "Raw geography with internal/admin traffic separated from external demand.",
   "Raw traffic",
   "External demand",
   "Admin/internal excluded",
@@ -2398,6 +2397,7 @@ for (const expected of [
 ]) {
   requireIncludes(adminAnalyticsAudienceTab, expected, "Regions audience panel");
 }
+requireNotIncludes(adminAnalyticsAudienceTab, "Raw geography with internal/admin traffic separated from external demand.", "Regions audience panel");
 for (const expected of [
   "Mode:",
   "Source:",
