@@ -214,12 +214,12 @@ function groupLabel(input: DebugSignalGroupingInput, count: number) {
 function displayGateLabel(value: unknown) {
   const raw = text(value, "unknown");
   const lower = raw.toLowerCase();
-  if (
-    /provider[_/ -]?runtime[_/ -]?smoke|runtime\/provider smoke|provider[_/ -]?smoke|deployed[_/ -]?runtime[_/ -]?smoke/iu.test(lower)
-    || (lower.includes("provider-backed site activity") && lower.includes("deployed route evidence"))
-  ) {
+  if (/provider[_/ -]?runtime[_/ -]?smoke|runtime\/provider smoke/iu.test(lower)
+    || (lower.includes("provider-backed site activity") && lower.includes("deployed route evidence"))) {
     return "Provider-backed site activity + deployed route evidence";
   }
+  if (/provider[_/ -]?smoke|provider-backed site activity/iu.test(lower)) return "Provider-backed site activity evidence";
+  if (/deployed[_/ -]?runtime[_/ -]?smoke|deployed route evidence/iu.test(lower)) return "Deployed route evidence";
   if (/admin[_/ -]?truth|truth[_/ -]?sample|admin source activity sample|admin source sample/iu.test(lower)) {
     return "Admin source activity sample";
   }

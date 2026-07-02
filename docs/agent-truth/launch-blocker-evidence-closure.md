@@ -6,8 +6,8 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 ## Summary
 
-- Current head: `5e8e46d860bb6e85f12e764180b5fb6577f36a21`
-- Launch gate status: `owner_review`
+- Current head: `400f61396ac8ddcfe5372aec697ecdedbbaff1d8`
+- Launch gate status: `source_ready`
 - Formal gates cleared by this pass: false
 - Open PR evidence source: `not_requested`
 - Open PR evidence unavailable: true
@@ -20,7 +20,7 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 | Blocker | Current status | Classification | Can close now | Next action |
 | --- | --- | --- | --- | --- |
-| Provider-backed site activity + deployed route evidence | Provider-backed site activity + deployed route evidence: Source evidence required | external_or_runtime_artifact_required | false | Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate. |
+| Provider-backed site activity + deployed route evidence | Provider-backed site activity evidence: Source evidence required | external_or_runtime_artifact_required | false | Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate. |
 | Admin truth/sample evidence | Admin truth/sample evidence: Ready with smoke required | external_or_runtime_artifact_required | false | Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate. |
 | Report freshness and PR integrity | Report freshness and PR integrity: Stale evidence | external_review_required | false | Provide a cached open PR artifact or explicitly opt in to GitHub PR listing before treating PR integrity as closed. |
 
@@ -34,19 +34,29 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 | Dimension | Before | After | Target |
 | --- | ---: | ---: | ---: |
-| sourceHealth | 97.2 | 97.2 | 80 |
-| runtimeHealth | 91.11 | 91.11 | 80 |
+| sourceHealth | 97.35 | 97.35 | 80 |
+| runtimeHealth | 80.45 | 80.45 | 80 |
 | evidenceCompleteness | 95.2 | 95.2 | 80 |
 | freshness | 91.88 | 91.88 | 80 |
 | costRisk | 42 | 42 | 80 |
 | regressionRisk | 94 | 94 | 80 |
-| overallHealthScore | 89.31 | 89.31 | 80 |
+| overallHealthScore | 86.99 | 86.99 | 80 |
 
 ## Dirty File Classification
 
 | File | Classification |
 | --- | --- |
-| None | - |
+| agent/state/current-beta-exit-status.generated.json | score_evidence_artifact |
+| agent/state/formal-evidence-bridge.generated.json | score_evidence_artifact |
+| agent/state/launch-blocker-evidence-closure.generated.json | current_generated_artifact_to_commit |
+| agent/state/public-beta-score.generated.json | score_evidence_artifact |
+| docs/agent-truth/formal-evidence-bridge.md | score_evidence_artifact |
+| docs/agent-truth/launch-blocker-evidence-closure.md | release_artifact_expected |
+| scripts/agent/validate-launch-blocker-evidence-closure.ts | launch_blocker_validator |
+| src/lib/agent-score/core.ts | launch_blocker_source |
+| src/lib/agent-score/formal-evidence-bridge.ts | launch_blocker_source |
+| src/lib/debug/debug-signal-grouping.ts | launch_blocker_source |
+| tests/unit/public-beta-score.spec.ts | launch_blocker_test |
 
 ## Remaining Launch Blockers
 

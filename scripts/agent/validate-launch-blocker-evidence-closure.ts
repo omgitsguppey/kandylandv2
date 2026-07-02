@@ -24,6 +24,7 @@ export type LaunchBlockerClassification =
 export type LaunchBlockerDirtyClassification =
   | "current_generated_artifact_to_commit"
   | "launch_blocker_validator"
+  | "launch_blocker_source"
   | "launch_blocker_test"
   | "release_artifact_expected"
   | "score_evidence_artifact"
@@ -212,6 +213,16 @@ export function classifyLaunchBlockerDirtyFile(filePath: string): LaunchBlockerD
   if (normalized === LAUNCH_BLOCKER_EVIDENCE_CLOSURE_DOC_PATH) return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-launch-blocker-evidence-closure.ts") return "launch_blocker_validator";
   if (normalized === "tests/unit/launch-blocker-evidence-closure.spec.ts") return "launch_blocker_test";
+  if (
+    normalized === "src/lib/agent-score/core.ts"
+    || normalized === "src/lib/agent-score/formal-evidence-bridge.ts"
+    || normalized === "src/lib/debug/debug-signal-grouping.ts"
+  ) return "launch_blocker_source";
+  if (
+    normalized === "tests/unit/public-beta-score.spec.ts"
+    || normalized === "tests/unit/formal-evidence-bridge.spec.ts"
+    || normalized === "tests/unit/debug-signal-grouping.spec.ts"
+  ) return "launch_blocker_test";
   if (normalized === "scripts/agent/validate-cost-risk-exit-pass.ts") return "score_evidence_artifact";
   if (
     normalized === "agent/state/public-beta-score.generated.json"
@@ -342,21 +353,37 @@ function buildRuntimeProviderClosure(input: {
   const operatorSignal = record(input.formalEvidenceBridge.operatorSignalStatus);
   const providerCleared = boolValue(provider.cleared);
   const runtimeCleared = boolValue(runtime.cleared);
+  const formalCleared = providerCleared && runtimeCleared;
+  const missingArtifacts = [
+    ...(providerCleared ? [] : ["agent/state/provider-smoke-evidence.generated.json"]),
+    ...(runtimeCleared ? [] : ["agent/state/runtime-smoke-evidence.generated.json"]),
+  ];
+  const blockerLabel = !providerCleared && runtimeCleared
+    ? "Provider-backed site activity evidence"
+    : providerCleared && !runtimeCleared
+      ? "Deployed route evidence"
+      : "Provider-backed site activity + deployed route evidence";
+  const blockerNextAction = formalCleared
+    ? "Keep provider-backed site activity and deployed route evidence artifacts fresh."
+    : !providerCleared && runtimeCleared
+      ? "Produce provider-backed site activity evidence; source confidence and operator revenue do not clear this gate."
+      : providerCleared && !runtimeCleared
+        ? "Produce deployed runtime route evidence; source confidence and operator revenue do not clear this gate."
+        : "Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate.";
   const sourceReady = numberValue(sourceConfidence.realUsageConfidenceScore) > 0
     || numberValue(sourceConfidence.runtimeSubstituteEvidenceScore) > 0
     || /source_ready/iu.test(stringValue(input.debugRuntimeEvidence.status));
   const operatorReady = boolValue(operatorSignal.operatorConfirmedRevenue) && !boolValue(operatorSignal.formalProviderGateCleared);
-  const formalCleared = providerCleared && runtimeCleared;
   const currentStatus = stringValue(
     arrayValue(input.publicBetaScore.launchBlockers).find((entry) =>
-      /Runtime\/provider smoke|Provider-backed site activity \+ deployed route evidence/iu.test(String(entry))),
-    "Provider-backed site activity + deployed route evidence: Source evidence required",
+      /Runtime\/provider smoke|Provider-backed site activity|deployed route evidence/iu.test(String(entry))),
+    `${blockerLabel}: Source evidence required`,
   )
     .replace(/Runtime\/provider smoke/giu, "Provider-backed site activity + deployed route evidence")
     .replace(/Runtime unverified/giu, "Source evidence required");
   return {
     id: "runtimeProviderSmoke",
-    label: "Provider-backed site activity + deployed route evidence",
+    label: blockerLabel,
     currentStatus,
     classification: formalCleared ? "can_close_now" : "external_or_runtime_artifact_required",
     classificationDetails: [
@@ -372,7 +399,7 @@ function buildRuntimeProviderClosure(input: {
     operatorConfirmedReady: operatorReady,
     staleArtifactRefreshNeeded: false,
     externalReviewRequired: !formalCleared,
-    missingArtifact: formalCleared ? null : "agent/state/provider-smoke-evidence.generated.json + agent/state/runtime-smoke-evidence.generated.json",
+    missingArtifact: formalCleared ? null : missingArtifacts.join(" + "),
     evidence: [
       `providerSmoke.cleared=${providerCleared}`,
       `deployedRuntimeSmoke.cleared=${runtimeCleared}`,
@@ -381,9 +408,7 @@ function buildRuntimeProviderClosure(input: {
       `operatorConfirmedRevenue=${operatorReady}`,
       "formalGateCanClearFromSource=false",
     ],
-    nextAction: formalCleared
-      ? "Keep provider-backed site activity and deployed route evidence artifacts fresh."
-      : "Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate.",
+    nextAction: blockerNextAction,
   };
 }
 
@@ -532,7 +557,8 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
     reportFreshnessPrIntegrity,
   };
   const remainingLaunchBlockers = [
-    ...(runtimeProviderSmoke.canCloseNow ? [] : ["formal_provider_smoke", "deployed_runtime_smoke"]),
+    ...(runtimeProviderSmoke.evidence.includes("providerSmoke.cleared=true") ? [] : ["formal_provider_smoke"]),
+    ...(runtimeProviderSmoke.evidence.includes("deployedRuntimeSmoke.cleared=true") ? [] : ["deployed_runtime_smoke"]),
     ...(adminTruthSample.canCloseNow ? [] : ["production_admin_truth_sample"]),
     ...(reportFreshnessPrIntegrity.canCloseNow ? [] : ["open_pr_owner_review"]),
   ];
@@ -561,9 +587,9 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
     dirtyFiles,
     blockerReferenceClassification: [
       {
-        reference: "Provider-backed site activity + deployed route evidence: Source evidence required",
+        reference: `${runtimeProviderSmoke.label}: Source evidence required`,
         classification: runtimeProviderSmoke.classification,
-        reason: "Source/runtime confidence and operator revenue are confidence signals only; provider-backed site activity and deployed runtime route evidence artifacts remain required.",
+        reason: runtimeProviderSmoke.nextAction,
       },
       {
         reference: "Admin truth/sample evidence: Ready with smoke required",

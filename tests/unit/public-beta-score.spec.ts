@@ -820,7 +820,7 @@ describe("public beta scoring math", () => {
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
         expect(smokeGate?.status).toBe("Source evidence required");
         expect(smokeGate?.blocksLaunch).toBe(true);
-        expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
+        expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity evidence");
     });
 
     it("allows ready only when scanner and evidence gates are fresh", () => {

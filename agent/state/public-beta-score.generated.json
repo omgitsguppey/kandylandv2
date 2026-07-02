@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-02T03:26:20.479Z",
-  "currentHead": "7f310de8c547cb913967530cc009f5e7370e867b",
+  "generatedAt": "2026-07-02T03:36:46.762Z",
+  "currentHead": "400f61396ac8ddcfe5372aec697ecdedbbaff1d8",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -16,7 +16,7 @@
   "nonEventScorePenaltyCount": 0,
   "launchGateStatus": "source_ready",
   "launchBlockers": [
-    "Provider-backed site activity + deployed route evidence: Source evidence required"
+    "Provider-backed site activity evidence: Source evidence required"
   ],
   "healthScore": 86.99,
   "healthScoreBreakdown": {
@@ -32,7 +32,7 @@
       "weight": 30,
       "score": 80.45,
       "reasons": [
-        "Provider-backed site activity + deployed route evidence runtimeCredit=75.56",
+        "Provider-backed site activity evidence runtimeCredit=75.56",
         "Admin source activity sample evidence runtimeCredit=100",
         "Debug/runtime evidence runtimeCredit=75.56",
         "Algorithmic non-UI evidence coverage runtimeCredit=75.56",
@@ -47,7 +47,7 @@
         "Deterministic UI surface coverage is source-owned and runs before any visual review.",
         "Quiet future activity does not reduce evidence completeness.",
         "Source safety evidenceCredit=100",
-        "Provider-backed site activity + deployed route evidence evidenceCredit=76",
+        "Provider-backed site activity evidence evidenceCredit=76",
         "Admin source activity sample evidence evidenceCredit=100",
         "Report freshness and PR integrity evidenceCredit=100",
         "Evidence bridge evidenceCredit=100"
@@ -59,7 +59,7 @@
       "reasons": [
         "Source safety freshness=fresh",
         "Targeted behavior tests freshness=fresh",
-        "Provider-backed site activity + deployed route evidence freshness=stale",
+        "Provider-backed site activity evidence freshness=stale",
         "Admin source activity sample evidence freshness=fresh",
         "Report freshness and PR integrity freshness=fresh",
         "Debug/runtime evidence freshness=fresh",
@@ -143,7 +143,7 @@
   "launchClearance": {
     "status": "source_ready",
     "blockers": [
-      "Provider-backed site activity + deployed route evidence: Source evidence required"
+      "Provider-backed site activity evidence: Source evidence required"
     ],
     "formalGates": {
       "providerSmoke": {
@@ -256,7 +256,7 @@
   "overallScore": 84,
   "overallStatus": "warning",
   "readinessStatus": "Source evidence required",
-  "readinessStatusReason": "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+  "readinessStatusReason": "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
   "evidenceScore": 67.04,
   "evidenceGates": [
     {
@@ -350,7 +350,7 @@
     },
     {
       "id": "runtimeProviderSmoke",
-      "label": "Provider-backed site activity + deployed route evidence",
+      "label": "Provider-backed site activity evidence",
       "weight": 24,
       "score": 18.24,
       "maxScore": 24,
@@ -463,7 +463,7 @@
         "artifactEvidence[3]=deployedRuntimeSmokeStillRequired=true",
         "artifactEvidence[5]=deployRequired=false"
       ],
-      "recommendedAction": "Keep provider-backed site activity and deployed route evidence current before clearing launch readiness."
+      "recommendedAction": "Produce provider-backed site activity evidence; keep deployed route evidence current."
     },
     {
       "id": "adminTruthSamples",
@@ -650,11 +650,11 @@
   ],
   "evidenceCapsApplied": [
     "Source validation only: Targeted behavior tests",
-    "Source evidence required: Provider-backed site activity + deployed route evidence"
+    "Source evidence required: Provider-backed site activity evidence"
   ],
   "evidenceCapDetails": [
     "Source validation only: Targeted behavior tests - Source behavior passed; deployed route evidence, provider-backed site activity, and admin source activity lanes still need their matching records.",
-    "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
+    "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
   ],
   "evidenceWeights": {
     "sourceSafety": 22,
@@ -668,13 +668,13 @@
     "evidenceScoreMeaning": "Evidence score 67.04/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 86.99/100 currently maps to launch gate source_ready.",
     "missingEvidenceCaps": [
       "Source validation only: Targeted behavior tests - Source behavior passed; deployed route evidence, provider-backed site activity, and admin source activity lanes still need their matching records.",
-      "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
+      "Source evidence required: Provider-backed site activity evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
     "sourcePassConfidence": "Source-pass lanes increase confidence, but source passing does not clear provider-backed site activity, deployed route, admin source activity, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
     "betaExitBlockedBy": [
       "Targeted behavior tests: Source validation only",
-      "Provider-backed site activity + deployed route evidence: Source evidence required"
+      "Provider-backed site activity evidence: Source evidence required"
     ]
   },
   "operatorFinalChecks": {
@@ -874,7 +874,7 @@
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
     "Source validation only: Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
-    "Source evidence required: Keep provider-backed site activity and deployed route evidence current before clearing launch readiness.",
+    "Source evidence required: Produce provider-backed site activity evidence; keep deployed route evidence current.",
     "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
   ],
   "minimalVerificationCommands": [
@@ -925,7 +925,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T03:26:20.479Z",
+      "generatedAtUtc": "2026-07-02T03:36:46.762Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -938,14 +938,14 @@
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
       "label": "Current beta exit status",
-      "status": "same_commit_snapshot",
+      "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-02T03:19:39.001Z",
-      "ageHours": 0.11152166666666667,
+      "generatedAtUtc": "2026-07-02T03:31:52.657Z",
+      "ageHours": 0.08169583333333333,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Current beta exit status is current as a same-commit generated report snapshot.",
+      "message": "Current beta exit status is current for the latest code version.",
       "nextAction": "No refresh needed.",
       "formalEvidenceGateCanClear": true
     },
@@ -956,7 +956,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-07-02T02:58:54.717Z",
-      "ageHours": 0.4571561111111111,
+      "ageHours": 0.6311236111111111,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -971,7 +971,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T14:02:46.213Z",
-      "ageHours": 253.39285166666667,
+      "ageHours": 253.56681916666668,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -986,7 +986,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T19:36:03.006Z",
-      "ageHours": 247.83818694444443,
+      "ageHours": 248.01215444444443,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -1001,7 +1001,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T18:39:12.859Z",
-      "ageHours": 248.78545,
+      "ageHours": 248.9594175,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1016,7 +1016,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-07-02T02:51:43.990Z",
-      "ageHours": 0.5768025,
+      "ageHours": 0.75077,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1031,7 +1031,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:56:20.304Z",
-      "ageHours": 307.5000486111111,
+      "ageHours": 307.6740161111111,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1046,7 +1046,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:56:14.715Z",
-      "ageHours": 307.5016011111111,
+      "ageHours": 307.6755686111111,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1061,7 +1061,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T04:55:54.539Z",
-      "ageHours": 262.5072055555556,
+      "ageHours": 262.6811730555556,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1076,7 +1076,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-07-02T02:53:27.343Z",
-      "ageHours": 0.5480933333333333,
+      "ageHours": 0.7220608333333334,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1091,7 +1091,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T18:39:25.929Z",
-      "ageHours": 248.78181944444444,
+      "ageHours": 248.95578694444444,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1106,7 +1106,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T19:36:24.249Z",
-      "ageHours": 247.8322861111111,
+      "ageHours": 248.0062536111111,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -1121,7 +1121,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:06.814Z",
-      "ageHours": 307.48712916666665,
+      "ageHours": 307.66109666666665,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1136,7 +1136,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:23.473Z",
-      "ageHours": 307.4825016666667,
+      "ageHours": 307.6564691666667,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1151,7 +1151,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:29.221Z",
-      "ageHours": 307.480905,
+      "ageHours": 307.6548725,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1166,7 +1166,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-21T13:29:23.027Z",
-      "ageHours": 253.94929222222223,
+      "ageHours": 254.12325972222223,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1181,7 +1181,7 @@
       "status": "current_by_impact",
       "needsRefresh": false,
       "generatedAtUtc": "2026-06-19T07:57:52.099Z",
-      "ageHours": 307.47455,
+      "ageHours": 307.6485175,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,

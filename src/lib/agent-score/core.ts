@@ -954,6 +954,8 @@ export function buildPublicBetaEvidenceGates(input: {
   const runtimeProviderSmokePassed = (providerSmokePassed || providerLaneSatisfiedBySourceActivity) && runtimeSmokePassed;
   const providerNeedsFormalProof = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
   const runtimeNeedsFormalProof = /runtime_unverified|missing_formal_evidence|tracked_not_passing|missing_or_unknown/iu.test(runtimeSmokeStatus);
+  const runtimeEvidenceRecorded = runtimeSmokePassed || /formal_runtime_smoke_passed|passed_formal_evidence|passed/iu.test(runtimeSmokeStatus);
+  const providerEvidenceRecorded = providerSmokePassed || providerLaneSatisfiedBySourceActivity || /formal_provider_smoke_passed|passed_formal_evidence|passed/iu.test(providerSmokeStatus);
   const runtimeProviderSmokeFreshnessUnknown = (!providerLaneSatisfiedBySourceActivity && providerQuality.freshness === "unknown")
     || runtimeQuality.freshness === "unknown";
   let runtimeProviderSmokeStatus: PublicBetaReadinessStatus = "Ready with smoke required";
@@ -986,6 +988,16 @@ export function buildPublicBetaEvidenceGates(input: {
   const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
     ? "Provider-backed site activity and deployed route evidence artifacts passed."
     : `Provider-backed site activity: ${providerLaneSatisfiedBySourceActivity ? "First-party site activity shows no provider-backed evidence is required for the connected lane." : providerSmokeDetail} Deployed route evidence: ${runtimeSmokePassed && (!providerSmokePassed || providerLaneSatisfiedBySourceActivity) ? "Deployed runtime route evidence is current." : runtimeSmokeDetail}`;
+  const runtimeProviderSmokeLabel = providerNeedsFormalProof && runtimeEvidenceRecorded
+    ? "Provider-backed site activity evidence"
+    : runtimeNeedsFormalProof && providerEvidenceRecorded
+      ? "Deployed route evidence"
+      : "Provider-backed site activity + deployed route evidence";
+  const runtimeProviderSmokeRecommendedAction = providerNeedsFormalProof && runtimeEvidenceRecorded
+    ? "Produce provider-backed site activity evidence; keep deployed route evidence current."
+    : runtimeNeedsFormalProof && providerEvidenceRecorded
+      ? "Produce deployed runtime route evidence; keep provider-backed site activity evidence current."
+      : "Keep provider-backed site activity and deployed route evidence current before clearing launch readiness.";
   const runtimeProviderSmokeEvidence = Array.from(new Set([
     `providerArtifactStatus=${providerSmokeStatus}`,
     `runtimeArtifactStatus=${runtimeSmokeStatus}`,
@@ -1299,12 +1311,12 @@ export function buildPublicBetaEvidenceGates(input: {
     }),
     buildEvidenceGate({
       id: "runtimeProviderSmoke",
-      label: "Provider-backed site activity + deployed route evidence",
+      label: runtimeProviderSmokeLabel,
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke,
       status: runtimeProviderSmokeStatus,
       detail: runtimeProviderSmokeDetail,
       evidence: runtimeProviderEvidenceWithSourceConfidence,
-      recommendedAction: "Keep provider-backed site activity and deployed route evidence current before clearing launch readiness.",
+      recommendedAction: runtimeProviderSmokeRecommendedAction,
       quality: runtimeProviderQuality,
       gateRequiredForExit: true,
       sourceCredit: Math.max(

@@ -203,6 +203,13 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
         Math.min(runtimeSourceConfidence, 78),
         runtimeSubstituteEvidenceScore,
       );
+  const runtimeProviderNextAction = providerFormal && runtimeFormal
+    ? "Keep provider-backed site activity and deployed runtime route artifacts fresh."
+    : providerFormal
+      ? "Produce deployed runtime route evidence before clearing this gate."
+      : runtimeFormal
+        ? "Produce provider-backed site activity evidence before clearing this gate."
+        : "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.";
   const evidenceClasses: FormalEvidenceClass[] = [
     ...(providerFormal ? ["formal_provider_artifact" as const] : ["missing_formal_artifact" as const]),
     ...(runtimeFormal ? ["deployed_runtime_artifact" as const] : ["missing_formal_artifact" as const]),
@@ -220,9 +227,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
       runtimeCredit: runtimeFormal && providerFormal ? 100 : runtimeSourceConfidence,
       formalGateCleared: providerFormal && runtimeFormal,
       evidenceClasses,
-      nextAction: providerFormal && runtimeFormal
-        ? "Keep provider-backed site activity and deployed runtime route artifacts fresh."
-        : "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
+      nextAction: runtimeProviderNextAction,
     }),
     adminTruthSamples: gateCredit({
       evidenceCredit: adminFormal ? 100 : adminSourceConfidenceScore,

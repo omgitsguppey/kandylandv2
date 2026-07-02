@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-06-21T19:44:51.264Z",
+  "generatedAtUtc": "2026-07-02T03:36:13.236Z",
   "reportKey": "launch-blocker-evidence-closure",
-  "currentHead": "5e8e46d860bb6e85f12e764180b5fb6577f36a21",
+  "currentHead": "400f61396ac8ddcfe5372aec697ecdedbbaff1d8",
   "status": "pass",
-  "launchGateStatus": "owner_review",
+  "launchGateStatus": "source_ready",
   "formalGatesCleared": false,
   "blockers": {
     "runtimeProviderSmoke": {
       "id": "runtimeProviderSmoke",
       "label": "Provider-backed site activity + deployed route evidence",
-      "currentStatus": "Provider-backed site activity + deployed route evidence: Source evidence required",
+      "currentStatus": "Provider-backed site activity evidence: Source evidence required",
       "classification": "external_or_runtime_artifact_required",
       "classificationDetails": [
         "formal_artifact_missing",
@@ -28,7 +28,7 @@
       "evidence": [
         "providerSmoke.cleared=false",
         "deployedRuntimeSmoke.cleared=false",
-        "realUsageConfidenceScore=72",
+        "realUsageConfidenceScore=73.45",
         "runtimeSubstituteEvidenceScore=75.56",
         "operatorConfirmedRevenue=true",
         "formalGateCanClearFromSource=false"
@@ -105,13 +105,13 @@
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 97.2,
-      "after": 97.2,
+      "before": 97.35,
+      "after": 97.35,
       "target": 80
     },
     "runtimeHealth": {
-      "before": 91.11,
-      "after": 91.11,
+      "before": 80.45,
+      "after": 80.45,
       "target": 80
     },
     "evidenceCompleteness": {
@@ -135,8 +135,8 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 89.31,
-      "after": 89.31,
+      "before": 86.99,
+      "after": 86.99,
       "target": 80
     }
   },
@@ -158,12 +158,57 @@
   "productRuntimeChanged": false,
   "paymentRuntimeChanged": false,
   "gumdropMathChanged": false,
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
+      "classification": "launch_blocker_validator"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "launch_blocker_source"
+    },
+    {
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "classification": "launch_blocker_source"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "launch_blocker_source"
+    },
+    {
+      "path": "tests/unit/public-beta-score.spec.ts",
+      "classification": "launch_blocker_test"
+    }
+  ],
   "blockerReferenceClassification": [
     {
       "reference": "Provider-backed site activity + deployed route evidence: Source evidence required",
       "classification": "external_or_runtime_artifact_required",
-      "reason": "Source/runtime confidence and operator revenue are confidence signals only; provider-backed site activity and deployed runtime route evidence artifacts remain required."
+      "reason": "Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate."
     },
     {
       "reference": "Admin truth/sample evidence: Ready with smoke required",
@@ -177,8 +222,8 @@
     }
   ],
   "evidence": [
-    "currentHead=5e8e46d860bb6e85f12e764180b5fb6577f36a21",
-    "launchGateStatus=owner_review",
+    "currentHead=400f61396ac8ddcfe5372aec697ecdedbbaff1d8",
+    "launchGateStatus=source_ready",
     "formalEvidenceImpact=classification_only_does_not_clear_formal_gates",
     "openPrEvidenceSource=not_requested",
     "openPrEvidenceUnavailable=true",

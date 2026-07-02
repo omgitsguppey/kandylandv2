@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T20:12:08.892Z",
+  "generatedAtUtc": "2026-07-02T03:36:12.691Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "ab5450dcf3f0f019e183441b8039958949047b80",
+  "currentHead": "400f61396ac8ddcfe5372aec697ecdedbbaff1d8",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -20,8 +20,8 @@
     }
   },
   "sourceConfidenceStatus": {
-    "runtimeConfidenceScore": 100,
-    "realUsageConfidenceScore": 72,
+    "runtimeConfidenceScore": 65,
+    "realUsageConfidenceScore": 73.45,
     "adminSourceConfidenceScore": 0,
     "debugRuntimeConfidenceScore": 100,
     "runtimeSubstituteEvidenceScore": 75.56
@@ -41,7 +41,6 @@
       "evidenceClasses": [
         "missing_formal_artifact",
         "operator_confirmed_revenue",
-        "source_backed_runtime_confidence",
         "real_usage_confidence",
         "runtime_substitute_matrix",
         "debug_runtime_source_evidence"
@@ -73,7 +72,6 @@
   "evidenceClasses": [
     "missing_formal_artifact",
     "operator_confirmed_revenue",
-    "source_backed_runtime_confidence",
     "real_usage_confidence",
     "runtime_substitute_matrix",
     "debug_runtime_source_evidence"
@@ -89,22 +87,22 @@
     "production_admin_truth_sample"
   ],
   "scoreBefore": {
-    "sourceHealth": 97.2,
-    "runtimeHealth": 91.11,
+    "sourceHealth": 97.35,
+    "runtimeHealth": 80.45,
     "evidenceCompleteness": 95.2,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 90.16
+    "overallHealthScore": 86.99
   },
   "scoreAfter": {
-    "sourceHealth": 97.2,
-    "runtimeHealth": 91.11,
+    "sourceHealth": 97.35,
+    "runtimeHealth": 80.45,
     "evidenceCompleteness": 95.2,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 90.16
+    "overallHealthScore": 86.99
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime route evidence.",
