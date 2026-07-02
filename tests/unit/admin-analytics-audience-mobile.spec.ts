@@ -106,8 +106,10 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).not.toContain("Recovery label:");
     expect(source).not.toContain("vendor evidence + first-party snapshot");
     expect(source).toContain('label="Site users"');
-    expect(source).toContain("Source mix: site users; views are mixed site analytics and first-party snapshots.");
-    expect(source).toContain("Chart source: Site users plus site views.");
+    expect(source).toContain('data-admin-analytics-vendor-source-label="vendor_evidence"');
+    expect(source).toContain('data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
+    expect(source).not.toContain("Source mix: site users; views are mixed site analytics and first-party snapshots.");
+    expect(source).not.toContain("Chart source: Site users plus site views.");
     expect(source).toContain("avg site session");
     expect(source).toContain('name="Site users"');
     expect(source).toContain("Device data will appear after site analytics has enough sessions");
@@ -115,8 +117,8 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).not.toContain("avg GA session");
     expect(source).not.toContain('name="GA users"');
     expect(source).not.toContain("vendor evidence only");
-    expect(source).toContain("Decision source: {verifiedSnapshotLabel}");
-    expect(source).toContain("Vendor analytics are supporting evidence, not product truth.");
+    expect(source).not.toContain("Decision source: {verifiedSnapshotLabel}");
+    expect(source).not.toContain("Vendor analytics are supporting evidence, not product truth.");
     expect(source).toContain("formatAudienceSeriesLabel");
   });
 });

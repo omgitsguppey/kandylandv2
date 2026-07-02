@@ -19,7 +19,6 @@ import {
   resolveAdminAnalyticsTopDropIdentityTruthState,
 } from "@/lib/admin-analytics-contracts";
 import {
-  formatAdminAnalyticsEvidenceSourceLabel,
   formatAdminAnalyticsSourceStateLabel,
   formatAdminAnalyticsSourceTruthLabel,
 } from "@/lib/analytics/admin-analytics-display-state";
@@ -90,8 +89,6 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     waitingLabel = "No verified snapshot yet",
   ) => (typeof value === "number" && Number.isFinite(value) ? formatter(value) : waitingLabel);
   const commerceBadgeLabel = resolveAdminAnalyticsCommerceBadgeLabel(commerceSnapshotModel);
-  const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
-  const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const compactMetricClass = "rounded-[1rem] p-2";
   const compactMetricValueClass = "text-lg leading-6 md:text-xl";
   const noSnapshotLabel = "No verified snapshot yet";
@@ -286,15 +283,6 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 {commerceSnapshotModel.visibleCopy.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
-                <p className="text-gray-400">
-                  Decision source: {verifiedSnapshotLabel}. {vendorEvidenceLabel} stays supporting evidence, not product truth.
-                </p>
-                <p className="text-gray-400">
-                  Recovery evidence stays review-only until the server ledger confirms it.
-                </p>
-                <p className="text-gray-400">
-                  Treasury truth lives in Platform Economy.
-                </p>
               </div>
 
               <div className="mb-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-2 xl:grid-cols-4">
@@ -426,9 +414,6 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
               <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex md:items-center md:justify-between md:gap-3">
                 <div className="font-semibold text-white">
                   {commerceConversionFooter}
-                </div>
-                <div className="text-gray-400">
-                  Revenue source: completed internal payment records. Treasury truth lives in Platform Economy.
                 </div>
                 <div className="text-brand-purple">
                   {commerceSnapshotModel.needsAttention.length > 0

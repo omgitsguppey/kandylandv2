@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-14T01:37:39.159Z",
+  "generatedAtUtc": "2026-07-02T03:51:43.524Z",
   "reportKey": "snapshot-admin-vendor-cost-rewire",
-  "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
+  "currentHead": "0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
@@ -44,9 +44,9 @@
     "costRiskCount": 6,
     "adminDebugFirstRecoveryCount": 12,
     "adminAnalyticsEligibleRecoveryCount": 3,
-    "issueCount": 5,
+    "issueCount": 8,
     "p0Count": 0,
-    "p1Count": 0
+    "p1Count": 6
   },
   "snapshotAuthorities": [
     {
@@ -683,31 +683,31 @@
     },
     {
       "issueKey": "raw-display-fallback-runtime-simplification-needed",
-      "severity": "P2",
-      "title": "Raw display fallback collapse landed for compact Admin Analytics routes and client live path",
-      "description": "Realtime and historical compact display routes avoid raw fallback rebuilds, and the Admin Analytics state hook no longer mounts raw Firestore realtime listeners for display truth. Raw collections remain materializer input or Admin Debug evidence only.",
+      "severity": "P1",
+      "title": "Raw display fallback collapse partially landed for realtime and historical routes",
+      "description": "Realtime and historical compact display paths no longer rebuild display truth from raw analytics logs when verified snapshots are unavailable; Debug/raw recovery surfacing remains future work.",
       "files": [
         "src/app/api/admin/analytics/realtime/route.ts",
         "src/app/api/admin/analytics/historical/route.ts",
         "src/app/admin/analytics/**"
       ],
-      "blocksRuntimeSimplification": false,
+      "blocksRuntimeSimplification": true,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Keep raw collection usage behind materializers or Debug evidence while later modules add verified snapshots."
+      "recommendedAction": "Audit remaining Admin Analytics modules and Debug recovery lanes for any raw display fallbacks outside the realtime/historical route arteries."
     },
     {
       "issueKey": "vendor-boundary-runtime-labeling-needed",
-      "severity": "P2",
-      "title": "Vendor/source labeling partially landed at module level",
-      "description": "Realtime and historical route authority checks now block vendor override in compact display paths, and Admin Analytics modules label vendor evidence, verified snapshots, raw Debug-only evidence, and recovery review-only state. Broader cost and materializer simplification remains future work.",
+      "severity": "P1",
+      "title": "Vendor evidence must stay labeled and non-authoritative",
+      "description": "GA4, PostHog, and BigQuery can support estimates/export/debug parity, but first-party snapshots must win display truth. Realtime and historical route authority checks now block vendor override in compact display paths; remaining vendor estimate labels still need module-level review.",
       "files": [
         "src/lib/analytics/**",
         "src/app/admin/analytics/**",
         "src/app/admin/debug/**"
       ],
-      "blocksRuntimeSimplification": false,
+      "blocksRuntimeSimplification": true,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Keep vendor labels locked while the next cost simplification runtime pass removes remaining duplicate/raw materializer cost risks."
+      "recommendedAction": "Add or verify source/confidence labels in later Admin Analytics/Admin Debug runtime passes."
     },
     {
       "issueKey": "admin-debug-recovery-surfacing-required",
@@ -724,17 +724,53 @@
     },
     {
       "issueKey": "cost-simplification-runtime-pass-required",
-      "severity": "P2",
-      "title": "Cost simplification runtime pass reduced the remaining compact display risks",
-      "description": "Admin Analytics display now stays on snapshot-first API payloads, direct raw Firestore listeners are disabled for compact display, materializer metadata labels raw ledgers as input/Debug evidence, and realtime_summary is fallback/live-pulse evidence only. Later work may still replace placeholder materializers with verified snapshot writers.",
+      "severity": "P1",
+      "title": "Cost simplification needs a separate runtime pass",
+      "description": "This static contract identifies cost-risk patterns but does not remove raw reads, listeners, duplicate materializers, or broad fallback work.",
       "files": [
         "src/app/api/admin/analytics/**",
         "src/app/admin/analytics/**",
         "functions/src/*analytics*"
       ],
-      "blocksRuntimeSimplification": false,
+      "blocksRuntimeSimplification": true,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Move to validator locks and final evidence refresh before considering any new recovery promotion or materializer buildout."
+      "recommendedAction": "Use the costSimplificationCandidates list as the scope for the next runtime simplification prompt."
+    },
+    {
+      "issueKey": "phase-one-source-report-head-mismatch",
+      "severity": "P1",
+      "title": "Phase One inventory report is not current with HEAD",
+      "description": "agent/state/analytics-rewire-phase-one.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602.",
+      "files": [
+        "agent/state/analytics-rewire-phase-one.generated.json"
+      ],
+      "blocksRuntimeSimplification": true,
+      "blocksPhaseOneFreeze": false,
+      "recommendedAction": "Rerun Phase 1, Phase 2, and Phase 3 validators before using this Phase 4 contract."
+    },
+    {
+      "issueKey": "phase-two-source-report-head-mismatch",
+      "severity": "P1",
+      "title": "Phase Two identity/privacy report is not current with HEAD",
+      "description": "agent/state/identity-privacy-raw-ledger-rewire.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602.",
+      "files": [
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json"
+      ],
+      "blocksRuntimeSimplification": true,
+      "blocksPhaseOneFreeze": false,
+      "recommendedAction": "Rerun Phase 1, Phase 2, and Phase 3 validators before using this Phase 4 contract."
+    },
+    {
+      "issueKey": "phase-three-source-report-head-mismatch",
+      "severity": "P1",
+      "title": "Phase Three recovery dry-run report is not current with HEAD",
+      "description": "agent/state/lost-data-recovery-dry-run.generated.json currentHead=142bba579d7a2f0b73610b0b5f0498a26e19b836; current HEAD=0e09cf8659e1b4ff6e7c84eed0ac0b80b3c2d602.",
+      "files": [
+        "agent/state/lost-data-recovery-dry-run.generated.json"
+      ],
+      "blocksRuntimeSimplification": true,
+      "blocksPhaseOneFreeze": false,
+      "recommendedAction": "Rerun Phase 1, Phase 2, and Phase 3 validators before using this Phase 4 contract."
     }
   ]
 }

@@ -112,10 +112,10 @@ assertNotIncludes("audience component", component, "const guestBadgeLabel = audi
 assertIncludes("return cadence helper", returnCadenceHelper, "Return cadence is using identified activity fallback because the cadence snapshot has not hydrated.");
 assertIncludes("audience component", component, "label=\"Site users\"");
 assertIncludes("audience component", component, "label=\"Guest Visits\"");
-assertIncludes("audience component", component, "Traffic estimate:");
-assertIncludes("audience component", component, "Recovery");
-assertIncludes("audience component", component, "Source mix: site users; views are mixed site analytics and first-party snapshots.");
-assertIncludes("audience component", component, "Chart source: Site users plus site views. Estimates do not become verified product traffic.");
+assertIncludes("audience component", component, 'data-admin-analytics-vendor-source-label="vendor_evidence"');
+assertIncludes("audience component", component, 'data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
+assertIncludes("audience component", component, "audienceSnapshotModel.visibleCopy.map");
+assertIncludes("audience component", component, "formatAudienceSeriesLabel");
 assertIncludes("audience component", component, "data-device-mix-source-truth");
 assertIncludes("audience component", component, "data-device-mix-freshness");
 assertIncludes("audience component", component, "data-device-mix-total-sessions");

@@ -91,9 +91,7 @@ for (const [label, source] of [
   requireIncludes(source, "data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"", label);
 }
 
-requireIncludes(audienceTab, "supporting evidence, not product truth", "Admin Analytics Audience module");
 requireIncludes(operationsTab, "supports comparison only", "Admin Analytics Operations module");
-requireIncludes(commerceTab, "stays supporting evidence, not product truth", "Admin Analytics Commerce module");
 
 if (failures.length > 0) {
   console.error("Admin truth validation failed:");

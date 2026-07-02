@@ -44,10 +44,12 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsCom
 assertIncludes("AdminAnalyticsCommerceTab", component, "buildAdminAnalyticsViewerDrilldownContract");
 assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsContentConversionRowTruthState");
 assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsTopDropIdentityTruthState");
-assertIncludes("AdminAnalyticsCommerceTab", component, "Treasury truth lives in Platform Economy.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Platform Economy");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Last verified");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Cache freshness");
-assertIncludes("AdminAnalyticsCommerceTab", component, "Revenue source: completed internal payment records. Treasury truth lives in Platform Economy.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Server ledger remains the treasury source.");
+assertIncludes("AdminAnalyticsCommerceTab", component, 'data-admin-analytics-vendor-source-label="vendor_evidence"');
+assertIncludes("AdminAnalyticsCommerceTab", component, 'data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
 assertIncludes("AdminAnalyticsCommerceTab", component, "{commerceConversionFooter}");
 assertIncludes("AdminAnalyticsCommerceTab", component, "selectedRangeLabel");
 assertIncludes("AdminAnalyticsCommerceTab", component, "paymentFeesUsdValue");
@@ -67,7 +69,7 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "data-top-drop-conversion
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-top-drop-conversion-identity-state");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-top-drop-conversion-unwraps");
 assertIncludes("AdminAnalyticsCommerceTab", component, "drop.unwrapRateDisplay");
-assertIncludes("AdminAnalyticsCommerceTab", component, "Raw identity and source details");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Identity details");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-id");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-state");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Recent Commerce Feed");

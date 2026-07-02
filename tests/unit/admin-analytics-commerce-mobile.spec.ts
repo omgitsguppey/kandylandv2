@@ -125,11 +125,12 @@ describe("Admin analytics commerce mobile consolidation", () => {
     expect(source).not.toContain("Source truth");
     expect(source).not.toContain("Source label:");
     expect(source).not.toContain("Recovery label:");
-    expect(source).toContain("Treasury truth lives in Platform Economy.");
+    expect(source).not.toContain("Treasury truth lives in Platform Economy.");
+    expect(source).toContain('data-admin-analytics-vendor-source-label="vendor_evidence"');
+    expect(source).toContain('data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
     expect(source).not.toContain("commerceSnapshotModel.adjustedProfitFormula");
     expect(source).not.toContain("commerceSnapshotModel.yieldPer100GdFormula");
-    expect(source).toContain("Decision source: {verifiedSnapshotLabel}");
-    expect(source).toContain("Decision source</div>");
+    expect(source).not.toContain("Decision source: {verifiedSnapshotLabel}");
     expect(source).toContain("Identity details");
     expect(source).toContain("Watch source");
     expect(source).toContain("Server ledger remains the treasury source.");

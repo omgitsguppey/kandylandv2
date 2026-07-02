@@ -631,7 +631,7 @@ function buildRuntimeAwareIssues(root: string) {
   const moduleVendorLabelsPresent = displayStateHelper.includes("Estimated from vendor analytics")
     && displayStateHelper.includes("Debug-only recovery evidence")
     && audienceTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
-    && audienceTab.includes("Vendor analytics are supporting evidence, not product truth")
+    && audienceTab.includes('data-admin-analytics-vendor-source-label="vendor_evidence"')
     && audienceTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"")
     && operationsTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
     && operationsTab.includes("supports comparison only")

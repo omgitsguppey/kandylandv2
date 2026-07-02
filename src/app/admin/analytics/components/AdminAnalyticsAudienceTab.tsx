@@ -15,7 +15,6 @@ import {
   resolveAdminAnalyticsGuestEstimateBadgeLabel,
 } from "@/lib/admin-analytics-contracts";
 import {
-  formatAdminAnalyticsEvidenceSourceLabel,
   formatAdminAnalyticsSourceStateLabel,
   formatAdminAnalyticsSourceTruthLabel,
 } from "@/lib/analytics/admin-analytics-display-state";
@@ -84,8 +83,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const audienceSourceStateLabel = formatAdminAnalyticsSourceStateLabel(
     audienceSnapshotModel.sourceState,
   );
-  const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
-  const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const returnCadenceSourceTruthLabel = formatAdminAnalyticsSourceTruthLabel(
     returnCadenceModel.sourceTruth,
   );
@@ -236,12 +233,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     </span>
                     <span>State {audienceSourceStateLabel}</span>
                   </div>
-                  <p className="mt-2 text-gray-500">
-                    Decision source: {verifiedSnapshotLabel}. Vendor analytics are supporting evidence, not product truth.
-                  </p>
-                  <p className="text-gray-500">
-                    Source mix: site users; views are mixed site analytics and first-party snapshots.
-                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
@@ -259,14 +250,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       <span>Unrecovered {audienceSnapshotModel.recovery.unrecoveredDays.length}</span>
                     </div>
                   </div>
-                  <p className="text-gray-500">
-                    Traffic estimate: {vendorEvidenceLabel}. First-party views stay separate and must come from verified snapshots.
-                  </p>
-                  <p className="text-gray-500">
-                    Recovery: {audienceSnapshotModel.recovery.mode === "none"
-                      ? "No recovery needed for this range."
-                      : "Review required before this can affect totals."}
-                  </p>
                 </div>
               </div>
 
@@ -341,10 +324,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   </span>
                 ))}
               </div>
-
-              <p className="mt-2 text-[11px] text-gray-500">
-                Chart source: Site users plus site views. Estimates do not become verified product traffic.
-              </p>
 
               <div className={`mt-2.5 ${audienceSnapshotModel.chartHeightClass} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
