@@ -541,6 +541,10 @@ function evidenceArtifactNumber(artifact: PublicBetaEvidenceArtifact | undefined
   return evidenceArtifactNumericValue(artifact, key);
 }
 
+function observedSiteActivityCount(artifact: PublicBetaEvidenceArtifact | undefined) {
+  return evidenceArtifactNumber(artifact, "observedSignals") ?? 0;
+}
+
 function sourceActivityClearsProviderLane(artifact: PublicBetaEvidenceArtifact | undefined) {
   if (!artifact) return false;
   const status = String(evidenceArtifactStatus(artifact, "missing_or_unknown"));
@@ -832,6 +836,8 @@ export function buildPublicBetaEvidenceGates(input: {
         realUsageCalibrationCredit,
       )
     : realUsageCalibrationCredit;
+  const realUsageObservedSiteActivityCount = observedSiteActivityCount(evidence.realUsageConfidenceEvidence);
+  const realUsageObservedActivityCredit = realUsageObservedSiteActivityCount > 0 ? realUsageConfidenceCredit : 0;
   const behaviorMathStatus = String(evidenceArtifactStatus(
     evidence.behaviorMathEvidence,
     "missing_or_unknown",
@@ -1043,7 +1049,7 @@ export function buildPublicBetaEvidenceGates(input: {
     : 0;
   const runtimeProviderSourceActivityCredit = Math.max(
     sourceBackedRuntimeConfidenceCredit,
-    realUsageConfidenceCredit,
+    realUsageObservedActivityCredit,
     runtimeSmokeSubstituteMatrixCredit,
   );
   const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
@@ -1065,6 +1071,8 @@ export function buildPublicBetaEvidenceGates(input: {
         ? [
             `realUsageConfidenceStatus=${realUsageConfidenceStatus}`,
             `realUsageConfidenceCredit=${roundScore(realUsageConfidenceCredit)}`,
+            `realUsageObservedSignals=${roundScore(realUsageObservedSiteActivityCount)}`,
+            `realUsageObservedActivityCredit=${roundScore(realUsageObservedActivityCredit)}`,
             ...evidenceArtifactEvidence(evidence.realUsageConfidenceEvidence),
           ]
         : []
@@ -1324,7 +1332,7 @@ export function buildPublicBetaEvidenceGates(input: {
       sourceCredit: Math.max(
         runtimeQuality.quality === "source_ready" ? runtimeQuality.partialCredit * 100 : 0,
         sourceBackedRuntimeConfidenceCredit,
-        realUsageConfidenceCredit,
+        realUsageObservedActivityCredit,
         runtimeSmokeSubstituteMatrixCredit,
         runtimeProviderQuality.partialCredit * 100,
       ),

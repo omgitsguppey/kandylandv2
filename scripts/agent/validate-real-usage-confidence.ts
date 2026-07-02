@@ -94,7 +94,8 @@ function sourceTruthFreshness(head: string): RealUsageFreshness {
   const telemetry = readJson("agent/state/telemetry-dependency-graph.generated.json");
   const materializer = readJson("agent/state/event-facts-materializer-closure.generated.json");
   if (telemetry?.currentHead === head && materializer?.currentHead === head) return "fresh";
-  return "fresh";
+  if (!telemetry || !materializer) return "unknown";
+  return "stale";
 }
 
 function sourceHasScoreIntegration() {
@@ -102,6 +103,7 @@ function sourceHasScoreIntegration() {
   const scorer = readFileSync(join(ROOT, "scripts/agent/score-public-beta-readiness.ts"), "utf8");
   return core.includes("realUsageConfidenceEvidence")
     && core.includes("realUsageConfidenceCredit")
+    && core.includes("realUsageObservedActivityCredit")
     && scorer.includes("REAL_USAGE_CONFIDENCE_PATH");
 }
 

@@ -99,6 +99,33 @@ describe("source evidence bridge", () => {
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
   });
 
+  it("does not turn real-usage confidence into runtime credit without observed site activity", () => {
+    const report = buildFormalEvidenceBridgeReport({
+      generatedAtUtc: "2026-05-24T00:00:00.000Z",
+      currentHead: "head",
+      artifacts: {
+        realUsageConfidence: artifact({
+          path: "agent/state/real-usage-confidence.generated.json",
+          status: "source_ready_real_usage_confidence",
+          passed: true,
+          evidence: ["confidenceScore=92", "observedSignals=0", "formalGatesCleared=false"],
+        }),
+        realUsageConfidenceCalibration: artifact({
+          path: "agent/state/real-usage-confidence-calibration.generated.json",
+          status: "source_ready_real_usage_confidence_calibrated",
+          passed: true,
+          evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95"],
+        }),
+      },
+    });
+
+    expect(report.sourceConfidenceStatus.realUsageConfidenceScore).toBe(95);
+    expect(report.sourceConfidenceStatus.realUsageObservedActivityScore).toBe(0);
+    expect(report.gates.runtimeProviderSmoke.evidenceCredit).toBe(0);
+    expect(report.gates.runtimeProviderSmoke.runtimeCredit).toBe(0);
+    expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
+  });
+
   it("fails validation if operator revenue clears the provider-backed source gate", () => {
     const report = buildFormalEvidenceBridgeReport({
       generatedAtUtc: "2026-05-24T00:00:00.000Z",

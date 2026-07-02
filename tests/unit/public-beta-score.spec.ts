@@ -1041,6 +1041,49 @@ describe("public beta scoring math", () => {
         expect(report.launchClearance.blockers).toEqual(report.launchBlockers);
     });
 
+    it("does not count real-usage confidence as runtime/provider activity when observed site activity is absent", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: { ...missingProviderSmokeEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                runtimeSmokeEvidence: { ...runtimeUnverifiedEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                targetedBehaviorEvidence: { ...missingTargetedBehaviorEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                debugRuntimeEvidenceArtifact: undefined,
+                sourceBackedRuntimeConfidenceEvidence: undefined,
+                runtimeSmokeSubstituteMatrixEvidence: undefined,
+                realUsageConfidenceEvidence: {
+                    path: "agent/state/real-usage-confidence.generated.json",
+                    status: "source_ready_real_usage_confidence",
+                    passed: true,
+                    detail: "Source-backed real usage confidence is current.",
+                    evidence: ["confidenceScore=92", "observedSignals=0", "formalGatesCleared=false"],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+                realUsageConfidenceCalibrationEvidence: {
+                    path: "agent/state/real-usage-confidence-calibration.generated.json",
+                    status: "source_ready_real_usage_confidence_calibrated",
+                    passed: true,
+                    detail: "Real usage confidence calibration is source-ready.",
+                    evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95"],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+
+        expect(targetedGate?.sourceCredit).toBe(95);
+        expect(targetedGate?.runtimeCredit).toBe(0);
+        expect(smokeGate?.status).toBe("Source evidence required");
+        expect(smokeGate?.sourceCredit).toBe(0);
+        expect(smokeGate?.runtimeCredit).toBe(0);
+        expect(smokeGate?.evidence.join("\n")).toContain("realUsageConfidenceCredit=95");
+        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedSignals=0");
+        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
+    });
+
     it("dedupes duplicate findings and keeps the strongest evidence", () => {
         const first = buildPublicBetaFinding({
             domain: "layout",

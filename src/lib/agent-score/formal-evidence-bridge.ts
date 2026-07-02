@@ -59,6 +59,7 @@ export type FormalEvidenceBridgeReport = {
   sourceConfidenceStatus: {
     runtimeConfidenceScore: number;
     realUsageConfidenceScore: number;
+    realUsageObservedActivityScore: number;
     adminSourceConfidenceScore: number;
     debugRuntimeConfidenceScore: number;
     runtimeSubstituteEvidenceScore: number;
@@ -183,6 +184,9 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "runtimeHealthCredit") ?? 0,
     evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "calibratedConfidenceScore") ?? 0,
   );
+  const realUsageObservedActivityScore = (evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0) > 0
+    ? realUsageConfidenceScore
+    : 0;
   const runtimeSubstituteEvidenceScore = Math.max(
     evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixEvidenceCompletenessCredit") ?? 0,
     evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeHealthCredit") ?? 0,
@@ -192,7 +196,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
   const adminSourceConfidenceScore = evidenceArtifactHasSourceConfidence(artifacts.adminSourceSample) ? 65 : 0;
   const runtimeSourceConfidence = Math.max(
     runtimeConfidenceScore,
-    realUsageConfidenceScore,
+    realUsageObservedActivityScore,
     runtimeSubstituteEvidenceScore,
     debugRuntimeConfidenceScore,
   );
@@ -277,6 +281,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     sourceConfidenceStatus: {
       runtimeConfidenceScore: clampScore(runtimeConfidenceScore),
       realUsageConfidenceScore: clampScore(realUsageConfidenceScore),
+      realUsageObservedActivityScore: clampScore(realUsageObservedActivityScore),
       adminSourceConfidenceScore: clampScore(adminSourceConfidenceScore),
       debugRuntimeConfidenceScore: clampScore(debugRuntimeConfidenceScore),
       runtimeSubstituteEvidenceScore: clampScore(runtimeSubstituteEvidenceScore),
@@ -322,7 +327,12 @@ export function validateFormalEvidenceBridgeReport(report: FormalEvidenceBridgeR
   ) {
     failures.push("admin source sample must not clear production admin gate.");
   }
-  if (report.gates.runtimeProviderSmoke.evidenceCredit === 0 && report.evidenceClasses.some((entry) => entry !== "missing_formal_artifact")) {
+  const runtimeCreditableSourceEvidencePresent = report.operatorSignalStatus.operatorConfirmedRevenue
+    || report.sourceConfidenceStatus.runtimeConfidenceScore > 0
+    || report.sourceConfidenceStatus.realUsageObservedActivityScore > 0
+    || report.sourceConfidenceStatus.debugRuntimeConfidenceScore > 0
+    || report.sourceConfidenceStatus.runtimeSubstituteEvidenceScore > 0;
+  if (report.gates.runtimeProviderSmoke.evidenceCredit === 0 && runtimeCreditableSourceEvidencePresent) {
     failures.push("source-backed evidence is ignored or mislabeled empty.");
   }
   if (!report.scoreBefore || !report.scoreAfter) {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 
 import {
   buildRealUsageConfidenceReport,
@@ -148,5 +149,13 @@ describe("real usage confidence engine", () => {
         expect.stringContaining("purchase_flow_seen turns operator context into observed site activity evidence"),
       ]),
     );
+  });
+
+  it("does not let missing or mismatched source truth artifacts default to fresh", () => {
+    const validatorSource = readFileSync("scripts/agent/validate-real-usage-confidence.ts", "utf8");
+
+    expect(validatorSource).toContain('if (!telemetry || !materializer) return "unknown";');
+    expect(validatorSource).toContain('return "stale";');
+    expect(validatorSource).not.toContain('if (telemetry?.currentHead === head && materializer?.currentHead === head) return "fresh";\n  return "fresh";');
   });
 });
