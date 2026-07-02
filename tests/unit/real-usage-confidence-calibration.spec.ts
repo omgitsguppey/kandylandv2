@@ -112,7 +112,7 @@ function input(overrides: Partial<RealUsageConfidenceCalibrationInput> = {}): Re
 }
 
 describe("real usage confidence calibration", () => {
-  it("recognizes operator-confirmed revenue context without turning it into observed proof", () => {
+  it("recognizes operator-confirmed revenue context without turning it into observed site activity evidence", () => {
     const report = buildRealUsageConfidenceCalibration(input());
 
     expect(report.operatorConfirmedRevenueSmoke).toMatchObject({
@@ -132,7 +132,7 @@ describe("real usage confidence calibration", () => {
     expect(validateRealUsageConfidenceCalibration(report)).toEqual([]);
   });
 
-  it("does not recognize missing or zero revenue context as usage proof", () => {
+  it("does not recognize missing or zero revenue context as source evidence", () => {
     const report = buildRealUsageConfidenceCalibration(input({
       operatorRevenueSmoke: {
         amountUsdConfirmed: 0,
@@ -154,7 +154,7 @@ describe("real usage confidence calibration", () => {
     );
   });
 
-  it("keeps inferred and source-ready signals out of observed proof", () => {
+  it("keeps inferred and source-ready signals out of observed site activity evidence", () => {
     const report = buildRealUsageConfidenceCalibration(input());
 
     expect(report.perFlowConfidence.creator_dashboard.confidenceClass).toBe("observed_telemetry_source_ready");
@@ -179,7 +179,7 @@ describe("real usage confidence calibration", () => {
     expect(validateRealUsageConfidenceCalibration(report)).toEqual([]);
   });
 
-  it("uses verified activity as source-only flow confidence without observed proof", () => {
+  it("uses verified activity as source-only flow confidence without observed site activity evidence", () => {
     const report = buildRealUsageConfidenceCalibration(input({
       activityVerification: ACTIVITY_VERIFICATION,
     }));
@@ -240,8 +240,8 @@ describe("real usage confidence calibration", () => {
 
     expect(validateRealUsageConfidenceCalibration(invalid)).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("must not clear formal provider"),
-        expect.stringContaining("fan_pass_source treats context/source-ready confidence as observed proof"),
+        expect.stringContaining("must not clear provider-backed site activity evidence"),
+        expect.stringContaining("fan_pass_source treats context/source-ready confidence as observed site activity evidence"),
       ]),
     );
   });

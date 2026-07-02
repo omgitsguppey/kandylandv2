@@ -1,10 +1,10 @@
 {
   "reportKey": "real-usage-confidence-calibration",
-  "generatedAtUtc": "2026-07-02T14:16:16.458Z",
-  "currentHead": "87894df057d204112538bfab4fa38036e1150254",
-  "sourceCommit": "87894df057d204112538bfab4fa38036e1150254",
+  "generatedAtUtc": "2026-07-02T15:23:31.595Z",
+  "currentHead": "5061e1e9a0210a242282310961fd41fe469554a5",
+  "sourceCommit": "5061e1e9a0210a242282310961fd41fe469554a5",
   "status": "source_ready_real_usage_confidence_calibrated",
-  "detail": "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing formal gates.",
+  "detail": "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing typed provider, deployed route, or admin truth evidence gates.",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeUsageCountsUsed": false,
@@ -70,7 +70,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready purchase telemetry as bounded confidence; keep operator context separate from formal provider smoke."
+      "nextAction": "Use source-ready purchase telemetry as bounded confidence; keep operator context separate from provider-backed site activity evidence."
     },
     "gumdrop_credit": {
       "flowId": "gumdrop_credit",
@@ -318,7 +318,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Keep Fan Pass source readiness separate from subscription/payment runtime proof."
+      "nextAction": "Keep Fan Pass source readiness separate from subscription/payment deployed route evidence."
     },
     "drops_unlock_open": {
       "flowId": "drops_unlock_open",
@@ -393,6 +393,6 @@
     "does_not_clear_formal_provider",
     "does_not_clear_deployed_runtime"
   ],
-  "nextAction": "Use calibrated real usage confidence for source/runtime scoring only; keep formal provider and deployed runtime gates separate.",
+  "nextAction": "Use calibrated real usage confidence for source and runtime-confidence scoring only; keep provider-backed site activity evidence and deployed route evidence separate.",
   "validationFailures": []
 }

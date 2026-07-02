@@ -1,6 +1,6 @@
 # Real Usage Confidence Calibration
 
-Status: source-only calibration for non-UI beta confidence. It does not read production data, mutate legacy records, call providers, or clear formal gates.
+Status: source-only calibration for non-UI beta confidence. It does not read production data, mutate legacy records, call providers, or clear typed provider/runtime/admin truth evidence gates.
 
 ## Summary
 
@@ -11,8 +11,8 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 - Operator-confirmed revenue context recognized: true
 - Operator revenue source truth: operator_context_only
 - Operator revenue source role: confidence_context_not_provider_truth
-- Formal provider gate cleared: false
-- Deployed runtime gate cleared: false
+- Provider-backed site activity evidence cleared: false
+- Deployed route evidence cleared: false
 - Source activity flows: 4
 
 ## Behavior Math Connection
@@ -26,7 +26,7 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 
 ## Per-Flow Confidence
 
-- wallet_refill: observed_telemetry_source_ready; score=72; observedCount=0; sourceActivity=0; source=agent/state/operator-revenue-smoke.generated.json; next=Use source-ready purchase telemetry as bounded confidence; keep operator context separate from formal provider smoke.
+- wallet_refill: observed_telemetry_source_ready; score=72; observedCount=0; sourceActivity=0; source=agent/state/operator-revenue-smoke.generated.json; next=Use source-ready purchase telemetry as bounded confidence; keep operator context separate from provider-backed site activity evidence.
 - gumdrop_credit: observed_telemetry_source_ready; score=76; observedCount=0; sourceActivity=0; source=src/lib/analytics/materialization-contract.ts; next=Keep ledger/materializer source readiness as confidence only.
 - user_dashboard: observed_telemetry_source_ready; score=86; observedCount=0; sourceActivity=1; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Use source-backed dashboard telemetry as non-visual confidence.
 - creator_dashboard: observed_telemetry_source_ready; score=72; observedCount=0; sourceActivity=0; source=agent/state/creator-drop-status-metrics.generated.json; next=Use creator dashboard source readiness as non-visual confidence.
@@ -34,7 +34,7 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 - creator_drop_manager: observed_telemetry_source_ready; score=76; observedCount=0; sourceActivity=0; source=agent/state/creator-drop-status-metrics.generated.json; next=Keep creator drop manager confidence tied to source telemetry and admin status metrics.
 - creator_profile_timeline: inferred_from_validated_path; score=86; observedCount=0; sourceActivity=1; source=src/lib/behavioral/behavior-math-engine.ts; next=Recover March 1 legacy profile/timeline records through dry-run mapping before counting them.
 - broadcast_source: inferred_from_validated_path; score=55; observedCount=0; sourceActivity=0; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Keep broadcast as source-ready until a concrete observed event is confirmed.
-- fan_pass_source: inferred_from_validated_path; score=55; observedCount=0; sourceActivity=0; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Keep Fan Pass source readiness separate from subscription/payment runtime proof.
+- fan_pass_source: inferred_from_validated_path; score=55; observedCount=0; sourceActivity=0; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Keep Fan Pass source readiness separate from subscription/payment deployed route evidence.
 - drops_unlock_open: observed_telemetry_source_ready; score=86; observedCount=0; sourceActivity=1; source=src/lib/behavioral/behavior-math-engine.ts; next=Use behavior math confidence for non-payment drop-open evidence only.
 - runtime_watch_source: observed_telemetry_source_ready; score=86; observedCount=0; sourceActivity=1; source=src/lib/behavioral/behavior-math-engine.ts; next=Keep watch confidence tied to watch-session rollups, not page-open time.
 
@@ -45,4 +45,4 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 
 ## Next Action
 
-Use calibrated real usage confidence for source/runtime scoring only; keep formal provider and deployed runtime gates separate.
+Use calibrated real usage confidence for source and runtime-confidence scoring only; keep provider-backed site activity evidence and deployed route evidence separate.

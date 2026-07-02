@@ -200,7 +200,7 @@ function buildSignal(input: RealUsageConfidenceInput, id: RealUsageConfidenceSig
         `materializerPresent=${input.materializerPresence[config.lane]}`,
       ],
       limitations: LIMITS,
-      nextAction: "Use source-ready purchase telemetry as bounded confidence only; keep operator context separate from observed proof.",
+      nextAction: "Use source-ready purchase telemetry as bounded confidence only; keep operator context separate from observed site activity evidence.",
     };
   }
 
@@ -243,7 +243,7 @@ function buildSignal(input: RealUsageConfidenceInput, id: RealUsageConfidenceSig
         `behaviorMathConfidence=${input.behaviorMathConfidence}`,
       ],
       limitations: LIMITS,
-      nextAction: "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.",
+      nextAction: "Use source-ready status as confidence only until observed site activity evidence is available.",
     };
   }
 
@@ -317,7 +317,7 @@ export function buildRealUsageConfidenceReport(input: RealUsageConfidenceInput):
       ignoredUnknownUsage: ignored.length,
       confidenceScore,
     },
-    nextAction: "Use source-derived real usage confidence only; keep operator context, formal provider, and deployed runtime gates separate.",
+    nextAction: "Use source-derived real usage confidence only; keep operator context, provider-backed site activity evidence, and deployed route evidence separate.",
   };
 }
 
@@ -326,8 +326,8 @@ export function validateRealUsageConfidenceReport(report: RealUsageConfidenceRep
   if (report.reportKey !== "real-usage-confidence") failures.push("reportKey must be real-usage-confidence.");
   if (report.sourceCommit !== report.currentHead) failures.push("sourceCommit must match currentHead.");
   if (report.productionReadsRequired !== false) failures.push("real usage confidence must not require production reads.");
-  if (report.formalGateImpact.clearsFormalProvider) failures.push("real usage confidence must not clear formal provider.");
-  if (report.formalGateImpact.clearsDeployedRuntime) failures.push("real usage confidence must not clear deployed runtime.");
+  if (report.formalGateImpact.clearsFormalProvider) failures.push("real usage confidence must not clear provider-backed site activity evidence.");
+  if (report.formalGateImpact.clearsDeployedRuntime) failures.push("real usage confidence must not clear deployed route evidence.");
   for (const limit of LIMITS) {
     if (!report.limits.includes(limit)) failures.push(`limits must include ${limit}.`);
   }
@@ -336,16 +336,16 @@ export function validateRealUsageConfidenceReport(report: RealUsageConfidenceRep
     if (!signal) continue;
     if (!signal.sourcePath) failures.push(`${signal.id} lacks source path.`);
     if (!signal.nextAction) failures.push(`${signal.id} lacks next action.`);
-    if (signal.status === "observed" && signal.operatorConfirmed) failures.push(`${signal.id} turns operator context into observed proof.`);
-    if (signal.status === "observed" && !signal.operatorConfirmed) failures.push(`${signal.id} is observed without formal runtime evidence.`);
+    if (signal.status === "observed" && signal.operatorConfirmed) failures.push(`${signal.id} turns operator context into observed site activity evidence.`);
+    if (signal.status === "observed" && !signal.operatorConfirmed) failures.push(`${signal.id} is observed without deployed route evidence.`);
     if (signal.status === "observed" && signal.confidenceContribution <= 0) failures.push(`${signal.id} observed signal lacks confidence contribution.`);
-    if (signal.status === "ignored_unknown" && signal.confidenceContribution !== 0) failures.push(`${signal.id} unknown usage counted as proof.`);
+    if (signal.status === "ignored_unknown" && signal.confidenceContribution !== 0) failures.push(`${signal.id} unknown usage counted as source evidence.`);
     if (signal.limitations.length === 0) failures.push(`${signal.id} lacks limitations.`);
   }
 
   if (report.ignoredUnknownUsage.some((event) => event.confirmationSource === "unknown" && event.count > 0)
     && Object.values(report.signals).some((signal) => signal?.status === "observed" && signal.evidence.includes("confirmationSource=unknown"))) {
-    failures.push("unknown usage was counted as proof.");
+    failures.push("unknown usage was counted as source evidence.");
   }
 
   return failures;

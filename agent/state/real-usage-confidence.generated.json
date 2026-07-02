@@ -1,8 +1,8 @@
 {
   "reportKey": "real-usage-confidence",
-  "generatedAtUtc": "2026-06-21T13:33:45.921Z",
-  "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
-  "sourceCommit": "0d37de032350c8cf27a328de002c5e96f9c06f82",
+  "generatedAtUtc": "2026-07-02T15:23:32.225Z",
+  "currentHead": "5061e1e9a0210a242282310961fd41fe469554a5",
+  "sourceCommit": "5061e1e9a0210a242282310961fd41fe469554a5",
   "status": "source_ready_real_usage_confidence",
   "passed": true,
   "productionReadsRequired": false,
@@ -55,7 +55,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready purchase telemetry as bounded confidence only; keep operator context separate from observed proof."
+      "nextAction": "Use source-ready purchase telemetry as bounded confidence only; keep operator context separate from observed site activity evidence."
     },
     "gumdrop_credit_flow_seen": {
       "id": "gumdrop_credit_flow_seen",
@@ -77,7 +77,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
+      "nextAction": "Use source-ready status as confidence only until observed site activity evidence is available."
     },
     "user_dashboard_seen": {
       "id": "user_dashboard_seen",
@@ -99,7 +99,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
+      "nextAction": "Use source-ready status as confidence only until observed site activity evidence is available."
     },
     "creator_dashboard_seen": {
       "id": "creator_dashboard_seen",
@@ -121,7 +121,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
+      "nextAction": "Use source-ready status as confidence only until observed site activity evidence is available."
     },
     "creator_drop_manager_seen": {
       "id": "creator_drop_manager_seen",
@@ -143,7 +143,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
+      "nextAction": "Use source-ready status as confidence only until observed site activity evidence is available."
     },
     "fan_pass_flow_seen": {
       "id": "fan_pass_flow_seen",
@@ -165,7 +165,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
+      "nextAction": "Use source-ready status as confidence only until observed site activity evidence is available."
     },
     "broadcast_flow_source_ready": {
       "id": "broadcast_flow_source_ready",
@@ -187,7 +187,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
+      "nextAction": "Use source-ready status as confidence only until observed site activity evidence is available."
     },
     "wallet_flow_source_ready": {
       "id": "wallet_flow_source_ready",
@@ -209,7 +209,7 @@
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
+      "nextAction": "Use source-ready status as confidence only until observed site activity evidence is available."
     }
   },
   "summary": {
@@ -218,5 +218,5 @@
     "ignoredUnknownUsage": 0,
     "confidenceScore": 72
   },
-  "nextAction": "Use source-derived real usage confidence only; keep operator context, formal provider, and deployed runtime gates separate."
+  "nextAction": "Use source-derived real usage confidence only; keep operator context, provider-backed site activity evidence, and deployed route evidence separate."
 }

@@ -209,7 +209,7 @@ const FLOW_CONFIG: Record<RealUsageCalibrationFlowId, {
     sourcePath: "agent/state/operator-revenue-smoke.generated.json",
     defaultClass: "observed_telemetry_source_ready",
     sourceReadyScore: 72,
-    nextAction: "Use source-ready purchase telemetry as bounded confidence; keep operator context separate from formal provider smoke.",
+    nextAction: "Use source-ready purchase telemetry as bounded confidence; keep operator context separate from provider-backed site activity evidence.",
   },
   gumdrop_credit: {
     label: "GumDrop credit",
@@ -279,7 +279,7 @@ const FLOW_CONFIG: Record<RealUsageCalibrationFlowId, {
     sourcePath: "src/lib/analytics/telemetry-dependency-graph.ts",
     defaultClass: "inferred_from_validated_path",
     sourceReadyScore: 55,
-    nextAction: "Keep Fan Pass source readiness separate from subscription/payment runtime proof.",
+    nextAction: "Keep Fan Pass source readiness separate from subscription/payment deployed route evidence.",
   },
   drops_unlock_open: {
     label: "Drops unlock/open",
@@ -469,7 +469,7 @@ export function buildRealUsageConfidenceCalibration(
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
     status: "source_ready_real_usage_confidence_calibrated",
-    detail: "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing formal gates.",
+    detail: "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing typed provider, deployed route, or admin truth evidence gates.",
     productionReadsRequired: false,
     legacyMutationAllowed: false,
     fakeUsageCountsUsed: validationProbe.fakeUsageCountsUsed,
@@ -509,7 +509,7 @@ export function buildRealUsageConfidenceCalibration(
       "fakeUsageCountsUsed=false",
     ],
     limitations: LIMITS,
-    nextAction: "Use calibrated real usage confidence for source/runtime scoring only; keep formal provider and deployed runtime gates separate.",
+    nextAction: "Use calibrated real usage confidence for source and runtime-confidence scoring only; keep provider-backed site activity evidence and deployed route evidence separate.",
     validationFailures: [],
   };
   const validationFailures = validateRealUsageConfidenceCalibration(report);
@@ -540,8 +540,8 @@ export function validateRealUsageConfidenceCalibration(
     || report.operatorConfirmedRevenueSmoke.sourceTruth !== "operator_context_only") {
     failures.push("operator revenue context is not labeled as confidence-only evidence.");
   }
-  if (report.formalGateImpact.clearsFormalProvider) failures.push("real usage calibration must not clear formal provider.");
-  if (report.formalGateImpact.clearsDeployedRuntime) failures.push("real usage calibration must not clear deployed runtime.");
+  if (report.formalGateImpact.clearsFormalProvider) failures.push("real usage calibration must not clear provider-backed site activity evidence.");
+  if (report.formalGateImpact.clearsDeployedRuntime) failures.push("real usage calibration must not clear deployed route evidence.");
   if (!report.behaviorMathConnection.disabledTrackingSuppressed) {
     failures.push("disabled tracking behavior contributes to confidence.");
   }
@@ -568,7 +568,7 @@ export function validateRealUsageConfidenceCalibration(
     }
     if (!flow.sourcePath) failures.push(`${flowId} lacks source path.`);
     if (!flow.nextAction) failures.push(`${flowId} lacks next action.`);
-    if (flow.observedCount !== 0) failures.push(`${flowId} treats context/source-ready confidence as observed proof.`);
+    if (flow.observedCount !== 0) failures.push(`${flowId} treats context/source-ready confidence as observed site activity evidence.`);
     if (flow.sourceActivityCount > 0 && flow.sourceActivityStatus !== "verified_by_activity") {
       failures.push(`${flowId} has source activity count without verified source activity status.`);
     }
@@ -581,7 +581,7 @@ export function validateRealUsageConfidenceCalibration(
   }
   if (report.perFlowConfidence.creator_profile_timeline.confidenceClass === "unknown_legacy"
     && report.perFlowConfidence.creator_profile_timeline.confidenceScore > 0) {
-    failures.push("unknown legacy counts as creator profile/timeline proof.");
+    failures.push("unknown legacy counts as creator profile/timeline source evidence.");
   }
   return failures;
 }

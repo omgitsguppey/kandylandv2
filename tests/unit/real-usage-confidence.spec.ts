@@ -64,7 +64,7 @@ describe("real usage confidence engine", () => {
     expect(validateRealUsageConfidenceReport(report)).toEqual([]);
   });
 
-  it("does not count unknown usage as proof", () => {
+  it("does not count unknown usage as source evidence", () => {
     const report = buildRealUsageConfidenceReport({
       currentHead: "abc123",
       generatedAtUtc: "2026-05-21T12:00:00.000Z",
@@ -89,7 +89,7 @@ describe("real usage confidence engine", () => {
     expect(validateRealUsageConfidenceReport(report)).toEqual([]);
   });
 
-  it("fails validation when a signal lacks a source path or claims formal proof", () => {
+  it("fails validation when a signal lacks a source path or claims typed evidence gates", () => {
     const invalid: RealUsageConfidenceReport = {
       reportKey: "real-usage-confidence",
       generatedAtUtc: "2026-05-21T12:00:00.000Z",
@@ -136,16 +136,16 @@ describe("real usage confidence engine", () => {
         ignoredUnknownUsage: 0,
         confidenceScore: 80,
       },
-      nextAction: "Attach formal provider/runtime evidence separately.",
+      nextAction: "Attach provider-backed site activity or deployed route evidence separately.",
     };
 
     expect(validateRealUsageConfidenceReport(invalid)).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("must not clear formal provider"),
+        expect.stringContaining("must not clear provider-backed site activity evidence"),
         expect.stringContaining("limits must include does_not_clear_formal_provider"),
         expect.stringContaining("purchase_flow_seen lacks source path"),
         expect.stringContaining("purchase_flow_seen lacks next action"),
-        expect.stringContaining("purchase_flow_seen turns operator context into observed proof"),
+        expect.stringContaining("purchase_flow_seen turns operator context into observed site activity evidence"),
       ]),
     );
   });

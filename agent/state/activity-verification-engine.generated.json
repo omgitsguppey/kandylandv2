@@ -1,7 +1,7 @@
 {
   "reportKey": "activity-verification-engine",
-  "generatedAtUtc": "2026-07-02T14:16:16.755Z",
-  "currentHead": "87894df057d204112538bfab4fa38036e1150254",
+  "generatedAtUtc": "2026-07-02T15:23:31.796Z",
+  "currentHead": "5061e1e9a0210a242282310961fd41fe469554a5",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -57,7 +57,7 @@
         "relevantEvents=1",
         "sourcePath=src/lib/features/feature-registration-registry.ts"
       ],
-      "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
+      "nextAction": "Use this as source-backed activity confidence only; keep deployed route, provider-backed site activity, and admin source evidence gates separate."
     },
     {
       "featureId": "drops",
@@ -81,7 +81,7 @@
         "relevantEvents=1",
         "sourcePath=tests/unit/activity-verification-engine.spec.ts"
       ],
-      "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
+      "nextAction": "Use this as source-backed activity confidence only; keep deployed route, provider-backed site activity, and admin source evidence gates separate."
     },
     {
       "featureId": "library",
@@ -197,7 +197,7 @@
         "relevantEvents=1",
         "sourcePath=src/lib/behavioral/behavior-math-engine.ts"
       ],
-      "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
+      "nextAction": "Use this as source-backed activity confidence only; keep deployed route, provider-backed site activity, and admin source evidence gates separate."
     },
     {
       "featureId": "broadcasts",
@@ -290,7 +290,7 @@
         "relevantEvents=1",
         "sourcePath=src/lib/features/feature-registration-registry.ts"
       ],
-      "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
+      "nextAction": "Use this as source-backed activity confidence only; keep deployed route, provider-backed site activity, and admin source evidence gates separate."
     },
     {
       "featureId": "cookie_consent_privacy",
@@ -314,7 +314,7 @@
         "relevantEvents=1",
         "sourcePath=src/lib/features/feature-registration-registry.ts"
       ],
-      "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
+      "nextAction": "Use this as source-backed activity confidence only; keep deployed route, provider-backed site activity, and admin source evidence gates separate."
     },
     {
       "featureId": "behavior_tracking",
@@ -340,7 +340,7 @@
         "sourcePath=src/lib/features/feature-registration-registry.ts",
         "sourcePath=src/lib/behavioral/behavior-math-engine.ts"
       ],
-      "nextAction": "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
+      "nextAction": "Use this as source-backed activity confidence only; keep deployed route, provider-backed site activity, and admin source evidence gates separate."
     },
     {
       "featureId": "runtime_smoke_substitutes",
@@ -516,10 +516,17 @@
   },
   "validationFailures": [],
   "changedFiles": [
+    "agent/context/optimized-task-context.generated.json",
     "agent/state/real-usage-confidence-calibration.generated.json",
+    "docs/agent-truth/real-usage-confidence-calibration.md",
     "scripts/agent/validate-activity-verification-engine.ts",
+    "scripts/agent/validate-real-usage-confidence-calibration.ts",
+    "scripts/agent/validate-real-usage-confidence.ts",
     "src/lib/analytics/activity-verification-engine.ts",
-    "tests/unit/activity-verification-engine.spec.ts"
+    "src/lib/analytics/real-usage-confidence-calibration.ts",
+    "src/lib/analytics/real-usage-confidence-engine.ts",
+    "tests/unit/real-usage-confidence-calibration.spec.ts",
+    "tests/unit/real-usage-confidence.spec.ts"
   ],
   "protectedChanges": []
 }

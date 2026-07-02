@@ -287,7 +287,7 @@ function verifyFeature(feature: FeatureRegistration, events: readonly ActivitySo
       ...sourcePathEvidence(relevantEvents).map((path) => `sourcePath=${path}`),
     ],
     nextAction: verificationStatus === "verified_by_activity"
-      ? "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
+      ? "Use this as source-backed activity confidence only; keep deployed route, provider-backed site activity, and admin source evidence gates separate."
       : verificationStatus === "source_ready_no_activity"
         ? "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
         : "Resolve the surfaced activity verification backlog item before counting this feature path.",
@@ -321,7 +321,7 @@ export function validateActivityVerificationReport(report: ActivityVerificationR
     || report.formalGateImpact.clearsDeployedRuntime
     || report.formalGateImpact.clearsFormalAdminTruth
   ) {
-    failures.push("activity verification must not clear formal provider/runtime/admin gates.");
+    failures.push("activity verification must not clear deployed route, provider-backed site activity, or admin source evidence gates.");
   }
 
   for (const feature of report.features) {

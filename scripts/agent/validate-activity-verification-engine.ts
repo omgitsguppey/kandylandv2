@@ -88,7 +88,7 @@ function renderDoc(report: ReturnType<typeof buildActivityVerificationReport>) {
     "",
     `Status: ${report.status}`,
     "",
-    "This source-only verification engine checks whether dry-run/source-backed guest and user activity paths have telemetry registration, consent permission, guest-to-user identity continuity, materializer output, debug visibility, and score eligibility. It does not read production data, fake activity, mutate legacy data, or clear formal provider/runtime/admin gates.",
+    "This source-only verification engine checks whether dry-run/source-backed guest and user activity paths have telemetry registration, consent permission, guest-to-user identity continuity, materializer output, debug visibility, and score eligibility. It does not read production data, fake activity, mutate legacy data, or clear deployed route, provider-backed site activity, or admin source evidence gates.",
     "",
     "## Summary",
     "",
