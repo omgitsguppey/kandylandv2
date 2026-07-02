@@ -213,7 +213,7 @@ function buildEvidenceCaptureStates(
       sourceReady,
       evidenceCaptureCurrent,
       stringAt(evidenceSummary, ["providerSmokeEvidence"], "missing"),
-      "Attach redacted provider smoke evidence; source checks cannot create provider proof.",
+      "Attach redacted provider-backed site activity evidence; source checks cannot create provider-backed source activity.",
     ),
     captureLane(
       "runtimeSmoke",
@@ -221,7 +221,7 @@ function buildEvidenceCaptureStates(
       sourceReady,
       evidenceCaptureCurrent,
       stringAt(evidenceSummary, ["runtimeSmokeEvidence"], "missing"),
-      "Attach deployed runtime smoke evidence for required user and creator routes.",
+      "Attach deployed route evidence for required user and creator routes.",
     ),
     captureLane(
       "adminTruthSample",
@@ -355,8 +355,8 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
       },
       {
         id: "provider-runtime-evidence",
-        title: "Attach provider and runtime smoke evidence",
-        goal: "Attach redacted PayPal/GumDrop provider smoke and deployed runtime smoke artifacts.",
+        title: "Attach provider-backed site activity and deployed route evidence",
+        goal: "Attach redacted PayPal/GumDrop provider-backed site activity and deployed route evidence artifacts.",
         commands: [
           "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
           "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
@@ -580,8 +580,8 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       {
         id: "cloud_cost_owner_review",
         owner: "platform-cost",
-        reason: "Cloud Run, Cloud SQL/Data Connect, and Gemini/Vertex lanes are source inventory or owner-review lanes, not formal provider evidence.",
-        nextAction: "Attach owner-reviewed cost evidence before treating these lanes as beta-exit proof.",
+        reason: "Cloud Run, Cloud SQL/Data Connect, and Gemini/Vertex lanes are source inventory or owner-review lanes, not provider-backed site activity evidence.",
+        nextAction: "Attach owner-reviewed cost evidence before treating these lanes as beta-exit source evidence.",
       },
       {
         id: "speed_security_p2_backlog",
@@ -593,12 +593,12 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
     nextExactSteps: [
       "First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before optional browser reproduction.",
       "UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser reproduction.",
-      "Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.",
+      "Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider-backed site activity artifacts.",
       `Revenue smoke note: ${operatorSmoke.note}`,
-      "Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.",
+      "Third lane after provider-backed site activity: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed route evidence artifacts.",
       "Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.",
       "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
-      "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+      "Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked.",
       "Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.",
       "Run npm run check:overnight-beta-readiness-lock after attaching evidence.",
       ...uniqueRefreshCommands(refreshPlan).map((command) => `Refresh generated status with ${command}.`),

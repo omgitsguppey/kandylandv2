@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-06-21T02:50:25.708Z",
-  "currentHead": "2c237ad2644314be914c0acf08a833f8135d5e5f",
-  "betaScore": 73.57,
-  "betaStatus": "External proof required",
+  "generatedAtUtc": "2026-07-02T15:43:45.852Z",
+  "currentHead": "4cef728c14c06863c1d712dc6f4398eb6147d2e1",
+  "betaScore": 84,
+  "betaStatus": "Source evidence required",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
   "cost4xxStatus": "passed; p0=0; p1=0; p2=7; route4xx=3",
   "cloudRunCostStatus": "cost_review_required",
   "cloudSqlCostStatus": "owner_review_external_billing_required",
   "geminiCloudAssistCostStatus": "cost_review_required",
-  "evidenceStatus": "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3",
+  "evidenceStatus": "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=5",
   "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
   "remainingBlockers": [
     {
@@ -22,13 +22,13 @@
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
       "status": "external_evidence_required",
-      "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
+      "nextAction": "Attach redacted provider-backed site activity evidence; source checks cannot create provider-backed source activity."
     },
     {
       "id": "runtime_smoke_evidence_stale",
       "severity": "P1",
       "status": "stale_evidence",
-      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
+      "nextAction": "Attach deployed route evidence for required user and creator routes."
     },
     {
       "id": "admin_truth_sample_evidence_missing",
@@ -62,8 +62,8 @@
     },
     {
       "id": "provider-runtime-evidence",
-      "title": "Attach provider and runtime smoke evidence",
-      "goal": "Attach redacted PayPal/GumDrop provider smoke and deployed runtime smoke artifacts.",
+      "title": "Attach provider-backed site activity and deployed route evidence",
+      "goal": "Attach redacted PayPal/GumDrop provider-backed site activity and deployed route evidence artifacts.",
       "commands": [
         "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
         "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
@@ -105,14 +105,14 @@
       "label": "Provider smoke",
       "truthState": "external_evidence_required",
       "sourceStatus": "missing",
-      "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
+      "nextAction": "Attach redacted provider-backed site activity evidence; source checks cannot create provider-backed source activity."
     },
     {
       "id": "runtimeSmoke",
       "label": "Runtime smoke",
       "truthState": "stale_evidence",
       "sourceStatus": "complete",
-      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
+      "nextAction": "Attach deployed route evidence for required user and creator routes."
     },
     {
       "id": "adminTruthSample",

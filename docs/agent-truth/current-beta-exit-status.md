@@ -1,18 +1,18 @@
 # Current Beta Exit Status
 
-Generated: 2026-06-21T02:50:25.708Z
+Generated: 2026-07-02T15:43:45.852Z
 
-Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
+Latest code version: 4cef728c14c06863c1d712dc6f4398eb6147d2e1
 
 ## Summary
 
 - Beta version: 1.6.15
-- Beta score: 73.57
-- Beta status: External proof required
+- Beta score: 84
+- Beta status: Source evidence required
 - UI source coverage: stale_visual_evidence
 - Provider smoke: stale_provider_smoke_evidence
 - Operator revenue smoke: operator_confirmed_revenue_smoke
-- Operator revenue note: Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
+- Operator revenue note: Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.
 - Runtime smoke: stale_runtime_smoke_evidence
 - Admin truth sample: stale_admin_truth_sample_evidence
 - Cloud Run cost readiness: cost_review_required
@@ -27,9 +27,9 @@ Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
 ## Evidence Truth States
 
 - UI surface coverage: stale_evidence; action=refresh_stale_evidence; source=stale_visual_evidence; capture=complete
-- Provider smoke: external_evidence_required; action=refresh_stale_evidence; source=stale_provider_smoke_evidence; capture=missing
-- Runtime smoke: external_evidence_required; action=refresh_stale_evidence; source=stale_runtime_smoke_evidence; capture=complete
-- Admin truth sample: admin_truth_source_required; action=refresh_stale_evidence; source=stale_admin_truth_sample_evidence; capture=stale
+- Provider-backed site activity evidence: external_evidence_required; action=refresh_stale_evidence; source=stale_provider_smoke_evidence; capture=missing
+- Deployed route evidence: stale_evidence; action=refresh_stale_evidence; source=stale_runtime_smoke_evidence; capture=complete
+- Admin source activity sample evidence: admin_truth_source_required; action=refresh_stale_evidence; source=stale_admin_truth_sample_evidence; capture=stale
 - Beta exit review: blocked_by_source_evidence
 
 ## Refresh Plan
@@ -49,8 +49,8 @@ Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
 ## Remaining Blockers
 
 - P1 ui_source_coverage_stale: Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction.
-- P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
-- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
+- P1 provider_smoke_evidence_missing: Attach redacted provider-backed site activity evidence; source checks cannot create provider-backed source activity.
+- P1 runtime_smoke_evidence_stale: Attach deployed route evidence for required user and creator routes.
 - P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 
@@ -58,12 +58,12 @@ Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
 
 - First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before optional browser reproduction.
 - UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser reproduction.
-- Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.
-- Revenue smoke note: Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
-- Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.
+- Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider-backed site activity artifacts.
+- Revenue smoke note: Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.
+- Third lane after provider-backed site activity: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed route evidence artifacts.
 - Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.
 - Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.
-- Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.
+- Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked.
 - Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.
 - Run npm run check:overnight-beta-readiness-lock after attaching evidence.
 - Refresh generated status with npm run check:current-beta-exit-status.

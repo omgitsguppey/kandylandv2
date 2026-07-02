@@ -213,7 +213,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt) ?? new Date(0).toISOString(),
     currentHead: readString(parsed.currentHead),
     sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
-    detail: readString(parsed.detail) ?? "UI-only visual smoke evidence artifact was found.",
+    detail: readString(parsed.detail) ?? "UI source coverage evidence artifact was found.",
     nonUiLanesBlocked: readBoolean(parsed.nonUiLanesBlocked) === true,
     formalGateImpact: {
       clearsUiSurfaceCoverage: readBoolean(formalGateImpact.clearsUiSurfaceCoverage) === true,
@@ -586,7 +586,7 @@ function readRuntimeSmokeSubstituteMatrixEvidence(root: string): PublicBetaEvide
     root,
     RUNTIME_SMOKE_SUBSTITUTE_MATRIX_PATH,
     "missing_or_unknown",
-    "No runtime smoke substitute matrix artifact was supplied.",
+    "No source-backed runtime evidence matrix artifact was supplied.",
   );
 }
 
@@ -666,7 +666,7 @@ function readActivityVerificationEvidence(root: string): PublicBetaEvidenceArtif
     status: passed ? "source_ready_activity_verification" : status,
     passed,
     detail: passed
-      ? "Source-backed activity verification found score-eligible first-party activity; provider, deployed runtime, and admin truth gates remain separate."
+      ? "Source-backed activity verification found score-eligible first-party activity; provider-backed site activity, deployed route evidence, and admin source activity gates remain separate."
       : "Activity verification did not find score-eligible source-backed activity.",
     evidence: [
       `activityVerification.status=${status}`,

@@ -1,20 +1,20 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-06-21T02:50:25.708Z
+Generated: 2026-07-02T15:43:45.852Z
 
-Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
+Latest code version: 4cef728c14c06863c1d712dc6f4398eb6147d2e1
 
 ## Status
 
-- Beta score: 73.57
-- Beta status: External proof required
+- Beta score: 84
+- Beta status: Source evidence required
 - Creator dashboard error status: passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2
 - Source truth status: passed; active=12; supporting=6; retiredLaunchArtifacts=3
 - Cost/4xx status: passed; p0=0; p1=0; p2=7; route4xx=3
 - Cloud Run cost status: cost_review_required
 - Cloud SQL cost status: owner_review_external_billing_required
 - Gemini/Cloud Assist cost status: cost_review_required
-- Evidence status: uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3
+- Evidence status: uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=5
 - Speed/security status: 52/beta-risk; findings=83; critical=0; p2BacklogVisible=true
 
 ## Evidence Truth States
@@ -28,8 +28,8 @@ Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
 ## Remaining Blockers
 
 - P1 ui_source_coverage_stale: Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction.
-- P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
-- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
+- P1 provider_smoke_evidence_missing: Attach redacted provider-backed site activity evidence; source checks cannot create provider-backed source activity.
+- P1 runtime_smoke_evidence_stale: Attach deployed route evidence for required user and creator routes.
 - P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 - P2 cloud_cost_owner_review: Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.
@@ -39,8 +39,8 @@ Latest code version: 2c237ad2644314be914c0acf08a833f8135d5e5f
 1. Run UI source coverage evidence
    - Goal: Let deterministic source coverage evidence report UI surface gaps before optional browser reproduction.
    - Commands: npm run check:ui-visual-smoke-minimal; npm run check:evidence-capture-status; npm run check:current-beta-exit-status
-2. Attach provider and runtime smoke evidence
-   - Goal: Attach redacted PayPal/GumDrop provider smoke and deployed runtime smoke artifacts.
+2. Attach provider-backed site activity and deployed route evidence
+   - Goal: Attach redacted PayPal/GumDrop provider-backed site activity and deployed route evidence artifacts.
    - Commands: EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence; EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence; npm run check:evidence-capture-status
 3. Attach admin truth sample and cost owner-review evidence
    - Goal: Attach a redacted admin truth sample and keep Cloud Run, Cloud SQL, Gemini, and 4xx owner-review lanes explicit.

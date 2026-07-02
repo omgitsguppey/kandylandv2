@@ -274,10 +274,10 @@ if (report) {
     }
   }
   if (report.launchBlockers.some((blocker) => /visual|screenshot|manual smoke/iu.test(blocker))) {
-    failures.push("UI screenshot/visual review must not block Codex launch scoring.");
+    failures.push("Optional UI browser/screenshot reproduction must not block Codex source scoring.");
   }
   if (report.evidenceCapsApplied.some((cap) => /visual|screenshot|manual smoke|Visual QA required/iu.test(cap))) {
-    failures.push("UI screenshot/visual review must not be a Codex evidence cap.");
+    failures.push("Optional UI browser/screenshot reproduction must not be a Codex evidence cap.");
   }
   if (!report.operatorFinalChecks?.uiVisualSurfaces) {
     failures.push("operatorFinalChecks.uiVisualSurfaces must keep UI source coverage visible.");
@@ -390,7 +390,7 @@ if (report) {
     (debugRuntimeGate?.status === "Ready" || debugRuntimeGate?.status === "Ready with smoke required")
     && debugRuntimeGate.evidence.join("\n").includes("launchGateImpact=does_not_clear_deployed_runtime_smoke") === false
   ) {
-    failures.push("Source-backed debug runtime evidence must keep deployed runtime smoke gate separate.");
+    failures.push("Source-backed debug runtime evidence must keep deployed route evidence gate separate.");
   }
   const runtimeProviderSmokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
   const operatorRevenueSmokeExists = existsSync(join(root, "agent/state/operator-revenue-smoke.generated.json"));

@@ -863,22 +863,22 @@ export function validateCurrentBetaExitStatusReport(
   };
   for (const lane of proofLanes) {
     if (expectedProofStatuses[lane.id] && lane.sourceStatus !== expectedProofStatuses[lane.id]) {
-      failures.push(`${lane.id} proof lane sourceStatus must match the summary source status.`);
+      failures.push(`${lane.id} typed evidence lane sourceStatus must match the summary source status.`);
     }
     if (typeof lane.sourcePath !== "string" || lane.sourcePath.trim().length === 0) {
-      failures.push(`${lane.id} proof lane must include a sourcePath.`);
+      failures.push(`${lane.id} typed evidence lane must include a sourcePath.`);
     }
     if (typeof lane.captureStatus !== "string" || lane.captureStatus.trim().length === 0) {
-      failures.push(`${lane.id} proof lane must include captureStatus.`);
+      failures.push(`${lane.id} typed evidence lane must include captureStatus.`);
     }
     if (/^stale_/iu.test(lane.sourceStatus) && lane.truthState === "current_source_evidence") {
       failures.push(`${lane.id} stale proof source must not clear a source gate.`);
     }
     if (lane.canClearGate && lane.truthState !== "current_source_evidence" && lane.truthState !== "source_ui_surface_current") {
-      failures.push(`${lane.id} proof lane canClearGate must only be true for current_source_evidence or source_ui_surface_current.`);
+      failures.push(`${lane.id} typed evidence lane canClearGate must only be true for current_source_evidence or source_ui_surface_current.`);
     }
     if (lane.actionState !== proofActionStateFor(lane.id, lane.truthState, lane.sourceStatus)) {
-      failures.push(`${lane.id} proof lane actionState must be derived from truthState and sourceStatus.`);
+      failures.push(`${lane.id} typed evidence lane actionState must be derived from truthState and sourceStatus.`);
     }
     if (lane.truthState === "current_source_evidence" && !clearingStatusPassed(lane.id, lane.sourceStatus)) {
       failures.push(`${lane.id} current_source_evidence must come from a clearing source status.`);
@@ -887,7 +887,7 @@ export function validateCurrentBetaExitStatusReport(
   const legacySummary = report.summary as Record<string, unknown>;
   for (const legacyField of ["canStartManualScreenshotQa", "canStartProviderSmoke", "canStartRuntimeSmoke", "canStartBetaExitReview"]) {
     if (legacyField in legacySummary) {
-      failures.push(`${legacyField} must not be emitted; use proofLanes truthState/actionState and betaExitReviewState.`);
+      failures.push(`${legacyField} must not be emitted; use proofLanes truthState/actionState and betaExitReviewState typed evidence state.`);
     }
   }
   if (
@@ -897,7 +897,7 @@ export function validateCurrentBetaExitStatusReport(
       proofLanes,
     })
   ) {
-    failures.push("betaExitReviewState must be derived from proof lanes, live runtime evidence, and launch gate status.");
+    failures.push("betaExitReviewState must be derived from typed evidence lanes, live runtime evidence, and launch gate status.");
   }
   const operatorRevenueSmoke = readOperatorRevenueSmoke();
   if (operatorRevenueSmoke) {
@@ -931,7 +931,7 @@ export function validateCurrentBetaExitStatusReport(
       failures.push("operator-confirmed revenue smoke note must separate product signal from provider source evidence.");
     }
     if (!["missing_formal_evidence", "operator_reported_not_formal_provider_smoke", "stale_provider_smoke_evidence"].includes(report.summary.providerSmokeStatus)) {
-      failures.push("provider smoke gate must remain missing/stale provider source evidence after operator confirmation.");
+      failures.push("provider-backed site activity lane must remain missing/stale provider source evidence after operator confirmation.");
     }
     if (summary.canStartBetaExitReview === true || report.summary.betaExitReviewState === "ready_for_review") {
       failures.push("operator-confirmed revenue smoke alone must not mark betaExitReviewState ready_for_review.");
@@ -1057,7 +1057,7 @@ function main() {
     .join(" ");
   console.log(
     `Current beta exit status passed. beta=${summary?.betaScore}/${summary?.betaStatus} ` +
-      `proofLanes=${proofStatus || "unavailable"}`,
+      `evidenceLanes=${proofStatus || "unavailable"}`,
   );
 }
 
