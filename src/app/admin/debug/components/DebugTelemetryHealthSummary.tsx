@@ -87,7 +87,6 @@ export function DebugTelemetryHealthSummary({ telemetryHealth }: { telemetryHeal
                     <Pill label="Live" value={valueWhenTelemetryLoaded(telemetryLoaded, summary.live ?? 0)} tone={telemetryLoaded ? "good" : "neutral"} truthState={telemetryLoaded ? "live" : "unavailable"} />
                     <Pill label="Needs review" value={valueWhenTelemetryLoaded(telemetryLoaded, degradedCount)} tone={degradedCount > 0 ? "warn" : telemetryLoaded ? "good" : "neutral"} truthState={summaryTruthState} />
                     <Pill label="Unavailable" value={valueWhenTelemetryLoaded(telemetryLoaded, unavailableCount)} tone={unavailableCount > 0 ? "bad" : telemetryLoaded ? "good" : "neutral"} truthState={telemetryLoaded ? unavailableCount > 0 ? "unavailable" : "live" : "unavailable"} />
-                    <Pill label="Raw details" value="Drilldown only" tone="neutral" truthState="cached" />
                 </>
             )}
         >

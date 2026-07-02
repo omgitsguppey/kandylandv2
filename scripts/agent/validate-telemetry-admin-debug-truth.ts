@@ -195,7 +195,7 @@ export function validateTelemetryAdminDebugTruth(options: { writeReport?: boolea
 
   const uiFindings = [
     finding("compact-ui-component-present", telemetrySummaryComponent.includes("Telemetry pipeline health") && telemetrySummaryComponent.includes("DebugTelemetryHealthSummary"), "Admin Debug renders a compact telemetry pipeline health section.", "P0"),
-    finding("raw-details-drilldown", telemetrySummaryComponent.includes("<details") && telemetrySummaryComponent.includes("Raw details"), "Raw telemetry source/next-action details stay behind disclosure controls.", "P0"),
+    finding("raw-details-drilldown", telemetrySummaryComponent.includes("<details") && telemetrySummaryComponent.includes("Next action and source") && telemetrySummaryComponent.includes("data-telemetry-admin-raw-default"), "Raw telemetry source/next-action details stay behind disclosure controls.", "P0"),
     finding("debug-now-mounts-summary", debugNow.includes("DebugTelemetryHealthSummary") && debugNow.includes("data?.telemetryHealth"), "Right-now debug tab mounts the compact telemetry health summary.", "P0"),
   ];
 
