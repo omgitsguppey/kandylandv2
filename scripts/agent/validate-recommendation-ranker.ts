@@ -97,6 +97,14 @@ function main() {
       "Ranking truth score must not be synthesized from confidence or legacy counts.",
     ),
     check(
+      "telemetry confidence requires explicit source confidence",
+      requireIncludes(serverBehavior, "const telemetryConfidenceSources = [")
+        && requireIncludes(serverBehavior, "telemetryConfidenceSources.length > 0 ? Math.min(...telemetryConfidenceSources) : 0")
+        && !requireIncludes(serverBehavior, "dropTruth.confidenceScore : 1")
+        && !requireIncludes(serverBehavior, "truthUser.confidenceScore : 1"),
+      "Missing telemetry truth must not default to full confidence.",
+    ),
+    check(
       "admin page shows explanation text before math",
       requireIncludes(adminUserPage, "entry.explanationSummary")
         && requireIncludes(adminUserPage, "<details")

@@ -454,10 +454,14 @@ export async function buildDeterministicDropRecommendations(input: {
       });
       const dropTruth = truthDropMap.get(entry.drop.id);
       const telemetryQualityLabel = dropTruth?.qualityLabel || truthUser?.qualityLabel || "unknown";
-      const telemetryConfidenceScore = round(Math.min(
-        typeof dropTruth?.confidenceScore === "number" ? dropTruth.confidenceScore : 1,
-        typeof truthUser?.confidenceScore === "number" ? truthUser.confidenceScore : 1,
-      ), 3);
+      const telemetryConfidenceSources = [
+        typeof dropTruth?.confidenceScore === "number" ? clamp01(dropTruth.confidenceScore) : null,
+        typeof truthUser?.confidenceScore === "number" ? clamp01(truthUser.confidenceScore) : null,
+      ].filter((value): value is number => value !== null);
+      const telemetryConfidenceScore = round(
+        telemetryConfidenceSources.length > 0 ? Math.min(...telemetryConfidenceSources) : 0,
+        3,
+      );
       const effectiveMode = artifactScore ? "ml_artifact" : "deterministic";
       const effectiveScore = artifactScore
         ? round((entry.score * (1 - artifactScore.blendWeight)) + (artifactScore.score * artifactScore.blendWeight), 3)
