@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-02T03:44:22.293Z",
+  "generatedAt": "2026-07-02T13:11:08.388Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -33,6 +33,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -70,6 +72,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [],
@@ -96,6 +100,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -130,6 +136,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -146,16 +154,19 @@
       },
       "audit_target": {
         "path": "/admin/ai",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -177,6 +188,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -268,16 +281,19 @@
       },
       "audit_target": {
         "path": "/admin/analytics",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -300,6 +316,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -326,16 +344,19 @@
       },
       "audit_target": {
         "path": "/admin/content",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -370,6 +391,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -469,16 +492,19 @@
       },
       "audit_target": {
         "path": "/admin/debug",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -510,6 +536,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -546,16 +574,19 @@
       },
       "audit_target": {
         "path": "/admin/drops",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -573,6 +604,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -593,16 +626,19 @@
       },
       "audit_target": {
         "path": "/admin/economy",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -621,6 +657,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -644,16 +682,19 @@
       },
       "audit_target": {
         "path": "/admin/moderation",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -677,6 +718,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -693,16 +736,19 @@
       },
       "audit_target": {
         "path": "/admin",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -720,6 +766,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -744,16 +792,19 @@
       },
       "audit_target": {
         "path": "/admin/privacy",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -782,6 +833,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -822,16 +875,19 @@
       },
       "audit_target": {
         "path": "/admin/queue",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -865,6 +921,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -889,16 +947,19 @@
       },
       "audit_target": {
         "path": "/admin/roster",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -916,6 +977,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -942,16 +1005,19 @@
       },
       "audit_target": {
         "path": "/admin/support",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -986,6 +1052,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -1048,16 +1116,19 @@
       },
       "audit_target": {
         "path": "/admin/user/[userId]",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -1090,6 +1161,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "playwright_owner": "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -1117,16 +1190,19 @@
       },
       "audit_target": {
         "path": "/admin/users",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Admin"
         ],
-        "screenshot_selector": "main",
+        "optional_browser_reproduction_selector": "main",
         "auth_required": "admin",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main"
       },
       "coverage_notes": [
         "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
@@ -1147,6 +1223,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [],
@@ -1173,6 +1251,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -1302,6 +1382,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "critical",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": true,
       "existing_tests": [
@@ -1334,6 +1416,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/runtime.spec.ts",
       "playwright_owner": "tests/ui-audits/runtime.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -1351,18 +1435,21 @@
       },
       "audit_target": {
         "path": "/creators/apply",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Apply for creator access"
         ],
-        "screenshot_selector": "main section:first-of-type",
+        "optional_browser_reproduction_selector": "main section:first-of-type",
         "auth_required": "none",
         "audit_modes": [
           "runtime",
           "accessibility",
           "visual"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main section:first-of-type"
       },
       "coverage_notes": [
         "Mapped to app_routes."
@@ -1379,6 +1466,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -1414,6 +1503,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/runtime.spec.ts",
       "playwright_owner": "tests/ui-audits/runtime.spec.ts",
       "lighthouse_required": false,
       "existing_tests": [
@@ -1437,18 +1528,21 @@
       },
       "audit_target": {
         "path": "/creators/waitlist",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "Start your creator application"
         ],
-        "screenshot_selector": "main section:first-of-type",
+        "optional_browser_reproduction_selector": "main section:first-of-type",
         "auth_required": "none",
         "audit_modes": [
           "runtime",
           "accessibility",
           "visual"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main section:first-of-type"
       },
       "coverage_notes": [
         "Mapped to app_routes."
@@ -1465,6 +1559,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -1518,6 +1614,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -1655,6 +1753,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -1778,6 +1878,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -1911,6 +2013,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [],
@@ -1940,12 +2044,14 @@
       ],
       "hydration_mode": "static",
       "criticality": "critical",
-      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
+      "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
         "tests/unit/dashboard-viewer-page.spec.tsx"
       ],
-      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "known_gap": "auth_required_surface_source_indexed_browser_reproduction_unassigned",
       "blocking_required": false,
       "runtime_canary": {
         "protected": false,
@@ -1954,16 +2060,19 @@
       },
       "audit_target": {
         "path": "/dashboard",
-        "ready_selector": "#dashboard-home, main",
-        "hydration_signal": "#dashboard-home",
+        "source_route_contract_selector": "#dashboard-home, main",
+        "hydration_marker": "#dashboard-home",
         "expected_anchors": [
           "Your Stats"
         ],
-        "screenshot_selector": "#dashboard-home",
+        "optional_browser_reproduction_selector": "#dashboard-home",
         "auth_required": "user",
         "audit_modes": [
           "runtime"
-        ]
+        ],
+        "ready_selector": "#dashboard-home, main",
+        "hydration_signal": "#dashboard-home",
+        "screenshot_selector": "#dashboard-home"
       },
       "coverage_notes": [
         "Auth-required surface indexed with user audit requirement.",
@@ -1983,6 +2092,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2107,6 +2218,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2140,6 +2253,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2183,6 +2298,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2225,6 +2342,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2267,6 +2386,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2313,6 +2434,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2360,6 +2483,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2389,6 +2514,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [],
@@ -2416,6 +2543,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [],
@@ -2447,6 +2576,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "critical",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": "tests/ui-audits/runtime.spec.ts",
       "playwright_owner": "tests/ui-audits/runtime.spec.ts",
       "lighthouse_required": true,
       "existing_tests": [
@@ -2463,21 +2594,24 @@
       },
       "audit_target": {
         "path": "/",
-        "ready_selector": "main",
-        "hydration_signal": "main",
+        "source_route_contract_selector": "main",
+        "hydration_marker": "main",
         "expected_anchors": [
           "KandyDrops"
         ],
-        "screenshot_selector": "main section:first-of-type",
+        "optional_browser_reproduction_selector": "main section:first-of-type",
         "auth_required": "none",
         "audit_modes": [
           "runtime",
           "accessibility",
           "visual"
-        ]
+        ],
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "screenshot_selector": "main section:first-of-type"
       },
       "coverage_notes": [
-        "Blocking public surface included in Playwright UI continuity lane.",
+        "Blocking public surface has a source route contract selector; browser reproduction remains optional diagnostic tooling.",
         "Mapped to app_routes."
       ]
     },
@@ -2492,6 +2626,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2540,6 +2676,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2595,6 +2733,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2625,6 +2765,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2651,6 +2793,8 @@
       "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2687,6 +2831,8 @@
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
@@ -2722,6 +2868,8 @@
       ],
       "hydration_mode": "static",
       "criticality": "medium",
+      "source_readiness_owner": "scripts/agent/check-ui-surface-coverage.ts",
+      "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [],

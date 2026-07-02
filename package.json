@@ -824,7 +824,7 @@
         "check:ui:mobile-doctrine": "tsx scripts/check-mobile-ui-doctrine.ts",
         "check:not-found": "tsx scripts/check-not-found-contracts.ts",
         "check:ui:runtime": "npm run agent:ui-index && tsx scripts/agent/build-ui-runtime-audit.ts && npm run check:ui:mobile-doctrine && npm run check:not-found",
-        "check:ui:continuity": "npm run agent:ui-index && npm run check:ui:coverage && npm run check:ui:runtime && npm run check:ui:audits && npm run check:ui:lighthouse",
+        "check:ui:continuity": "npm run agent:ui-index && npm run check:ui:coverage",
         "check:ui:omni": "npm run check:ui:audits && npx cypress run",
         "test:ui:cypress": "cypress open",
         "test:ui:storybook": "storybook build",

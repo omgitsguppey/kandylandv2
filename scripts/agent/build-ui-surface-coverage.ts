@@ -3,6 +3,8 @@ import { buildRepoInventory } from "./classify-repo-files";
 import { buildLocalImportGraph } from "./summarize-dependency-graph";
 import { compact, createMetadata, fileExists, readJsonFile, toAbsoluteRepoPath, toStableId, unique, validateWithSchema, walkDirectoryFiles, writeJsonFile } from "./shared";
 
+type UiAuditMode = "runtime" | "accessibility" | "visual";
+
 type UiSurfaceCoverageEntry = {
   stable_id: string;
   route_or_component: string;
@@ -11,7 +13,9 @@ type UiSurfaceCoverageEntry = {
   runtime_dependencies: string[];
   hydration_mode: "static" | "client_fetch" | "auth_hydrated" | "realtime" | "mixed";
   criticality: "critical" | "high" | "medium";
-  playwright_owner: string | null;
+  source_readiness_owner: string;
+  optional_browser_reproduction_owner: string | null;
+  playwright_owner?: string | null;
   lighthouse_required: boolean;
   existing_tests: string[];
   known_gap: string | null;
@@ -23,18 +27,28 @@ type UiSurfaceCoverageEntry = {
   };
   audit_target: null | {
     path: string;
+    source_route_contract_selector: string;
+    hydration_marker: string;
+    optional_browser_reproduction_selector: string;
+    /**
+     * Compatibility aliases for the Playwright audit harness. Source readiness
+     * should read the source_* fields above.
+     */
     ready_selector: string;
     hydration_signal: string;
     expected_anchors: string[];
     screenshot_selector: string;
     auth_required: "none" | "user" | "creator" | "admin";
-    audit_modes: Array<"runtime" | "accessibility" | "visual">;
+    audit_modes: UiAuditMode[];
   };
   coverage_notes: string[];
 };
 
-const ADMIN_BROWSER_SMOKE_OWNER = "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const;
-const GUEST_RUNTIME_SMOKE_OWNER = "tests/ui-audits/runtime.spec.ts" as const;
+type UiAuditTarget = NonNullable<UiSurfaceCoverageEntry["audit_target"]>;
+
+const UI_SOURCE_READINESS_OWNER = "scripts/agent/check-ui-surface-coverage.ts" as const;
+const ADMIN_BROWSER_REPRODUCTION_OWNER = "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const;
+const GUEST_BROWSER_REPRODUCTION_OWNER = "tests/ui-audits/runtime.spec.ts" as const;
 const GENERIC_RELATED_TEST_TOKENS = new Set([
   "admin",
   "app",
@@ -59,77 +73,102 @@ function routePathFromPage(pagePath: string) {
   return `/${relative}`;
 }
 
+function sourceAuditTarget(input: Omit<UiAuditTarget, "ready_selector" | "hydration_signal" | "screenshot_selector">): UiAuditTarget {
+  return {
+    ...input,
+    ready_selector: input.source_route_contract_selector,
+    hydration_signal: input.hydration_marker,
+    screenshot_selector: input.optional_browser_reproduction_selector,
+  };
+}
+
+function optionalBrowserReproductionOwnerFor(auditTarget: UiSurfaceCoverageEntry["audit_target"]) {
+  if (!auditTarget) {
+    return null;
+  }
+
+  if (auditTarget.auth_required === "admin") {
+    return ADMIN_BROWSER_REPRODUCTION_OWNER;
+  }
+
+  if (auditTarget.auth_required === "none" && auditTarget.audit_modes.includes("runtime")) {
+    return GUEST_BROWSER_REPRODUCTION_OWNER;
+  }
+
+  return null;
+}
+
 function auditTargetFor(routeOrComponent: string, surfaceType: UiSurfaceCoverageEntry["surface_type"]): UiSurfaceCoverageEntry["audit_target"] {
   if (routeOrComponent === "src/app/page.tsx") {
-    return {
+    return sourceAuditTarget({
       path: "/",
-      ready_selector: "main",
-      hydration_signal: "main",
+      source_route_contract_selector: "main",
+      hydration_marker: "main",
       expected_anchors: ["KandyDrops"],
-      screenshot_selector: "main section:first-of-type",
+      optional_browser_reproduction_selector: "main section:first-of-type",
       auth_required: "none" as const,
-      audit_modes: ["runtime", "accessibility", "visual"] as Array<"runtime" | "accessibility" | "visual">,
-    };
+      audit_modes: ["runtime", "accessibility", "visual"],
+    });
   }
 
   if (routeOrComponent === "src/app/privacy/page.tsx") {
-    return {
+    return sourceAuditTarget({
       path: "/privacy",
-      ready_selector: "main",
-      hydration_signal: "main",
+      source_route_contract_selector: "main",
+      hydration_marker: "main",
       expected_anchors: ["How KandyDrops handles your data"],
-      screenshot_selector: "main",
+      optional_browser_reproduction_selector: "main",
       auth_required: "none" as const,
-      audit_modes: ["runtime", "accessibility", "visual"] as Array<"runtime" | "accessibility" | "visual">,
-    };
+      audit_modes: ["runtime", "accessibility", "visual"],
+    });
   }
 
   if (routeOrComponent === "src/app/creators/apply/page.tsx") {
-    return {
+    return sourceAuditTarget({
       path: "/creators/apply",
-      ready_selector: "main",
-      hydration_signal: "main",
+      source_route_contract_selector: "main",
+      hydration_marker: "main",
       expected_anchors: ["Apply for creator access"],
-      screenshot_selector: "main section:first-of-type",
+      optional_browser_reproduction_selector: "main section:first-of-type",
       auth_required: "none" as const,
-      audit_modes: ["runtime", "accessibility", "visual"] as Array<"runtime" | "accessibility" | "visual">,
-    };
+      audit_modes: ["runtime", "accessibility", "visual"],
+    });
   }
 
   if (routeOrComponent === "src/app/creators/waitlist/page.tsx") {
-    return {
+    return sourceAuditTarget({
       path: "/creators/waitlist",
-      ready_selector: "main",
-      hydration_signal: "main",
+      source_route_contract_selector: "main",
+      hydration_marker: "main",
       expected_anchors: ["Start your creator application"],
-      screenshot_selector: "main section:first-of-type",
+      optional_browser_reproduction_selector: "main section:first-of-type",
       auth_required: "none" as const,
-      audit_modes: ["runtime", "accessibility", "visual"] as Array<"runtime" | "accessibility" | "visual">,
-    };
+      audit_modes: ["runtime", "accessibility", "visual"],
+    });
   }
 
   if (routeOrComponent === "src/app/dashboard/page.tsx") {
-    return {
+    return sourceAuditTarget({
       path: "/dashboard",
-      ready_selector: "#dashboard-home, main",
-      hydration_signal: "#dashboard-home",
+      source_route_contract_selector: "#dashboard-home, main",
+      hydration_marker: "#dashboard-home",
       expected_anchors: ["Your Stats"],
-      screenshot_selector: "#dashboard-home",
+      optional_browser_reproduction_selector: "#dashboard-home",
       auth_required: "user",
-      audit_modes: ["runtime"] as Array<"runtime" | "accessibility" | "visual">,
-    };
+      audit_modes: ["runtime"],
+    });
   }
 
   if (routeOrComponent.startsWith("src/app/admin/")) {
-    return {
+    return sourceAuditTarget({
       path: routePathFromPage(routeOrComponent),
-      ready_selector: "main",
-      hydration_signal: "main",
+      source_route_contract_selector: "main",
+      hydration_marker: "main",
       expected_anchors: ["Admin"],
-      screenshot_selector: "main",
+      optional_browser_reproduction_selector: "main",
       auth_required: "admin" as const,
-      audit_modes: ["runtime"] as Array<"runtime" | "accessibility" | "visual">,
-    };
+      audit_modes: ["runtime"],
+    });
   }
 
   return null;
@@ -274,22 +313,23 @@ function buildSurfaceEntries() {
       const canary = runtimeCanaryFor(repoPath, source);
       const existing_tests = unique([
         ...relatedTestsFor(repoPath, testFiles),
-        ...(repoPath.startsWith("src/app/admin/") ? [ADMIN_BROWSER_SMOKE_OWNER] : []),
+        ...(repoPath.startsWith("src/app/admin/") ? [ADMIN_BROWSER_REPRODUCTION_OWNER] : []),
         ...(audit_target ? [
-          ...audit_target.audit_modes.includes("runtime") && audit_target.auth_required === "none" ? [GUEST_RUNTIME_SMOKE_OWNER] : [],
-          ...audit_target.audit_modes.includes("accessibility") ? ["tests/ui-audits/accessibility.spec.ts"] : [],
-          ...audit_target.audit_modes.includes("visual") ? ["tests/ui-audits/visual-regression.spec.ts"] : [],
+          ...(audit_target.audit_modes.includes("runtime") && audit_target.auth_required === "none" ? [GUEST_BROWSER_REPRODUCTION_OWNER] : []),
+          ...(audit_target.audit_modes.includes("accessibility") ? ["tests/ui-audits/accessibility.spec.ts"] : []),
+          ...(audit_target.audit_modes.includes("visual") ? ["tests/ui-audits/visual-regression.spec.ts"] : []),
         ] : []),
       ]).sort();
+      const optional_browser_reproduction_owner = optionalBrowserReproductionOwnerFor(audit_target);
       const blocking_required = audit_target !== null && audit_target.auth_required === "none" && criticality !== "medium";
       const known_gap = compact([
         hydration_mode !== "static" && !canary.protected ? "hydration_sensitive_surface_missing_runtime_canary" : null,
         criticality !== "medium" && existing_tests.length === 0 ? "high_or_critical_surface_missing_coverage_lane" : null,
         audit_target && audit_target.auth_required === "admin" ? "authenticated_admin_source_coverage_indexed_browser_optional" : null,
-        audit_target && audit_target.auth_required !== "none" && audit_target.auth_required !== "admin" ? "auth_required_surface_not_in_guest_playwright_lane" : null,
+        audit_target && audit_target.auth_required !== "none" && audit_target.auth_required !== "admin" ? "auth_required_surface_source_indexed_browser_reproduction_unassigned" : null,
       ])[0] ?? null;
       const coverage_notes = compact([
-        blocking_required ? "Blocking public surface included in Playwright UI continuity lane." : null,
+        blocking_required ? "Blocking public surface has a source route contract selector; browser reproduction remains optional diagnostic tooling." : null,
         audit_target && audit_target.auth_required === "admin" ? "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only." : null,
         audit_target && audit_target.auth_required !== "none" ? `Auth-required surface indexed with ${audit_target.auth_required} audit requirement.` : null,
         !runtime_dependencies.length ? "No direct runtime dependency imports detected." : null,
@@ -306,11 +346,9 @@ function buildSurfaceEntries() {
         runtime_dependencies,
         hydration_mode,
         criticality,
-        playwright_owner: audit_target
-          ? audit_target.auth_required === "admin"
-            ? ADMIN_BROWSER_SMOKE_OWNER
-            : GUEST_RUNTIME_SMOKE_OWNER
-          : null,
+        source_readiness_owner: UI_SOURCE_READINESS_OWNER,
+        optional_browser_reproduction_owner,
+        playwright_owner: optional_browser_reproduction_owner,
         lighthouse_required: repoPath === "src/app/page.tsx" || repoPath === "src/app/creators/[username]/page.tsx",
         existing_tests,
         known_gap,

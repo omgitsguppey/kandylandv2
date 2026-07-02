@@ -9,7 +9,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["stable_id", "route_or_component", "surface_type", "audience", "runtime_dependencies", "hydration_mode", "criticality", "playwright_owner", "lighthouse_required", "existing_tests", "known_gap", "blocking_required", "runtime_canary", "audit_target", "coverage_notes"],
+        "required": ["stable_id", "route_or_component", "surface_type", "audience", "runtime_dependencies", "hydration_mode", "criticality", "source_readiness_owner", "optional_browser_reproduction_owner", "lighthouse_required", "existing_tests", "known_gap", "blocking_required", "runtime_canary", "audit_target", "coverage_notes"],
         "properties": {
           "stable_id": { "type": "string" },
           "route_or_component": { "type": "string" },
@@ -18,6 +18,8 @@
           "runtime_dependencies": { "type": "array", "items": { "type": "string" } },
           "hydration_mode": { "type": "string" },
           "criticality": { "type": "string" },
+          "source_readiness_owner": { "type": "string" },
+          "optional_browser_reproduction_owner": { "type": ["string", "null"] },
           "playwright_owner": {},
           "lighthouse_required": { "type": "boolean" },
           "existing_tests": { "type": "array", "items": { "type": "string" } },
@@ -32,7 +34,27 @@
               "observability_lanes": { "type": "array", "items": { "type": "string" } }
             }
           },
-          "audit_target": {},
+          "audit_target": {
+            "anyOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "required": ["path", "source_route_contract_selector", "hydration_marker", "expected_anchors", "optional_browser_reproduction_selector", "auth_required", "audit_modes"],
+                "properties": {
+                  "path": { "type": "string" },
+                  "source_route_contract_selector": { "type": "string" },
+                  "hydration_marker": { "type": "string" },
+                  "expected_anchors": { "type": "array", "items": { "type": "string" } },
+                  "optional_browser_reproduction_selector": { "type": "string" },
+                  "ready_selector": { "type": "string" },
+                  "hydration_signal": { "type": "string" },
+                  "screenshot_selector": { "type": "string" },
+                  "auth_required": { "type": "string" },
+                  "audit_modes": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            ]
+          },
           "coverage_notes": { "type": "array", "items": { "type": "string" } }
         }
       }
