@@ -1,10 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { buildEvidenceFreshnessIndex } from "../../scripts/agent/validate-evidence-freshness-index";
 
 describe("evidence freshness index", () => {
+  let report: ReturnType<typeof buildEvidenceFreshnessIndex>;
+
+  beforeAll(() => {
+    report = buildEvidenceFreshnessIndex();
+  }, 30_000);
+
   it("classifies stale consumed blockers with actionable next steps", () => {
-    const report = buildEvidenceFreshnessIndex();
     const staleBlockers = report.blockingArtifacts.filter((artifact) => artifact.classification === "stale_consumed");
 
     expect(report.doctrine.generatedReportsAreTruth).toBe(false);
@@ -16,8 +21,6 @@ describe("evidence freshness index", () => {
   });
 
   it("keeps the general artifact inventory compact while preserving blocker detail", () => {
-    const report = buildEvidenceFreshnessIndex();
-
     expect(report.artifacts.length).toBeLessThanOrEqual(report.summary.indexedArtifactCap);
     expect(report.archiveCandidates.length).toBeLessThanOrEqual(report.summary.archiveCandidateCap);
     expect(report.summary.omittedArtifactCount).toBeGreaterThanOrEqual(0);
@@ -27,8 +30,6 @@ describe("evidence freshness index", () => {
   });
 
   it("keeps external, UI source coverage, and admin source gates separate from source freshness", () => {
-    const report = buildEvidenceFreshnessIndex();
-
     expect(report.externalProofRequired.every((artifact) => artifact.truthUse === "formal_proof_gate")).toBe(true);
     expect(report.uiSourceCoverageRequired.every((artifact) => artifact.truthUse === "evidence_snapshot_only")).toBe(true);
     expect(report.adminTruthSourceRequired.every((artifact) => artifact.truthUse === "evidence_snapshot_only")).toBe(true);
@@ -37,5 +38,17 @@ describe("evidence freshness index", () => {
     expect(report.adminTruthSourceRequired.every((artifact) => artifact.actionability === "admin_truth_source_required")).toBe(true);
     expect(report.summary.adminTruthSourceRequiredCount).toBe(report.adminTruthSourceRequired.length);
     expect(report.summary.uiSourceCoverageRequiredCount).toBe(report.uiSourceCoverageRequired.length);
+  });
+
+  it("uses typed evidence wording without breaking external proof compatibility schema", () => {
+    const external = report.externalProofRequired[0];
+
+    expect(report.doctrine.formalProofNote).toContain("Deployed route, provider-backed site activity, and admin source activity evidence");
+    expect(report.doctrine.formalProofNote).not.toContain("Runtime/provider proof gates");
+    expect(report.externalProofRequired.every((artifact) => artifact.truthUse === "formal_proof_gate")).toBe(true);
+    if (external) {
+      expect(`${external.reason}\n${external.nextExactSteps.join("\n")}`).toContain("provider-backed site activity evidence");
+      expect(`${external.reason}\n${external.nextExactSteps.join("\n")}`).not.toContain("formal external/runtime/provider evidence");
+    }
   });
 });

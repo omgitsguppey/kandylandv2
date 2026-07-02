@@ -1,141 +1,55 @@
 {
   "reportKey": "evidence-freshness-index",
-  "generatedAtUtc": "2026-06-21T22:42:12.350Z",
+  "generatedAtUtc": "2026-07-02T14:10:19.469Z",
   "doctrine": {
     "generatedReportsAreTruth": false,
     "defaultStaleAfterHours": 24,
     "staleTruthUse": "evidence_snapshot_only",
-    "formalProofNote": "Runtime/provider proof gates cannot be cleared by source-only freshness; UI issues must be surfaced by source coverage before optional visual reproduction; admin truth requires an approved source sample."
+    "formalProofNote": "Deployed route, provider-backed site activity, and admin source activity evidence cannot be cleared by source freshness; UI issues must be surfaced by source coverage before optional visual reproduction; admin truth requires an approved source sample."
   },
   "summary": {
     "artifactCount": 635,
     "indexedArtifactCount": 50,
     "omittedArtifactCount": 585,
-    "blockingCount": 10,
-    "staleConsumedCount": 405,
+    "blockingCount": 13,
+    "staleConsumedCount": 478,
     "missingExpectedCount": 0,
     "externalProofRequiredCount": 5,
     "uiSourceCoverageRequiredCount": 1,
     "adminTruthSourceRequiredCount": 1,
-    "archiveCandidateCount": 103,
+    "archiveCandidateCount": 122,
     "indexedArtifactCap": 50,
     "archiveCandidateCap": 10,
-    "omittedArchiveCandidateCount": 93,
+    "omittedArchiveCandidateCount": 112,
     "byClassification": {
-      "fresh_and_consumed": 101,
-      "fresh_but_unused": 12,
-      "stale_harmless": 7,
-      "stale_consumed": 405,
+      "fresh_and_consumed": 28,
+      "fresh_but_unused": 0,
+      "stale_harmless": 0,
+      "stale_consumed": 478,
       "missing_expected": 0,
       "ui_source_coverage_required": 1,
       "admin_truth_source_required": 1,
       "external_proof_required": 5,
-      "archive_candidate": 103
+      "archive_candidate": 122
     },
     "byActionability": {
-      "refreshable_by_existing_local_validator": 10,
+      "refreshable_by_existing_local_validator": 13,
       "external_proof_required": 5,
       "ui_source_coverage_required": 1,
       "admin_truth_source_required": 1,
-      "archive_evidence_only": 110,
+      "archive_evidence_only": 122,
       "stale_consumed_blocking": 0,
       "missing_expected_blocking": 0,
-      "no_action_required": 508
+      "no_action_required": 493
     }
   },
   "blockingArtifacts": [
-    {
-      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-11T22:32:40.444Z",
-      "ageHours": 240.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:monolith-orphan-metric-registry",
-      "consumerPaths": [
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
-        "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-        "scripts/agent/validate-monolith-orphan-metric-registry.ts",
-        "src/lib/admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:monolith-orphan-metric-registry to refresh agent/state/monolith-orphan-metric-registry.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/telemetry-parity-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-11T22:33:06.699Z",
-      "ageHours": 240.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:telemetry-parity-score",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/control-tower-cleanup-shared.ts",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-telemetry-parity.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:telemetry-parity-score to refresh agent/state/telemetry-parity-score.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/treasury-reconciliation-engine.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-11T22:33:04.281Z",
-      "ageHours": 240.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:treasury-reconciliation-engine",
-      "consumerPaths": [
-        "src/lib/admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:treasury-reconciliation-engine to refresh agent/state/treasury-reconciliation-engine.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
     {
       "path": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:35:07.513Z",
-      "ageHours": 240.1,
+      "ageHours": 495.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:cloud-cost",
       "consumerPaths": [
@@ -168,7 +82,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:35:31.374Z",
-      "ageHours": 240.1,
+      "ageHours": 495.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:google-cost",
       "consumerPaths": [
@@ -201,7 +115,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:35:29.883Z",
-      "ageHours": 240.1,
+      "ageHours": 495.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:gumdrop-economy",
       "consumerPaths": [
@@ -230,11 +144,97 @@
       ]
     },
     {
+      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-11T22:32:40.444Z",
+      "ageHours": 495.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:monolith-orphan-metric-registry",
+      "consumerPaths": [
+        "scripts/agent/debug-cockpit-batch13-shared.ts",
+        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
+        "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+        "scripts/agent/validate-monolith-orphan-metric-registry.ts",
+        "src/lib/admin-debug-control-tower.ts"
+      ],
+      "consumedBy": [
+        "admin_debug_control_tower",
+        "agent_validator"
+      ],
+      "required": true,
+      "exists": true,
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale.",
+      "nextExactSteps": [
+        "Run npm run check:monolith-orphan-metric-registry to refresh agent/state/monolith-orphan-metric-registry.generated.json.",
+        "Review the refreshed artifact diff before treating it as current generated evidence."
+      ]
+    },
+    {
+      "path": "agent/state/telemetry-parity-score.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-11T22:33:06.699Z",
+      "ageHours": 495.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:telemetry-parity-score",
+      "consumerPaths": [
+        "agent/context/doctrine-registry.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/control-tower-cleanup-shared.ts",
+        "scripts/agent/debug-cockpit-batch11-shared.ts",
+        "scripts/agent/debug-cockpit-batch13-shared.ts",
+        "scripts/agent/score-telemetry-parity.ts"
+      ],
+      "consumedBy": [
+        "admin_debug_control_tower",
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": true,
+      "exists": true,
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale.",
+      "nextExactSteps": [
+        "Run npm run check:telemetry-parity-score to refresh agent/state/telemetry-parity-score.generated.json.",
+        "Review the refreshed artifact diff before treating it as current generated evidence."
+      ]
+    },
+    {
+      "path": "agent/state/treasury-reconciliation-engine.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-11T22:33:04.281Z",
+      "ageHours": 495.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:treasury-reconciliation-engine",
+      "consumerPaths": [
+        "src/lib/admin-debug-control-tower.ts"
+      ],
+      "consumedBy": [
+        "admin_debug_control_tower"
+      ],
+      "required": true,
+      "exists": true,
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale.",
+      "nextExactSteps": [
+        "Run npm run check:treasury-reconciliation-engine to refresh agent/state/treasury-reconciliation-engine.generated.json.",
+        "Review the refreshed artifact diff before treating it as current generated evidence."
+      ]
+    },
+    {
       "path": "agent/state/content-protection-score.generated.json",
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:40:55.018Z",
-      "ageHours": 240,
+      "ageHours": 495.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:content-protection",
       "consumerPaths": [
@@ -267,7 +267,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-19T12:59:57.875Z",
-      "ageHours": 57.7,
+      "ageHours": 313.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:hardening",
       "consumerPaths": [
@@ -300,7 +300,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-19T12:59:57.188Z",
-      "ageHours": 57.7,
+      "ageHours": 313.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:device-ui",
       "consumerPaths": [
@@ -333,7 +333,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-19T12:59:57.387Z",
-      "ageHours": 57.7,
+      "ageHours": 313.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:speed-security",
       "consumerPaths": [
@@ -360,6 +360,97 @@
         "Run npm run check:speed-security to refresh agent/state/speed-security-hardening.generated.json.",
         "Review the refreshed artifact diff before treating it as current generated evidence."
       ]
+    },
+    {
+      "path": "agent/state/canonical-math-ledger.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-21T00:50:49.147Z",
+      "ageHours": 277.3,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:canonical-math-ledger",
+      "consumerPaths": [
+        "scripts/agent/validate-canonical-math-ledger.ts",
+        "scripts/agent/validate-final-math-normalization-lock.ts",
+        "src/lib/admin-debug-control-tower.ts"
+      ],
+      "consumedBy": [
+        "admin_debug_control_tower",
+        "agent_validator"
+      ],
+      "required": true,
+      "exists": true,
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale.",
+      "nextExactSteps": [
+        "Run npm run check:canonical-math-ledger to refresh agent/state/canonical-math-ledger.generated.json.",
+        "Review the refreshed artifact diff before treating it as current generated evidence."
+      ]
+    },
+    {
+      "path": "agent/state/self-healing-refresh-queue.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-21T13:21:25.201Z",
+      "ageHours": 264.8,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:self-healing-refresh-queue",
+      "consumerPaths": [
+        "scripts/agent/debug-cockpit-batch10-shared.ts",
+        "scripts/agent/debug-cockpit-batch14-shared.ts",
+        "scripts/agent/debug-cockpit-batch9-shared.ts",
+        "scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
+        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
+        "scripts/agent/validate-debug-operator-cockpit.ts",
+        "scripts/agent/validate-final-algorithmic-debug-lock.ts"
+      ],
+      "consumedBy": [
+        "admin_debug_control_tower",
+        "agent_validator"
+      ],
+      "required": true,
+      "exists": true,
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale.",
+      "nextExactSteps": [
+        "Run npm run check:self-healing-refresh-queue to refresh agent/state/self-healing-refresh-queue.generated.json.",
+        "Review the refreshed artifact diff before treating it as current generated evidence."
+      ]
+    },
+    {
+      "path": "agent/state/behavior-math-verification.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-21T20:32:00.971Z",
+      "ageHours": 257.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:behavior-math-verification",
+      "consumerPaths": [
+        "scripts/agent/debug-cockpit-batch13-shared.ts",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "scripts/agent/validate-behavior-math-verification.ts",
+        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
+        "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "scripts/agent/validate-real-usage-confidence-calibration.ts"
+      ],
+      "consumedBy": [
+        "admin_debug_control_tower",
+        "agent_validator"
+      ],
+      "required": true,
+      "exists": true,
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale.",
+      "nextExactSteps": [
+        "Run npm run check:behavior-math-verification to refresh agent/state/behavior-math-verification.generated.json.",
+        "Review the refreshed artifact diff before treating it as current generated evidence."
+      ]
     }
   ],
   "externalProofRequired": [
@@ -368,7 +459,7 @@
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-09T04:12:37.621Z",
-      "ageHours": 306.5,
+      "ageHours": 562,
       "staleAfterHours": 24,
       "producerCommand": "npm run score:billing-spikes",
       "consumerPaths": [
@@ -381,10 +472,10 @@
       "exists": true,
       "blocking": false,
       "truthUse": "formal_proof_gate",
-      "reason": "Artifact is a formal runtime/provider gate; source freshness cannot clear it.",
+      "reason": "Artifact is a deployed route or provider-backed site activity evidence gate; source freshness cannot clear it.",
       "nextExactSteps": [
-        "Collect formal external/runtime/provider evidence for agent/state/billing-spike-radar.generated.json through the owning operator process.",
-        "Do not clear this gate with source-only validators."
+        "Collect typed external evidence for agent/state/billing-spike-radar.generated.json through the owning operator process: deployed route evidence, provider-backed site activity evidence, or approved admin/source evidence as required.",
+        "Do not clear this typed evidence boundary with source freshness or source-only validators."
       ]
     },
     {
@@ -392,7 +483,7 @@
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-21T03:57:17.453Z",
-      "ageHours": 18.7,
+      "ageHours": 274.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:provider-smoke-evidence",
       "consumerPaths": [
@@ -412,10 +503,10 @@
       "exists": true,
       "blocking": false,
       "truthUse": "formal_proof_gate",
-      "reason": "Artifact is a formal runtime/provider gate; source freshness cannot clear it.",
+      "reason": "Artifact is a deployed route or provider-backed site activity evidence gate; source freshness cannot clear it.",
       "nextExactSteps": [
-        "Collect formal external/runtime/provider evidence for agent/state/provider-smoke-evidence.generated.json through the owning operator process.",
-        "Do not clear this gate with source-only validators."
+        "Collect typed external evidence for agent/state/provider-smoke-evidence.generated.json through the owning operator process: deployed route evidence, provider-backed site activity evidence, or approved admin/source evidence as required.",
+        "Do not clear this typed evidence boundary with source freshness or source-only validators."
       ]
     },
     {
@@ -423,7 +514,7 @@
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-21T03:57:17.554Z",
-      "ageHours": 18.7,
+      "ageHours": 274.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:runtime-smoke-evidence",
       "consumerPaths": [
@@ -443,10 +534,10 @@
       "exists": true,
       "blocking": false,
       "truthUse": "formal_proof_gate",
-      "reason": "Artifact is a formal runtime/provider gate; source freshness cannot clear it.",
+      "reason": "Artifact is a deployed route or provider-backed site activity evidence gate; source freshness cannot clear it.",
       "nextExactSteps": [
-        "Collect formal external/runtime/provider evidence for agent/state/runtime-smoke-evidence.generated.json through the owning operator process.",
-        "Do not clear this gate with source-only validators."
+        "Collect typed external evidence for agent/state/runtime-smoke-evidence.generated.json through the owning operator process: deployed route evidence, provider-backed site activity evidence, or approved admin/source evidence as required.",
+        "Do not clear this typed evidence boundary with source freshness or source-only validators."
       ]
     },
     {
@@ -454,7 +545,7 @@
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-21T04:38:00.842Z",
-      "ageHours": 18.1,
+      "ageHours": 273.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:runtime-smoke-substitute-matrix",
       "consumerPaths": [
@@ -473,10 +564,10 @@
       "exists": true,
       "blocking": false,
       "truthUse": "formal_proof_gate",
-      "reason": "Artifact is a formal runtime/provider gate; source freshness cannot clear it.",
+      "reason": "Artifact is a deployed route or provider-backed site activity evidence gate; source freshness cannot clear it.",
       "nextExactSteps": [
-        "Collect formal external/runtime/provider evidence for agent/state/runtime-smoke-substitute-matrix.generated.json through the owning operator process.",
-        "Do not clear this gate with source-only validators."
+        "Collect typed external evidence for agent/state/runtime-smoke-substitute-matrix.generated.json through the owning operator process: deployed route evidence, provider-backed site activity evidence, or approved admin/source evidence as required.",
+        "Do not clear this typed evidence boundary with source freshness or source-only validators."
       ]
     },
     {
@@ -484,7 +575,7 @@
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-21T15:01:32.428Z",
-      "ageHours": 7.7,
+      "ageHours": 263.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:runtime-smoke-harness",
       "consumerPaths": [],
@@ -493,10 +584,10 @@
       "exists": true,
       "blocking": false,
       "truthUse": "formal_proof_gate",
-      "reason": "Artifact is a formal runtime/provider gate; source freshness cannot clear it.",
+      "reason": "Artifact is a deployed route or provider-backed site activity evidence gate; source freshness cannot clear it.",
       "nextExactSteps": [
-        "Collect formal external/runtime/provider evidence for agent/state/runtime-smoke-harness.generated.json through the owning operator process.",
-        "Do not clear this gate with source-only validators."
+        "Collect typed external evidence for agent/state/runtime-smoke-harness.generated.json through the owning operator process: deployed route evidence, provider-backed site activity evidence, or approved admin/source evidence as required.",
+        "Do not clear this typed evidence boundary with source freshness or source-only validators."
       ]
     }
   ],
@@ -506,7 +597,7 @@
       "classification": "ui_source_coverage_required",
       "actionability": "ui_source_coverage_required",
       "generatedAtUtc": "2026-06-21T14:57:39.454Z",
-      "ageHours": 7.7,
+      "ageHours": 263.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:operator-final-qa-packet",
       "consumerPaths": [],
@@ -527,8 +618,8 @@
       "path": "agent/state/admin-truth-sample-evidence.generated.json",
       "classification": "admin_truth_source_required",
       "actionability": "admin_truth_source_required",
-      "generatedAtUtc": "2026-06-21T13:33:10.108Z",
-      "ageHours": 9.2,
+      "generatedAtUtc": "2026-07-02T12:45:27.552Z",
+      "ageHours": 1.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:admin-truth-sample-evidence",
       "consumerPaths": [
@@ -557,22 +648,11 @@
   ],
   "archiveCandidates": [
     {
-      "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
-      "classification": "archive_candidate",
-      "actionability": "archive_evidence_only",
-      "generatedAtUtc": "2026-05-24T16:01:24.977Z",
-      "ageHours": 678.7,
-      "producerCommand": "npm run check:debug-cockpit-batch3-cleanup",
-      "blocking": false,
-      "truthUse": "archive_only",
-      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence."
-    },
-    {
       "path": "agent/state/empty-live-lane-status-cleanup.generated.json",
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T16:01:19.045Z",
-      "ageHours": 678.7,
+      "ageHours": 934.2,
       "producerCommand": "npm run check:empty-live-lane-status-cleanup",
       "blocking": false,
       "truthUse": "archive_only",
@@ -583,7 +663,7 @@
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T16:01:15.176Z",
-      "ageHours": 678.7,
+      "ageHours": 934.2,
       "producerCommand": "npm run check:identity-handoff-status-cleanup",
       "blocking": false,
       "truthUse": "archive_only",
@@ -594,19 +674,8 @@
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T16:01:13.249Z",
-      "ageHours": 678.7,
+      "ageHours": 934.2,
       "producerCommand": "npm run check:pwa-service-worker-status-cleanup",
-      "blocking": false,
-      "truthUse": "archive_only",
-      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence."
-    },
-    {
-      "path": "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
-      "classification": "archive_candidate",
-      "actionability": "archive_evidence_only",
-      "generatedAtUtc": "2026-05-24T16:01:21.222Z",
-      "ageHours": 678.7,
-      "producerCommand": "npm run check:tracking-lane-freshness-display-cleanup",
       "blocking": false,
       "truthUse": "archive_only",
       "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence."
@@ -616,8 +685,30 @@
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T16:01:17.062Z",
-      "ageHours": 678.7,
+      "ageHours": 934.2,
       "producerCommand": "npm run check:wallet-funnel-sample-cleanup",
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence."
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:24.977Z",
+      "ageHours": 934.1,
+      "producerCommand": "npm run check:debug-cockpit-batch3-cleanup",
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence."
+    },
+    {
+      "path": "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:21.222Z",
+      "ageHours": 934.1,
+      "producerCommand": "npm run check:tracking-lane-freshness-display-cleanup",
       "blocking": false,
       "truthUse": "archive_only",
       "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence."
@@ -627,7 +718,7 @@
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T20:15:31.100Z",
-      "ageHours": 674.4,
+      "ageHours": 929.9,
       "producerCommand": "npm run check:debug-cockpit-batch15-false-positive-cleanup",
       "blocking": false,
       "truthUse": "archive_only",
@@ -638,7 +729,7 @@
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T20:15:30.639Z",
-      "ageHours": 674.4,
+      "ageHours": 929.9,
       "producerCommand": "npm run check:no-sample-status-classifier",
       "blocking": false,
       "truthUse": "archive_only",
@@ -649,7 +740,7 @@
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T21:48:33.086Z",
-      "ageHours": 672.9,
+      "ageHours": 928.4,
       "producerCommand": "npm run check:support-threads-index-repair",
       "blocking": false,
       "truthUse": "archive_only",
@@ -660,7 +751,7 @@
       "classification": "archive_candidate",
       "actionability": "archive_evidence_only",
       "generatedAtUtc": "2026-05-24T22:10:25.582Z",
-      "ageHours": 672.5,
+      "ageHours": 928,
       "producerCommand": "npm run check:payment-route-stale-evidence-classification",
       "blocking": false,
       "truthUse": "archive_only",
@@ -669,44 +760,11 @@
   ],
   "artifacts": [
     {
-      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-11T22:32:40.444Z",
-      "ageHours": 240.2,
-      "producerCommand": "npm run check:monolith-orphan-metric-registry",
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale."
-    },
-    {
-      "path": "agent/state/telemetry-parity-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-11T22:33:06.699Z",
-      "ageHours": 240.2,
-      "producerCommand": "npm run check:telemetry-parity-score",
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale."
-    },
-    {
-      "path": "agent/state/treasury-reconciliation-engine.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-11T22:33:04.281Z",
-      "ageHours": 240.2,
-      "producerCommand": "npm run check:treasury-reconciliation-engine",
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale."
-    },
-    {
       "path": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:35:07.513Z",
-      "ageHours": 240.1,
+      "ageHours": 495.6,
       "producerCommand": "npm run check:cloud-cost",
       "blocking": true,
       "truthUse": "evidence_snapshot_only",
@@ -717,7 +775,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:35:31.374Z",
-      "ageHours": 240.1,
+      "ageHours": 495.6,
       "producerCommand": "npm run check:google-cost",
       "blocking": true,
       "truthUse": "evidence_snapshot_only",
@@ -728,8 +786,41 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:35:29.883Z",
-      "ageHours": 240.1,
+      "ageHours": 495.6,
       "producerCommand": "npm run check:gumdrop-economy",
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale."
+    },
+    {
+      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-11T22:32:40.444Z",
+      "ageHours": 495.6,
+      "producerCommand": "npm run check:monolith-orphan-metric-registry",
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale."
+    },
+    {
+      "path": "agent/state/telemetry-parity-score.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-11T22:33:06.699Z",
+      "ageHours": 495.6,
+      "producerCommand": "npm run check:telemetry-parity-score",
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale."
+    },
+    {
+      "path": "agent/state/treasury-reconciliation-engine.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-11T22:33:04.281Z",
+      "ageHours": 495.6,
+      "producerCommand": "npm run check:treasury-reconciliation-engine",
       "blocking": true,
       "truthUse": "evidence_snapshot_only",
       "reason": "Required consumed artifact is stale."
@@ -739,7 +830,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-11T22:40:55.018Z",
-      "ageHours": 240,
+      "ageHours": 495.5,
       "producerCommand": "npm run check:content-protection",
       "blocking": true,
       "truthUse": "evidence_snapshot_only",
@@ -750,7 +841,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-19T12:59:57.875Z",
-      "ageHours": 57.7,
+      "ageHours": 313.2,
       "producerCommand": "npm run check:hardening",
       "blocking": true,
       "truthUse": "evidence_snapshot_only",
@@ -761,7 +852,7 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-19T12:59:57.188Z",
-      "ageHours": 57.7,
+      "ageHours": 313.2,
       "producerCommand": "npm run check:device-ui",
       "blocking": true,
       "truthUse": "evidence_snapshot_only",
@@ -772,8 +863,41 @@
       "classification": "stale_consumed",
       "actionability": "refreshable_by_existing_local_validator",
       "generatedAtUtc": "2026-06-19T12:59:57.387Z",
-      "ageHours": 57.7,
+      "ageHours": 313.2,
       "producerCommand": "npm run check:speed-security",
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale."
+    },
+    {
+      "path": "agent/state/canonical-math-ledger.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-21T00:50:49.147Z",
+      "ageHours": 277.3,
+      "producerCommand": "npm run check:canonical-math-ledger",
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale."
+    },
+    {
+      "path": "agent/state/self-healing-refresh-queue.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-21T13:21:25.201Z",
+      "ageHours": 264.8,
+      "producerCommand": "npm run check:self-healing-refresh-queue",
+      "blocking": true,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Required consumed artifact is stale."
+    },
+    {
+      "path": "agent/state/behavior-math-verification.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "refreshable_by_existing_local_validator",
+      "generatedAtUtc": "2026-06-21T20:32:00.971Z",
+      "ageHours": 257.6,
+      "producerCommand": "npm run check:behavior-math-verification",
       "blocking": true,
       "truthUse": "evidence_snapshot_only",
       "reason": "Required consumed artifact is stale."
@@ -783,7 +907,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-21T15:10:08.143Z",
-      "ageHours": 1471.5,
+      "ageHours": 1727,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -794,7 +918,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-30T00:00:00.000Z",
-      "ageHours": 1270.7,
+      "ageHours": 1526.2,
       "producerCommand": "npm run check:analytics-truth-layer-v2",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -805,7 +929,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-30T17:30:27.124Z",
-      "ageHours": 1253.2,
+      "ageHours": 1508.7,
       "producerCommand": "npm run analytics:ecosystem:parity",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -816,7 +940,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-30T17:30:25.583Z",
-      "ageHours": 1253.2,
+      "ageHours": 1508.7,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -827,7 +951,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000Z",
-      "ageHours": 1246.7,
+      "ageHours": 1502.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -838,7 +962,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000Z",
-      "ageHours": 1246.7,
+      "ageHours": 1502.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -849,7 +973,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T02:08:00.000Z",
-      "ageHours": 1244.6,
+      "ageHours": 1500,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -860,7 +984,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -871,7 +995,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": "npm run check:admin-analytics-finalization",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -882,7 +1006,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -893,7 +1017,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -904,7 +1028,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -915,7 +1039,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -926,7 +1050,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -937,7 +1061,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": "npm run check:launch-finalization-baseline",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -948,7 +1072,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -959,7 +1083,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -970,7 +1094,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -981,7 +1105,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -992,7 +1116,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 1241.7,
+      "ageHours": 1497.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1003,7 +1127,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T19:25:00.000-05:00",
-      "ageHours": 1222.3,
+      "ageHours": 1477.8,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1014,7 +1138,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T20:35:00.000-05:00",
-      "ageHours": 1221.1,
+      "ageHours": 1476.6,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1025,7 +1149,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 1217.7,
+      "ageHours": 1473.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1036,7 +1160,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 1217.7,
+      "ageHours": 1473.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1047,7 +1171,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 1217.7,
+      "ageHours": 1473.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1058,7 +1182,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T16:39:34.413Z",
-      "ageHours": 1206,
+      "ageHours": 1461.5,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1069,7 +1193,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T12:00:00.000-05:00",
-      "ageHours": 1205.7,
+      "ageHours": 1461.2,
       "producerCommand": "npm run check:rollback-incident-response",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1080,7 +1204,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-04T20:20:52.670Z",
-      "ageHours": 1154.4,
+      "ageHours": 1409.8,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1091,7 +1215,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-04T21:07:36.960Z",
-      "ageHours": 1153.6,
+      "ageHours": 1409,
       "producerCommand": "npm run score:tracking-surface-coverage",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1102,7 +1226,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T05:17:17.720Z",
-      "ageHours": 1145.4,
+      "ageHours": 1400.9,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1113,7 +1237,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T06:02:56.887Z",
-      "ageHours": 1144.7,
+      "ageHours": 1400.1,
       "producerCommand": "npm run check:human-dev-readiness",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1124,7 +1248,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T07:50:00.467Z",
-      "ageHours": 1142.9,
+      "ageHours": 1398.3,
       "producerCommand": "npm run check:doctrine-retrieval-optimizer",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1135,7 +1259,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T08:39:50.757Z",
-      "ageHours": 1142,
+      "ageHours": 1397.5,
       "producerCommand": "npm run check:behavioral-math-calibration",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1146,7 +1270,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T11:03:21.196Z",
-      "ageHours": 1139.6,
+      "ageHours": 1395.1,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1157,7 +1281,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T14:10:09.853Z",
-      "ageHours": 1136.5,
+      "ageHours": 1392,
       "producerCommand": "npm run check:codex-auth-readiness",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1168,7 +1292,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-06T00:00:00-05:00",
-      "ageHours": 1121.7,
+      "ageHours": 1377.2,
       "producerCommand": null,
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
@@ -1179,41 +1303,8 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-07T22:51:20.973Z",
-      "ageHours": 1079.8,
+      "ageHours": 1335.3,
       "producerCommand": null,
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only."
-    },
-    {
-      "path": "agent/state/sql-sync.payload.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-07T22:51:20.973Z",
-      "ageHours": 1079.8,
-      "producerCommand": null,
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only."
-    },
-    {
-      "path": "agent/context/doctrine-conflicts.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-08T01:17:53.932Z",
-      "ageHours": 1077.4,
-      "producerCommand": "npm run check:agent-context",
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only."
-    },
-    {
-      "path": "agent/context/task-pack.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-08T04:00:55.445Z",
-      "ageHours": 1074.7,
-      "producerCommand": "npm run check:agent-context",
       "blocking": false,
       "truthUse": "evidence_snapshot_only",
       "reason": "Consumed artifact is stale and must be treated as evidence only."

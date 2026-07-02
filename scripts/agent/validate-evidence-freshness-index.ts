@@ -227,8 +227,8 @@ function nextStepsFor(input: {
       ];
     case "external_proof_required":
       return [
-        `Collect formal external/runtime/provider evidence for ${input.path} through the owning operator process.`,
-        "Do not clear this gate with source-only validators.",
+        `Collect typed external evidence for ${input.path} through the owning operator process: deployed route evidence, provider-backed site activity evidence, or approved admin/source evidence as required.`,
+        "Do not clear this typed evidence boundary with source freshness or source-only validators.",
       ];
     case "ui_source_coverage_required":
       return [
@@ -284,7 +284,7 @@ function classifyEntry(input: {
 }): { classification: FreshnessClassification; blocking: boolean; reason: string } {
   if (!input.exists) {
     if (isFormalExternalPath(input.path)) {
-      return { classification: "external_proof_required", blocking: false, reason: "Formal runtime/provider proof is external and cannot be created by source checks." };
+      return { classification: "external_proof_required", blocking: false, reason: "Deployed route or provider-backed site activity evidence is external to source freshness and cannot be created by source checks." };
     }
     if (isAdminTruthSourcePath(input.path)) {
       return { classification: "admin_truth_source_required", blocking: false, reason: "Admin truth evidence requires an approved redacted source sample." };
@@ -300,7 +300,7 @@ function classifyEntry(input: {
   }
 
   if (isFormalExternalPath(input.path)) {
-    return { classification: "external_proof_required", blocking: false, reason: "Artifact is a formal runtime/provider gate; source freshness cannot clear it." };
+    return { classification: "external_proof_required", blocking: false, reason: "Artifact is a deployed route or provider-backed site activity evidence gate; source freshness cannot clear it." };
   }
   if (isAdminTruthSourcePath(input.path)) {
     return { classification: "admin_truth_source_required", blocking: false, reason: "Artifact is an admin truth source sample gate; generic source freshness cannot clear it." };
@@ -460,7 +460,7 @@ export function buildEvidenceFreshnessIndex() {
       generatedReportsAreTruth: false,
       defaultStaleAfterHours: GENERATED_REPORT_DEFAULT_STALE_HOURS,
       staleTruthUse: "evidence_snapshot_only",
-      formalProofNote: "Runtime/provider proof gates cannot be cleared by source-only freshness; UI issues must be surfaced by source coverage before optional visual reproduction; admin truth requires an approved source sample.",
+      formalProofNote: "Deployed route, provider-backed site activity, and admin source activity evidence cannot be cleared by source freshness; UI issues must be surfaced by source coverage before optional visual reproduction; admin truth requires an approved source sample.",
     },
     summary: {
       artifactCount: sortedEntries.length,
@@ -536,7 +536,7 @@ function renderMarkdown(report: ReturnType<typeof buildEvidenceFreshnessIndex>) 
     `- Omitted artifacts: ${report.summary.omittedArtifactCount}`,
     `- Blocking artifacts: ${report.summary.blockingCount}`,
     `- Stale consumed artifacts: ${report.summary.staleConsumedCount}`,
-    `- External proof required: ${report.summary.externalProofRequiredCount}`,
+    `- Typed external evidence required: ${report.summary.externalProofRequiredCount}`,
     `- UI source coverage required: ${report.summary.uiSourceCoverageRequiredCount}`,
     `- Admin truth source required: ${report.summary.adminTruthSourceRequiredCount}`,
     "",
@@ -552,7 +552,7 @@ function renderMarkdown(report: ReturnType<typeof buildEvidenceFreshnessIndex>) 
     "",
     "## Typed Evidence Boundaries",
     "",
-    ...report.externalProofRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: external proof required; source checks cannot clear this gate.`),
+    ...report.externalProofRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: typed external evidence required; source checks cannot clear this gate.`),
     ...report.uiSourceCoverageRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: UI source coverage required before optional visual reproduction.`),
     ...report.adminTruthSourceRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: admin truth source sample required; use redacted approved evidence only.`),
     "",
