@@ -66,6 +66,7 @@ shared/runtime/*.js.map
 
 *storybook.log
 storybook-static
+scratch/local-exe/
 
 # Agent & Analysis Noise
 *_temp.*
