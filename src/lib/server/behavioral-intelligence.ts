@@ -276,7 +276,7 @@ function buildProfileConfidence(profile: Partial<BehavioralProfileDoc> | null) {
   if (typeof profile.confidenceScore === "number") {
     return clamp01(profile.confidenceScore);
   }
-  return clamp01(((profile.eventCount || 0) + ((profile.watchSessionCount || 0) * 2)) / 60);
+  return 0;
 }
 
 function buildProfileMode(profile: BehavioralProfileDoc | null) {

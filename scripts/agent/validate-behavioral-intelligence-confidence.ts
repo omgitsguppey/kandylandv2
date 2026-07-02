@@ -23,11 +23,17 @@ assert(runtime.includes("purchaseCount"), "Behavioral runtime confidence formula
 assert(runtime.includes("sessionFrequency30d"), "Behavioral runtime confidence formula is missing return cadence.");
 assert(recommendationServer.includes("BEHAVIORAL_PROFILE_EXPLANATION_THRESHOLD"), "Server recommendation threshold constant is missing.");
 assert(recommendationServer.includes("buildBehavioralRecommendationState"), "Server recommendation state helper is missing.");
+assert(!recommendationServer.includes("watchSessionCount || 0) * 2"), "Server recommendation confidence still derives from legacy watch/event counts.");
+assert(!recommendationServer.includes("eventCount || 0) +"), "Server recommendation confidence still derives from legacy event counts.");
 assert(
   recommendationServer.includes("if (recommendationState.insufficientSignal)") && recommendationServer.includes("return [];"),
   "Low-signal users are still receiving recommendation payloads.",
 );
-assert(recommendationServer.includes(".slice(0, recommendationState.explanationEligible ? limit : Math.min(limit, 3))"), "Fallback recommendations are not capped to three.");
+assert(
+  recommendationServer.includes("const recommendationLimit = recommendationState.explanationEligible ? limit : Math.min(limit, 3)")
+    && recommendationServer.includes(".slice(0, recommendationLimit)"),
+  "Fallback recommendations are not capped to three.",
+);
 assert(adminUserPage.includes("Insufficient signal"), "Admin user page does not show compact insufficient signal state.");
 assert(adminUserPage.includes("fallback recommendation"), "Admin user page does not clearly label fallback recommendations.");
 assert(adminUserPage.includes("showBehavioralExplanationCards"), "Admin user page does not gate explanation cards by confidence.");

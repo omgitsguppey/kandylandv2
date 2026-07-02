@@ -28,6 +28,7 @@ function requireIncludes(content: string, needle: string) {
 function main() {
   const packageJson = JSON.parse(readText("package.json")) as { scripts?: Record<string, string> };
   const serverBehavior = readText("src/lib/server/behavioral-intelligence.ts");
+  const rankingFeatures = readText("src/lib/recommendations/ranking-features.ts");
   const adminUserPage = readText("src/app/admin/user/[userId]/page.tsx");
   const trainScript = readText("scripts/train-recommendation-ranker.ts");
 
@@ -86,6 +87,14 @@ function main() {
       requireIncludes(serverBehavior, "Math.min(limit, 3)")
         && requireIncludes(adminUserPage, "behavioralRecommendations.slice(0, 3)"),
       "Fallback recommendations must stay capped to three cards.",
+    ),
+    check(
+      "ranking truth score requires explicit canonical truth",
+      !requireIncludes(rankingFeatures, "computeBehavioralTruthScore")
+        && requireIncludes(rankingFeatures, "if (typeof intelligence?.truthScore === \"number\")")
+        && requireIncludes(rankingFeatures, "if (typeof profile?.truthScore === \"number\")")
+        && requireIncludes(rankingFeatures, "return 0;"),
+      "Ranking truth score must not be synthesized from confidence or legacy counts.",
     ),
     check(
       "admin page shows explanation text before math",

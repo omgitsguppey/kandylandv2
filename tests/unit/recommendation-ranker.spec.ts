@@ -98,7 +98,36 @@ describe("recommendation-ranker", () => {
     );
   });
 
-  it("uses fresh artifact predictions and ignores stale artifacts", () => {
+  it("requires explicit behavioral truth score before boosting recommendation truth", () => {
+    const drop = buildDrop({ id: "truth", creatorId: "creator-1" });
+    const profileWithoutTruth: RecommendationBehavioralProfileLike = {
+      confidenceScore: 0.95,
+      creatorAffinity: { "creator-1": 5 },
+      categoryAffinity: { glam: 4 },
+      themeAffinity: { night: 3 },
+    };
+    const profileWithTruth: RecommendationBehavioralProfileLike = {
+      ...profileWithoutTruth,
+      truthScore: 0.8,
+    };
+
+    const withoutTruth = rankDeterministicRecommendations({
+      candidates: generateRecommendationCandidates({ drops: [drop], profile: profileWithoutTruth, nowMs, limit: 12 }),
+      profile: profileWithoutTruth,
+      nowMs,
+    })[0];
+    const withTruth = rankDeterministicRecommendations({
+      candidates: generateRecommendationCandidates({ drops: [drop], profile: profileWithTruth, nowMs, limit: 12 }),
+      profile: profileWithTruth,
+      nowMs,
+    })[0];
+
+    expect(withoutTruth?.features.truthScore).toBe(0);
+    expect(withTruth?.features.truthScore).toBe(0.8);
+    expect(withTruth?.score ?? 0).toBeGreaterThan(withoutTruth?.score ?? 0);
+  });
+
+  it("keeps inactive or stale artifact predictions out of ranking", () => {
     const artifact: RecommendationModelArtifact = {
       version: 1,
       generatedAt: new Date(nowMs).toISOString(),
@@ -133,8 +162,8 @@ describe("recommendation-ranker", () => {
       artifact,
       nowMs,
     });
-    expect(fresh?.mode).toBe("ml_artifact");
-    expect(fresh?.predictedPaidConversion || 0).toBeGreaterThan(0.5);
+    expect(getRecommendationModelFreshness(artifact, nowMs)).toBe("fresh");
+    expect(fresh).toBeNull();
 
     expect(getRecommendationModelFreshness(artifact, nowMs + 2_000)).toBe("stale");
     expect(scoreRecommendationWithArtifact({

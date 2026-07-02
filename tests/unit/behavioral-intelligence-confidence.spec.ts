@@ -58,4 +58,19 @@ describe("behavioral intelligence confidence gate", () => {
       explanationEligible: false,
     });
   });
+
+  it("does not derive profile confidence from legacy event or watch counts", () => {
+    expect(buildBehavioralRecommendationState({
+      recommendationState: "profile-driven",
+      recommendationThresholdMet: true,
+      eventCount: 200,
+      watchSessionCount: 200,
+      creatorAffinity: { creatorA: 4 },
+      categoryAffinity: { glam: 4 },
+    })).toMatchObject({
+      confidenceScore: 0,
+      insufficientSignal: true,
+      explanationEligible: false,
+    });
+  });
 });

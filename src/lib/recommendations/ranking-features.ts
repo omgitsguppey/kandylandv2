@@ -1,7 +1,6 @@
 import type { Drop } from "@/types/db";
 import {
   clamp01,
-  computeBehavioralTruthScore,
   type BehavioralPredictionOutputs,
 } from "@/lib/behavioral/behavioral-math-calibration";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
@@ -288,14 +287,7 @@ function normalizeTruthScore(profile: RecommendationBehavioralProfileLike | null
     return clamp01(profile.truthScore);
   }
 
-  const confidence = normalizeConfidence(profile, intelligence);
-  return computeBehavioralTruthScore({
-    sourceReliability: intelligence?.sourceReliability ?? confidence,
-    freshnessScore: intelligence?.freshnessDecayScore ?? (profile?.freshnessLabel === "live" ? 1 : 0.35),
-    sampleScore: intelligence?.confidenceScore ?? confidence,
-    schemaCompleteness: intelligence?.schemaCompleteness ?? confidence,
-    sourceDisagreementPenalty: intelligence?.negativeSignalRate ?? 0,
-  });
+  return 0;
 }
 
 function computePreviousExposurePenalty(input: {
