@@ -57,7 +57,7 @@ describe("evidence capture status", () => {
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
 
-  it("removes admin from protected proof wording once admin truth evidence is complete", () => {
+  it("removes admin from protected source-export wording once admin truth evidence is complete", () => {
     const report = buildEvidenceCaptureStatusReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-17T05:30:00.000Z",

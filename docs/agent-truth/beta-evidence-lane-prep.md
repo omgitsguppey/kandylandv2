@@ -1,6 +1,6 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-06-21T18:39:25.929Z
+Generated: 2026-07-02T13:44:50.155Z
 
 ## Summary
 
@@ -25,13 +25,16 @@ Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site acti
 
 ## Stale Supporting Reports
 
+- agent/state/public-beta-score.generated.json: No refresh needed.
+- agent/state/current-beta-exit-status.generated.json: No refresh needed.
 - agent/state/source-truth-authority-map.generated.json: No refresh needed.
 - agent/state/final-telemetry-closure-lock.generated.json: No refresh needed.
+- agent/state/mobile-ui-final-lock.generated.json: No refresh needed.
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/creator-settings-control-plane.generated.json: No refresh needed.
 - agent/state/creator-drop-status-metrics.generated.json: No refresh needed.
 - agent/state/operator-revenue-smoke.generated.json: No refresh needed.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
-- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep
 - agent/state/beta-freshness-language.generated.json: No refresh needed.
 - agent/state/final-pr-stale-cleanup.generated.json: No refresh needed.
 - agent/state/overnight-wiring-integrity.generated.json: No refresh needed.

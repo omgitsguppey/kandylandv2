@@ -568,7 +568,7 @@ function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>
     "",
     "- Missing panel data is collecting, source-missing, materializer-missing, bridge-missing, external-required, permission-blocked, or broken. It is not zero.",
     "- A panel may display zero only when a bounded source loaded and proved zero.",
-    "- Hydrated panel evidence can reduce formal evidence scope; stale, collecting, source-only, runtime-required, admin-truth-required, or external-required panels cannot clear formal provider/runtime/billing gates.",
+    "- Hydrated panel evidence can reduce source-evidence scope; stale, collecting, source-only, runtime-required, admin-truth-required, or external-required panels cannot clear provider/runtime/billing source lanes.",
     "- The report uses local source and generated artifacts only. It performs no production reads or provider calls.",
     "",
     "## Live Evidence",
@@ -1411,7 +1411,7 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     || report.formalLaunchRange.state !== "all_launch_range_proven"
     || report.launchHistoryCoverage.staleInputEvidence
   )) {
-    failures.push("launch recovery cannot clear source gate until first-party day coverage and launch-critical family coverage are available, source agreement passes, all-launch range proof exists, and evidence is current.");
+    failures.push("launch recovery cannot clear source gate until first-party day coverage and launch-critical family coverage are available, source agreement passes, all-launch range evidence exists, and evidence is current.");
   }
   if (!report.canClearSourceGate && (!report.sourceGateReason || !report.sourceGateReason.trim())) {
     failures.push("blocked launch recovery source gate must explain the reason.");
@@ -1555,28 +1555,28 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     report.launchHistoryCoverage.rangeProof.allLaunchRangeProven === true
     && !["admin_truth_sample", "all_range_historical_export"].includes(report.launchHistoryCoverage.rangeProof.coverageWindowKind)
   ) {
-    failures.push("launch recovery all-launch proof must come from a formal admin truth sample or approved all-range historical export.");
+    failures.push("launch recovery all-launch evidence must come from a formal admin truth sample or approved all-range historical export.");
   }
   if (!report.launchHistoryCoverage.rangeProof.coverageWindowKind) {
     failures.push("launch recovery must label whether source agreement coverage is fixture/local/export evidence.");
   }
   if (report.launchHistoryCoverage.rangeProof.formalRangeStartDayKey !== report.formalLaunchRange.launchStartDayKey) {
-    failures.push("launch range proof must expose the formal launch start day.");
+    failures.push("launch range evidence must expose the formal launch start day.");
   }
   if (report.launchHistoryCoverage.rangeProof.formalRangeEndDayKey !== report.formalLaunchRange.expectedThroughDayKey) {
-    failures.push("launch range proof must expose the formal launch end day.");
+    failures.push("launch range evidence must expose the formal launch end day.");
   }
   if (report.launchHistoryCoverage.rangeProof.formalExpectedDayCount !== report.formalLaunchRange.expectedDayCount) {
-    failures.push("launch range proof must expose the formal expected day count.");
+    failures.push("launch range evidence must expose the formal expected day count.");
   }
   if (report.launchHistoryCoverage.rangeProof.evidenceDayCount !== report.formalLaunchRange.localEvidenceDayCount) {
-    failures.push("launch range proof must expose the bounded evidence day count.");
+    failures.push("launch range evidence must expose the bounded evidence day count.");
   }
   if (
     JSON.stringify(report.launchHistoryCoverage.rangeProof.unprovenRanges)
     !== JSON.stringify(report.formalLaunchRange.unprovenRanges)
   ) {
-    failures.push("launch range proof unproven ranges must match formalLaunchRange.");
+    failures.push("launch range evidence unproven ranges must match formalLaunchRange.");
   }
   if (!report.formalLaunchRange || report.formalLaunchRange.launchStartDayKey !== LAUNCH_ANALYTICS_FIRST_DAY_KEY) {
     failures.push("launch recovery must expose formalLaunchRange from the canonical launch start day.");
@@ -1585,10 +1585,10 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     failures.push("formal launch range expected days cannot be smaller than local evidence days.");
   }
   if (report.formalLaunchRange.state === "formal_proof_missing" && report.formalLaunchRange.unprovenRanges.length === 0) {
-    failures.push("formal launch range must list unproven ranges when all-launch proof is missing.");
+    failures.push("formal launch range must list unproven ranges when all-launch evidence is missing.");
   }
   if (report.formalLaunchRange.state === "all_launch_range_proven" && report.formalLaunchRange.approvedCoverageDayCount !== report.formalLaunchRange.expectedDayCount) {
-    failures.push("formal launch range proof must cover every expected launch day before clearing source truth.");
+    failures.push("formal launch range evidence must cover every expected launch day before clearing source truth.");
   }
   if (!Array.isArray(report.formalLaunchRange.dayCoverage) || report.formalLaunchRange.dayCoverage.length !== report.formalLaunchRange.expectedDayCount) {
     failures.push("formal launch range must expose one dayCoverage row for every launch day.");
@@ -1611,7 +1611,7 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     }
   }
   if (report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== (report.formalLaunchRange.state === "all_launch_range_proven")) {
-    failures.push("formal launch range state must agree with launchHistoryCoverage range proof.");
+    failures.push("formal launch range state must agree with launchHistoryCoverage range evidence.");
   }
   if (report.launchHistoryCoverage.rangeProof.coverageWindowKind === "fixture_only_local_window" && report.evidenceProvenance.usableLaunchCoverageInputFound) {
     failures.push("fixture-only launch recovery cannot claim a usable local coverage input.");
@@ -1704,7 +1704,7 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
       failures.push(`launch recovery activeSourceCoverage must reach the ${LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT}% active source coverage floor.`);
     }
     if (activeSourceCoverage.canClearHistoricalLaunchProof !== false) {
-      failures.push("active source coverage must not clear historical launch proof.");
+      failures.push("active source coverage must not clear historical launch evidence.");
     }
     if (!Array.isArray(activeSourceCoverage.familySourceStates) || activeSourceCoverage.familySourceStates.length !== 13) {
       failures.push("active source coverage must include one source state per launch-critical family.");

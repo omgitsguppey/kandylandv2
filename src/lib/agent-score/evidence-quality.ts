@@ -238,7 +238,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       freshnessScore: freshness.freshnessScore,
       partialCredit: round(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.operatorReported * freshness.freshnessScore),
       blocksLaunch: context.requiredForExit === true,
-      reason: "Operator-reported context is tracked, but launch proof must come from site activity or provider-backed source records.",
+      reason: "Operator-reported context is tracked, but launch readiness evidence must come from site activity or provider-backed source records.",
     };
   }
 

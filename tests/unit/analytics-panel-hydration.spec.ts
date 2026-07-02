@@ -310,7 +310,7 @@ describe("analytics panel hydration", () => {
     expect(source).not.toContain("const sourceAgreementHead = input.currentHead");
     expect(source).not.toContain("launchSourceGateCanClear");
     expect(source).not.toContain("const allLaunchRangeProofReason");
-    expect(source).toContain("all-launch range proof exists");
+    expect(source).toContain("all-launch range evidence exists");
     expect(source).toContain("LAUNCH_ANALYTICS_FIRST_DAY_KEY");
     expect(source).toContain("normalizeLaunchHistoryRangeProofKind");
     expect(source).not.toContain("function publicLaunchRangeSource");
@@ -326,7 +326,7 @@ describe("analytics panel hydration", () => {
     expect(source).not.toContain("formalRangeEndDayKey: formalLaunchRange.expectedThroughDayKey");
     expect(source).not.toContain("formalExpectedDayCount: formalLaunchRange.expectedDayCount");
     expect(source).not.toContain("evidenceDayCount: formalLaunchRange.localEvidenceDayCount");
-    expect(source).toContain("launch range proof must expose the formal expected day count.");
+    expect(source).toContain("launch range evidence must expose the formal expected day count.");
     expect(source).toContain("localEvidenceDays: dayCoverage");
     expect(source).toContain("formalLaunchDayCoverage: summarizeRecoveredMetricMetadataCompleteness(formalLaunchRange.dayCoverage)");
     expect(source).not.toContain('sourceCountsKnown: false,');
@@ -344,7 +344,7 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("launch recovery source inventory entries require productTruthRole and promotionRule.");
   });
 
-  it("allows approved all-range export proof without treating it as formal admin truth", () => {
+  it("allows approved all-range export evidence without treating it as formal admin truth", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 
     expect(source).toContain('"all_range_historical_export"');
@@ -389,7 +389,7 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("eventFamilyCoverage");
     expect(source).toContain("activeSourceCoverage");
     expect(source).toContain("targetCoveragePercent: activeSourceCoverage.targetCoveragePercent");
-    expect(source).toContain("active source coverage must not clear historical launch proof");
+    expect(source).toContain("active source coverage must not clear historical launch evidence");
     expect(source).toContain("buildLaunchCriticalRecoveryCoverageFromEvidence");
     expect(source).toContain("modeled/inferred evidence calibration-only");
     expect(source).toContain("summarizeRecoveredMetricMetadataCompleteness");

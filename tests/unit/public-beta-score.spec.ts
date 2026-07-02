@@ -532,6 +532,9 @@ describe("public beta scoring math", () => {
                         "activityVerification.sourceReadyNoActivity=4",
                         "activityVerification.scoreEligibleActivity=3",
                         "activityVerification.confidenceScore=86",
+                        "activityVerification.providerActivityCleared=false",
+                        "activityVerification.adminSourceActivityCleared=false",
+                        "activityVerification.launchEvidenceCleared=false",
                         "activityVerification.formalGatesCleared=false",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
@@ -547,6 +550,9 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.runtimeCredit).toBe(0);
         expect(targetedGate?.evidence.join("\n")).toContain("activityVerificationSourceCredit=86");
         expect(targetedGate?.evidence.join("\n")).toContain("activityVerification.verifiedByActivity=3");
+        expect(targetedGate?.evidence.join("\n")).toContain("activityVerification.providerActivityCleared=false");
+        expect(targetedGate?.evidence.join("\n")).toContain("activityVerification.adminSourceActivityCleared=false");
+        expect(targetedGate?.evidence.join("\n")).toContain("activityVerification.launchEvidenceCleared=false");
         expect(runtimeGate?.runtimeCredit).toBe(0);
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);

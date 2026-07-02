@@ -159,7 +159,7 @@ describe("public beta score v2 health model", () => {
         path: "agent/state/targeted-behavior-evidence.generated.json",
         status: "source_ready",
         passed: true,
-        detail: "Source validators passed; runtime proof remains separate.",
+        detail: "Source validators passed; deployed runtime route evidence remains separate.",
         evidence: ["source_ready"],
         generatedAtUtc: "2026-05-19T12:00:00.000Z",
         sourceCommit: "head",
@@ -197,7 +197,7 @@ describe("public beta score v2 health model", () => {
         path: "agent/state/runtime-watch-time-v2.generated.json",
         status: "source_ready_runtime_proof_required",
         passed: true,
-        detail: "Runtime watch source-ready but deployed playback proof is missing.",
+        detail: "Runtime watch source-ready but deployed playback activity evidence is missing.",
         evidence: ["runtime_watch_time_v2_source_ready"],
         generatedAtUtc: "2026-05-19T12:00:00.000Z",
         sourceCommit: "head",
@@ -209,7 +209,7 @@ describe("public beta score v2 health model", () => {
     expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
   });
 
-  it("weights first-party site activity above generic source-ready proof without clearing launch gates", () => {
+  it("weights first-party site activity above generic source-ready evidence without clearing launch gates", () => {
     const genericSourceReport = buildReport({
       providerSmokeEvidence: {
         path: "agent/state/provider-smoke-evidence.generated.json",

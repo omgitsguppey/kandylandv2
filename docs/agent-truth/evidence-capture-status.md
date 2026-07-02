@@ -2,16 +2,16 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-07-02T02:58:54.717Z
+Generated: 2026-07-02T13:41:19.917Z
 
-Latest code version: `b0f74b9e016ed3eef9f51964c4cd7a3db866a99a`
+Latest code version: `6f625882f00a63e4a08b4fe386b018d08567ad35`
 
 ## Summary
 
 - UI surface coverage evidence: `complete`.
 - Provider-backed site activity evidence: `missing`.
 - Deployed route evidence: `complete`.
-- Admin source activity sample evidence: `complete`.
+- Admin source activity sample evidence: `stale`.
 - Templates created: 4.
 - Complete artifacts: 5.
 - Strict mode ready: yes.
@@ -20,7 +20,7 @@ Latest code version: `b0f74b9e016ed3eef9f51964c4cd7a3db866a99a`
 - Live runtime evidence: `live_runtime_evidence_bridge=not_observed_but_expected; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=0; not_observed_but_expected=7; runtime_export_required=3; provider_required=2; admin_truth_source_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json`.
 - Daily activity import path: `agent/evidence/live-runtime-activity/recent-activity.export.json`.
 - Operator confirmed amount/product: 50 GumDrops.
-- Provider-backed evidence from operator confirmation: no.
+- Provider-backed site activity cleared by operator confirmation: no.
 
 Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.
 
@@ -31,11 +31,12 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 - `agent/state` - complete; template `docs/agent-truth/ui-visual-smoke-minimal.md`.
 - `agent/evidence/provider-smoke` - missing; template `agent/evidence/provider-smoke/evidence.template.json`.
 - `agent/evidence/runtime-smoke` - complete; template `agent/evidence/runtime-smoke/evidence.template.json`.
-- `agent/evidence/admin-truth-sample` - complete; template `agent/evidence/admin-truth-sample/evidence.template.json`.
+- `agent/evidence/admin-truth-sample` - stale; template `agent/evidence/admin-truth-sample/evidence.template.json`.
 
 ## Missing Evidence
 
 - provider-backed site activity evidence is missing.
+- admin source activity sample evidence is stale.
 
 ## Source-Ready Evidence
 
@@ -50,15 +51,16 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 ## Typed Evidence Still Required
 
 - provider-backed site activity evidence is missing.
+- admin source activity sample evidence is stale.
 - provider-backed site activity evidence remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.
-- site activity evidence clears connected site-activity lanes; provider-backed activity, billing, or exact-user lanes need matching source exports before clearing.
+- site activity evidence clears connected site-activity lanes; provider-backed activity, admin source activity sample, billing, or exact-user lanes need matching source exports before clearing.
 
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current as a same-commit generated report snapshot. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current as a same-commit generated report snapshot. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.

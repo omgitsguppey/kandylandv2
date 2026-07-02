@@ -303,7 +303,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       sourceReady: false,
       completeAsProductSignal: false,
       clearsFormalProviderGate: false,
-      scoreImpact: "Raises runtime confidence after deployed route and flow proof is attached.",
+      scoreImpact: "Raises runtime confidence after deployed route and flow evidence is attached.",
       launchGateImpact: "Required for beta exit; local validators are not deployed route evidence.",
       nextAction: "Attach deployed route evidence using the runtime evidence template.",
     }),
@@ -326,7 +326,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
     }),
     lane({
       id: "runtime_watch_time_proof",
-      label: "Runtime watch-time proof",
+      label: "Runtime watch-time source evidence",
       folder: "agent/evidence/runtime-smoke",
       template: "agent/evidence/runtime-smoke/evidence.template.json",
       checklist: "docs/agent-truth/runtime-smoke-evidence-checklist.md",
@@ -338,7 +338,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       completeAsProductSignal: false,
       clearsFormalProviderGate: false,
       scoreImpact: "Keeps watch-time source readiness separate from deployed playback evidence.",
-      launchGateImpact: "Source-ready watch-time logic still needs deployed media proof before beta exit.",
+      launchGateImpact: "Source-ready watch-time logic still needs deployed media activity evidence before beta exit.",
       nextAction: "Attach deployed playback evidence showing runtime watch-time v2 on real media routes.",
     }),
     lane({
@@ -354,7 +354,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       sourceReady: false,
       completeAsProductSignal: false,
       clearsFormalProviderGate: false,
-      scoreImpact: "Keeps external cost posture visible without pretending source inventory is billing proof.",
+      scoreImpact: "Keeps external cost posture visible without pretending source inventory is billing evidence.",
       launchGateImpact: "Owner-review context only unless a P0/P1 cost blocker appears.",
       nextAction: "Attach owner-reviewed cost evidence when the operator chooses to formalize the lane.",
     }),
@@ -463,7 +463,7 @@ export function validateBetaEvidenceLanePrepReport(report: BetaEvidenceLanePrepR
     if (!operatorLane.completeAsProductSignal) failures.push("operator-confirmed revenue must count as product signal.");
     if (operatorLane.clearsFormalProviderGate) failures.push("operator-confirmed revenue must not clear provider-backed site activity lane.");
     if (/required|must attach|must provide/iu.test(operatorLane.nextAction) && /provider|screenshot/iu.test(operatorLane.nextAction)) {
-      failures.push("operator-confirmed revenue wording must not require unnecessary provider proof.");
+      failures.push("operator-confirmed revenue wording must not require unnecessary provider-backed source evidence.");
     }
   }
   if (providerLane?.status === "formal_complete" && operatorLane?.status === "operator_confirmed" && operatorLane.clearsFormalProviderGate) {
@@ -479,7 +479,7 @@ export function validateBetaEvidenceLanePrepReport(report: BetaEvidenceLanePrepR
     }
   }
   if (!report.sourceReadyLanes.includes("runtime_watch_time_proof")) {
-    failures.push("runtime watch-time proof source-ready lane must be represented.");
+    failures.push("runtime watch-time source-evidence lane must be represented.");
   }
   if (operatorLane?.status === "operator_confirmed" && !report.operatorConfirmedLanes.includes("operator_confirmed_revenue_smoke")) {
     failures.push("operator-confirmed lane must be represented.");

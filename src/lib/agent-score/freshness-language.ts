@@ -186,7 +186,7 @@ export function normalizeTechnicalFreshnessTerms(value: string): string {
     .replace(/formal evidence gate/giu, "source evidence lane")
     .replace(/formal evidence/giu, "source evidence")
     .replace(/formal proof/giu, "source evidence")
-    .replace(/formal launch proof/giu, "site activity launch proof")
+    .replace(/formal launch proof/giu, "site activity launch evidence")
     .replace(/not formal provider proof/giu, "not provider-backed source evidence")
     .replace(/Attach real redacted provider smoke evidence/gu, "Produce provider-backed source evidence")
     .replace(/Attach a redacted production admin truth sample/gu, "Produce a redacted admin source activity sample")

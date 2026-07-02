@@ -368,7 +368,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   const operatorConfirmedEvidence = operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
     ? ["operator-confirmed GumDrop revenue activity is recorded as product signal only."]
     : [];
-  const protectedProofLanes = [
+  const protectedSourceExportLanes = [
     "provider-backed activity",
     ...(options.laneStatuses.adminTruthSampleEvidence === "complete" ? [] : ["admin source activity sample"]),
     "billing",
@@ -377,7 +377,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   const formalMissingEvidence = [
     ...missingEvidence,
     "provider-backed site activity evidence remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.",
-    `site activity evidence clears connected site-activity lanes; ${formatOrList(protectedProofLanes)} lanes need matching source exports before clearing.`,
+    `site activity evidence clears connected site-activity lanes; ${formatOrList(protectedSourceExportLanes)} lanes need matching source exports before clearing.`,
   ];
   const refreshPlan = buildRefreshPlan([
     reportRelativePath,
@@ -503,7 +503,7 @@ export function validateEvidenceCaptureStatusReport(
     failures.push("missingEvidence must not be empty while evidence lanes are missing or incomplete.");
   }
   if (!Array.isArray(report.sourceReadyEvidence) || !report.sourceReadyEvidence.some((entry) => /runtime watch-time/iu.test(entry))) {
-    failures.push("sourceReadyEvidence must represent source-ready runtime watch-time proof separately.");
+    failures.push("sourceReadyEvidence must represent source-ready runtime watch-time source evidence separately from deployed playback activity evidence.");
   }
   if (
     !report.summary.liveRuntimeEvidence?.expectedImportPath
@@ -618,7 +618,7 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     `- Live runtime evidence: \`${report.summary.liveRuntimeEvidence.statusSummary}\`.`,
     `- Daily activity import path: \`${report.summary.liveRuntimeEvidence.expectedImportPath}\`.`,
     `- Operator confirmed amount/product: ${report.summary.operatorRevenueSmoke.amountUsdConfirmed ?? "n/a"} ${report.summary.operatorRevenueSmoke.product}.`,
-    `- Provider-backed evidence from operator confirmation: ${report.summary.operatorRevenueSmoke.formalProviderSmokePassed ? "yes" : "no"}.`,
+    `- Provider-backed site activity cleared by operator confirmation: ${report.summary.operatorRevenueSmoke.formalProviderSmokePassed ? "yes" : "no"}.`,
     "",
     report.summary.operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
       ? "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate."

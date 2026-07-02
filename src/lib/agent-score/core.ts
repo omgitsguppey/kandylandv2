@@ -952,8 +952,8 @@ export function buildPublicBetaEvidenceGates(input: {
   const runtimeSmokeStatus = String(evidenceArtifactStatus(evidence.runtimeSmokeEvidence, "runtime_unverified"));
   const providerLaneSatisfiedBySourceActivity = sourceActivityClearsProviderLane(evidence.sourceBackedRuntimeConfidenceEvidence);
   const runtimeProviderSmokePassed = (providerSmokePassed || providerLaneSatisfiedBySourceActivity) && runtimeSmokePassed;
-  const providerNeedsFormalProof = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
-  const runtimeNeedsFormalProof = /runtime_unverified|missing_formal_evidence|tracked_not_passing|missing_or_unknown/iu.test(runtimeSmokeStatus);
+  const providerActivityEvidenceRequired = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
+  const runtimeRouteEvidenceRequired = /runtime_unverified|missing_formal_evidence|tracked_not_passing|missing_or_unknown/iu.test(runtimeSmokeStatus);
   const runtimeEvidenceRecorded = runtimeSmokePassed || /formal_runtime_smoke_passed|passed_formal_evidence|passed/iu.test(runtimeSmokeStatus);
   const providerEvidenceRecorded = providerSmokePassed || providerLaneSatisfiedBySourceActivity || /formal_provider_smoke_passed|passed_formal_evidence|passed/iu.test(providerSmokeStatus);
   const runtimeProviderSmokeFreshnessUnknown = (!providerLaneSatisfiedBySourceActivity && providerQuality.freshness === "unknown")
@@ -963,7 +963,7 @@ export function buildPublicBetaEvidenceGates(input: {
     runtimeProviderSmokeStatus = "Ready";
   } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
     runtimeProviderSmokeStatus = "Needs review";
-  } else if ((providerNeedsFormalProof && !providerLaneSatisfiedBySourceActivity) || runtimeNeedsFormalProof) {
+  } else if ((providerActivityEvidenceRequired && !providerLaneSatisfiedBySourceActivity) || runtimeRouteEvidenceRequired) {
     runtimeProviderSmokeStatus = "Source evidence required";
   } else if (
     providerQuality.freshness === "stale"
@@ -988,14 +988,14 @@ export function buildPublicBetaEvidenceGates(input: {
   const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
     ? "Provider-backed site activity and deployed route evidence artifacts passed."
     : `Provider-backed site activity: ${providerLaneSatisfiedBySourceActivity ? "First-party site activity shows no provider-backed evidence is required for the connected lane." : providerSmokeDetail} Deployed route evidence: ${runtimeSmokePassed && (!providerSmokePassed || providerLaneSatisfiedBySourceActivity) ? "Deployed runtime route evidence is current." : runtimeSmokeDetail}`;
-  const runtimeProviderSmokeLabel = providerNeedsFormalProof && runtimeEvidenceRecorded
+  const runtimeProviderSmokeLabel = providerActivityEvidenceRequired && runtimeEvidenceRecorded
     ? "Provider-backed site activity evidence"
-    : runtimeNeedsFormalProof && providerEvidenceRecorded
+    : runtimeRouteEvidenceRequired && providerEvidenceRecorded
       ? "Deployed route evidence"
       : "Provider-backed site activity + deployed route evidence";
-  const runtimeProviderSmokeRecommendedAction = providerNeedsFormalProof && runtimeEvidenceRecorded
+  const runtimeProviderSmokeRecommendedAction = providerActivityEvidenceRequired && runtimeEvidenceRecorded
     ? "Produce provider-backed site activity evidence; keep deployed route evidence current."
-    : runtimeNeedsFormalProof && providerEvidenceRecorded
+    : runtimeRouteEvidenceRequired && providerEvidenceRecorded
       ? "Produce deployed runtime route evidence; keep provider-backed site activity evidence current."
       : "Keep provider-backed site activity and deployed route evidence current before clearing launch readiness.";
   const runtimeProviderSmokeEvidence = Array.from(new Set([
@@ -1127,7 +1127,7 @@ export function buildPublicBetaEvidenceGates(input: {
     partialCredit: runtimeProviderSmokePassed ? 1 : roundScore(Math.max(runtimeProviderFormalCredit, runtimeProviderSourceActivityCredit / 100)),
     blocksLaunch: providerLaneSatisfiedBySourceActivity && runtimeSmokePassed ? false : providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
     reason: providerLaneSatisfiedBySourceActivity
-      ? `${runtimeProviderSmokeDetail} Provider-specific proof remains separate only for lanes that declare provider evidence is required.`
+      ? `${runtimeProviderSmokeDetail} Provider-specific site activity evidence remains separate only for lanes that declare provider evidence is required.`
       : `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed site activity or deployed runtime route evidence.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
@@ -1151,7 +1151,7 @@ export function buildPublicBetaEvidenceGates(input: {
     && adminBaseQuality.freshness === "fresh";
   const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence)
     || currentAdminSourceActivitySamplePassed;
-  const adminTruthNeedsFormalProof = /missing_formal_evidence|missing_or_unknown|tracked_not_passing|admin_truth_sample_required/iu.test(adminTruthSampleStatus);
+  const adminSourceActivityEvidenceRequired = /missing_formal_evidence|missing_or_unknown|tracked_not_passing|admin_truth_sample_required/iu.test(adminTruthSampleStatus);
   const adminTruthSampleDetail = evidenceArtifactDetail(
     evidence.adminTruthSampleEvidence,
     adminTruthSamplePassed
@@ -1188,7 +1188,7 @@ export function buildPublicBetaEvidenceGates(input: {
     adminTruthSampleStatusLabel = "Ready";
   } else if (adminBaseQuality.quality === "failed") {
     adminTruthSampleStatusLabel = "Needs review";
-  } else if (adminTruthNeedsFormalProof) {
+  } else if (adminSourceActivityEvidenceRequired) {
     adminTruthSampleStatusLabel = "Source evidence required";
   } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0 || adminSourceConfidence > 0) {
     adminTruthSampleStatusLabel = "Source evidence required";
@@ -1276,6 +1276,8 @@ export function buildPublicBetaEvidenceGates(input: {
     `deployedRuntimeSmokeCleared=${algorithmicEvidencePolicy.formalGateImpact.deployedRuntimeSmokeCleared}`,
     `formalProviderGateCleared=${algorithmicEvidencePolicy.formalGateImpact.formalProviderGateCleared}`,
     `formalAdminRuntimeSampleCleared=${algorithmicEvidencePolicy.formalGateImpact.formalAdminRuntimeSampleCleared}`,
+    `providerActivityGateCleared=${algorithmicEvidencePolicy.formalGateImpact.formalProviderGateCleared}`,
+    `adminSourceActivityGateCleared=${algorithmicEvidencePolicy.formalGateImpact.formalAdminRuntimeSampleCleared}`,
     ...algorithmicEvidencePolicy.coverage.map((item) =>
       `${item.category}: confidence=${item.confidence}; score=${item.score}; source=${item.sourcePath}; ${item.distinction}`),
   ];
@@ -1373,7 +1375,7 @@ export function buildPublicBetaEvidenceGates(input: {
         ? "Runtime debug evidence is present in the score input."
         : "Debug evidence is empty, so absence of runtime issues is unknown.",
       evidence: debugRuntimeEvidenceLines,
-      recommendedAction: "Do not treat empty debug evidence as proof that no runtime issue exists.",
+      recommendedAction: "Do not treat empty debug evidence as source-backed evidence that no runtime issue exists.",
       quality: debugQuality,
       gateRequiredForExit: false,
       runtimeCredit: Math.max(
@@ -1422,6 +1424,8 @@ export function buildPublicBetaEvidenceGates(input: {
         `formalProviderGateCleared=${formalEvidenceBridge.formalGateStatus.providerSmoke.cleared}`,
         `deployedRuntimeSmokeCleared=${formalEvidenceBridge.formalGateStatus.deployedRuntimeSmoke.cleared}`,
         `formalAdminTruthSampleCleared=${formalEvidenceBridge.formalGateStatus.adminProductionSample.cleared}`,
+        `providerActivityGateCleared=${formalEvidenceBridge.formalGateStatus.providerSmoke.cleared}`,
+        `adminSourceActivitySampleCleared=${formalEvidenceBridge.formalGateStatus.adminProductionSample.cleared}`,
         `runtimeProviderSmokeEvidenceCredit=${formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit}`,
         `adminTruthSamplesEvidenceCredit=${formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit}`,
         `debugRuntimeEvidenceCredit=${formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit}`,

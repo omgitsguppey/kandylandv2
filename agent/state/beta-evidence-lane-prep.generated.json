@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T18:39:25.929Z",
+  "generatedAtUtc": "2026-07-02T13:44:50.155Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
+  "currentHead": "6f625882f00a63e4a08b4fe386b018d08567ad35",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 2,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 2,
-    "p2Count": 13
+    "p2Count": 16
   },
   "lanes": [
     {
@@ -90,7 +90,7 @@
       "sourceReady": false,
       "completeAsProductSignal": false,
       "clearsFormalProviderGate": false,
-      "scoreImpact": "Raises runtime confidence after deployed route and flow proof is attached.",
+      "scoreImpact": "Raises runtime confidence after deployed route and flow evidence is attached.",
       "launchGateImpact": "Required for beta exit; local validators are not deployed route evidence.",
       "nextAction": "Attach deployed route evidence using the runtime evidence template."
     },
@@ -116,7 +116,7 @@
     },
     {
       "id": "runtime_watch_time_proof",
-      "label": "Runtime watch-time proof",
+      "label": "Runtime watch-time source evidence",
       "folder": "agent/evidence/runtime-smoke",
       "template": "agent/evidence/runtime-smoke/evidence.template.json",
       "checklist": "docs/agent-truth/runtime-smoke-evidence-checklist.md",
@@ -131,7 +131,7 @@
       "completeAsProductSignal": false,
       "clearsFormalProviderGate": false,
       "scoreImpact": "Keeps watch-time source readiness separate from deployed playback evidence.",
-      "launchGateImpact": "Source-ready watch-time logic still needs deployed media proof before beta exit.",
+      "launchGateImpact": "Source-ready watch-time logic still needs deployed media activity evidence before beta exit.",
       "nextAction": "Attach deployed playback evidence showing runtime watch-time v2 on real media routes."
     },
     {
@@ -150,7 +150,7 @@
       "sourceReady": false,
       "completeAsProductSignal": false,
       "clearsFormalProviderGate": false,
-      "scoreImpact": "Keeps external cost posture visible without pretending source inventory is billing proof.",
+      "scoreImpact": "Keeps external cost posture visible without pretending source inventory is billing evidence.",
       "launchGateImpact": "Owner-review context only unless a P0/P1 cost blocker appears.",
       "nextAction": "Attach owner-reviewed cost evidence when the operator chooses to formalize the lane."
     },
@@ -191,13 +191,13 @@
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
@@ -221,14 +221,14 @@
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
@@ -257,8 +257,8 @@
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
@@ -300,6 +300,18 @@
   ],
   "staleReports": [
     {
+      "artifactPath": "agent/state/public-beta-score.generated.json",
+      "status": "current_by_impact",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score"
+    },
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "status": "current_by_impact",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "status": "current_by_impact",
       "nextAction": "No refresh needed.",
@@ -310,6 +322,18 @@
       "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "current_by_impact",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
@@ -334,12 +358,6 @@
       "status": "stale_source_version",
       "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
