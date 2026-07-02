@@ -635,6 +635,36 @@ describe("public beta scoring math", () => {
         expect(adminGate?.evidence.join("\n")).toContain("adminTruthSampleArtifactStatus=missing_or_unknown");
     });
 
+    it("caps source-ready admin truth wiring at the formal bridge credit until sample activity exists", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                adminTruthSampleEvidence: {
+                    path: "agent/state/admin-truth-source-sample.generated.json",
+                    status: "source_ready_admin_truth_sample",
+                    passed: true,
+                    detail: "Admin source truth wiring is current; production sample still required.",
+                    evidence: [
+                        "sourceTruthStatus=source_backed",
+                        "criticalAdminTruthIssueCount=0",
+                        "fakeHealthyStateDetected=false",
+                        "formalAdminTruthSamplePassed=false",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
+        const bridgeGate = report.evidenceGates.find((gate) => gate.id === "formalEvidenceBridge");
+
+        expect(adminGate?.status).toBe("Source evidence required");
+        expect(adminGate?.sourceCredit).toBe(65);
+        expect(adminGate?.sourceCredit).toBeLessThan(92);
+        expect(bridgeGate?.evidence.join("\n")).toContain("adminTruthSamplesEvidenceCredit=65");
+    });
+
     it("awards admin truth credit when the artifact passes", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),

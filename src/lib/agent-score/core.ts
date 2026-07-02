@@ -1172,21 +1172,13 @@ export function buildPublicBetaEvidenceGates(input: {
       : "No admin source activity sample evidence artifact was supplied.",
   );
   const adminTruthSampleEvidence = adminTruthSampleEvidenceRaw;
-  const adminBridgeCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit / 100;
-  const adminTruthSampleEvidenceText = adminTruthSampleEvidence.join("\n");
-  const adminSourceConfidence = currentAdminSourceActivitySamplePassed
-    ? 100
-    : adminTruthSampleStatus.includes("source_ready")
-      && /sourceTruthStatus=source_backed/iu.test(adminTruthSampleEvidenceText)
-      && /criticalAdminTruthIssueCount=0/iu.test(adminTruthSampleEvidenceText)
-      && /fakeHealthyStateDetected=false/iu.test(adminTruthSampleEvidenceText)
-      ? 92
-      : 0;
-  const adminSourceActivityCredit = Math.max(adminBridgeCredit, adminSourceConfidence / 100);
+  const adminBridgeEvidenceCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit;
+  const adminBridgeCredit = adminBridgeEvidenceCredit / 100;
+  const adminSourceActivityCredit = adminBridgeCredit;
   const adminQuality = {
     ...adminBaseQuality,
     quality: adminBaseQuality.quality,
-    confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9, adminSourceConfidence / 100),
+    confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9),
     partialCredit: adminTruthSamplePassed
       ? roundScore(Math.max(adminBaseQuality.partialCredit, adminSourceActivityCredit))
       : roundScore(adminSourceActivityCredit),
@@ -1203,7 +1195,7 @@ export function buildPublicBetaEvidenceGates(input: {
     adminTruthSampleStatusLabel = "Needs review";
   } else if (adminSourceActivityEvidenceRequired) {
     adminTruthSampleStatusLabel = "Source evidence required";
-  } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0 || adminSourceConfidence > 0) {
+  } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0) {
     adminTruthSampleStatusLabel = "Source evidence required";
   } else if (adminBaseQuality.freshness === "stale" || adminBaseQuality.freshness === "head_mismatch") {
     adminTruthSampleStatusLabel = "Stale evidence";
@@ -1354,7 +1346,7 @@ export function buildPublicBetaEvidenceGates(input: {
       quality: adminQuality,
       gateRequiredForExit: true,
       sourceCredit: adminTruthSamplePassed || adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
-        ? Math.max(adminBridgeCredit * 100, adminSourceConfidence)
+        ? adminBridgeEvidenceCredit
         : undefined,
       runtimeCredit: adminQuality.quality === "formal_passed"
         ? adminQuality.partialCredit * 100
@@ -1450,7 +1442,7 @@ export function buildPublicBetaEvidenceGates(input: {
         confidence: formalEvidenceBridge.validationFailures.length > 0 ? 0 : Math.max(
           0.78,
           runtimeProviderRuntimeCredit / 100,
-          adminSourceConfidence / 100,
+          adminBridgeCredit,
           (evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0) / 100,
         ),
         freshness: "fresh",
@@ -1462,7 +1454,6 @@ export function buildPublicBetaEvidenceGates(input: {
               formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit,
               formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit,
               runtimeProviderRuntimeCredit,
-              adminSourceConfidence,
               evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0,
             ) / 100,
         blocksLaunch: false,
@@ -1474,7 +1465,6 @@ export function buildPublicBetaEvidenceGates(input: {
       sourceCredit: Math.max(
         formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit,
         formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit,
-        adminSourceConfidence,
         evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0,
       ),
       runtimeCredit: Math.max(
