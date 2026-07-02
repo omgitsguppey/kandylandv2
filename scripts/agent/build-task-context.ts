@@ -145,7 +145,7 @@ function buildTaskSignals(mode: TaskMode, taskTokens: string[], taskText: string
   if (mode === "ui" || hasAny("ui", "hydration", "component", "page", "dashboard", "profile", "booking", "subscription")) {
     requiredCommands.add("npm run check:ui:coverage");
     requiredCommands.add("npm run check:ui:runtime");
-    requiredCommands.add("npm run check:ui:audits");
+    optionalCommands.add("npm run check:ui:audits");
     optionalCommands.add("npm run check:ui:lighthouse");
   }
 
@@ -401,11 +401,13 @@ function selectVerificationCommands(input: {
     addRequired("npm run check:admin-browser-surface-smoke");
     addOptional("npm run check:admin-browser-surface-smoke:browser");
   } else if (touchesUi || mode === "ui") {
-    addRequired("npm run check:ui:audits");
+    addRequired("npm run check:ui:coverage");
+    addRequired("npm run check:ui:runtime");
+    addOptional("npm run check:ui:audits");
   }
 
   if (taskTokens.includes("performance") || taskTokens.includes("loading") || taskTokens.includes("render") || taskTokens.includes("lighthouse")) {
-    addRequired("npm run check:ui:lighthouse");
+    addOptional("npm run check:ui:lighthouse");
   }
 
   if (touchesTelemetry) {

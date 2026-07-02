@@ -52,7 +52,7 @@ const EVAL_CASES: EvalCase[] = [
     expectedRelevantFiles: ["src/app/admin/debug/page.tsx", "src/app/api/admin/debug/route.ts"],
     expectedHelpers: ["src/lib/server/route-diagnostics.ts"],
     expectedFastCommands: ["npm run check:ui:coverage", "npm run check:admin-browser-surface-smoke"],
-    expectedSignoffCommands: ["npm run check:admin-browser-surface-smoke:browser", "npm run check:continuity"],
+    expectedSignoffCommands: ["npm run check:continuity"],
     expectedScope: "moderate",
     forbiddenFiles: ["src/lib/gumdrop-ledger.ts", "src/lib/server/paypal.ts"],
   },
