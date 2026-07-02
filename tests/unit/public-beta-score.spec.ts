@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 
 import {
     buildPublicBetaFinding,
@@ -9,9 +12,22 @@ import {
 import { assertAutofixGate, type PublicBetaAutofixPlan } from "@/lib/agent-score/autofix";
 import { buildPublicBetaCommandBudget } from "@/lib/agent-score/reporting";
 import type { DebugEvidenceAuditSummary } from "@/lib/debug-evidence-contract";
+import { readSourceBackedRuntimeConfidenceEvidence } from "../../scripts/agent/score-public-beta-readiness";
 
 const freshGeneratedAtUtc = new Date().toISOString();
 const staleGeneratedAtUtc = "2026-05-01T00:00:00.000Z";
+
+function tempScoreRoot() {
+    const root = mkdtempSync(join(tmpdir(), "kandydrops-beta-score-"));
+    mkdirSync(join(root, "agent/state"), { recursive: true });
+    return root;
+}
+
+function writeScoreJson(root: string, relativePath: string, value: unknown) {
+    const fullPath = join(root, relativePath);
+    mkdirSync(dirname(fullPath), { recursive: true });
+    writeFileSync(fullPath, `${JSON.stringify(value, null, 2)}\n`);
+}
 
 const freshEvidence = {
     requiredReports: [
@@ -731,6 +747,67 @@ describe("public beta scoring math", () => {
         expect(smokeGate?.status).toBe("Source evidence required");
         expect(smokeGate?.score).toBe(0);
         expect(smokeGate?.evidence.join("\n")).toContain("providerArtifactStatus=missing_formal_evidence");
+    });
+
+    it("prefers confirmed live activity over generic source-backed runtime confidence", () => {
+        const root = tempScoreRoot();
+        writeScoreJson(root, "agent/state/source-backed-runtime-confidence.generated.json", {
+            status: "source_ready_runtime_confidence",
+            passed: true,
+            detail: "Generic source-backed runtime confidence is current.",
+            evidence: ["runtimeConfidenceScore=82"],
+            generatedAtUtc: freshGeneratedAtUtc,
+            currentHead: "head",
+        });
+        writeScoreJson(root, "agent/state/live-evidence-gate-replacement.generated.json", {
+            generatedAtUtc: freshGeneratedAtUtc,
+            currentHead: "head",
+            liveEvidenceBySystem: [{
+                liveRuntimeEvidenceStatus: "live_activity_confirmed",
+                dailyActivityImport: {
+                    expectedPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
+                    foundPaths: ["agent/evidence/live-runtime-activity/recent-activity.export.json"],
+                    schema: "live-runtime-activity-export",
+                },
+            }],
+        });
+
+        const selected = readSourceBackedRuntimeConfidenceEvidence(root);
+
+        expect(selected.path).toBe("agent/state/live-evidence-gate-replacement.generated.json");
+        expect(selected.status).toBe("source_ready_live_activity_confirmed");
+        expect(selected.evidence.join("\n")).toContain("liveRuntimeEvidence.firstPartySiteActivityConfirmed=1");
+        expect(selected.evidence.join("\n")).toContain("launchGateImpact=site_activity_can_clear_connected_site_activity_lanes");
+    });
+
+    it("keeps generic source-backed confidence when the live bridge is only waiting for activity", () => {
+        const root = tempScoreRoot();
+        writeScoreJson(root, "agent/state/source-backed-runtime-confidence.generated.json", {
+            status: "source_ready_runtime_confidence",
+            passed: true,
+            detail: "Generic source-backed runtime confidence is current.",
+            evidence: ["runtimeConfidenceScore=82"],
+            generatedAtUtc: freshGeneratedAtUtc,
+            currentHead: "head",
+        });
+        writeScoreJson(root, "agent/state/live-evidence-gate-replacement.generated.json", {
+            generatedAtUtc: freshGeneratedAtUtc,
+            currentHead: "head",
+            liveEvidenceBySystem: [{
+                liveRuntimeEvidenceStatus: "source_ready_waiting_for_activity",
+                dailyActivityImport: {
+                    expectedPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
+                    foundPaths: [],
+                    schema: "live-runtime-activity-export",
+                },
+            }],
+        });
+
+        const selected = readSourceBackedRuntimeConfidenceEvidence(root);
+
+        expect(selected.path).toBe("agent/state/source-backed-runtime-confidence.generated.json");
+        expect(selected.status).toBe("source_ready_runtime_confidence");
+        expect(selected.evidence.join("\n")).toContain("runtimeConfidenceScore=82");
     });
 
     it("credits first-party site activity evidence without requiring a separate source-lane artifact", () => {

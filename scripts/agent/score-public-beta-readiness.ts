@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import {
   printPublicBetaScoreSummary,
@@ -498,16 +499,23 @@ function readRegressionRiskRefreshEvidence(root: string) {
   };
 }
 
-function readSourceBackedRuntimeConfidenceEvidence(root: string): PublicBetaEvidenceArtifact {
+function liveRuntimeEvidenceConfirmsActivity(artifact: PublicBetaEvidenceArtifact | null) {
+  return artifact?.status === "source_ready_live_activity_confirmed"
+    || artifact?.status === "source_ready_aggregate_activity_confirmed";
+}
+
+export function readSourceBackedRuntimeConfidenceEvidence(root: string): PublicBetaEvidenceArtifact {
   const sourceBacked = readEvidenceArtifact(
     root,
     SOURCE_BACKED_RUNTIME_CONFIDENCE_PATH,
     "missing_or_unknown",
     "No source-backed runtime confidence artifact was supplied.",
   );
+  const liveRuntimeBridge = readLiveRuntimeEvidenceBridgeEvidence(root);
+  if (liveRuntimeBridge && liveRuntimeEvidenceConfirmsActivity(liveRuntimeBridge)) return liveRuntimeBridge;
   const sourceBackedStatus = String(sourceBacked.status);
   if (sourceBackedStatus.includes("source_ready")) return sourceBacked;
-  return readLiveRuntimeEvidenceBridgeEvidence(root) ?? sourceBacked;
+  return liveRuntimeBridge ?? sourceBacked;
 }
 
 function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidenceArtifact | null {
@@ -963,5 +971,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
   return report;
 }
 
-const report = runPublicBetaReadinessScore();
-printPublicBetaScoreSummary(report);
+if (process.env.VITEST !== "true" && process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = runPublicBetaReadinessScore();
+  printPublicBetaScoreSummary(report);
+}
