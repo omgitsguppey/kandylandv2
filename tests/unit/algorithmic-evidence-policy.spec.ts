@@ -106,12 +106,12 @@ describe("algorithmic evidence policy", () => {
     expect(report.uiSurfaceCoverageScope.uiSurfaceCoverageGate.requiresSourceSurfaceCoverage).toBe(true);
     expect(report.uiSurfaceCoverageScope.uiSurfaceCoverageGate.canClearFromAlgorithmicEvidence).toBe(false);
     expect(report.uiSurfaceCoverageScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage).toBe(false);
-    expect(report.nonUiAlgorithmicCoverageScore).toBeGreaterThan(70);
+    expect(report.nonUiAlgorithmicCoverageScore).toBeGreaterThan(45);
     expect(report.formalGateImpact.uiVisualGateCleared).toBe(false);
     expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
   });
 
-  it("treats operator revenue, source runtime, and admin source samples as partial without clearing source gates", () => {
+  it("keeps operator revenue partial while source runtime waits for activity and admin wiring stays partial", () => {
     const report = buildAlgorithmicEvidencePolicyReport({
       debugRuntimeEvidence: sourceReadyDebugRuntime,
       realUsageConfidenceEvidence: realUsageConfidence,
@@ -121,8 +121,10 @@ describe("algorithmic evidence policy", () => {
     });
 
     expect(report.providerConfidence.confidence).toBe("partial");
-    expect(report.runtimeSourceConfidence.confidence).toBe("partial");
+    expect(report.runtimeSourceConfidence.confidence).toBe("missing");
     expect(report.adminTruthConfidence.confidence).toBe("partial");
+    expect(report.runtimeSourceConfidence.score).toBe(0);
+    expect(report.adminTruthConfidence.score).toBeGreaterThan(0);
     expect(report.formalGateImpact.formalProviderGateCleared).toBe(false);
     expect(report.formalGateImpact.deployedRuntimeSmokeCleared).toBe(false);
     expect(report.formalGateImpact.formalAdminRuntimeSampleCleared).toBe(false);

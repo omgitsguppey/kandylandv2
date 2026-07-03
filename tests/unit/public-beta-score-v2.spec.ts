@@ -58,7 +58,7 @@ const formalPassedEvidence = {
     status: "source_ready_runtime_confidence",
     passed: true,
     detail: "Source-backed runtime confidence is current.",
-    evidence: ["sourceBackedRuntimeConfidence=100"],
+    evidence: ["sourceBackedRuntimeConfidence=100", "liveRuntimeEvidence.firstPartySiteActivityConfirmed=3"],
     generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
@@ -67,7 +67,7 @@ const formalPassedEvidence = {
     status: "passed",
     passed: true,
     detail: "Fresh admin source activity sample supplied.",
-    evidence: ["formal_admin_truth_sample_passed", "sampleCount=1"],
+    evidence: ["formal_admin_truth_sample_passed", "formalAdminTruthSamplePassed=true", "sampleCount=1"],
     generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
@@ -79,6 +79,32 @@ const formalPassedEvidence = {
     evidence: ["source_ready_behavior_math"],
     generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
+  },
+  costReadiness: {
+    cloudRunCostReadiness: {
+      status: "source_ready_batched_or_cached",
+      detail: "Cloud Run/App Hosting cost surface is source-guarded.",
+      evidence: ["cloudRun=source_ready_batched_or_cached"],
+      blocksBetaExit: false,
+    },
+    cloudSqlCostReadiness: {
+      status: "source_inventory_complete",
+      detail: "SQL runtime cost inventory is source-classified.",
+      evidence: ["cloudSqlRuntime=source_inventory_complete"],
+      blocksBetaExit: false,
+    },
+    geminiCloudAssistCostReadiness: {
+      status: "source_ready_batched_or_cached",
+      detail: "AI cost surface is source-guarded.",
+      evidence: ["gemini=source_ready_batched_or_cached"],
+      blocksBetaExit: false,
+    },
+    route4xxReadiness: {
+      status: "source_ready_retry_storm_guarded",
+      detail: "Route 4xx retry storms are source-guarded.",
+      evidence: ["route4xx=source_ready_retry_storm_guarded"],
+      blocksBetaExit: false,
+    },
   },
 };
 
@@ -267,7 +293,7 @@ describe("public beta score v2 health model", () => {
     const genericGate = genericSourceReport.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
     const siteActivityGate = siteActivityReport.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
 
-    expect(genericGate?.sourceCredit).toBe(55);
+    expect(genericGate?.sourceCredit).toBe(0);
     expect(siteActivityGate?.sourceCredit).toBe(72);
     expect(siteActivityGate?.sourceCredit).toBeGreaterThan(genericGate?.sourceCredit ?? 0);
     expect(siteActivityGate?.status).toBe("Source evidence required");

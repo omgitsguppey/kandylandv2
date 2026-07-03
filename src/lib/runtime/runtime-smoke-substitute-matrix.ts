@@ -81,6 +81,7 @@ export type RuntimeSmokeSubstituteInput = {
   realUsageConfidenceCalibration?: {
     status?: string;
     runtimeHealthCredit?: number;
+    verifiedByActivity?: number;
     formalGateImpact?: {
       clearsDeployedRuntime?: boolean;
       clearsFormalProvider?: boolean;
@@ -467,7 +468,11 @@ function sourceReady(input: RuntimeSmokeSubstituteInput) {
 }
 
 function realUsageObservedSignals(input: RuntimeSmokeSubstituteInput) {
-  return Math.max(0, input.realUsageConfidence?.observedSignals ?? 0);
+  return Math.max(
+    0,
+    input.realUsageConfidence?.observedSignals ?? 0,
+    input.realUsageConfidenceCalibration?.verifiedByActivity ?? 0,
+  );
 }
 
 function realUsageObservedActivityCredit(input: RuntimeSmokeSubstituteInput) {

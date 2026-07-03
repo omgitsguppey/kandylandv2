@@ -545,6 +545,16 @@ function observedSiteActivityCount(artifact: PublicBetaEvidenceArtifact | undefi
   return evidenceArtifactNumber(artifact, "observedSignals") ?? 0;
 }
 
+function sourceVerifiedSiteActivityCount(input: {
+  realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
+  realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
+}) {
+  return Math.max(
+    observedSiteActivityCount(input.realUsageConfidenceEvidence),
+    evidenceArtifactNumber(input.realUsageConfidenceCalibrationEvidence, "activityVerification.verifiedByActivity") ?? 0,
+  );
+}
+
 function sourceActivityClearsProviderLane(artifact: PublicBetaEvidenceArtifact | undefined) {
   if (!artifact) return false;
   const status = String(evidenceArtifactStatus(artifact, "missing_or_unknown"));
@@ -836,7 +846,10 @@ export function buildPublicBetaEvidenceGates(input: {
         realUsageCalibrationCredit,
       )
     : realUsageCalibrationCredit;
-  const realUsageObservedSiteActivityCount = observedSiteActivityCount(evidence.realUsageConfidenceEvidence);
+  const realUsageObservedSiteActivityCount = sourceVerifiedSiteActivityCount({
+    realUsageConfidenceEvidence: evidence.realUsageConfidenceEvidence,
+    realUsageConfidenceCalibrationEvidence: evidence.realUsageConfidenceCalibrationEvidence,
+  });
   const realUsageObservedActivityCredit = realUsageObservedSiteActivityCount > 0 ? realUsageConfidenceCredit : 0;
   const behaviorMathStatus = String(evidenceArtifactStatus(
     evidence.behaviorMathEvidence,
@@ -1023,8 +1036,11 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
+  const sourceBackedRuntimeObservedActivityCount =
+    evidenceArtifactNumber(evidence.sourceBackedRuntimeConfidenceEvidence, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0;
   const sourceBackedRuntimeConfidenceCredit = sourceBackedRuntimeConfidenceQuality.quality === "source_ready"
     && sourceBackedRuntimeConfidenceStatus.includes("source_ready")
+    && sourceBackedRuntimeObservedActivityCount > 0
     ? sourceBackedRuntimeConfidenceQuality.partialCredit * 100
     : 0;
   const runtimeSmokeSubstituteMatrixStatus = String(evidenceArtifactStatus(
@@ -1065,6 +1081,7 @@ export function buildPublicBetaEvidenceGates(input: {
       evidence.sourceBackedRuntimeConfidenceEvidence
         ? [
             `sourceBackedRuntimeConfidenceStatus=${sourceBackedRuntimeConfidenceStatus}`,
+            `sourceBackedRuntimeObservedActivity=${roundScore(sourceBackedRuntimeObservedActivityCount)}`,
             `sourceBackedRuntimeConfidenceCredit=${roundScore(sourceBackedRuntimeConfidenceCredit)}`,
             ...evidenceArtifactEvidence(evidence.sourceBackedRuntimeConfidenceEvidence),
           ]

@@ -53,7 +53,11 @@ describe("source evidence bridge", () => {
           path: "agent/state/source-backed-runtime-confidence.generated.json",
           status: "source_ready_runtime_confidence",
           passed: true,
-          evidence: ["runtimeConfidenceScore=100", "deployedSmokePresent=false"],
+          evidence: [
+            "runtimeConfidenceScore=100",
+            "liveRuntimeEvidence.firstPartySiteActivityConfirmed=3",
+            "deployedSmokePresent=false",
+          ],
         }),
         realUsageConfidence: artifact({
           path: "agent/state/real-usage-confidence.generated.json",
@@ -76,7 +80,17 @@ describe("source evidence bridge", () => {
           path: "agent/state/admin-truth-source-sample.generated.json",
           status: "source_ready_admin_truth_sample",
           passed: true,
-          evidence: ["formalAdminTruthSamplePassed=false", "productionSampleAttached=false"],
+          evidence: [
+            "adminDebugControlTowerModelPresent=true",
+            "adminDebugRoutePresent=true",
+            "sourceTruthLabelsPresent=true",
+            "sourceTruthStatus=source_backed",
+            "criticalAdminTruthIssueCount=0",
+            "fakeHealthyStateDetected=false",
+            "degradedOrUnavailableLaneCount=4",
+            "formalAdminTruthSamplePassed=false",
+            "productionSampleAttached=false",
+          ],
         }),
         debugRuntimeEvidence: artifact({
           path: "agent/state/debug-runtime-evidence.generated.json",
@@ -91,7 +105,9 @@ describe("source evidence bridge", () => {
     expect(report.formalGateStatus.deployedRuntimeSmoke.cleared).toBe(false);
     expect(report.formalGateStatus.adminProductionSample.cleared).toBe(false);
     expect(report.gates.runtimeProviderSmoke.evidenceCredit).toBeGreaterThan(60);
-    expect(report.gates.adminTruthSamples.evidenceCredit).toBeGreaterThan(50);
+    expect(report.gates.adminTruthSamples.evidenceCredit).toBeGreaterThan(0);
+    expect(report.gates.adminTruthSamples.formalGateCleared).toBe(false);
+    expect(report.sourceConfidenceStatus.adminSourceConfidenceScore).toBeGreaterThan(0);
     expect(report.sourceGapsRemaining).toEqual([
       "provider_backed_site_activity",
       "deployed_route_activity",

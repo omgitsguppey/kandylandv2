@@ -52,6 +52,15 @@ function stringValue(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
 }
 
+function evidenceNumber(parsed: Record<string, unknown> | null, key: string) {
+  const evidence = Array.isArray(parsed?.evidence) ? parsed.evidence : [];
+  for (const entry of evidence) {
+    const match = new RegExp(`^${key.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}=(\\d+(?:\\.\\d+)?)$`, "u").exec(String(entry));
+    if (match) return Number(match[1]);
+  }
+  return undefined;
+}
+
 function readTelemetryClosure(): RuntimeSmokeSubstituteInput["telemetryClosure"] {
   const parsed = readJson("agent/state/final-telemetry-closure-lock.generated.json");
   const entries = Array.isArray(parsed?.laneStatus) ? parsed.laneStatus : [];
@@ -86,6 +95,7 @@ function readRealUsageConfidenceCalibration(): RuntimeSmokeSubstituteInput["real
   return {
     status: stringValue(parsed?.status),
     runtimeHealthCredit: numberValue(parsed?.runtimeHealthCredit),
+    verifiedByActivity: evidenceNumber(parsed, "activityVerification.verifiedByActivity"),
     formalGateImpact: {
       clearsDeployedRuntime: booleanValue(formalGateImpact.clearsDeployedRuntime),
       clearsFormalProvider: booleanValue(formalGateImpact.clearsFormalProvider),

@@ -279,7 +279,7 @@ function main() {
   });
 
   const visualGate = scoreReport.evidenceGates.find((gate) => gate.id === RETIRED_UI_SCORE_GATE_ID);
-  if (scoreReport.runtimeHealthScore <= 55) {
+  if (report.uiSurfaceCoverageScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage !== false) {
     failures.push("UI source coverage still appears to block non-UI runtime confidence.");
   }
   if (visualGate) {

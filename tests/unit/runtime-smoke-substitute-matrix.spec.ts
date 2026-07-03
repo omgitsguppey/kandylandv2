@@ -119,6 +119,33 @@ describe("runtime smoke substitute matrix", () => {
     expect(report.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
   });
 
+  it("counts calibrated verified activity without counting generic calibration-only confidence", () => {
+    const report = buildRuntimeSmokeSubstituteMatrix({
+      currentHead: "abc123",
+      generatedAtUtc: "2026-05-21T12:00:00.000Z",
+      realUsageConfidence: {
+        status: "source_ready_real_usage_confidence",
+        confidenceScore: 95,
+        observedSignals: 0,
+      },
+      realUsageConfidenceCalibration: {
+        status: "source_ready_real_usage_confidence_calibrated",
+        runtimeHealthCredit: 95,
+        verifiedByActivity: 3,
+        formalGateImpact: {
+          clearsDeployedRuntime: false,
+          clearsFormalProvider: false,
+        },
+      },
+    });
+
+    expect(report.matrixRuntimeProviderActivityCredit).toBeGreaterThan(0);
+    expect(report.matrixRuntimeProviderActivityCredit).toBeLessThanOrEqual(report.matrixRuntimeHealthCredit);
+    expect(report.evidence.join("\n")).toContain("realUsageObservedSignals=3");
+    expect(report.evidence.join("\n")).toContain("realUsageObservedActivityCredit=95");
+    expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
+  });
+
   it("requires exact next actions for rows needing deployed route evidence", () => {
     const report = buildReport();
 

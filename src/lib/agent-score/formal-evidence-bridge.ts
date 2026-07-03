@@ -108,6 +108,34 @@ function clampScore(value: number) {
   return Math.min(100, Math.max(0, Math.round(value * 100) / 100));
 }
 
+function evidenceBoolean(text: string, key: string) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const match = new RegExp(`${escaped}=(true|false)`, "iu").exec(text);
+  return match ? match[1].toLowerCase() === "true" : undefined;
+}
+
+function evidenceNumber(text: string, key: string) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const match = new RegExp(`${escaped}=(-?\\d+(?:\\.\\d+)?)`, "iu").exec(text);
+  return match ? Number(match[1]) : undefined;
+}
+
+function sourceBackedAdminConfidence(artifact: FormalEvidenceBridgeArtifact | undefined, adminFormal: boolean) {
+  if (adminFormal) return 100;
+  const text = evidenceArtifactText(artifact);
+  const sourceBacked = /sourceTruthStatus=source_backed|sourceSampleStatus=source_ready_admin_truth_sample/iu.test(text);
+  const fakeHealthy = evidenceBoolean(text, "fakeHealthyStateDetected") === true;
+  const criticalIssues = evidenceNumber(text, "criticalAdminTruthIssueCount") ?? 0;
+  if (!sourceBacked || fakeHealthy || criticalIssues > 0) return 0;
+
+  const degradedLanes = Math.max(0, evidenceNumber(text, "degradedOrUnavailableLaneCount") ?? 0);
+  const labelsPresent = evidenceBoolean(text, "sourceTruthLabelsPresent") === true;
+  const routePresent = evidenceBoolean(text, "adminDebugRoutePresent") === true;
+  const debugModelPresent = evidenceBoolean(text, "adminDebugControlTowerModelPresent") === true;
+  const base = labelsPresent && routePresent && debugModelPresent ? 72 : 55;
+  return clampScore(base - Math.min(30, degradedLanes * 3));
+}
+
 function scoreDimensions(input?: Partial<FormalEvidenceBridgeScoreDimensions>): FormalEvidenceBridgeScoreDimensions {
   return {
     sourceHealth: input?.sourceHealth ?? 0,
@@ -175,23 +203,30 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
   const adminFormal = evidenceArtifactHasFormalPass(artifacts.adminSourceSample)
     && /productionSampleAttached=true|formalAdminTruthSamplePassed=true/iu.test(evidenceArtifactText(artifacts.adminSourceSample));
   const operatorRevenue = includesOperatorRevenue(artifacts.operatorRevenueSmoke) || includesOperatorRevenue(artifacts.providerSmoke);
-  const runtimeConfidenceScore = Math.max(
+  const rawRuntimeConfidenceScore = Math.max(
     evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "runtimeConfidenceScore") ?? 0,
     evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "sourceBackedRuntimeConfidence") ?? 0,
   );
+  const runtimeConfidenceScore = (evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0) > 0
+    ? rawRuntimeConfidenceScore
+    : 0;
   const realUsageConfidenceScore = Math.max(
     evidenceArtifactNumericValue(artifacts.realUsageConfidence, "confidenceScore") ?? 0,
     evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "runtimeHealthCredit") ?? 0,
     evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "calibratedConfidenceScore") ?? 0,
   );
-  const realUsageObservedActivityScore = (evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0) > 0
+  const realUsageObservedActivityCount = Math.max(
+    evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0,
+    evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "activityVerification.verifiedByActivity") ?? 0,
+  );
+  const realUsageObservedActivityScore = realUsageObservedActivityCount > 0
     ? realUsageConfidenceScore
     : 0;
   const runtimeSubstituteEvidenceScore =
     evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeProviderActivityCredit") ?? 0;
   const debugRuntimeConfidenceScore = evidenceArtifactNumericValue(artifacts.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
     ?? (evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? 55 : 0);
-  const adminSourceConfidenceScore = evidenceArtifactHasSourceConfidence(artifacts.adminSourceSample) ? 65 : 0;
+  const adminSourceConfidenceScore = sourceBackedAdminConfidence(artifacts.adminSourceSample, adminFormal);
   const runtimeSourceConfidence = Math.max(
     runtimeConfidenceScore,
     realUsageObservedActivityScore,
@@ -203,7 +238,6 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     : Math.max(
         operatorRevenue ? 40 : 0,
         Math.min(runtimeSourceConfidence, 78),
-        runtimeSubstituteEvidenceScore,
       );
   const runtimeProviderNextAction = providerFormal && runtimeFormal
     ? "Keep provider-backed site activity and deployed runtime route artifacts fresh."

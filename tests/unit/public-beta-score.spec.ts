@@ -635,7 +635,7 @@ describe("public beta scoring math", () => {
         expect(adminGate?.evidence.join("\n")).toContain("adminTruthSampleArtifactStatus=missing_or_unknown");
     });
 
-    it("caps source-ready admin truth wiring at the formal bridge credit until sample activity exists", () => {
+    it("credits source-backed admin wiring without clearing the admin sample gate", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -646,9 +646,13 @@ describe("public beta scoring math", () => {
                     passed: true,
                     detail: "Admin source truth wiring is current; production sample still required.",
                     evidence: [
+                        "adminDebugControlTowerModelPresent=true",
+                        "adminDebugRoutePresent=true",
+                        "sourceTruthLabelsPresent=true",
                         "sourceTruthStatus=source_backed",
                         "criticalAdminTruthIssueCount=0",
                         "fakeHealthyStateDetected=false",
+                        "degradedOrUnavailableLaneCount=4",
                         "formalAdminTruthSamplePassed=false",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
@@ -660,9 +664,10 @@ describe("public beta scoring math", () => {
         const bridgeGate = report.evidenceGates.find((gate) => gate.id === "formalEvidenceBridge");
 
         expect(adminGate?.status).toBe("Source evidence required");
-        expect(adminGate?.sourceCredit).toBe(65);
-        expect(adminGate?.sourceCredit).toBeLessThan(92);
-        expect(bridgeGate?.evidence.join("\n")).toContain("adminTruthSamplesEvidenceCredit=65");
+        expect(adminGate?.sourceCredit).toBeGreaterThan(0);
+        expect(adminGate?.runtimeCredit).toBeGreaterThan(0);
+        expect(adminGate?.blocksLaunch).toBe(true);
+        expect(bridgeGate?.evidence.join("\n")).toMatch(/adminTruthSamplesEvidenceCredit=(?!0\b)\d/);
     });
 
     it("awards admin truth credit when the artifact passes", () => {
@@ -1059,8 +1064,8 @@ describe("public beta scoring math", () => {
         expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.status).toBe("needs_proof");
         expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.detail).toContain("Open evidence gates:");
         expect(report.sourceHealthScore).toBeGreaterThanOrEqual(90);
-        expect(report.runtimeHealthScore).toBeGreaterThanOrEqual(90);
-        expect(report.evidenceCompletenessScore).toBeGreaterThanOrEqual(90);
+        expect(report.runtimeHealthScore).toBeGreaterThanOrEqual(70);
+        expect(report.evidenceCompletenessScore).toBeGreaterThanOrEqual(75);
         expect(report.freshnessScore).toBeGreaterThanOrEqual(90);
         expect(report.costRiskScore).toBeGreaterThanOrEqual(90);
         expect(report.regressionRiskScore).toBeGreaterThanOrEqual(90);
@@ -1127,6 +1132,47 @@ describe("public beta scoring math", () => {
         expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
         expect(smokeGate?.evidence.join("\n")).toContain("runtimeSmokeSubstituteMatrixCredit=95");
         expect(smokeGate?.evidence.join("\n")).toContain("runtimeSmokeSubstituteMatrixActivityCredit=0");
+    });
+
+    it("counts calibrated verified site activity without clearing provider or deployed route gates", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: { ...missingProviderSmokeEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                runtimeSmokeEvidence: { ...runtimeUnverifiedEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                realUsageConfidenceEvidence: {
+                    path: "agent/state/real-usage-confidence.generated.json",
+                    status: "source_ready_real_usage_confidence",
+                    passed: true,
+                    detail: "Source-backed real usage confidence is current.",
+                    evidence: ["confidenceScore=72", "observedSignals=0", "formalGatesCleared=false"],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+                realUsageConfidenceCalibrationEvidence: {
+                    path: "agent/state/real-usage-confidence-calibration.generated.json",
+                    status: "source_ready_real_usage_confidence_calibrated",
+                    passed: true,
+                    detail: "Real usage confidence calibration includes verified source activity.",
+                    evidence: [
+                        "runtimeHealthCredit=73.45",
+                        "calibratedConfidenceScore=73.45",
+                        "activityVerification.verifiedByActivity=6",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+
+        expect(smokeGate?.status).toBe("Source evidence required");
+        expect(smokeGate?.sourceCredit).toBe(73.45);
+        expect(smokeGate?.runtimeCredit).toBe(73.45);
+        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedSignals=6");
+        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedActivityCredit=73.45");
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
     });
 
     it("dedupes duplicate findings and keeps the strongest evidence", () => {

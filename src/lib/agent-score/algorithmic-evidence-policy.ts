@@ -7,6 +7,7 @@ import {
   evidenceArtifactHasSourceConfidence,
   evidenceArtifactNumericValue,
   evidenceArtifactStatusText,
+  evidenceArtifactText,
 } from "./evidence-quality";
 
 export type AlgorithmicEvidenceGateCategory =
@@ -138,6 +139,28 @@ function scoreCostReadinessSource(costReadiness?: PublicBetaCostReadiness) {
   return laneScores.reduce((sum: number, score) => sum + score, 0) / laneScores.length;
 }
 
+function evidenceBoolean(text: string, key: string) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const match = new RegExp(`${escaped}=(true|false)`, "iu").exec(text);
+  return match ? match[1].toLowerCase() === "true" : undefined;
+}
+
+function sourceBackedAdminConfidence(artifact: PublicBetaEvidenceArtifact | undefined, adminFormal: boolean) {
+  if (adminFormal) return 100;
+  const text = evidenceArtifactText(artifact);
+  const sourceBacked = /sourceTruthStatus=source_backed|sourceSampleStatus=source_ready_admin_truth_sample/iu.test(text);
+  const fakeHealthy = evidenceBoolean(text, "fakeHealthyStateDetected") === true;
+  const criticalIssues = evidenceArtifactNumericValue(artifact, "criticalAdminTruthIssueCount") ?? 0;
+  if (!sourceBacked || fakeHealthy || criticalIssues > 0) return 0;
+
+  const degradedLanes = Math.max(0, evidenceArtifactNumericValue(artifact, "degradedOrUnavailableLaneCount") ?? 0);
+  const labelsPresent = evidenceBoolean(text, "sourceTruthLabelsPresent") === true;
+  const routePresent = evidenceBoolean(text, "adminDebugRoutePresent") === true;
+  const debugModelPresent = evidenceBoolean(text, "adminDebugControlTowerModelPresent") === true;
+  const base = labelsPresent && routePresent && debugModelPresent ? 72 : 55;
+  return Math.max(0, Math.min(100, base - Math.min(30, degradedLanes * 3)));
+}
+
 export function buildAlgorithmicEvidencePolicyReport(
   input: AlgorithmicEvidencePolicyInput,
 ): AlgorithmicEvidencePolicyReport {
@@ -147,9 +170,14 @@ export function buildAlgorithmicEvidencePolicyReport(
   const formalProviderGateCleared = evidenceArtifactHasFormalPass(input.providerSmokeEvidence);
   const formalAdminRuntimeSampleCleared = evidenceArtifactHasFormalPass(input.adminTruthSampleEvidence);
 
-  const sourceBackedRuntimeScore = evidenceArtifactNumericValue(input.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
+  const rawSourceBackedRuntimeScore = evidenceArtifactNumericValue(input.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
     ?? evidenceArtifactNumericValue(input.sourceBackedRuntimeConfidenceEvidence, "sourceBackedRuntimeConfidence")
     ?? (evidenceArtifactHasSourceConfidence(input.sourceBackedRuntimeConfidenceEvidence) ? 55 : 0);
+  const sourceBackedRuntimeActivityCount =
+    evidenceArtifactNumericValue(input.sourceBackedRuntimeConfidenceEvidence, "liveRuntimeEvidence.firstPartySiteActivityConfirmed")
+    ?? evidenceArtifactNumericValue(input.debugRuntimeEvidence, "liveRuntimeEvidence.firstPartySiteActivityConfirmed")
+    ?? 0;
+  const sourceBackedRuntimeScore = sourceBackedRuntimeActivityCount > 0 ? rawSourceBackedRuntimeScore : 0;
   const runtimeSmokeSubstituteMatrixScore =
     evidenceArtifactNumericValue(input.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeProviderActivityCredit") ?? 0;
   const realUsageScore = evidenceArtifactNumericValue(input.realUsageConfidenceEvidence, "confidenceScore")
@@ -157,7 +185,11 @@ export function buildAlgorithmicEvidencePolicyReport(
   const realUsageCalibrationScore = evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit")
     ?? evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "calibratedConfidenceScore")
     ?? (evidenceArtifactHasSourceConfidence(input.realUsageConfidenceCalibrationEvidence) ? 55 : 0);
-  const realUsageObservedActivityScore = (evidenceArtifactNumericValue(input.realUsageConfidenceEvidence, "observedSignals") ?? 0) > 0
+  const realUsageObservedActivityCount = Math.max(
+    evidenceArtifactNumericValue(input.realUsageConfidenceEvidence, "observedSignals") ?? 0,
+    evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "activityVerification.verifiedByActivity") ?? 0,
+  );
+  const realUsageObservedActivityScore = realUsageObservedActivityCount > 0
     ? Math.max(realUsageScore, realUsageCalibrationScore)
     : 0;
   const runtimeSourceScore = deployedRuntimeSmokeCleared
@@ -166,14 +198,14 @@ export function buildAlgorithmicEvidencePolicyReport(
         sourceBackedRuntimeScore,
         runtimeSmokeSubstituteMatrixScore,
         realUsageObservedActivityScore,
-        evidenceArtifactHasSourceConfidence(input.debugRuntimeEvidence) ? 55 : 0,
       );
 
   const behaviorMathScore = evidenceArtifactHasSourceConfidence(input.behaviorMathEvidence) ? 85 : 0;
   const telemetryScore = Math.max(behaviorMathScore, realUsageScore, realUsageCalibrationScore);
-  const adminTruthScore = formalAdminRuntimeSampleCleared
-    ? 100
-    : evidenceArtifactHasSourceConfidence(input.adminTruthSampleEvidence) ? 55 : 0;
+  const adminTruthScore = sourceBackedAdminConfidence(
+    input.adminTruthSampleEvidence,
+    formalAdminRuntimeSampleCleared,
+  );
   const providerScore = formalProviderGateCleared
     ? 100
     : evidenceArtifactHasSourceConfidence(input.operatorRevenueSmokeEvidence) || evidenceArtifactHasSourceConfidence(input.providerSmokeEvidence) ? 40 : 0;
