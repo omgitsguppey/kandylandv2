@@ -1,7 +1,7 @@
 {
   "reportKey": "mega-legacy-pipeline-hardening",
-  "generatedAtUtc": "2026-05-26T12:24:12.748Z",
-  "currentHead": "01b28a9022edc27123c71b8f8b5c8e86ee691829",
+  "generatedAtUtc": "2026-07-03T07:11:01.901Z",
+  "currentHead": "3190fc8fc4da226c996cc8589d6ec4ed2977700c",
   "status": "pass",
   "productionReadsPerformed": false,
   "productionMutationPerformed": false,
@@ -41,7 +41,7 @@
   },
   "pipelineOwnership": {
     "reportKey": "pipeline-ownership-audit",
-    "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+    "generatedAtUtc": "2026-07-03T07:11:01.901Z",
     "status": "pass",
     "ownershipStages": [
       {
@@ -239,14 +239,14 @@
   },
   "globalFormulaAudit": {
     "reportKey": "global-formula-audit",
-    "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+    "generatedAtUtc": "2026-07-03T07:11:01.901Z",
     "status": "pass",
     "scoreWeights": {
-      "sourceHealth": 25,
-      "runtimeHealth": 20,
-      "evidenceCompleteness": 20,
-      "freshness": 15,
-      "costRisk": 10,
+      "sourceHealth": 18,
+      "runtimeHealth": 30,
+      "evidenceCompleteness": 25,
+      "freshness": 10,
+      "costRisk": 7,
       "regressionRisk": 10
     },
     "confidenceWeights": {
@@ -401,7 +401,7 @@
   },
   "legacyRecoveryPlan": {
     "reportKey": "legacy-canonical-recovery-plan",
-    "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+    "generatedAtUtc": "2026-07-03T07:11:01.901Z",
     "startDate": "2026-03-01",
     "dryRunOnly": true,
     "productionMutationAllowed": false,
@@ -517,7 +517,7 @@
   },
   "costAccuracyHardening": {
     "reportKey": "cost-accuracy-hardening",
-    "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+    "generatedAtUtc": "2026-07-03T07:11:01.901Z",
     "productionReadsPerformed": false,
     "providerCallsPerformed": false,
     "exportsRun": false,
@@ -610,7 +610,7 @@
   },
   "codebaseOrganizationHardening": {
     "reportKey": "codebase-organization-hardening",
-    "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+    "generatedAtUtc": "2026-07-03T07:11:01.901Z",
     "status": "pass",
     "productionReadsPerformed": false,
     "providerCallsPerformed": false,
@@ -719,216 +719,11 @@
     "requiredRulesSatisfied": 8,
     "dirtyFiles": [
       {
-        "path": "CHANGELOG.md",
-        "classification": "release_artifact_expected"
-      },
-      {
-        "path": "agent/state/codebase-organization-hardening.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/codex-execution-guardrails.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/cost-accuracy-hardening.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/global-formula-audit.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/legacy-canonical-recovery-plan.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/legacy-pipeline-inventory.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/mega-legacy-pipeline-hardening.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/pipeline-ownership-audit.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/public-beta-score.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/self-revealing-codebase.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "docs/agent-truth/codebase-organization-hardening.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/codex-execution-guardrails.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/cost-accuracy-hardening.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/global-formula-audit.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/legacy-canonical-recovery-plan.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/legacy-pipeline-inventory.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/mega-legacy-pipeline-hardening.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/pipeline-ownership-audit.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/self-revealing-codebase.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "package.json",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "public/kandydrops-release-notes.json",
-        "classification": "release_artifact_expected"
-      },
-      {
-        "path": "scripts/agent/validate-codebase-organization-hardening.ts",
-        "classification": "validator_artifact_expected"
-      },
-      {
-        "path": "scripts/agent/validate-mega-legacy-pipeline-hardening.ts",
-        "classification": "validator_artifact_expected"
-      },
-      {
-        "path": "src/lib/codebase-hardening/codebase-organization-hardening.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/codebase-hardening/cost-accuracy-hardening.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/codebase-hardening/legacy-canonical-recovery-plan.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/codebase-hardening/legacy-pipeline-inventory.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/codebase-hardening/pipeline-ownership-auditor.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/codebase-hardening/pipeline-ownership-contract.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/codebase-hardening/self-revealing-codebase-contract.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
         "path": "src/lib/codebase-hardening/self-revealing-codebase-engine.ts",
         "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/math/global-formula-audit.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/release-notes/public-release-notes.ts",
-        "classification": "release_artifact_expected"
-      },
-      {
-        "path": "src/lib/release-notes/release-version-contract.ts",
-        "classification": "release_artifact_expected"
-      },
-      {
-        "path": "tests/unit/codebase-organization-hardening.spec.ts",
-        "classification": "test_artifact_expected"
-      },
-      {
-        "path": "tests/unit/mega-legacy-pipeline-hardening.spec.ts",
-        "classification": "test_artifact_expected"
       }
     ],
-    "openPullRequests": [
-      {
-        "number": 302,
-        "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-        "classification": "onboarding_telemetry_external_review_required"
-      },
-      {
-        "number": 301,
-        "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-        "classification": "doctrine_governance_external_review_required"
-      },
-      {
-        "number": 300,
-        "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-        "classification": "architecture_refactor_external_review_required"
-      },
-      {
-        "number": 299,
-        "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-        "classification": "dependency_update_external_review_required"
-      },
-      {
-        "number": 298,
-        "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-        "classification": "dependency_update_external_review_required"
-      },
-      {
-        "number": 297,
-        "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-        "classification": "dependency_update_external_review_required"
-      },
-      {
-        "number": 296,
-        "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-        "classification": "dependency_update_external_review_required"
-      },
-      {
-        "number": 295,
-        "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-        "classification": "dependency_update_external_review_required"
-      },
-      {
-        "number": 294,
-        "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-        "classification": "dependency_update_external_review_required"
-      },
-      {
-        "number": 293,
-        "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-        "classification": "security_patch_external_review_required"
-      },
-      {
-        "number": 292,
-        "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-        "classification": "performance_patch_external_review_required"
-      },
-      {
-        "number": 291,
-        "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-        "classification": "accessibility_patch_external_review_required"
-      }
-    ],
+    "openPullRequests": [],
     "selfCheck": {
       "packageScriptsPresent": true,
       "generatedArtifactsNeedValidator": true,
@@ -939,7 +734,7 @@
   },
   "selfRevealingCodebase": {
     "reportKey": "self-revealing-codebase",
-    "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+    "generatedAtUtc": "2026-07-03T07:11:01.901Z",
     "status": "pass",
     "productionReadsPerformed": false,
     "providerCallsPerformed": false,
@@ -1080,7 +875,7 @@
         "costImpact": "none",
         "accuracyImpact": "medium",
         "userVisibleImpact": "Beta readiness remains honest about formal gates.",
-        "adminVisibleImpact": "Admin debug separates source confidence from formal proof."
+        "adminVisibleImpact": "Admin debug separates source confidence from typed evidence artifacts."
       },
       {
         "findingId": "legacy-recovery-dry-run",
@@ -1105,264 +900,11 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/codebase-organization-hardening.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/codex-execution-guardrails.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/cost-accuracy-hardening.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/global-formula-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/legacy-canonical-recovery-plan.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/legacy-pipeline-inventory.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/mega-legacy-pipeline-hardening.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/pipeline-ownership-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/self-revealing-codebase.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/codebase-organization-hardening.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/codex-execution-guardrails.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/cost-accuracy-hardening.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/global-formula-audit.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/legacy-canonical-recovery-plan.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/legacy-pipeline-inventory.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/mega-legacy-pipeline-hardening.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/pipeline-ownership-audit.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/self-revealing-codebase.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-codebase-organization-hardening.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-mega-legacy-pipeline-hardening.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/codebase-hardening/codebase-organization-hardening.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/codebase-hardening/cost-accuracy-hardening.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/codebase-hardening/legacy-canonical-recovery-plan.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/codebase-hardening/legacy-pipeline-inventory.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/codebase-hardening/pipeline-ownership-auditor.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/codebase-hardening/pipeline-ownership-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/codebase-hardening/self-revealing-codebase-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/codebase-hardening/self-revealing-codebase-engine.ts",
       "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/global-formula-audit.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/codebase-organization-hardening.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/mega-legacy-pipeline-hardening.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
-  "openPullRequests": [
-    {
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "onboarding_telemetry_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "doctrine_governance_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "architecture_refactor_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "security_patch_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "performance_patch_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    },
-    {
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "accessibility_patch_external_review_required",
-      "reason": "Open PR is outside this source-only hardening lock; merge/cherry-pick requires separate current-source review."
-    }
-  ],
+  "openPullRequests": [],
   "artifactsWritten": [
     "agent/state/legacy-pipeline-inventory.generated.json",
     "docs/agent-truth/legacy-pipeline-inventory.md",

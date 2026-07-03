@@ -5,14 +5,14 @@ Source-only hardening artifact. It does not run production reads, provider calls
 ```json
 {
   "reportKey": "global-formula-audit",
-  "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+  "generatedAtUtc": "2026-07-03T07:11:01.901Z",
   "status": "pass",
   "scoreWeights": {
-    "sourceHealth": 25,
-    "runtimeHealth": 20,
-    "evidenceCompleteness": 20,
-    "freshness": 15,
-    "costRisk": 10,
+    "sourceHealth": 18,
+    "runtimeHealth": 30,
+    "evidenceCompleteness": 25,
+    "freshness": 10,
+    "costRisk": 7,
     "regressionRisk": 10
   },
   "confidenceWeights": {

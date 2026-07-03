@@ -120,7 +120,7 @@ const FINDINGS: SelfRevealingFinding[] = [
     costImpact: "none",
     accuracyImpact: "medium",
     userVisibleImpact: "Beta readiness remains honest about formal gates.",
-    adminVisibleImpact: "Admin debug separates source confidence from formal proof.",
+    adminVisibleImpact: "Admin debug separates source confidence from typed evidence artifacts.",
   },
   {
     findingId: "legacy-recovery-dry-run",

@@ -5,7 +5,7 @@ Source-only hardening artifact. It does not run production reads, provider calls
 ```json
 {
   "reportKey": "legacy-pipeline-inventory",
-  "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+  "generatedAtUtc": "2026-07-03T07:11:01.901Z",
   "inventory": [
     {
       "id": "legacy-alias-page-duration",

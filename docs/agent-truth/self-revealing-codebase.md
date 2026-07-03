@@ -5,7 +5,7 @@ Source-only hardening artifact. It does not run production reads, provider calls
 ```json
 {
   "reportKey": "self-revealing-codebase",
-  "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+  "generatedAtUtc": "2026-07-03T07:11:01.901Z",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -146,7 +146,7 @@ Source-only hardening artifact. It does not run production reads, provider calls
       "costImpact": "none",
       "accuracyImpact": "medium",
       "userVisibleImpact": "Beta readiness remains honest about formal gates.",
-      "adminVisibleImpact": "Admin debug separates source confidence from formal proof."
+      "adminVisibleImpact": "Admin debug separates source confidence from typed evidence artifacts."
     },
     {
       "findingId": "legacy-recovery-dry-run",

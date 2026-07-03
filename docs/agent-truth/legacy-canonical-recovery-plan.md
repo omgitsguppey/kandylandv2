@@ -5,7 +5,7 @@ Source-only hardening artifact. It does not run production reads, provider calls
 ```json
 {
   "reportKey": "legacy-canonical-recovery-plan",
-  "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+  "generatedAtUtc": "2026-07-03T07:11:01.901Z",
   "startDate": "2026-03-01",
   "dryRunOnly": true,
   "productionMutationAllowed": false,
