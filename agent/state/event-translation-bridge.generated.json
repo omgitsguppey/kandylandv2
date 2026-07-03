@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-19T14:47:28.648Z",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "generatedAtUtc": "2026-07-03T05:56:07.138Z",
+  "currentHead": "d7176cce1dfdf36c613f3cca14608b310f7dc2b9",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -45,14 +45,28 @@
   },
   "debugLane": {
     "label": "Event translation bridge",
-    "producersRegistered": 768,
-    "producersConnected": 768,
-    "eventEnvelopesTranslated": 768,
-    "materializersMapped": 768,
-    "personMetricsMapped": 249,
+    "producersRegistered": 770,
+    "producersConnected": 770,
+    "eventEnvelopesTranslated": 770,
+    "materializersMapped": 770,
+    "personMetricsMapped": 240,
     "gaps": 0
   },
   "waitingOnActivity": [
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
     {
       "reason": "future_real_activity_pending",
       "scoreDrag": false,
@@ -5433,20 +5447,12 @@
   "gaps": [],
   "dirtyFiles": [
     {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
     }
   ],
   "validationFailures": [],

@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-19T14:47:28.648Z
+Generated: 2026-07-03T05:56:07.138Z
 Status: pass
-Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
+Current head: d7176cce1dfdf36c613f3cca14608b310f7dc2b9
 
 ## Contract
 
@@ -12,11 +12,11 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Debug Lane
 
-- Producers registered: 768
-- Producers connected: 768
-- Event envelopes translated: 768
-- Materializers mapped: 768
-- Person metrics mapped: 249
+- Producers registered: 770
+- Producers connected: 770
+- Event envelopes translated: 770
+- Materializers mapped: 770
+- Person metrics mapped: 240
 - Gaps: 0
 
 ## Score Impact
@@ -53,10 +53,8 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 
 ## Validation Failures
 
