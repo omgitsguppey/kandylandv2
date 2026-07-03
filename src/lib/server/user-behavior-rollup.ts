@@ -186,12 +186,12 @@ export function buildUserBehaviorRollup(input: {
 }): UserBehaviorRollup {
   const views = Math.max(0, Math.round(readNumber(input.views)));
   const explicitWatchTimeMs = readNumber(input.watchTimeMs);
-  const labeledLegacyWatchTimeMs = input.hasLegacyPageDuration === true
-    ? readNumber(input.watchSecondsTotal) * 1000
+  const legacyPageDurationMs = input.hasLegacyPageDuration === true
+    ? Math.max(0, Math.round(readNumber(input.watchSecondsTotal) * 1000))
     : 0;
   const watchTimeMs = Math.max(
     0,
-    Math.round(explicitWatchTimeMs > 0 ? explicitWatchTimeMs : labeledLegacyWatchTimeMs),
+    Math.round(explicitWatchTimeMs),
   );
   const authEvents = Math.max(0, Math.round(readNumber(input.authEvents)));
   const purchasesCount = Math.max(0, Math.round(readNumber(input.purchasesCount)));
@@ -250,6 +250,20 @@ export function buildUserBehaviorRollup(input: {
       severity: "warn",
       message: "Views exist but valid watch-session rollups are missing.",
       evidence: { views, watchTimeMs },
+    });
+  }
+
+  if (legacyPageDurationMs > 0) {
+    issues.push({
+      code: "legacy_page_duration_fallback",
+      severity: "info",
+      message: "Legacy page duration is diagnostic only and is not counted as canonical watch time.",
+      evidence: {
+        legacyPageDurationMs,
+        watchTimeMs,
+        source: "legacy_page_duration",
+        canonicalWatchTimeSource: "watch_session_rollup",
+      },
     });
   }
 

@@ -1,14 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-24T21:44:38.887Z",
-  "currentHead": "69083c1f75b495ae0e3050699108aba08c5023c7",
+  "generatedAt": "2026-07-03T01:06:05.234Z",
+  "generatedAtUtc": "2026-07-03T01:06:05.234Z",
   "status": "source_ready_evidence_gap",
-  "sourceReady": true,
+  "sourceStatus": "current_static_validator",
   "dropWatchTimeEngineExists": true,
   "pageTimeCountsAsWatchTime": false,
   "hiddenOrIdleExcluded": true,
-  "adminDebugConsumerPresent": true,
   "claimsPersistedLiveMetric": false,
-  "debugPanelHealthClaim": "degraded",
-  "nextAction": "Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.",
-  "productionReadsRun": false
+  "productionReadsRun": false,
+  "nextAction": "Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output."
 }

@@ -140,6 +140,34 @@ describe("user behavior rollup", () => {
     expect(rollup.engagement.verifiedSignalPresent).toBe(true);
   });
 
+  it("keeps legacy page duration diagnostic instead of behavior watch time", () => {
+    const rollup = buildUserBehaviorRollup({
+      userId: "legacy_page_duration_only",
+      views: 3,
+      watchSecondsTotal: 900,
+      hasLegacyPageDuration: true,
+      identifiedAnalyticsEnabled: true,
+      hasPrivacySettings: true,
+    });
+
+    expect(rollup.watchTimeMs).toBe(0);
+    expect(rollup.engagement.inputs.validWatchMinutes30d).toBe(0);
+    expect(rollup.predictionOutputs.pWatchComplete).toBe(0);
+    expect(rollup.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: "legacy_page_duration_fallback",
+        message: "Legacy page duration is diagnostic only and is not counted as canonical watch time.",
+        evidence: expect.objectContaining({
+          legacyPageDurationMs: 900_000,
+          watchTimeMs: 0,
+          source: "legacy_page_duration",
+          canonicalWatchTimeSource: "watch_session_rollup",
+        }),
+      }),
+      expect.objectContaining({ code: "watch_time_missing_despite_views" }),
+    ]));
+  });
+
   it("keeps stronger daily fields when materialized daily engagement is already richer", () => {
     const rollup = buildUserBehaviorRollup({
       userId: "user_with_daily",
