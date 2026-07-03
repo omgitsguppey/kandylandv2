@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-07-03T08:23:54.516Z",
+  "generatedAtUtc": "2026-07-03T08:32:04.923Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
-  "sourceCommit": "aed727632c288e5196d31b162f759b496275ddb1",
+  "currentHead": "a8450c3790b304be9839749adeb0e5e061a897a9",
+  "sourceCommit": "a8450c3790b304be9839749adeb0e5e061a897a9",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
@@ -15,7 +15,7 @@
     "route4xxSourceReady": true,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 1
+    "p2Count": 0
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
@@ -98,9 +98,7 @@
     "costRiskOwnerReviewClosureCurrent=true",
     "costRiskExitPassCurrent=true"
   ],
-  "staleArtifacts": [
-    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
-  ],
+  "staleArtifacts": [],
   "ignoredLegacyArtifacts": [
     "agent/state/creator-dashboard-error-cost-inventory.generated.json"
   ],

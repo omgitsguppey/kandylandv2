@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import type { PublicBetaCostReadiness } from "../../src/lib/agent-score/core";
 import { scoreCostReadiness } from "../../src/lib/agent-score/evidence-quality";
+import { classifyGeneratedArtifactFromGit } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import {
   classifyCostOwnerReviewLanes,
   costOwnerReviewLanesToScoreInput,
@@ -70,6 +71,69 @@ const ROOT = join(__dirname, "..", "..");
 const ARTIFACT_PATH = "agent/state/score-80-cost-readiness.generated.json";
 const DOC_PATH = "docs/agent-truth/score-80-cost-readiness.md";
 const CREATOR_DASHBOARD_COST_INVENTORY_PATH = "agent/state/creator-dashboard-error-cost-inventory.generated.json";
+const COST_ARTIFACT_PATHS = {
+  finalCostAuditLock: "agent/state/final-cost-audit-lock.generated.json",
+  cloudSqlGeminiCostGuards: "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+  analyticsCostRuntimeInventory: "agent/state/analytics-cost-runtime-inventory.generated.json",
+  finalTelemetryClosureLock: "agent/state/final-telemetry-closure-lock.generated.json",
+  costOwnerReviewSourceClosure: "agent/state/cost-owner-review-source-closure.generated.json",
+  costRiskOwnerReviewClosure: "agent/state/cost-risk-owner-review-closure.generated.json",
+  costRiskExitPass: "agent/state/cost-risk-exit-pass.generated.json",
+  creatorDashboardErrorCostInventory: CREATOR_DASHBOARD_COST_INVENTORY_PATH,
+} as const satisfies Partial<Record<keyof Score80CostReadinessArtifacts, string>>;
+const COST_ARTIFACT_OWNERS: Record<string, string[]> = {
+  [COST_ARTIFACT_PATHS.finalCostAuditLock]: [
+    "scripts/agent/validate-final-cost-audit-lock.ts",
+    "scripts/agent/validate-global-cost-surfaces.ts",
+    "src/lib/server",
+    "src/app/api",
+    "functions/src",
+  ],
+  [COST_ARTIFACT_PATHS.cloudSqlGeminiCostGuards]: [
+    "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
+    "scripts/agent/sync-sql.ts",
+    "dataconnect",
+    "src/app/api/admin/ai",
+    "src/lib/admin-ai",
+  ],
+  [COST_ARTIFACT_PATHS.analyticsCostRuntimeInventory]: [
+    "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+    "src/app/api/analytics",
+    "src/lib/analytics",
+    "functions/src/analytics",
+  ],
+  [COST_ARTIFACT_PATHS.finalTelemetryClosureLock]: [
+    "scripts/agent/validate-final-telemetry-closure-lock.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/analytics",
+    "src/app/api/analytics",
+    "functions/src/analytics",
+  ],
+  [COST_ARTIFACT_PATHS.costOwnerReviewSourceClosure]: [
+    "scripts/agent/validate-cost-owner-review-source-closure.ts",
+    "src/lib/cost/cost-owner-review-classifier.ts",
+    "agent/state/final-cost-audit-lock.generated.json",
+    "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+    "agent/state/analytics-cost-runtime-inventory.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+  ],
+  [COST_ARTIFACT_PATHS.costRiskOwnerReviewClosure]: [
+    "scripts/agent/validate-cost-risk-owner-review-closure.ts",
+    "src/lib/cost/cost-owner-review-classifier.ts",
+    "agent/state/cost-owner-review-source-closure.generated.json",
+  ],
+  [COST_ARTIFACT_PATHS.costRiskExitPass]: [
+    "scripts/agent/validate-cost-risk-exit-pass.ts",
+    "src/lib/cost/cost-owner-review-classifier.ts",
+    "agent/state/cost-risk-owner-review-closure.generated.json",
+    "agent/state/cost-owner-review-source-closure.generated.json",
+  ],
+  [COST_ARTIFACT_PATHS.creatorDashboardErrorCostInventory]: [
+    "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+    "src/components/Creators",
+    "src/app/api/creator",
+  ],
+};
 
 function safeExec(command: string, args: string[], root = ROOT) {
   try {
@@ -106,15 +170,27 @@ function stringValue(value: unknown) {
   return typeof value === "string" ? value : "";
 }
 
-function artifactCurrent(artifact: JsonRecord | null | undefined, head: string) {
-  return Boolean(artifact && artifact.currentHead === head);
+function artifactHead(artifact: JsonRecord | null | undefined) {
+  return stringValue(artifact?.sourceCommit) || stringValue(artifact?.currentHead);
+}
+
+function artifactCurrent(
+  artifact: JsonRecord | null | undefined,
+  head: string,
+  currentByImpact = false,
+) {
+  return Boolean(artifact && (artifact.currentHead === head || artifact.sourceCommit === head || currentByImpact));
 }
 
 function artifactPathEvidence(path: string, isCurrent: boolean) {
   return `artifactPath=${path}; current=${isCurrent}`;
 }
 
-function staleArtifactsFor(head: string, artifacts: Score80CostReadinessArtifacts) {
+function staleArtifactsFor(
+  head: string,
+  artifacts: Score80CostReadinessArtifacts,
+  currentByImpact: Partial<Record<keyof Score80CostReadinessArtifacts, boolean>> = {},
+) {
   const stale: string[] = [];
   const tracked: Array<[keyof Score80CostReadinessArtifacts, string]> = [
     ["finalCostAuditLock", "agent/state/final-cost-audit-lock.generated.json"],
@@ -125,6 +201,7 @@ function staleArtifactsFor(head: string, artifacts: Score80CostReadinessArtifact
   ];
   for (const [key, path] of tracked) {
     const artifact = artifacts[key];
+    if (currentByImpact[key] === true) continue;
     if (artifact?.currentHead && artifact.currentHead !== head) stale.push(path);
   }
   return stale;
@@ -134,6 +211,7 @@ export function buildScore80CostReadinessReport(input: {
   generatedAtUtc: string;
   currentHead: string;
   artifacts: Score80CostReadinessArtifacts;
+  artifactCurrentByImpact?: Partial<Record<keyof Score80CostReadinessArtifacts, boolean>>;
 }): Score80CostReadinessReport {
   const finalCost = input.artifacts.finalCostAuditLock ?? null;
   const finalCostSummary = record(finalCost?.summary);
@@ -155,18 +233,23 @@ export function buildScore80CostReadinessReport(input: {
   const cost4xx = readJson(ROOT, "agent/state/cost-4xx-reduction.generated.json");
   const currentCost4xxHead = cost4xx?.currentHead === input.currentHead ? stringValue(cost4xx.currentHead) : "";
   const costOwnerClosure = input.artifacts.costOwnerReviewSourceClosure ?? null;
-  const costOwnerClosureCurrent = artifactCurrent(costOwnerClosure, input.currentHead);
+  const isArtifactCurrent = (key: keyof Score80CostReadinessArtifacts, artifact: JsonRecord | null | undefined) =>
+    artifactCurrent(artifact, input.currentHead, input.artifactCurrentByImpact?.[key] === true);
+  const currentHeadFor = (key: keyof Score80CostReadinessArtifacts, artifact: JsonRecord | null | undefined) =>
+    isArtifactCurrent(key, artifact) ? input.currentHead : stringValue(artifact?.currentHead);
+
+  const costOwnerClosureCurrent = isArtifactCurrent("costOwnerReviewSourceClosure", costOwnerClosure);
   const costRiskClosure = input.artifacts.costRiskOwnerReviewClosure ?? null;
-  const costRiskClosureCurrent = artifactCurrent(costRiskClosure, input.currentHead);
+  const costRiskClosureCurrent = isArtifactCurrent("costRiskOwnerReviewClosure", costRiskClosure);
   const costRiskExitPass = input.artifacts.costRiskExitPass ?? null;
-  const costRiskExitPassCurrent = artifactCurrent(costRiskExitPass, input.currentHead);
+  const costRiskExitPassCurrent = isArtifactCurrent("costRiskExitPass", costRiskExitPass);
   const creatorInventory = input.artifacts.creatorDashboardErrorCostInventory ?? null;
   const billingSpikeRadar = input.artifacts.billingSpikeRadar ?? null;
 
-  const finalCostCurrent = artifactCurrent(finalCost, input.currentHead);
-  const cloudGuardsCurrent = artifactCurrent(cloudGuards, input.currentHead);
-  const telemetryCurrent = artifactCurrent(telemetry, input.currentHead);
-  const creatorInventoryCurrent = artifactCurrent(creatorInventory, input.currentHead);
+  const finalCostCurrent = isArtifactCurrent("finalCostAuditLock", finalCost);
+  const cloudGuardsCurrent = isArtifactCurrent("cloudSqlGeminiCostGuards", cloudGuards);
+  const telemetryCurrent = isArtifactCurrent("finalTelemetryClosureLock", telemetry);
+  const creatorInventoryCurrent = isArtifactCurrent("creatorDashboardErrorCostInventory", creatorInventory);
   const globalCostClean = globalCost?.status === "clean" || globalCost?.overallScore === 100;
   const finalCostP0 = numberValue(finalCostSummary.p0Count);
   const finalCostP1 = numberValue(finalCostSummary.p1Count);
@@ -181,7 +264,7 @@ export function buildScore80CostReadinessReport(input: {
   const costOwnerReviewLanes = classifyCostOwnerReviewLanes({
     currentHead: input.currentHead,
     finalCostAudit: {
-      currentHead: stringValue(finalCost?.currentHead),
+      currentHead: currentHeadFor("finalCostAuditLock", finalCost),
       cloudRunGuarded: cloudRunSourceReady,
       route4xxSourceReady,
       scheduledRuntimeGuarded: artifactCurrent(scheduled, input.currentHead)
@@ -194,7 +277,7 @@ export function buildScore80CostReadinessReport(input: {
         && numberValue(adminSummary.p0Count) === 0,
     },
     cloudSqlGemini: {
-      currentHead: stringValue(cloudGuards?.currentHead),
+      currentHead: currentHeadFor("cloudSqlGeminiCostGuards", cloudGuards),
       cloudSqlRuntimeDetected: cloudSummary.cloudSqlRuntimeDetected === true,
       dataConnectRuntimeDetected: cloudSummary.dataConnectRuntimeDetected === true,
       sqlMirrorScriptsGuarded: cloudSummary.sqlMirrorScriptsGuarded === true,
@@ -212,7 +295,7 @@ export function buildScore80CostReadinessReport(input: {
       queryCostGuardDefined: bigQuerySummary.queryCostGuardDefined === true,
     },
     analyticsRuntime: {
-      currentHead: stringValue(currentCost4xxHead || analyticsRuntime?.currentHead || hotPath?.currentHead),
+      currentHead: currentCost4xxHead || currentHeadFor("analyticsCostRuntimeInventory", analyticsRuntime) || stringValue(hotPath?.currentHead),
       ingestGuarded: hotSummary.ingestMaterializationDeferred === true
         && hotSummary.invalidPayloadWarningsCapped === true
         && hotSummary.catchPathFailuresRolledUp === true,
@@ -233,8 +316,12 @@ export function buildScore80CostReadinessReport(input: {
       ? closureCostReadiness as PublicBetaCostReadiness
       : costOwnerReviewLanesToScoreInput(costOwnerReviewLanes);
   const costScore = scoreCostReadiness(costReadiness);
-  const staleArtifacts = staleArtifactsFor(input.currentHead, input.artifacts);
-  const ignoredLegacyArtifacts = !creatorInventoryCurrent && creatorInventory
+  const staleArtifacts = staleArtifactsFor(input.currentHead, input.artifacts, input.artifactCurrentByImpact);
+  const latestCostLocksPreferred = costRiskExitPassCurrent
+    || costRiskClosureCurrent
+    || costOwnerClosureCurrent
+    || (finalCostCurrent && telemetryCurrent);
+  const ignoredLegacyArtifacts = creatorInventory && latestCostLocksPreferred
     ? [CREATOR_DASHBOARD_COST_INVENTORY_PATH]
     : [];
   const ownerReviewLanes = Object.entries(costReadiness)
@@ -249,7 +336,7 @@ export function buildScore80CostReadinessReport(input: {
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
     summary: {
-      latestCostLocksPreferred: costRiskExitPassCurrent || costRiskClosureCurrent || costOwnerClosureCurrent || (finalCostCurrent && telemetryCurrent),
+      latestCostLocksPreferred,
       externalOwnerReviewStillRequired,
       sourceCostReadinessScore: costScore.score,
       costRiskScore: costScore.score,
@@ -328,7 +415,7 @@ export function buildScore80CostReadinessReport(input: {
       },
       {
         command: "npm run check:analytics-cost-runtime-inventory",
-        status: artifactCurrent(input.artifacts.analyticsCostRuntimeInventory, input.currentHead) ? "pass" : "failed_or_not_run",
+        status: isArtifactCurrent("analyticsCostRuntimeInventory", input.artifacts.analyticsCostRuntimeInventory) ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/analytics-cost-runtime-inventory.generated.json",
         detail: "Analytics cost runtime inventory refresh is tracked separately from external billing evidence.",
       },
@@ -386,24 +473,43 @@ export function validateScore80CostReadinessReport(report: Score80CostReadinessR
 
 export function buildScore80CostReadinessFromRepo(root = ROOT): Score80CostReadinessReport {
   const head = currentHead(root);
+  const artifacts = {
+    finalCostAuditLock: readJson(root, "agent/state/final-cost-audit-lock.generated.json"),
+    cloudSqlGeminiCostGuards: readJson(root, "agent/state/cloud-sql-gemini-cost-guards.generated.json"),
+    globalCostSurfaces: readJson(root, "agent/state/global-cost-surfaces.generated.json"),
+    billingSpikeRadar: readJson(root, "agent/state/billing-spike-radar.generated.json"),
+    analyticsHotPathCostReduction: readJson(root, "agent/state/analytics-hot-path-cost-reduction.generated.json"),
+    scheduledRuntimeCostReduction: readJson(root, "agent/state/scheduled-runtime-cost-reduction.generated.json"),
+    adminAnalyticsDebugCostReduction: readJson(root, "agent/state/admin-analytics-debug-cost-reduction.generated.json"),
+    creatorDashboardErrorCostInventory: readJson(root, CREATOR_DASHBOARD_COST_INVENTORY_PATH),
+    analyticsCostRuntimeInventory: readJson(root, "agent/state/analytics-cost-runtime-inventory.generated.json"),
+    finalTelemetryClosureLock: readJson(root, "agent/state/final-telemetry-closure-lock.generated.json"),
+    costOwnerReviewSourceClosure: readJson(root, "agent/state/cost-owner-review-source-closure.generated.json"),
+    costRiskOwnerReviewClosure: readJson(root, "agent/state/cost-risk-owner-review-closure.generated.json"),
+    costRiskExitPass: readJson(root, "agent/state/cost-risk-exit-pass.generated.json"),
+  } satisfies Score80CostReadinessArtifacts;
+  const artifactCurrentByImpact = Object.fromEntries(
+    Object.entries(COST_ARTIFACT_PATHS).map(([key, path]) => {
+      const artifact = artifacts[key as keyof Score80CostReadinessArtifacts];
+      const headFromArtifact = artifactHead(artifact);
+      if (!artifact || !headFromArtifact) return [key, false];
+      try {
+        return [key, !classifyGeneratedArtifactFromGit({
+          cwd: root,
+          artifactPath: path,
+          artifactHead: headFromArtifact,
+          ownedSourcePaths: COST_ARTIFACT_OWNERS[path] ?? [],
+        }).needsRefresh];
+      } catch {
+        return [key, false];
+      }
+    }),
+  ) as Partial<Record<keyof Score80CostReadinessArtifacts, boolean>>;
   return buildScore80CostReadinessReport({
     generatedAtUtc: new Date().toISOString(),
     currentHead: head,
-    artifacts: {
-      finalCostAuditLock: readJson(root, "agent/state/final-cost-audit-lock.generated.json"),
-      cloudSqlGeminiCostGuards: readJson(root, "agent/state/cloud-sql-gemini-cost-guards.generated.json"),
-      globalCostSurfaces: readJson(root, "agent/state/global-cost-surfaces.generated.json"),
-      billingSpikeRadar: readJson(root, "agent/state/billing-spike-radar.generated.json"),
-      analyticsHotPathCostReduction: readJson(root, "agent/state/analytics-hot-path-cost-reduction.generated.json"),
-      scheduledRuntimeCostReduction: readJson(root, "agent/state/scheduled-runtime-cost-reduction.generated.json"),
-      adminAnalyticsDebugCostReduction: readJson(root, "agent/state/admin-analytics-debug-cost-reduction.generated.json"),
-      creatorDashboardErrorCostInventory: readJson(root, CREATOR_DASHBOARD_COST_INVENTORY_PATH),
-      analyticsCostRuntimeInventory: readJson(root, "agent/state/analytics-cost-runtime-inventory.generated.json"),
-      finalTelemetryClosureLock: readJson(root, "agent/state/final-telemetry-closure-lock.generated.json"),
-      costOwnerReviewSourceClosure: readJson(root, "agent/state/cost-owner-review-source-closure.generated.json"),
-      costRiskOwnerReviewClosure: readJson(root, "agent/state/cost-risk-owner-review-closure.generated.json"),
-      costRiskExitPass: readJson(root, "agent/state/cost-risk-exit-pass.generated.json"),
-    },
+    artifacts,
+    artifactCurrentByImpact,
   });
 }
 

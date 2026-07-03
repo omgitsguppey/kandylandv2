@@ -109,6 +109,30 @@ describe("score 80 cost readiness", () => {
     expect(report.costRiskScoreExplanation).toContain("external billing evidence");
   });
 
+  it("keeps same-commit generated cost snapshots current by impact", () => {
+    const report = buildScore80CostReadinessReport({
+      generatedAtUtc: "2026-05-20T00:00:00.000Z",
+      currentHead: "score-refresh-head",
+      artifacts: sourceArtifacts,
+      artifactCurrentByImpact: {
+        finalCostAuditLock: true,
+        cloudSqlGeminiCostGuards: true,
+        analyticsCostRuntimeInventory: true,
+        finalTelemetryClosureLock: true,
+      },
+    });
+
+    expect(report.costReadiness.cloudRunCostReadiness.status).toBe("source_guarded_external_review_remaining");
+    expect(report.costReadiness.cloudSqlCostReadiness.status).toBe("source_ready_no_runtime_usage_detected");
+    expect(report.costReadiness.geminiCloudAssistCostReadiness.status).toBe("source_guarded_external_review_remaining");
+    expect(report.costReadiness.route4xxReadiness.status).toBe("source_ready_retry_storm_guarded");
+    expect(report.sourceReadinessSignals).toEqual(expect.arrayContaining([
+      "finalCostCurrent=true",
+      "telemetryCurrent=true",
+    ]));
+    expect(validateScore80CostReadinessReport(report)).toEqual([]);
+  });
+
   it("fails validation when not detected is treated as a pass", () => {
     const report = buildScore80CostReadinessReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
