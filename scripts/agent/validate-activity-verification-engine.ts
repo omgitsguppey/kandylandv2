@@ -46,7 +46,7 @@ const sourceBackedActivityFixtures: ActivitySourceEvent[] = [
     userId: "fixture_user_drops",
     sessionId: "fixture_session_drops",
     identityLinkId: "fixture_identity_link_drops",
-    identityConfidence: 0.95,
+    identityConfidence: "linked",
     materialized: true,
     debugVisible: true,
     sourcePath: "tests/unit/activity-verification-engine.spec.ts",
@@ -59,7 +59,7 @@ const sourceBackedActivityFixtures: ActivitySourceEvent[] = [
     userId: "fixture_user_dashboard",
     sessionId: "fixture_session_dashboard",
     identityLinkId: "fixture_identity_link_dashboard",
-    identityConfidence: 0.9,
+    identityConfidence: "linked",
     materialized: true,
     debugVisible: true,
     sourcePath: "src/lib/features/feature-registration-registry.ts",
@@ -72,7 +72,7 @@ const sourceBackedActivityFixtures: ActivitySourceEvent[] = [
     userId: "fixture_user_creator",
     sessionId: "fixture_session_creator",
     identityLinkId: "fixture_identity_link_creator",
-    identityConfidence: 0.92,
+    identityConfidence: "linked",
     materialized: true,
     debugVisible: true,
     sourcePath: "src/lib/behavioral/behavior-math-engine.ts",
@@ -161,12 +161,26 @@ const weakIdentity = buildActivityVerificationReport({
     ...sourceBackedActivityFixtures[0],
     guestId: undefined,
     identityLinkId: undefined,
-    identityConfidence: 0,
+    identityConfidence: "unknown",
   }],
   consentMode: "full_behavioral",
 });
 if (weakIdentity.features[0]?.scoreEligible) {
   failures.push("user-level metric is score eligible without identity confidence.");
+}
+
+const inferredIdentity = buildActivityVerificationReport({
+  features: [FEATURE_REGISTRATION_REGISTRY.find((feature) => feature.featureId === "drops")!],
+  sourceEvents: [{
+    ...sourceBackedActivityFixtures[0],
+    guestId: undefined,
+    identityLinkId: undefined,
+    identityConfidence: "inferred",
+  }],
+  consentMode: "full_behavioral",
+});
+if (inferredIdentity.features[0]?.scoreEligible) {
+  failures.push("inferred identity confidence must not clear user-level activity score eligibility.");
 }
 
 const sourceReadyOnly = buildActivityVerificationReport({

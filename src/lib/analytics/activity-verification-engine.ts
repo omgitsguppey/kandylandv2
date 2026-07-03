@@ -15,6 +15,7 @@ import {
   type ConsentMode,
 } from "@/lib/privacy/consent-tracking-policy";
 import type { DebugBacklogItem } from "@/lib/debug/debug-backlog-contract";
+import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
 
 export type ActivityEvidenceKind =
   | "source_backed_fixture"
@@ -39,7 +40,7 @@ export interface ActivitySourceEvent {
   userId?: string;
   sessionId?: string;
   identityLinkId?: string;
-  identityConfidence?: number;
+  identityConfidence?: IdentityConfidence;
   consentMode?: ConsentMode;
   materialized?: boolean;
   debugVisible?: boolean;
@@ -144,6 +145,19 @@ function isObservedActivityEvidence(event: ActivitySourceEvent) {
   return event.sourceKind === "source_backed_fixture";
 }
 
+const IDENTITY_CONFIDENCE_RANK: Record<IdentityConfidence, number> = {
+  unknown: 0,
+  weak: 1,
+  inferred: 2,
+  linked: 3,
+  exact: 4,
+};
+
+function identityConfidenceAtLeastLinked(event: ActivitySourceEvent) {
+  const confidence = event.identityConfidence ?? (event.identityLinkId ? "linked" : "unknown");
+  return IDENTITY_CONFIDENCE_RANK[confidence] >= IDENTITY_CONFIDENCE_RANK.linked;
+}
+
 function featureSourceFiles(feature: FeatureRegistration) {
   return [
     "src/lib/analytics/activity-verification-engine.ts",
@@ -233,7 +247,7 @@ function verifyFeature(feature: FeatureRegistration, events: readonly ActivitySo
   const guestToUserLinked = activityEvents.some((event) => Boolean(event.guestId && event.userId && event.identityLinkId));
   const identifiableMetricAvailable = activityEvents.some((event) =>
     Boolean(event.userId)
-    && Number(event.identityConfidence ?? (event.identityLinkId ? 0.8 : 0)) >= 0.8,
+    && identityConfidenceAtLeastLinked(event),
   );
   const behaviorMaterialized = activityEvents.some((event) => event.materialized === true)
     && feature.materializerLanes.length > 0;

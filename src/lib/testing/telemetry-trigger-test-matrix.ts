@@ -335,7 +335,7 @@ export function evaluateTelemetryTriggerTestMatrix(input: {
         userId: envelope.userRef?.id ?? undefined,
         sessionId: envelope.sessionId,
         identityLinkId: envelope.linkId ?? undefined,
-        identityConfidence: matrixRow.expectedPersonMetric.confidence === "linked" ? 0.85 : 0.98,
+        identityConfidence: matrixRow.expectedPersonMetric.confidence === "linked" ? "linked" : "exact",
         consentMode: matrixRow.consentMode,
         materialized: true,
         debugVisible: true,

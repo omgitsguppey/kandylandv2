@@ -22,7 +22,7 @@ describe("activity verification engine", () => {
           userId: "user_1",
           sessionId: "session_1",
           identityLinkId: "identity_link_1",
-          identityConfidence: 0.95,
+          identityConfidence: "linked",
           materialized: true,
           debugVisible: true,
           sourcePath: "tests/fixtures/source-backed-drop-activity.json",
@@ -92,7 +92,7 @@ describe("activity verification engine", () => {
           guestId: "guest_1",
           userId: "user_1",
           identityLinkId: "identity_link_1",
-          identityConfidence: 0.95,
+          identityConfidence: "linked",
           materialized: false,
           debugVisible: true,
           sourcePath: "tests/fixtures/source-backed-drop-activity.json",
@@ -123,7 +123,35 @@ describe("activity verification engine", () => {
           sourceKind: "source_backed_fixture",
           userId: "user_1",
           sessionId: "session_1",
-          identityConfidence: 0,
+          identityConfidence: "unknown",
+          materialized: true,
+          debugVisible: true,
+          sourcePath: "tests/fixtures/source-backed-drop-activity.json",
+        },
+      ],
+    });
+
+    expect(report.features[0]).toMatchObject({
+      userActivitySeen: true,
+      identifiableMetricAvailable: false,
+      scoreEligible: false,
+      verificationStatus: "orphaned",
+    });
+    expect(validateActivityVerificationReport(report)).toEqual([]);
+  });
+
+  it("does not treat inferred identity as enough for user-level score eligibility", () => {
+    const report = buildActivityVerificationReport({
+      features: [drops],
+      consentMode: "full_behavioral",
+      sourceEvents: [
+        {
+          featureId: "drops",
+          eventName: "drop_card_impression",
+          sourceKind: "source_backed_fixture",
+          userId: "user_1",
+          sessionId: "session_1",
+          identityConfidence: "inferred",
           materialized: true,
           debugVisible: true,
           sourcePath: "tests/fixtures/source-backed-drop-activity.json",
@@ -153,7 +181,7 @@ describe("activity verification engine", () => {
           userId: "user_1",
           sessionId: "session_1",
           identityLinkId: "identity_link_1",
-          identityConfidence: 0.95,
+          identityConfidence: "linked",
           materialized: true,
           debugVisible: true,
           sourcePath: "src/lib/features/feature-registration-registry.ts",
@@ -191,7 +219,7 @@ describe("activity verification engine", () => {
           userId: "user_1",
           sessionId: "session_1",
           identityLinkId: "identity_link_1",
-          identityConfidence: 0.95,
+          identityConfidence: "linked",
           materialized: true,
           debugVisible: true,
           sourcePath: "",

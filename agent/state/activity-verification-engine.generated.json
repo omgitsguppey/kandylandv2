@@ -1,7 +1,7 @@
 {
   "reportKey": "activity-verification-engine",
-  "generatedAtUtc": "2026-07-02T15:23:31.796Z",
-  "currentHead": "5061e1e9a0210a242282310961fd41fe469554a5",
+  "generatedAtUtc": "2026-07-03T01:47:13.543Z",
+  "currentHead": "10b6dc063ca13e825f3bc92b282be7872f3dc3d4",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -516,17 +516,15 @@
   },
   "validationFailures": [],
   "changedFiles": [
-    "agent/context/optimized-task-context.generated.json",
-    "agent/state/real-usage-confidence-calibration.generated.json",
-    "docs/agent-truth/real-usage-confidence-calibration.md",
+    "agent/state/activity-verification-engine.generated.json",
+    "agent/state/identity-chain-contract.generated.json",
+    "agent/state/user-tracking-live-evidence.generated.json",
+    "docs/agent-truth/identity-chain-contract.md",
+    "docs/agent-truth/user-tracking-live-evidence.md",
     "scripts/agent/validate-activity-verification-engine.ts",
-    "scripts/agent/validate-real-usage-confidence-calibration.ts",
-    "scripts/agent/validate-real-usage-confidence.ts",
     "src/lib/analytics/activity-verification-engine.ts",
-    "src/lib/analytics/real-usage-confidence-calibration.ts",
-    "src/lib/analytics/real-usage-confidence-engine.ts",
-    "tests/unit/real-usage-confidence-calibration.spec.ts",
-    "tests/unit/real-usage-confidence.spec.ts"
+    "src/lib/testing/telemetry-trigger-test-matrix.ts",
+    "tests/unit/activity-verification-engine.spec.ts"
   ],
   "protectedChanges": []
 }
