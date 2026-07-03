@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T19:54:01.007Z",
+  "generatedAt": "2026-07-03T02:02:33.664Z",
   "reportKey": "ai-debug-critic",
   "criticStatus": "pass",
   "checks": [
@@ -16,7 +16,7 @@
     {
       "id": "no_fake_evidence",
       "label": "Do not fake evidence",
-      "failureMode": "Source-only output is described as runtime, provider, smoke, screenshot, or source proof."
+      "failureMode": "Source-only output is described as deployed, provider, admin, or screenshot evidence without matching records."
     },
     {
       "id": "no_formal_gate_cleared_without_artifact",

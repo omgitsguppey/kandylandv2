@@ -77,7 +77,7 @@ export function buildFormalGateDisplay(input: FormalGateDisplayInput): FormalGat
     evidencePaths,
     nextAction: isAdmin
       ? "Produce a redacted admin source activity sample before clearing the admin lane."
-      : "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
+      : "Produce provider-backed source activity evidence and deployed route evidence before clearing this gate.",
     operatorSignal,
     formalProviderGateCleared: providerCleared,
     deployedRuntimeGateCleared: runtimeCleared,
@@ -101,18 +101,18 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
     return {
       state: "source_only",
       label: "Source-only evidence",
-      detail: "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks stay separate.",
+      detail: "Implemented behavior checks passed. Deployed route evidence, provider-backed source activity evidence, admin source activity evidence, and UI source contract checks stay separate.",
     };
   }
 
   if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence/iu.test(normalized)) {
     const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true|deployed (runtime )?route evidence (is )?(current|recorded)|deployed route evidence is recorded/iu.test(normalized);
     const providerEvidenceDetail = runtimeRecorded
-      ? "Produce redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh."
-      : "Produce redacted provider-backed site activity evidence and deployed route evidence.";
+      ? "Produce redacted provider-backed source activity evidence. Deployed route evidence is recorded; keep it fresh."
+      : "Produce redacted provider-backed source activity evidence and deployed route evidence.";
     return {
       state: "site_activity_evidence_required",
-      label: "Site activity evidence required",
+      label: "Source activity evidence required",
       detail: /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
         ? `The payment note is product context only. ${providerEvidenceDetail}`
         : providerEvidenceDetail,
@@ -184,7 +184,7 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
   const status = String(input.status ?? "").trim();
   const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
   if (!combined.trim()) return "Readiness unavailable";
-  if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
+  if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Source activity evidence required";
   if (/report refresh needed|report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
   if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
   if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";

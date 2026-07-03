@@ -1,6 +1,6 @@
 {
   "reportKey": "route-sample-freshness-classifier",
-  "generatedAtUtc": "2026-06-11T14:16:26.282Z",
+  "generatedAtUtc": "2026-07-03T02:05:49.083Z",
   "staleFailure": {
     "routeKey": "creator/bookings:POST",
     "method": "POST",
@@ -14,7 +14,7 @@
     "status": "stale_server_error",
     "currentResultTrusted": false,
     "staleReason": "sample_outside_freshness_window",
-    "nextAction": "creator/bookings:POST has stale server-error history; repair or run a fresh safe smoke path before current readiness."
+    "nextAction": "creator/bookings:POST has stale server-error history; repair or capture fresh safe route evidence before current readiness."
   },
   "noSample": {
     "routeKey": "admin/creator-account-controls:POST",
@@ -29,12 +29,12 @@
     "status": "unseen_required_smoke_needed",
     "currentResultTrusted": false,
     "staleReason": null,
-    "nextAction": "admin/creator-account-controls:POST has no runtime sample; run an approved smoke path or attach evidence."
+    "nextAction": "admin/creator-account-controls:POST has no runtime sample; attach approved route evidence or run an approved diagnostic route check."
   },
   "freshnessWindowMs": 86400000,
   "validationFailures": [],
   "status": "pass",
-  "currentHead": "aa4c3fba304c8dd9ceb18a6db2ba015931fab937",
+  "currentHead": "d7c614ae84aafbf7c3465651d9ef96ce18754859",
   "evidenceClass": "source_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -42,11 +42,11 @@
   "canClearAdminTruthGate": false,
   "nextExactSteps": [
     "Run npm run check:route-sample-freshness-classifier after touching this classifier lane.",
-    "Use deployed route samples or redacted runtime evidence separately before clearing runtime gates."
+    "Use deployed route evidence separately before clearing deployed-route evidence gates."
   ],
   "doesNotProve": [
     "Does not prove live route health.",
-    "Does not prove provider/runtime route behavior.",
-    "Does not prove admin truth samples are current."
+    "Does not prove provider-backed source activity or deployed route behavior.",
+    "Does not prove admin source activity samples are current."
   ]
 }

@@ -4,9 +4,9 @@ Generated Control Tower cleanup evidence. Typed evidence gates remain visible bu
 
 ```json
 {
-  "generatedAtUtc": "2026-07-02T03:24:53.056Z",
+  "generatedAtUtc": "2026-07-03T02:01:58.344Z",
   "reportKey": "control-tower-formal-gate-display",
-  "currentHead": "7f310de8c547cb913967530cc009f5e7370e867b",
+  "currentHead": "d7c614ae84aafbf7c3465651d9ef96ce18754859",
   "gates": {
     "runtimeProvider": {
       "gateId": "runtime_provider_smoke",
@@ -16,7 +16,7 @@ Generated Control Tower cleanup evidence. Typed evidence gates remain visible bu
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json"
       ],
-      "nextAction": "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
+      "nextAction": "Produce provider-backed source activity evidence and deployed route evidence before clearing this gate.",
       "operatorSignal": "GumDrop payment operator-confirmed; provider-backed source evidence remains separate.",
       "formalProviderGateCleared": false,
       "deployedRuntimeGateCleared": false,
@@ -30,7 +30,7 @@ Generated Control Tower cleanup evidence. Typed evidence gates remain visible bu
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json"
       ],
-      "nextAction": "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
+      "nextAction": "Produce provider-backed source activity evidence and deployed route evidence before clearing this gate.",
       "operatorSignal": null,
       "formalProviderGateCleared": false,
       "deployedRuntimeGateCleared": false,

@@ -7,7 +7,7 @@ describe("no-sample route display cleanup", () => {
   it("never emits a LIVE badge for unseen no-sample route cards", () => {
     const display = buildNoSampleRouteDisplay(classifyNoSampleRouteCohort("user/revoke-sessions:POST"));
 
-    expect(display.badge).toBe("REQUIRED SMOKE");
+    expect(display.badge).toBe("ROUTE EVIDENCE REQUIRED");
     expect(display.truthState).toBe("unavailable");
     expect(display.liveBadgeAllowed).toBe(false);
     expect(display.copy).toContain("Metrics are unavailable, not zero.");

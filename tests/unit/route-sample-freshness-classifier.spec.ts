@@ -6,7 +6,7 @@ describe("route sample freshness classifier", () => {
   const nowMs = Date.UTC(2026, 4, 24);
 
   it("classifies stale success and stale server errors without trusting them as current health", () => {
-    expect(classifyRouteSampleFreshness({
+    const staleCritical = classifyRouteSampleFreshness({
       routeKey: "paypal/capture:POST",
       method: "POST",
       risk: "critical",
@@ -16,7 +16,10 @@ describe("route sample freshness classifier", () => {
       lastResult: "success",
       lastSampleAgeMs: 2 * 24 * 60 * 60 * 1000,
       freshnessWindowMs: 24 * 60 * 60 * 1000,
-    }, { nowMs }).status).toBe("stale_critical_evidence_required");
+    }, { nowMs });
+
+    expect(staleCritical.status).toBe("stale_critical_evidence_required");
+    expect(staleCritical.nextAction).toContain("approved route evidence");
 
     const staleFailure = classifyRouteSampleFreshness({
       routeKey: "creator/bookings:POST",
@@ -33,6 +36,8 @@ describe("route sample freshness classifier", () => {
     expect(staleFailure.status).toBe("stale_server_error");
     expect(staleFailure.currentResultTrusted).toBe(false);
     expect(staleFailure.nextAction).toContain("fresh");
+    expect(staleFailure.nextAction).toContain("route evidence");
+    expect(staleFailure.nextAction).not.toContain("smoke");
   });
 
   it("classifies no-sample routes as unseen cohorts instead of live", () => {
@@ -48,7 +53,7 @@ describe("route sample freshness classifier", () => {
       freshnessWindowMs: 24 * 60 * 60 * 1000,
     }).status).toBe("unseen_optional_quiet");
 
-    expect(classifyRouteSampleFreshness({
+    const requiredNoSample = classifyRouteSampleFreshness({
       routeKey: "admin/creator-account-controls:POST",
       method: "POST",
       risk: "high",
@@ -59,6 +64,10 @@ describe("route sample freshness classifier", () => {
       lastSampleAgeMs: null,
       freshnessWindowMs: 24 * 60 * 60 * 1000,
       sampleRequiredForBeta: true,
-    }).status).toBe("unseen_required_smoke_needed");
+    });
+
+    expect(requiredNoSample.status).toBe("unseen_required_smoke_needed");
+    expect(requiredNoSample.nextAction).toContain("approved route evidence");
+    expect(requiredNoSample.nextAction).not.toContain("smoke");
   });
 });

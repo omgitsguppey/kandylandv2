@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildFormalGateDisplay } from "@/lib/agent-score/formal-gate-display";
+import {
+  buildFormalGateDisplay,
+  formatPublicBetaReadinessStatusForAdmin,
+  resolvePublicBetaCapDetailForAdmin,
+} from "@/lib/agent-score/formal-gate-display";
 
 describe("control tower formal gate display", () => {
   it("keeps operator payment confirmation separate from provider-backed and runtime source evidence", () => {
@@ -21,6 +25,8 @@ describe("control tower formal gate display", () => {
     expect(display.deployedRuntimeGateCleared).toBe(false);
     expect(display.evidencePaths).toContain("agent/state/provider-smoke-evidence.generated.json");
     expect(display.evidencePaths).toContain("agent/state/runtime-smoke-evidence.generated.json");
+    expect(display.nextAction).toContain("provider-backed source activity evidence");
+    expect(display.nextAction).not.toContain("site activity");
   });
 
   it("shows source-ready admin truth as formal sample required instead of unknown", () => {
@@ -35,5 +41,20 @@ describe("control tower formal gate display", () => {
     expect(display.adminTruthStatus).toBe("source_ready_formal_admin_sample_required");
     expect(display.notSourceBug).toBe(true);
     expect(display.nextAction).toContain("redacted admin source activity sample");
+  });
+
+  it("uses source evidence wording for public beta cap display without breaking legacy aliases", () => {
+    const display = resolvePublicBetaCapDetailForAdmin(
+      "Provider smoke: operator-confirmed PayPal activity exists; provider-backed site activity evidence is missing.",
+    );
+
+    expect(display.state).toBe("site_activity_evidence_required");
+    expect(display.label).toBe("Source activity evidence required");
+    expect(display.detail).toContain("provider-backed source activity evidence");
+    expect(display.detail).not.toContain("site activity");
+    expect(formatPublicBetaReadinessStatusForAdmin({
+      status: "review",
+      capDetails: ["provider smoke missing"],
+    })).toBe("Source activity evidence required");
   });
 });

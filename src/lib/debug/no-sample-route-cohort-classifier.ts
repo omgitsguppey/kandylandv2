@@ -123,8 +123,8 @@ function riskFor(cohort: NoSampleRouteCohort): NoSampleRouteCohortRecord["risk"]
 }
 
 function nextActionFor(cohort: NoSampleRouteCohort, routeKey: string, status: RouteSampleFreshnessStatus) {
-    if (status === "unseen_required_smoke_needed") return `${routeKey} needs approved source/contract smoke evidence before it can be treated as current.`;
-    if (cohort === "auth_proxy_high_risk") return `${routeKey} is Firebase auth proxy infrastructure; keep source-ready no-sample until formal runtime evidence is attached.`;
+    if (status === "unseen_required_smoke_needed") return `${routeKey} needs approved source/contract route evidence before it can be treated as current.`;
+    if (cohort === "auth_proxy_high_risk") return `${routeKey} is Firebase auth proxy infrastructure; keep source-ready no-sample until deployed route evidence is attached.`;
     if (cohort === "firebase_proxy_infra") return `${routeKey} is Firebase proxy infrastructure; keep metrics unavailable until sampled.`;
     if (cohort === "creator_legacy_messages_compat") return `${routeKey} stays visible under legacy creator-message compatibility policy until removal is approved.`;
     if (cohort === "notification_dispatch_write") return `${routeKey} has source dispatch coverage but needs a safe contract or runtime sample before current health.`;

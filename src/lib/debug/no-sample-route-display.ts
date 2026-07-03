@@ -2,7 +2,7 @@ import type { NoSampleRouteCohort, NoSampleRouteCohortRecord } from "@/lib/debug
 
 export type NoSampleRouteBadge =
     | "NO SAMPLE"
-    | "REQUIRED SMOKE"
+    | "ROUTE EVIDENCE REQUIRED"
     | "OPTIONAL QUIET"
     | "LEGACY QUIET"
     | "MANUAL ACTION"
@@ -10,7 +10,7 @@ export type NoSampleRouteBadge =
     | "UNKNOWN";
 
 export function badgeForNoSampleRoute(record: NoSampleRouteCohortRecord): NoSampleRouteBadge {
-    if (record.status === "unseen_required_smoke_needed") return "REQUIRED SMOKE";
+    if (record.status === "unseen_required_smoke_needed") return "ROUTE EVIDENCE REQUIRED";
     if (record.status === "unseen_optional_quiet") return "OPTIONAL QUIET";
     if (record.status === "unseen_manual_operator_action") return "MANUAL ACTION";
     if (record.status === "unseen_legacy_compat_quiet") return "LEGACY QUIET";

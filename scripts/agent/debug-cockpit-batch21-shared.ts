@@ -45,7 +45,7 @@ function runValidation(reportKey: string, report: Report, failures: string[]) {
     "",
     "## Summary",
     "- No-sample route runtime entries are grouped by cohort and never displayed as live health.",
-    "- High-risk mutation/security/proxy routes keep exact smoke or formal evidence next actions.",
+    "- High-risk mutation/security/proxy routes keep exact source/route evidence next actions.",
     "- Validators are source/artifact only and do not call production routes.",
     "",
     "## Validation Failures",
@@ -89,11 +89,11 @@ export function validateNoSampleRouteDisplayCleanup() {
 export function validateHighRiskNoSampleRouteSmokePlan() {
   const plan = buildHighRiskNoSampleRouteSmokePlan();
   const failures: string[] = [];
-  pushIf(plan.length > 0, failures, "high-risk no-sample route lacks smoke plan.");
-  pushIf(plan.every((item) => item.productionRouteCallAllowed === false), failures, "mutation route has auto-smoke production plan.");
+  pushIf(plan.length > 0, failures, "high-risk no-sample route lacks route evidence plan.");
+  pushIf(plan.every((item) => item.productionRouteCallAllowed === false), failures, "mutation route has auto route-check production plan.");
   pushIf(plan.some((item) => item.routeKey === "user/revoke-sessions:POST" && item.smokeType === "local_safe_route_contract"), failures, "security route can be marked healthy without evidence.");
-  pushIf(plan.some((item) => item.routeKey === "creator/payouts:POST" && item.smokeType === "manual_operator_smoke"), failures, "creator payout route lacks manual/formal smoke plan.");
-  pushIf(plan.some((item) => item.routeKey === "__/auth/[...path]:POST" && item.smokeType === "formal_runtime_required"), failures, "auth proxy route lacks formal runtime evidence plan.");
+  pushIf(plan.some((item) => item.routeKey === "creator/payouts:POST" && item.smokeType === "manual_operator_smoke"), failures, "creator payout route lacks protected operator evidence plan.");
+  pushIf(plan.some((item) => item.routeKey === "__/auth/[...path]:POST" && item.smokeType === "formal_runtime_required"), failures, "auth proxy route lacks deployed route evidence plan.");
   runValidation("high-risk-no-sample-route-smoke-plan", { plan }, failures);
 }
 
@@ -118,7 +118,7 @@ export function validateDebugCockpitBatch21NoSampleRoutes() {
   const display = readText("src/lib/debug/no-sample-route-display.ts");
   pushIf(display.includes("liveBadgeAllowed: false"), failures, "any no-sample route still displays LIVE.");
   pushIf(report.cohorts.length > 0, failures, "no-sample route lacks cohort.");
-  pushIf(report.requiredSmokeRoutes.length > 0, failures, "high-risk no-sample route lacks smoke plan.");
+  pushIf(report.requiredSmokeRoutes.length > 0, failures, "high-risk no-sample route lacks route evidence plan.");
   pushIf(report.optionalQuietRoutes.length + report.manualOperatorRoutes.length + report.legacyCompatRoutes.length >= 2, failures, "optional/manual/legacy routes are counted as live health.");
   pushIf(Object.keys(report.scoreDimensions).length > 0, failures, "score dimensions missing.");
   runValidation("debug-cockpit-batch21-no-sample-routes", report as unknown as Report, failures);

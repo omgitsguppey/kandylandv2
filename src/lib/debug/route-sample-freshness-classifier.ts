@@ -58,15 +58,15 @@ function classifyUnseen(input: RouteSampleFreshnessInput): RouteSampleFreshnessS
 function nextActionFor(status: RouteSampleFreshnessStatus, input: RouteSampleFreshnessInput) {
     switch (status) {
         case "stale_critical_evidence_required":
-            return `${input.routeKey} needs fresh formal/operator smoke evidence before it can be treated as current.`;
+            return `${input.routeKey} needs fresh approved route evidence before it can be treated as current.`;
         case "stale_server_error":
-            return `${input.routeKey} has stale server-error history; repair or run a fresh safe smoke path before current readiness.`;
+            return `${input.routeKey} has stale server-error history; repair or capture fresh safe route evidence before current readiness.`;
         case "stale_client_error":
             return `${input.routeKey} has stale client-error history; map expected errors and refresh evidence.`;
         case "stale_success":
             return `${input.routeKey} needs a fresh runtime sample; stale success is not live health.`;
         case "unseen_required_smoke_needed":
-            return `${input.routeKey} has no runtime sample; run an approved smoke path or attach evidence.`;
+            return `${input.routeKey} has no runtime sample; attach approved route evidence or run an approved diagnostic route check.`;
         case "unseen_optional_quiet":
             return `${input.routeKey} is optional and quiet; keep out of live health until sampled.`;
         case "unseen_manual_operator_action":

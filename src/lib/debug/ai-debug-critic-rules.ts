@@ -11,7 +11,7 @@ import type {
 export const AI_DEBUG_CRITIC_CHECKS: AiDebugCriticCheck[] = [
   { id: "no_patch_on_top_of_stale_logic", label: "Do not patch on top of stale logic", failureMode: "A stale backlog item remains open while the proposed fix claims completion." },
   { id: "no_duplicate_systems", label: "Do not create duplicate systems", failureMode: "A new debug, evidence, telemetry, score, route, or cost system duplicates a canonical lane." },
-  { id: "no_fake_evidence", label: "Do not fake evidence", failureMode: "Source-only output is described as runtime, provider, smoke, screenshot, or source proof." },
+  { id: "no_fake_evidence", label: "Do not fake evidence", failureMode: "Source-only output is described as deployed, provider, admin, or screenshot evidence without matching records." },
   { id: "no_formal_gate_cleared_without_artifact", label: "Do not clear source evidence gates without records", failureMode: "A beta evidence gate is marked resolved without the required generated source record." },
   { id: "no_monolith_growth_without_split_plan", label: "Do not grow monoliths without split plans", failureMode: "A touched source file exceeds module discipline limits without a split plan." },
   { id: "no_chat_nav_touch_without_explicit_request", label: "Do not touch chat or navigation without explicit request", failureMode: "A protected chat or nav path changed outside the prompt scope." },

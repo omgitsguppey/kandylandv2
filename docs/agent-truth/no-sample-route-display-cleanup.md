@@ -1,6 +1,6 @@
-# no-sample-route-cohort-finalization
+# no-sample-route-display-cleanup
 
-Generated: 2026-07-03T02:06:02.497Z
+Generated: 2026-07-03T02:05:56.206Z
 
 Status: pass
 

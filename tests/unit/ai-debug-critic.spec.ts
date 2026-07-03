@@ -36,7 +36,7 @@ describe("ai debug critic", () => {
           sourceRoute: "runtime/provider-smoke",
           evidenceStatus: "formal_missing",
           evidenceReason: "Provider-backed source artifact is missing.",
-          exactNextAction: "Run the provider-backed site activity evidence lane.",
+          exactNextAction: "Run the provider-backed source activity evidence lane.",
           sourceMessage: "Runtime unverified.",
         },
       ],
@@ -77,7 +77,13 @@ describe("ai debug critic", () => {
     expect(report.duplicateSystems).toContain("src/lib/debug/new-debug-backlog-copy.ts");
     expect(report.monolithRisks[0]?.file).toBe("src/components/AdminHugePanel.tsx");
     expect(report.evidenceMisclassificationRisks.length).toBeGreaterThan(0);
-    expect(report.findings.find((finding) => finding.check === "no_fake_evidence")?.actionClass).toBe("blocked_formal_evidence");
+    const fakeEvidenceFinding = report.findings.find((finding) => finding.check === "no_fake_evidence");
+    expect(fakeEvidenceFinding?.actionClass).toBe("blocked_formal_evidence");
+    expect(fakeEvidenceFinding?.detail).toContain("matching records");
+    expect(fakeEvidenceFinding?.detail).not.toContain("source proof");
+    const runtimeProofFinding = report.findings.find((finding) => finding.check === "no_source_ready_as_runtime_proof");
+    expect(runtimeProofFinding?.detail).toContain("provider-backed source activity");
+    expect(runtimeProofFinding?.detail).not.toContain("smoke gates");
     expect(report.suggestedValidators).toEqual(expect.arrayContaining([
       "npm run check:ai-debug-critic",
       "npm run check:beta-score",

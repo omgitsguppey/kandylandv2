@@ -19,12 +19,15 @@ describe("no-sample route cohort finalization", () => {
       sampleRequiredForLaunch: true,
       canBeQuiet: false,
     });
-    expect(classifyNoSampleRouteCohort("user/revoke-sessions:POST")).toMatchObject({
+    const securityRoute = classifyNoSampleRouteCohort("user/revoke-sessions:POST");
+    expect(securityRoute).toMatchObject({
       cohort: "user_security_write",
       risk: "high",
       status: "unseen_required_smoke_needed",
       sampleRequiredForBeta: true,
     });
+    expect(securityRoute.nextAction).toContain("source/contract route evidence");
+    expect(securityRoute.nextAction).not.toContain("smoke");
     expect(classifyNoSampleRouteCohort("creator/payouts:POST")).toMatchObject({
       cohort: "creator_payouts_write",
       risk: "critical",

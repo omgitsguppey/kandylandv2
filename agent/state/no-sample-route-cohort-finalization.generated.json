@@ -1,6 +1,6 @@
 {
   "reportKey": "no-sample-route-cohort-finalization",
-  "generatedAtUtc": "2026-05-24T22:24:10.658Z",
+  "generatedAtUtc": "2026-07-03T02:06:02.497Z",
   "records": [
     {
       "routeKey": "creator/payouts:POST",
@@ -14,7 +14,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 3,
-      "nextAction": "creator/payouts:POST needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "creator/payouts:POST needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "creator/payouts:PUT",
@@ -28,7 +28,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 3,
-      "nextAction": "creator/payouts:PUT needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "creator/payouts:PUT needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "creator/requests:POST",
@@ -42,7 +42,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "creator/requests:POST needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "creator/requests:POST needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "creator/requests:PUT",
@@ -56,7 +56,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "creator/requests:PUT needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "creator/requests:PUT needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "creator/settings:PUT",
@@ -70,7 +70,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "creator/settings:PUT needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "creator/settings:PUT needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "cron/process-creator-subscriptions:GET",
@@ -84,7 +84,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "cron/process-creator-subscriptions:GET needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "cron/process-creator-subscriptions:GET needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "drops/track:POST",
@@ -112,7 +112,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "__/auth/[...path]:GET is Firebase auth proxy infrastructure; keep source-ready no-sample until formal runtime evidence is attached."
+      "nextAction": "__/auth/[...path]:GET is Firebase auth proxy infrastructure; keep source-ready no-sample until deployed route evidence is attached."
     },
     {
       "routeKey": "__/auth/[...path]:HEAD",
@@ -126,7 +126,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "__/auth/[...path]:HEAD is Firebase auth proxy infrastructure; keep source-ready no-sample until formal runtime evidence is attached."
+      "nextAction": "__/auth/[...path]:HEAD is Firebase auth proxy infrastructure; keep source-ready no-sample until deployed route evidence is attached."
     },
     {
       "routeKey": "__/auth/[...path]:POST",
@@ -140,7 +140,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "__/auth/[...path]:POST is Firebase auth proxy infrastructure; keep source-ready no-sample until formal runtime evidence is attached."
+      "nextAction": "__/auth/[...path]:POST is Firebase auth proxy infrastructure; keep source-ready no-sample until deployed route evidence is attached."
     },
     {
       "routeKey": "__/firebase/[...path]:HEAD",
@@ -238,7 +238,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "support/threads/[threadId]:PATCH needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "support/threads/[threadId]:PATCH needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "support/threads/guest:POST",
@@ -252,7 +252,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "support/threads/guest:POST needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "support/threads/guest:POST needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "tasks/materialize:POST",
@@ -266,7 +266,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "tasks/materialize:POST needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "tasks/materialize:POST needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "user/follow:POST",
@@ -280,7 +280,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "user/follow:POST needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "user/follow:POST needs approved source/contract route evidence before it can be treated as current."
     },
     {
       "routeKey": "user/profile:GET",
@@ -308,7 +308,7 @@
       "displaysLive": false,
       "drilldownOnly": false,
       "scoreImpact": 2,
-      "nextAction": "user/revoke-sessions:POST needs approved source/contract smoke evidence before it can be treated as current."
+      "nextAction": "user/revoke-sessions:POST needs approved source/contract route evidence before it can be treated as current."
     }
   ],
   "validationFailures": []

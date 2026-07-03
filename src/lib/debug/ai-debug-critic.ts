@@ -100,7 +100,7 @@ export function buildAiDebugCriticReport(input: AiDebugCriticInput): AiDebugCrit
       severity: "blocker",
       actionClass: "blocked_formal_evidence",
       title: "Fake evidence claim detected",
-      detail: "The critic found language that claims runtime, provider-backed, smoke, deployed, screenshot, or source proof without matching evidence.",
+      detail: "The critic found language that claims deployed, provider, admin, or screenshot evidence without matching records.",
       sourceFiles: changedFiles,
       requiredFix: "Downgrade the claim to source-only evidence or produce the matching source activity record.",
       validators: ["npm run check:beta-score"],
@@ -232,9 +232,9 @@ export function buildAiDebugCriticReport(input: AiDebugCriticInput): AiDebugCrit
       severity: "blocker",
       actionClass: "blocked_formal_evidence",
       title: "Source readiness is not deployed runtime truth",
-      detail: "Local source checks cannot clear deployed runtime, provider-backed, or smoke gates.",
+      detail: "Local source checks cannot clear deployed route, provider-backed source activity, or admin source evidence lanes.",
       sourceFiles: changedFiles,
-      requiredFix: "Keep source readiness separate from deployed runtime truth and leave source evidence gates blocked until records exist.",
+      requiredFix: "Keep source readiness separate from deployed route truth and leave typed source evidence lanes blocked until records exist.",
       validators: ["npm run score:beta", "npm run check:beta-score"],
     }));
   }

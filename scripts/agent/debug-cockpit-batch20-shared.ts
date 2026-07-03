@@ -52,7 +52,7 @@ function runValidation(reportKey: string, report: Report, failures: string[]) {
     validationFailures: failures,
     doesNotProve: [
       "Does not prove live route health.",
-      "Does not prove provider-backed site activity or deployed route behavior.",
+      "Does not prove provider-backed source activity or deployed route behavior.",
       "Does not prove admin source activity samples are current.",
     ],
   });
@@ -105,7 +105,7 @@ export function validateRouteSampleFreshnessClassifier() {
   const ui = readText("src/app/admin/debug/components/DebugMonitoringRoutes.tsx");
   const failures: string[] = [];
   pushIf(staleFailure.status === "stale_server_error" && staleFailure.currentResultTrusted === false, failures, "stale server error displays current server error without fresh sample.");
-  pushIf(noSample.status === "unseen_required_smoke_needed", failures, "no-sample route displays LIVE or lacks required smoke classification.");
+  pushIf(noSample.status === "unseen_required_smoke_needed", failures, "no-sample route displays LIVE or lacks required route evidence classification.");
   pushIf(containsAll(ui, ["sampleIsStale", "STALE SAMPLE", "truthState={loadedTruthState}"]), failures, "stale route sample displays current LIVE.");
   runValidation("route-sample-freshness-classifier", {
     staleFailure,
@@ -179,7 +179,7 @@ export function validateNoSampleRouteCohortCleanup() {
   const failures: string[] = [];
   pushIf(optional.displaysLive === false && optional.status === "unseen_optional_quiet", failures, "optional route treated as failure solely due to no sample or displayed LIVE.");
   pushIf(required.displaysLive === false && required.status === "unseen_required_smoke_needed", failures, "high-risk no-sample route lacks cohort.");
-  pushIf(required.nextAction.length > 0, failures, "high-risk no-sample route lacks smoke/evidence next action.");
+  pushIf(required.nextAction.length > 0, failures, "high-risk no-sample route lacks route evidence next action.");
   runValidation("no-sample-route-cohort-cleanup", { optional, required }, failures);
 }
 
