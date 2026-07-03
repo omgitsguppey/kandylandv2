@@ -901,7 +901,7 @@ export function buildPublicBetaEvidenceGates(input: {
   const targetedBehaviorPassed = targetedQuality.quality === "formal_passed";
   const targetedSourceCredit = Math.max(
     targetedQuality.partialCredit * 100,
-    realUsageConfidenceCredit,
+    realUsageObservedActivityCredit,
     behaviorMathSourceCredit,
     activityVerificationSourceCredit,
   );

@@ -1109,6 +1109,7 @@ describe("public beta scoring math", () => {
                 providerSmokeEvidence: { ...missingProviderSmokeEvidence, generatedAtUtc: freshGeneratedAtUtc },
                 runtimeSmokeEvidence: { ...runtimeUnverifiedEvidence, generatedAtUtc: freshGeneratedAtUtc },
                 targetedBehaviorEvidence: { ...missingTargetedBehaviorEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                behaviorMathEvidence: undefined,
                 debugRuntimeEvidenceArtifact: undefined,
                 sourceBackedRuntimeConfidenceEvidence: undefined,
                 runtimeSmokeSubstituteMatrixEvidence: {
@@ -1147,7 +1148,7 @@ describe("public beta scoring math", () => {
         const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
 
-        expect(targetedGate?.sourceCredit).toBe(95);
+        expect(targetedGate?.sourceCredit).toBe(0);
         expect(targetedGate?.runtimeCredit).toBe(0);
         expect(smokeGate?.status).toBe("Source evidence required");
         expect(smokeGate?.sourceCredit).toBe(0);
