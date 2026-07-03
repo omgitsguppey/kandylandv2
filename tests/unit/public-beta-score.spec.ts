@@ -220,6 +220,11 @@ describe("public beta scoring math", () => {
         expect(report.readinessStatus).not.toBe("Ready");
         expect(report.overallScore).toBeLessThan(100);
         expect(report.evidenceCapsApplied.length).toBeGreaterThan(0);
+        expect(report.evidenceCapsApplied).toEqual(expect.arrayContaining([
+            "Provider-backed source activity + deployed route evidence: source evidence required",
+            "Admin source activity: source evidence required",
+        ]));
+        expect(report.evidenceCapsApplied.join("\n")).not.toContain("Source evidence required: Provider-backed");
     });
 
     it("records cost-readiness lanes without treating source-only inventory as beta-exit proof", () => {

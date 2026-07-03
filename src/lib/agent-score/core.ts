@@ -503,6 +503,48 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   return `${gate.status}: ${gate.label} - ${normalizeTechnicalFreshnessTerms(gate.recommendedAction || gate.detail)}`;
 }
 
+function readinessStatusToSourceEvidencePhrase(status: PublicBetaReadinessStatus) {
+  switch (status) {
+    case "Source evidence required":
+      return "source evidence required";
+    case "Source validation only":
+      return "source validation only";
+    case "Runtime unverified":
+      return "deployed route source missing";
+    case "External proof required":
+      return "external source artifact required";
+    case "Unknown evidence":
+      return "source status unknown";
+    case "Stale evidence":
+      return "source evidence refresh due";
+    case "Ready with smoke required":
+      return "source ready; deployed check still required";
+    case "Needs review":
+      return "needs source review";
+    case "Blocked":
+      return "blocked";
+    case "Ready":
+      return "ready";
+  }
+}
+
+function summarizeEvidenceCapTitle(gate: PublicBetaEvidenceGate) {
+  const phrase = readinessStatusToSourceEvidencePhrase(gate.status);
+  if (gate.id === "runtimeProviderSmoke") {
+    return `${gate.label}: ${phrase}`;
+  }
+  if (gate.id === "adminTruthSamples") {
+    return `Admin source activity: ${phrase}`;
+  }
+  if (gate.id === "targetedBehaviorTests") {
+    return `Targeted behavior source validation: ${phrase}`;
+  }
+  if (gate.id === "debugRuntimeEvidence") {
+    return `Debug/runtime source evidence: ${phrase}`;
+  }
+  return `${gate.label}: ${phrase}`;
+}
+
 export function evidenceArtifactPassed(
   artifact: PublicBetaEvidenceArtifact | undefined,
   fallbackBoolean?: boolean,
@@ -1518,7 +1560,7 @@ export function buildPublicBetaEvidenceGates(input: {
   const readinessStatus = mostSevereReadinessStatus(gates.map((gate) => gate.status));
   const caps = gates
     .filter((gate) => gate.status !== "Ready")
-    .map((gate) => `${gate.status}: ${gate.label}`);
+    .map(summarizeEvidenceCapTitle);
   const evidenceCapDetails = gates
     .filter((gate) => gate.status !== "Ready")
     .map(summarizeEvidenceGateForCap);

@@ -132,7 +132,11 @@ describe("source-backed runtime confidence", () => {
           status: "source_ready_runtime_confidence",
           passed: true,
           detail: "Source-backed runtime confidence only.",
-          evidence: ["runtimeConfidenceScore=80", "launchGateImpact=does_not_clear_runtime_smoke"],
+          evidence: [
+            "runtimeConfidenceScore=80",
+            "liveRuntimeEvidence.firstPartySiteActivityConfirmed=1",
+            "launchGateImpact=does_not_clear_runtime_smoke",
+          ],
           generatedAtUtc,
           sourceCommit: head,
         },
