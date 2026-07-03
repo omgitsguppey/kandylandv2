@@ -1,7 +1,7 @@
 {
   "reportKey": "creator-monetization-readiness-lock",
-  "generatedAtUtc": "2026-07-02T02:51:11.389Z",
-  "currentHead": "b40708089",
+  "generatedAtUtc": "2026-07-03T05:42:03.118Z",
+  "currentHead": "4e28dfa2e",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -52,7 +52,19 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -65,6 +77,10 @@
     },
     {
       "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {

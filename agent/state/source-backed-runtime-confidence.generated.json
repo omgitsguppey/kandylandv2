@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-21T22:51:43.236Z",
+  "generatedAtUtc": "2026-07-03T05:43:06.511Z",
   "reportKey": "source-backed-runtime-confidence",
-  "currentHead": "61ad3ffbdcbd8d38767ac6f43ea661397da7aaa5",
-  "sourceCommit": "61ad3ffbdcbd8d38767ac6f43ea661397da7aaa5",
+  "currentHead": "4e28dfa2ed4cd568f65258f6919801e8caca5f72",
+  "sourceCommit": "4e28dfa2ed4cd568f65258f6919801e8caca5f72",
   "status": "partial_source_runtime_confidence",
   "passed": false,
   "runtimeContractsPresent": false,
@@ -63,7 +63,7 @@
       "command": "npm run check:global-user-dedupe-normalization",
       "status": "pass",
       "artifactPath": "agent/state/global-user-dedupe-normalization.generated.json",
-      "detail": "agent/state/global-user-dedupe-normalization.generated.json was generated for the current code version."
+      "detail": "agent/state/global-user-dedupe-normalization.generated.json is older than HEAD but no owned source inputs changed."
     },
     {
       "command": "npm run check:operator-revenue-smoke",

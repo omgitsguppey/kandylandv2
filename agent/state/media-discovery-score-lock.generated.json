@@ -1,7 +1,7 @@
 {
   "reportKey": "media-discovery-score-lock",
-  "generatedAtUtc": "2026-07-02T02:51:10.597Z",
-  "currentHead": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
+  "generatedAtUtc": "2026-07-03T05:42:01.039Z",
+  "currentHead": "4e28dfa2ed4cd568f65258f6919801e8caca5f72",
   "mediaUploadStatus": "pass",
   "privateMediaAccessStatus": "pass",
   "creatorDiscoveryStatus": "pass",
@@ -102,8 +102,8 @@
     "scripts/agent/validate-search-discovery-cost.ts": "pass",
     "tests/unit/search-discovery-cost.spec.ts": "pass"
   },
-  "scoreBefore": 67.23,
-  "scoreAfter": 67.23,
+  "scoreBefore": 73.44,
+  "scoreAfter": 73.44,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -135,7 +135,19 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -144,6 +156,10 @@
     },
     {
       "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {

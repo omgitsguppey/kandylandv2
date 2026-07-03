@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-02T02:51:43.990Z",
+  "generatedAtUtc": "2026-07-03T05:38:41.717Z",
   "reportKey": "overnight-final-integration-lock",
-  "currentHead": "b4070808965ac7f5541abb1a19d85b48119ba1bc",
+  "currentHead": "4e28dfa2ed4cd568f65258f6919801e8caca5f72",
   "summary": {
     "wiringIntegrityStatus": "stale",
     "telemetryOrphanStatus": "stale",
@@ -15,11 +15,11 @@
     "navUntouched": true,
     "openPrCount": 0,
     "dirtyFileStatus": "classified",
-    "betaScore": 67.23,
-    "betaStatus": "Stale evidence",
+    "betaScore": 80.17,
+    "betaStatus": "Source evidence required",
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 7
+    "p2Count": 9
   },
   "dependencyStatus": [
     {
@@ -61,7 +61,7 @@
       "id": "final-telemetry-closure-lock",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 187d6964a50ddf5a4077b19e88471c7e23414b75.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 37e4ab766f919aae9fb025f4aedeb5a50c614da8.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
@@ -101,17 +101,17 @@
     },
     {
       "id": "public-beta-score",
-      "status": "passed",
+      "status": "stale",
       "required": true,
-      "detail": "agent/state/public-beta-score.generated.json is current.",
-      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+      "detail": "agent/state/public-beta-score.generated.json is stale for e54d0be8dd71cc36f6b9428b0d45dcd9cca99fcb.",
+      "nextAction": "Run the owner check for public-beta-score from current HEAD."
     },
     {
       "id": "current-beta-exit-status",
-      "status": "passed",
+      "status": "stale",
       "required": true,
-      "detail": "agent/state/current-beta-exit-status.generated.json is current.",
-      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for e54d0be8dd71cc36f6b9428b0d45dcd9cca99fcb.",
+      "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     }
   ],
   "fixesApplied": [],
@@ -150,8 +150,20 @@
     {
       "severity": "P2",
       "id": "final-telemetry-closure-lock",
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 187d6964a50ddf5a4077b19e88471c7e23414b75.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 37e4ab766f919aae9fb025f4aedeb5a50c614da8.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
+    },
+    {
+      "severity": "P2",
+      "id": "public-beta-score",
+      "detail": "agent/state/public-beta-score.generated.json is stale for e54d0be8dd71cc36f6b9428b0d45dcd9cca99fcb.",
+      "nextAction": "Run the owner check for public-beta-score from current HEAD."
+    },
+    {
+      "severity": "P2",
+      "id": "current-beta-exit-status",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for e54d0be8dd71cc36f6b9428b0d45dcd9cca99fcb.",
+      "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     },
     {
       "severity": "P2",
@@ -174,20 +186,11 @@
     "Run npm run check:overnight-final-integration-lock after any follow-up lock refresh."
   ],
   "changedFiles": [
-    "agent/state/beta-evidence-gap-map.generated.json",
-    "agent/state/creator-experience-simplification.generated.json",
-    "agent/state/creator-monetization-readiness-lock.generated.json",
     "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/final-parity-telemetry-lock.generated.json",
-    "agent/state/media-discovery-score-lock.generated.json",
+    "agent/state/overnight-final-integration-lock.generated.json",
     "agent/state/public-beta-score.generated.json",
-    "agent/state/targeted-behavior-evidence.generated.json",
-    "agent/state/user-creator-ui-parity.generated.json",
-    "docs/agent-truth/beta-evidence-gap-map.md",
-    "docs/agent-truth/creator-monetization-readiness-lock.md",
-    "docs/agent-truth/final-parity-telemetry-lock.md",
-    "docs/agent-truth/media-discovery-score-lock.md",
-    "docs/agent-truth/targeted-behavior-evidence.md"
+    "agent/state/ui-visual-smoke-minimal.generated.json",
+    "docs/agent-truth/overnight-final-integration-lock.md"
   ],
   "untrackedFiles": [],
   "openPrs": []

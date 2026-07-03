@@ -1,7 +1,7 @@
 # Media Discovery Score Lock
 
-Generated: 2026-07-02T02:51:10.597Z
-Head: b4070808965ac7f5541abb1a19d85b48119ba1bc
+Generated: 2026-07-03T05:42:01.039Z
+Head: 4e28dfa2ed4cd568f65258f6919801e8caca5f72
 Status: pass
 
 ## Summary
@@ -16,7 +16,7 @@ Status: pass
 - Debug visibility: pass
 - Sensitive route access: pass
 - Raw sensitive telemetry protected: true
-- Score: 67.23 -> 67.23
+- Score: 73.44 -> 73.44
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk
 
 ## Event Spines
@@ -61,9 +61,13 @@ Status: pass
 | agent/state/beta-evidence-gap-map.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/creator-experience-simplification.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/current-beta-exit-status.generated.json | current_generated_artifact_to_commit |
+| agent/state/overnight-final-integration-lock.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
 | agent/state/targeted-behavior-evidence.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/ui-visual-smoke-minimal.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/user-creator-ui-parity.generated.json | stale_generated_artifact_to_regenerate |
 | docs/agent-truth/beta-evidence-gap-map.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/overnight-final-integration-lock.md | stale_generated_artifact_to_regenerate |
 | docs/agent-truth/targeted-behavior-evidence.md | stale_generated_artifact_to_regenerate |
 
 ## Remaining Gaps

@@ -1,8 +1,8 @@
 # Source-Backed Runtime Confidence
 
-Generated: 2026-06-21T22:51:43.236Z
+Generated: 2026-07-03T05:43:06.511Z
 
-Latest code version: 61ad3ffbdcbd8d38767ac6f43ea661397da7aaa5
+Latest code version: 4e28dfa2ed4cd568f65258f6919801e8caca5f72
 
 ## Summary
 
@@ -32,7 +32,7 @@ Latest code version: 61ad3ffbdcbd8d38767ac6f43ea661397da7aaa5
 | npm run check:mobile-loading-hydration-stability | pass | agent/state/mobile-loading-hydration-stability.generated.json | agent/state/mobile-loading-hydration-stability.generated.json is older than HEAD but no owned source inputs changed. |
 | npm run check:user-loading-wallet-mobile-refinement | pass | agent/state/user-loading-wallet-mobile-refinement.generated.json | agent/state/user-loading-wallet-mobile-refinement.generated.json is older than HEAD but no owned source inputs changed. |
 | npm run check:creator-drop-status-metrics | pass | agent/state/creator-drop-status-metrics.generated.json | agent/state/creator-drop-status-metrics.generated.json is older than HEAD but no owned source inputs changed. |
-| npm run check:global-user-dedupe-normalization | pass | agent/state/global-user-dedupe-normalization.generated.json | agent/state/global-user-dedupe-normalization.generated.json was generated for the current code version. |
+| npm run check:global-user-dedupe-normalization | pass | agent/state/global-user-dedupe-normalization.generated.json | agent/state/global-user-dedupe-normalization.generated.json is older than HEAD but no owned source inputs changed. |
 | npm run check:operator-revenue-smoke | pass | agent/state/operator-revenue-smoke.generated.json | agent/state/operator-revenue-smoke.generated.json is older than HEAD but no owned source inputs changed. |
 
 ## Evidence Boundary
