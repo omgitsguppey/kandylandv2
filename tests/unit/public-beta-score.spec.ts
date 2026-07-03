@@ -1239,10 +1239,11 @@ describe("public beta scoring math", () => {
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
 
         expect(smokeGate?.status).toBe("Source evidence required");
-        expect(smokeGate?.sourceCredit).toBe(73.45);
-        expect(smokeGate?.runtimeCredit).toBe(73.45);
-        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedSignals=6");
-        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedActivityCredit=73.45");
+        expect(smokeGate?.sourceCredit).toBe(0);
+        expect(smokeGate?.runtimeCredit).toBe(0);
+        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedSignals=0");
+        expect(smokeGate?.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
+        expect(smokeGate?.evidence.join("\n")).toContain("activityVerification.verifiedByActivity=6");
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
     });

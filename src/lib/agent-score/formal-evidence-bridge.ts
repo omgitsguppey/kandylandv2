@@ -217,7 +217,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
   );
   const realUsageObservedActivityCount = Math.max(
     evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0,
-    evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "activityVerification.verifiedByActivity") ?? 0,
+    evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "observedSignals") ?? 0,
   );
   const realUsageObservedActivityScore = realUsageObservedActivityCount > 0
     ? realUsageConfidenceScore

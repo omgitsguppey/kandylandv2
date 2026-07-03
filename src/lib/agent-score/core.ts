@@ -613,13 +613,13 @@ function observedSiteActivityCount(artifact: PublicBetaEvidenceArtifact | undefi
   return evidenceArtifactNumber(artifact, "observedSignals") ?? 0;
 }
 
-function sourceVerifiedSiteActivityCount(input: {
+function realUsageObservedSiteActivityCount(input: {
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
 }) {
   return Math.max(
     observedSiteActivityCount(input.realUsageConfidenceEvidence),
-    evidenceArtifactNumber(input.realUsageConfidenceCalibrationEvidence, "activityVerification.verifiedByActivity") ?? 0,
+    observedSiteActivityCount(input.realUsageConfidenceCalibrationEvidence),
   );
 }
 
@@ -918,11 +918,11 @@ export function buildPublicBetaEvidenceGates(input: {
         realUsageCalibrationCredit,
       )
     : realUsageCalibrationCredit;
-  const realUsageObservedSiteActivityCount = sourceVerifiedSiteActivityCount({
+  const realUsageObservedActivitySignals = realUsageObservedSiteActivityCount({
     realUsageConfidenceEvidence: evidence.realUsageConfidenceEvidence,
     realUsageConfidenceCalibrationEvidence: evidence.realUsageConfidenceCalibrationEvidence,
   });
-  const realUsageObservedActivityCredit = realUsageObservedSiteActivityCount > 0 ? realUsageConfidenceCredit : 0;
+  const realUsageObservedActivityCredit = realUsageObservedActivitySignals > 0 ? realUsageConfidenceCredit : 0;
   const behaviorMathStatus = String(evidenceArtifactStatus(
     evidence.behaviorMathEvidence,
     "missing_or_unknown",
@@ -1167,7 +1167,7 @@ export function buildPublicBetaEvidenceGates(input: {
         ? [
             `realUsageConfidenceStatus=${realUsageConfidenceStatus}`,
             `realUsageConfidenceCredit=${roundScore(realUsageConfidenceCredit)}`,
-            `realUsageObservedSignals=${roundScore(realUsageObservedSiteActivityCount)}`,
+            `realUsageObservedSignals=${roundScore(realUsageObservedActivitySignals)}`,
             `realUsageObservedActivityCredit=${roundScore(realUsageObservedActivityCredit)}`,
             ...evidenceArtifactEvidence(evidence.realUsageConfidenceEvidence),
           ]

@@ -187,7 +187,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     ?? (evidenceArtifactHasSourceConfidence(input.realUsageConfidenceCalibrationEvidence) ? 55 : 0);
   const realUsageObservedActivityCount = Math.max(
     evidenceArtifactNumericValue(input.realUsageConfidenceEvidence, "observedSignals") ?? 0,
-    evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "activityVerification.verifiedByActivity") ?? 0,
+    evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "observedSignals") ?? 0,
   );
   const realUsageObservedActivityScore = realUsageObservedActivityCount > 0
     ? Math.max(realUsageScore, realUsageCalibrationScore)
