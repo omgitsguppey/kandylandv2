@@ -71,7 +71,7 @@ const freshEvidence = {
         path: "agent/state/provider-smoke-evidence.generated.json",
         status: "passed",
         passed: true,
-        detail: "Provider-backed site activity evidence passed.",
+        detail: "Provider-backed source activity evidence passed.",
         evidence: ["providerArtifactStatus=passed"],
         generatedAtUtc: freshGeneratedAtUtc,
     },
@@ -103,7 +103,7 @@ const freshEvidence = {
         path: "agent/state/admin-truth-sample-evidence.generated.json",
         status: "passed",
         passed: true,
-        detail: "Fresh admin source activity sample supplied.",
+        detail: "Fresh admin source activity evidence supplied.",
         evidence: [
             "adminTruthSampleArtifactStatus=passed",
             "sampleCount=1",
@@ -143,7 +143,7 @@ const missingAdminTruthEvidence = {
     path: "agent/state/admin-truth-sample-evidence.generated.json",
     status: "missing_or_unknown",
     passed: false,
-    detail: "No admin source activity sample.",
+    detail: "No admin source activity evidence.",
     evidence: ["adminTruthSampleArtifactStatus=missing_or_unknown", "sampleCount=0"],
 };
 
@@ -209,7 +209,7 @@ describe("public beta scoring math", () => {
         expect(report.scannerStatus).toBe("clean");
         expect(report.scoreExplanation.scannerScoreMeaning).toContain("scanner-only");
         expect(report.scoreExplanation.betaExitBlockedBy).toEqual(expect.arrayContaining([
-            expect.stringContaining("Provider-backed site activity + deployed route evidence"),
+            expect.stringContaining("Provider-backed source activity + deployed route evidence"),
         ]));
         expect(report.evidenceWeights.runtimeProviderSmoke).toBeGreaterThan(report.evidenceWeights.targetedBehaviorTests);
         expect(report.evidenceWeights.runtimeProviderSmoke + report.evidenceWeights.adminTruthSamples)
@@ -330,7 +330,7 @@ describe("public beta scoring math", () => {
         expect(report.overallScore).toBeLessThan(100);
     });
 
-    it("keeps provider-backed site activity as the remaining cap when runtime route evidence is current", () => {
+    it("keeps provider-backed source activity as the remaining cap when runtime route evidence is current", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -353,13 +353,38 @@ describe("public beta scoring math", () => {
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
         expect(smokeGate?.status).toBe("Source evidence required");
-        expect(smokeGate?.detail).toContain("Provider-backed site activity:");
+        expect(smokeGate?.detail).toContain("Provider-backed source activity:");
         expect(smokeGate?.detail).toContain("Deployed runtime route evidence is current.");
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Produce provider-backed site activity evidence; deployed runtime route evidence is current."),
+            expect.stringContaining("Produce provider-backed source activity evidence; deployed runtime route evidence is current."),
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);
+    });
+
+    it("does not call stale deployed route evidence current from raw pass fields", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: {
+                    ...missingProviderSmokeEvidence,
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+                runtimeSmokeEvidence: {
+                    ...freshEvidence.runtimeSmokeEvidence,
+                    status: "formal_runtime_smoke_passed",
+                    evidence: [
+                        "runtimeArtifactStatus=formal_runtime_smoke_passed",
+                        "runtimeDeploymentSmokePassed=true",
+                    ],
+                    generatedAtUtc: staleGeneratedAtUtc,
+                },
+            },
+        });
+
+        expect(report.evidenceCapDetails.join("\n")).toContain("Refresh provider-backed source activity and deployed runtime route evidence.");
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("deployed runtime route evidence is current.");
     });
 
     it("keeps operator-reported PayPal out of provider smoke credit", () => {
@@ -443,7 +468,7 @@ describe("public beta scoring math", () => {
                 ...freshEvidence,
                 targetedBehaviorEvidence: {
                     ...freshEvidence.targetedBehaviorEvidence,
-                    detail: "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not close provider-backed site activity, deployed route evidence, or admin source activity evidence.",
+                    detail: "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not close provider-backed source activity, deployed route evidence, or admin source activity evidence.",
                     evidence: [
                         "targetedBehavior.status=passed",
                         "formalEvidenceImpact=source_behavior_only",
@@ -456,18 +481,18 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.status).toBe("Source validation only");
         expect(targetedGate?.evidenceQuality).toBe("source_ready");
         expect(targetedGate?.runtimeCredit).toBe(0);
-        expect(targetedGate?.detail).toContain("does not close provider-backed site activity");
+        expect(targetedGate?.detail).toContain("does not close provider-backed source activity");
         expect(targetedGate?.partialReason).toContain("matching site activity records");
         expect(targetedGate?.partialReason).not.toContain("manual proof");
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Source behavior passed; deployed route evidence, provider-backed site activity, and admin source activity lanes still need their matching records."),
+            expect.stringContaining("Source behavior passed; deployed route evidence, provider-backed source activity, and admin source activity lanes still need their matching records."),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("attach targeted source validator evidence");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove visual review");
-        expect(targetedGate?.detail).toContain("does not close provider-backed site activity");
+        expect(targetedGate?.detail).toContain("does not close provider-backed source activity");
     });
 
     it("uses source-ready behavior math as targeted behavior source credit without clearing runtime gates", () => {
@@ -584,8 +609,8 @@ describe("public beta scoring math", () => {
             expect.objectContaining({ id: "adminTruthSamples", status: "Stale evidence", score: 0 }),
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            "Stale evidence: Provider-backed site activity + deployed route evidence - Refresh provider-backed site activity and deployed runtime route evidence.",
-            "Stale evidence: Admin source activity sample evidence - Refresh the redacted admin source activity sample.",
+            "Stale evidence: Provider-backed source activity + deployed route evidence - Refresh provider-backed source activity and deployed runtime route evidence.",
+            "Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -616,8 +641,8 @@ describe("public beta scoring math", () => {
             expect.objectContaining({ id: "runtimeProviderSmoke", status: "Unknown evidence", score: 0 }),
             expect.objectContaining({ id: "adminTruthSamples", status: "Unknown evidence", score: 0 }),
         ]));
-        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Provider-backed site activity + deployed route evidence");
-        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Admin source activity sample evidence");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Provider-backed source activity + deployed route evidence");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Admin source activity evidence");
     });
 
     it("keeps missing_or_unknown admin truth from passing", () => {
@@ -708,7 +733,7 @@ describe("public beta scoring math", () => {
         const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
         expect(adminGate?.status).toBe("Ready");
         expect(adminGate?.score).toBe(12);
-        expect(report.evidenceCapDetails.join("\n")).not.toContain("Admin source activity sample evidence");
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("Admin source activity evidence");
     });
 
     it("keeps missing targeted behavior artifact non-passing without hardcoded false", () => {
@@ -770,13 +795,13 @@ describe("public beta scoring math", () => {
         expect(report.evidenceCapDetails.length).toBeGreaterThanOrEqual(3);
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Targeted behavior tests - Source activity evidence is present; attach targeted source validator evidence"),
-            expect.stringContaining("Provider-backed site activity + deployed route evidence - Produce provider-backed site activity"),
-            expect.stringContaining("Admin source activity sample evidence - Produce a redacted admin source activity sample."),
+            expect.stringContaining("Provider-backed source activity + deployed route evidence - Produce provider-backed source activity"),
+            expect.stringContaining("Admin source activity evidence - Produce redacted admin source activity evidence."),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("Operator reported PayPal");
-        expect(report.evidenceCapDetails.join("\n")).not.toContain("No fresh admin truth sample.");
-        expect(report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke")?.detail).toContain("Provider-backed site activity:");
-        expect(report.evidenceGates.find((gate) => gate.id === "adminTruthSamples")?.detail).toContain("No admin source activity sample");
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("No fresh admin source activity evidence.");
+        expect(report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke")?.detail).toContain("Provider-backed source activity:");
+        expect(report.evidenceGates.find((gate) => gate.id === "adminTruthSamples")?.detail).toContain("No admin source activity evidence");
     });
 
     it("does not use final launch report text as provider smoke truth", () => {
@@ -916,7 +941,7 @@ describe("public beta scoring math", () => {
         expect(smokeGate?.status).toBe("Ready");
         expect(smokeGate?.blocksLaunch).toBe(false);
         expect(smokeGate?.score).toBeGreaterThan(0);
-        expect(report.launchBlockers.join("\n")).not.toContain("Provider-backed site activity + deployed route evidence");
+        expect(report.launchBlockers.join("\n")).not.toContain("Provider-backed source activity + deployed route evidence");
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);
     });
@@ -947,7 +972,7 @@ describe("public beta scoring math", () => {
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
         expect(smokeGate?.status).toBe("Source evidence required");
         expect(smokeGate?.blocksLaunch).toBe(true);
-        expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity evidence");
+        expect(report.launchBlockers.join("\n")).toContain("Provider-backed source activity evidence");
     });
 
     it("allows ready only when scanner and evidence gates are fresh", () => {

@@ -308,7 +308,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const operatorSmokeAmount = readNumber(operatorSummary.amountUsdConfirmed);
   const operatorSmokeNote = operatorSmokeStatus === "operator_confirmed_revenue_smoke"
     ? readString(operatorSmoke?.plainLanguageNote)
-      ?? "Operator-confirmed GumDrop revenue was recorded as product context; provider-backed site activity evidence is still separate."
+      ?? "Operator-confirmed GumDrop revenue was recorded as product context; provider-backed source activity evidence is still separate."
     : undefined;
   const operatorSmokeEvidence = operatorSmokeNote
     ? [
@@ -323,7 +323,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       root,
       PROVIDER_SMOKE_EVIDENCE_PATH,
       "missing_formal_evidence",
-      "No provider-backed site activity evidence artifact was supplied.",
+      "No provider-backed source activity evidence artifact was supplied.",
     );
     if (operatorSmokeNote) {
       artifact.detail = `${operatorSmokeNote} ${artifact.detail}`;
@@ -353,7 +353,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     passed,
     detail: [
       operatorSmokeNote,
-      passed ? "Provider-backed site activity evidence passed." : "Provider-backed site activity evidence is missing.",
+      passed ? "Provider-backed source activity evidence passed." : "Provider-backed source activity evidence is missing.",
       paypalNote,
       providerRecommendedAction,
     ].filter(Boolean).join(" "),
@@ -420,7 +420,7 @@ function readAdminTruthSourceSampleEvidence(root: string): PublicBetaEvidenceArt
     status: sourceReady ? status : "missing_or_unknown",
     passed: false,
     detail: readString(sourceSample.nextAction)
-      ?? "Source-backed admin truth wiring is present; admin source activity sample remains missing.",
+      ?? "Source-backed admin truth wiring is present; admin source activity evidence remains missing.",
     evidence: [
       `adminTruthSampleArtifactStatus=${status}`,
       `sourceSampleStatus=${status}`,
@@ -444,7 +444,7 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
       root,
       ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH,
       "missing_or_unknown",
-      "No admin source activity sample evidence artifact was supplied.",
+      "No admin source activity evidence artifact was supplied.",
     );
   }
 
@@ -464,7 +464,7 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
     status,
     passed,
     detail: readString(readinessImpact.recommendedAction)
-      ?? (passed ? "Fresh admin truth sample evidence passed." : "No fresh admin truth sample evidence was supplied."),
+      ?? (passed ? "Fresh admin source activity evidence passed." : "No fresh admin source activity evidence was supplied."),
     evidence: [
       `adminTruthSampleArtifactStatus=${status}`,
       `freshAdminTruthSampleAttached=${freshSampleAttached}`,
@@ -666,7 +666,7 @@ function readActivityVerificationEvidence(root: string): PublicBetaEvidenceArtif
     status: passed ? "source_ready_activity_verification" : status,
     passed,
     detail: passed
-      ? "Source-backed activity verification found score-eligible first-party activity; provider-backed site activity, deployed route evidence, and admin source activity gates remain separate."
+      ? "Source-backed activity verification found score-eligible first-party activity; provider-backed source activity, deployed route evidence, and admin source activity gates remain separate."
       : "Activity verification did not find score-eligible source-backed activity.",
     evidence: [
       `activityVerification.status=${status}`,

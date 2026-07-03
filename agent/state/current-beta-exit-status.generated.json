@@ -1,19 +1,19 @@
 {
-  "generatedAtUtc": "2026-07-03T00:24:00.538Z",
+  "generatedAtUtc": "2026-07-03T00:55:45.854Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "70b9d9605cdf95526965bf483217089ec3ce4d73",
+  "currentHead": "7080eaad50b1adae3479faecb9081d51fdf112ca",
   "summary": {
     "betaVersion": "1.6.15",
-    "betaScore": 82.79,
+    "betaScore": 80.17,
     "betaStatus": "Source evidence required",
     "scoreVersion": "beta_health_v2",
-    "healthScore": 82.79,
+    "healthScore": 80.17,
     "launchGateStatus": "source_ready",
     "sourceHealthScore": 98.6,
     "runtimeHealthScore": 69.56,
     "evidenceCompletenessScore": 80.09,
     "freshnessScore": 91.88,
-    "costRiskScore": 79.5,
+    "costRiskScore": 42,
     "regressionRiskScore": 94,
     "sourceCleanupP0": 0,
     "sourceCleanupP1": 0,
@@ -30,7 +30,7 @@
     "operatorRevenueSmokeProviderArtifactAttached": false,
     "operatorRevenueSmokeFormalProviderSmokePassed": false,
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
-    "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.",
+    "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate.",
     "runtimeSmokeStatus": "stale_runtime_smoke_evidence",
     "adminTruthSampleStatus": "stale_admin_truth_sample_evidence",
     "cloudRunCostReadiness": "cost_review_required",
@@ -58,7 +58,7 @@
       },
       {
         "id": "providerSmoke",
-        "label": "Provider-backed site activity evidence",
+        "label": "Provider-backed source activity evidence",
         "truthState": "external_evidence_required",
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_provider_smoke_evidence",
@@ -66,7 +66,7 @@
         "captureStatus": "missing",
         "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
         "canClearGate": false,
-        "nextAction": "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
+        "nextAction": "Produce redacted provider-backed source activity evidence; operator confirmation alone cannot clear this gate."
       },
       {
         "id": "runtimeSmoke",
@@ -82,7 +82,7 @@
       },
       {
         "id": "adminTruthSample",
-        "label": "Admin source activity sample evidence",
+        "label": "Admin source activity evidence",
         "truthState": "admin_truth_source_required",
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_admin_truth_sample_evidence",
@@ -90,7 +90,7 @@
         "captureStatus": "stale",
         "sourceCommit": "41523ca04410b6deb6b4bb53bfda5cba82cc66e8",
         "canClearGate": false,
-        "nextAction": "Produce or refresh a redacted admin source activity sample for the current code version."
+        "nextAction": "Produce or refresh redacted admin source activity evidence for the current code version."
       }
     ]
   },
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-03T00:24:00.538Z",
+      "generatedAtUtc": "2026-07-03T00:55:45.854Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-03T00:18:51.224Z",
-      "ageHours": 0.0046544444444444446,
+      "generatedAtUtc": "2026-07-03T00:52:16.017Z",
+      "ageHours": 0.05828805555555556,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -398,7 +398,7 @@
         "sourceStatus=stale_provider_smoke_evidence",
         "actionState=refresh_stale_evidence"
       ],
-      "nextAction": "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
+      "nextAction": "Produce redacted provider-backed source activity evidence; operator confirmation alone cannot clear this gate."
     },
     {
       "id": "runtimeSmoke",
@@ -420,14 +420,14 @@
         "sourceStatus=stale_admin_truth_sample_evidence",
         "actionState=refresh_stale_evidence"
       ],
-      "nextAction": "Produce or refresh a redacted admin source activity sample for the current code version."
+      "nextAction": "Produce or refresh redacted admin source activity evidence for the current code version."
     }
   ],
   "deferredOwnerReview": [
     {
       "id": "cloud_cost_owner_review",
       "owner": "platform-cost",
-      "reason": "Cloud Run, Cloud SQL/Data Connect, and Gemini/Vertex lanes are source inventory or owner-review lanes, not provider-backed site activity evidence.",
+      "reason": "Cloud Run, Cloud SQL/Data Connect, and Gemini/Vertex lanes are source inventory or owner-review lanes, not provider-backed source activity evidence.",
       "nextAction": "Attach owner-reviewed cost evidence before treating these lanes as beta-exit source evidence."
     },
     {
@@ -440,9 +440,9 @@
   "nextExactSteps": [
     "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface issue before optional browser reproduction.",
     "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
-    "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider-backed site activity evidence.",
+    "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider-backed source activity evidence.",
     "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed route evidence.",
-    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source activity samples.",
+    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source activity evidence.",
     "Reference agent/state/evidence-capture-status.generated.json.",
     "Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked."
   ]

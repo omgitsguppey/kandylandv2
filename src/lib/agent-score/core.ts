@@ -453,7 +453,7 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
       const targetedArtifactMissing = gate.evidence.some((entry) => /targetedBehaviorArtifactStatus=missing_formal_evidence/iu.test(entry));
       return targetedArtifactMissing && gate.sourceCredit > gate.evidenceCredit
         ? `${gate.status}: ${gate.label} - Source activity evidence is present; attach targeted source validator evidence before treating targeted behavior tests as passed.`
-        : `${gate.status}: ${gate.label} - Source behavior passed; deployed route evidence, provider-backed site activity, and admin source activity lanes still need their matching records.`;
+        : `${gate.status}: ${gate.label} - Source behavior passed; deployed route evidence, provider-backed source activity, and admin source activity lanes still need their matching records.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
@@ -468,16 +468,16 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
     const providerMissing = /providerArtifactStatus=(missing_formal_evidence|operator_reported_not_formal_provider_smoke|missing_or_unknown)/iu.test(evidenceText);
     const runtimeCurrent = /runtimeArtifactStatus=(passed|formal_runtime_smoke_passed)|runtimeDeploymentSmokePassed=true|readinessImpact\.runtimeGatePassed=true/iu.test(evidenceText);
     if (gate.status === "External proof required" || gate.status === "Source evidence required") {
-      if (providerMissing && runtimeCurrent) {
-        return `${gate.status}: ${gate.label} - Produce provider-backed site activity evidence; deployed runtime route evidence is current.`;
-      }
       if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
-        return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
+        return `${gate.status}: ${gate.label} - Refresh provider-backed source activity and deployed runtime route evidence.`;
       }
-      return `${gate.status}: ${gate.label} - Produce provider-backed site activity and keep deployed runtime route evidence current.`;
+      if (providerMissing && runtimeCurrent) {
+        return `${gate.status}: ${gate.label} - Produce provider-backed source activity evidence; deployed runtime route evidence is current.`;
+      }
+      return `${gate.status}: ${gate.label} - Produce provider-backed source activity and keep deployed runtime route evidence current.`;
     }
     if (gate.status === "Stale evidence") {
-      return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
+      return `${gate.status}: ${gate.label} - Refresh provider-backed source activity and deployed runtime route evidence.`;
     }
     if (gate.status === "Runtime unverified" || gate.status === "Ready with smoke required") {
       return `${gate.status}: ${gate.label} - Deployed runtime and provider-backed source evidence are still required.`;
@@ -487,12 +487,12 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "adminTruthSamples") {
     if (gate.status === "External proof required" || gate.status === "Source evidence required" || gate.status === "Unknown evidence") {
       if ((gate.status === "External proof required" || gate.status === "Source evidence required") && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
-        return `${gate.status}: ${gate.label} - Refresh the redacted admin source activity sample.`;
+        return `${gate.status}: ${gate.label} - Refresh redacted admin source activity evidence.`;
       }
-      return `${gate.status}: ${gate.label} - Produce a redacted admin source activity sample.`;
+      return `${gate.status}: ${gate.label} - Produce redacted admin source activity evidence.`;
     }
     if (gate.status === "Stale evidence") {
-      return `${gate.status}: ${gate.label} - Refresh the redacted admin source activity sample.`;
+      return `${gate.status}: ${gate.label} - Refresh redacted admin source activity evidence.`;
     }
   }
 
@@ -619,7 +619,7 @@ function buildScoreExplanation(input: {
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider-backed site activity, deployed route, admin source activity, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider-backed source activity, deployed route, admin source activity, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
     betaExitBlockedBy: blockedBy,
   };
 }
@@ -654,7 +654,7 @@ function buildOperatorFinalChecks(uiSurfaceCoverageEvidence?: PublicBetaEvidence
       needsOperatorReview,
       passedInCodex: sourceChecksPassed,
       sourceChecksPassed,
-      note: "deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only to reproduce a source-reported UI issue and does not clear provider-backed site activity, deployed route, or admin source activity evidence.",
+      note: "deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only to reproduce a source-reported UI issue and does not clear provider-backed source activity, deployed route, or admin source activity evidence.",
       sourcePath: uiSurfaceCoverageEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       surfaces: surfaceIds.map((surfaceId) => ({
         surfaceId,
@@ -998,25 +998,25 @@ export function buildPublicBetaEvidenceGates(input: {
   }
   const providerSmokeDetail = evidenceArtifactDetail(
     evidence.providerSmokeEvidence,
-    providerSmokePassed ? "Provider-backed site activity evidence was supplied." : "No provider-backed site activity evidence artifact was supplied.",
+    providerSmokePassed ? "Provider-backed source activity evidence was supplied." : "No provider-backed source activity evidence artifact was supplied.",
   );
   const runtimeSmokeDetail = evidenceArtifactDetail(
     evidence.runtimeSmokeEvidence,
     runtimeSmokePassed ? "Runtime route evidence was supplied." : "No deployed runtime route evidence artifact was supplied.",
   );
   const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
-    ? "Provider-backed site activity and deployed route evidence artifacts passed."
-    : `Provider-backed site activity: ${providerLaneSatisfiedBySourceActivity ? "First-party site activity shows no provider-backed evidence is required for the connected lane." : providerSmokeDetail} Deployed route evidence: ${runtimeSmokePassed && (!providerSmokePassed || providerLaneSatisfiedBySourceActivity) ? "Deployed runtime route evidence is current." : runtimeSmokeDetail}`;
+    ? "Provider-backed source activity and deployed route evidence artifacts passed."
+    : `Provider-backed source activity: ${providerLaneSatisfiedBySourceActivity ? "First-party site activity shows no provider-backed evidence is required for the connected lane." : providerSmokeDetail} Deployed route evidence: ${runtimeSmokePassed && (!providerSmokePassed || providerLaneSatisfiedBySourceActivity) ? "Deployed runtime route evidence is current." : runtimeSmokeDetail}`;
   const runtimeProviderSmokeLabel = providerActivityEvidenceRequired && runtimeEvidenceRecorded
-    ? "Provider-backed site activity evidence"
+    ? "Provider-backed source activity evidence"
     : runtimeRouteEvidenceRequired && providerEvidenceRecorded
       ? "Deployed route evidence"
-      : "Provider-backed site activity + deployed route evidence";
+      : "Provider-backed source activity + deployed route evidence";
   const runtimeProviderSmokeRecommendedAction = providerActivityEvidenceRequired && runtimeEvidenceRecorded
-    ? "Produce provider-backed site activity evidence; keep deployed route evidence current."
+    ? "Produce provider-backed source activity evidence; keep deployed route evidence current."
     : runtimeRouteEvidenceRequired && providerEvidenceRecorded
-      ? "Produce deployed runtime route evidence; keep provider-backed site activity evidence current."
-      : "Keep provider-backed site activity and deployed route evidence current before clearing launch readiness.";
+      ? "Produce deployed runtime route evidence; keep provider-backed source activity evidence current."
+      : "Keep provider-backed source activity and deployed route evidence current before clearing launch readiness.";
   const runtimeProviderSmokeEvidence = Array.from(new Set([
     `providerArtifactStatus=${providerSmokeStatus}`,
     `runtimeArtifactStatus=${runtimeSmokeStatus}`,
@@ -1157,8 +1157,8 @@ export function buildPublicBetaEvidenceGates(input: {
     partialCredit: runtimeProviderSmokePassed ? 1 : roundScore(Math.max(runtimeProviderFormalCredit, runtimeProviderSourceActivityCredit / 100)),
     blocksLaunch: providerLaneSatisfiedBySourceActivity && runtimeSmokePassed ? false : providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
     reason: providerLaneSatisfiedBySourceActivity
-      ? `${runtimeProviderSmokeDetail} Provider-specific site activity evidence remains separate only for lanes that declare provider evidence is required.`
-      : `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed site activity or deployed runtime route evidence.`,
+      ? `${runtimeProviderSmokeDetail} Provider-specific source activity evidence remains separate only for lanes that declare provider evidence is required.`
+      : `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed source activity or deployed runtime route evidence.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
   const adminTruthSampleStatus = String(evidenceArtifactStatus(evidence.adminTruthSampleEvidence, "missing_or_unknown"));
@@ -1185,8 +1185,8 @@ export function buildPublicBetaEvidenceGates(input: {
   const adminTruthSampleDetail = evidenceArtifactDetail(
     evidence.adminTruthSampleEvidence,
     adminTruthSamplePassed
-      ? "Admin source activity sample evidence was supplied."
-      : "No admin source activity sample evidence artifact was supplied.",
+      ? "Admin source activity evidence was supplied."
+      : "No admin source activity evidence artifact was supplied.",
   );
   const adminTruthSampleEvidence = adminTruthSampleEvidenceRaw;
   const adminBridgeEvidenceCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit;
@@ -1202,7 +1202,7 @@ export function buildPublicBetaEvidenceGates(input: {
     blocksLaunch: adminBaseQuality.blocksLaunch,
     reason: adminBaseQuality.quality === "formal_passed"
       ? adminBaseQuality.reason
-      : "Admin source evidence earns partial bridge confidence; the admin lane needs a matching source activity sample before clearing.",
+      : "Admin source evidence earns partial bridge confidence; the admin lane needs matching source activity evidence before clearing.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
   const adminTruthSampleFreshnessUnknown = adminBaseQuality.freshness === "unknown";
   let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "Source evidence required";
@@ -1354,12 +1354,12 @@ export function buildPublicBetaEvidenceGates(input: {
     }),
     buildEvidenceGate({
       id: "adminTruthSamples",
-      label: "Admin source activity sample evidence",
+      label: "Admin source activity evidence",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples,
       status: adminTruthSampleStatusLabel,
       detail: adminTruthSampleDetail,
       evidence: adminTruthSampleEvidence,
-      recommendedAction: "Require a redacted admin source activity sample before rendering zero/live/healthy as launch truth.",
+      recommendedAction: "Require redacted admin source activity evidence before rendering zero/live/healthy as launch truth.",
       quality: adminQuality,
       gateRequiredForExit: true,
       sourceCredit: adminTruthSamplePassed || adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
@@ -1704,7 +1704,7 @@ function summarizeEvidenceGateStates(gates: PublicBetaEvidenceGate[]) {
 
   return {
     openGates,
-    detail: `Open evidence gates: ${summary}. Source checks stay separate from provider-backed site activity, deployed route evidence, and admin source activity evidence.`,
+    detail: `Open evidence gates: ${summary}. Source checks stay separate from provider-backed source activity, deployed route evidence, and admin source activity evidence.`,
   };
 }
 
@@ -2005,7 +2005,7 @@ export function buildPublicBetaScoreReport(
     "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
     "Debug signal score impact is counted from actionable groups, not raw quiet catalog rows.",
     "Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only to reproduce source-reported UI issues.",
-    "Provider-backed site activity, deployed runtime route evidence, and admin source activity samples remain required for launch readiness.",
+    "Provider-backed source activity, deployed runtime route evidence, and admin source activity evidence remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",
   ].map(normalizeTechnicalFreshnessTerms);

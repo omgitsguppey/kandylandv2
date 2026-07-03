@@ -11,6 +11,7 @@ import {
   readGeneratedArtifactGitContext,
   type GeneratedArtifactGitContext,
 } from "../../src/lib/agent-score/generated-artifact-version-policy";
+import { normalizeTechnicalFreshnessTerms } from "../../src/lib/agent-score/freshness-language";
 
 export type CurrentBetaExitCheck = {
   command: string;
@@ -603,13 +604,13 @@ export function buildProofLanes(input: {
     }),
     buildProofLane({
       id: "providerSmoke",
-      label: "Provider-backed site activity evidence",
+      label: "Provider-backed source activity evidence",
       sourceStatus: input.providerSmokeStatus,
       sourcePath: providerSmokeEvidenceRelativePath,
       captureStatus: stringValue(input.captureSummary.providerSmokeEvidence, "missing"),
       artifact: input.provider,
       head: input.head,
-      nextAction: "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate.",
+      nextAction: "Produce redacted provider-backed source activity evidence; operator confirmation alone cannot clear this gate.",
     }),
     buildProofLane({
       id: "runtimeSmoke",
@@ -623,13 +624,13 @@ export function buildProofLanes(input: {
     }),
     buildProofLane({
       id: "adminTruthSample",
-      label: "Admin source activity sample evidence",
+      label: "Admin source activity evidence",
       sourceStatus: input.adminTruthSampleStatus,
       sourcePath: adminTruthSampleEvidenceRelativePath,
       captureStatus: stringValue(input.captureSummary.adminTruthSampleEvidence, "missing"),
       artifact: input.admin,
       head: input.head,
-      nextAction: "Produce or refresh a redacted admin source activity sample for the current code version.",
+      nextAction: "Produce or refresh redacted admin source activity evidence for the current code version.",
     }),
   ];
 }
@@ -728,8 +729,8 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     operatorRevenueSmokeProviderArtifactAttached: operator?.summary?.providerArtifactAttached ?? false,
     operatorRevenueSmokeFormalProviderSmokePassed: operator?.summary?.formalProviderSmokePassed ?? false,
     operatorRevenueSmokeBetaGateImpact: operator?.summary?.betaGateImpact ?? report.summary.operatorRevenueSmokeBetaGateImpact,
-    operatorRevenueSmokeNote: operator?.plainLanguageNote
-      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.",
+    operatorRevenueSmokeNote: normalizeTechnicalFreshnessTerms(operator?.plainLanguageNote
+      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate."),
     liveRuntimeEvidenceStatus,
     betaExitReviewState: betaExitReviewStateFor({
       launchGateStatus,
@@ -753,12 +754,17 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     staleArtifacts: report.staleArtifacts.filter((entry) =>
       refreshPlan.some((planEntry) => planEntry.artifactPath === entry.artifactPath && planEntry.needsRefresh)),
     remainingBlockers,
+    deferredOwnerReview: report.deferredOwnerReview.map((entry) => ({
+      ...entry,
+      reason: normalizeTechnicalFreshnessTerms(entry.reason),
+      nextAction: normalizeTechnicalFreshnessTerms(entry.nextAction),
+    })),
     nextExactSteps: [
       "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface issue before optional browser reproduction.",
       "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
-      "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider-backed site activity evidence.",
+      "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider-backed source activity evidence.",
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed route evidence.",
-      "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source activity samples.",
+      "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source activity evidence.",
       `Reference ${evidenceCaptureStatusRelativePath}.`,
       "Product behavior checks can focus on user impact because user/creator raw error leaks are source-blocked.",
     ],
@@ -946,8 +952,8 @@ export function validateCurrentBetaExitStatusReport(
     const expectedAmount = typeof summary.amountUsdConfirmed === "number" && Number.isFinite(summary.amountUsdConfirmed) && summary.amountUsdConfirmed > 0
       ? summary.amountUsdConfirmed
       : null;
-    const expectedNote = operatorRevenueSmoke.plainLanguageNote
-      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.";
+    const expectedNote = normalizeTechnicalFreshnessTerms(operatorRevenueSmoke.plainLanguageNote
+      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.");
     if (report.summary.operatorRevenueSmokeStatus !== "operator_confirmed_revenue_smoke") {
       failures.push("operator-confirmed revenue smoke must be represented in current beta exit status.");
     }
@@ -972,7 +978,7 @@ export function validateCurrentBetaExitStatusReport(
       failures.push("operator-confirmed revenue smoke note must separate product signal from provider source evidence.");
     }
     if (!["missing_formal_evidence", "operator_reported_not_formal_provider_smoke", "stale_provider_smoke_evidence"].includes(report.summary.providerSmokeStatus)) {
-      failures.push("provider-backed site activity lane must remain missing/stale provider source evidence after operator confirmation.");
+      failures.push("provider-backed source activity lane must remain missing/stale provider source evidence after operator confirmation.");
     }
     if (summary.canStartBetaExitReview === true || report.summary.betaExitReviewState === "ready_for_review") {
       failures.push("operator-confirmed revenue smoke alone must not mark betaExitReviewState ready_for_review.");

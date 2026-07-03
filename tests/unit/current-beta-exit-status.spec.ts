@@ -10,6 +10,7 @@ import {
   type CurrentBetaExitProofLane,
   type CurrentBetaExitStatusReport,
 } from "../../scripts/agent/validate-current-beta-exit-status";
+import { normalizeTechnicalFreshnessTerms } from "@/lib/agent-score/freshness-language";
 
 const operatorRevenueSmoke = JSON.parse(
   readFileSync(join(process.cwd(), "agent/state/operator-revenue-smoke.generated.json"), "utf8"),
@@ -18,8 +19,8 @@ const operatorRevenueSmoke = JSON.parse(
   plainLanguageNote?: string;
 };
 const operatorRevenueSmokeAmount = operatorRevenueSmoke.summary?.amountUsdConfirmed ?? null;
-const operatorRevenueSmokeNote = operatorRevenueSmoke.plainLanguageNote
-  ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.";
+const operatorRevenueSmokeNote = normalizeTechnicalFreshnessTerms(operatorRevenueSmoke.plainLanguageNote
+  ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate.");
 
 function proofLanesFor(
   summary: Omit<CurrentBetaExitStatusReport["summary"], "proofLanes">,
@@ -47,7 +48,7 @@ function proofLanesFor(
     },
     {
       id: "providerSmoke",
-      label: "Provider-backed site activity evidence",
+      label: "Provider-backed source activity evidence",
       truthState: summary.providerSmokeStatus.startsWith("stale_")
         ? "external_evidence_required"
         : summary.providerSmokeStatus.includes("formal_provider_smoke_passed")
@@ -63,7 +64,7 @@ function proofLanesFor(
       captureStatus: summary.providerSmokeStatus.includes("formal_provider_smoke_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.providerSmokeStatus.includes("formal_provider_smoke_passed"),
-      nextAction: "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate.",
+      nextAction: "Produce redacted provider-backed source activity evidence; operator confirmation alone cannot clear this gate.",
     },
     {
       id: "runtimeSmoke",
@@ -87,7 +88,7 @@ function proofLanesFor(
     },
     {
       id: "adminTruthSample",
-      label: "Admin source activity sample evidence",
+      label: "Admin source activity evidence",
       truthState: summary.adminTruthSampleStatus.startsWith("stale_")
         ? "admin_truth_source_required"
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
@@ -103,7 +104,7 @@ function proofLanesFor(
       captureStatus: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed"),
-      nextAction: "Produce or refresh a redacted admin source activity sample for the current code version.",
+      nextAction: "Produce or refresh redacted admin source activity evidence for the current code version.",
     },
   ];
 }
@@ -346,14 +347,14 @@ describe("current beta exit status validator", () => {
         {
           artifactPath: "agent/state/provider-smoke-evidence.generated.json",
           reportKey: "provider-smoke-evidence",
-          label: "Provider-backed site activity evidence",
+          label: "Provider-backed source activity evidence",
           status: "stale_source_version",
           needsRefresh: true,
           generatedAtUtc: "2026-06-18T12:00:00.000Z",
           ageHours: 24,
           refreshCommand: "npm run check:provider-smoke-evidence",
-          message: "Provider-backed site activity evidence was generated from an older code version.",
-        nextAction: "Attach provider-backed site activity evidence.",
+          message: "Provider-backed source activity evidence was generated from an older code version.",
+          nextAction: "Attach provider-backed source activity evidence.",
           formalEvidenceGateCanClear: false,
           owner: "evidence",
           maxAgeHours: 24,

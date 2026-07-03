@@ -39,7 +39,7 @@ const formalPassedEvidence = {
     path: "agent/state/provider-smoke-evidence.generated.json",
     status: "passed",
     passed: true,
-    detail: "Provider-backed site activity evidence passed.",
+    detail: "Provider-backed source activity evidence passed.",
     evidence: ["formal_provider_smoke_passed"],
     generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
@@ -66,7 +66,7 @@ const formalPassedEvidence = {
     path: "agent/state/admin-truth-sample-evidence.generated.json",
     status: "passed",
     passed: true,
-    detail: "Fresh admin source activity sample supplied.",
+    detail: "Fresh admin source activity evidence supplied.",
     evidence: ["formal_admin_truth_sample_passed", "formalAdminTruthSamplePassed=true", "sampleCount=1"],
     generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
@@ -194,7 +194,7 @@ describe("public beta score v2 health model", () => {
         path: "agent/state/provider-smoke-evidence.generated.json",
         status: "missing_formal_evidence",
         passed: false,
-        detail: "Provider-backed site activity evidence missing.",
+        detail: "Provider-backed source activity evidence missing.",
         evidence: ["providerArtifactStatus=missing_formal_evidence"],
       },
     });
@@ -204,11 +204,11 @@ describe("public beta score v2 health model", () => {
     expect(report.launchGateStatus).toBe("source_ready");
     expect(report.launchGateStatus).not.toBe("launch_ready");
     expect(report.launchGateStatus).not.toBe("owner_review");
-    expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
+    expect(report.launchBlockers.join("\n")).toContain("Provider-backed source activity + deployed route evidence");
     expect(report.overallScore).toBeGreaterThan(report.evidenceScore);
   });
 
-  it("requires provider site activity, deployed route evidence, and admin source samples before launch ready", () => {
+  it("requires provider source activity, deployed route evidence, and admin source activity before launch ready", () => {
     const report = buildReport(formalPassedEvidence);
 
     expect(report.readinessStatus).toBe("Ready");
@@ -232,7 +232,7 @@ describe("public beta score v2 health model", () => {
 
     expect(report.launchGateStatus).not.toBe("launch_ready");
     expect(report.runtimeHealthScore).toBeLessThan(100);
-    expect(report.launchBlockers.join("\n")).toContain("Provider-backed site activity + deployed route evidence");
+    expect(report.launchBlockers.join("\n")).toContain("Provider-backed source activity + deployed route evidence");
   });
 
   it("weights first-party site activity above generic source-ready evidence without clearing launch gates", () => {
@@ -241,7 +241,7 @@ describe("public beta score v2 health model", () => {
         path: "agent/state/provider-smoke-evidence.generated.json",
         status: "missing_formal_evidence",
         passed: false,
-        detail: "Provider-backed site activity is still missing.",
+        detail: "Provider-backed source activity is still missing.",
         evidence: ["providerArtifactStatus=missing_formal_evidence"],
       },
       runtimeSmokeEvidence: {
@@ -266,7 +266,7 @@ describe("public beta score v2 health model", () => {
         path: "agent/state/provider-smoke-evidence.generated.json",
         status: "missing_formal_evidence",
         passed: false,
-        detail: "Provider-backed site activity is still missing.",
+        detail: "Provider-backed source activity is still missing.",
         evidence: ["providerArtifactStatus=missing_formal_evidence"],
       },
       runtimeSmokeEvidence: {
