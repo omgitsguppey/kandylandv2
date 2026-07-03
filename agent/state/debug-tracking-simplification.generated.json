@@ -1,32 +1,31 @@
 {
-  "generatedAtUtc": "2026-06-17T07:17:39.878Z",
+  "generatedAtUtc": "2026-07-03T08:21:43.477Z",
   "reportKey": "debug-tracking-simplification",
-  "currentHead": "c664db8d36c70b08c06b80d17ec86ee8227fe67a",
+  "currentHead": "1da370b375775f130c584f24dbf480171e65f811",
   "status": "pass",
   "changedFiles": [
     "agent/state/debug-tracking-simplification.generated.json",
     "docs/agent-truth/debug-tracking-simplification.md",
-    "scripts/agent/validate-debug-tracking-simplification.ts",
-    "tests/unit/debug-tracking-simplification.spec.ts"
+    "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx"
   ],
   "summary": {
     "defaultView": "tracking_summary_lanes",
     "rawDetailPolicy": "drilldown_only",
     "laneCount": 42,
     "p1LaneCount": 1,
-    "p2LaneCount": 3,
+    "p2LaneCount": 4,
     "duplicateTrackingSystems": [],
     "p1P2BacklogSurfaced": true
   },
   "laneIds": [
     "open_p1_p2_backlog",
     "event_liveness",
+    "analytics_panel_hydration",
     "legacy_recovery",
     "runtime_debug_evidence",
     "drop_watch_time",
     "session_bounce",
     "event_translation_bridge",
-    "analytics_panel_hydration",
     "person_metrics_hydration",
     "user_management",
     "testing_coverage",

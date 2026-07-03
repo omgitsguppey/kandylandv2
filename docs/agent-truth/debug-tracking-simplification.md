@@ -1,8 +1,8 @@
 # Debug Tracking Simplification
 
-Generated: 2026-06-17T07:17:39.878Z
+Generated: 2026-07-03T08:21:43.477Z
 Status: pass
-Current head: c664db8d36c70b08c06b80d17ec86ee8227fe67a
+Current head: 1da370b375775f130c584f24dbf480171e65f811
 
 ## Contract
 
@@ -34,8 +34,7 @@ Current head: c664db8d36c70b08c06b80d17ec86ee8227fe67a
 
 - agent/state/debug-tracking-simplification.generated.json
 - docs/agent-truth/debug-tracking-simplification.md
-- scripts/agent/validate-debug-tracking-simplification.ts
-- tests/unit/debug-tracking-simplification.spec.ts
+- src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx
 
 ## Validation Failures
 

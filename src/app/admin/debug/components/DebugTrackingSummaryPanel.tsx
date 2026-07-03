@@ -129,7 +129,6 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
                     <Pill label="P1" value={valueWhenTrackingLoaded(trackingLoaded, p1Count)} tone={p1Count > 0 ? "bad" : trackingLoaded ? "good" : "neutral"} truthState={trackingLoaded ? p1Count > 0 ? "failed" : "live" : "unavailable"} />
                     <Pill label="P2" value={valueWhenTrackingLoaded(trackingLoaded, p2Count)} tone={p2Count > 0 ? "warn" : trackingLoaded ? "good" : "neutral"} truthState={trackingLoaded ? p2Count > 0 ? "degraded" : "live" : "unavailable"} />
                     <Pill label="Duplicates" value={valueWhenTrackingLoaded(trackingLoaded, duplicateCount)} tone={duplicateCount > 0 ? "bad" : trackingLoaded ? "good" : "neutral"} truthState={trackingLoaded ? duplicateCount > 0 ? "failed" : "live" : "unavailable"} />
-                    <Pill label="Raw details" value="Drilldown only" tone="neutral" truthState="cached" />
                 </>
             )}
         >
