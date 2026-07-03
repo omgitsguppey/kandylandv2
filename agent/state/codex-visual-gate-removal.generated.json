@@ -1,7 +1,7 @@
 {
   "reportKey": "codex-visual-gate-removal",
-  "generatedAtUtc": "2026-07-02T13:59:58.762Z",
-  "currentHead": "728d2635e469bfe8b7c23f2762dbca1a1fe95973",
+  "generatedAtUtc": "2026-07-03T07:40:27.259Z",
+  "currentHead": "4594cdeb043d558e6ccf2fcfdb2c66d3ac44b400",
   "status": "codex_visual_gate_removed",
   "summary": {
     "visualGateInEvidenceGates": false,

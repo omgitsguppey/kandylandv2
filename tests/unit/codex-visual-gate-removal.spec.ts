@@ -89,10 +89,10 @@ describe("Codex visual gate removal", () => {
       surface.status === "source_surface_checked" || surface.status === "not_required"
     )).toBe(true);
     expect(report.launchBlockers).toEqual(expect.arrayContaining([
-      "Runtime/provider smoke: External proof required",
-      "Admin truth/sample evidence: External proof required",
+      "Provider-backed source activity + deployed route evidence: Source evidence required",
+      "Admin source activity evidence: Source evidence required",
     ]));
-    expect(report.scoreExplanation.sourcePassConfidence).toContain("provider, runtime, admin truth");
+    expect(report.scoreExplanation.sourcePassConfidence).toContain("provider-backed source activity, deployed route, admin source activity");
     expect(report.scoreExplanation.sourcePassConfidence).not.toContain("visual");
   });
 });

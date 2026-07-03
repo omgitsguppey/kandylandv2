@@ -138,6 +138,15 @@ describe("debug cockpit batch 1 cleanup", () => {
     expect(runtimeGate.reason).toBe("Provider-backed site activity evidence is required and must not be treated as a source-code fix.");
     expect(runtimeGate.reason).not.toMatch(/manual proof|formal proof|provider smoke|runtime smoke/iu);
     expect(isFormalGateSourceFix(runtimeGate)).toBe(false);
+
+    const visualOnlyGate = classifyFormalGate({
+      id: "optional_visual_reproduction",
+      label: "Optional screenshot reproduction",
+      statusText: "visual context only",
+    });
+
+    expect(visualOnlyGate.status).toBe("not_source_bug");
+    expect(visualOnlyGate.queueClassification).toBe("collapsed_info");
   });
 
   it("keeps formal, clean, retired, and external review lanes out of fix-first cockpit sections", () => {

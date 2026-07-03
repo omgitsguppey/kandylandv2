@@ -36,7 +36,7 @@ export type FormalGateClassifierResult = {
 const PROVIDER_PATTERN = /provider|paypal|formal smoke|runtime_provider_smoke/iu;
 const RUNTIME_PATTERN = /deployed runtime|runtime smoke|runtime unverified|debug_runtime_evidence/iu;
 const ADMIN_SAMPLE_PATTERN = /admin truth|admin sample|admin_truth_sample|admin-truth-sample/iu;
-const OPERATOR_PATTERN = /operator|manual|screenshot|visual|owner review|external billing|billing\/provider/iu;
+const OPERATOR_PATTERN = /operator|owner review|external billing|billing\/provider/iu;
 const FORMAL_PATTERN = /formal|smoke|required|missing|unverified|sample|artifact|blocked_formal_evidence/iu;
 
 function text(value: unknown) {

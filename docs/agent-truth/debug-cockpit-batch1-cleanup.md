@@ -2,7 +2,7 @@
 
 Status: typed evidence gates are separate from source-fix work. Source/debug failures remain fix-first; provider-backed site activity, deployed route, admin source sample, and owner-review lanes stay visible in collapsed drilldown.
 
-- Current HEAD: 6478ee0806a66f9af2626f43f45fcc92e813d6a3
+- Current HEAD: 4594cdeb043d558e6ccf2fcfdb2c66d3ac44b400
 - Admin truth: degraded -> source_ready_formal_sample_required
 - Telemetry parity: live -> clean_current
 - AI critic: pass -> pass_with_formal_backlog_visible

@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-06-21T19:15:03.423Z",
-  "currentHead": "6478ee0806a66f9af2626f43f45fcc92e813d6a3",
+  "generatedAtUtc": "2026-07-03T07:40:27.534Z",
+  "currentHead": "4594cdeb043d558e6ccf2fcfdb2c66d3ac44b400",
   "scoreBefore": {
-    "sourceHealth": 97.2,
-    "runtimeHealth": 91.11,
-    "evidenceCompleteness": 95.2,
+    "sourceHealth": 98.6,
+    "runtimeHealth": 78.76,
+    "evidenceCompleteness": 89.29,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 89.31
+    "overallHealthScore": 85.23
   },
   "scoreAfter": {
-    "sourceHealth": 97.2,
-    "runtimeHealth": 91.11,
-    "evidenceCompleteness": 95.2,
+    "sourceHealth": 98.6,
+    "runtimeHealth": 78.76,
+    "evidenceCompleteness": 89.29,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 89.31
+    "overallHealthScore": 85.23
   },
   "sectionsBefore": [
     {
@@ -28,21 +28,21 @@
     },
     {
       "id": "critical_runtime_debug_warnings",
-      "state": "live",
-      "scoreImpactEstimate": 0,
-      "nextAction": "Keep provider-backed site activity and deployed route evidence in collapsed drilldown."
+      "state": "failed",
+      "scoreImpactEstimate": 4,
+      "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue."
     },
     {
       "id": "stale_artifact_refresh_queue",
       "state": "stale",
-      "scoreImpactEstimate": 9,
+      "scoreImpactEstimate": 7,
       "nextAction": "npm run check:overnight-final-integration-lock"
     },
     {
       "id": "admin_truth_status",
       "state": "degraded",
       "scoreImpactEstimate": 4,
-      "nextAction": "Attach a redacted admin source activity sample only when clearing the admin source sample gate."
+      "nextAction": "Attach a redacted admin source activity sample before clearing the typed admin evidence gate."
     },
     {
       "id": "telemetry_lane_status",
@@ -64,9 +64,9 @@
     },
     {
       "id": "recovery_playbook_cta",
-      "state": "live",
-      "scoreImpactEstimate": 0,
-      "nextAction": "Typed evidence and stale artifact playbooks are collapsed until a matching active issue exists."
+      "state": "degraded",
+      "scoreImpactEstimate": 1,
+      "nextAction": "npm run check:route-diagnostics-error-map"
     }
   ],
   "sectionsAfter": [
@@ -134,7 +134,7 @@
       "notSourceBug": true,
       "evidencePath": "agent/state/provider-smoke-evidence.generated.json",
       "nextAction": "Attach redacted provider-backed site activity evidence.",
-      "reason": "This item requires source activity or operator context and must not be treated as a source-code fix."
+      "reason": "Provider-backed site activity evidence is required and must not be treated as a source-code fix."
     },
     {
       "status": "deployed_runtime_required",
@@ -142,7 +142,7 @@
       "notSourceBug": true,
       "evidencePath": "agent/state/runtime-smoke-evidence.generated.json",
       "nextAction": "Attach deployed route evidence.",
-      "reason": "This item requires source activity or operator context and must not be treated as a source-code fix."
+      "reason": "Deployed runtime route evidence is required and must not be treated as a source-code fix."
     },
     {
       "status": "source_ready_formal_missing",
@@ -150,7 +150,7 @@
       "notSourceBug": true,
       "evidencePath": "agent/state/admin-truth-source-sample.generated.json + redacted admin source activity sample",
       "nextAction": "Attach a redacted admin source activity sample.",
-      "reason": "This item requires source activity or operator context and must not be treated as a source-code fix."
+      "reason": "A redacted admin source activity sample is required and must not be treated as a source-code fix."
     }
   ],
   "staleArtifactsRefreshed": [
@@ -229,104 +229,20 @@
   "openPrsAfter": [],
   "dirtyFiles": [
     {
-      "path": "gent/state/behavior-math-verification.generated.json",
+      "path": "gent/state/codex-visual-gate-removal.generated.json",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "agent/state/debug-cockpit-batch1-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "src/lib/agent-score/formal-gate-classifier.ts",
+      "classification": "debug_cockpit_misclassification_to_fix"
     },
     {
-      "path": "agent/state/debug-evidence-index.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/debug-evidence-precacher-refresh.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/debug-recovery-playbooks.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/debug-runtime-evidence.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/debug-signal-grouping.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/precatch-runtime-issues.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/sitewide-image-optimization-cleanup.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/behavior-math-verification.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/debug-cockpit-batch1-cleanup.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/debug-evidence-precacher-refresh.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/debug-recovery-playbooks.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/debug-runtime-evidence.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-grouping.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/sitewide-image-optimization-cleanup.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
+      "path": "tests/unit/codex-visual-gate-removal.spec.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "tests/unit/debug-cockpit-batch1-cleanup.spec.ts",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "tests/unit/public-beta-score.spec.ts",
-      "classification": "real_source_change_needs_review"
     }
   ],
   "validationFailures": []
