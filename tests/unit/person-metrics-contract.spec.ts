@@ -158,4 +158,27 @@ describe("person metrics contract", () => {
       blockedReason: "legacy_unknown_not_exact_person",
     });
   });
+
+  it("honors explicit user-behavior exclusion before global or person counting", () => {
+    const diagnosticCandidate = buildPersonMetricCandidate({
+      metricId: "wallet_opens",
+      eventName: "wallet_opened",
+      eventId: "evt_diagnostic_wallet",
+      actorKind: "signed_in_user",
+      identityState: "logged_in_unlinked",
+      identityConfidence: "exact",
+      consentMode: "minimal_analytics",
+      sessionId: "sess_diagnostic",
+      userRef: { kind: "user", id: "user_1" },
+      includeInUserBehavior: false,
+    });
+
+    expect(shouldCountPersonMetricEvent(diagnosticCandidate)).toMatchObject({
+      countGlobally: false,
+      countForGuest: false,
+      countForSignedInUser: false,
+      countForLinkedPerson: false,
+      blockedReason: "user_behavior_excluded",
+    });
+  });
 });

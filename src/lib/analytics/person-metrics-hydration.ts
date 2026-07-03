@@ -367,6 +367,7 @@ function legacyMetricFor(candidate: LegacyEventRecoveryCandidate) {
 function applyLegacyCandidate(scopes: Record<PersonMetricHydrationScope, PersonMetricScopeSummary>, candidate: LegacyEventRecoveryCandidate) {
   if (candidate.action !== "normalize_candidate" && candidate.action !== "link_candidate") return false;
   if (candidate.domain === "legacy_unknown") return false;
+  if (candidate.normalizedEnvelopeCandidate.includeInUserBehavior === false) return false;
   const metric = legacyMetricFor(candidate);
   if (!metric) return false;
   const confidence = downgradeLegacyConfidence(candidate.identityConfidence === "unknown" ? "weak" : candidate.identityConfidence);
@@ -630,6 +631,12 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (/^tests\/unit\/(identity-chain-contract|guest-user-handoff-repair|individual-user-metric-truth|analytic-algorithm-truth-audit|identity-handoff-4xx-policy|user-tracking-live-evidence|identity-tracking-memory-writeback|addition-bloat-guard|agent-takeover-safety-check|antigravity-agent-self-knowledge|antigravity-capability-policy|antigravity-output-audit|identity-mismatch-closure)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (/^agent\/state\/(identity-chain-contract|guest-user-handoff-repair|individual-user-metric-truth|analytic-algorithm-truth-audit|identity-handoff-4xx-policy|user-tracking-live-evidence|identity-tracking-memory-writeback|identity-handoff-analytics-truth|addition-bloat-guard|agent-takeover-safety-check|antigravity-agent-self-knowledge|antigravity-capability-policy|antigravity-output-audit|antigravity-takeover-guardrails|identity-mismatch-closure)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/(identity-chain-contract|guest-user-handoff-repair|individual-user-metric-truth|analytic-algorithm-truth-audit|identity-handoff-4xx-policy|user-tracking-live-evidence|identity-tracking-memory-writeback|identity-handoff-analytics-truth|addition-bloat-guard|agent-takeover-safety-check|antigravity-agent-self-knowledge|antigravity-capability-policy|antigravity-output-audit|antigravity-takeover-guardrails|identity-mismatch-closure)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^src\/lib\/analytics\/person-metrics-(contract|engine|hydration)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/score-telemetry-identified-parity.ts"
+    || /^scripts\/agent\/validate-person-metrics-(contract|hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/person-metrics-(contract|hydration)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(person-metrics-contract|person-metrics-hydration|telemetry-identified-parity)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(person-metrics-contract|person-metrics-hydration|telemetry-identified-parity)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "src/components/Support/SupportInbox.tsx") return "real_source_change_needs_review";
   if (/^src\/lib\/frontend-hardening\/.+\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (/^scripts\/agent\/validate-(frontend-component-consolidation|client-state-ownership|hydration-race-cleanup|frontend-telemetry-consolidation|codex-frontend-memory-writeback)\.ts$/u.test(normalized)) return "validator_artifact_expected";

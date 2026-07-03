@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 
 import { buildEventEnvelope } from "@/lib/analytics/event-envelope-builder";
+import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
 import { hydratePersonMetrics } from "@/lib/analytics/person-metrics-hydration";
 import { buildIndividualUserMetricTruthReport } from "@/lib/identity-truth/individual-user-metric-truth";
 
@@ -71,16 +72,31 @@ function read(repoPath: string) {
 function buildUserPersonParityGate(): TelemetryIdentifiedParityReport["userPersonParityGate"] {
   const hydration = hydratePersonMetrics({
     envelopes: [
-      buildEventEnvelope({
+      {
         eventName: "semantic_page_viewed",
         eventId: "score_global_only_semantic_page_viewed",
+        eventVersion: 1,
+        timestamp: "2026-06-08T00:00:00.000Z",
+        featureId: "telemetry_identified_parity",
+        surface: "validator",
         sessionId: "score_session_global_only",
-        actorKind: "guest",
-        identityState: "guest_unknown_consent",
-        identityConfidence: "weak",
-        consentMode: "minimal_analytics",
-        source: "client",
-      }),
+        actorKind: "legacy_unknown",
+        identityState: "legacy_unknown",
+        identityConfidence: "unknown",
+        consentMode: "necessary_only",
+        source: "legacy",
+        guestId: null,
+        userRef: null,
+        linkId: null,
+        materializerLane: "person_metrics",
+        debugVisibility: "admin_debug",
+        scoreImpact: "evidence_completeness",
+        privacyClass: "minimal_product",
+        metadata: {},
+        pipelineStatus: "normal",
+        unavailableGuestReason: null,
+        includeInUserBehavior: true,
+      } satisfies CanonicalEventEnvelope,
     ],
     generatedAtUtc: "2026-06-08T00:00:00.000Z",
   });

@@ -1,7 +1,7 @@
 {
   "reportKey": "user-tracking-live-evidence",
-  "generatedAtUtc": "2026-05-29T11:39:58.313Z",
-  "currentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+  "generatedAtUtc": "2026-07-03T00:38:59.434Z",
+  "currentHead": "625240b10a129f65e77fc5f6cef072111fc76e0a",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",
@@ -16,7 +16,7 @@
   "unknownLegacyIdentityCount": 0,
   "analyticAlgorithmsAudited": 5,
   "identity4xxClassesCovered": 14,
-  "liveEvidenceStatus": "verified",
+  "liveEvidenceStatus": "actionable_gap",
   "panelsAffected": [
     "guest_to_user_handoff",
     "user_management",
@@ -26,7 +26,9 @@
   "memoryEntriesAdded": 5,
   "scoreBefore": 76.61,
   "scoreAfter": 76.61,
-  "remainingGaps": [],
+  "remainingGaps": [
+    "global_without_user_mapping"
+  ],
   "nextExactSteps": [
     "Keep user-level panel proof separate from global activity proof.",
     "Use identity-handoff 4xx classes for stale session, malformed handoff, role drift, and duplicate link paths.",

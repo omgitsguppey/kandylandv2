@@ -113,6 +113,30 @@ describe("person metrics hydration", () => {
     });
   });
 
+  it("keeps explicitly excluded user events out of global and person metrics", () => {
+    const report = hydratePersonMetrics({
+      envelopes: [
+        envelope({
+          eventName: "wallet_opened",
+          eventId: "wallet_diagnostic_1",
+          actorKind: "signed_in_user",
+          identityState: "logged_in_unlinked",
+          identityConfidence: "exact",
+          userRef: { kind: "user", id: "user_1" },
+          includeInUserBehavior: false,
+        }),
+      ],
+    });
+
+    expect(report.scopes.global.metrics.wallet_opens.count).toBe(0);
+    expect(report.scopes.signedIn.metrics.wallet_opens.count).toBe(0);
+    expect(report.userParityStatus.wallet_opens).toMatchObject({
+      state: "materializer_missing",
+      signedInCount: 0,
+      provenZero: false,
+    });
+  });
+
   it("attributes linked guest activity to the user once without double-counting guest metrics", () => {
     const linkedEnvelope = envelope({
       eventName: "drop_preview_opened",
@@ -160,6 +184,28 @@ describe("person metrics hydration", () => {
       envelopes: [],
       legacyCandidates: [legacy],
     }).confidence).toBe("unknown");
+  });
+
+  it("does not hydrate legacy identity link candidates as user activity", () => {
+    const linkCandidate = buildLegacyEventRecoveryCandidate({
+      legacyEventId: "legacy_identity_link_1",
+      rawEventName: "identity_linked",
+      occurredAt: "2026-03-03T12:00:00.000Z",
+      source: "analytics_identity_links",
+      guestId: "guest_1",
+      userId: "user_1",
+      sessionId: "session_1",
+      linkId: "link_1",
+      consentMode: "full_behavioral",
+      identityVerified: true,
+    });
+
+    const report = hydratePersonMetrics({ envelopes: [], legacyCandidates: [linkCandidate] });
+
+    expect(linkCandidate.action).toBe("link_candidate");
+    expect(linkCandidate.normalizedEnvelopeCandidate.includeInUserBehavior).toBe(false);
+    expect(report.legacySummary.candidatesHydrated).toBe(0);
+    expect(report.scopes.global.totalCount).toBe(0);
   });
 
   it("does not count checkout starts as payment approvals", () => {

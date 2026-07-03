@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { buildEventEnvelope } from "@/lib/analytics/event-envelope-builder";
+import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
 import { hydratePersonMetrics } from "@/lib/analytics/person-metrics-hydration";
 import { validateAnalyticAlgorithmAudit } from "@/lib/identity-truth/analytic-algorithm-audit";
 import { validateGuestUserHandoffRepair } from "@/lib/identity-truth/guest-user-handoff-repair";
@@ -55,16 +56,31 @@ function readIfExists(filePath: string) {
 function sampleHydration() {
   return hydratePersonMetrics({
     envelopes: [
-      buildEventEnvelope({
+      {
         eventName: "semantic_page_viewed",
         eventId: "identity_tracking_global_only",
+        eventVersion: 1,
+        timestamp: "2026-05-27T00:00:00.000Z",
+        featureId: "identity_tracking",
+        surface: "validator",
         sessionId: "identity_tracking_session",
-        actorKind: "guest",
-        identityState: "guest_unknown_consent",
-        identityConfidence: "weak",
-        consentMode: "minimal_analytics",
-        source: "client",
-      }),
+        actorKind: "legacy_unknown",
+        identityState: "legacy_unknown",
+        identityConfidence: "unknown",
+        consentMode: "necessary_only",
+        source: "legacy",
+        guestId: null,
+        userRef: null,
+        linkId: null,
+        materializerLane: "person_metrics",
+        debugVisibility: "admin_debug",
+        scoreImpact: "evidence_completeness",
+        privacyClass: "minimal_product",
+        metadata: {},
+        pipelineStatus: "normal",
+        unavailableGuestReason: null,
+        includeInUserBehavior: true,
+      } satisfies CanonicalEventEnvelope,
       buildEventEnvelope({
         eventName: "auth_session_established",
         eventId: "identity_tracking_linked",

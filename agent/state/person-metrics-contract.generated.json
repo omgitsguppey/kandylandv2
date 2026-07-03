@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-17T02:24:26.344Z",
+  "generatedAtUtc": "2026-07-03T00:38:59.260Z",
   "reportKey": "person-metrics-contract",
-  "currentHead": "7cf1ea434bab50842a223111f99d5e10c215b49e",
+  "currentHead": "625240b10a129f65e77fc5f6cef072111fc76e0a",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -76,7 +76,24 @@
     "chatNavPaymentGumdropRuntimeUntouched": true,
     "sourceUsesIdentityAndEnvelopeContracts": true
   },
-  "changedFiles": [],
+  "changedFiles": [
+    "agent/state/individual-user-metric-truth.generated.json",
+    "agent/state/person-metrics-contract.generated.json",
+    "agent/state/person-metrics-hydration.generated.json",
+    "agent/state/telemetry-identified-parity.generated.json",
+    "agent/state/user-tracking-live-evidence.generated.json",
+    "docs/agent-truth/individual-user-metric-truth.md",
+    "docs/agent-truth/person-metrics-contract.md",
+    "docs/agent-truth/person-metrics-hydration.md",
+    "docs/agent-truth/user-tracking-live-evidence.md",
+    "scripts/agent/score-telemetry-identified-parity.ts",
+    "scripts/agent/validate-identity-tracking-shared.ts",
+    "src/lib/analytics/person-metrics-engine.ts",
+    "src/lib/analytics/person-metrics-hydration.ts",
+    "tests/unit/individual-user-metric-truth.spec.ts",
+    "tests/unit/person-metrics-contract.spec.ts",
+    "tests/unit/person-metrics-hydration.spec.ts"
+  ],
   "protectedChangedFiles": [],
   "validationFailures": []
 }

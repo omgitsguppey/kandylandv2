@@ -1,8 +1,8 @@
 # Person Metrics Contract
 
-Generated: 2026-06-17T02:24:26.344Z
+Generated: 2026-07-03T00:38:59.260Z
 Status: pass
-Current head: 7cf1ea434bab50842a223111f99d5e10c215b49e
+Current head: 625240b10a129f65e77fc5f6cef072111fc76e0a
 
 ## Contract
 
@@ -76,7 +76,22 @@ Current head: 7cf1ea434bab50842a223111f99d5e10c215b49e
 
 ## Changed Files
 
-- none
+- agent/state/individual-user-metric-truth.generated.json
+- agent/state/person-metrics-contract.generated.json
+- agent/state/person-metrics-hydration.generated.json
+- agent/state/telemetry-identified-parity.generated.json
+- agent/state/user-tracking-live-evidence.generated.json
+- docs/agent-truth/individual-user-metric-truth.md
+- docs/agent-truth/person-metrics-contract.md
+- docs/agent-truth/person-metrics-hydration.md
+- docs/agent-truth/user-tracking-live-evidence.md
+- scripts/agent/score-telemetry-identified-parity.ts
+- scripts/agent/validate-identity-tracking-shared.ts
+- src/lib/analytics/person-metrics-engine.ts
+- src/lib/analytics/person-metrics-hydration.ts
+- tests/unit/individual-user-metric-truth.spec.ts
+- tests/unit/person-metrics-contract.spec.ts
+- tests/unit/person-metrics-hydration.spec.ts
 
 ## Validation Failures
 

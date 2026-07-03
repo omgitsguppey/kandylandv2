@@ -1,7 +1,7 @@
 # User Tracking Live Evidence
 
 - Status: pass
-- Current head: 74c04caadffa3080b2f979f7649026b17aafdbdf
+- Current head: 625240b10a129f65e77fc5f6cef072111fc76e0a
 - Guest-to-user handoff: continuity_preserved_duplicate_suppressed
 - Individual metric hydration: classified
 - Global vs user mismatches surfaced: 3
@@ -11,7 +11,7 @@
 - Missing identity links (requiring action): 1
 - Unsafe unknown mismatches (active bugs): 0
 - Identity 4xx classes covered: 14
-- Live evidence: verified
+- Live evidence: actionable_gap
 
 ## Next Exact Steps
 - Keep user-level panel proof separate from global activity proof.

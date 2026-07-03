@@ -76,6 +76,7 @@ export interface PersonMetricCountDecision {
     | "consent_blocks_behavioral_metric"
     | "identity_confidence_too_low"
     | "legacy_unknown_not_exact_person"
+    | "user_behavior_excluded"
     | "admin_projection_excluded"
     | "system_excluded"
     | "payment_provider_fingerprint_required"
@@ -188,6 +189,9 @@ export function shouldCountPersonMetricEvent(candidate: PersonMetricCandidate): 
   }
   if (candidate.actorKind === "system") {
     return withExplanation({ ...baseDecision, countGlobally: false, blockedReason: "system_excluded" });
+  }
+  if (candidate.includeInUserBehavior === false) {
+    return withExplanation({ ...baseDecision, countGlobally: false, blockedReason: "user_behavior_excluded" });
   }
   if (candidate.legacyUnknown) {
     const global = baseDecision.scopeDecisions.global;
