@@ -113,14 +113,20 @@ export function buildWatchTimeRollupFromRecords(input: {
   let manualAdvanceAfterMs = 0;
   let completedFileCount = 0;
   let dominantMediaType = input.mediaType ?? "unknown";
+  let missingWatchScoreSourceCount = 0;
 
   input.records.forEach((record) => {
-    const watchScoreSource = typeof record.watchScoreSource === "string" ? record.watchScoreSource : "";
-    if (watchScoreSource && watchScoreSource !== "watch_session_rollup") {
+    const watchScoreSource = typeof record.watchScoreSource === "string" ? record.watchScoreSource.trim() : "";
+    const isCanonicalWatchSession = watchScoreSource === "watch_session_rollup";
+    const validWatchMs = readValidWatchMs(record);
+    if (watchScoreSource && !isCanonicalWatchSession) {
       return;
     }
 
-    const validWatchMs = readValidWatchMs(record);
+    if (!isCanonicalWatchSession && validWatchMs > 0) {
+      missingWatchScoreSourceCount += 1;
+    }
+
     const mediaType = readMediaType(record);
     if (dominantMediaType === "unknown" && mediaType !== "unknown") {
       dominantMediaType = mediaType;
@@ -148,13 +154,13 @@ export function buildWatchTimeRollupFromRecords(input: {
       completedFileCount += 1;
     }
 
-    if (validWatchMs > 0) {
+    if (isCanonicalWatchSession && validWatchMs > 0) {
       if (!input.mediaType || input.mediaType === "unknown" || input.mediaType === mediaType) {
         knownWatchSamplesMs.push(validWatchMs);
       }
     }
 
-    if (validWatchMs <= 0) {
+    if (!isCanonicalWatchSession || validWatchMs <= 0) {
       return;
     }
 
@@ -199,6 +205,18 @@ export function buildWatchTimeRollupFromRecords(input: {
       evidence: {
         legacyPageDurationMs: watchTimeMs,
         watchSessionRecords: input.records.length,
+      },
+    });
+  }
+
+  if (missingWatchScoreSourceCount > 0) {
+    issues.push({
+      code: "watch_score_source_missing",
+      severity: "warn",
+      message: "Watch-session rows with valid watch time are missing watchScoreSource, so they are diagnostic only.",
+      evidence: {
+        missingWatchScoreSourceCount,
+        canonicalWatchScoreSource: "watch_session_rollup",
       },
     });
   }

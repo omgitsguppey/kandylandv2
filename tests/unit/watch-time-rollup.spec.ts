@@ -54,6 +54,35 @@ describe("buildWatchTimeRollupFromRecords", () => {
     });
   });
 
+  it("keeps unlabeled valid watch samples diagnostic instead of canonical", () => {
+    expect(buildWatchTimeRollupFromRecords({
+      records: [
+        { validWatchMs: 9000, visibleMs: 9000, activeMs: 9000, lastSeenAtMs: 1000 },
+      ],
+      views: 1,
+      viewerOpenMs: 9000,
+      pageDurationMs: 12000,
+      viewedFileCount: 1,
+    })).toMatchObject({
+      watchTimeMs: 0,
+      source: "unavailable",
+      validSessionCount: 0,
+      latestWatchAt: 1000,
+      diagnosticEstimate: expect.objectContaining({
+        source: "diagnostic_estimate",
+      }),
+      issues: expect.arrayContaining([
+        expect.objectContaining({
+          code: "watch_score_source_missing",
+          evidence: expect.objectContaining({
+            canonicalWatchScoreSource: "watch_session_rollup",
+          }),
+        }),
+        expect.objectContaining({ code: "watch_time_missing_despite_views" }),
+      ]),
+    });
+  });
+
   it("does not count legacy page duration unless explicitly allowed", () => {
     expect(buildWatchTimeRollupFromRecords({
       records: [

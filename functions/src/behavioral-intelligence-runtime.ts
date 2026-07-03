@@ -1512,7 +1512,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     const userId = readString(session.userId)
     const dropId = readString(session.dropId)
     const watchedAtMs = readNumber(session.lastSeenAtMs) || nowMs
-    const watchScoreSource = readString(session.watchScoreSource) || "watch_session_rollup"
+    const watchScoreSource = readString(session.watchScoreSource)
     const validWatchSeconds = watchScoreSource === "watch_session_rollup"
       ? readNumber(session.validWatchMs) / 1000
       : 0
@@ -1537,7 +1537,9 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       if (watchScore > 0) {
         dropAggregate.watchScores.push(watchScore)
       }
-      dropAggregate.watchScoreSources.add(watchScoreSource)
+      if (watchScoreSource) {
+        dropAggregate.watchScoreSources.add(watchScoreSource)
+      }
       if (session.completedSession === true || readString(session.sessionOutcome) === "completed") {
         dropAggregate.completionCount += 1
         if (hasVerifiedWatch && isWithinDropLaunchHours(dropAggregate, watchedAtMs, 6)) {
@@ -1569,7 +1571,9 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (watchScore > 0) {
       aggregate.watchScores.push(watchScore)
     }
-    aggregate.watchScoreSources.add(watchScoreSource)
+    if (watchScoreSource) {
+      aggregate.watchScoreSources.add(watchScoreSource)
+    }
     if (dropId) {
       if (aggregate.uniqueDropIds.has(dropId)) {
         aggregate.repeatViewCount += 1

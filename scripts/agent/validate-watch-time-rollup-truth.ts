@@ -38,12 +38,14 @@ requireIncludes(route, 'watchScoreSource: "watch_session_rollup"', "Viewer watch
 requireIncludes(route, "validWatchMs: sessionWatchScore.validWatchMs", "Viewer watch route must persist scored valid watch time.");
 
 requireIncludes(rollupContract, "watch_time_missing_despite_views", "Watch rollup contract must expose missing watch-session diagnostic.");
+requireIncludes(rollupContract, "watch_score_source_missing", "Watch rollup contract must expose missing watch-score-source diagnostic.");
 requireIncludes(rollupContract, "legacy_page_duration", "Watch rollup contract must label legacy fallback explicitly.");
 requireIncludes(rollupContract, "isVerifiedWatchTimeRollupSource", "Watch rollup contract must own verified source classification.");
 requireIncludes(rollupContract, "isLegacyWatchTimeRollupSource", "Watch rollup contract must own legacy source classification.");
 requireIncludes(rollupContract, "buildWatchTimeRollupBehaviorInput", "Watch rollup contract must own behavior input projection.");
 requireIncludes(rollupHelper, "validWatchMs", "Watch rollup helper must aggregate validWatchMs.");
 requireIncludes(rollupHelper, "watchScoreSource", "Watch rollup helper must inspect watch score source.");
+requireIncludes(rollupHelper, "watch_score_source_missing", "Watch rollup helper must reject unlabeled valid watch samples.");
 requireIncludes(rollupHelper, "watch_time_missing_despite_views", "Watch rollup helper must flag views without valid watch sessions.");
 requireIncludes(rollupHelper, "input.allowLegacyFallback === true", "Legacy page duration must require an explicit allowLegacyFallback guard.");
 requireIncludes(rollupHelper, "diagnosticEstimate", "Watch rollup helper must return diagnostic estimates separately.");
@@ -97,6 +99,14 @@ if (adminMetricsTest.includes("watchTimeMs: 90_000,")) {
 
 if (rollupHelper.includes("watchTimeMs += diagnosticEstimate") || rollupHelper.includes("watchTimeMs = diagnosticEstimate")) {
   failures.push("Diagnostic watch estimates must not be added to canonical watchTimeMs.");
+}
+
+if (rollupHelper.includes('watchScoreSource && watchScoreSource !== "watch_session_rollup"')) {
+  failures.push("Watch rollup helper must not allow missing watchScoreSource to count as canonical watch time.");
+}
+
+if (behaviorRuntime.includes('readString(session.watchScoreSource) || "watch_session_rollup"')) {
+  failures.push("Behavioral intelligence runtime must not default missing watchScoreSource to canonical watch-session rollup.");
 }
 
 if (adminUserPage.includes("behaviorRollup?.watchTimeMs ?? ((analytics?.watchSecondsTotal ?? 0) * 1000)")) {

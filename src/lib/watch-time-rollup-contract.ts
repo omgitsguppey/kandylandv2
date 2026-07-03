@@ -2,7 +2,8 @@ export type WatchTimeRollupSource = "watch_session_rollup" | "legacy_page_durati
 
 export type WatchTimeRollupIssueCode =
   | "watch_time_missing_despite_views"
-  | "legacy_page_duration_fallback";
+  | "legacy_page_duration_fallback"
+  | "watch_score_source_missing";
 
 export type WatchTimeRollupIssue = {
   code: WatchTimeRollupIssueCode;
