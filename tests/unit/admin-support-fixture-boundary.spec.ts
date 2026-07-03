@@ -10,8 +10,8 @@ describe("admin support fixture boundary", () => {
   it("labels local admin UI fixture support evidence as no-source, not API verified", () => {
     expect(queueSource).toContain("isAdminUiTestSessionUser(user)");
     expect(queueSource).toContain('data-admin-support-fixture-boundary="true"');
-    expect(queueSource).toContain("No verified support queue source is loaded here");
-    expect(queueSource).toContain("reading threads, replying, or changing support status");
+    expect(queueSource).toContain("No verified support source is loaded for local review");
+    expect(queueSource).toContain("reviewing or changing support threads");
     expect(queueSource).toContain('{isLocalAdminUiTestSession ? "No source" : "Verified"}');
     expect(queueSource).toContain('const supportQueueCountLabel = isLocalAdminUiTestSession ? "--" : summary.total');
     expect(queueSource).toContain("Queue ({supportQueueCountLabel})");
