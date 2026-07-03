@@ -39,8 +39,8 @@ describe("analytics legacy history reconciliation", () => {
     });
 
     expect(result.candidateMappings[0]).toMatchObject({
-      identityConfidence: "exact_match",
-      purgatoryClassification: "exact_match",
+      identityConfidence: "exact",
+      purgatoryClassification: "exact",
       reasonCodes: expect.arrayContaining(["exact_current_event_match", "duplicate_risk", "current_totals_blocked"]),
       suggestedRecoveryAction: "link_as_evidence_only",
       duplicateRisk: "medium",
@@ -75,9 +75,9 @@ describe("analytics legacy history reconciliation", () => {
     });
 
     expect(result.candidateMappings[0]).toMatchObject({
-      identityConfidence: "probable_match",
-      purgatoryClassification: "probable_match",
-      reasonCodes: expect.arrayContaining(["probable_identity_window_match", "duplicate_risk", "current_totals_blocked"]),
+      identityConfidence: "inferred",
+      purgatoryClassification: "inferred",
+      reasonCodes: expect.arrayContaining(["inferred_identity_window_match", "duplicate_risk", "current_totals_blocked"]),
       suggestedRecoveryAction: "manual_review_identity_bridge",
       duplicateRisk: "medium",
       recoveryAction: "link_candidate",
@@ -104,9 +104,10 @@ describe("analytics legacy history reconciliation", () => {
     });
 
     expect(result.candidateMappings[0]).toMatchObject({
-      identityConfidence: "weak_match",
-      purgatoryClassification: "weak_match",
-      reasonCodes: expect.arrayContaining(["partial_identity_or_route_match", "debug_only_source", "current_totals_blocked"]),
+      targetTruthLayer: "manual_review_required",
+      identityConfidence: "weak",
+      purgatoryClassification: "weak",
+      reasonCodes: expect.arrayContaining(["weak_identity_or_route_match", "current_totals_blocked"]),
       suggestedRecoveryAction: "archive_as_debug_evidence",
       recoveryAction: "archive_only",
       duplicateRisk: "low",
@@ -124,10 +125,10 @@ describe("analytics legacy history reconciliation", () => {
     });
 
     expect(result.candidateMappings[0]).toMatchObject({
-      targetTruthLayer: "debug_truth",
+      targetTruthLayer: "manual_review_required",
       identityConfidence: "unknown",
       purgatoryClassification: "unknown",
-      reasonCodes: expect.arrayContaining(["unknown_identity", "debug_only_source", "current_totals_blocked"]),
+      reasonCodes: expect.arrayContaining(["unknown_identity", "current_totals_blocked"]),
       suggestedRecoveryAction: "archive_as_debug_evidence",
       recoveryAction: "archive_only",
       currentTotalsEligible: false,
@@ -145,14 +146,15 @@ describe("analytics legacy history reconciliation", () => {
 
     expect(result.candidateMappings[0]).toMatchObject({
       targetTruthLayer: "evidence_only",
-      purgatoryClassification: "weak_match",
+      identityConfidence: "weak",
+      purgatoryClassification: "weak",
       reasonCodes: expect.arrayContaining(["external_evidence_only", "current_totals_blocked"]),
       suggestedRecoveryAction: "require_first_party_fact_or_ledger",
       recoveryAction: "archive_only",
       currentTotalsEligible: false,
     });
     expect(result.candidateMappings[1]).toMatchObject({
-      targetTruthLayer: "debug_truth",
+      targetTruthLayer: "legacy_directional_only",
       recoveryAction: "archive_only",
       currentTotalsEligible: false,
     });
@@ -227,7 +229,7 @@ describe("analytics legacy history reconciliation", () => {
     expect(report.summary.purgatoryQueueCount).toBe(1);
     expect(report.sourceCleanupFindings).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ source: "analytics_aggregate_stats/realtime_summary", status: "debug_only_or_fallback" }),
+        expect.objectContaining({ source: "analytics_aggregate_stats/realtime_summary", status: "legacy_directional_only" }),
         expect.objectContaining({ source: "GA4 / BigQuery / PostHog", status: "evidence_only" }),
       ]),
     );

@@ -1,21 +1,23 @@
-export type LegacyHistoryIdentityConfidence = "exact_match" | "probable_match" | "weak_match" | "unknown";
+import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
+
+export type LegacyHistoryIdentityConfidence = IdentityConfidence;
 export type LegacyHistoryDuplicateRisk = "low" | "medium" | "high" | "unknown";
-export type LegacyHistoryRecoveryAction = "link_candidate" | "import_candidate" | "archive_only" | "ignore";
-export type LegacyHistoryTargetTruthLayer = "product_truth" | "verified_hot_cache" | "debug_truth" | "evidence_only";
+export type LegacyHistoryRecoveryAction = "normalize_candidate" | "link_candidate" | "archive_only" | "ignore";
+export type LegacyHistoryTargetTruthLayer = "product_truth_eligible" | "hot_cache_snapshot" | "legacy_directional_only" | "evidence_only" | "manual_review_required";
 export type LegacyHistoryPurgatoryClassification =
-  | "exact_match"
-  | "probable_match"
-  | "weak_match"
+  | "exact"
+  | "inferred"
+  | "weak"
   | "unknown"
   | "duplicate_candidate"
   | "rejected";
 export type LegacyHistoryPurgatoryReasonCode =
   | "exact_current_event_match"
-  | "probable_identity_window_match"
-  | "partial_identity_or_route_match"
+  | "inferred_identity_window_match"
+  | "weak_identity_or_route_match"
   | "unknown_identity"
   | "external_evidence_only"
-  | "debug_only_source"
+  | "legacy_directional_source"
   | "duplicate_risk"
   | "missing_first_party_corroboration"
   | "current_totals_blocked";
@@ -154,7 +156,7 @@ export type LegacyHistoryReconciliationReport = LegacyHistoryReconciliationResul
   currentHead: string;
   sourceCleanupFindings: Array<{
     source: string;
-    status: "product_truth" | "snapshot_display_truth" | "debug_only_or_fallback" | "evidence_only";
+    status: LegacyHistoryTargetTruthLayer;
     action: string;
   }>;
   costFindings: Array<{
@@ -234,9 +236,10 @@ function hasAnyIdentity(candidate: LegacyHistoryCandidate) {
 
 function targetTruthLayer(candidate: LegacyHistoryCandidate): LegacyHistoryTargetTruthLayer {
   if (isExternalEvidence(candidate)) return "evidence_only";
-  if (isRealtimeSummary(candidate)) return "debug_truth";
-  if (hasAnyIdentity(candidate)) return "product_truth";
-  return "debug_truth";
+  if (candidate.legacySource === "analytics_admin_metric_snapshots") return "hot_cache_snapshot";
+  if (isRealtimeSummary(candidate)) return "legacy_directional_only";
+  if (hasAnyIdentity(candidate)) return "product_truth_eligible";
+  return "manual_review_required";
 }
 
 function matchesExact(candidate: LegacyHistoryCandidate, event: LegacyHistoryCurrentEvent) {
@@ -287,11 +290,11 @@ function matchesWeak(candidate: LegacyHistoryCandidate, event: LegacyHistoryCurr
 }
 
 function identityConfidence(candidate: LegacyHistoryCandidate, currentTruth: LegacyHistoryCurrentTruth): LegacyHistoryIdentityConfidence {
-  if (currentTruth.events.some((event) => matchesExact(candidate, event))) return "exact_match";
-  if (currentTruth.events.some((event) => matchesProbable(candidate, event, currentTruth))) return "probable_match";
-  if (currentTruth.events.some((event) => matchesWeak(candidate, event))) return "weak_match";
-  if (hasAnyIdentity(candidate) && !isExternalEvidence(candidate)) return "weak_match";
-  if (isExternalEvidence(candidate) && hasAnyIdentity(candidate)) return "weak_match";
+  if (currentTruth.events.some((event) => matchesExact(candidate, event))) return "exact";
+  if (currentTruth.events.some((event) => matchesProbable(candidate, event, currentTruth))) return "inferred";
+  if (currentTruth.events.some((event) => matchesWeak(candidate, event))) return "weak";
+  if (hasAnyIdentity(candidate) && !isExternalEvidence(candidate)) return "weak";
+  if (isExternalEvidence(candidate) && hasAnyIdentity(candidate)) return "weak";
   return "unknown";
 }
 
@@ -299,15 +302,15 @@ function duplicateRisk(candidate: LegacyHistoryCandidate, confidence: LegacyHist
   if (candidate.legacySource === "analytics_guest_batches" && candidateUserId(candidate) && candidateGuestId(candidate)) {
     return "high";
   }
-  if (confidence === "exact_match" || confidence === "probable_match") return "medium";
-  if (confidence === "weak_match") return "low";
+  if (confidence === "exact" || confidence === "inferred") return "medium";
+  if (confidence === "weak") return "low";
   return "unknown";
 }
 
 function recoveryAction(layer: LegacyHistoryTargetTruthLayer, confidence: LegacyHistoryIdentityConfidence, risk: LegacyHistoryDuplicateRisk): LegacyHistoryRecoveryAction {
-  if (layer === "evidence_only" || layer === "debug_truth") return "archive_only";
-  if (confidence === "exact_match" || confidence === "probable_match" || risk === "high") return "link_candidate";
-  if (confidence === "weak_match") return "archive_only";
+  if (layer === "evidence_only" || layer === "legacy_directional_only" || layer === "manual_review_required") return "archive_only";
+  if (confidence === "exact" || risk === "high" || risk === "medium") return "link_candidate";
+  if (confidence === "inferred" || confidence === "weak") return "normalize_candidate";
   return "archive_only";
 }
 
@@ -317,10 +320,10 @@ function purgatoryClassification(input: {
   risk: LegacyHistoryDuplicateRisk;
 }): LegacyHistoryPurgatoryClassification {
   if (input.risk === "high") return "duplicate_candidate";
-  if (input.confidence === "exact_match") return "exact_match";
-  if (input.confidence === "probable_match") return "probable_match";
-  if (input.confidence === "weak_match") return "weak_match";
-  if (input.layer === "evidence_only" || input.layer === "debug_truth" || input.confidence === "unknown") return "unknown";
+  if (input.confidence === "exact") return "exact";
+  if (input.confidence === "inferred" || input.confidence === "linked") return "inferred";
+  if (input.confidence === "weak") return "weak";
+  if (input.layer === "evidence_only" || input.layer === "legacy_directional_only" || input.layer === "manual_review_required" || input.confidence === "unknown") return "unknown";
   return "rejected";
 }
 
@@ -331,14 +334,14 @@ function reasonCodesFor(input: {
   currentTotalsEligible: boolean;
 }): LegacyHistoryPurgatoryReasonCode[] {
   const codes = new Set<LegacyHistoryPurgatoryReasonCode>();
-  if (input.confidence === "exact_match") codes.add("exact_current_event_match");
-  if (input.confidence === "probable_match") codes.add("probable_identity_window_match");
-  if (input.confidence === "weak_match") codes.add("partial_identity_or_route_match");
+  if (input.confidence === "exact") codes.add("exact_current_event_match");
+  if (input.confidence === "inferred" || input.confidence === "linked") codes.add("inferred_identity_window_match");
+  if (input.confidence === "weak") codes.add("weak_identity_or_route_match");
   if (input.confidence === "unknown") codes.add("unknown_identity");
   if (input.layer === "evidence_only") codes.add("external_evidence_only");
-  if (input.layer === "debug_truth") codes.add("debug_only_source");
+  if (input.layer === "legacy_directional_only") codes.add("legacy_directional_source");
   if (input.risk === "high" || input.risk === "medium") codes.add("duplicate_risk");
-  if (input.layer === "product_truth" && input.confidence !== "exact_match") codes.add("missing_first_party_corroboration");
+  if (input.layer === "product_truth_eligible" && input.confidence !== "exact") codes.add("missing_first_party_corroboration");
   if (!input.currentTotalsEligible) codes.add("current_totals_blocked");
   return Array.from(codes);
 }
@@ -350,9 +353,9 @@ function suggestedRecoveryActionFor(input: {
 }): LegacyHistorySuggestedRecoveryAction {
   if (input.risk === "high") return "require_first_party_fact_or_ledger";
   if (input.layer === "evidence_only") return "require_first_party_fact_or_ledger";
-  if (input.layer === "debug_truth") return "archive_as_debug_evidence";
-  if (input.confidence === "exact_match") return "link_as_evidence_only";
-  if (input.confidence === "probable_match" || input.confidence === "weak_match") return "manual_review_identity_bridge";
+  if (input.layer === "legacy_directional_only" || input.layer === "manual_review_required") return "archive_as_debug_evidence";
+  if (input.confidence === "exact") return "link_as_evidence_only";
+  if (input.confidence === "inferred" || input.confidence === "linked" || input.confidence === "weak") return "manual_review_identity_bridge";
   return "reject_from_current_totals";
 }
 
@@ -362,11 +365,12 @@ function reasonFor(input: {
   risk: LegacyHistoryDuplicateRisk;
 }) {
   if (input.layer === "evidence_only") return "External evidence stays evidence-only until first-party reconciliation proves it.";
-  if (input.layer === "debug_truth") return "Realtime, raw, or unknown legacy evidence stays Debug-only and cannot drive current totals.";
+  if (input.layer === "legacy_directional_only") return "Realtime or raw legacy evidence stays directional and cannot drive current totals.";
+  if (input.layer === "manual_review_required") return "No reliable identity evidence exists; keep it in manual review and do not treat it as zero.";
   if (input.risk === "high") return "Linked guest and user lineage can double-count if imported, so keep it as link evidence.";
-  if (input.confidence === "exact_match") return "Existing current event identity matches; link without overwriting current truth.";
-  if (input.confidence === "probable_match") return "Session, route, identity link, and time proximity are close enough for owner review.";
-  if (input.confidence === "weak_match") return "Partial route, time, or identity evidence is too weak for current totals.";
+  if (input.confidence === "exact") return "Existing current event identity matches; link without overwriting current truth.";
+  if (input.confidence === "inferred" || input.confidence === "linked") return "Session, route, identity link, and time proximity are close enough for owner review.";
+  if (input.confidence === "weak") return "Partial route, time, or identity evidence is too weak for current totals.";
   return "No reliable identity evidence exists; archive for Debug review only.";
 }
 
@@ -379,7 +383,7 @@ export function reconcileLegacyHistoryCandidates(input: {
     const confidence = identityConfidence(candidate, input.currentTruth);
     const risk = duplicateRisk(candidate, confidence);
     const action = recoveryAction(layer, confidence, risk);
-    const currentTotalsEligible = layer === "product_truth" && action === "import_candidate" && risk === "low";
+    const currentTotalsEligible = false;
     const classification = purgatoryClassification({ layer, confidence, risk });
 
     return {
@@ -402,9 +406,9 @@ export function reconcileLegacyHistoryCandidates(input: {
     candidateMappings,
     summary: {
       candidateCount: candidateMappings.length,
-      exactMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "exact_match").length,
-      probableMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "probable_match").length,
-      weakMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "weak_match").length,
+      exactMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "exact").length,
+      probableMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "inferred" || entry.identityConfidence === "linked").length,
+      weakMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "weak").length,
       unknownLegacyCount: candidateMappings.filter((entry) => entry.identityConfidence === "unknown").length,
       purgatoryQueueCount: candidateMappings.filter((entry) => !entry.currentTotalsEligible).length,
       highDuplicateRiskCount: candidateMappings.filter((entry) => entry.duplicateRisk === "high").length,
@@ -441,9 +445,9 @@ export function buildLegacyHistoryPurgatoryQueueReport(input: {
     currentHead: input.currentHead,
     sourceReportKey: "analytics-legacy-history-reconciliation",
     summary: {
-      exactMatch: queue.filter((entry) => entry.purgatoryClassification === "exact_match").length,
-      probableMatch: queue.filter((entry) => entry.purgatoryClassification === "probable_match").length,
-      weakMatch: queue.filter((entry) => entry.purgatoryClassification === "weak_match").length,
+      exactMatch: queue.filter((entry) => entry.purgatoryClassification === "exact").length,
+      probableMatch: queue.filter((entry) => entry.purgatoryClassification === "inferred").length,
+      weakMatch: queue.filter((entry) => entry.purgatoryClassification === "weak").length,
       unknown: queue.filter((entry) => entry.purgatoryClassification === "unknown").length,
       duplicateCandidate: queue.filter((entry) => entry.purgatoryClassification === "duplicate_candidate").length,
       rejected: queue.filter((entry) => entry.purgatoryClassification === "rejected").length,
@@ -475,17 +479,17 @@ export function buildLegacyHistoryReconciliationReport(input: {
     sourceCleanupFindings: [
       {
         source: "analytics_event_facts",
-        status: "product_truth",
+        status: "product_truth_eligible",
         action: "Current first-party event facts remain the current truth lane.",
       },
       {
         source: "analytics_admin_metric_snapshots",
-        status: "snapshot_display_truth",
+        status: "hot_cache_snapshot",
         action: "Admin Analytics should prefer verified materialized snapshots over raw realtime logs.",
       },
       {
         source: "analytics_aggregate_stats/realtime_summary",
-        status: "debug_only_or_fallback",
+        status: "legacy_directional_only",
         action: "Legacy realtime summary stays fallback/live-pulse evidence and cannot drive current totals.",
       },
       {
@@ -559,13 +563,13 @@ export function validateLegacyHistoryReconciliationReport(
   if (report.candidateMappings.some((mapping) => mapping.identityConfidence === "unknown" && mapping.currentTotalsEligible)) {
     failures.push("unknown legacy counted as clean.");
   }
-  if (report.candidateMappings.some((mapping) => mapping.purgatoryClassification === "weak_match" && mapping.currentTotalsEligible)) {
+  if (report.candidateMappings.some((mapping) => mapping.purgatoryClassification === "weak" && mapping.currentTotalsEligible)) {
     failures.push("weak legacy match promoted to current totals.");
   }
   if (report.candidateMappings.some((mapping) => mapping.purgatoryClassification === "unknown" && !mapping.reasonCodes.includes("current_totals_blocked"))) {
     failures.push("unknown legacy row lacks current totals block reason.");
   }
-  if (!report.sourceCleanupFindings.some((finding) => finding.source === "analytics_aggregate_stats/realtime_summary" && finding.status === "debug_only_or_fallback")) {
+  if (!report.sourceCleanupFindings.some((finding) => finding.source === "analytics_aggregate_stats/realtime_summary" && finding.status === "legacy_directional_only")) {
     failures.push("old realtime/raw-log source still marked product truth.");
   }
   if (!report.sourceCleanupFindings.some((finding) => finding.source.includes("GA4") && finding.status === "evidence_only")) {

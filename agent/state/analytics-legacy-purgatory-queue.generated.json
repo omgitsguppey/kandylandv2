@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-legacy-purgatory-queue",
-  "generatedAtUtc": "2026-06-21T01:13:55.576Z",
-  "currentHead": "d91439577f2bcbed2bf8e74f607d783cb33db5c4",
+  "generatedAtUtc": "2026-07-03T01:23:25.715Z",
+  "currentHead": "4c910dbaca3503499b0e77784efa99371a870536",
   "sourceReportKey": "analytics-legacy-history-reconciliation",
   "summary": {
     "exactMatch": 0,
@@ -17,12 +17,12 @@
     {
       "legacySource": "analytics_event_facts",
       "legacyId": "fixture_evt_drop_click",
-      "targetTruthLayer": "product_truth",
-      "identityConfidence": "weak_match",
+      "targetTruthLayer": "product_truth_eligible",
+      "identityConfidence": "weak",
       "duplicateRisk": "low",
-      "purgatoryClassification": "weak_match",
+      "purgatoryClassification": "weak",
       "reasonCodes": [
-        "partial_identity_or_route_match",
+        "weak_identity_or_route_match",
         "missing_first_party_corroboration",
         "current_totals_blocked"
       ],
@@ -34,12 +34,12 @@
     {
       "legacySource": "analytics_guest_batches",
       "legacyId": "fixture_guest_batch",
-      "targetTruthLayer": "product_truth",
-      "identityConfidence": "weak_match",
+      "targetTruthLayer": "product_truth_eligible",
+      "identityConfidence": "weak",
       "duplicateRisk": "low",
-      "purgatoryClassification": "weak_match",
+      "purgatoryClassification": "weak",
       "reasonCodes": [
-        "partial_identity_or_route_match",
+        "weak_identity_or_route_match",
         "missing_first_party_corroboration",
         "current_totals_blocked"
       ],
@@ -51,12 +51,12 @@
     {
       "legacySource": "transactions",
       "legacyId": "fixture_txn_completed",
-      "targetTruthLayer": "product_truth",
-      "identityConfidence": "weak_match",
+      "targetTruthLayer": "product_truth_eligible",
+      "identityConfidence": "weak",
       "duplicateRisk": "low",
-      "purgatoryClassification": "weak_match",
+      "purgatoryClassification": "weak",
       "reasonCodes": [
-        "partial_identity_or_route_match",
+        "weak_identity_or_route_match",
         "missing_first_party_corroboration",
         "current_totals_blocked"
       ],
@@ -68,12 +68,12 @@
     {
       "legacySource": "unlocks",
       "legacyId": "fixture_unlock",
-      "targetTruthLayer": "product_truth",
-      "identityConfidence": "weak_match",
+      "targetTruthLayer": "product_truth_eligible",
+      "identityConfidence": "weak",
       "duplicateRisk": "low",
-      "purgatoryClassification": "weak_match",
+      "purgatoryClassification": "weak",
       "reasonCodes": [
-        "partial_identity_or_route_match",
+        "weak_identity_or_route_match",
         "missing_first_party_corroboration",
         "current_totals_blocked"
       ],
@@ -85,12 +85,12 @@
     {
       "legacySource": "daily_task_events",
       "legacyId": "fixture_task_complete",
-      "targetTruthLayer": "product_truth",
-      "identityConfidence": "weak_match",
+      "targetTruthLayer": "product_truth_eligible",
+      "identityConfidence": "weak",
       "duplicateRisk": "low",
-      "purgatoryClassification": "weak_match",
+      "purgatoryClassification": "weak",
       "reasonCodes": [
-        "partial_identity_or_route_match",
+        "weak_identity_or_route_match",
         "missing_first_party_corroboration",
         "current_totals_blocked"
       ],
@@ -102,12 +102,12 @@
     {
       "legacySource": "task_lifecycle_logs",
       "legacyId": "fixture_task_start",
-      "targetTruthLayer": "product_truth",
-      "identityConfidence": "weak_match",
+      "targetTruthLayer": "product_truth_eligible",
+      "identityConfidence": "weak",
       "duplicateRisk": "low",
-      "purgatoryClassification": "weak_match",
+      "purgatoryClassification": "weak",
       "reasonCodes": [
-        "partial_identity_or_route_match",
+        "weak_identity_or_route_match",
         "missing_first_party_corroboration",
         "current_totals_blocked"
       ],
@@ -119,29 +119,28 @@
     {
       "legacySource": "notifications",
       "legacyId": "fixture_notification_read",
-      "targetTruthLayer": "debug_truth",
+      "targetTruthLayer": "manual_review_required",
       "identityConfidence": "unknown",
       "duplicateRisk": "unknown",
       "purgatoryClassification": "unknown",
       "reasonCodes": [
         "unknown_identity",
-        "debug_only_source",
         "current_totals_blocked"
       ],
       "suggestedRecoveryAction": "archive_as_debug_evidence",
       "currentTotalsEligible": false,
-      "reason": "Realtime, raw, or unknown legacy evidence stays Debug-only and cannot drive current totals.",
+      "reason": "No reliable identity evidence exists; keep it in manual review and do not treat it as zero.",
       "manualReviewRequired": true
     },
     {
       "legacySource": "onboarding_steps",
       "legacyId": "fixture_onboarding_step",
-      "targetTruthLayer": "product_truth",
-      "identityConfidence": "weak_match",
+      "targetTruthLayer": "product_truth_eligible",
+      "identityConfidence": "weak",
       "duplicateRisk": "low",
-      "purgatoryClassification": "weak_match",
+      "purgatoryClassification": "weak",
       "reasonCodes": [
-        "partial_identity_or_route_match",
+        "weak_identity_or_route_match",
         "missing_first_party_corroboration",
         "current_totals_blocked"
       ],
@@ -153,18 +152,17 @@
     {
       "legacySource": "admin_audit_logs",
       "legacyId": "fixture_admin_action",
-      "targetTruthLayer": "debug_truth",
+      "targetTruthLayer": "manual_review_required",
       "identityConfidence": "unknown",
       "duplicateRisk": "unknown",
       "purgatoryClassification": "unknown",
       "reasonCodes": [
         "unknown_identity",
-        "debug_only_source",
         "current_totals_blocked"
       ],
       "suggestedRecoveryAction": "archive_as_debug_evidence",
       "currentTotalsEligible": false,
-      "reason": "Realtime, raw, or unknown legacy evidence stays Debug-only and cannot drive current totals.",
+      "reason": "No reliable identity evidence exists; keep it in manual review and do not treat it as zero.",
       "manualReviewRequired": true
     },
     {
