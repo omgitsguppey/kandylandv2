@@ -1,7 +1,9 @@
-export type LegacyIdentityConfidence = "exact_match" | "probable_match" | "weak_match" | "unknown";
+import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
+
+export type LegacyIdentityConfidence = IdentityConfidence;
 export type LegacyDuplicateRisk = "none" | "low" | "medium" | "high" | "unknown";
-export type LegacyRecoveryAction = "import_candidate" | "link_candidate" | "archive_only" | "ignore";
-export type LegacyTargetTruthLayer = "product_truth" | "verified_hot_cache" | "debug_truth" | "evidence_only";
+export type LegacyRecoveryAction = "normalize_candidate" | "link_candidate" | "archive_only" | "ignore";
+export type LegacyTargetTruthLayer = "product_truth_eligible" | "hot_cache_snapshot" | "legacy_directional_only" | "evidence_only" | "manual_review_required";
 
 export type LegacyRecoveryCandidateInput = {
   legacySource: string;
@@ -116,12 +118,12 @@ function resolveTargetTruthLayer(candidate: LegacyRecoveryCandidateInput): Legac
     return "evidence_only";
   }
   if (candidate.legacySource === "analytics_admin_metric_snapshots") {
-    return "verified_hot_cache";
+    return "hot_cache_snapshot";
   }
   if (normalizeString(candidate.canonicalEvent?.userId) || normalizeString(candidate.canonicalEvent?.sessionId) || normalizeString(candidate.canonicalEvent?.anonymousVisitorId)) {
-    return "product_truth";
+    return "product_truth_eligible";
   }
-  return "debug_truth";
+  return "manual_review_required";
 }
 
 function hasIdentity(candidate: LegacyRecoveryCandidateInput) {
@@ -155,18 +157,18 @@ function resolveIdentityConfidence(
   const eventId = normalizeString(candidate.canonicalEvent?.eventId);
   const dedupeKey = normalizeString(candidate.canonicalEvent?.dedupeKey) || normalizeString(candidate.duplicateKey);
   if (eventId && currentTruth.eventIds.includes(eventId)) {
-    return "exact_match";
+    return "exact";
   }
   if (dedupeKey && currentTruth.dedupeKeys.includes(dedupeKey)) {
-    return "probable_match";
+    return "inferred";
   }
   if (!hasIdentity(candidate)) {
     return "unknown";
   }
   if (isExternalEvidenceSource(candidate.legacySource)) {
-    return "weak_match";
+    return "weak";
   }
-  return candidate.actorConfidence === "high" ? "probable_match" : "weak_match";
+  return candidate.actorConfidence === "high" ? "inferred" : "weak";
 }
 
 function resolveDuplicateRisk(input: {
@@ -199,10 +201,10 @@ function resolveRecoveryAction(input: {
   if (input.identityConfidence === "unknown") {
     return "archive_only";
   }
-  if (input.identityConfidence === "exact_match" || input.duplicateRisk === "high" || input.duplicateRisk === "medium") {
+  if (input.identityConfidence === "exact" || input.duplicateRisk === "high" || input.duplicateRisk === "medium") {
     return "link_candidate";
   }
-  return "import_candidate";
+  return "normalize_candidate";
 }
 
 function buildReason(input: {
@@ -220,10 +222,10 @@ function buildReason(input: {
   if (input.identityConfidence === "unknown") {
     return "Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it.";
   }
-  if (input.identityConfidence === "exact_match") {
+  if (input.identityConfidence === "exact") {
     return "Candidate matches an existing current event id; link it to current truth without overwriting.";
   }
-  return "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.";
+  return "Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan.";
 }
 
 export function reconcileLegacyAnalyticsHistory(input: {
@@ -260,7 +262,7 @@ export function reconcileLegacyAnalyticsHistory(input: {
     candidateMappings,
     summary: {
       candidateCount: candidateMappings.length,
-      exactMatchCount: candidateMappings.filter((mapping) => mapping.identityConfidence === "exact_match").length,
+      exactMatchCount: candidateMappings.filter((mapping) => mapping.identityConfidence === "exact").length,
       duplicateRiskHighCount: candidateMappings.filter((mapping) => mapping.duplicateRisk === "high").length,
       evidenceOnlyCount: candidateMappings.filter((mapping) => mapping.targetTruthLayer === "evidence_only").length,
       overwritesCurrentTruth: false,
@@ -282,13 +284,13 @@ export function buildLegacyRecoveryReconciliationReport(input: {
   const sourceTruthMap = [
     {
       source: "analytics_event_facts",
-      truthLayer: "product_truth" as const,
+      truthLayer: "product_truth_eligible" as const,
       currentProductTruth: true,
       notes: "Current first-party event facts are not overwritten by legacy recovery.",
     },
     {
       source: "analytics_guest_batches",
-      truthLayer: "product_truth" as const,
+      truthLayer: "product_truth_eligible" as const,
       currentProductTruth: true,
       notes: "Guest batches stay guest-lane product truth until identity links reconcile them.",
     },
@@ -381,10 +383,10 @@ export function validateLegacyRecoveryReconciliationReport(
   if (report.candidateMappings.some((mapping) => !mapping.identityConfidence)) {
     failures.push("recovery plan lacks identity confidence.");
   }
-  if (!report.sourceTruthMap.some((entry) => entry.currentProductTruth && entry.truthLayer === "product_truth")) {
+  if (!report.sourceTruthMap.some((entry) => entry.currentProductTruth && entry.truthLayer === "product_truth_eligible")) {
     failures.push("current product truth source not identified.");
   }
-  if (report.candidateMappings.some((mapping) => mapping.targetTruthLayer === "product_truth" && mapping.identityConfidence === "unknown")) {
+  if (report.candidateMappings.some((mapping) => mapping.targetTruthLayer === "product_truth_eligible" && mapping.identityConfidence === "unknown")) {
     failures.push("unknown legacy data is treated as clean.");
   }
   if (report.summary.overwritesCurrentTruth !== false || report.candidateMappings.some((mapping) => mapping.overwriteCurrentTruth !== false)) {

@@ -1,7 +1,7 @@
 # Analytics Legacy Recovery Reconciliation
 
-Generated: 2026-06-21T01:13:55.635Z
-Current head: d91439577f2bcbed2bf8e74f607d783cb33db5c4
+Generated: 2026-07-03T01:14:42.921Z
+Current head: 2898567cf6de9b154e9b33a8a2fda8bd34ce35f8
 
 ## Summary
 
@@ -21,23 +21,23 @@ Current head: d91439577f2bcbed2bf8e74f607d783cb33db5c4
 
 | Legacy source | Legacy id | Target truth layer | Identity confidence | Duplicate risk | Recovery action | Recovery mode | Production mutation | Reason |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| analytics_event_facts | fixture_evt_drop_click | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
-| analytics_guest_batches | fixture_guest_batch | product_truth | weak_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
-| transactions | fixture_txn_completed | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
-| unlocks | fixture_unlock | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
-| daily_task_events | fixture_task_complete | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
-| task_lifecycle_logs | fixture_task_start | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
-| notifications | fixture_notification_read | debug_truth | unknown | unknown | archive_only | dry_run_manual_review | no | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
-| onboarding_steps | fixture_onboarding_step | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
-| admin_audit_logs | fixture_admin_action | debug_truth | unknown | unknown | archive_only | dry_run_manual_review | no | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
+| analytics_event_facts | fixture_evt_drop_click | product_truth_eligible | inferred | low | normalize_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan. |
+| analytics_guest_batches | fixture_guest_batch | product_truth_eligible | weak | low | normalize_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan. |
+| transactions | fixture_txn_completed | product_truth_eligible | inferred | low | normalize_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan. |
+| unlocks | fixture_unlock | product_truth_eligible | inferred | low | normalize_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan. |
+| daily_task_events | fixture_task_complete | product_truth_eligible | inferred | low | normalize_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan. |
+| task_lifecycle_logs | fixture_task_start | product_truth_eligible | inferred | low | normalize_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan. |
+| notifications | fixture_notification_read | manual_review_required | unknown | unknown | archive_only | dry_run_manual_review | no | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
+| onboarding_steps | fixture_onboarding_step | product_truth_eligible | inferred | low | normalize_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run normalization review; no production import is allowed without a separate approved backfill plan. |
+| admin_audit_logs | fixture_admin_action | manual_review_required | unknown | unknown | archive_only | dry_run_manual_review | no | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
 | ga4_intraday | fixture_ga_intraday | evidence_only | unknown | unknown | archive_only | dry_run_manual_review | no | External analytics evidence remains evidence-only until first-party reconciliation promotes it. |
 
 ## Source Truth
 
 | Source | Truth layer | Current product truth | Notes |
 | --- | --- | --- | --- |
-| analytics_event_facts | product_truth | yes | Current first-party event facts are not overwritten by legacy recovery. |
-| analytics_guest_batches | product_truth | yes | Guest batches stay guest-lane product truth until identity links reconcile them. |
+| analytics_event_facts | product_truth_eligible | yes | Current first-party event facts are not overwritten by legacy recovery. |
+| analytics_guest_batches | product_truth_eligible | yes | Guest batches stay guest-lane product truth until identity links reconcile them. |
 | GA4 / BigQuery / PostHog | evidence_only | no | External provider sources remain evidence-only and cannot define product truth. |
 
 ## Cost Lanes

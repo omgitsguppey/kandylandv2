@@ -42,8 +42,8 @@ describe("analytics legacy recovery reconciliation", () => {
 
     expect(report.candidateMappings[0]).toMatchObject({
       legacySource: "analytics_event_facts",
-      targetTruthLayer: "product_truth",
-      identityConfidence: "exact_match",
+      targetTruthLayer: "product_truth_eligible",
+      identityConfidence: "exact",
       recoveryAction: "link_candidate",
       recoveryMode: "dry_run_manual_review",
       productionMutationAllowed: false,
@@ -74,7 +74,7 @@ describe("analytics legacy recovery reconciliation", () => {
     expect(report.candidateMappings[0]).toMatchObject({
       identityConfidence: "unknown",
       recoveryAction: "archive_only",
-      targetTruthLayer: "debug_truth",
+      targetTruthLayer: "manual_review_required",
     });
   });
 
@@ -126,7 +126,7 @@ describe("analytics legacy recovery reconciliation", () => {
     expect(report.candidateMappings[0]).toMatchObject({
       targetTruthLayer: "evidence_only",
       recoveryAction: "archive_only",
-      identityConfidence: "weak_match",
+      identityConfidence: "weak",
     });
   });
 
@@ -135,7 +135,7 @@ describe("analytics legacy recovery reconciliation", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-18T12:00:00.000Z",
       sourceInventory: {
-        sources: [{ sourceName: "analytics_event_facts", recoverability: "backfillable" }],
+        sources: [{ sourceName: "analytics_event_facts", recoverability: "manual_review_required" }],
       },
       mappingReport: {
         recoveredEvents: [baseCandidate],
