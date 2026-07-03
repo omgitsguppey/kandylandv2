@@ -204,6 +204,18 @@ const uiSourceCoverageBlockerIds = new Set([
   "screenshot_evidence_missing",
   "ui-surface-coverage",
 ]);
+const legacyProofBlockerIds = new Set([
+  ...legacyUiVisualBlockerIds,
+  "provider-smoke",
+  "runtime-smoke",
+  "admin-truth-sample",
+  "provider_smoke_evidence_missing",
+  "provider_smoke_evidence_stale",
+  "runtime_smoke_evidence_missing",
+  "runtime_smoke_evidence_stale",
+  "admin_truth_sample_evidence_missing",
+  "admin_truth_sample_evidence_stale",
+]);
 const adminTruthSampleOwnedInputPaths = [
   "scripts/agent/validate-admin-truth-sample-evidence.ts",
   "scripts/agent/validate-admin-truth-source-sample.ts",
@@ -637,6 +649,22 @@ export function betaExitReviewStateFor(input: {
   return "ready_for_review";
 }
 
+export function remainingBlockersFromProofLanes(proofLanes: CurrentBetaExitProofLane[]): CurrentBetaExitStatusReport["remainingBlockers"] {
+  return proofLanes
+    .filter((lane) => lane.canClearGate !== true)
+    .map((lane) => ({
+      id: lane.id,
+      severity: "P1" as const,
+      status: lane.truthState,
+      evidence: [
+        lane.sourcePath,
+        `sourceStatus=${lane.sourceStatus}`,
+        `actionState=${lane.actionState}`,
+      ],
+      nextAction: lane.nextAction,
+    }));
+}
+
 function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, head: string): CurrentBetaExitStatusReport {
   const beta = readJson("agent/state/public-beta-score.generated.json");
   const evidenceCapture = readEvidenceCaptureStatus();
@@ -710,23 +738,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     }),
     proofLanes,
   } satisfies CurrentBetaExitStatusReport["summary"];
-  const remainingBlockers = [
-    ...report.remainingBlockers.filter((blocker) => !legacyUiVisualBlockerIds.has(blocker.id) && !/screenshot/iu.test(blocker.id)),
-    ...(clearingStatusPassed("uiSurfaceCoverage", summary.visualEvidenceStatus) ? [] : [{
-      id: "ui-surface-coverage",
-      severity: "P1" as const,
-      status: summary.visualEvidenceStatus,
-      evidence: [uiSurfaceCoverageRelativePath],
-      nextAction: "Run deterministic UI source coverage and device UI source checks; fix source-reported UI gaps before optional browser reproduction.",
-    }]),
-    ...(summary.providerSmokeStatus === "formal_provider_smoke_passed" ? [] : [{
-      id: "provider-smoke",
-      severity: "P1" as const,
-      status: summary.providerSmokeStatus,
-      evidence: ["agent/state/provider-smoke-evidence.generated.json"],
-      nextAction: "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate.",
-    }]),
-  ];
+  const remainingBlockers = remainingBlockersFromProofLanes(proofLanes);
   const refreshPlan = refreshPlanWithCurrentArtifactVersions({
     refreshPlan: report.refreshPlan,
     head,
@@ -894,6 +906,23 @@ export function validateCurrentBetaExitStatusReport(
     }
     if (lane.truthState === "current_source_evidence" && !clearingStatusPassed(lane.id, lane.sourceStatus)) {
       failures.push(`${lane.id} current_source_evidence must come from a clearing source status.`);
+    }
+  }
+  const expectedBlockerIds = new Set<string>(
+    proofLanes.filter((lane) => lane.canClearGate !== true).map((lane) => lane.id),
+  );
+  const remainingBlockerIds = new Set((report.remainingBlockers ?? []).map((blocker) => blocker.id));
+  for (const blocker of report.remainingBlockers ?? []) {
+    if (legacyProofBlockerIds.has(blocker.id) || /screenshot/iu.test(blocker.id)) {
+      failures.push("remainingBlockers must be derived from typed proof lane ids, not legacy smoke/screenshot aliases.");
+    }
+    if (!expectedBlockerIds.has(blocker.id)) {
+      failures.push(`${blocker.id} remaining blocker is not backed by a non-clearing proof lane.`);
+    }
+  }
+  for (const id of expectedBlockerIds) {
+    if (!remainingBlockerIds.has(id)) {
+      failures.push(`${id} proof lane needs a matching remaining blocker.`);
     }
   }
   const legacySummary = report.summary as Record<string, unknown>;

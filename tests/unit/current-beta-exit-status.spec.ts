@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  remainingBlockersFromProofLanes,
   refreshPlanWithCurrentArtifactVersions,
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitProofLane,
@@ -208,10 +209,12 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
     ...overrides.summary,
   };
   const proofLanes = overrides.summary?.proofLanes ?? proofLanesFor(summary);
+  const remainingBlockers = overrides.remainingBlockers ?? remainingBlockersFromProofLanes(proofLanes);
 
   return {
     ...report,
     ...overrides,
+    remainingBlockers,
     summary: {
       ...summary,
       proofLanes,
@@ -268,6 +271,22 @@ describe("current beta exit status validator", () => {
     const report = reportFixture();
 
     expect(report.summary.proofLanes.find((lane) => lane.id === "uiSurfaceCoverage")?.actionState).toBe("gate_cleared");
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
+  });
+
+  it("derives remaining blockers from non-clearing typed proof lanes", () => {
+    const report = reportFixture();
+
+    expect(report.remainingBlockers.map((blocker) => blocker.id)).toEqual([
+      "providerSmoke",
+      "runtimeSmoke",
+      "adminTruthSample",
+    ]);
+    expect(report.remainingBlockers.map((blocker) => blocker.status)).toEqual([
+      "external_evidence_required",
+      "external_evidence_required",
+      "admin_truth_source_required",
+    ]);
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
   });
 

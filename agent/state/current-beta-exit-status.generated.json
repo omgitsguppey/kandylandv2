@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T00:19:07.980Z",
+  "generatedAtUtc": "2026-07-03T00:24:00.538Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "currentHead": "70b9d9605cdf95526965bf483217089ec3ce4d73",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 82.79,
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-03T00:19:07.980Z",
+      "generatedAtUtc": "2026-07-03T00:24:00.538Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -390,49 +390,37 @@
   ],
   "remainingBlockers": [
     {
-      "id": "provider_smoke_evidence_missing",
+      "id": "providerSmoke",
       "severity": "P1",
       "status": "external_evidence_required",
       "evidence": [
-        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=5"
+        "agent/state/provider-smoke-evidence.generated.json",
+        "sourceStatus=stale_provider_smoke_evidence",
+        "actionState=refresh_stale_evidence"
       ],
-      "nextAction": "Attach redacted provider-backed site activity evidence; source checks cannot create provider-backed source activity."
+      "nextAction": "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
     },
     {
-      "id": "runtime_smoke_evidence_stale",
+      "id": "runtimeSmoke",
       "severity": "P1",
       "status": "stale_evidence",
       "evidence": [
-        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=5"
+        "agent/state/runtime-smoke-evidence.generated.json",
+        "sourceStatus=stale_runtime_smoke_evidence",
+        "actionState=refresh_stale_evidence"
       ],
-      "nextAction": "Attach deployed route evidence for required user and creator routes."
+      "nextAction": "Produce or refresh deployed route evidence for the current code version."
     },
     {
-      "id": "admin_truth_sample_evidence_missing",
+      "id": "adminTruthSample",
       "severity": "P1",
       "status": "admin_truth_source_required",
       "evidence": [
-        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=5"
+        "agent/state/admin-truth-sample-evidence.generated.json",
+        "sourceStatus=stale_admin_truth_sample_evidence",
+        "actionState=refresh_stale_evidence"
       ],
-      "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
-    },
-    {
-      "id": "speed_security_owner_review_backlog",
-      "severity": "P2",
-      "status": "owner_review",
-      "evidence": [
-        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=5"
-      ],
-      "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
-    },
-    {
-      "id": "provider-smoke",
-      "severity": "P1",
-      "status": "stale_provider_smoke_evidence",
-      "evidence": [
-        "agent/state/provider-smoke-evidence.generated.json"
-      ],
-      "nextAction": "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
+      "nextAction": "Produce or refresh a redacted admin source activity sample for the current code version."
     }
   ],
   "deferredOwnerReview": [
