@@ -367,6 +367,45 @@ describe("public beta scoring math", () => {
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);
     });
 
+    it("classifies provider-required live evidence as an external provider source artifact", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: {
+                    ...missingProviderSmokeEvidence,
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+                runtimeSmokeEvidence: {
+                    ...freshEvidence.runtimeSmokeEvidence,
+                    status: "formal_runtime_smoke_passed",
+                    evidence: [
+                        "runtimeArtifactStatus=formal_runtime_smoke_passed",
+                        "runtimeDeploymentSmokePassed=true",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+                sourceBackedRuntimeConfidenceEvidence: {
+                    path: "agent/state/live-evidence-gate-replacement.generated.json",
+                    status: "source_ready_waiting_for_activity",
+                    passed: false,
+                    detail: "Live runtime evidence bridge is wired, but provider-backed lanes still require provider artifacts.",
+                    evidence: [
+                        "liveRuntimeEvidence.providerRequired=2",
+                        "liveRuntimeEvidence.blockedSiteActivityLanes=0",
+                        "liveRuntimeEvidence.firstPartySiteActivityConfirmed=0",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).toBe("External proof required");
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);
+    });
+
     it("does not call stale deployed route evidence current from raw pass fields", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
@@ -975,7 +1014,7 @@ describe("public beta scoring math", () => {
         });
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
-        expect(smokeGate?.status).toBe("Source evidence required");
+        expect(smokeGate?.status).toBe("External proof required");
         expect(smokeGate?.blocksLaunch).toBe(true);
         expect(report.launchBlockers.join("\n")).toContain("Provider-backed source activity evidence");
     });

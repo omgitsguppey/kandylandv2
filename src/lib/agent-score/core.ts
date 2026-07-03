@@ -621,6 +621,10 @@ function sourceActivityClearsProviderLane(artifact: PublicBetaEvidenceArtifact |
     && evidenceArtifactEvidence(artifact).some((line) => line.includes("launchGateImpact=site_activity_can_clear_connected_site_activity_lanes"));
 }
 
+function sourceActivityStillRequiresProviderArtifact(artifact: PublicBetaEvidenceArtifact | undefined) {
+  return (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.providerRequired") ?? 0) > 0;
+}
+
 function hasDebugEvidence(debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>) {
   if (!debugEvidence) return false;
   for (const entries of Object.values(debugEvidence)) {
@@ -1026,6 +1030,7 @@ export function buildPublicBetaEvidenceGates(input: {
   const providerSmokeStatus = String(evidenceArtifactStatus(evidence.providerSmokeEvidence));
   const runtimeSmokeStatus = String(evidenceArtifactStatus(evidence.runtimeSmokeEvidence, "runtime_unverified"));
   const providerLaneSatisfiedBySourceActivity = sourceActivityClearsProviderLane(evidence.sourceBackedRuntimeConfidenceEvidence);
+  const providerLaneRequiresExternalArtifact = sourceActivityStillRequiresProviderArtifact(evidence.sourceBackedRuntimeConfidenceEvidence);
   const runtimeProviderSmokePassed = (providerSmokePassed || providerLaneSatisfiedBySourceActivity) && runtimeSmokePassed;
   const providerActivityEvidenceRequired = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
   const runtimeRouteEvidenceRequired = /runtime_unverified|missing_formal_evidence|tracked_not_passing|missing_or_unknown/iu.test(runtimeSmokeStatus);
@@ -1038,6 +1043,8 @@ export function buildPublicBetaEvidenceGates(input: {
     runtimeProviderSmokeStatus = "Ready";
   } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
     runtimeProviderSmokeStatus = "Needs review";
+  } else if (providerActivityEvidenceRequired && providerLaneRequiresExternalArtifact && !providerLaneSatisfiedBySourceActivity) {
+    runtimeProviderSmokeStatus = "External proof required";
   } else if ((providerActivityEvidenceRequired && !providerLaneSatisfiedBySourceActivity) || runtimeRouteEvidenceRequired) {
     runtimeProviderSmokeStatus = "Source evidence required";
   } else if (
