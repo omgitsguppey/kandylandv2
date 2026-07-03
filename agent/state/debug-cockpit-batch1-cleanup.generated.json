@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-07-03T07:40:27.534Z",
-  "currentHead": "4594cdeb043d558e6ccf2fcfdb2c66d3ac44b400",
+  "generatedAtUtc": "2026-07-03T07:41:31.909Z",
+  "currentHead": "ee7f89bd358e4ea71c1adef3df1f7552513b2855",
   "scoreBefore": {
     "sourceHealth": 98.6,
     "runtimeHealth": 78.76,
@@ -227,23 +227,6 @@
     }
   ],
   "openPrsAfter": [],
-  "dirtyFiles": [
-    {
-      "path": "gent/state/codex-visual-gate-removal.generated.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/formal-gate-classifier.ts",
-      "classification": "debug_cockpit_misclassification_to_fix"
-    },
-    {
-      "path": "tests/unit/codex-visual-gate-removal.spec.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/debug-cockpit-batch1-cleanup.spec.ts",
-      "classification": "current_generated_artifact_to_commit"
-    }
-  ],
+  "dirtyFiles": [],
   "validationFailures": []
 }
