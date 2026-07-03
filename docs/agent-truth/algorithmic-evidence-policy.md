@@ -6,7 +6,7 @@ Deterministic UI surface coverage is source-owned. Screenshots are optional foll
 
 ## Coverage
 
-- runtime_source_gate: partial; score=73.45; source=`agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; source-backed runtime confidence improves runtime health but does not clear deployed route evidence
+- runtime_source_gate: partial; score=75.56; source=`agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; source-backed runtime confidence improves runtime health but does not clear deployed route evidence
 - telemetry_gate: partial; score=73.45; source=`agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence
 - admin_truth_gate: partial; score=54; source=`agent/state/admin-truth-source-sample.generated.json`; admin source sample earns partial confidence; clearing needs a matching source activity sample
 - provider_gate: partial; score=40; source=`agent/state/operator-revenue-smoke.generated.json`; operator-confirmed revenue smoke is partial product confidence only

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T00:18:18.314Z",
+  "generatedAtUtc": "2026-07-03T08:06:11.300Z",
   "reportKey": "cloud-sql-gemini-cost-guards",
-  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "currentHead": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
   "summary": {
     "cloudSqlRuntimeDetected": false,
     "cloudSqlExternalBillingObserved": true,

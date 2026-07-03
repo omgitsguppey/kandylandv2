@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T00:18:06.303Z",
+  "generatedAtUtc": "2026-07-03T08:04:50.249Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "currentHead": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -22,10 +22,10 @@
   "sourceConfidenceStatus": {
     "runtimeConfidenceScore": 0,
     "realUsageConfidenceScore": 73.45,
-    "realUsageObservedActivityScore": 73.45,
+    "realUsageObservedActivityScore": 0,
     "adminSourceConfidenceScore": 0,
     "debugRuntimeConfidenceScore": 100,
-    "runtimeSubstituteEvidenceScore": 73.45
+    "runtimeSubstituteEvidenceScore": 75.56
   },
   "operatorSignalStatus": {
     "operatorConfirmedRevenue": true,
@@ -89,21 +89,21 @@
   ],
   "scoreBefore": {
     "sourceHealth": 98.6,
-    "runtimeHealth": 69.49,
-    "evidenceCompleteness": 81.8,
+    "runtimeHealth": 78.76,
+    "evidenceCompleteness": 89.29,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 80.57
+    "overallHealthScore": 85.23
   },
   "scoreAfter": {
     "sourceHealth": 98.6,
-    "runtimeHealth": 69.49,
-    "evidenceCompleteness": 81.8,
+    "runtimeHealth": 78.76,
+    "evidenceCompleteness": 89.29,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 80.57
+    "overallHealthScore": 85.23
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime route evidence.",

@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-07-03T00:18:06.886Z",
+  "generatedAtUtc": "2026-07-03T08:04:50.223Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "uiSurfaceCoverageScope": {
@@ -20,7 +20,7 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 60.15,
+      "score": 60.5,
       "note": "UI source coverage is the default readiness evidence; optional browser reproduction must follow a source-reported UI issue and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
@@ -28,7 +28,7 @@
     "category": "runtime_source_gate",
     "label": "Runtime source confidence",
     "confidence": "partial",
-    "score": 73.45,
+    "score": 75.56,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
     "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
@@ -90,7 +90,7 @@
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 60.15,
+  "nonUiAlgorithmicCoverageScore": 60.5,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
     "deployedRuntimeSmokeCleared": false,
@@ -107,7 +107,7 @@
       "category": "runtime_source_gate",
       "label": "Runtime source confidence",
       "confidence": "partial",
-      "score": 73.45,
+      "score": 75.56,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
       "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
@@ -171,14 +171,14 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "currentHead": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
   "scoreProbe": {
-    "runtimeHealthScore": 76.18,
-    "evidenceCompletenessScore": 65.4,
+    "runtimeHealthScore": 61.91,
+    "evidenceCompletenessScore": 50.8,
     "readinessStatus": "Source evidence required",
     "launchBlockers": [
-      "Provider-backed site activity evidence: Source evidence required",
-      "Admin source activity sample evidence: Source evidence required",
+      "Provider-backed source activity evidence: Source evidence required",
+      "Admin source activity evidence: Source evidence required",
       "Report freshness and PR integrity: Source evidence required"
     ]
   }

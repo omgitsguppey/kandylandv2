@@ -223,7 +223,9 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     ? realUsageConfidenceScore
     : 0;
   const runtimeSubstituteEvidenceScore =
-    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeProviderActivityCredit") ?? 0;
+    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeHealthCredit")
+    ?? evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeProviderActivityCredit")
+    ?? 0;
   const debugRuntimeConfidenceScore = evidenceArtifactNumericValue(artifacts.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
     ?? (evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? 55 : 0);
   const adminSourceConfidenceScore = sourceBackedAdminConfidence(artifacts.adminSourceSample, adminFormal);

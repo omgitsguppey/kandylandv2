@@ -1,22 +1,22 @@
 # Score 80 Cost Readiness
 
-Generated: 2026-07-03T00:18:45.135Z
+Generated: 2026-07-03T08:07:38.072Z
 
-Latest code version: 37e4ab766f919aae9fb025f4aedeb5a50c614da8
+Latest code version: 0850232cc31d60c786ea8dcf6c64c44607aa19a5
 
 ## Summary
 
-- Cost risk score: 79.5
+- Cost risk score: 92.5
 - Latest cost locks preferred: true
 - External owner review still required: true
 - Stale creator dashboard inventory ignored: true
-- Explanation: Cost risk score 79.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.
+- Explanation: Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.
 
 ## Cost Lanes
 
 | Lane | Status | Detail |
 | --- | --- | --- |
-| cloudRunCostReadiness | cost_review_required | Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined. |
+| cloudRunCostReadiness | source_guarded_external_review_remaining | Cloud Run/App Hosting has source guard coverage; deployed billing review remains external. |
 | cloudSqlCostReadiness | source_ready_no_runtime_usage_detected | Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review. |
 | geminiCloudAssistCostReadiness | source_guarded_external_review_remaining | AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review. |
 | route4xxReadiness | source_ready_retry_storm_guarded | Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review. |
@@ -26,7 +26,7 @@ Latest code version: 37e4ab766f919aae9fb025f4aedeb5a50c614da8
 | Command | Status | Artifact | Detail |
 | --- | --- | --- | --- |
 | npm run check:final-cost-audit-lock | pass | agent/state/final-cost-audit-lock.generated.json | Current final cost lock is available. |
-| npm run check:cost-risk-exit-pass | pass | agent/state/cost-risk-exit-pass.generated.json | Current cost risk exit pass is available. |
+| npm run check:cost-risk-exit-pass | failed_or_not_run | agent/state/cost-risk-exit-pass.generated.json | Cost risk exit pass is missing or stale. |
 | npm run check:cost-risk-owner-review-closure | pass | agent/state/cost-risk-owner-review-closure.generated.json | Current cost risk owner-review closure is available. |
 | npm run check:cost-owner-review-source-closure | pass | agent/state/cost-owner-review-source-closure.generated.json | Current cost owner-review source closure is available. |
 | npm run check:cloud-sql-gemini-cost-guards | pass | agent/state/cloud-sql-gemini-cost-guards.generated.json | Current Cloud SQL/Gemini guard report is available. |

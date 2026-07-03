@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T00:18:31.658Z",
+  "generatedAtUtc": "2026-07-03T08:06:33.783Z",
   "reportKey": "cost-risk-owner-review-closure",
-  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "currentHead": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -283,21 +283,21 @@
   "ownerReviewLaneCount": 5,
   "scoreBefore": {
     "sourceHealth": 98.6,
-    "runtimeHealth": 69.49,
-    "evidenceCompleteness": 81.8,
+    "runtimeHealth": 78.76,
+    "evidenceCompleteness": 89.29,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 80.57
+    "overallHealthScore": 85.23
   },
   "scoreAfter": {
     "sourceHealth": 98.6,
-    "runtimeHealth": 69.49,
-    "evidenceCompleteness": 81.8,
+    "runtimeHealth": 78.76,
+    "evidenceCompleteness": 89.29,
     "freshness": 91.88,
     "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 87.78
+    "overallHealthScore": 92.44
   },
   "dirtyFilesClassification": [
     {
@@ -321,21 +321,6 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "agent/state/cost-risk-exit-pass.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "status": " M",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "agent/state/final-cost-audit-lock.generated.json",
       "status": " M",
       "classification": "real_source_change_needs_review"
@@ -354,11 +339,6 @@
       "path": "agent/state/public-beta-score.generated.json",
       "status": " M",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/real-usage-confidence-calibration.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
@@ -391,16 +371,6 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "docs/agent-truth/cost-risk-exit-pass.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "status": " M",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/final-cost-audit-lock.md",
       "status": " M",
       "classification": "real_source_change_needs_review"
@@ -422,6 +392,46 @@
     },
     {
       "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "status": " M",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
+      "status": " M",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "status": " M",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "status": " M",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/runtime/runtime-smoke-substitute-matrix.ts",
+      "status": " M",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/algorithmic-evidence-policy.spec.ts",
+      "status": " M",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/formal-evidence-bridge.spec.ts",
+      "status": " M",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/public-beta-score.spec.ts",
+      "status": " M",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/runtime-smoke-substitute-matrix.spec.ts",
       "status": " M",
       "classification": "real_source_change_needs_review"
     }

@@ -1,7 +1,7 @@
 # Final Cost Audit Lock
 
-Generated: 2026-07-03T00:18:17.967Z
-Current head: 37e4ab766f919aae9fb025f4aedeb5a50c614da8
+Generated: 2026-07-03T08:06:11.138Z
+Current head: 0850232cc31d60c786ea8dcf6c64c44607aa19a5
 
 ## Summary
 
@@ -19,7 +19,7 @@ Current head: 37e4ab766f919aae9fb025f4aedeb5a50c614da8
 - Route 4xx: source_inventory_complete
 - Open PR count: 0
 - Working tree clean at report generation: false
-- Beta score/status: 82.79/Source evidence required
+- Beta score/status: 77.66/External proof required
 - Beta exit review ready: false
 
 ## Audit Item Coverage

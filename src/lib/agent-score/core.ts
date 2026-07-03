@@ -1147,11 +1147,16 @@ export function buildPublicBetaEvidenceGates(input: {
     realUsageObservedActivityCredit,
     runtimeSmokeSubstituteMatrixActivityCredit,
   );
+  const deployedRuntimeRouteCredit = runtimeSmokePassed
+    ? runtimeQuality.partialCredit * 100
+    : 0;
   const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
     ? 100
-    : runtimeProviderSourceActivityCredit;
+    : Math.max(runtimeProviderSourceActivityCredit, deployedRuntimeRouteCredit);
   const runtimeProviderEvidenceWithSourceConfidence = Array.from(new Set([
     ...runtimeProviderSmokeEvidence,
+    `deployedRuntimeRouteCredit=${roundScore(deployedRuntimeRouteCredit)}`,
+    `providerBackedSourceActivityCredit=${roundScore(runtimeProviderSourceActivityCredit)}`,
     ...(
       evidence.sourceBackedRuntimeConfidenceEvidence
         ? [

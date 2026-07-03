@@ -1,8 +1,8 @@
 {
   "reportKey": "runtime-smoke-substitute-matrix",
-  "generatedAtUtc": "2026-07-03T00:18:06.331Z",
-  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
-  "sourceCommit": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "generatedAtUtc": "2026-07-03T08:04:50.053Z",
+  "currentHead": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
+  "sourceCommit": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
   "status": "source_ready_runtime_smoke_substitute_matrix",
   "productionReadsRequired": false,
   "deployRequired": false,
@@ -112,11 +112,10 @@
       "lane": "purchase",
       "sourceCredit": 92,
       "nextAction": "Attach provider-backed refill evidence and deployed route evidence before clearing protected source-evidence lanes.",
-      "currentProofLevel": "operator_confirmed",
+      "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
         "telemetry",
-        "operator",
         "formal_runtime"
       ],
       "scoreImpactEstimate": 92
@@ -528,21 +527,21 @@
     "watch_time_runtime_source"
   ],
   "currentProofSummary": {
-    "sourceProvenRows": 11,
+    "sourceProvenRows": 12,
     "telemetryProvenRows": 7,
     "debugProvenRows": 0,
     "formalRuntimeRequiredRows": 10
   },
-  "realUsageObservedSignals": 6,
-  "realUsageObservedActivityCredit": 73.45,
+  "realUsageObservedSignals": 0,
+  "realUsageObservedActivityCredit": 0,
   "matrixRuntimeHealthCredit": 75.56,
-  "matrixRuntimeProviderActivityCredit": 73.45,
+  "matrixRuntimeProviderActivityCredit": 0,
   "matrixEvidenceCompletenessCredit": 70.17,
   "evidence": [
     "matrixRuntimeHealthCredit=75.56",
-    "matrixRuntimeProviderActivityCredit=73.45",
-    "realUsageObservedSignals=6",
-    "realUsageObservedActivityCredit=73.45",
+    "matrixRuntimeProviderActivityCredit=0",
+    "realUsageObservedSignals=0",
+    "realUsageObservedActivityCredit=0",
     "matrixEvidenceCompletenessCredit=70.17",
     "formalRuntimeRequiredRows=10",
     "deployedRuntimeSmokeStillRequired=true",

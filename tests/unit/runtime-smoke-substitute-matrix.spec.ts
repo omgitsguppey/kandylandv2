@@ -119,7 +119,7 @@ describe("runtime smoke substitute matrix", () => {
     expect(report.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
   });
 
-  it("counts calibrated verified activity without counting generic calibration-only confidence", () => {
+  it("does not count source-ready activity verification as observed runtime/provider activity", () => {
     const report = buildRuntimeSmokeSubstituteMatrix({
       currentHead: "abc123",
       generatedAtUtc: "2026-05-21T12:00:00.000Z",
@@ -139,10 +139,10 @@ describe("runtime smoke substitute matrix", () => {
       },
     });
 
-    expect(report.matrixRuntimeProviderActivityCredit).toBeGreaterThan(0);
-    expect(report.matrixRuntimeProviderActivityCredit).toBeLessThanOrEqual(report.matrixRuntimeHealthCredit);
-    expect(report.evidence.join("\n")).toContain("realUsageObservedSignals=3");
-    expect(report.evidence.join("\n")).toContain("realUsageObservedActivityCredit=95");
+    expect(report.matrixRuntimeHealthCredit).toBe(0);
+    expect(report.matrixRuntimeProviderActivityCredit).toBe(0);
+    expect(report.evidence.join("\n")).toContain("realUsageObservedSignals=0");
+    expect(report.evidence.join("\n")).toContain("realUsageObservedActivityCredit=0");
     expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
   });
 

@@ -132,7 +132,7 @@ describe("algorithmic evidence policy", () => {
     expect(report.coverage.every((item) => item.distinction.length > 0)).toBe(true);
   });
 
-  it("keeps real-usage calibration out of runtime credit when observed activity is missing", () => {
+  it("uses runtime substitute source health without treating missing activity as observed", () => {
     const report = buildAlgorithmicEvidencePolicyReport({
       realUsageConfidenceEvidence: realUsageConfidence,
       realUsageConfidenceCalibrationEvidence: realUsageCalibration,
@@ -142,8 +142,9 @@ describe("algorithmic evidence policy", () => {
     });
 
     expect(report.telemetryConfidence.score).toBe(95);
-    expect(report.runtimeSourceConfidence.score).toBe(0);
-    expect(report.runtimeSourceConfidence.confidence).toBe("missing");
+    expect(report.runtimeSourceConfidence.score).toBe(95);
+    expect(report.runtimeSourceConfidence.confidence).toBe("partial");
+    expect(report.runtimeSourceConfidence.distinction).toContain("does not clear deployed route evidence");
     expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
   });
 

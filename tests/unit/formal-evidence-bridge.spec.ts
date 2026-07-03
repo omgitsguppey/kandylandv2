@@ -120,7 +120,7 @@ describe("source evidence bridge", () => {
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
   });
 
-  it("does not turn real-usage confidence into runtime credit without observed site activity", () => {
+  it("uses runtime substitute source health without treating real-usage confidence as observed activity", () => {
     const report = buildFormalEvidenceBridgeReport({
       generatedAtUtc: "2026-05-24T00:00:00.000Z",
       currentHead: "head",
@@ -153,9 +153,10 @@ describe("source evidence bridge", () => {
 
     expect(report.sourceConfidenceStatus.realUsageConfidenceScore).toBe(95);
     expect(report.sourceConfidenceStatus.realUsageObservedActivityScore).toBe(0);
-    expect(report.sourceConfidenceStatus.runtimeSubstituteEvidenceScore).toBe(0);
-    expect(report.gates.runtimeProviderSmoke.evidenceCredit).toBe(0);
-    expect(report.gates.runtimeProviderSmoke.runtimeCredit).toBe(0);
+    expect(report.sourceConfidenceStatus.runtimeSubstituteEvidenceScore).toBe(95);
+    expect(report.gates.runtimeProviderSmoke.evidenceCredit).toBe(78);
+    expect(report.gates.runtimeProviderSmoke.runtimeCredit).toBe(95);
+    expect(report.gates.runtimeProviderSmoke.formalGateCleared).toBe(false);
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
   });
 

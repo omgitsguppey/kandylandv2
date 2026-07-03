@@ -1,8 +1,8 @@
 # Cost Risk Owner-Review Closure
 
-Generated: 2026-07-03T00:18:31.658Z
+Generated: 2026-07-03T08:06:33.783Z
 
-Current head: 37e4ab766f919aae9fb025f4aedeb5a50c614da8
+Current head: 0850232cc31d60c786ea8dcf6c64c44607aa19a5
 
 Status: pass
 
@@ -19,12 +19,12 @@ Status: pass
 | Dimension | Before | After |
 | --- | ---: | ---: |
 | sourceHealth | 98.6 | 98.6 |
-| runtimeHealth | 69.49 | 69.49 |
-| evidenceCompleteness | 81.8 | 81.8 |
+| runtimeHealth | 78.76 | 78.76 |
+| evidenceCompleteness | 89.29 | 89.29 |
 | freshness | 91.88 | 91.88 |
 | costRisk | 42 | 92.5 |
 | regressionRisk | 94 | 94 |
-| overallHealthScore | 80.57 | 87.78 |
+| overallHealthScore | 85.23 | 92.44 |
 
 ## Cost Lanes
 
@@ -45,27 +45,29 @@ Status: pass
 -  M agent/state/analytics-cost-runtime-inventory.generated.json: real_source_change_needs_review
 -  M agent/state/cloud-sql-gemini-cost-guards.generated.json: real_source_change_needs_review
 -  M agent/state/cost-owner-review-source-closure.generated.json: real_source_change_needs_review
--  M agent/state/cost-risk-exit-pass.generated.json: real_source_change_needs_review
--  M agent/state/cost-risk-owner-review-closure.generated.json: current_generated_artifact_to_commit
--  M agent/state/current-beta-exit-status.generated.json: real_source_change_needs_review
 -  M agent/state/final-cost-audit-lock.generated.json: real_source_change_needs_review
 -  M agent/state/final-telemetry-closure-lock.generated.json: real_source_change_needs_review
 -  M agent/state/formal-evidence-bridge.generated.json: real_source_change_needs_review
 -  M agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
--  M agent/state/real-usage-confidence-calibration.generated.json: real_source_change_needs_review
 -  M agent/state/runtime-smoke-substitute-matrix.generated.json: real_source_change_needs_review
 -  M agent/state/score-80-cost-readiness.generated.json: stale_generated_artifact_to_regenerate
 -  M docs/agent-truth/algorithmic-evidence-policy.md: real_source_change_needs_review
 -  M docs/agent-truth/analytics-cost-runtime-inventory.md: real_source_change_needs_review
 -  M docs/agent-truth/cloud-sql-gemini-cost-guards.md: real_source_change_needs_review
 -  M docs/agent-truth/cost-owner-review-source-closure.md: real_source_change_needs_review
--  M docs/agent-truth/cost-risk-exit-pass.md: real_source_change_needs_review
--  M docs/agent-truth/cost-risk-owner-review-closure.md: release_artifact_expected
 -  M docs/agent-truth/final-cost-audit-lock.md: real_source_change_needs_review
 -  M docs/agent-truth/final-telemetry-closure-lock.md: real_source_change_needs_review
 -  M docs/agent-truth/formal-evidence-bridge.md: real_source_change_needs_review
 -  M docs/agent-truth/runtime-smoke-substitute-matrix.md: real_source_change_needs_review
 -  M docs/agent-truth/score-80-cost-readiness.md: real_source_change_needs_review
+-  M src/lib/agent-score/algorithmic-evidence-policy.ts: real_source_change_needs_review
+-  M src/lib/agent-score/core.ts: real_source_change_needs_review
+-  M src/lib/agent-score/formal-evidence-bridge.ts: real_source_change_needs_review
+-  M src/lib/runtime/runtime-smoke-substitute-matrix.ts: real_source_change_needs_review
+-  M tests/unit/algorithmic-evidence-policy.spec.ts: real_source_change_needs_review
+-  M tests/unit/formal-evidence-bridge.spec.ts: real_source_change_needs_review
+-  M tests/unit/public-beta-score.spec.ts: release_artifact_expected
+-  M tests/unit/runtime-smoke-substitute-matrix.spec.ts: real_source_change_needs_review
 
 ## Boundary
 

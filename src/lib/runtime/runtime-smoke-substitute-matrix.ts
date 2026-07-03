@@ -468,11 +468,7 @@ function sourceReady(input: RuntimeSmokeSubstituteInput) {
 }
 
 function realUsageObservedSignals(input: RuntimeSmokeSubstituteInput) {
-  return Math.max(
-    0,
-    input.realUsageConfidence?.observedSignals ?? 0,
-    input.realUsageConfidenceCalibration?.verifiedByActivity ?? 0,
-  );
+  return Math.max(0, input.realUsageConfidence?.observedSignals ?? 0);
 }
 
 function realUsageObservedActivityCredit(input: RuntimeSmokeSubstituteInput) {
