@@ -79,7 +79,17 @@ describe("beta freshness language", () => {
         "Runtime/provider smoke: Provider smoke: Payment context recorded. Runtime smoke: Keep deployed runtime smoke fresh. Attach provider smoke evidence.",
       ),
     ).toBe(
-      "provider-backed site activity + deployed route evidence: Provider-backed site activity: Payment context recorded. Deployed route evidence: Keep deployed runtime route evidence fresh. Produce provider-backed site activity evidence.",
+      "provider-backed source activity + deployed route evidence: Provider-backed source activity: Payment context recorded. Deployed route evidence: Keep deployed runtime route evidence fresh. Produce provider-backed source activity evidence.",
+    );
+  });
+
+  it("keeps generic formal proof wording typed instead of flattening it to source evidence", () => {
+    expect(
+      normalizeTechnicalFreshnessTerms(
+        "Formal evidence gates need formal proof; formal launch proof is not source-only.",
+      ),
+    ).toBe(
+      "typed evidence lanes need typed evidence artifact; typed launch evidence artifact is not source-only.",
     );
   });
 
