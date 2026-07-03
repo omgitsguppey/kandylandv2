@@ -448,6 +448,14 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
 }
 
 function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
+  const statusPrefix = gate.status === "Source evidence required"
+    ? gate.id === "runtimeProviderSmoke"
+      ? "Source activity evidence required"
+      : gate.id === "adminTruthSamples"
+        ? "Admin source activity sample required"
+        : gate.status
+    : gate.status;
+
   if (gate.id === "targetedBehaviorTests") {
     if (gate.status === "Source validation only") {
       const targetedArtifactMissing = gate.evidence.some((entry) => /targetedBehaviorArtifactStatus=missing_formal_evidence/iu.test(entry));
@@ -469,12 +477,12 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
     const runtimeCurrent = /runtimeArtifactStatus=(passed|formal_runtime_smoke_passed)|runtimeDeploymentSmokePassed=true|readinessImpact\.runtimeGatePassed=true/iu.test(evidenceText);
     if (gate.status === "External proof required" || gate.status === "Source evidence required") {
       if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
-        return `${gate.status}: ${gate.label} - Refresh provider-backed source activity and deployed runtime route evidence.`;
+        return `${statusPrefix}: ${gate.label} - Refresh provider-backed source activity and deployed runtime route evidence.`;
       }
       if (providerMissing && runtimeCurrent) {
-        return `${gate.status}: ${gate.label} - Produce provider-backed source activity evidence; deployed runtime route evidence is current.`;
+        return `${statusPrefix}: ${gate.label} - Produce provider-backed source activity evidence; deployed runtime route evidence is current.`;
       }
-      return `${gate.status}: ${gate.label} - Produce provider-backed source activity and keep deployed runtime route evidence current.`;
+      return `${statusPrefix}: ${gate.label} - Produce provider-backed source activity and keep deployed runtime route evidence current.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh provider-backed source activity and deployed runtime route evidence.`;
@@ -487,9 +495,9 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "adminTruthSamples") {
     if (gate.status === "External proof required" || gate.status === "Source evidence required" || gate.status === "Unknown evidence") {
       if ((gate.status === "External proof required" || gate.status === "Source evidence required") && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
-        return `${gate.status}: ${gate.label} - Refresh redacted admin source activity evidence.`;
+        return `${statusPrefix}: ${gate.label} - Refresh redacted admin source activity evidence.`;
       }
-      return `${gate.status}: ${gate.label} - Produce redacted admin source activity evidence.`;
+      return `${statusPrefix}: ${gate.label} - Produce redacted admin source activity evidence.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh redacted admin source activity evidence.`;
@@ -531,9 +539,15 @@ function readinessStatusToSourceEvidencePhrase(status: PublicBetaReadinessStatus
 function summarizeEvidenceCapTitle(gate: PublicBetaEvidenceGate) {
   const phrase = readinessStatusToSourceEvidencePhrase(gate.status);
   if (gate.id === "runtimeProviderSmoke") {
+    if (gate.status === "Source evidence required") {
+      return `${gate.label}: source activity evidence required`;
+    }
     return `${gate.label}: ${phrase}`;
   }
   if (gate.id === "adminTruthSamples") {
+    if (gate.status === "Source evidence required") {
+      return "Admin source activity: sample required";
+    }
     return `Admin source activity: ${phrase}`;
   }
   if (gate.id === "targetedBehaviorTests") {
@@ -2028,6 +2042,12 @@ export function buildPublicBetaScoreReport(
     `nonEventScorePenaltyCount=${nonEventScorePolicy.nonEventScorePenaltyCount}`,
     launchBlockers.length > 0 ? `launchBlockers=${launchBlockers.length}` : "launchGates=clear",
   ];
+  const readinessDisplayStatus = evidenceReadiness.readinessStatus === "Source evidence required"
+    && evidenceReadiness.evidenceCapsApplied.some((cap) => (
+      /source activity evidence required|sample required/iu.test(cap)
+    ))
+    ? "Source activity evidence required"
+    : evidenceReadiness.readinessStatus;
   const studioDashboard = buildStudioDashboard({
     sourceHealthScore,
     runtimeHealthScore,
@@ -2107,6 +2127,6 @@ export function buildPublicBetaScoreReport(
     recommendedNextActions: options.recommendedNextActions ?? [],
     minimalVerificationCommands: options.minimalVerificationCommands ?? [],
     commandBudget: options.commandBudget,
-    summary: `Public beta readiness score ${overallScore}/100 (${evidenceReadiness.readinessStatus}; scanner ${scannerScore}/100 ${scannerStatus}) with ${findings.length} deduped finding(s), ${safeAutofixesAvailable} safe autofix(es), and ${evidenceReadiness.evidenceCapsApplied.length} evidence cap(s) applied.`,
+    summary: `Public beta readiness score ${overallScore}/100 (${readinessDisplayStatus}; scanner ${scannerScore}/100 ${scannerStatus}) with ${findings.length} deduped finding(s), ${safeAutofixesAvailable} safe autofix(es), and ${evidenceReadiness.evidenceCapsApplied.length} evidence cap(s) applied.`,
   };
 }

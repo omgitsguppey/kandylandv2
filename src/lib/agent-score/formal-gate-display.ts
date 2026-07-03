@@ -162,7 +162,7 @@ export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[])
   const refreshCount = displays.filter((entry) => entry.state === "refresh_due").length;
   const reviewCount = displays.filter((entry) => entry.state === "review").length;
   const summary = [
-    typedEvidenceCount ? `${typedEvidenceCount} source evidence gate${typedEvidenceCount === 1 ? "" : "s"}` : null,
+    typedEvidenceCount ? `${typedEvidenceCount} typed source-activity gate${typedEvidenceCount === 1 ? "" : "s"}` : null,
     refreshCount ? `${refreshCount} refresh item${refreshCount === 1 ? "" : "s"}` : null,
     sourceOnlyCount ? `${sourceOnlyCount} source check${sourceOnlyCount === 1 ? "" : "s"}` : null,
     reviewCount ? `${reviewCount} review item${reviewCount === 1 ? "" : "s"}` : null,

@@ -25,7 +25,7 @@ export function buildRecommendedNextActions(
 ) {
   const evidenceActions = evidenceGates
     .filter((gate) => gate.status !== "Ready")
-    .map((gate) => normalizeTechnicalFreshnessTerms(`${gate.status}: ${gate.recommendedAction}`));
+    .map((gate) => normalizeTechnicalFreshnessTerms(`${displayEvidenceGateStatus(gate)}: ${gate.recommendedAction}`));
 
   if (findings.length === 0) {
     return Array.from(new Set([
@@ -41,6 +41,32 @@ export function buildRecommendedNextActions(
     actions.unshift("Run `npm run repair:beta` to review deterministic safe fixes before applying them.");
   }
   return Array.from(new Set([...evidenceActions, ...actions]));
+}
+
+function displayEvidenceGateStatus(gate: PublicBetaScoreReport["evidenceGates"][number]) {
+  if (gate.status !== "Source evidence required") {
+    return gate.status;
+  }
+
+  if (gate.id === "runtimeProviderSmoke") {
+    return "Source activity evidence required";
+  }
+
+  if (gate.id === "adminTruthSamples") {
+    return "Admin source activity sample required";
+  }
+
+  return gate.status;
+}
+
+function displayPublicBetaReadinessStatus(report: PublicBetaScoreReport) {
+  if (report.readinessStatus !== "Source evidence required") {
+    return report.readinessStatus;
+  }
+
+  return report.evidenceCapsApplied.some((cap) => /source activity evidence required|sample required/iu.test(cap))
+    ? "Source activity evidence required"
+    : report.readinessStatus;
 }
 
 export function buildMinimalVerificationCommands(typeScriptTouched = true) {
@@ -70,7 +96,7 @@ export function readPublicBetaScoreReport(root = process.cwd()) {
 }
 
 export function printPublicBetaScoreSummary(report: PublicBetaScoreReport) {
-  console.log(`Public beta score: ${report.overallScore}/100 (${report.readinessStatus}; legacy ${report.overallStatus})`);
+  console.log(`Public beta score: ${report.overallScore}/100 (${displayPublicBetaReadinessStatus(report)}; legacy ${report.overallStatus})`);
   console.log(`Health v2: ${report.healthScore}/100 (${report.launchGateStatus}) source=${report.sourceHealthScore} runtime=${report.runtimeHealthScore} evidence=${report.evidenceCompletenessScore} freshness=${report.freshnessScore} cost=${report.costRiskScore} regression=${report.regressionRiskScore}`);
   console.log(`Scanner score: ${report.scannerScore}/100 (${report.scannerStatus})`);
   console.log(`Evidence score: ${report.evidenceScore}/100`);

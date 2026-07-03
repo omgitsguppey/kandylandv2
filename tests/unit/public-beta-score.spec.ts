@@ -221,8 +221,8 @@ describe("public beta scoring math", () => {
         expect(report.overallScore).toBeLessThan(100);
         expect(report.evidenceCapsApplied.length).toBeGreaterThan(0);
         expect(report.evidenceCapsApplied).toEqual(expect.arrayContaining([
-            "Provider-backed source activity + deployed route evidence: source evidence required",
-            "Admin source activity: source evidence required",
+            "Provider-backed source activity + deployed route evidence: source activity evidence required",
+            "Admin source activity: sample required",
         ]));
         expect(report.evidenceCapsApplied.join("\n")).not.toContain("Source evidence required: Provider-backed");
     });
