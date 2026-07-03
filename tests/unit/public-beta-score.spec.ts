@@ -1235,6 +1235,7 @@ describe("public beta scoring math", () => {
                     evidence: [
                         "runtimeHealthCredit=73.45",
                         "calibratedConfidenceScore=73.45",
+                        "observedSignals=6",
                         "activityVerification.verifiedByActivity=6",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,

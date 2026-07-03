@@ -1,8 +1,8 @@
 # Score 80 Cost Readiness
 
-Generated: 2026-07-03T08:07:38.072Z
+Generated: 2026-07-03T08:12:51.666Z
 
-Latest code version: 0850232cc31d60c786ea8dcf6c64c44607aa19a5
+Latest code version: 84820ddc673f44a8094c37b382e7d0af5f3fb3ad
 
 ## Summary
 
@@ -27,7 +27,7 @@ Latest code version: 0850232cc31d60c786ea8dcf6c64c44607aa19a5
 | --- | --- | --- | --- |
 | npm run check:final-cost-audit-lock | pass | agent/state/final-cost-audit-lock.generated.json | Current final cost lock is available. |
 | npm run check:cost-risk-exit-pass | failed_or_not_run | agent/state/cost-risk-exit-pass.generated.json | Cost risk exit pass is missing or stale. |
-| npm run check:cost-risk-owner-review-closure | pass | agent/state/cost-risk-owner-review-closure.generated.json | Current cost risk owner-review closure is available. |
+| npm run check:cost-risk-owner-review-closure | failed_or_not_run | agent/state/cost-risk-owner-review-closure.generated.json | Cost risk owner-review closure is missing or stale. |
 | npm run check:cost-owner-review-source-closure | pass | agent/state/cost-owner-review-source-closure.generated.json | Current cost owner-review source closure is available. |
 | npm run check:cloud-sql-gemini-cost-guards | pass | agent/state/cloud-sql-gemini-cost-guards.generated.json | Current Cloud SQL/Gemini guard report is available. |
 | npm run check:global-cost | pass | agent/state/global-cost-surfaces.generated.json | Global cost source surfaces are clean supporting context; this is not external billing evidence. |

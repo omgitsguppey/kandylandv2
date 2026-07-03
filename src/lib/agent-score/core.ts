@@ -615,12 +615,8 @@ function observedSiteActivityCount(artifact: PublicBetaEvidenceArtifact | undefi
 
 function realUsageObservedSiteActivityCount(input: {
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
-  realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
 }) {
-  return Math.max(
-    observedSiteActivityCount(input.realUsageConfidenceEvidence),
-    observedSiteActivityCount(input.realUsageConfidenceCalibrationEvidence),
-  );
+  return observedSiteActivityCount(input.realUsageConfidenceEvidence);
 }
 
 function sourceActivityClearsProviderLane(artifact: PublicBetaEvidenceArtifact | undefined) {
@@ -920,7 +916,6 @@ export function buildPublicBetaEvidenceGates(input: {
     : realUsageCalibrationCredit;
   const realUsageObservedActivitySignals = realUsageObservedSiteActivityCount({
     realUsageConfidenceEvidence: evidence.realUsageConfidenceEvidence,
-    realUsageConfidenceCalibrationEvidence: evidence.realUsageConfidenceCalibrationEvidence,
   });
   const realUsageObservedActivityCredit = realUsageObservedActivitySignals > 0 ? realUsageConfidenceCredit : 0;
   const behaviorMathStatus = String(evidenceArtifactStatus(

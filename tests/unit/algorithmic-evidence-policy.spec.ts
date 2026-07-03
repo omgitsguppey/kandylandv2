@@ -148,6 +148,23 @@ describe("algorithmic evidence policy", () => {
     expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
   });
 
+  it("does not count calibration observedSignals as observed runtime activity", () => {
+    const report = buildAlgorithmicEvidencePolicyReport({
+      realUsageConfidenceEvidence: realUsageConfidence,
+      realUsageConfidenceCalibrationEvidence: {
+        ...realUsageCalibration,
+        evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95", "observedSignals=4"],
+      },
+      adminTruthSampleEvidence: adminSourceSample,
+      operatorRevenueSmokeEvidence: operatorRevenueSmoke,
+    });
+
+    expect(report.telemetryConfidence.score).toBe(95);
+    expect(report.runtimeSourceConfidence.score).toBe(0);
+    expect(report.runtimeSourceConfidence.confidence).toBe("missing");
+    expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
+  });
+
   it("does not let UI source coverage gaps block non-UI beta health dimensions", () => {
     const report = buildPublicBetaScoreReport([], {
       commandBudget: buildPublicBetaCommandBudget(),

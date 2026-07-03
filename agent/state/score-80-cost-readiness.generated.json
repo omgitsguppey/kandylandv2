@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-07-03T08:07:38.072Z",
+  "generatedAtUtc": "2026-07-03T08:12:51.666Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
-  "sourceCommit": "0850232cc31d60c786ea8dcf6c64c44607aa19a5",
+  "currentHead": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
+  "sourceCommit": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
@@ -95,7 +95,7 @@
     "finalCostCurrent=true",
     "telemetryCurrent=true",
     "costOwnerReviewSourceClosureCurrent=true",
-    "costRiskOwnerReviewClosureCurrent=true",
+    "costRiskOwnerReviewClosureCurrent=false",
     "costRiskExitPassCurrent=false"
   ],
   "staleArtifacts": [
@@ -124,9 +124,9 @@
     },
     {
       "command": "npm run check:cost-risk-owner-review-closure",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "detail": "Current cost risk owner-review closure is available."
+      "detail": "Cost risk owner-review closure is missing or stale."
     },
     {
       "command": "npm run check:cost-owner-review-source-closure",

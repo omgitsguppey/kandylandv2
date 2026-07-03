@@ -135,7 +135,7 @@ describe("source evidence bridge", () => {
           path: "agent/state/real-usage-confidence-calibration.generated.json",
           status: "source_ready_real_usage_confidence_calibrated",
           passed: true,
-          evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95"],
+          evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95", "observedSignals=4"],
         }),
         runtimeSubstituteMatrix: artifact({
           path: "agent/state/runtime-smoke-substitute-matrix.generated.json",
