@@ -748,6 +748,7 @@ describe("public beta scoring math", () => {
         const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
         expect(adminGate?.status).toBe("Ready");
         expect(adminGate?.score).toBe(12);
+        expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(true);
     });
 
     it("does not let historical stale admin samples poison a current passing source activity sample", () => {
@@ -777,6 +778,7 @@ describe("public beta scoring math", () => {
         const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
         expect(adminGate?.status).toBe("Ready");
         expect(adminGate?.score).toBe(12);
+        expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(true);
         expect(report.evidenceCapDetails.join("\n")).not.toContain("Admin source activity evidence");
     });
 

@@ -597,6 +597,18 @@ function evidenceArtifactNumber(artifact: PublicBetaEvidenceArtifact | undefined
   return evidenceArtifactNumericValue(artifact, key);
 }
 
+function adminSourceActivitySampleIsCurrent(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  evidence: string[],
+  freshness: PublicBetaEvidenceFreshnessState,
+) {
+  const status = String(evidenceArtifactStatus(artifact, "missing_or_unknown"));
+  return artifact?.passed === true
+    && /passed|formal_admin_truth_sample_passed/iu.test(status)
+    && /sampleCount=([1-9][0-9]*)/iu.test(evidence.join("\n"))
+    && freshness === "fresh";
+}
+
 function observedSiteActivityCount(artifact: PublicBetaEvidenceArtifact | undefined) {
   return evidenceArtifactNumber(artifact, "observedSignals") ?? 0;
 }
@@ -1238,10 +1250,11 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
-  const currentAdminSourceActivitySamplePassed = evidence.adminTruthSampleEvidence?.passed === true
-    && /passed|formal_admin_truth_sample_passed/iu.test(adminTruthSampleStatus)
-    && /sampleCount=([1-9][0-9]*)/iu.test(adminTruthSampleEvidenceRaw.join("\n"))
-    && adminBaseQuality.freshness === "fresh";
+  const currentAdminSourceActivitySamplePassed = adminSourceActivitySampleIsCurrent(
+    evidence.adminTruthSampleEvidence,
+    adminTruthSampleEvidenceRaw,
+    adminBaseQuality.freshness,
+  );
   const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence)
     || currentAdminSourceActivitySamplePassed;
   const adminSourceActivityEvidenceRequired = /missing_formal_evidence|missing_or_unknown|tracked_not_passing|admin_truth_sample_required/iu.test(adminTruthSampleStatus);
@@ -1854,6 +1867,21 @@ function buildLaunchClearance(input: {
   const runtimeSmoke = evidence.runtimeSmokeEvidence;
   const adminTruth = evidence.adminTruthSampleEvidence;
   const uiSurfaceCoverage = evidence.uiSurfaceCoverageEvidence;
+  const adminTruthStatus = String(evidenceArtifactStatus(adminTruth, "missing_or_unknown"));
+  const adminTruthEvidence = Array.from(new Set([
+    `adminTruthSampleArtifactStatus=${adminTruthStatus}`,
+    ...evidenceArtifactEvidence(adminTruth),
+  ]));
+  const adminTruthQuality = resolveEvidenceQuality({
+    artifact: adminTruth,
+    context: {
+      lane: "admin_truth_sample",
+      requiredForExit: true,
+      requiresRuntimeProof: true,
+    },
+  });
+  const adminTruthSampleCleared = evidenceArtifactPassed(adminTruth)
+    || adminSourceActivitySampleIsCurrent(adminTruth, adminTruthEvidence, adminTruthQuality.freshness);
   return {
     status: input.launchGateStatus,
     blockers: input.launchBlockers,
@@ -1869,8 +1897,8 @@ function buildLaunchClearance(input: {
         source: runtimeSmoke?.path ?? "agent/state/runtime-smoke-evidence.generated.json",
       },
       adminTruthSample: {
-        cleared: evidenceArtifactPassed(adminTruth),
-        status: String(evidenceArtifactStatus(adminTruth, "missing_or_unknown")),
+        cleared: adminTruthSampleCleared,
+        status: adminTruthStatus,
         source: adminTruth?.path ?? "agent/state/admin-truth-sample-evidence.generated.json",
       },
       uiSurfaceCoverage: {
