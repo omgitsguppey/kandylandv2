@@ -47,16 +47,6 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                 title="Infrastructure Health & Dependencies"
                 subtitle="Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use."
                 defaultOpen={true}
-                summary={inventory && !inventory.error ? (
-                    <>
-                        <Pill label="Runtime deps" value={inventory.totals?.runtimeDependencies ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Dev deps" value={inventory.totals?.devDependencies ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Functions deps" value={inventory.totals?.functionsDependencies ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Overrides" value={inventory.totals?.overrideCount ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="External services" value={inventory.totals?.externalServices ?? 0} truthState="live" badgeLabel="MAPPED" />
-                        <Pill label="Expected absent" value={inventory.totals?.expectedAbsentDependencies ?? 0} truthState="live" badgeLabel="CLASSIFIED" />
-                    </>
-                ) : undefined}
             >
                 {inventory ? (
                     inventory.error ? (
@@ -108,7 +98,6 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                     <div className="mt-4 space-y-2 text-xs text-gray-300">
                                         <p>Root package updated: {inventory.rootPackageTimestampLabel || inventory.rootPackageUpdatedAtUtc || "timestamp unavailable"}</p>
                                         <p>Functions package updated: {inventory.functionsPackageTimestampLabel || inventory.functionsPackageUpdatedAtUtc || "timestamp unavailable"}</p>
-                                        <p>Package presence does not prove runtime use.</p>
                                     </div>
                                 </div>
                             </div>
