@@ -251,7 +251,7 @@ export default function ContentManagerPage() {
                     data-admin-content-fixture-boundary="true"
                     data-admin-content-source-state="source_missing"
                 >
-                    <span className="font-semibold text-amber-50">No source loaded.</span> Storage samples, uploads, and deletes need a verified admin session.
+                    No verified storage source is loaded for local review. Storage review and changes require verified admin access.
                 </div>
             ) : null}
 
@@ -298,7 +298,7 @@ export default function ContentManagerPage() {
                 ) : files.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-white/10 bg-black/20 p-6 text-center text-sm leading-5 text-gray-400">
                         {isLocalAdminUiTestSession
-                            ? "No storage sample is loaded for this local review. Use a real admin session to verify assets."
+                            ? "Storage source unavailable."
                             : "No drop assets found."}
                     </div>
                 ) : filteredFiles.length === 0 ? (
