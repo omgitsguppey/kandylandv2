@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T08:12:40.602Z",
+  "generatedAtUtc": "2026-07-03T08:23:34.180Z",
   "reportKey": "final-cost-audit-lock",
-  "currentHead": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
+  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
   "summary": {
     "totalAuditItems": 50,
     "fixedCount": 44,
@@ -974,17 +974,7 @@
   ],
   "dirtyFileActions": [
     {
-      "path": "agent/state/algorithmic-evidence-policy.generated.json",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
       "path": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
@@ -997,41 +987,6 @@
       "path": "docs/agent-truth/final-telemetry-closure-lock.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/algorithmic-evidence-policy.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/formal-evidence-bridge.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/public-beta-score.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
     }
   ],
   "remainingBlockers": [

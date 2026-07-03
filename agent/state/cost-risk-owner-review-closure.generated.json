@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T08:12:51.372Z",
+  "generatedAtUtc": "2026-07-03T08:23:46.540Z",
   "reportKey": "cost-risk-owner-review-closure",
-  "currentHead": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
+  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -301,13 +301,8 @@
   },
   "dirtyFilesClassification": [
     {
-      "path": "agent/state/algorithmic-evidence-policy.generated.json",
-      "status": "M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "status": " M",
+      "status": "M",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -327,11 +322,6 @@
     },
     {
       "path": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
       "status": " M",
       "classification": "real_source_change_needs_review"
     },
@@ -364,41 +354,6 @@
       "path": "docs/agent-truth/final-telemetry-closure-lock.md",
       "status": " M",
       "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/algorithmic-evidence-policy.spec.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/formal-evidence-bridge.spec.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/public-beta-score.spec.ts",
-      "status": " M",
-      "classification": "release_artifact_expected"
     }
   ],
   "staleLogicClassification": [

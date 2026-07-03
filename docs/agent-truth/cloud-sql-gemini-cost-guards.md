@@ -1,7 +1,7 @@
 # Cloud SQL and Gemini Cost Guards
 
-Generated: 2026-07-03T08:12:40.718Z
-Current head: 84820ddc673f44a8094c37b382e7d0af5f3fb3ad
+Generated: 2026-07-03T08:23:34.390Z
+Current head: aed727632c288e5196d31b162f759b496275ddb1
 
 This report is source-only. It does not run SQL/Data Connect sync, production reads, Gemini, Vertex, Cloud Assist, or provider billing calls.
 

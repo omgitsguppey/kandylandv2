@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T00:18:38.334Z",
+  "generatedAtUtc": "2026-07-03T08:23:47.119Z",
   "reportKey": "cost-risk-exit-pass",
-  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -152,7 +152,7 @@
     }
   },
   "costRisk": {
-    "before": 42,
+    "before": 92.5,
     "after": 79.5,
     "target": 80
   },
@@ -163,13 +163,13 @@
       "target": 80
     },
     "runtimeHealth": {
-      "before": 69.49,
-      "after": 69.49,
+      "before": 65.34,
+      "after": 65.34,
       "target": 80
     },
     "evidenceCompleteness": {
-      "before": 81.8,
-      "after": 81.8,
+      "before": 75.11,
+      "after": 75.11,
       "target": 80
     },
     "freshness": {
@@ -178,7 +178,7 @@
       "target": 80
     },
     "costRisk": {
-      "before": 42,
+      "before": 92.5,
       "after": 79.5,
       "target": 80
     },
@@ -188,8 +188,8 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 80.57,
-      "after": 84.32,
+      "before": 81.19,
+      "after": 79.89,
       "target": 80
     }
   },
@@ -216,10 +216,6 @@
   ],
   "dirtyFiles": [
     {
-      "path": "agent/state/algorithmic-evidence-policy.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -232,18 +228,6 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/cost-risk-exit-pass.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/final-cost-audit-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -252,28 +236,8 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/real-usage-confidence-calibration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/algorithmic-evidence-policy.md",
-      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
@@ -288,31 +252,11 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/cost-risk-exit-pass.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/final-cost-audit-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/final-telemetry-closure-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-cost-readiness.md",
       "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
@@ -334,8 +278,8 @@
     }
   ],
   "evidence": [
-    "currentHead=37e4ab766f919aae9fb025f4aedeb5a50c614da8",
-    "costRiskBefore=42",
+    "currentHead=aed727632c288e5196d31b162f759b496275ddb1",
+    "costRiskBefore=92.5",
     "costRiskAfter=79.5",
     "sourceGuardedLaneCount=3",
     "externalBillingReviewed=false",

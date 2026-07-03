@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-07-03T08:12:51.666Z",
+  "generatedAtUtc": "2026-07-03T08:23:54.516Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
-  "sourceCommit": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
+  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
+  "sourceCommit": "aed727632c288e5196d31b162f759b496275ddb1",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 92.5,
-    "costRiskScore": 92.5,
+    "sourceCostReadinessScore": 79.5,
+    "costRiskScore": 79.5,
     "staleCreatorDashboardInventoryIgnored": true,
-    "cloudRunSourceReady": true,
+    "cloudRunSourceReady": false,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
@@ -19,12 +19,12 @@
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
-      "status": "source_guarded_external_review_remaining",
-      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
+      "status": "cost_review_required",
+      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
       "evidence": [
         "finalCostCurrent=true",
         "globalCostSourceClean=true",
-        "cloudRunGuarded=true",
+        "cloudRunGuarded=false",
         "externalBillingReviewed=false",
         "owner=speed-security-cost",
         "externalReviewRequired=true",
@@ -85,8 +85,8 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 92.5,
-  "costRiskScoreExplanation": "Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
+  "costRiskScore": 79.5,
+  "costRiskScoreExplanation": "Cost risk score 79.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
     "cloudRunSourceReady=true",
@@ -95,8 +95,8 @@
     "finalCostCurrent=true",
     "telemetryCurrent=true",
     "costOwnerReviewSourceClosureCurrent=true",
-    "costRiskOwnerReviewClosureCurrent=false",
-    "costRiskExitPassCurrent=false"
+    "costRiskOwnerReviewClosureCurrent=true",
+    "costRiskExitPassCurrent=true"
   ],
   "staleArtifacts": [
     "agent/state/creator-dashboard-error-cost-inventory.generated.json"
@@ -118,15 +118,15 @@
     },
     {
       "command": "npm run check:cost-risk-exit-pass",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cost-risk-exit-pass.generated.json",
-      "detail": "Cost risk exit pass is missing or stale."
+      "detail": "Current cost risk exit pass is available."
     },
     {
       "command": "npm run check:cost-risk-owner-review-closure",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "detail": "Cost risk owner-review closure is missing or stale."
+      "detail": "Current cost risk owner-review closure is available."
     },
     {
       "command": "npm run check:cost-owner-review-source-closure",

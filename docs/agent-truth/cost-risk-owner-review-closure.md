@@ -1,8 +1,8 @@
 # Cost Risk Owner-Review Closure
 
-Generated: 2026-07-03T08:12:51.372Z
+Generated: 2026-07-03T08:23:46.540Z
 
-Current head: 84820ddc673f44a8094c37b382e7d0af5f3fb3ad
+Current head: aed727632c288e5196d31b162f759b496275ddb1
 
 Status: pass
 
@@ -41,26 +41,17 @@ Status: pass
 
 ## Dirty File Classification
 
-- M agent/state/algorithmic-evidence-policy.generated.json: real_source_change_needs_review
--  M agent/state/analytics-cost-runtime-inventory.generated.json: real_source_change_needs_review
+- M agent/state/analytics-cost-runtime-inventory.generated.json: real_source_change_needs_review
 -  M agent/state/cloud-sql-gemini-cost-guards.generated.json: real_source_change_needs_review
 -  M agent/state/cost-owner-review-source-closure.generated.json: real_source_change_needs_review
 -  M agent/state/final-cost-audit-lock.generated.json: real_source_change_needs_review
 -  M agent/state/final-telemetry-closure-lock.generated.json: real_source_change_needs_review
--  M agent/state/formal-evidence-bridge.generated.json: real_source_change_needs_review
 -  M agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
 -  M docs/agent-truth/analytics-cost-runtime-inventory.md: real_source_change_needs_review
 -  M docs/agent-truth/cloud-sql-gemini-cost-guards.md: real_source_change_needs_review
 -  M docs/agent-truth/cost-owner-review-source-closure.md: real_source_change_needs_review
 -  M docs/agent-truth/final-cost-audit-lock.md: real_source_change_needs_review
 -  M docs/agent-truth/final-telemetry-closure-lock.md: real_source_change_needs_review
--  M docs/agent-truth/formal-evidence-bridge.md: real_source_change_needs_review
--  M src/lib/agent-score/algorithmic-evidence-policy.ts: real_source_change_needs_review
--  M src/lib/agent-score/core.ts: real_source_change_needs_review
--  M src/lib/agent-score/formal-evidence-bridge.ts: real_source_change_needs_review
--  M tests/unit/algorithmic-evidence-policy.spec.ts: real_source_change_needs_review
--  M tests/unit/formal-evidence-bridge.spec.ts: real_source_change_needs_review
--  M tests/unit/public-beta-score.spec.ts: release_artifact_expected
 
 ## Boundary
 

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T08:12:51.370Z",
+  "generatedAtUtc": "2026-07-03T08:23:46.502Z",
   "reportKey": "cost-owner-review-source-closure",
-  "currentHead": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
+  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
   "status": "pass",
   "lanes": {
     "cloudRun": {
