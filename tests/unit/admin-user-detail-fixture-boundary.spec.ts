@@ -14,11 +14,11 @@ describe("admin user detail fixture boundary", () => {
     expect(source).toContain("setTargetUser(ADMIN_USER_DETAIL_BROWSER_SMOKE_PROFILE)");
     expect(source).toContain("setAnalytics(null)");
     expect(source).toContain('data-admin-user-detail-fixture-boundary="true"');
-    expect(source).toContain("User detail layout is inspectable");
-    expect(source).toContain("need a real admin session before they show a verified user record");
+    expect(source).toContain("source_missing: user detail source is not loaded in this fixture");
+    expect(source).toContain("Protected analytics, support, security, recommendation, payment, and user metric samples stay blocked");
   });
 
-  it("keeps real admin sessions on the canonical admin user API path", () => {
+  it("keeps verified admin access on the canonical admin user API path", () => {
     const fixtureBranch = source.indexOf("if (isLocalAdminUserDetailFixture)");
     const apiFetch = source.indexOf('authFetch(`/api/admin/user/${userId}`)');
 
@@ -54,7 +54,7 @@ describe("admin user detail fixture boundary", () => {
     expect(source).toContain("formatProfileMetricLabel(targetUser.unlockedContent?.length)");
     expect(source).toContain("formatCommerceMoneyLabel(totalSpentUsd)");
     expect(source).toContain("formatCommerceGumDropsLabel(deliveredGumDrops)");
-    expect(source).toContain("Commerce source not loaded. Open a real admin session");
+    expect(source).toContain("source_missing: commerce source is not loaded in this fixture");
     expect(source).not.toContain('value: `$${totalSpentUsd.toFixed(2)}`');
     expect(source).not.toContain('value: `${deliveredGumDrops.toLocaleString()} GD`');
   });

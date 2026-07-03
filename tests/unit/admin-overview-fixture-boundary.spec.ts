@@ -13,9 +13,8 @@ describe("admin overview fixture boundary", () => {
     expect(pageSource).toContain('data-admin-overview-fixture-boundary="true"');
     expect(pageSource).toContain('data-admin-overview-fixture-state="source_missing"');
     expect(pageSource).toContain('label="No source"');
-    expect(pageSource).toContain("No verified overview source is loaded in local UI review.");
-    expect(pageSource).toContain("Overview layout is inspectable");
-    expect(pageSource).toContain("platform pulse, drop queue, revenue, transactions, and admin activity require a real admin session");
+    expect(pageSource).toContain("source_missing: overview source is not loaded in this fixture.");
+    expect(pageSource).toContain("source_missing: layout is visible; verified overview data remains unavailable in this fixture");
     expect(pageSource).not.toContain('label="Source missing"');
     expect(pageSource).not.toContain("Overview truth is source_missing");
     expect(pageSource).not.toContain("remain source_missing");
@@ -30,7 +29,7 @@ describe("admin overview fixture boundary", () => {
     expect(realtimeHookSource).toContain("enabled ? \"/api/admin/overview\" : null");
   });
 
-  it("keeps real admin sessions on the canonical overview and drop panels", () => {
+  it("keeps verified admin access on the canonical overview and drop panels", () => {
     expect(pageSource).toContain("<AdminStatsBar");
     expect(pageSource).toContain("<AdminAnalyticsCharts");
     expect(pageSource).toContain("<RecentTransactionsPanel");

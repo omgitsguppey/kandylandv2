@@ -300,8 +300,8 @@ export default function ManageQueuePage() {
                         data-mobile-density="compact"
                         data-mobile-sprawl-guard="true"
                     >
-                        <p className="text-base font-semibold">Local UI review only.</p>
-                        <p className="mt-2 text-sm text-amber-100/90">No verified queue source is loaded in local review. Use a real admin session before reviewing or changing queue items.</p>
+                        <p className="text-base font-semibold">source_missing fixture.</p>
+                        <p className="mt-2 text-sm text-amber-100/90">source_missing: queue source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.</p>
                     </div>
                 ) : (
                     <div className={`${adminQueueModuleClassName} bg-red-500/10 text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">

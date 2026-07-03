@@ -221,7 +221,7 @@ export function PlatformEconomyConsole() {
                     data-admin-economy-fixture-boundary="true"
                     data-admin-economy-fixture-state="source_missing"
                 >
-                    Local UI review only. No verified economy source is loaded here. Use a real admin session before reviewing treasury, ledger, balance, provider, or reconciliation samples.
+                    source_missing fixture. Economy source is not loaded here; protected treasury, ledger, provider, and reconciliation reads stay blocked.
                 </section>
             ) : null}
 
@@ -251,7 +251,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.treasury,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "No verified treasury source is loaded in local review. Use a real admin session for wallet, source-of-funds, and ledger samples."
+                            ? "source_missing: treasury source is not loaded in this fixture."
                             : "No treasury snapshot is available yet.",
                         children: (treasury) => (
                             <div className="grid gap-2">
@@ -287,7 +287,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.packages,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "No verified package source is loaded in local review."
+                            ? "source_missing: package source is not loaded in this fixture."
                             : "No package configs are available yet.",
                         children: (packages) => (
                             <div className="grid gap-2">
@@ -319,7 +319,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.promos,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "No verified promo source is loaded in local review."
+                            ? "source_missing: promo source is not loaded in this fixture."
                             : "No promo configs yet. Mutation routes are ready for draft promos.",
                         children: (promos) => (
                             <div className="grid gap-2">
@@ -350,7 +350,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.offers,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "No verified offer source is loaded in local review."
+                            ? "source_missing: offer source is not loaded in this fixture."
                             : "No offer configs yet. Create draft offers only when the promo/package source is ready.",
                         children: (offers) => (
                             <div className="grid gap-2">
@@ -380,7 +380,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.redemptions,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "No verified redemption source is loaded in local review."
+                            ? "source_missing: redemption source is not loaded in this fixture."
                             : "No recent redemptions are available yet.",
                         children: (redemptions) => (
                             <div className="grid gap-2">
@@ -411,7 +411,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.drift,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "No verified drift source is loaded in local review."
+                            ? "source_missing: drift source is not loaded in this fixture."
                             : "No current economy drift detected across package, promo, wallet, revenue, or ledger snapshots.",
                         children: (drift) => (
                             <div className="grid gap-2">
@@ -439,7 +439,7 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Warnings" detail="Warnings are explicit. They do not silently reconcile downstream surfaces.">
                     <div className="grid gap-2">
                         {isLocalAdminUiTestSession ? (
-                            <div className="text-sm text-gray-500">No verified economy warning source is loaded in local review.</div>
+                            <div className="text-sm text-gray-500">source_missing: economy warning source is not loaded in this fixture.</div>
                         ) : warnings.length ? warnings.map((warning, index) => (
                             <div key={`${warning.code}:${index}`} className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
                                 <div className="flex items-center justify-between gap-3">

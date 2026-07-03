@@ -11,8 +11,8 @@ describe("admin moderation fixture boundary", () => {
   it("labels local admin UI fixture moderation evidence as no-source", () => {
     expect(consoleSource).toContain('data-admin-moderation-fixture-boundary="true"');
     expect(consoleSource).toContain('data-admin-moderation-fixture-state="source_missing"');
-    expect(consoleSource).toContain("No verified moderation source is loaded in local review");
-    expect(consoleSource).toContain("thread transcripts, risk alerts, media evidence, and security-event samples");
+    expect(consoleSource).toContain("source_missing: moderation source is not loaded in this fixture");
+    expect(consoleSource).toContain("Protected evidence reads stay blocked until verified admin access provides the source");
     expect(consoleSource).toContain('className="flex flex-wrap gap-1.5 pb-1 sm:gap-2"');
     expect(consoleSource).not.toContain('className="flex gap-2 overflow-x-auto pb-1"');
     expect(consoleSource).toContain('data-moderation-truth-state={isLocalFixtureSourceMissing ? "source_missing"');
@@ -37,9 +37,9 @@ describe("admin moderation fixture boundary", () => {
 
   it("distinguishes fixture source-missing from a healthy empty alert queue", () => {
     expect(alertsSource).toContain('"local_fixture_source_missing"');
-    expect(alertsSource).toContain("No verified risk-alert source is loaded in local review.");
-    expect(alertsSource).toContain("No risk-alert evidence is loaded for local review.");
-    expect(consoleSource).toContain("No verified moderation thread source is loaded in local review.");
-    expect(consoleSource).toContain("No moderation thread evidence is loaded for local review.");
+    expect(alertsSource).toContain("source_missing: risk-alert source is not loaded in this fixture.");
+    expect(alertsSource).toContain("source_missing: risk-alert evidence is not loaded in this fixture.");
+    expect(consoleSource).toContain("source_missing: moderation thread source is not loaded in this fixture.");
+    expect(consoleSource).toContain("source_missing: moderation thread evidence is not loaded in this fixture.");
   });
 });

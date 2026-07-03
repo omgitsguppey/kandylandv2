@@ -10,8 +10,8 @@ describe("admin privacy fixture boundary", () => {
   it("labels local admin UI fixture privacy evidence as no-source", () => {
     expect(componentSource).toContain('data-admin-privacy-fixture-boundary="true"');
     expect(componentSource).toContain('data-admin-privacy-fixture-state="source_missing"');
-    expect(componentSource).toContain("No verified privacy source is loaded in local review");
-    expect(componentSource).toContain("consent, export, duplicate prevention, and guest identity preflight samples");
+    expect(componentSource).toContain("source_missing: privacy source is not loaded in this fixture");
+    expect(componentSource).toContain("Protected reads stay blocked until verified admin access provides the source");
     expect(componentSource).toContain('data-privacy-console-overall-state={isLocalFixtureSourceMissing ? "source_missing"');
   });
 

@@ -34,8 +34,8 @@ describe("admin debug local fixture boundary", () => {
     expect(pageSource).toContain("isLocalAdminUiTestSession ? items.map(toLocalFixtureDetailItem) : items");
     expect(pageSource).toContain('className="flex w-full flex-wrap items-center gap-2 pb-2"');
     expect(pageSource).not.toContain("overflow-x-auto pb-2 scrollbar-hide");
-    expect(pageSource).toContain("Waiting for verified");
-    expect(pageSource).toContain("Local review checks layout and controls only; it does not load verified admin evidence.");
+    expect(pageSource).toContain("collecting: ${label.toLowerCase()} source requires verified admin access");
+    expect(pageSource).toContain("source_missing fixture.");
     expect(pageSource).toContain("local_fixture_source_missing");
     expect(controlTowerSource).toContain("Source reports only");
     expect(controlTowerSource).toContain('data-admin-debug-control-tower-fixture-state="source_reports_only"');
@@ -60,12 +60,12 @@ describe("admin debug local fixture boundary", () => {
     expect(controlTowerSource).toContain('fetch("/api/admin/debug/control-tower", { credentials: "same-origin" })');
   });
 
-  it("guards debug mutations and protected balance adjustments behind real admin sessions", () => {
+  it("guards debug mutations and protected balance adjustments behind verified admin access", () => {
     expect(pageSource).toContain("Debug preferences are source_missing in local UI review.");
     expect(pageSource).toContain("Debug evidence is source_missing in local UI review.");
-    expect(pageSource).toContain("Balance adjustments require a real admin session.");
-    expect(pageSource).toContain("Repair actions require a real admin session.");
+    expect(pageSource).toContain("permission_blocked: balance adjustments require verified admin access.");
+    expect(pageSource).toContain("permission_blocked: repair actions require verified admin access.");
     expect(pageSource).toContain("AI debug settings are source_missing in local UI review.");
-    expect(pageSource).toContain("Live AI debug guidance requires a real admin session.");
+    expect(pageSource).toContain("permission_blocked: live AI debug guidance requires verified admin access.");
   });
 });

@@ -104,7 +104,7 @@ export function AdminPrivacyPreflight() {
             </div>
 
             {adminSessionState === "waiting_for_admin_session" ? (
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-gray-400">Waiting for admin session...</div>
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-gray-400">collecting: admin access and source state are resolving.</div>
             ) : null}
             {isLocalFixtureSourceMissing ? (
                 <div
@@ -112,9 +112,9 @@ export function AdminPrivacyPreflight() {
                     data-admin-privacy-fixture-boundary="true"
                     data-admin-privacy-fixture-state="source_missing"
                 >
-                    <p className="font-bold">Local admin UI review only.</p>
+                    <p className="font-bold">source_missing fixture.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        No verified privacy source is loaded in local review. A real admin session is required for consent, export, duplicate prevention, and guest identity preflight samples.
+                        source_missing: privacy source is not loaded in this fixture. Protected reads stay blocked until verified admin access provides the source.
                     </p>
                 </div>
             ) : null}
@@ -161,7 +161,7 @@ export function AdminPrivacyPreflight() {
                 {!isLoading && !error && checks.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
                         {isLocalFixtureSourceMissing
-                            ? "No verified privacy source is loaded in local review."
+                            ? "source_missing: privacy source is not loaded in this fixture."
                             : "No privacy console evidence is available yet."}
                     </div>
                 ) : null}

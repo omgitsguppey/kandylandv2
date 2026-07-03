@@ -112,7 +112,7 @@ type CompactDebugDetailItem = {
 };
 
 function localFixtureMeta(label: string) {
-    return `Waiting for verified ${label.toLowerCase()} from a real admin session.`;
+    return `collecting: ${label.toLowerCase()} source requires verified admin access.`;
 }
 
 function toLocalFixtureSummaryItem(item: CompactDebugSummaryItem): CompactDebugSummaryItem {
@@ -134,7 +134,7 @@ function toLocalFixtureDetailItem(item: CompactDebugDetailItem): CompactDebugDet
         copy: createAdminDebugCardCopy({
             operatorSummary,
             whyItMatters: "Local review checks layout and controls only; it does not load verified admin evidence.",
-            recommendedNextCheck: "Use a real admin session or run the owned source validator before treating this lane as verified.",
+            recommendedNextCheck: "Use the owned source validator or verified admin access before treating this lane as verified.",
             technicalEvidence: "Admin UI fixture mode bypasses debug route reads and realtime listeners.",
             sourceDetails: "local admin UI test session",
             technicalState: "local_fixture_source_missing",
@@ -841,7 +841,7 @@ export default function DebugConsole() {
         setProcessing(true);
         try {
             if (isLocalAdminUiTestSession) {
-                toast.error("Balance adjustments require a real admin session.");
+                toast.error("permission_blocked: balance adjustments require verified admin access.");
                 return;
             }
 
@@ -879,7 +879,7 @@ export default function DebugConsole() {
         setRepairingId(proposalId);
         try {
             if (isLocalAdminUiTestSession) {
-                toast.error("Repair actions require a real admin session.");
+                toast.error("permission_blocked: repair actions require verified admin access.");
                 return;
             }
 
@@ -956,7 +956,7 @@ export default function DebugConsole() {
         setRunningAiAssistantLiveCall(true);
         try {
             if (isLocalAdminUiTestSession) {
-                toast.info("Live AI debug guidance requires a real admin session.");
+                toast.info("permission_blocked: live AI debug guidance requires verified admin access.");
                 return;
             }
 
@@ -1042,7 +1042,7 @@ export default function DebugConsole() {
                     data-admin-debug-fixture-boundary="true"
                     data-admin-debug-fixture-state="source_missing"
                 >
-                    <span className="font-semibold text-white">Local UI review only.</span>{" "}
+                    <span className="font-semibold text-white">source_missing fixture.</span>{" "}
                     The Debug Console layout is inspectable, but route checks, realtime evidence,
                     AI assistant signals, repair actions, and balance adjustments wait for a real
                     admin session with verified evidence.

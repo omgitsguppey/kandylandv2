@@ -38,7 +38,7 @@ describe("admin analytics local fixture boundary", () => {
     expect(hookSource).toContain('isLocalAdminUiTestSession ? null : "/api/admin/analytics/realtime"');
     expect(hookSource).toContain("isLocalAdminUiTestSession ? null : historicalUrl");
     expect(hookSource).toContain('isLocalAdminUiTestSession ? null : "/api/admin/overview"');
-    expect(hookSource).toContain("Analytics preferences need a real admin session with verified snapshots.");
+    expect(hookSource).toContain("permission_blocked: analytics preferences require verified admin access.");
   });
 
   it("skips section drilldown override reads in fixture sessions", () => {

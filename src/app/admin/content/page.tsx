@@ -251,7 +251,7 @@ export default function ContentManagerPage() {
                     data-admin-content-fixture-boundary="true"
                     data-admin-content-source-state="source_missing"
                 >
-                    No verified storage source is loaded for local review. Storage review and changes require verified admin access.
+                    source_missing: storage source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
                 </div>
             ) : null}
 

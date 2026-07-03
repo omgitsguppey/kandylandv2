@@ -1,4 +1,4 @@
-ï»¿"use client";
+"use client";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -644,7 +644,7 @@ export default function AdminUserAnalyticsPage() {
     const commerceSummaryText = analytics?.commerceEmptyReason
         ?? (commerceSourceAvailable
             ? `${bonusGumDrops.toLocaleString()} bonus GD valued at the package effective rate from ${analytics?.commerceSourceLabel || "commerce rollups"}.`
-            : "Commerce source not loaded. Open a real admin session to review wallet, source-of-funds, and transaction samples.");
+            : "source_missing: commerce source is not loaded in this fixture.");
 
     const watchTimeLabel = useMemo(() => {
         if (!behaviorRollup) {
@@ -806,7 +806,7 @@ export default function AdminUserAnalyticsPage() {
                     className="rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
                     data-admin-user-detail-fixture-boundary="true"
                 >
-                    <span className="font-bold text-white">Local UI review only.</span> User detail layout is inspectable; analytics, support, security, recommendation, and payment/user metric samples need a real admin session before they show a verified user record.
+                    <span className="font-bold text-white">source_missing fixture.</span> source_missing: user detail source is not loaded in this fixture. Protected analytics, support, security, recommendation, payment, and user metric samples stay blocked.
                 </div>
             ) : null}
 
@@ -1004,7 +1004,7 @@ export default function AdminUserAnalyticsPage() {
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         {behavioralTopCreators.slice(0, 6).map((entry) => (
                                             <span key={entry.key} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                                {entry.key} Â· {entry.score}
+                                                {entry.key} · {entry.score}
                                             </span>
                                         ))}
                                     </div>
@@ -1015,12 +1015,12 @@ export default function AdminUserAnalyticsPage() {
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         {behavioralTopCategories.slice(0, 4).map((entry) => (
                                             <span key={`category-${entry.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                                {entry.key} Â· {entry.score}
+                                                {entry.key} · {entry.score}
                                             </span>
                                         ))}
                                         {behavioralTopThemes.slice(0, 4).map((entry) => (
                                             <span key={`theme-${entry.key}`} className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold text-brand-purple">
-                                                {entry.key} Â· {entry.score}
+                                                {entry.key} · {entry.score}
                                             </span>
                                         ))}
                                     </div>
@@ -1059,7 +1059,7 @@ export default function AdminUserAnalyticsPage() {
                                             <div className="flex flex-wrap items-start justify-between gap-3">
                                                 <div>
                                                     <p className="text-sm font-bold text-white">{entry.dropTitle}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropId} Â· {entry.dropCategory || "unknown"}</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
                                                     <p className="mt-2 text-xs leading-5 text-gray-300">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
@@ -1113,7 +1113,7 @@ export default function AdminUserAnalyticsPage() {
                                             <div className="flex flex-wrap items-center justify-between gap-3">
                                                 <div>
                                                     <p className="text-sm font-semibold text-white">{entry.dropTitle}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropCategory || "unknown"} Â· fallback recommendation</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropCategory || "unknown"} · fallback recommendation</p>
                                                     <p className="mt-2 text-xs leading-5 text-gray-400">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <span className="inline-flex items-center rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">

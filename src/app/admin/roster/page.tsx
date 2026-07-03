@@ -619,7 +619,7 @@ export default function AdminRosterPage() {
 
     const refreshAgreementTemplate = async () => {
         if (isLocalAdminUiTestSession) {
-            throw new Error("No verified agreement template source is loaded in local UI review.");
+            throw new Error("source_missing: agreement template source is not loaded in this fixture.");
         }
 
         const response = await authFetch("/api/admin/creator-agreements");
@@ -1098,7 +1098,7 @@ export default function AdminRosterPage() {
                         data-admin-roster-fixture-boundary="true"
                         data-admin-roster-fixture-state="source_missing"
                     >
-                        <span className="font-bold text-white">Local UI review only.</span> No verified creator roster source is loaded in local review. Roster details, agreements, creation, approval, account controls, and fan experience evidence require a real admin session.
+                        <span className="font-bold text-white">source_missing fixture.</span> source_missing: creator roster source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
                     </div>
                 ) : null}
                 <section className="grid gap-4 lg:grid-cols-[0.94fr_1.06fr]">
@@ -1447,7 +1447,7 @@ export default function AdminRosterPage() {
 
                                 {selectedAccountTarget && creatorMutationDisabled ? (
                                     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-zinc-200">
-                                        Account controls require real admin auth and are unavailable during local UI review.
+                                        permission_blocked: account controls require verified admin access.
                                     </div>
                                 ) : selectedAccountTarget ? (
                                     <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("account_controls", event.currentTarget.open)}>
@@ -1467,7 +1467,7 @@ export default function AdminRosterPage() {
 
                                 {selectedFanExperienceTarget && creatorMutationDisabled ? (
                                     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-zinc-200">
-                                        Fan-experience settings require real admin auth and are unavailable during local UI review.
+                                        permission_blocked: fan-experience settings require verified admin access.
                                     </div>
                                 ) : selectedFanExperienceTarget ? (
                                     <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("fan_experience_settings", event.currentTarget.open)}>

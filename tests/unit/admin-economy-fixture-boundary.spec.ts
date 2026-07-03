@@ -21,8 +21,8 @@ describe("admin economy local fixture boundary", () => {
     expect(consoleSource).toContain("isAdminUiTestSessionUser(user)");
     expect(consoleSource).toContain('data-admin-economy-fixture-boundary="true"');
     expect(consoleSource).toContain('data-admin-economy-fixture-state="source_missing"');
-    expect(consoleSource).toContain("No verified economy source is loaded here");
-    expect(consoleSource).toContain("reviewing treasury, ledger, balance, provider, or reconciliation samples");
+    expect(consoleSource).toContain("Economy source is not loaded here");
+    expect(consoleSource).toContain("protected treasury, ledger, provider, and reconciliation reads stay blocked");
     expect(stripSource).toContain('data-admin-economy-strip-source-state={sourceState}');
     expect(stripSource).toContain('export type PlatformEconomyStripSourceState = "live" | "review" | "collecting" | "failed" | "source_missing"');
     expect(stripSource).toContain("sourceState: PlatformEconomyStripSourceState;");
@@ -40,8 +40,8 @@ describe("admin economy local fixture boundary", () => {
     expect(consoleSource).toContain("setState(createSourceMissingState())");
     expect(consoleSource).toContain("getTreasuryStripSourceState(state.treasury, isLocalAdminUiTestSession)");
     expect(consoleSource).toContain("sourceState={treasuryStripSourceState}");
-    expect(consoleSource).toContain("No verified treasury source is loaded in local review");
-    expect(consoleSource).toContain("No verified economy warning source is loaded in local review.");
+    expect(consoleSource).toContain("source_missing: treasury source is not loaded in this fixture");
+    expect(consoleSource).toContain("source_missing: economy warning source is not loaded in this fixture.");
   });
 
   it("keeps treasury source warnings visible without broken encoded copy", () => {

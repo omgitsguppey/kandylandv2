@@ -294,7 +294,7 @@ export function useAdminAiState() {
 
     const persistSettingsPatch = async (patch: Partial<AdminAiDropCoverDashboard["settings"]>, successMessage: string) => {
         if (isLocalAdminUiTestSession) {
-            toast.error("No verified Cover Ops source is loaded in local review");
+            toast.error("source_missing: Cover Ops source is not loaded in this fixture");
             return;
         }
         const response = await authFetch("/api/admin/ai/drop-covers", {
@@ -397,7 +397,7 @@ export function useAdminAiState() {
     const uploadReferences = async (files: File[], options: { primary: boolean }) => {
         if (files.length === 0) return;
         if (isLocalAdminUiTestSession) {
-            toast.error("Reference uploads require a real admin session");
+            toast.error("permission_blocked: reference uploads require verified admin access");
             return;
         }
 
@@ -463,7 +463,7 @@ export function useAdminAiState() {
         successMessage: string,
     ) => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Reference updates require a real admin session");
+            toast.error("permission_blocked: reference updates require verified admin access");
             return;
         }
         setUpdatingReferenceId(assetId);
@@ -494,7 +494,7 @@ export function useAdminAiState() {
 
     const handleReferenceDelete = async (assetId: string) => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Reference removal requires a real admin session");
+            toast.error("permission_blocked: reference removal requires verified admin access");
             return;
         }
         setRemovingReferenceId(assetId);
@@ -525,7 +525,7 @@ export function useAdminAiState() {
 
     const handleLegacyTemplateDelete = async () => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Template removal requires a real admin session");
+            toast.error("permission_blocked: template removal requires verified admin access");
             return;
         }
         setRemovingReferenceId("template");
@@ -555,7 +555,7 @@ export function useAdminAiState() {
 
     const handlePromptPolicySave = async () => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Prompt policy changes require a real admin session");
+            toast.error("permission_blocked: prompt policy changes require verified admin access");
             return;
         }
         setSavingPromptPolicy(true);
@@ -593,7 +593,7 @@ export function useAdminAiState() {
 
     const handleReviewGalleryUpdate = async (jobId: string, reusable: boolean) => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Review gallery updates require a real admin session");
+            toast.error("permission_blocked: review gallery updates require verified admin access");
             return;
         }
         setReviewingJobId(jobId);

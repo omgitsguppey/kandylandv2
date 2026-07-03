@@ -139,7 +139,7 @@ export default function UserManagementPage() {
 
     const fetchUserDetail = useCallback(async (user: UserProfile, options: { openContent?: boolean } = {}) => {
         if (isLocalAdminUiTestSession) {
-            toast.info("User detail requires a real admin session. No verified user source is loaded in local review.");
+            toast.info("permission_blocked: user detail requires verified admin access; user source is not loaded in this fixture.");
             if (options.openContent) {
                 setContentUser(user);
             }
@@ -624,7 +624,7 @@ export default function UserManagementPage() {
     const handleUpdateStatus = async () => {
         if (!actionUser || !actionType) return;
         if (isLocalAdminUiTestSession) {
-            toast.info("User status changes require a real admin session. Local UI review is read-only.");
+            toast.info("permission_blocked: user status changes require verified admin access.");
             setActionType(null);
             setActionUser(null);
             setReason("");
@@ -678,7 +678,7 @@ export default function UserManagementPage() {
     const handleUpdateUsername = async () => {
         if (!editUsernameUser) return;
         if (isLocalAdminUiTestSession) {
-            toast.info("Username changes require a real admin session. Local UI review is read-only.");
+            toast.info("permission_blocked: username changes require verified admin access.");
             setEditUsernameUser(null);
             setEditUsernameInput("");
             return;
@@ -708,7 +708,7 @@ export default function UserManagementPage() {
         const normalizedDropId = dropId.trim();
         if (!contentUser || !normalizedDropId) return;
         if (isLocalAdminUiTestSession) {
-            toast.info("Content access changes require a real admin session. Local UI review is read-only.");
+            toast.info("permission_blocked: content access changes require verified admin access.");
             setContentActionProcessing(false);
             return;
         }
@@ -765,7 +765,7 @@ export default function UserManagementPage() {
     // --- Role & Verification Management ---
     const handleRoleUpdate = async (uid: string, newRole: 'user' | 'creator' | 'admin') => {
         if (isLocalAdminUiTestSession) {
-            toast.info("Role changes require a real admin session. Local UI review is read-only.");
+            toast.info("permission_blocked: role changes require verified admin access.");
             return;
         }
         try {
@@ -797,7 +797,7 @@ export default function UserManagementPage() {
 
     const handleVerification = async (uid: string, isVerified: boolean) => {
         if (isLocalAdminUiTestSession) {
-            toast.info("Verification changes require a real admin session. Local UI review is read-only.");
+            toast.info("permission_blocked: verification changes require verified admin access.");
             return;
         }
         try {
@@ -914,9 +914,9 @@ export default function UserManagementPage() {
                     data-admin-users-fixture-boundary="true"
                     data-admin-users-fixture-state="source_missing"
                 >
-                    <p className="font-bold">Local admin UI review only.</p>
+                    <p className="font-bold">source_missing fixture.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        This local review shows the users layout only. User metrics, feedback, task controls, identity, payment, and content access need a real admin session before they show verified records.
+                        source_missing: users source is not loaded in this fixture. Protected user records, metrics, feedback, task controls, identity, payment, and content access stay blocked.
                     </p>
                 </div>
             ) : null}
@@ -1640,7 +1640,7 @@ export default function UserManagementPage() {
                     >
                         <p className="font-bold text-white">Task controls require verified admin task data.</p>
                         <p className="mt-2 text-xs leading-5 text-gray-400">
-                            Local UI review keeps the task builder read-only and skips admin task reads/writes until a real admin session is available.
+                            permission_blocked: this fixture keeps the task builder read-only and skips protected task reads and writes.
                         </p>
                     </div>
                 ) : (

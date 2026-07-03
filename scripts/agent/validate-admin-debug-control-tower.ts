@@ -355,7 +355,7 @@ for (const expected of [
   "explainModerationRouteError",
   "threadCountLabel",
   "alertCountLabel",
-  "Waiting for admin session...",
+  "collecting: admin access and source state are resolving.",
   "/api/admin/moderation/threads",
   "/api/admin/moderation/threads/[threadId]",
 ]) {
@@ -364,7 +364,7 @@ for (const expected of [
 for (const expected of [
   "const displayCount = error",
   "\"Unknown\"",
-  "Waiting for admin session...",
+  "collecting: admin access and source state are resolving.",
   "safeErrorMessage",
   "data-moderation-alerts-safe-error=\"true\"",
   "adminSessionState",

@@ -46,7 +46,7 @@ describe("admin truth state", () => {
     expect(hasUsableAdminTruthValue("No sample")).toBe(false);
     expect(hasUsableAdminTruthValue("No source")).toBe(false);
     expect(hasUsableAdminTruthValue("Unavailable")).toBe(false);
-    expect(hasUsableAdminTruthValue("Waiting for verified route health from a real admin session")).toBe(false);
+    expect(hasUsableAdminTruthValue("collecting: route health source requires verified admin access")).toBe(false);
     expect(resolveAdminInputTruthState({
       value: "Not recorded",
     }).truthState).toBe("unavailable");
@@ -58,7 +58,7 @@ describe("admin truth state", () => {
   it("does not expose unavailable admin cards as having usable truth values", () => {
     expect(resolveAdminInputTruthState({
       truthState: "unavailable",
-      value: "Waiting for verified system state from a real admin session",
+      value: "collecting: system state source requires verified admin access",
     })).toMatchObject({
       truthState: "unavailable",
       hasUsableValue: false,

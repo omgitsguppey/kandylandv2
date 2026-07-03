@@ -10,13 +10,13 @@ describe("admin users fixture boundary", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-users-fixture-boundary="true"');
     expect(source).toContain('data-admin-users-fixture-state="source_missing"');
-    expect(source).toContain("This local review shows the users layout only.");
-    expect(source).toContain("User metrics, feedback, task controls, identity, payment, and content access need a real admin session");
+    expect(source).toContain("source_missing: users source is not loaded in this fixture.");
+    expect(source).toContain("Protected user records, metrics, feedback, task controls, identity, payment, and content access stay blocked.");
     expect(source).toContain("No consent source loaded");
     expect(source).toContain("Behavioral metrics wait for consent and source materialization before they can be shown.");
     expect(source).toContain('"-- exact / -- shown"');
     expect(source).toContain('"-- collecting / low-confidence rows"');
-    expect(source).toContain("No verified user source is loaded in local review");
+    expect(source).toContain("user source is not loaded in this fixture");
     expect(source).not.toContain("—");
     expect(source).not.toContain("·");
   });
@@ -32,7 +32,7 @@ describe("admin users fixture boundary", () => {
 
   it("keeps task controls read-only instead of mounting the task manager in fixture mode", () => {
     expect(source).toContain('data-admin-users-tasks-fixture-boundary="true"');
-    expect(source).toContain("Local UI review keeps the task builder read-only");
+    expect(source).toContain("permission_blocked: this fixture keeps the task builder read-only");
     expect(source).toContain("review latest task-trigger activity");
     expect(source).not.toContain("monitor live task triggers");
     expect(source).toContain("isLocalAdminUiTestSession ? (");
@@ -46,11 +46,11 @@ describe("admin users fixture boundary", () => {
     expect(source).not.toContain('No users found matching &quot;{searchQuery}&quot;');
   });
 
-  it("guards user-management mutations behind real admin sessions", () => {
-    expect(source).toContain("User status changes require a real admin session");
-    expect(source).toContain("Username changes require a real admin session");
-    expect(source).toContain("Content access changes require a real admin session");
-    expect(source).toContain("Role changes require a real admin session");
-    expect(source).toContain("Verification changes require a real admin session");
+  it("guards user-management mutations behind verified admin access", () => {
+    expect(source).toContain("permission_blocked: user status changes require verified admin access");
+    expect(source).toContain("permission_blocked: username changes require verified admin access");
+    expect(source).toContain("permission_blocked: content access changes require verified admin access");
+    expect(source).toContain("permission_blocked: role changes require verified admin access");
+    expect(source).toContain("permission_blocked: verification changes require verified admin access");
   });
 });

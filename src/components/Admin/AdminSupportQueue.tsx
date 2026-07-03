@@ -225,7 +225,7 @@ export function AdminSupportQueue() {
                         className="mt-3 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
                         data-admin-support-fixture-boundary="true"
                     >
-                        <span className="font-bold text-white">Local UI review only.</span> No verified support source is loaded for local review. Use a real admin session before reviewing or changing support threads.
+                        <span className="font-bold text-white">source_missing fixture.</span> source_missing: support source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
                     </div>
                 ) : null}
             </div>

@@ -11,8 +11,8 @@ describe("admin drops local fixture boundary", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-drops-fixture-boundary="true"');
     expect(source).toContain('data-admin-drops-fixture-state="source_missing"');
-    expect(source).toContain("No verified drop source is loaded for local review.");
-    expect(source).toContain("Use a real admin session before reviewing or changing drops.");
+    expect(source).toContain("source_missing: drop source is not loaded in this fixture.");
+    expect(source).toContain("Protected reads and writes stay blocked until verified admin access provides the source.");
     expect(source).toContain("useAdminDropsFeed({ enabled: !isLocalAdminUiTestSession })");
     expect(source).toContain("const ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS = 0");
     expect(source).toContain('useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS)');

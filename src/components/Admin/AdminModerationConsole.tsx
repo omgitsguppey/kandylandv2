@@ -51,7 +51,7 @@ function explainModerationRouteError(error: Error | null, route: string) {
     }
 
     if (error.message === "Not authenticated" || error.message === "Missing or invalid token") {
-        return "Waiting for admin session...";
+        return "collecting: admin access and source state are resolving.";
     }
 
     const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
@@ -124,7 +124,7 @@ export function AdminModerationConsole() {
             ["High/Critical", "No source", "No risk score source loaded"],
             ["Confirmed", "No source", "No server evidence source loaded"],
             ["Heuristic", "No source", "No heuristic evidence source loaded"],
-            ["Sources", "No source", "Real admin session required"],
+            ["Sources", "No source", "permission_blocked: source reads require verified admin access"],
         ]
         : [
             ["Unresolved", model.unresolvedAlerts, "Risk alerts in feed"],
@@ -197,9 +197,9 @@ export function AdminModerationConsole() {
                     data-admin-moderation-fixture-boundary="true"
                     data-admin-moderation-fixture-state="source_missing"
                 >
-                    <p className="font-bold">Local admin UI review only.</p>
+                    <p className="font-bold">source_missing fixture.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        No verified moderation source is loaded in local review. A real admin session is required for thread transcripts, risk alerts, media evidence, and security-event samples.
+                        source_missing: moderation source is not loaded in this fixture. Protected evidence reads stay blocked until verified admin access provides the source.
                     </p>
                 </div>
             ) : null}
@@ -256,10 +256,10 @@ export function AdminModerationConsole() {
                                     </button>
                                 );
                             })}
-                            {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-gray-400">Waiting for admin session...</div> : null}
-                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">No verified moderation thread source is loaded in local review.</div> : null}
+                            {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-gray-400">collecting: admin access and source state are resolving.</div> : null}
+                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">source_missing: moderation thread source is not loaded in this fixture.</div> : null}
                             {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400">Loading queue...</div> : null}
-                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">{isLocalFixtureSourceMissing ? "No moderation thread evidence is loaded for local review." : "No moderation threads linked."}</div> : null}
+                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">{isLocalFixtureSourceMissing ? "source_missing: moderation thread evidence is not loaded in this fixture." : "No moderation threads linked."}</div> : null}
                             {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(threadsError, "/api/admin/moderation/threads")}</div> : null}
                         </div>
                     </section>
@@ -319,7 +319,7 @@ export function AdminModerationConsole() {
                                                         {message.text ? <p className="text-sm leading-6 text-gray-200">{message.text}</p> : null}
                                                     </div>
                                                 ))}
-                                                {adminSessionState === "waiting_for_admin_session" ? <div className="text-xs text-gray-400">Waiting for admin session...</div> : null}
+                                                {adminSessionState === "waiting_for_admin_session" ? <div className="text-xs text-gray-400">collecting: admin access and source state are resolving.</div> : null}
                                                 {isLoadingMessages && messages.length === 0 ? <div className="text-xs text-gray-400">Loading transcript...</div> : null}
                                                 {messagesError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(messagesError, "/api/admin/moderation/threads/[threadId]")}</div> : null}
                                             </div>

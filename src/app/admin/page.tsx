@@ -34,7 +34,7 @@ export default function AdminDashboardPage() {
     const sourceMissingPanel = (
         <div className={fixtureFallbackClassName}>
             <AdminStatusBadge state="unavailable" className="mb-2" label="No source" />
-            <div>No verified overview source is loaded in local UI review.</div>
+            <div>source_missing: overview source is not loaded in this fixture.</div>
         </div>
     );
 
@@ -46,7 +46,7 @@ export default function AdminDashboardPage() {
             <AdminPageHeader
                 eyebrow={null}
                 title="Admin Overview"
-                subtitle={isLocalAdminUiTestSession ? "Local UI review only. Verified overview data is not loaded." : pageData.serverUpdateLabel}
+                subtitle={isLocalAdminUiTestSession ? "source_missing fixture. Verified overview data is not loaded." : pageData.serverUpdateLabel}
                 compact
                 actions={(
                     <div className="flex items-center gap-2">
@@ -62,9 +62,9 @@ export default function AdminDashboardPage() {
                     data-admin-overview-fixture-boundary="true"
                     data-admin-overview-fixture-state="source_missing"
                 >
-                    <p className="font-bold">Local admin UI review only.</p>
+                    <p className="font-bold">source_missing fixture.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        Overview layout is inspectable; platform pulse, drop queue, revenue, transactions, and admin activity require a real admin session before they can show verified snapshots.
+                        source_missing: layout is visible; verified overview data remains unavailable in this fixture.
                     </p>
                 </div>
             ) : null}

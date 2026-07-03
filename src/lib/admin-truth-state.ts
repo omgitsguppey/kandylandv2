@@ -87,7 +87,10 @@ export function hasUsableAdminTruthValue(...values: unknown[]) {
       const normalizedValue = value.trim().toLowerCase();
       return normalizedValue.length > 0
         && !ADMIN_MISSING_VALUE_LABELS.has(normalizedValue)
-        && !normalizedValue.startsWith("waiting for verified ");
+        && !normalizedValue.startsWith("waiting for verified ")
+        && !normalizedValue.startsWith("collecting:")
+        && !normalizedValue.startsWith("source_missing:")
+        && !normalizedValue.startsWith("permission_blocked:");
     }
 
     return value !== null && value !== undefined;

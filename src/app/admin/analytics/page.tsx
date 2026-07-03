@@ -655,7 +655,7 @@ export default function AdminAnalyticsPage() {
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
-              <span className="font-semibold text-white">Local UI review only.</span>{" "}
+              <span className="font-semibold text-white">source_missing fixture.</span>{" "}
               Layout works here; analytics data waits for verified snapshots from a real
               admin session.
             </p>

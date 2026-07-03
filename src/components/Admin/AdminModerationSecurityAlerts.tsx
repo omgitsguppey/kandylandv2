@@ -110,14 +110,14 @@ export function AdminModerationSecurityAlerts({
                     <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" aria-hidden="true" />Loading alerts...</div>
                 ) : null}
                 {adminSessionState === "waiting_for_admin_session" ? (
-                    <div className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-gray-400">Waiting for admin session...</div>
+                    <div className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-gray-400">collecting: admin access and source state are resolving.</div>
                 ) : null}
                 {adminSessionState === "local_fixture_source_missing" ? (
-                    <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">No verified risk-alert source is loaded in local review.</div>
+                    <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">source_missing: risk-alert source is not loaded in this fixture.</div>
                 ) : null}
                 {!isLoading && alerts.length === 0 && !error ? (
                     <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-gray-400">
-                        {adminSessionState === "local_fixture_source_missing" ? "No risk-alert evidence is loaded for local review." : "No unresolved risk alerts."}
+                        {adminSessionState === "local_fixture_source_missing" ? "source_missing: risk-alert evidence is not loaded in this fixture." : "No unresolved risk alerts."}
                     </div>
                 ) : null}
                 {safeErrorMessage ? (

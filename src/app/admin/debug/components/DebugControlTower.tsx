@@ -168,7 +168,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     data-admin-debug-control-tower-fixture-boundary="true"
                     data-admin-debug-control-tower-fixture-state="source_reports_only"
                 >
-                    Local UI review is using generated source reports. Live admin evidence, route samples, and protected actions still require a real admin session.
+                    source_missing fixture: generated source reports are loaded; live admin evidence, route samples, and protected actions stay blocked until verified admin access provides the source.
                 </div>
             ) : null}
 

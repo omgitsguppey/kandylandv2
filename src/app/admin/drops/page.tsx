@@ -835,7 +835,7 @@ export default function AdminDropsPage() {
                         data-admin-drops-fixture-boundary="true"
                         data-admin-drops-fixture-state="source_missing"
                     >
-                        No verified drop source is loaded for local review. Use a real admin session before reviewing or changing drops.
+                        source_missing: drop source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
                     </div>
                 ) : null}
 

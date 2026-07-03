@@ -831,7 +831,7 @@ export function useAdminAnalyticsState() {
 
     try {
       if (isLocalAdminUiTestSession) {
-        toast.info("Analytics preferences need a real admin session with verified snapshots.");
+        toast.info("permission_blocked: analytics preferences require verified admin access.");
         return;
       }
 

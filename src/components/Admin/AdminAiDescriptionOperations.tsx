@@ -355,7 +355,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
 
     const updateSettings = async (patch: Record<string, unknown>, successMessage: string) => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Description operations require a real admin session");
+            toast.error("permission_blocked: description operations require verified admin access");
             return;
         }
         setUpdatingSettings(true);
@@ -386,7 +386,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
 
     const handlePromptPolicySave = async () => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Description prompt changes require a real admin session");
+            toast.error("permission_blocked: description prompt changes require verified admin access");
             return;
         }
         setSavingPolicy(true);
@@ -424,7 +424,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
 
     const handleFeedback = async (jobId: string, action: "like" | "dislike" | "accept") => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Description feedback requires a real admin session");
+            toast.error("permission_blocked: description feedback requires verified admin access");
             return;
         }
         setFeedbackingJobId(jobId);
@@ -471,7 +471,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                     className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100"
                     data-admin-ai-description-fixture-boundary="true"
                 >
-                    <span className="font-semibold text-white">Local UI review only.</span> Description operations have no verified source until a real admin session loads AI evidence.
+                    <span className="font-semibold text-white">source_missing fixture.</span> source_missing: description operations source is not loaded in this fixture.
                 </div>
             ) : null}
             <div className={cn("overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/70 px-3 py-3 backdrop-blur", compact ? "" : "sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10")}>

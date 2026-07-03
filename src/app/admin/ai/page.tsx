@@ -105,8 +105,8 @@ export default function AIAdminPage() {
                     >
                         <div className="flex flex-wrap items-center gap-2">
                             <AdminStatusBadge state="unavailable" />
-                            <span className="font-bold text-white">Local UI review only.</span>
-                            <span>No verified Cover Ops source is loaded in this local review. Use a real admin session before reading runtime evidence, uploading references, changing settings, or reviewing generations.</span>
+                            <span className="font-bold text-white">source_missing fixture.</span>
+                            <span>source_missing: Cover Ops source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.</span>
                         </div>
                     </div>
                 ) : null}
