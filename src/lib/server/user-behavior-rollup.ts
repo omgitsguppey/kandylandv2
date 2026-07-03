@@ -106,7 +106,6 @@ function buildVerifiedEngagementFallbackInput(input: {
   const hasAnyVerifiedActivity = Boolean(
     verifiedActionSignals > 0
     || input.watchTimeMs > 0
-    || readNumber(input.lastSeenAt) > 0
   );
 
   return {

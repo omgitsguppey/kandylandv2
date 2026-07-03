@@ -110,6 +110,30 @@ describe("user behavior rollup", () => {
     ]));
   });
 
+  it("does not treat lastSeenAt alone as verified active-day engagement", () => {
+    const rollup = buildUserBehaviorRollup({
+      userId: "last_seen_only",
+      lastSeenAt: Date.now(),
+      hasRollup: true,
+      identifiedAnalyticsEnabled: true,
+      hasPrivacySettings: true,
+      engagementInput: {
+        normalizedActionCount7d: 0,
+        unwrappedCount30d: 0,
+        validWatchMinutes30d: 0,
+        purchaseCount90d: 0,
+        activeDays7d: 0,
+        freeGdEarned30d: 0,
+      },
+    });
+
+    expect(rollup.lastSeenAt).toBeGreaterThan(0);
+    expect(rollup.engagement.verifiedSignalPresent).toBe(false);
+    expect(rollup.engagement.inputs.activeDays7d).toBe(0);
+    expect(rollup.predictionOutputs.pReturn7d).toBe(0);
+    expect(rollup.engagement.score).toBe(0);
+  });
+
   it("does not apply the privacy floor when verified engagement signals exist under privacy limits", () => {
     const rollup = buildUserBehaviorRollup({
       userId: "privacy_limited_with_signal",
