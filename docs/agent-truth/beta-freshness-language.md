@@ -1,7 +1,7 @@
 # Beta Freshness Language
 
-Generated: 2026-07-03T07:06:23.026Z
-Latest code version: 20662265b1af9637c9472aa68c8442411824a1b8
+Generated: 2026-07-03T07:08:08.650Z
+Latest code version: 081e1c94e4fd0aada3bb54dd97419c8d8b654d03
 
 ## Doctrine
 
