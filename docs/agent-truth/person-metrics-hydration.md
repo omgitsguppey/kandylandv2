@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-07-03T00:38:59.347Z
+Generated: 2026-07-03T01:39:53.821Z
 Status: pass
-Current head: 625240b10a129f65e77fc5f6cef072111fc76e0a
+Current head: 157f27163820fed2713f830577dc1b555a9fa011
 
 ## Contract
 
@@ -72,21 +72,9 @@ Current head: 625240b10a129f65e77fc5f6cef072111fc76e0a
 
 ## Dirty Files
 
-- agent/state/individual-user-metric-truth.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-contract.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-identified-parity.generated.json: current_generated_artifact_to_commit
-- agent/state/user-tracking-live-evidence.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/individual-user-metric-truth.md: documentation_artifact_expected
-- docs/agent-truth/person-metrics-contract.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/user-tracking-live-evidence.md: documentation_artifact_expected
-- scripts/agent/score-telemetry-identified-parity.ts: validator_artifact_expected
-- scripts/agent/validate-identity-tracking-shared.ts: validator_artifact_expected
-- src/lib/analytics/person-metrics-engine.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- tests/unit/individual-user-metric-truth.spec.ts: test_artifact_expected
-- tests/unit/person-metrics-contract.spec.ts: test_artifact_expected
 - tests/unit/person-metrics-hydration.spec.ts: test_artifact_expected
 
 ## Active Old Logic

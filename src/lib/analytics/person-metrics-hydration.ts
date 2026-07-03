@@ -158,11 +158,6 @@ function bestConfidence(left: IdentityConfidence, right: IdentityConfidence): Id
   return CONFIDENCE_RANK[right] > CONFIDENCE_RANK[left] ? right : left;
 }
 
-function downgradeLegacyConfidence(confidence: IdentityConfidence): IdentityConfidence {
-  if (confidence === "exact" || confidence === "linked") return "inferred";
-  return confidence;
-}
-
 function sourceEventMap() {
   const map = new Map<string, PersonMetricDefinition[]>();
   for (const metric of PERSON_METRIC_DEFINITIONS) {
@@ -359,26 +354,6 @@ function applyDecisionGroup(input: {
   return { hydrated, suppressedDuplicates };
 }
 
-function legacyMetricFor(candidate: LegacyEventRecoveryCandidate) {
-  const eventName = candidate.normalizedEnvelopeCandidate.eventName;
-  return PERSON_METRIC_DEFINITIONS.find((metric) => metric.eventNames.includes(eventName)) ?? null;
-}
-
-function applyLegacyCandidate(scopes: Record<PersonMetricHydrationScope, PersonMetricScopeSummary>, candidate: LegacyEventRecoveryCandidate) {
-  if (candidate.action !== "normalize_candidate" && candidate.action !== "link_candidate") return false;
-  if (candidate.domain === "legacy_unknown") return false;
-  if (candidate.normalizedEnvelopeCandidate.includeInUserBehavior === false) return false;
-  const metric = legacyMetricFor(candidate);
-  if (!metric) return false;
-  const confidence = downgradeLegacyConfidence(candidate.identityConfidence === "unknown" ? "weak" : candidate.identityConfidence);
-  const entry = scopes.global.metrics[metric.id];
-  entry.count += 1;
-  entry.confidence = bestConfidence(entry.confidence, confidence);
-  entry.hydratedEventIds.push(candidate.legacyEventId);
-  entry.missingSourceExplanation = "";
-  return true;
-}
-
 function finalizeScope(scope: PersonMetricScopeSummary) {
   scope.totalCount = Object.values(scope.metrics).reduce((total, metric) => total + metric.count, 0);
   scope.lowConfidenceCount = Object.values(scope.metrics).filter((metric) => metric.count === 0 || metric.confidence !== "exact").length;
@@ -455,7 +430,7 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
     duplicateGuestUserCountsSuppressed += result.suppressedDuplicates;
   }
 
-  let candidatesHydrated = 0;
+  const candidatesHydrated = 0;
   let exactPromotionsBlocked = 0;
   let unknownLegacyArchived = 0;
   for (const candidate of legacyCandidates) {
@@ -466,7 +441,6 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
       continue;
     }
     if (candidate.identityConfidence === "exact") exactPromotionsBlocked += 1;
-    if (applyLegacyCandidate(scopes, candidate)) candidatesHydrated += 1;
   }
 
   for (const metricId of provenZeroMetricIds) {

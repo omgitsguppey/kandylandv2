@@ -208,6 +208,30 @@ describe("person metrics hydration", () => {
     expect(report.scopes.global.totalCount).toBe(0);
   });
 
+  it("reviews normalized legacy candidates without hydrating them into person metrics", () => {
+    const legacy = buildLegacyEventRecoveryCandidate({
+      legacyEventId: "legacy_drop_open_1",
+      rawEventName: "drop_clicked",
+      occurredAt: "2026-04-02T00:00:00.000Z",
+      source: "legacy_dump",
+      userId: "user_1",
+      sessionId: "session_1",
+      consentMode: "full_behavioral",
+      identityVerified: true,
+    });
+
+    const report = hydratePersonMetrics({ envelopes: [], legacyCandidates: [legacy] });
+
+    expect(legacy.action).toBe("normalize_candidate");
+    expect(legacy.normalizedEnvelopeCandidate.includeInUserBehavior).toBe(true);
+    expect(report.legacySummary.candidatesReviewed).toBe(1);
+    expect(report.legacySummary.candidatesHydrated).toBe(0);
+    expect(report.scopes.global.metrics.drop_opens.count).toBe(0);
+    expect(report.scopes.signedIn.metrics.drop_opens.count).toBe(0);
+    expect(report.metricStatus.drop_opens.state).toBe("collecting");
+    expect(report.userParityStatus.drop_opens.state).toBe("materializer_missing");
+  });
+
   it("does not count checkout starts as payment approvals", () => {
     const report = hydratePersonMetrics({
       envelopes: [envelope({ eventName: "begin_checkout", eventId: "checkout_1" })],
