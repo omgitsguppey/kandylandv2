@@ -431,7 +431,7 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
     case "Source evidence required":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.unknownEvidence;
     case "External proof required":
-      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.staleEvidence;
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.unknownEvidence;
     case "Runtime unverified":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.runtimeUnverified;
     case "Unknown evidence":

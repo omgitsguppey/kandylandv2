@@ -402,6 +402,9 @@ describe("public beta scoring math", () => {
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
         expect(smokeGate?.status).toBe("External proof required");
+        expect(report.readinessStatus).toBe("External proof required");
+        expect(report.overallScore).toBeGreaterThanOrEqual(80);
+        expect(report.overallScore).toBeLessThanOrEqual(report.healthScore);
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);
     });
