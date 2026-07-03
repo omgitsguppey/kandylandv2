@@ -1,30 +1,30 @@
 {
-  "generatedAtUtc": "2026-06-21T14:21:57.999Z",
+  "generatedAtUtc": "2026-07-03T00:18:45.135Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "a9f39a0099cec5fcc649a288d00b9c70b05143ff",
-  "sourceCommit": "a9f39a0099cec5fcc649a288d00b9c70b05143ff",
+  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "sourceCommit": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 92.5,
-    "costRiskScore": 92.5,
-    "staleCreatorDashboardInventoryIgnored": false,
-    "cloudRunSourceReady": true,
+    "sourceCostReadinessScore": 79.5,
+    "costRiskScore": 79.5,
+    "staleCreatorDashboardInventoryIgnored": true,
+    "cloudRunSourceReady": false,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 0
+    "p2Count": 1
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
-      "status": "source_guarded_external_review_remaining",
-      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
+      "status": "cost_review_required",
+      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
       "evidence": [
         "finalCostCurrent=true",
         "globalCostSourceClean=true",
-        "cloudRunGuarded=true",
+        "cloudRunGuarded=false",
         "externalBillingReviewed=false",
         "owner=speed-security-cost",
         "externalReviewRequired=true",
@@ -85,8 +85,8 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 92.5,
-  "costRiskScoreExplanation": "Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
+  "costRiskScore": 79.5,
+  "costRiskScoreExplanation": "Cost risk score 79.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
     "cloudRunSourceReady=true",
@@ -94,12 +94,16 @@
     "globalCostClean=true",
     "finalCostCurrent=true",
     "telemetryCurrent=true",
-    "costOwnerReviewSourceClosureCurrent=false",
-    "costRiskOwnerReviewClosureCurrent=false",
-    "costRiskExitPassCurrent=false"
+    "costOwnerReviewSourceClosureCurrent=true",
+    "costRiskOwnerReviewClosureCurrent=true",
+    "costRiskExitPassCurrent=true"
   ],
-  "staleArtifacts": [],
-  "ignoredLegacyArtifacts": [],
+  "staleArtifacts": [
+    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
+  ],
+  "ignoredLegacyArtifacts": [
+    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
+  ],
   "ownerReviewLanes": [
     "cloudRunCostReadiness",
     "cloudSqlCostReadiness",
@@ -114,21 +118,21 @@
     },
     {
       "command": "npm run check:cost-risk-exit-pass",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cost-risk-exit-pass.generated.json",
-      "detail": "Cost risk exit pass is missing or stale."
+      "detail": "Current cost risk exit pass is available."
     },
     {
       "command": "npm run check:cost-risk-owner-review-closure",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "detail": "Cost risk owner-review closure is missing or stale."
+      "detail": "Current cost risk owner-review closure is available."
     },
     {
       "command": "npm run check:cost-owner-review-source-closure",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cost-owner-review-source-closure.generated.json",
-      "detail": "Cost owner-review source closure is missing or stale."
+      "detail": "Current cost owner-review source closure is available."
     },
     {
       "command": "npm run check:cloud-sql-gemini-cost-guards",

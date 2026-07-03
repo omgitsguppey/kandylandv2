@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-07-02T23:36:59.810Z",
+  "generatedAtUtc": "2026-07-03T00:18:06.886Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "uiSurfaceCoverageScope": {
@@ -20,7 +20,7 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 64.74,
+      "score": 60.15,
       "note": "UI source coverage is the default readiness evidence; optional browser reproduction must follow a source-reported UI issue and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
@@ -28,7 +28,7 @@
     "category": "runtime_source_gate",
     "label": "Runtime source confidence",
     "confidence": "partial",
-    "score": 100,
+    "score": 73.45,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
     "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
@@ -50,7 +50,7 @@
     "category": "admin_truth_gate",
     "label": "Admin truth source confidence",
     "confidence": "partial",
-    "score": 55,
+    "score": 54,
     "sourcePath": "agent/state/admin-truth-source-sample.generated.json",
     "sourceStatus": "source_ready_admin_truth_sample",
     "distinction": "admin source sample earns partial confidence; clearing needs a matching source activity sample",
@@ -90,7 +90,7 @@
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 64.74,
+  "nonUiAlgorithmicCoverageScore": 60.15,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
     "deployedRuntimeSmokeCleared": false,
@@ -107,7 +107,7 @@
       "category": "runtime_source_gate",
       "label": "Runtime source confidence",
       "confidence": "partial",
-      "score": 100,
+      "score": 73.45,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
       "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
@@ -129,7 +129,7 @@
       "category": "admin_truth_gate",
       "label": "Admin truth source confidence",
       "confidence": "partial",
-      "score": 55,
+      "score": 54,
       "sourcePath": "agent/state/admin-truth-source-sample.generated.json",
       "sourceStatus": "source_ready_admin_truth_sample",
       "distinction": "admin source sample earns partial confidence; clearing needs a matching source activity sample",
@@ -171,10 +171,10 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "474679f6687733f112332f91dd0d05792682a4af",
+  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
   "scoreProbe": {
-    "runtimeHealthScore": 74.4,
-    "evidenceCompletenessScore": 58.4,
+    "runtimeHealthScore": 76.18,
+    "evidenceCompletenessScore": 65.4,
     "readinessStatus": "Source evidence required",
     "launchBlockers": [
       "Provider-backed site activity evidence: Source evidence required",

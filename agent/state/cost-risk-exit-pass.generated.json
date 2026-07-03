@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T03:34:31.635Z",
+  "generatedAtUtc": "2026-07-03T00:18:38.334Z",
   "reportKey": "cost-risk-exit-pass",
-  "currentHead": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
+  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -158,23 +158,23 @@
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 97.2,
-      "after": 97.2,
+      "before": 98.6,
+      "after": 98.6,
       "target": 80
     },
     "runtimeHealth": {
-      "before": 60.45,
-      "after": 60.45,
+      "before": 69.49,
+      "after": 69.49,
       "target": 80
     },
     "evidenceCompleteness": {
-      "before": 55.11,
-      "after": 55.11,
+      "before": 81.8,
+      "after": 81.8,
       "target": 80
     },
     "freshness": {
-      "before": 83.75,
-      "after": 83.75,
+      "before": 91.88,
+      "after": 91.88,
       "target": 80
     },
     "costRisk": {
@@ -188,8 +188,8 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 73.57,
-      "after": 77.32,
+      "before": 80.57,
+      "after": 84.32,
       "target": 80
     }
   },
@@ -216,11 +216,15 @@
   ],
   "dirtyFiles": [
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "agent/state/algorithmic-evidence-policy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -228,15 +232,87 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-cost-audit-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "path": "agent/state/real-usage-confidence-calibration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/algorithmic-evidence-policy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/cost-owner-review-source-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-cost-audit-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
       "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
@@ -258,7 +334,7 @@
     }
   ],
   "evidence": [
-    "currentHead=834b8addac00c455edeed2bc32fbfec8aa9e1475",
+    "currentHead=37e4ab766f919aae9fb025f4aedeb5a50c614da8",
     "costRiskBefore=42",
     "costRiskAfter=79.5",
     "sourceGuardedLaneCount=3",

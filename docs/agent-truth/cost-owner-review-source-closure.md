@@ -1,23 +1,23 @@
 # Cost Owner-Review Source Closure
 
-Generated: 2026-06-21T03:57:05.204Z
+Generated: 2026-07-03T00:18:31.605Z
 
 Status: pass
 
 ## Score Input
 
-- Cost risk score: 68.5
-- Source guarded lanes: 6
+- Cost risk score: 92.5
+- Source guarded lanes: 8
 - External billing reviewed: false
-- Explanation: Cost risk score 68.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.
+- Explanation: Cost risk score 92.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.
 
 ## Lanes
 
 | Lane | Status | Source guarded | External review required | Next action |
 | --- | --- | --- | --- | --- |
 | Cloud Run/App Hosting | source_guarded_external_review_remaining | true | true | Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof. |
-| Cloud SQL/Data Connect | owner_review_external_billing_required | false | true | Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console. |
-| Gemini/Cloud Assist/Vertex AI | cost_review_required | false | true | Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited. |
+| Cloud SQL/Data Connect | source_ready_no_runtime_usage_detected | true | true | Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console. |
+| Gemini/Cloud Assist/Vertex AI | source_guarded_external_review_remaining | true | true | Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited. |
 | Route 4xx | source_ready_retry_storm_guarded | true | false | Keep noisy 4xx routes typed, deduped, and non-retryable unless a validator proves retry is needed. |
 | BigQuery | source_ready_batched_or_cached | true | true | Verify BigQuery provider heartbeat/billing externally before treating warehouse evidence as full proof. |
 | Analytics ingest/retry storms | source_ready_retry_storm_guarded | true | false | Keep non-priority analytics batched and avoid retrying validation failures. |

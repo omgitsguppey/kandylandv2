@@ -1,8 +1,8 @@
 {
   "reportKey": "real-usage-confidence-calibration",
-  "generatedAtUtc": "2026-07-02T15:23:31.595Z",
-  "currentHead": "5061e1e9a0210a242282310961fd41fe469554a5",
-  "sourceCommit": "5061e1e9a0210a242282310961fd41fe469554a5",
+  "generatedAtUtc": "2026-07-03T00:18:06.183Z",
+  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
+  "sourceCommit": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
   "status": "source_ready_real_usage_confidence_calibrated",
   "detail": "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing typed provider, deployed route, or admin truth evidence gates.",
   "productionReadsRequired": false,

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T19:36:03.006Z",
+  "generatedAtUtc": "2026-07-03T00:18:17.889Z",
   "reportKey": "final-telemetry-closure-lock",
-  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
+  "currentHead": "37e4ab766f919aae9fb025f4aedeb5a50c614da8",
   "summary": {
     "clientTrackingClosed": true,
     "consentToggleClosed": false,
@@ -187,6 +187,11 @@
       "id": "runtime-smoke",
       "status": "stale_runtime_smoke_evidence",
       "nextAction": "Produce deployed route evidence before beta exit review."
+    },
+    {
+      "id": "admin-truth-sample",
+      "status": "stale_admin_truth_sample_evidence",
+      "nextAction": "Produce fresh admin source activity sample evidence before beta exit review."
     }
   ],
   "disabledTelemetryBehavior": [

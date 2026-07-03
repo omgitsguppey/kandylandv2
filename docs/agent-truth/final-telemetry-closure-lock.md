@@ -1,7 +1,7 @@
 # Final Telemetry Closure Lock
 
-Generated: 2026-06-21T19:36:03.006Z
-Current code version: 187d6964a50ddf5a4077b19e88471c7e23414b75
+Generated: 2026-07-03T00:18:17.889Z
+Current code version: 37e4ab766f919aae9fb025f4aedeb5a50c614da8
 
 ## Summary
 
@@ -52,6 +52,7 @@ Current code version: 187d6964a50ddf5a4077b19e88471c7e23414b75
 
 - provider-smoke: stale_provider_smoke_evidence; next: Produce provider-backed site activity evidence before beta exit review.
 - runtime-smoke: stale_runtime_smoke_evidence; next: Produce deployed route evidence before beta exit review.
+- admin-truth-sample: stale_admin_truth_sample_evidence; next: Produce fresh admin source activity sample evidence before beta exit review.
 
 ## Disabled Telemetry Behavior
 

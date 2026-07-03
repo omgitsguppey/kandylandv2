@@ -1,8 +1,8 @@
 # Source Evidence Bridge
 
-Generated: 2026-07-02T23:41:44.703Z
+Generated: 2026-07-03T00:18:06.303Z
 
-Current head: 595f9b1ad3168e0d35203134e104d63c5bdebdf5
+Current head: 37e4ab766f919aae9fb025f4aedeb5a50c614da8
 
 ## Summary
 
@@ -17,12 +17,12 @@ Current head: 595f9b1ad3168e0d35203134e104d63c5bdebdf5
 | Dimension | Before | After |
 | --- | ---: | ---: |
 | sourceHealth | 98.6 | 98.6 |
-| runtimeHealth | 74.89 | 74.89 |
-| evidenceCompleteness | 91.2 | 91.2 |
+| runtimeHealth | 69.49 | 69.49 |
+| evidenceCompleteness | 81.8 | 81.8 |
 | freshness | 91.88 | 91.88 |
 | costRisk | 42 | 42 |
 | regressionRisk | 94 | 94 |
-| overallHealthScore | 84.54 | 84.54 |
+| overallHealthScore | 80.57 | 80.57 |
 
 ## Bridge Gates
 
