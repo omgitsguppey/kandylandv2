@@ -69,6 +69,9 @@ requireIncludes(adminMetricsTest, "watchSessionsByUser", "Admin metrics tests mu
 requireIncludes(adminMetricsTest, "validWatchMs: 90_000", "Admin metrics tests must prove valid watch sessions award canonical watch time.");
 requireIncludes(watchRollupTest, "diagnostic estimates separate", "Watch rollup tests must prove diagnostic estimates do not increase watchTimeMs.");
 requireIncludes(watchRollupTest, "allowLegacyFallback: true", "Watch rollup tests must prove legacy fallback requires explicit opt-in.");
+requireIncludes(userBehaviorRollup, "Legacy page duration is diagnostic only and is not counted as canonical watch time.", "Behavior rollup must label legacy page duration as diagnostic only.");
+requireIncludes(userBehaviorRollup, "canonicalWatchTimeSource: \"watch_session_rollup\"", "Behavior rollup must preserve watch-session rollup as the canonical watch-time source.");
+requireIncludes(readFileSync(join(repoRoot, "tests/unit/user-behavior-rollup.spec.ts"), "utf8"), "keeps legacy page duration diagnostic instead of behavior watch time", "Behavior rollup tests must prove legacy page duration does not become watch time.");
 requireIncludes(docs, "analytics_watch_sessions.validWatchMs", "Watch-time doctrine must name the canonical watch-session field.");
 requireIncludes(docs, "`watchSecondsTotal` is diagnostic", "Watch-time doctrine must demote watchSecondsTotal to diagnostic context.");
 
@@ -82,6 +85,10 @@ if (userMetricsSnapshot.includes("allowLegacyFallback: true")) {
 
 if (userBehaviorRollup.includes("readNumber(input.watchTimeMs) || readNumber(input.watchSecondsTotal)")) {
   failures.push("Behavior rollup must not convert unlabeled watchSecondsTotal into canonical watchTimeMs.");
+}
+
+if (userBehaviorRollup.includes("labeledLegacyWatchTimeMs") || userBehaviorRollup.includes("explicitWatchTimeMs > 0 ? explicitWatchTimeMs")) {
+  failures.push("Behavior rollup must not fall back from watchTimeMs to labeled legacy page duration for canonical watchTimeMs.");
 }
 
 if (adminMetricsTest.includes("watchTimeMs: 90_000,")) {
