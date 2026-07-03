@@ -869,7 +869,7 @@ describe("public beta scoring math", () => {
             generatedAtUtc: freshGeneratedAtUtc,
             currentHead: "head",
             liveEvidenceBySystem: [{
-                liveRuntimeEvidenceStatus: "source_ready_waiting_for_activity",
+                liveRuntimeEvidenceStatus: "not_observed_but_expected",
                 dailyActivityImport: {
                     expectedPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
                     foundPaths: [],

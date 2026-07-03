@@ -30,7 +30,7 @@ describe("event translation bridge", () => {
     expect(envelope.featureId).toBe("drops");
     expect(envelope.metadata).toEqual({ dropId: "drop_1" });
 
-    const activity = translateEnvelopeToFeatureActivity({ envelope });
+    const activity = translateEnvelopeToFeatureActivity({ envelope, observedActivityCount: 1 });
     expect(activity).toMatchObject({
       featureId: "drops",
       producerRegistered: true,
@@ -90,6 +90,29 @@ describe("event translation bridge", () => {
       scoreDrag: false,
     });
     expect(detectTranslationGap({ envelope, featureActivity, personMetric }).hasGap).toBe(false);
+  });
+
+  it("does not infer observed activity when the bridge receives no activity count", () => {
+    const envelope = translateRawEventToEnvelope({
+      eventId: "evt_bridge_omitted_count",
+      eventName: "drop_clicked",
+      timestamp: "2026-05-23T00:00:00.000Z",
+      sessionId: "sess_omitted_count",
+      consentMode: "minimal_analytics",
+      source: "client",
+    });
+    const featureActivity = translateEnvelopeToFeatureActivity({ envelope });
+    const personMetric = translateEnvelopeToPersonMetric({ envelope });
+    const waiting = classifyWaitingOnActivityReason({ envelope, featureActivity, personMetric });
+
+    expect(featureActivity).toMatchObject({
+      observedActivityCount: 0,
+      activityStatus: "source_ready_future_activity",
+    });
+    expect(waiting).toMatchObject({
+      reason: "future_real_activity_pending",
+      scoreDrag: false,
+    });
   });
 
   it("flags exact missing producers and materializer gaps without faking activity", () => {

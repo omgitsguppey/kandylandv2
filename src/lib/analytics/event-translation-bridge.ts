@@ -254,7 +254,7 @@ export function translateEnvelopeToFeatureActivity(input: {
     && envelope.debugVisibility === "debug_visible");
   const scoreDimensionInputs = unique(surfaceEvent?.scoreDimensions ?? feature?.scoreDimensionsAffected ?? []);
   const scoreInputMapped = scoreDimensionInputs.length > 0 && Boolean(envelope.scoreImpact);
-  const observedActivityCount = Math.max(0, input.observedActivityCount ?? 1);
+  const observedActivityCount = Math.max(0, input.observedActivityCount ?? 0);
 
   return {
     eventName: envelope.eventName,
@@ -590,6 +590,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "tests/unit/admin-analytics-page.spec.tsx") return "test_artifact_expected";
   if (normalized === "src/lib/agent-score/core.ts") return "real_source_change_needs_review";
+  if (normalized === "tests/unit/public-beta-score.spec.ts") return "test_artifact_expected";
   if (/^agent\/state\/(debug-panel-output-triage|debug-runtime-evidence|event-translation-bridge|person-metrics-hydration|public-beta-score|repo-spring-cleaning-rewire|targeted-behavior-evidence|telemetry-admin-debug-truth|user-facing-feature-connection-audit)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/(debug-runtime-evidence|event-translation-bridge|person-metrics-hydration|targeted-behavior-evidence|telemetry-admin-debug-truth)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (/^tests\/unit\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui-cleanup|debug-cockpit-batch30-telemetry-parity|admin-data-validation)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
