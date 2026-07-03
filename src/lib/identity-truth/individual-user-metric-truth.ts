@@ -135,7 +135,7 @@ export function buildIndividualUserMetricTruthReport(report: PersonMetricsHydrat
   const unsafeUnknownMismatchCount = unsafeUnknownMismatches.length;
   const activeGlobalVsUserMismatchCount = unsafeUnknownMismatchCount;
   
-  const missingIdentityLinkCount = globalVsUserMismatchCount > 0 ? 1 : 0;
+  const missingIdentityLinkCount = activeGlobalVsUserMismatchCount > 0 ? 1 : 0;
 
   const hasOnlyClassifiedMismatches = Object.values(metricStatus)
     .filter((metric) => metric.globalOnlyMismatch)

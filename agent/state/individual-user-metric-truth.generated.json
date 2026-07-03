@@ -1,7 +1,7 @@
 {
   "reportKey": "individual-user-metric-truth",
-  "generatedAtUtc": "2026-07-03T00:39:09.573Z",
-  "currentHead": "625240b10a129f65e77fc5f6cef072111fc76e0a",
+  "generatedAtUtc": "2026-07-03T06:50:05.402Z",
+  "currentHead": "dc413affae8c5a51c2bb7244dbf01bdca3ade7f5",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",
@@ -10,7 +10,7 @@
   "activeGlobalVsUserMismatchCount": 0,
   "classifiedNonBlockingMismatchCount": 3,
   "expectedNoUserMappingCount": 3,
-  "missingIdentityLinkCount": 1,
+  "missingIdentityLinkCount": 0,
   "unsafeUnknownMismatchCount": 0,
   "duplicateSuppressionCount": 0,
   "unknownLegacyIdentityCount": 0,

@@ -1,14 +1,14 @@
 # Individual User Metric Truth
 
 - Status: pass
-- Current head: 625240b10a129f65e77fc5f6cef072111fc76e0a
+- Current head: dc413affae8c5a51c2bb7244dbf01bdca3ade7f5
 - Guest-to-user handoff: continuity_preserved_duplicate_suppressed
 - Individual metric hydration: classified
 - Global vs user mismatches surfaced: 3
 - Active global vs user mismatches: 0
 - Classified non-blocking mismatches: 3
 - Expected no-user-mapping events: 3
-- Missing identity links (requiring action): 1
+- Missing identity links (requiring action): 0
 - Unsafe unknown mismatches (active bugs): 0
 - Identity 4xx classes covered: 14
 - Live evidence: actionable_gap

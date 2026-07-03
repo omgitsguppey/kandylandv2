@@ -45,6 +45,9 @@ describe("individual user metric truth", () => {
     expect(globalOnly.metricStatus.page_views.state).toBe("hydrated");
     expect(report.metricStatus.page_views.userHydrationStatus).toBe("bridge_missing");
     expect(report.globalVsUserMismatchCount).toBeGreaterThan(0);
+    expect(report.activeGlobalVsUserMismatchCount).toBe(0);
+    expect(report.missingIdentityLinkCount).toBe(0);
+    expect(report.status).toBe("classified");
     expect(report.metricStatus.page_views.displayRule).toContain("not zero");
     expect(INDIVIDUAL_USER_METRIC_TRUTH.find((metric) => metric.metricId === "payment_approvals")?.sourceEvents)
       .toContain("server_purchase_verified");
