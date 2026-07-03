@@ -178,16 +178,6 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                             <MetricCard label="Reuse rate" value={data ? `${referenceReuseRate}%` : "Not recorded"} truthState={sectionTruthState} />
                                         </div>
                                     </div>
-                                    <details className="min-w-0 rounded-xl border border-white/10 bg-black/20 overflow-hidden group">
-                                        <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white hover:bg-white/[0.02]">
-                                            Why the next set looks different
-                                        </summary>
-                                        <div className="p-4 space-y-2 text-xs text-gray-300 border-t border-white/10">
-                                            <p className="break-words">The style lock keeps typography, ribbon rhythm, and poster finish stable.</p>
-                                            <p className="break-words">The subject lock now derives the hero object and palette from the flavor side of <span className="font-semibold text-white">Creator | Flavor</span>.</p>
-                                            <p className="break-words">Anti-anchoring blocks the reference subject from dictating the next food form unless the requested flavor matches it.</p>
-                                        </div>
-                                    </details>
                                 </div>
                             </div>
                         </AdminDashboardModule>
