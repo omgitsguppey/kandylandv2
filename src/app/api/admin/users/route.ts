@@ -2200,8 +2200,23 @@ async function GET_handler(request: NextRequest) {
       };
     });
 
-    const metricFailureUsers = Object.values(analyticsByUser).filter((entry) => (entry.metricIntegrityFailures || []).length > 0);
-    const recoveredMetricUsers = Object.values(analyticsByUser).filter((entry) => entry.recoveredFromFacts === true).length;
+    const analyticsEntries = Object.values(analyticsByUser);
+    const metricFailureUsers = [];
+    let recoveredMetricUsers = 0;
+    let unlockSpendGdTotalAnalytics = 0;
+    let totalEventsAnalytics = 0;
+
+    for (const entry of analyticsEntries) {
+        if ((entry.metricIntegrityFailures || []).length > 0) {
+            metricFailureUsers.push(entry);
+        }
+        if (entry.recoveredFromFacts === true) {
+            recoveredMetricUsers++;
+        }
+        unlockSpendGdTotalAnalytics += (entry.unlockSpendGdTotal || 0);
+        totalEventsAnalytics += (entry.eventCount || 0);
+    }
+
     if (metricFailureUsers.length > 0) {
       recordServerDiagnostic({
         channel: "analytics",
@@ -2231,7 +2246,7 @@ async function GET_handler(request: NextRequest) {
       : buildEmptyCommerceMetrics();
     const unlockSpendGdTotal = Math.max(
       Math.round(readMetric(commerceSummaryRaw, "unlockSpendGdTotal", "spendGdTotal")),
-      Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.unlockSpendGdTotal || 0), 0),
+      unlockSpendGdTotalAnalytics,
     );
     const metricsSnapshotMeta = buildAdminUserMetricsSnapshot({
       users,
@@ -2245,19 +2260,31 @@ async function GET_handler(request: NextRequest) {
     const userMetricsSnapshot = metricsSnapshotMeta.snapshot;
     const userTruthSnapshot = toAdminUserTruthSnapshot(metricsSnapshotMeta);
 
+    let totalCreators = 0;
+    let totalAdmins = 0;
+    let suspendedUsers = 0;
+    let bannedUsers = 0;
+
+    for (const user of users) {
+        if (user.role === "creator") totalCreators++;
+        if (user.role === "admin") totalAdmins++;
+        if (user.status === "suspended") suspendedUsers++;
+        if (user.status === "banned") bannedUsers++;
+    }
+
     const summaryBase: Omit<UsersSummary, "kpiCards" | "creatorOps"> = {
       totalUsers: userMetricsSnapshot.totalUsers,
-      totalCreators: users.filter((user) => user.role === "creator").length,
-      totalAdmins: users.filter((user) => user.role === "admin").length,
+      totalCreators,
+      totalAdmins,
       verifiedUsers: userMetricsSnapshot.verifiedUsers,
       activeUsers: userMetricsSnapshot.activeUsers,
-      suspendedUsers: users.filter((user) => user.status === "suspended").length,
-      bannedUsers: users.filter((user) => user.status === "banned").length,
+      suspendedUsers,
+      bannedUsers,
       notificationsEnabledUsers: userMetricsSnapshot.pushEnabledUsers,
       onboardingCompletedUsers: userMetricsSnapshot.onboardedUsers,
       activeLast7Days: userMetricsSnapshot.sevenDayReturners,
       returnedInLast7Days: userMetricsSnapshot.sevenDayReturners,
-      totalEvents: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.eventCount || 0), 0),
+      totalEvents: totalEventsAnalytics,
       totalUnwraps: userMetricsSnapshot.trackedUnwraps,
       totalPurchases: userMetricsSnapshot.trackedPurchases,
       totalWatchHours: Number(
@@ -2287,22 +2314,49 @@ async function GET_handler(request: NextRequest) {
       metricsSnapshot: userMetricsSnapshot,
       truthSnapshot: userTruthSnapshot,
     };
+    const creatorOpsValues = Array.from(creatorOpsByUser.values());
+    let creatorsWithFollowers = 0;
+    let totalFollowers = 0;
+    let totalAlertOptIns = 0;
+    let activeSubscriptions = 0;
+    let openRequests = 0;
+    let bookedCalls = 0;
+    let pendingPayouts = 0;
+    let openThreads = 0;
+    let pendingDropSubmissions = 0;
+    let totalAccruedGd = 0;
+    let pendingCashoutGd = 0;
+
+    for (const entry of creatorOpsValues) {
+        if (entry.followerCount > 0) creatorsWithFollowers++;
+        totalFollowers += entry.followerCount;
+        totalAlertOptIns += entry.notificationsEnabledCount;
+        activeSubscriptions += entry.activeSubscribers;
+        openRequests += entry.openRequests;
+        bookedCalls += entry.bookedCalls;
+        pendingPayouts += entry.pendingPayouts;
+        openThreads += entry.openThreads;
+        pendingDropSubmissions += entry.pendingDropSubmissions;
+        totalAccruedGd += entry.totalAccruedGd;
+        pendingCashoutGd += entry.pendingCashoutGd;
+    }
+
     const summary: UsersSummary = {
       ...summaryBase,
       kpiCards: buildAdminUsersKpiCards({ summary: summaryBase }),
       creatorOps: {
-        creatorsWithFollowers: Array.from(creatorOpsByUser.values()).filter((entry) => entry.followerCount > 0).length,
-        totalFollowers: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.followerCount, 0),
+        creatorsWithFollowers,
+        totalFollowers,
 
-        totalAlertOptIns: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
-        activeSubscriptions: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.activeSubscribers, 0),
-        openRequests: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.openRequests, 0),
-        bookedCalls: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.bookedCalls, 0),
-        pendingPayouts: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingPayouts, 0),
-        openThreads: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.openThreads, 0),
-        pendingDropSubmissions: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingDropSubmissions, 0),
-        totalAccruedGd: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.totalAccruedGd, 0),
-        pendingCashoutGd: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingCashoutGd, 0),
+        totalAlertOptIns,
+        activeSubscriptions,
+        openRequests,
+        bookedCalls,
+        pendingPayouts,
+        openThreads,
+        pendingDropSubmissions,
+        totalAccruedGd,
+        pendingCashoutGd,
       },
     };
 

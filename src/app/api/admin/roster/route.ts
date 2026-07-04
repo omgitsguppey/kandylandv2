@@ -733,28 +733,73 @@ async function GET_handler(request: NextRequest) {
                 .slice(0, 8)
             : [];
 
-        const creatorOpsValues = creatorUsers.map((entry) => creatorOpsByUser.get(entry.uid) ?? buildEmptyCreatorOpsAggregate());
+        let verifiedCreatorCount = 0;
+        let activeCreatorCount = 0;
+        for (const entry of creatorUsers) {
+            if (entry.isVerified) verifiedCreatorCount++;
+            if (entry.status === "active") activeCreatorCount++;
+        }
+
+        let totalFollowers = 0;
+        let totalAlertOptIns = 0;
+        let activeSubscriptions = 0;
+        let openRequests = 0;
+        let bookedCalls = 0;
+        let pendingPayouts = 0;
+        let openThreads = 0;
+        let pendingDropSubmissions = 0;
+        let totalAccruedGd = 0;
+        let pendingCashoutGd = 0;
+
+        for (const entry of creatorUsers) {
+            const ops = creatorOpsByUser.get(entry.uid) ?? buildEmptyCreatorOpsAggregate();
+            totalFollowers += ops.followerCount;
+            totalAlertOptIns += ops.notificationsEnabledCount;
+            activeSubscriptions += ops.activeSubscribers;
+            openRequests += ops.openRequests;
+            bookedCalls += ops.bookedCalls;
+            pendingPayouts += ops.pendingPayouts;
+            openThreads += ops.openThreads;
+            pendingDropSubmissions += ops.pendingDropSubmissions;
+            totalAccruedGd += ops.totalAccruedGd;
+            pendingCashoutGd += ops.pendingCashoutGd;
+        }
+
+        let readyForApprovalCount = 0;
+        let waitingOnIdCount = 0;
+        let waitingOnLegalCount = 0;
+        let needsChangesCount = 0;
+        let rejectedCount = 0;
+
+        for (const entry of creatorReviewQueue) {
+            if (entry.queueBucket === "ready_for_approval") readyForApprovalCount++;
+            else if (entry.queueBucket === "waiting_on_id") waitingOnIdCount++;
+            else if (entry.queueBucket === "waiting_on_legal") waitingOnLegalCount++;
+            else if (entry.queueBucket === "needs_changes") needsChangesCount++;
+            else if (entry.queueBucket === "rejected") rejectedCount++;
+        }
+
         const summary = {
             creatorCount: creatorUsers.length,
-            verifiedCreatorCount: creatorUsers.filter((entry) => entry.isVerified).length,
-            activeCreatorCount: creatorUsers.filter((entry) => entry.status === "active").length,
-            totalFollowers: creatorOpsValues.reduce((sum, entry) => sum + entry.followerCount, 0),
+            verifiedCreatorCount,
+            activeCreatorCount,
+            totalFollowers,
 
-            totalAlertOptIns: creatorOpsValues.reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
-            activeSubscriptions: creatorOpsValues.reduce((sum, entry) => sum + entry.activeSubscribers, 0),
-            openRequests: creatorOpsValues.reduce((sum, entry) => sum + entry.openRequests, 0),
-            bookedCalls: creatorOpsValues.reduce((sum, entry) => sum + entry.bookedCalls, 0),
-            pendingPayouts: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingPayouts, 0),
-            openThreads: creatorOpsValues.reduce((sum, entry) => sum + entry.openThreads, 0),
-            pendingDropSubmissions: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingDropSubmissions, 0),
-            totalAccruedGd: creatorOpsValues.reduce((sum, entry) => sum + entry.totalAccruedGd, 0),
-            pendingCashoutGd: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingCashoutGd, 0),
+            totalAlertOptIns,
+            activeSubscriptions,
+            openRequests,
+            bookedCalls,
+            pendingPayouts,
+            openThreads,
+            pendingDropSubmissions,
+            totalAccruedGd,
+            pendingCashoutGd,
             reviewQueueCount: creatorReviewQueue.length,
-            readyForApprovalCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "ready_for_approval").length,
-            waitingOnIdCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "waiting_on_id").length,
-            waitingOnLegalCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "waiting_on_legal").length,
-            needsChangesCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "needs_changes").length,
-            rejectedCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "rejected").length,
+            readyForApprovalCount,
+            waitingOnIdCount,
+            waitingOnLegalCount,
+            needsChangesCount,
+            rejectedCount,
         };
 
         return NextResponse.json({
