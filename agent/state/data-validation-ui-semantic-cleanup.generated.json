@@ -1,7 +1,7 @@
 {
   "reportKey": "data-validation-ui-semantic-cleanup",
-  "generatedAtUtc": "2026-06-19T04:51:19.317Z",
-  "currentHead": "343fe21c2f5c75dd383d43532c80f64322c9b58f",
+  "generatedAtUtc": "2026-07-05T00:12:42.426Z",
+  "currentHead": "205d5fa74329f0144845fef2b62937263b5fe4dd",
   "ui": {
     "summaryPills": [
       {
@@ -34,11 +34,11 @@
   "canClearAdminTruthGate": false,
   "nextExactSteps": [
     "Run npm run check:data-validation-ui-semantic-cleanup after touching this debug/source validation lane.",
-    "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates."
+    "Use deployed route evidence and redacted admin source activity samples separately before clearing typed evidence gates."
   ],
   "doesNotProve": [
     "Does not prove live bug-report volume.",
-    "Does not prove provider/runtime behavior.",
-    "Does not prove current admin truth samples."
+    "Does not prove provider-backed site activity or deployed route behavior.",
+    "Does not prove current admin source activity samples."
   ]
 }
