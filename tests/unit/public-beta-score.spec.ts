@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -20,6 +21,15 @@ const staleGeneratedAtUtc = "2026-05-01T00:00:00.000Z";
 function tempScoreRoot() {
     const root = mkdtempSync(join(tmpdir(), "kandydrops-beta-score-"));
     mkdirSync(join(root, "agent/state"), { recursive: true });
+    execFileSync("git", ["init", "-q"], { cwd: root });
+    execFileSync("git", ["config", "user.email", "test@example.invalid"], { cwd: root });
+    execFileSync("git", ["config", "user.name", "KandyDrops Test"], { cwd: root });
+    writeFileSync(join(root, ".gitkeep"), "");
+    execFileSync("git", ["add", ".gitkeep"], { cwd: root });
+    execFileSync("git", ["commit", "-qm", "seed"], { cwd: root });
+    writeFileSync(join(root, ".gitkeep"), "ready\n");
+    execFileSync("git", ["add", ".gitkeep"], { cwd: root });
+    execFileSync("git", ["commit", "-qm", "ready"], { cwd: root });
     return root;
 }
 
@@ -320,6 +330,24 @@ describe("public beta scoring math", () => {
 
         expect(report.operatorFinalChecks.uiVisualSurfaces.needsOperatorReview).toBe(true);
         expect(report.launchClearance.formalGates.uiSurfaceCoverage.cleared).toBe(false);
+    });
+
+    it("clears the UI source lane from deterministic source coverage without implying provider proof", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: missingProviderSmokeEvidence,
+            },
+        });
+
+        expect(report.operatorFinalChecks.uiVisualSurfaces.sourceChecksPassed).toBe(true);
+        expect(report.launchClearance.formalGates.uiSurfaceCoverage).toMatchObject({
+            cleared: true,
+            status: "source_surface_checks_current",
+            source: "agent/state/ui-visual-smoke-minimal.generated.json",
+        });
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
     });
 
     it("classifies missing provider smoke as source evidence required", () => {
