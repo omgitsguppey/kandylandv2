@@ -1,19 +1,19 @@
 {
-  "generatedAtUtc": "2026-07-03T05:43:06.511Z",
+  "generatedAtUtc": "2026-07-05T01:11:35.461Z",
   "reportKey": "source-backed-runtime-confidence",
-  "currentHead": "4e28dfa2ed4cd568f65258f6919801e8caca5f72",
-  "sourceCommit": "4e28dfa2ed4cd568f65258f6919801e8caca5f72",
-  "status": "partial_source_runtime_confidence",
-  "passed": false,
-  "runtimeContractsPresent": false,
+  "currentHead": "eab156ec8670f1e777d277b1c18485031290f2dd",
+  "sourceCommit": "eab156ec8670f1e777d277b1c18485031290f2dd",
+  "status": "source_ready_runtime_confidence",
+  "passed": true,
+  "runtimeContractsPresent": true,
   "deployedSmokePresent": false,
   "watchTimeRuntimeSourceReady": true,
-  "telemetryPipelineSourceReady": false,
+  "telemetryPipelineSourceReady": true,
   "walletLoadingSourceReady": true,
   "creatorDropStatusRuntimeSourceReady": true,
   "globalUserDedupeSourceReady": true,
   "operatorRevenueSmokeSourceSignal": true,
-  "runtimeConfidenceScore": 65,
+  "runtimeConfidenceScore": 100,
   "launchGateImpact": "does_not_clear_runtime_smoke",
   "formalEvidenceImpact": "source_runtime_confidence_only",
   "doesNotClear": [
@@ -31,15 +31,15 @@
     },
     {
       "command": "npm run check:final-telemetry-closure-lock",
-      "status": "fail",
+      "status": "pass",
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json was generated from an older code version."
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json was generated for the current code version."
     },
     {
       "command": "npm run check:telemetry-admin-debug-truth",
-      "status": "fail",
+      "status": "pass",
       "artifactPath": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "detail": "agent/state/telemetry-admin-debug-truth.generated.json was generated from an older code version."
+      "detail": "agent/state/telemetry-admin-debug-truth.generated.json was generated for the current code version."
     },
     {
       "command": "npm run check:mobile-loading-hydration-stability",
@@ -73,22 +73,22 @@
     }
   ],
   "evidence": [
-    "runtimeContractsPresent=false",
+    "runtimeContractsPresent=true",
     "deployedSmokePresent=false",
     "watchTimeRuntimeSourceReady=true",
-    "telemetryPipelineSourceReady=false",
+    "telemetryPipelineSourceReady=true",
     "walletLoadingSourceReady=true",
     "creatorDropStatusRuntimeSourceReady=true",
     "globalUserDedupeSourceReady=true",
     "operatorRevenueSmokeSourceSignal=true",
-    "runtimeConfidenceScore=65",
+    "runtimeConfidenceScore=100",
     "launchGateImpact=does_not_clear_runtime_smoke"
   ],
   "nextAction": "Produce deployed route evidence before clearing runtime evidence gates.",
   "summary": {
-    "runtimeContractsPresent": false,
+    "runtimeContractsPresent": true,
     "deployedSmokePresent": false,
-    "runtimeConfidenceScore": 65,
+    "runtimeConfidenceScore": 100,
     "launchGateImpact": "does_not_clear_runtime_smoke",
     "formalRuntimeSmokeStillRequired": true
   }

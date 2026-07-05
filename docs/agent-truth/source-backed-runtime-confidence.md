@@ -1,14 +1,14 @@
 # Source-Backed Runtime Confidence
 
-Generated: 2026-07-03T05:43:06.511Z
+Generated: 2026-07-05T01:11:35.461Z
 
-Latest code version: 4e28dfa2ed4cd568f65258f6919801e8caca5f72
+Latest code version: eab156ec8670f1e777d277b1c18485031290f2dd
 
 ## Summary
 
-- Status: `partial_source_runtime_confidence`
-- Runtime confidence score: 65
-- Runtime contracts present: false
+- Status: `source_ready_runtime_confidence`
+- Runtime confidence score: 100
+- Runtime contracts present: true
 - Deployed smoke present: false
 - Launch gate impact: `does_not_clear_runtime_smoke`
 - Deployed route evidence still required: true
@@ -16,7 +16,7 @@ Latest code version: 4e28dfa2ed4cd568f65258f6919801e8caca5f72
 ## Source-Ready Runtime Lanes
 
 - Watch time runtime source ready: true
-- Telemetry pipeline source ready: false
+- Telemetry pipeline source ready: true
 - Wallet loading source ready: true
 - Creator drop status runtime source ready: true
 - Global user dedupe source ready: true
@@ -27,8 +27,8 @@ Latest code version: 4e28dfa2ed4cd568f65258f6919801e8caca5f72
 | Command | Status | Artifact | Detail |
 | --- | --- | --- | --- |
 | npm run check:runtime-watch-time-v2 | pass | agent/state/runtime-watch-time-v2.generated.json | agent/state/runtime-watch-time-v2.generated.json is older than HEAD but no owned source inputs changed. |
-| npm run check:final-telemetry-closure-lock | fail | agent/state/final-telemetry-closure-lock.generated.json | agent/state/final-telemetry-closure-lock.generated.json was generated from an older code version. |
-| npm run check:telemetry-admin-debug-truth | fail | agent/state/telemetry-admin-debug-truth.generated.json | agent/state/telemetry-admin-debug-truth.generated.json was generated from an older code version. |
+| npm run check:final-telemetry-closure-lock | pass | agent/state/final-telemetry-closure-lock.generated.json | agent/state/final-telemetry-closure-lock.generated.json was generated for the current code version. |
+| npm run check:telemetry-admin-debug-truth | pass | agent/state/telemetry-admin-debug-truth.generated.json | agent/state/telemetry-admin-debug-truth.generated.json was generated for the current code version. |
 | npm run check:mobile-loading-hydration-stability | pass | agent/state/mobile-loading-hydration-stability.generated.json | agent/state/mobile-loading-hydration-stability.generated.json is older than HEAD but no owned source inputs changed. |
 | npm run check:user-loading-wallet-mobile-refinement | pass | agent/state/user-loading-wallet-mobile-refinement.generated.json | agent/state/user-loading-wallet-mobile-refinement.generated.json is older than HEAD but no owned source inputs changed. |
 | npm run check:creator-drop-status-metrics | pass | agent/state/creator-drop-status-metrics.generated.json | agent/state/creator-drop-status-metrics.generated.json is older than HEAD but no owned source inputs changed. |
