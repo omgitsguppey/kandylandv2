@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-05T01:27:54.681Z",
+  "generatedAtUtc": "2026-07-05T01:41:39.255Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "7be0129c345767e7c85ea7854f5e036f8df4746c",
+  "currentHead": "aa03645b4bbfaebfb9008adc219369204b8abcef",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -76,7 +76,7 @@
         "sourceStatus": "formal_runtime_smoke_passed",
         "sourcePath": "agent/state/runtime-smoke-evidence.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "7be0129c345767e7c85ea7854f5e036f8df4746c",
+        "sourceCommit": "aa03645b4bbfaebfb9008adc219369204b8abcef",
         "canClearGate": true,
         "nextAction": "Produce or refresh deployed route evidence for the current code version."
       },
@@ -88,7 +88,7 @@
         "sourceStatus": "formal_admin_truth_sample_passed",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "7be0129c345767e7c85ea7854f5e036f8df4746c",
+        "sourceCommit": "aa03645b4bbfaebfb9008adc219369204b8abcef",
         "canClearGate": true,
         "nextAction": "Produce or refresh redacted admin source activity evidence for the current code version."
       }
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T01:27:54.681Z",
+      "generatedAtUtc": "2026-07-05T01:41:39.255Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T01:27:24.690Z",
-      "ageHours": 0.008330833333333334,
+      "generatedAtUtc": "2026-07-05T01:40:26.672Z",
+      "ageHours": 0.020161944444444444,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -168,8 +168,8 @@
       "label": "Evidence capture status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T01:27:26.131Z",
-      "ageHours": 0.007930555555555555,
+      "generatedAtUtc": "2026-07-05T01:41:37.038Z",
+      "ageHours": 0.0006158333333333334,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,

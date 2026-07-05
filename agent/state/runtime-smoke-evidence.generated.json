@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-07-05T01:28:17.265Z",
+  "generatedAtUtc": "2026-07-05T01:41:19.367Z",
   "reportKey": "runtime-smoke-evidence",
-  "currentHead": "7be0129c345767e7c85ea7854f5e036f8df4746c",
-  "sourceCommit": "7be0129c345767e7c85ea7854f5e036f8df4746c",
+  "currentHead": "aa03645b4bbfaebfb9008adc219369204b8abcef",
+  "sourceCommit": "aa03645b4bbfaebfb9008adc219369204b8abcef",
   "overallStatus": "formal_runtime_smoke_passed",
   "status": "formal_runtime_smoke_passed",
   "runtimeDeploymentSmokePassed": true,
