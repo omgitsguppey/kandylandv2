@@ -1,7 +1,7 @@
 {
   "reportKey": "creator-monetization-readiness-lock",
-  "generatedAtUtc": "2026-07-03T05:42:03.118Z",
-  "currentHead": "4e28dfa2e",
+  "generatedAtUtc": "2026-07-05T00:39:45.157Z",
+  "currentHead": "e963678ba",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -36,11 +36,23 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/creator-experience-simplification.generated.json",
+      "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.redacted.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/admin-truth-sample-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -48,11 +60,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "path": "agent/state/evidence-capture-status.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -64,15 +80,23 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/user-creator-ui-parity.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -80,12 +104,44 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "documentation_artifact_expected"
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-evidence-capture-status.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/agent-score/evidence-quality.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "classification": "current_source_change"
     }
   ],
   "validationFailures": []

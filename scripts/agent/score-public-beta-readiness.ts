@@ -18,7 +18,10 @@ import {
   type RefreshArtifactInput,
 } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
-import { readGeneratedArtifactGitContext } from "../../src/lib/agent-score/generated-artifact-version-policy";
+import {
+  classifyGeneratedArtifactVersion,
+  readGeneratedArtifactGitContext,
+} from "../../src/lib/agent-score/generated-artifact-version-policy";
 import {
   summarizeUiVisualSmokeEvidenceForScore,
   type UiVisualSmokeMinimalReport,
@@ -43,6 +46,48 @@ const REQUIRED_EVIDENCE_REPORTS = [
   "agent/state/media-discovery-score-lock.generated.json",
   "agent/state/creator-monetization-readiness-lock.generated.json",
 ] as const;
+
+const REQUIRED_REPORT_OWNED_SOURCE_PATHS: Record<string, string[]> = {
+  "agent/state/creator-experience-simplification.generated.json": [
+    "scripts/agent/validate-creator-experience-simplification.ts",
+    "src/app/creators",
+    "src/components/Creators",
+  ],
+  "agent/state/user-creator-ui-parity.generated.json": [
+    "scripts/agent/validate-user-creator-ui-parity.ts",
+    "src/app",
+    "src/components",
+  ],
+  "agent/state/targeted-behavior-evidence.generated.json": [
+    "scripts/agent/validate-targeted-behavior-evidence.ts",
+    "scripts/agent/validate-targeted-behavior-evidence-repair.ts",
+    "agent/state/final-parity-telemetry-lock.generated.json",
+    "agent/state/media-discovery-score-lock.generated.json",
+    "agent/state/creator-monetization-readiness-lock.generated.json",
+  ],
+  "agent/state/final-parity-telemetry-lock.generated.json": [
+    "scripts/agent/validate-final-parity-telemetry-lock.ts",
+    "src/lib/parity",
+    "src/lib/analytics",
+    "src/lib/identity-truth",
+    "src/app",
+    "src/components",
+  ],
+  "agent/state/media-discovery-score-lock.generated.json": [
+    "scripts/agent/validate-media-discovery-score-lock.ts",
+    "src/lib/media",
+    "src/lib/analytics",
+    "src/app",
+    "src/components",
+  ],
+  "agent/state/creator-monetization-readiness-lock.generated.json": [
+    "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+    "src/lib/creator",
+    "src/lib/analytics",
+    "src/app/creators",
+    "src/components/Creators",
+  ],
+};
 
 const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.generated.json";
 const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generated.json";
@@ -114,9 +159,15 @@ function collectRefreshArtifacts(root: string, currentHead: string, generatedAtU
       parentHead: gitContext?.parentHead,
       changedFilesInHead: gitContext?.changedFilesInHead,
       changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
+      ownedSourcePaths: entry.ownedSourcePaths,
       exists: true,
     };
   });
+}
+
+function ownedSourcePathsForReport(reportPath: string) {
+  const registryEntry = REFRESH_ARTIFACT_REGISTRY.find((entry) => entry.artifactPath === reportPath);
+  return registryEntry?.ownedSourcePaths ?? REQUIRED_REPORT_OWNED_SOURCE_PATHS[reportPath] ?? [];
 }
 
 function readRecord(value: unknown): Record<string, unknown> {
@@ -268,7 +319,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
   };
 }
 
-function collectGeneratedReportEvidence(root: string, now = Date.now()): PublicBetaGeneratedReportEvidence[] {
+function collectGeneratedReportEvidence(root: string, currentHead?: string, now = Date.now()): PublicBetaGeneratedReportEvidence[] {
   return REQUIRED_EVIDENCE_REPORTS.map((reportPath) => {
     const fullPath = join(root, reportPath);
     if (!existsSync(fullPath)) {
@@ -283,19 +334,46 @@ function collectGeneratedReportEvidence(root: string, now = Date.now()): PublicB
         ? parsed.generatedAt
         : stats.mtime.toISOString();
     const ageHours = (now - Date.parse(generatedAt)) / (60 * 60 * 1000);
+    const artifactHead = typeof parsed.sourceCommit === "string"
+      ? parsed.sourceCommit
+      : typeof parsed.currentHead === "string"
+        ? parsed.currentHead
+        : undefined;
+    const gitContext = artifactHead && currentHead
+      ? readGeneratedArtifactGitContext(root, artifactHead, reportPath)
+      : null;
+    const version = artifactHead && currentHead
+      ? classifyGeneratedArtifactVersion({
+        artifactPath: reportPath,
+        artifactHead,
+        currentHead,
+        parentHead: gitContext?.parentHead,
+        changedFilesInHead: gitContext?.changedFilesInHead,
+        changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
+        ownedSourcePaths: ownedSourcePathsForReport(reportPath),
+      })
+      : null;
     const embeddedFreshness = parsed.freshness === "fresh" || parsed.freshness === "stale" || parsed.freshness === "unknown"
       ? parsed.freshness
       : undefined;
-    const freshness = embeddedFreshness ?? (
-      Number.isFinite(ageHours) && ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS ? "fresh" : "stale"
-    );
+    const freshness = version && !version.needsRefresh
+      ? "fresh"
+      : version?.status === "stale_source_version"
+        ? "stale"
+        : version?.status === "missing_version"
+          ? "unknown"
+          : embeddedFreshness ?? (
+            Number.isFinite(ageHours) && ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS ? "fresh" : "stale"
+          );
 
     return {
       path: reportPath,
       generatedAt,
-      sourceCommit: typeof parsed.sourceCommit === "string" ? parsed.sourceCommit : undefined,
+      sourceCommit: artifactHead,
       freshness,
       ageHours: Number.isFinite(ageHours) ? ageHours : undefined,
+      currentHead,
+      versionStatus: version?.status,
     };
   });
 }
@@ -452,6 +530,7 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
   const status = readString(parsed.overallStatus) ?? readString(parsed.status) ?? "missing_or_unknown";
   const sampleCount = readNumber(parsed.sampleCount) ?? 0;
   const freshSampleAttached = readBoolean(parsed.freshAdminTruthSampleAttached) === true;
+  const formalAdminTruthSamplePassed = readBoolean(parsed.formalAdminTruthSamplePassed) === true;
   const adminGatePassed = readBoolean(readinessImpact.adminTruthSampleGatePassed) === true;
   const passed = freshSampleAttached && adminGatePassed && sampleCount > 0 && status !== "missing_or_unknown";
   if (!passed) {
@@ -468,6 +547,7 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
     evidence: [
       `adminTruthSampleArtifactStatus=${status}`,
       `freshAdminTruthSampleAttached=${freshSampleAttached}`,
+      `formalAdminTruthSamplePassed=${formalAdminTruthSamplePassed}`,
       `readinessImpact.adminTruthSampleGatePassed=${adminGatePassed}`,
       `sampleCount=${sampleCount}`,
       ...evidenceLinesFromArray(parsed.adminTruthCommandEvidence, "adminTruthCommandEvidence"),
@@ -948,7 +1028,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
     currentHead,
     debugEvidence,
     evidence: {
-      requiredReports: collectGeneratedReportEvidence(root),
+      requiredReports: collectGeneratedReportEvidence(root, currentHead),
       debugRuntimeEvidenceArtifact: readDebugRuntimeOrEventTranslationEvidence(root),
       runtimeSmokeSubstituteMatrixEvidence: readRuntimeSmokeSubstituteMatrixEvidence(root),
       targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),

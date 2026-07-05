@@ -87,6 +87,7 @@ export type PublicBetaGeneratedReportEvidence = {
   freshness?: "fresh" | "stale" | "unknown" | "missing";
   ageHours?: number;
   currentHead?: string;
+  versionStatus?: "current_head" | "same_commit_snapshot" | "current_by_impact" | "stale_source_version" | "missing_version";
 };
 
 export type PublicBetaEvidenceStatus =
@@ -788,7 +789,11 @@ function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvide
   const staleReports = requiredReports.filter((report) => report.freshness === "stale");
   const unknownReports = requiredReports.filter((report) => report.freshness === "unknown" || !report.freshness);
   const commitMismatches = requiredReports.filter((report) =>
-    report.sourceCommit && report.currentHead && report.sourceCommit !== report.currentHead);
+    report.sourceCommit
+    && report.currentHead
+    && report.sourceCommit !== report.currentHead
+    && report.versionStatus !== "same_commit_snapshot"
+    && report.versionStatus !== "current_by_impact");
 
   if (missingReports.length > 0) {
     return {
@@ -1266,7 +1271,9 @@ export function buildPublicBetaEvidenceGates(input: {
   );
   const adminTruthSampleEvidence = adminTruthSampleEvidenceRaw;
   const adminBridgeEvidenceCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit;
-  const adminBridgeCredit = adminBridgeEvidenceCredit / 100;
+  const adminBridgeCanContribute = currentAdminSourceActivitySamplePassed
+    || (adminBaseQuality.quality === "source_ready" && adminBaseQuality.freshness === "fresh");
+  const adminBridgeCredit = adminBridgeCanContribute ? adminBridgeEvidenceCredit / 100 : 0;
   const adminSourceActivityCredit = adminBridgeCredit;
   const adminQuality = {
     ...adminBaseQuality,

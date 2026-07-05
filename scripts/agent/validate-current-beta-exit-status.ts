@@ -395,6 +395,19 @@ function hasProofLaneArtifactDrift(report: CurrentBetaExitStatusReport, head: st
   return JSON.stringify(expectedLanes) !== JSON.stringify(currentLanes);
 }
 
+function hasBetaScoreArtifactDrift(report: CurrentBetaExitStatusReport) {
+  const beta = readJson("agent/state/public-beta-score.generated.json");
+  if (!beta) return false;
+  return numberValue(beta.overallScore, report.summary.betaScore) !== report.summary.betaScore
+    || numberValue(beta.healthScore, report.summary.healthScore) !== report.summary.healthScore
+    || numberValue(beta.sourceHealthScore, report.summary.sourceHealthScore) !== report.summary.sourceHealthScore
+    || numberValue(beta.runtimeHealthScore, report.summary.runtimeHealthScore) !== report.summary.runtimeHealthScore
+    || numberValue(beta.evidenceCompletenessScore, report.summary.evidenceCompletenessScore) !== report.summary.evidenceCompletenessScore
+    || numberValue(beta.freshnessScore, report.summary.freshnessScore) !== report.summary.freshnessScore
+    || stringValue(beta.readinessStatus, report.summary.betaStatus) !== report.summary.betaStatus
+    || stringValue(beta.launchGateStatus, report.summary.launchGateStatus) !== report.summary.launchGateStatus;
+}
+
 function hasUiSourceBlockerContradiction(report: CurrentBetaExitStatusReport) {
   if (!clearingStatusPassed("uiSurfaceCoverage", report.summary.visualEvidenceStatus)) return false;
   return report.remainingBlockers.some((blocker) => uiSourceCoverageBlockerIds.has(blocker.id) || /screenshot/iu.test(blocker.id));
@@ -1084,6 +1097,7 @@ function main() {
       || !isGeneratedArtifactCurrent(version)
       || hasRefreshPlanEntriesNowCurrent(report, head)
       || hasProofLaneArtifactDrift(report, head)
+      || hasBetaScoreArtifactDrift(report)
       || hasUiSourceBlockerContradiction(report)
     ) {
       report = refreshReportFromCurrentArtifacts(report, head);

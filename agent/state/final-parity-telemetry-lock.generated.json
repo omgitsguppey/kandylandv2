@@ -1,7 +1,7 @@
 {
   "reportKey": "final-parity-telemetry-lock",
-  "generatedAtUtc": "2026-07-02T14:35:22.788Z",
-  "currentHead": "f9ff723647cf714ac1f4c7c6c89dc4db27f1531a",
+  "generatedAtUtc": "2026-07-05T00:39:45.425Z",
+  "currentHead": "e963678ba9cafd265bdce93b522509ad41dc8eda",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "toolingDegraded": false,
@@ -1013,8 +1013,8 @@
       ]
     }
   ],
-  "scoreBefore": 85.93,
-  "scoreAfter": 85.93,
+  "scoreBefore": 81.72,
+  "scoreAfter": 81.72,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -1047,7 +1047,7 @@
     },
     {
       "proofClass": "admin_truth_sample",
-      "status": "stale",
+      "status": "present",
       "required": true,
       "evidenceKind": "admin",
       "nextAction": "Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts."
@@ -1055,15 +1055,14 @@
   ],
   "missingProofClasses": [
     "runtime_route_health",
-    "provider_smoke",
-    "admin_truth_sample"
+    "provider_smoke"
   ],
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
-  "canClearAdminTruthGate": false,
+  "canClearAdminTruthGate": true,
   "remainingGaps": [
-    "Typed evidence classes still incomplete: runtime_route_health, provider_smoke, admin_truth_sample.",
+    "Typed evidence classes still incomplete: runtime_route_health, provider_smoke.",
     "Source parity is source evidence only and does not clear deployed route health, provider-backed site activity, or admin source activity samples.",
     "Public beta score must remain capped/review until current-head external/runtime/admin evidence gates are attached."
   ],
@@ -1071,9 +1070,117 @@
     "Keep check:surface-parity-doctrine, check:surface-telemetry-parity, check:surface-state-parity, and check:role-permission-parity green before new surface work.",
     "Refresh deployed route-health evidence; source parity cannot clear runtime health.",
     "Attach redacted provider-backed site activity evidence; operator reports do not clear this gate.",
-    "Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts.",
     "Run npm run check:final-parity-telemetry-lock after any parity, telemetry, state, role, or debug-lane change."
   ],
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/admin-truth-sample-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "agent_tooling_outside_final_parity"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-evidence-capture-status.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/evidence-quality.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.redacted.json",
+      "classification": "current_generated_artifact_to_commit"
+    }
+  ],
   "validationFailures": []
 }

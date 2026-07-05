@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-07-03T07:22:27.451Z
+Generated: 2026-07-05T00:37:24.552Z
 
-Latest code version: `cdfa8c88a152cfd73684b2eb57aa5e22a2a627ee`
+Latest code version: `e963678ba9cafd265bdce93b522509ad41dc8eda`
 
 ## Summary
 
@@ -13,7 +13,7 @@ Latest code version: `cdfa8c88a152cfd73684b2eb57aa5e22a2a627ee`
 - Deployed route evidence: `complete`.
 - Admin source activity sample evidence: `complete`.
 - Templates created: 4.
-- Complete artifacts: 6.
+- Complete artifacts: 7.
 - Strict mode ready: yes.
 - Beta exit review can start: no.
 - Operator revenue smoke: `operator_confirmed_revenue_smoke`.
@@ -56,8 +56,8 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.

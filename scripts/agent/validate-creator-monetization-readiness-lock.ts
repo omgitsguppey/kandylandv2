@@ -122,7 +122,12 @@ export function classifyCreatorMonetizationReadinessLockDirtyFile(filePath: stri
   if (normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-media-discovery-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-current-beta-exit-status.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-evidence-capture-status.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-truth-sample-evidence.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-truth-source-sample.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts") return "test_artifact_expected";
+  if (/^agent\/evidence\/admin-truth-sample\/automated-admin-truth-sample\.[^.]+\.(?:redacted\.)?json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (
     /^agent\/state\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|feature-registration-gate|activity-verification-engine|event-translation-bridge|person-metrics-hydration|final-parity-telemetry-lock|media-discovery-score-lock)\.generated\.json$/u.test(normalized)
   ) return "current_generated_artifact_to_commit";
@@ -131,7 +136,7 @@ export function classifyCreatorMonetizationReadinessLockDirtyFile(filePath: stri
   ) return "documentation_artifact_expected";
   if (/^agent\/state\/.+\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/.+\.md$/u.test(normalized)) return "documentation_artifact_expected";
-  if (/^scripts\/agent\/validate-(analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (normalized === "scripts/agent/score-public-beta-readiness.ts" || /^scripts\/agent\/validate-(analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(creator-dashboard-error-cost-inventory|creator-experiences-panel|post-economy-creator-flow-qa|public-beta-score|purchase-modal|score-80-refresh-pass)\.spec\.tsx?$/u.test(normalized)) return "test_artifact_expected";
   if (/^src\/lib\/agent-score\/.+\.ts$/u.test(normalized)) return "current_source_change";
   if (normalized === "package.json") return "validator_artifact_expected";

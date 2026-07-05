@@ -432,7 +432,8 @@ export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): Publi
   }
 
   for (const report of input.requiredReports ?? []) {
-    if (report.sourceCommit && report.currentHead && report.sourceCommit !== report.currentHead) {
+    const versionAccepted = report.versionStatus === "same_commit_snapshot" || report.versionStatus === "current_by_impact";
+    if (report.sourceCommit && report.currentHead && report.sourceCommit !== report.currentHead && !versionAccepted) {
       penalty += 20;
       reasons.push(`${report.path} was generated before the latest code changes.`);
     }

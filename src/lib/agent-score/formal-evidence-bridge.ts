@@ -152,6 +152,13 @@ function includesOperatorRevenue(artifact: FormalEvidenceBridgeArtifact | undefi
   return /operator_confirmed|operatorRevenueSmoke|amountUsdConfirmed=[0-9]+(?:\.[0-9]+)?/iu.test(evidenceArtifactText(artifact));
 }
 
+function evidenceArtifactHasAdminSourceActivityPass(artifact: FormalEvidenceBridgeArtifact | undefined) {
+  if (!artifact?.passed) return false;
+  const status = evidenceArtifactText(artifact);
+  return /formal_admin_truth_sample_passed|freshAdminTruthSampleAttached=true|formalAdminTruthSamplePassed=true/iu.test(status)
+    && !/adminTruthSampleArtifactStatus=(missing_or_unknown|failed)|freshAdminTruthSampleAttached=false|formalAdminTruthSamplePassed=false/iu.test(status);
+}
+
 function unique<T>(items: T[]) {
   return Array.from(new Set(items));
 }
@@ -200,7 +207,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
   const artifacts = input.artifacts ?? {};
   const providerFormal = evidenceArtifactHasFormalPass(artifacts.providerSmoke);
   const runtimeFormal = evidenceArtifactHasFormalPass(artifacts.runtimeSmoke);
-  const adminFormal = evidenceArtifactHasFormalPass(artifacts.adminSourceSample)
+  const adminFormal = evidenceArtifactHasAdminSourceActivityPass(artifacts.adminSourceSample)
     && /productionSampleAttached=true|formalAdminTruthSamplePassed=true/iu.test(evidenceArtifactText(artifacts.adminSourceSample));
   const operatorRevenue = includesOperatorRevenue(artifacts.operatorRevenueSmoke) || includesOperatorRevenue(artifacts.providerSmoke);
   const rawRuntimeConfidenceScore = Math.max(

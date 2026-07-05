@@ -255,8 +255,16 @@ export function classifyFinalParityTelemetryLockDirtyFile(pathValue: string): Fi
   if (
     normalized === "agent/state/public-beta-score.generated.json"
     || normalized === "agent/state/current-beta-exit-status.generated.json"
+    || normalized === "agent/state/evidence-capture-status.generated.json"
+    || normalized === "agent/state/admin-truth-sample-evidence.generated.json"
+    || normalized === "agent/state/admin-truth-source-sample.generated.json"
+    || /^agent\/evidence\/admin-truth-sample\/automated-admin-truth-sample\.[^.]+\.(?:redacted\.)?json$/u.test(normalized)
   ) return "current_generated_artifact_to_commit";
-  if (normalized === "docs/agent-truth/current-beta-exit-status.md") return "documentation_artifact_expected";
+  if (
+    normalized === "docs/agent-truth/current-beta-exit-status.md"
+    || normalized === "docs/agent-truth/evidence-capture-status.md"
+    || normalized === "docs/agent-truth/admin-truth-source-sample.md"
+  ) return "documentation_artifact_expected";
   if (/^agent\/state\/.+\.generated\.json$/u.test(normalized)) return "stale_generated_artifact_to_regenerate";
   if (/^docs\/agent-truth\/.+\.md$/u.test(normalized)) return "stale_generated_artifact_to_regenerate";
   if (
@@ -278,6 +286,10 @@ export function classifyFinalParityTelemetryLockDirtyFile(pathValue: string): Fi
     || normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts"
     || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
     || normalized === "scripts/agent/validate-media-discovery-score-lock.ts"
+    || normalized === "scripts/agent/validate-current-beta-exit-status.ts"
+    || normalized === "scripts/agent/validate-evidence-capture-status.ts"
+    || normalized === "scripts/agent/validate-admin-truth-sample-evidence.ts"
+    || normalized === "scripts/agent/validate-admin-truth-source-sample.ts"
     || /^scripts\/agent\/validate-(analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)
   ) return "validator_artifact_expected";
   if (/^scripts\/agent\//u.test(normalized) || normalized === "scripts/repo-inventory.ts" || /^\.agent\//u.test(normalized) || normalized === "agent/README.md") {

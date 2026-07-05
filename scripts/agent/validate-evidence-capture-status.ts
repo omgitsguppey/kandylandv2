@@ -658,10 +658,20 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
   writeFileSync(docsPath, `${lines.join("\n")}\n`);
 }
 
+function hasEvidenceCaptureInputDrift(existing: EvidenceCaptureStatusReport, current: EvidenceCaptureStatusReport) {
+  return existing.summary.uiSurfaceCoverageEvidence !== current.summary.uiSurfaceCoverageEvidence
+    || existing.summary.providerSmokeEvidence !== current.summary.providerSmokeEvidence
+    || existing.summary.runtimeSmokeEvidence !== current.summary.runtimeSmokeEvidence
+    || existing.summary.adminTruthSampleEvidence !== current.summary.adminTruthSampleEvidence
+    || existing.summary.completeArtifacts !== current.summary.completeArtifacts
+    || existing.summary.templatesCreated !== current.summary.templatesCreated;
+}
+
 function main() {
   const head = currentHead();
   const forceRefresh = process.argv.includes("--refresh") || process.env.EVIDENCE_CAPTURE_STATUS_REFRESH === "1";
   const existing = readReport();
+  const current = buildFromWorkspace();
   const existingVersion = existing
     ? classifyGeneratedArtifactFromGit({
       cwd: repoRoot,
@@ -670,9 +680,14 @@ function main() {
       ownedSourcePaths: [...evidenceCaptureOwnedInputPaths],
     })
     : null;
-  const report = !forceRefresh && existing && isEvidenceCaptureStatusFreshEnough(existing) && existingVersion && isGeneratedArtifactCurrent(existingVersion)
+  const report = !forceRefresh
+    && existing
+    && !hasEvidenceCaptureInputDrift(existing, current)
+    && isEvidenceCaptureStatusFreshEnough(existing)
+    && existingVersion
+    && isGeneratedArtifactCurrent(existingVersion)
     ? existing
-    : buildFromWorkspace();
+    : current;
   if (report !== existing) {
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
     writeDocs(report);
