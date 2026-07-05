@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-05T01:59:31.006Z",
+  "generatedAtUtc": "2026-07-05T02:02:09.944Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "6249b3d792825d712c7a1c1cc4b62321f03f2bb2",
+  "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -32,7 +32,7 @@
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
     "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate.",
     "runtimeSmokeStatus": "formal_runtime_smoke_passed",
-    "adminTruthSampleStatus": "stale_admin_truth_sample_evidence",
+    "adminTruthSampleStatus": "formal_admin_truth_sample_passed",
     "cloudRunCostReadiness": "cost_review_required",
     "cloudSqlCostReadiness": "owner_review_external_billing_required",
     "geminiCloudAssistCostReadiness": "cost_review_required",
@@ -64,7 +64,7 @@
         "sourceStatus": "operator_reported_not_formal_provider_smoke",
         "sourcePath": "agent/state/provider-smoke-evidence.generated.json",
         "captureStatus": "missing",
-        "sourceCommit": "6249b3d792825d712c7a1c1cc4b62321f03f2bb2",
+        "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
         "canClearGate": false,
         "nextAction": "Produce redacted provider-backed source activity evidence; operator confirmation alone cannot clear this gate."
       },
@@ -76,20 +76,20 @@
         "sourceStatus": "formal_runtime_smoke_passed",
         "sourcePath": "agent/state/runtime-smoke-evidence.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "6249b3d792825d712c7a1c1cc4b62321f03f2bb2",
+        "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
         "canClearGate": true,
         "nextAction": "Produce or refresh deployed route evidence for the current code version."
       },
       {
         "id": "adminTruthSample",
         "label": "Admin source activity evidence",
-        "truthState": "admin_truth_source_required",
-        "actionState": "refresh_stale_evidence",
-        "sourceStatus": "stale_admin_truth_sample_evidence",
+        "truthState": "current_source_evidence",
+        "actionState": "gate_cleared",
+        "sourceStatus": "formal_admin_truth_sample_passed",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
-        "captureStatus": "stale",
-        "sourceCommit": "6249b3d792825d712c7a1c1cc4b62321f03f2bb2",
-        "canClearGate": false,
+        "captureStatus": "complete",
+        "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+        "canClearGate": true,
         "nextAction": "Produce or refresh redacted admin source activity evidence for the current code version."
       }
     ]
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T01:59:31.006Z",
+      "generatedAtUtc": "2026-07-05T02:02:09.944Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T01:40:26.672Z",
-      "ageHours": 0.020161944444444444,
+      "generatedAtUtc": "2026-07-05T02:01:34.108Z",
+      "ageHours": 0.009954444444444445,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -168,8 +168,8 @@
       "label": "Evidence capture status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T01:58:51.889Z",
-      "ageHours": 0.010865833333333333,
+      "generatedAtUtc": "2026-07-05T02:01:35.582Z",
+      "ageHours": 0.009545,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -383,17 +383,6 @@
         "actionState=attach_external_evidence"
       ],
       "nextAction": "Produce redacted provider-backed source activity evidence; operator confirmation alone cannot clear this gate."
-    },
-    {
-      "id": "adminTruthSample",
-      "severity": "P1",
-      "status": "admin_truth_source_required",
-      "evidence": [
-        "agent/state/admin-truth-sample-evidence.generated.json",
-        "sourceStatus=stale_admin_truth_sample_evidence",
-        "actionState=refresh_stale_evidence"
-      ],
-      "nextAction": "Produce or refresh redacted admin source activity evidence for the current code version."
     }
   ],
   "deferredOwnerReview": [
