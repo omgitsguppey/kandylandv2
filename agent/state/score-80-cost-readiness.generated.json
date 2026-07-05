@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-07-03T08:32:04.923Z",
+  "generatedAtUtc": "2026-07-05T01:06:24.960Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "a8450c3790b304be9839749adeb0e5e061a897a9",
-  "sourceCommit": "a8450c3790b304be9839749adeb0e5e061a897a9",
+  "currentHead": "194cf69dbfcc1eeae68eeed030864931947c8716",
+  "sourceCommit": "194cf69dbfcc1eeae68eeed030864931947c8716",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 79.5,
-    "costRiskScore": 79.5,
+    "sourceCostReadinessScore": 92.5,
+    "costRiskScore": 92.5,
     "staleCreatorDashboardInventoryIgnored": true,
-    "cloudRunSourceReady": false,
+    "cloudRunSourceReady": true,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
@@ -19,12 +19,12 @@
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
-      "status": "cost_review_required",
-      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
+      "status": "source_guarded_external_review_remaining",
+      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
       "evidence": [
         "finalCostCurrent=true",
         "globalCostSourceClean=true",
-        "cloudRunGuarded=false",
+        "cloudRunGuarded=true",
         "externalBillingReviewed=false",
         "owner=speed-security-cost",
         "externalReviewRequired=true",
@@ -85,8 +85,8 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 79.5,
-  "costRiskScoreExplanation": "Cost risk score 79.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
+  "costRiskScore": 92.5,
+  "costRiskScoreExplanation": "Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
     "cloudRunSourceReady=true",

@@ -133,6 +133,52 @@ describe("score 80 cost readiness", () => {
     expect(validateScore80CostReadinessReport(report)).toEqual([]);
   });
 
+  it("does not let older exit-pass cost readiness downgrade current source-guarded lanes", () => {
+    const report = buildScore80CostReadinessReport({
+      generatedAtUtc: "2026-05-20T00:00:00.000Z",
+      currentHead: head,
+      artifacts: {
+        ...sourceArtifacts,
+        costRiskExitPass: {
+          currentHead: "old",
+          costReadiness: {
+            cloudRunCostReadiness: {
+              status: "cost_review_required",
+              detail: "Older exit pass had not consumed the current Cloud Run source guard.",
+              evidence: ["cloudRunGuarded=false"],
+              blocksBetaExit: false,
+            },
+            cloudSqlCostReadiness: {
+              status: "source_ready_no_runtime_usage_detected",
+              detail: "SQL runtime is not detected and mirror scripts are guarded.",
+              evidence: ["cloudSqlRuntimeDetected=false", "notDetectedIsNotPass=true"],
+              blocksBetaExit: false,
+            },
+            geminiCloudAssistCostReadiness: {
+              status: "source_guarded_external_review_remaining",
+              detail: "AI routes are source guarded.",
+              evidence: ["aiCallsRequireExplicitAction=true"],
+              blocksBetaExit: false,
+            },
+            route4xxReadiness: {
+              status: "source_ready_retry_storm_guarded",
+              detail: "Route 4xx is source guarded.",
+              evidence: ["final-telemetry-closure-lock"],
+              blocksBetaExit: false,
+            },
+          },
+        },
+      },
+      artifactCurrentByImpact: {
+        costRiskExitPass: true,
+      },
+    });
+
+    expect(report.costReadiness.cloudRunCostReadiness.status).toBe("source_guarded_external_review_remaining");
+    expect(report.summary.cloudRunSourceReady).toBe(true);
+    expect(validateScore80CostReadinessReport(report)).toEqual([]);
+  });
+
   it("fails validation when not detected is treated as a pass", () => {
     const report = buildScore80CostReadinessReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",

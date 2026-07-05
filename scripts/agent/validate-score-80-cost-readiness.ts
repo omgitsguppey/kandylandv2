@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { PublicBetaCostReadiness } from "../../src/lib/agent-score/core";
-import { scoreCostReadiness } from "../../src/lib/agent-score/evidence-quality";
+import { scoreCostReadiness, scoreCostReadinessLaneStatus } from "../../src/lib/agent-score/evidence-quality";
 import { classifyGeneratedArtifactFromGit } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import {
   classifyCostOwnerReviewLanes,
@@ -186,6 +186,26 @@ function artifactPathEvidence(path: string, isCurrent: boolean) {
   return `artifactPath=${path}; current=${isCurrent}`;
 }
 
+function preferStrongerSourceCostReadiness(
+  artifactCostReadiness: PublicBetaCostReadiness,
+  classifiedCostReadiness: PublicBetaCostReadiness,
+): PublicBetaCostReadiness {
+  const merged = { ...artifactCostReadiness };
+  for (const key of Object.keys(classifiedCostReadiness) as Array<keyof PublicBetaCostReadiness>) {
+    const artifactLane = artifactCostReadiness[key];
+    const classifiedLane = classifiedCostReadiness[key];
+    const classifiedStatus = String(classifiedLane.status);
+    const classifiedIsSourceGuarded = /^source_(?:guarded|ready|inventory)/u.test(classifiedStatus);
+    if (
+      classifiedIsSourceGuarded
+      && scoreCostReadinessLaneStatus(classifiedStatus) > scoreCostReadinessLaneStatus(String(artifactLane.status))
+    ) {
+      merged[key] = classifiedLane;
+    }
+  }
+  return merged;
+}
+
 function staleArtifactsFor(
   head: string,
   artifacts: Score80CostReadinessArtifacts,
@@ -308,13 +328,15 @@ export function buildScore80CostReadinessReport(input: {
   const closureCostReadiness = record(costOwnerClosure?.costReadiness);
   const riskClosureCostReadiness = record(costRiskClosure?.costReadiness);
   const exitPassCostReadiness = record(costRiskExitPass?.costReadiness);
-  const costReadiness: PublicBetaCostReadiness = costRiskExitPassCurrent && Object.keys(exitPassCostReadiness).length > 0
+  const classifiedCostReadiness = costOwnerReviewLanesToScoreInput(costOwnerReviewLanes);
+  const artifactCostReadiness: PublicBetaCostReadiness = costRiskExitPassCurrent && Object.keys(exitPassCostReadiness).length > 0
     ? exitPassCostReadiness as PublicBetaCostReadiness
     : costRiskClosureCurrent && Object.keys(riskClosureCostReadiness).length > 0
       ? riskClosureCostReadiness as PublicBetaCostReadiness
       : costOwnerClosureCurrent && Object.keys(closureCostReadiness).length > 0
       ? closureCostReadiness as PublicBetaCostReadiness
-      : costOwnerReviewLanesToScoreInput(costOwnerReviewLanes);
+      : classifiedCostReadiness;
+  const costReadiness = preferStrongerSourceCostReadiness(artifactCostReadiness, classifiedCostReadiness);
   const costScore = scoreCostReadiness(costReadiness);
   const staleArtifacts = staleArtifactsFor(input.currentHead, input.artifacts, input.artifactCurrentByImpact);
   const latestCostLocksPreferred = costRiskExitPassCurrent

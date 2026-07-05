@@ -362,7 +362,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
   };
 }
 
-function laneScore(status: string) {
+export function scoreCostReadinessLaneStatus(status: string) {
   const normalized = normalizeStatus(status);
   if (normalized === "source_inventory_complete") return 80;
   if (normalized === "source_guarded_external_review_remaining") return 92;
@@ -388,7 +388,7 @@ export function scoreCostReadiness(costReadiness: PublicBetaCostReadiness): Publ
 
   for (const [key, lane] of lanes) {
     const status = normalizeStatus(lane.status);
-    total += laneScore(status);
+    total += scoreCostReadinessLaneStatus(status);
     if (
       status === "owner_review"
       || status === "cost_review_required"

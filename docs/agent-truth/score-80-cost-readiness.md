@@ -1,22 +1,22 @@
 # Score 80 Cost Readiness
 
-Generated: 2026-07-03T08:32:04.923Z
+Generated: 2026-07-05T01:06:24.960Z
 
-Latest code version: a8450c3790b304be9839749adeb0e5e061a897a9
+Latest code version: 194cf69dbfcc1eeae68eeed030864931947c8716
 
 ## Summary
 
-- Cost risk score: 79.5
+- Cost risk score: 92.5
 - Latest cost locks preferred: true
 - External owner review still required: true
 - Stale creator dashboard inventory ignored: true
-- Explanation: Cost risk score 79.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.
+- Explanation: Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.
 
 ## Cost Lanes
 
 | Lane | Status | Detail |
 | --- | --- | --- |
-| cloudRunCostReadiness | cost_review_required | Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined. |
+| cloudRunCostReadiness | source_guarded_external_review_remaining | Cloud Run/App Hosting has source guard coverage; deployed billing review remains external. |
 | cloudSqlCostReadiness | source_ready_no_runtime_usage_detected | Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review. |
 | geminiCloudAssistCostReadiness | source_guarded_external_review_remaining | AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review. |
 | route4xxReadiness | source_ready_retry_storm_guarded | Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review. |
