@@ -25,3 +25,10 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+## 2026-06-25 - Avoid array spread in Map.set within tight loops
+**Learning:** Using `[...(map.get(key) ?? []), item]` inside a tight loop allocates a new array on every iteration, leading to O(N^2) memory complexity and significant garbage collection pressure. This causes large performance degradations and can trigger V8 heap out-of-memory errors.
+**Action:** Always use conditional `.push()` on existing map entries inside tight loops to achieve amortized O(1) insertions.
+
+## 2026-06-25 - Avoid O(N^2) .find() inside .forEach()
+**Learning:** Using `array.find(item => item.id === id)` inside an iterative `.forEach` creates an O(N*M) nested loop, which severely degrades performance when iterating large datasets.
+**Action:** Pre-compute a `Map` that groups the elements by the required property before the loop, and use `Map.get(id)` for O(1) lookups during the iteration.

@@ -1599,7 +1599,12 @@ async function GET_handler(request: NextRequest) {
         return;
       }
 
-      watchSessionsByUser.set(userId, [...(watchSessionsByUser.get(userId) ?? []), raw]);
+      const existing = watchSessionsByUser.get(userId);
+      if (existing) {
+        existing.push(raw);
+      } else {
+        watchSessionsByUser.set(userId, [raw]);
+      }
     });
     const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
 
@@ -1991,11 +1996,14 @@ async function GET_handler(request: NextRequest) {
         });
       });
 
+      const usernameMap = new Map<string, string>();
+      users.forEach(u => usernameMap.set(u.uid, u.username));
+
       fallbackStats.forEach((stats, uid) => {
         factRecoveredUserIds.add(uid);
         const existing = analyticsByUser[uid] ?? {
           uid,
-          username: users.find((user) => user.uid === uid)?.username || uid,
+          username: usernameMap.get(uid) || uid,
           eventCount: 0,
           sessionCount: 0,
           viewCount: 0,
