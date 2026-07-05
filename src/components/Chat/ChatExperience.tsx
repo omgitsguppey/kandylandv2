@@ -261,7 +261,7 @@ function buildChatMessageIdempotencyKey(threadId: string) {
         random = Array.from(buffer).map((value) => value.toString(36)).join("-");
     }
     if (!random) {
-        random = `${Date.now()}`;
+        throw new Error("Secure random generation is not supported");
     }
 
     return `creator-private-chat:${threadId}:${random}`;
