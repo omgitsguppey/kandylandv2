@@ -2,16 +2,16 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-07-05T01:41:37.038Z
+Generated: 2026-07-05T01:58:51.889Z
 
-Latest code version: `aa03645b4bbfaebfb9008adc219369204b8abcef`
+Latest code version: `6249b3d792825d712c7a1c1cc4b62321f03f2bb2`
 
 ## Summary
 
 - UI surface coverage evidence: `complete`.
 - Provider-backed site activity evidence: `missing`.
 - Deployed route evidence: `complete`.
-- Admin source activity sample evidence: `complete`.
+- Admin source activity sample evidence: `stale`.
 - Templates created: 4.
 - Complete artifacts: 11.
 - Strict mode ready: yes.
@@ -31,11 +31,12 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 - `agent/state` - complete; template `docs/agent-truth/ui-visual-smoke-minimal.md`.
 - `agent/evidence/provider-smoke` - missing; template `agent/evidence/provider-smoke/evidence.template.json`.
 - `agent/evidence/runtime-smoke` - complete; template `agent/evidence/runtime-smoke/evidence.template.json`.
-- `agent/evidence/admin-truth-sample` - complete; template `agent/evidence/admin-truth-sample/evidence.template.json`.
+- `agent/evidence/admin-truth-sample` - stale; template `agent/evidence/admin-truth-sample/evidence.template.json`.
 
 ## Missing Evidence
 
 - provider-backed site activity evidence is missing.
+- admin source activity sample evidence is stale.
 
 ## Source-Ready Evidence
 
@@ -50,14 +51,15 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 ## Typed Evidence Still Required
 
 - provider-backed site activity evidence is missing.
+- admin source activity sample evidence is stale.
 - provider-backed site activity evidence remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.
-- site activity evidence clears connected site-activity lanes; provider-backed activity, billing, or exact-user lanes need matching source exports before clearing.
+- site activity evidence clears connected site-activity lanes; provider-backed activity, admin source activity sample, billing, or exact-user lanes need matching source exports before clearing.
 
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
