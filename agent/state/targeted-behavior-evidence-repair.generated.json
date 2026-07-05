@@ -1,7 +1,7 @@
 {
   "reportKey": "targeted-behavior-evidence-repair",
-  "generatedAtUtc": "2026-06-19T16:15:06.491Z",
-  "currentHead": "036a189a9",
+  "generatedAtUtc": "2026-07-05T01:39:05.136Z",
+  "currentHead": "609ec40f6",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -44,7 +44,7 @@
         "overnight-wiring-integrity",
         "mobile-ui-final-lock"
       ],
-      "artifactHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78"
+      "artifactHead": "6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a"
     },
     {
       "id": "media-discovery-score-lock",
@@ -62,7 +62,7 @@
         "creator-profile-mobile-timeline",
         "creator-broadcast-timeline-prep"
       ],
-      "artifactHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78"
+      "artifactHead": "6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a"
     },
     {
       "id": "creator-monetization-readiness-lock",
@@ -82,7 +82,7 @@
         "creator-pricing-wiring",
         "gumdrop-economy-accuracy"
       ],
-      "artifactHead": "2b84d852e"
+      "artifactHead": "158b369ea"
     },
     {
       "id": "auth-readiness-lock",
@@ -184,7 +184,7 @@
         "telemetry"
       ],
       "replacementFor": [],
-      "artifactHead": "5bd37e429242d5c9ebb2cfb75d84061c49af7991"
+      "artifactHead": "10b6dc063ca13e825f3bc92b282be7872f3dc3d4"
     },
     {
       "id": "event-translation-bridge",
@@ -198,7 +198,7 @@
         "feature_activity"
       ],
       "replacementFor": [],
-      "artifactHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
+      "artifactHead": "d7176cce1dfdf36c613f3cca14608b310f7dc2b9"
     },
     {
       "id": "person-metrics-hydration",
@@ -212,7 +212,7 @@
         "analytics"
       ],
       "replacementFor": [],
-      "artifactHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
+      "artifactHead": "157f27163820fed2713f830577dc1b555a9fa011"
     },
     {
       "id": "surface-state-parity",
@@ -275,164 +275,24 @@
   ],
   "dirtyFiles": [
     {
-      "path": "EVERY_FILE_FUNCTION_CHECKLIST.md",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "agent/index/retrieval-index.json",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "agent/state/codex-visual-gate-removal.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-beta-exit-gate-readiness.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/real-usage-confidence-calibration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/real-usage-confidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "debug-output.json",
-      "classification": "deleted_obsolete_log"
-    },
-    {
-      "path": "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-beta-exit-gate-readiness.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/real-usage-confidence-calibration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/real-usage-confidence.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "git_diff.txt",
-      "classification": "deleted_obsolete_log"
-    },
-    {
-      "path": "git_log_output.txt",
-      "classification": "deleted_obsolete_log"
-    },
-    {
-      "path": "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-real-usage-confidence-calibration.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-runtime-smoke-substitute-matrix.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-targeted-behavior-evidence-repair.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "src/lib/analytics/real-usage-confidence-calibration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/real-usage-confidence-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/automated-truth-reconciliation.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/runtime/runtime-smoke-substitute-matrix.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/final-beta-exit-gate-readiness.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/real-usage-confidence-calibration.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/real-usage-confidence.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/runtime-smoke-substitute-matrix.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/score-80-reconciliation-lock.spec.ts",
-      "classification": "source_evidence_gate_repair"
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "current_generated_artifact_to_commit"
     }
   ],
   "remainingGaps": [],

@@ -6,7 +6,7 @@ Validator: `npm run check:targeted-behavior-evidence-repair`
 
 ## Summary
 
-- Current head: `036a189a9`
+- Current head: `609ec40f6`
 - Targeted behavior score before: 0/20
 - Targeted behavior score after: 20/20
 - Formal evidence impact: `source_behavior_only`
