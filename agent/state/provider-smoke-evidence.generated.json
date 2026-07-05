@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-07-05T01:02:03.229Z",
+  "generatedAtUtc": "2026-07-05T01:17:36.361Z",
   "reportKey": "provider-smoke-evidence",
-  "currentHead": "d06bbb7c27d71e925ac48a5d39b0ec4f1c2b8fab",
-  "sourceCommit": "d06bbb7c27d71e925ac48a5d39b0ec4f1c2b8fab",
+  "currentHead": "3d95887138045df840ea9384bf8ed403114036ed",
+  "sourceCommit": "3d95887138045df840ea9384bf8ed403114036ed",
   "overallStatus": "operator_reported_not_formal_provider_smoke",
   "status": "operator_reported_not_formal_provider_smoke",
   "externalEvidenceStatus": "external_evidence_required",
