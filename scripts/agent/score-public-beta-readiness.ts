@@ -170,6 +170,24 @@ function ownedSourcePathsForReport(reportPath: string) {
   return registryEntry?.ownedSourcePaths ?? REQUIRED_REPORT_OWNED_SOURCE_PATHS[reportPath] ?? [];
 }
 
+function evidenceVersionMetadata(root: string, artifactPath: string, artifactHead: string | undefined) {
+  if (!artifactHead) return {};
+  const gitContext = readGeneratedArtifactGitContext(root, artifactHead, artifactPath);
+  const version = classifyGeneratedArtifactVersion({
+    artifactPath,
+    artifactHead,
+    currentHead: gitContext.currentHead,
+    parentHead: gitContext.parentHead,
+    changedFilesInHead: gitContext.changedFilesInHead,
+    changedFilesSinceArtifactHead: gitContext.changedFilesSinceArtifactHead,
+    ownedSourcePaths: ownedSourcePathsForReport(artifactPath),
+  });
+  return {
+    currentHead: gitContext.currentHead,
+    versionStatus: version.status,
+  };
+}
+
 function readRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
@@ -235,6 +253,7 @@ function readEvidenceArtifact(
   }
 
   const status = readString(parsed.status) ?? readString(parsed.overallStatus) ?? fallbackStatus;
+  const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
   return {
     path: filePath,
     status,
@@ -250,7 +269,8 @@ function readEvidenceArtifact(
       ...evidenceLinesFromArray(parsed.evidence, "artifactEvidence"),
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    sourceCommit: artifactHead,
+    ...evidenceVersionMetadata(root, filePath, artifactHead),
   };
 }
 
@@ -424,6 +444,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     && paypalStatus !== "operator_reported_not_formal_provider_smoke";
   const paypalNote = readString(paypalRefillSmoke.note);
   const providerRecommendedAction = readString(providerSmoke.recommendedAction);
+  const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
 
   return {
     path: PROVIDER_SMOKE_EVIDENCE_PATH,
@@ -446,7 +467,8 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       `paypalRefillSmoke.providerBackedSourceArtifactAttached=${readBoolean(paypalRefillSmoke.formalRepoArtifactAttached) === true}`,
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    sourceCommit: artifactHead,
+    ...evidenceVersionMetadata(root, PROVIDER_SMOKE_EVIDENCE_PATH, artifactHead),
   };
 }
 
@@ -466,6 +488,7 @@ function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const runtimeGatePassed = readBoolean(parsed.runtimeDeploymentSmokePassed) === true
     || readBoolean(readinessImpact.runtimeGatePassed) === true;
   const passed = runtimeGatePassed && status !== "runtime_unverified" && status !== "missing_formal_evidence";
+  const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
 
   return {
     path: RUNTIME_SMOKE_EVIDENCE_PATH,
@@ -480,7 +503,8 @@ function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       ...evidenceLinesFromArray(parsed.evidenceItems, "runtimeEvidenceItems"),
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    sourceCommit: artifactHead,
+    ...evidenceVersionMetadata(root, RUNTIME_SMOKE_EVIDENCE_PATH, artifactHead),
   };
 }
 
@@ -493,6 +517,7 @@ function readAdminTruthSourceSampleEvidence(root: string): PublicBetaEvidenceArt
   const sourceReady = status.includes("source_ready")
     && formalGatePassed === false
     && productionSampleAttached === false;
+  const artifactHead = readString(sourceSample.sourceCommit) ?? readString(sourceSample.currentHead);
   return {
     path: ADMIN_TRUTH_SOURCE_SAMPLE_PATH,
     status: sourceReady ? status : "missing_or_unknown",
@@ -509,7 +534,8 @@ function readAdminTruthSourceSampleEvidence(root: string): PublicBetaEvidenceArt
       ...evidenceLinesFromArray(sourceSample.evidence, "adminTruthSourceEvidence"),
     ],
     generatedAtUtc: readString(sourceSample.generatedAtUtc) ?? readString(sourceSample.generatedAt),
-    sourceCommit: readString(sourceSample.sourceCommit) ?? readString(sourceSample.currentHead),
+    sourceCommit: artifactHead,
+    ...evidenceVersionMetadata(root, ADMIN_TRUTH_SOURCE_SAMPLE_PATH, artifactHead),
   };
 }
 
@@ -537,6 +563,7 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
     const sourceSample = readAdminTruthSourceSampleEvidence(root);
     if (sourceSample) return sourceSample;
   }
+  const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
 
   return {
     path: ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH,
@@ -553,7 +580,8 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
       ...evidenceLinesFromArray(parsed.adminTruthCommandEvidence, "adminTruthCommandEvidence"),
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    sourceCommit: artifactHead,
+    ...evidenceVersionMetadata(root, ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH, artifactHead),
   };
 }
 

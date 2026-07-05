@@ -110,6 +110,7 @@ export type PublicBetaEvidenceArtifact = {
   evidence: string[];
   generatedAtUtc?: string;
   sourceCommit?: string;
+  versionStatus?: PublicBetaGeneratedReportEvidence["versionStatus"];
 };
 
 export type PublicBetaCostReadinessStatus =

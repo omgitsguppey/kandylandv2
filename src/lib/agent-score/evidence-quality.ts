@@ -174,6 +174,13 @@ function resolveFreshness(
     return { freshness: "missing", freshnessScore: 0, reason: "Evidence artifact is missing." };
   }
   if (artifact.sourceCommit && context.currentHead && artifact.sourceCommit !== context.currentHead) {
+    if (artifact.versionStatus === "same_commit_snapshot" || artifact.versionStatus === "current_by_impact") {
+      return {
+        freshness: "fresh",
+        freshnessScore: 1,
+        reason: "Evidence was generated before the latest commit, but no owned source inputs changed.",
+      };
+    }
     return {
       freshness: "head_mismatch",
       freshnessScore: 0.4,
