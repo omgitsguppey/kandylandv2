@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { buildRefreshPlan, uniqueRefreshCommands } from "../../src/lib/agent-score/refresh-safeguards";
+import { buildRefreshPlan } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
 import { readGeneratedArtifactGitContext } from "../../src/lib/agent-score/generated-artifact-version-policy";
 
@@ -230,7 +230,8 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
     ...workspace.operatorRevenueSmoke,
     ...input.operatorRevenueSmoke,
   };
-  const refreshPlan = input.refreshPlan ?? workspace.refreshPlan;
+  const refreshPlan = (input.refreshPlan ?? workspace.refreshPlan)
+    .filter((entry) => entry.artifactPath !== reportRelativePath);
   const operatorConfirmed = operator.revenueSmokeStatus === "operator_confirmed_revenue_smoke";
   const providerFormalPassed = operator.formalProviderSmokePassed === true || evidence.providerSmokeEvidence === "complete";
   const operatorPlainLanguageNote = operatorConfirmed

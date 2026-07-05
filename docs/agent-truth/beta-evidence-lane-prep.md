@@ -1,11 +1,11 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-07-02T13:44:50.155Z
+Generated: 2026-07-05T01:54:02.810Z
 
 ## Summary
 
 - Lane count: 8
-- Formal-missing lanes: 2
+- Formal-missing lanes: 1
 - Source-ready lanes: ui_surface_coverage, operator_confirmed_revenue_smoke, runtime_watch_time_proof
 - Operator-confirmed lanes: operator_confirmed_revenue_smoke
 - Beta exit ready: false
@@ -18,7 +18,7 @@ Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site acti
 - provider_smoke: formal_missing; folder: `agent/evidence/provider-smoke`; template: `agent/evidence/provider-smoke/evidence.template.json`; checklist: `docs/agent-truth/provider-smoke-evidence-checklist.md`; validator: `EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence`; next: Attach redacted provider-backed site activity evidence only if the operator chooses to clear the provider lane.
 - operator_confirmed_revenue_smoke: operator_confirmed; folder: `agent/state`; template: `agent/state/operator-revenue-smoke.generated.json`; checklist: `docs/agent-truth/operator-revenue-smoke.md`; validator: `npm run check:operator-revenue-smoke`; next: Keep this acknowledged as real product signal; provider-backed site activity evidence is optional for acknowledging the sale.
 - runtime_smoke: formal_complete; folder: `agent/evidence/runtime-smoke`; template: `agent/evidence/runtime-smoke/evidence.template.json`; checklist: `docs/agent-truth/runtime-smoke-evidence-checklist.md`; validator: `EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence`; next: Attach deployed route evidence using the runtime evidence template.
-- admin_truth_sample: formal_missing; folder: `agent/evidence/admin-truth-sample`; template: `agent/evidence/admin-truth-sample/evidence.template.json`; checklist: `docs/agent-truth/admin-truth-sample-evidence-checklist.md`; validator: `EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence`; next: Attach a redacted admin source sample with source freshness and sample count.
+- admin_truth_sample: formal_complete; folder: `agent/evidence/admin-truth-sample`; template: `agent/evidence/admin-truth-sample/evidence.template.json`; checklist: `docs/agent-truth/admin-truth-sample-evidence-checklist.md`; validator: `EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence`; next: Attach a redacted admin source sample with source freshness and sample count.
 - runtime_watch_time_proof: source_ready_runtime_proof_required; folder: `agent/evidence/runtime-smoke`; template: `agent/evidence/runtime-smoke/evidence.template.json`; checklist: `docs/agent-truth/runtime-smoke-evidence-checklist.md`; validator: `npm run check:runtime-watch-time-v2 && EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence`; next: Attach deployed playback evidence showing runtime watch-time v2 on real media routes.
 - cost_owner_review: owner_review_required; folder: `agent/state`; template: `docs/agent-truth/final-cost-audit-lock.md`; checklist: `docs/agent-truth/final-cost-audit-lock.md`; validator: `npm run check:final-cost-audit-lock`; next: Attach owner-reviewed cost evidence when the operator chooses to formalize the lane.
 - speed_security_owner_review: owner_review_required; folder: `agent/state`; template: `docs/agent-truth/speed-security-hardening.md`; checklist: `docs/agent-truth/speed-security-hardening.md`; validator: `npm run check:speed-security`; next: Keep owner-review backlog visible and refresh the speed/security report when needed.
@@ -27,6 +27,7 @@ Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site acti
 
 - agent/state/public-beta-score.generated.json: No refresh needed.
 - agent/state/current-beta-exit-status.generated.json: No refresh needed.
+- agent/state/evidence-capture-status.generated.json: No refresh needed.
 - agent/state/source-truth-authority-map.generated.json: No refresh needed.
 - agent/state/final-telemetry-closure-lock.generated.json: No refresh needed.
 - agent/state/mobile-ui-final-lock.generated.json: No refresh needed.
@@ -58,10 +59,9 @@ Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site acti
 12. Refresh supporting report with npm run check:creator-drop-status-metrics.
 13. Refresh supporting report with npm run check:operator-revenue-smoke.
 14. Refresh supporting report with npm run check:beta-evidence-gap-map.
-15. Refresh supporting report with npm run check:beta-evidence-lane-prep.
-16. Refresh supporting report with npm run check:beta-freshness-language.
-17. Refresh supporting report with npm run check:final-pr-stale-cleanup.
-18. Refresh supporting report with npm run check:overnight-wiring-integrity.
-19. Refresh supporting report with npm run check:existing-algorithm-refinement.
-20. Refresh supporting report with npm run check:user-loading-wallet-mobile-refinement.
-21. Refresh supporting report with npm run check:global-marquee-truncated-titles.
+15. Refresh supporting report with npm run check:beta-freshness-language.
+16. Refresh supporting report with npm run check:final-pr-stale-cleanup.
+17. Refresh supporting report with npm run check:overnight-wiring-integrity.
+18. Refresh supporting report with npm run check:existing-algorithm-refinement.
+19. Refresh supporting report with npm run check:user-loading-wallet-mobile-refinement.
+20. Refresh supporting report with npm run check:global-marquee-truncated-titles.

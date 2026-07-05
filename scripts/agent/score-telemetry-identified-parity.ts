@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs";
 
-import { buildEventEnvelope } from "@/lib/analytics/event-envelope-builder";
 import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
 import { hydratePersonMetrics } from "@/lib/analytics/person-metrics-hydration";
 import { buildIndividualUserMetricTruthReport } from "@/lib/identity-truth/individual-user-metric-truth";

@@ -7,7 +7,6 @@ import {
   buildAdminBrowserSurfaceSmokeReport,
   validateAdminBrowserSurfaceSmokeReport,
   type AdminBrowserSurfaceEvidenceInput,
-  type AdminBrowserSurfaceEvidenceProvenance,
   type AdminBrowserSurfaceSmokeReport,
 } from "../../src/lib/evidence/admin-browser-surface-smoke-contract";
 

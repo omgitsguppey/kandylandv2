@@ -84,6 +84,28 @@ describe("beta evidence lane prep", () => {
     expect(report.operatorPlainLanguageNote).toBe("Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.");
   });
 
+  it("does not include its own generated artifact as stale supporting evidence", () => {
+    const report = buildBetaEvidenceLanePrepReport({
+      currentHead: "head",
+      generatedAtUtc: "2026-05-20T22:00:00.000Z",
+      evidenceCaptureSummary,
+      operatorRevenueSmoke,
+      refreshPlan: [
+        ...refreshPlan,
+        {
+          artifactPath: "agent/state/beta-evidence-lane-prep.generated.json",
+          status: "stale_source_version",
+          nextAction: "Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+          refreshCommand: "npm run check:beta-evidence-lane-prep",
+        },
+      ],
+    });
+
+    expect(report.refreshPlan.some((entry) => entry.artifactPath === "agent/state/beta-evidence-lane-prep.generated.json")).toBe(false);
+    expect(report.staleReports.some((entry) => entry.artifactPath === "agent/state/beta-evidence-lane-prep.generated.json")).toBe(false);
+    expect(report.nextExactSteps.some((step) => step.includes("check:beta-evidence-lane-prep"))).toBe(false);
+  });
+
   it("fails validation when a formal lane lacks a source-to-proof checklist or stale action", () => {
     const report = buildBetaEvidenceLanePrepReport({
       currentHead: "head",

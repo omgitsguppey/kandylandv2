@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-07-02T13:44:50.155Z",
+  "generatedAtUtc": "2026-07-05T01:54:02.810Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "6f625882f00a63e4a08b4fe386b018d08567ad35",
+  "currentHead": "313842d4059319da9c6f08de5e2564fca3e3a1f7",
   "summary": {
     "laneCount": 8,
-    "formalMissingCount": 2,
+    "formalMissingCount": 1,
     "sourceReadyCount": 3,
     "operatorConfirmedCount": 1,
     "betaExitReady": false,
     "providerSmokeGateCleared": false,
     "p0Count": 0,
-    "p1Count": 2,
-    "p2Count": 16
+    "p1Count": 1,
+    "p2Count": 17
   },
   "lanes": [
     {
@@ -101,7 +101,7 @@
       "template": "agent/evidence/admin-truth-sample/evidence.template.json",
       "checklist": "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
       "validatorCommand": "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
-      "status": "formal_missing",
+      "status": "formal_complete",
       "statusEnum": [
         "formal_missing",
         "formal_complete"
@@ -184,26 +184,25 @@
     "operator_confirmed_revenue_smoke"
   ],
   "formalMissingLanes": [
-    "provider_smoke",
-    "admin_truth_sample"
+    "provider_smoke"
   ],
   "operatorPlainLanguageNote": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.",
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "current_by_impact",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current_by_impact",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
@@ -256,12 +255,6 @@
       "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
-    },
-    {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
       "status": "current_by_impact",
       "nextAction": "No refresh needed.",
@@ -301,15 +294,21 @@
   "staleReports": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "current_by_impact",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current_by_impact",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:evidence-capture-status"
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
@@ -411,7 +410,6 @@
     "Refresh supporting report with npm run check:creator-drop-status-metrics.",
     "Refresh supporting report with npm run check:operator-revenue-smoke.",
     "Refresh supporting report with npm run check:beta-evidence-gap-map.",
-    "Refresh supporting report with npm run check:beta-evidence-lane-prep.",
     "Refresh supporting report with npm run check:beta-freshness-language.",
     "Refresh supporting report with npm run check:final-pr-stale-cleanup.",
     "Refresh supporting report with npm run check:overnight-wiring-integrity.",
