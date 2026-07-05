@@ -468,6 +468,32 @@ describe("evidence artifact schemas", () => {
     expect(failures).toContain("provider smoke evidence must not include raw secrets or provider tokens.");
   });
 
+  it("rejects screenshot-only provider-backed source activity evidence", () => {
+    const failures = validateProviderSmokeEvidenceDocument(
+      {
+        status: "complete",
+        capturedAtUtc: "2026-05-17T05:30:00.000Z",
+        provider: "paypal",
+        environment: "sandbox",
+        sourceEvidence: {
+          sourceStatus: "source_validated",
+          screenshotOnlyClearsGate: true,
+        },
+        checks: REQUIRED_PROVIDER_SMOKE_CHECKS.map((id) => ({
+          id,
+          status: "pass",
+          artifactPath: "agent/evidence/provider-smoke/sample.redacted.json",
+          notes: "",
+        })),
+        redactions: ["tokens"],
+        operatorNotes: "Manual screenshot clears provider gate.",
+      },
+      { requireComplete: true, existingPaths: new Set(["agent/evidence/provider-smoke/sample.redacted.json"]) },
+    );
+
+    expect(failures).toContain("provider-backed source activity evidence cannot be cleared by screenshot-only or manual-only proof.");
+  });
+
   it("requires runtime smoke route and no-provider-call checks", () => {
     const checks = REQUIRED_RUNTIME_SMOKE_CHECKS
       .filter((route) => route !== "no-provider-calls")

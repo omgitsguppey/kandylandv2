@@ -1,23 +1,28 @@
 {
-  "generatedAtUtc": "2026-06-21T03:57:17.453Z",
+  "generatedAtUtc": "2026-07-05T01:02:03.229Z",
   "reportKey": "provider-smoke-evidence",
-  "currentHead": "c53978beb10283d481e7a0d5c1e943fb01056eab",
-  "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
+  "currentHead": "d06bbb7c27d71e925ac48a5d39b0ec4f1c2b8fab",
+  "sourceCommit": "d06bbb7c27d71e925ac48a5d39b0ec4f1c2b8fab",
   "overallStatus": "operator_reported_not_formal_provider_smoke",
   "status": "operator_reported_not_formal_provider_smoke",
   "externalEvidenceStatus": "external_evidence_required",
   "evidenceBoundary": {
-    "evidenceKind": "provider_proof",
+    "evidenceKind": "provider_backed_source_activity",
+    "compatibleLegacyEvidenceKind": "provider_proof",
+    "sourceEvidenceStatus": "external_source_required",
     "sourceCheckCanPass": true,
     "providerCallsPerformed": false,
     "secretValuesPrinted": false,
+    "screenshotOnlyClearsGate": false,
     "operatorReportClearsGate": false,
-    "doesNotProve": "Source checks, env registration, and operator-reported payment activity do not prove provider credentials, provider callbacks, PayPal UI, or webhook truth."
+    "acceptedEvidence": "A redacted provider-backed source activity artifact with server transaction, GumDrop source-of-funds, webhook/capture, and privacy redaction checks.",
+    "doesNotProve": "Source checks, env registration, operator-reported payment activity, and screenshots do not prove provider credentials, provider callbacks, PayPal UI, or webhook truth."
   },
   "providerSmoke": {
     "status": "missing_formal_evidence",
+    "sourceEvidenceStatus": "external_source_required",
     "passed": false,
-    "recommendedAction": "Attach real redacted provider-backed site activity evidence; product-context notes do not clear this gate."
+    "recommendedAction": "Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate."
   },
   "paypalRefillSmoke": {
     "status": "operator_reported_not_formal_provider_smoke",
@@ -30,7 +35,7 @@
     "phaseOneStatusCap": "Ready with smoke required",
     "notes": [
       "Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed site activity evidence.",
-      "Provider/payment status remains source-evidence-required until a complete redacted provider artifact exists."
+      "Provider/payment status remains external_source_required until a complete redacted provider-backed source activity artifact exists."
     ]
   },
   "evidenceFiles": [],

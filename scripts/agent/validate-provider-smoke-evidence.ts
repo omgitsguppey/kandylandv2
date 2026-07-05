@@ -77,6 +77,15 @@ function containsRawSecret(value: unknown) {
   return secretPatterns.some((pattern) => pattern.test(source));
 }
 
+function containsScreenshotOnlyEvidence(value: unknown) {
+  const text = JSON.stringify(value).toLowerCase();
+  return /"screenshots?only"\s*:\s*true/u.test(text)
+    || /"manualscreenshots?only"\s*:\s*true/u.test(text)
+    || /"clearedbyscreenshot"\s*:\s*true/u.test(text)
+    || /screenshot[-_\s]?only proof/u.test(text)
+    || /manual screenshot clears/u.test(text);
+}
+
 export function validateProviderSmokeEvidenceDocument(
   document: unknown,
   options: ValidationOptions = {},
@@ -86,6 +95,9 @@ export function validateProviderSmokeEvidenceDocument(
 
   if (containsRawSecret(doc)) {
     failures.push("provider smoke evidence must not include raw secrets or provider tokens.");
+  }
+  if (containsScreenshotOnlyEvidence(doc)) {
+    failures.push("provider-backed source activity evidence cannot be cleared by screenshot-only or manual-only proof.");
   }
   if (doc.status === "template_not_evidence") {
     if (options.requireComplete) failures.push("provider smoke evidence template is not completed evidence.");
@@ -219,19 +231,25 @@ function writeGeneratedState(result: LaneEvaluation) {
     status: passed ? "formal_provider_smoke_passed" : operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
     externalEvidenceStatus: passed ? "formal_provider_proof_attached" : "external_evidence_required",
     evidenceBoundary: {
-      evidenceKind: "provider_proof",
+      evidenceKind: "provider_backed_source_activity",
+      compatibleLegacyEvidenceKind: "provider_proof",
+      sourceEvidenceStatus: passed ? "source_validated" : "external_source_required",
       sourceCheckCanPass: true,
       providerCallsPerformed: false,
       secretValuesPrinted: false,
+      screenshotOnlyClearsGate: false,
       operatorReportClearsGate: false,
-      doesNotProve: "Source checks, env registration, and operator-reported payment activity do not prove provider credentials, provider callbacks, PayPal UI, or webhook truth.",
+      acceptedEvidence:
+        "A redacted provider-backed source activity artifact with server transaction, GumDrop source-of-funds, webhook/capture, and privacy redaction checks.",
+      doesNotProve: "Source checks, env registration, operator-reported payment activity, and screenshots do not prove provider credentials, provider callbacks, PayPal UI, or webhook truth.",
     },
     providerSmoke: {
       status: passed ? "formal_provider_smoke_passed" : "missing_formal_evidence",
+      sourceEvidenceStatus: passed ? "source_validated" : "external_source_required",
       passed,
       recommendedAction: passed
         ? "Keep redacted provider-backed site activity evidence fresh."
-        : "Attach real redacted provider-backed site activity evidence; product-context notes do not clear this gate.",
+        : "Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate.",
     },
     paypalRefillSmoke: {
       status: operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
@@ -246,7 +264,7 @@ function writeGeneratedState(result: LaneEvaluation) {
         operatorNote,
         passed
           ? "A complete redacted provider artifact cleared the provider-backed site activity gate."
-          : "Provider/payment status remains source-evidence-required until a complete redacted provider artifact exists.",
+          : "Provider/payment status remains external_source_required until a complete redacted provider-backed source activity artifact exists.",
       ],
     },
     evidenceFiles: result.evidenceFiles,

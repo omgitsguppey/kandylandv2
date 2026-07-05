@@ -1,8 +1,20 @@
 {
   "status": "template_not_evidence",
+  "evidenceKind": "provider_backed_source_activity",
   "capturedAtUtc": "",
   "provider": "paypal",
   "environment": "unknown",
+  "sourceEvidence": {
+    "sourceStatus": "external_source_required",
+    "acceptedSources": [
+      "redacted PayPal capture/order artifact",
+      "server transaction or ledger proof",
+      "GumDrop source-of-funds corroboration",
+      "webhook or route evidence when available"
+    ],
+    "screenshotOnlyClearsGate": false,
+    "operatorNoteOnlyClearsGate": false
+  },
   "checks": [
     {
       "id": "paypal-order-create-capture",
