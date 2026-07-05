@@ -9,6 +9,7 @@ describe("admin user detail fixture boundary", () => {
   it("renders a bounded local fixture for browser smoke user detail without calling the API", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('ADMIN_USER_DETAIL_BROWSER_SMOKE_USER_ID = "browser-smoke-user"');
+    expect(source).toContain('displayName: "Admin Source Fixture User"');
     expect(source).toContain("isLocalAdminUiTestSession && userId === ADMIN_USER_DETAIL_BROWSER_SMOKE_USER_ID");
     expect(source).toContain("if (isLocalAdminUserDetailFixture)");
     expect(source).toContain("setTargetUser(ADMIN_USER_DETAIL_BROWSER_SMOKE_PROFILE)");

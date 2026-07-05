@@ -1346,6 +1346,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 data-regions-generated-at-utc={regionsModel.generatedAtUtc}
               >
                 <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  <p>Raw geography with internal/admin traffic separated from external demand.</p>
                   {regionsModel.visibleCopy.map((line) => (
                     <p key={line}>{line}</p>
                   ))}
@@ -1360,7 +1361,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     {" | "}Adjusted total: {formatRegionCount(regionsModel.adjustedTotal)}
                   </p>
                   <p className="text-gray-500">
-                    Internal/admin excluded: {formatRegionCount(regionsModel.internalExcludedCount)}
+                    Internal/admin: {formatRegionCount(regionsModel.internalExcludedCount)}
                     {" | "}Generated: {regionsModel.generatedAtUtc === new Date(0).toISOString()
                       ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(regionsModel.generatedAtUtc), nowMs)}

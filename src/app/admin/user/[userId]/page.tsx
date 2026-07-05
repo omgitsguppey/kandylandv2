@@ -259,7 +259,7 @@ const ADMIN_USER_DETAIL_BROWSER_SMOKE_USER_ID = "browser-smoke-user";
 const ADMIN_USER_DETAIL_BROWSER_SMOKE_PROFILE: UserProfile = {
     uid: ADMIN_USER_DETAIL_BROWSER_SMOKE_USER_ID,
     email: "browser-smoke-user@example.invalid",
-    displayName: "Browser Smoke User",
+    displayName: "Admin Source Fixture User",
     username: "browser-smoke-user",
     photoURL: null,
     role: "user",
