@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-07-05T02:03:06.138Z",
+  "generatedAtUtc": "2026-07-05T02:03:35.820Z",
   "reportKey": "admin-truth-sample-evidence",
-  "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
-  "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+  "currentHead": "84016ee29f191e9b0f75f1431727fd9ad059dc96",
+  "sourceCommit": "84016ee29f191e9b0f75f1431727fd9ad059dc96",
   "overallStatus": "formal_admin_truth_sample_passed",
   "status": "formal_admin_truth_sample_passed",
   "freshAdminTruthSampleAttached": true,
@@ -63,19 +63,19 @@
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json"
   ],
   "staleReasons": [
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth evidence currentHead 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth evidence currentHead 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json: admin truth evidence currentHead b0f74b9e016ed3eef9f51964c4cd7a3db866a99a does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json: admin truth evidence currentHead b0f74b9e016ed3eef9f51964c4cd7a3db866a99a does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json: admin truth evidence currentHead cdfa8c88a152cfd73684b2eb57aa5e22a2a627ee does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json: admin truth evidence currentHead cdfa8c88a152cfd73684b2eb57aa5e22a2a627ee does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json: admin truth evidence currentHead e963678ba9cafd265bdce93b522509ad41dc8eda does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json: admin truth evidence currentHead 6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json: admin truth evidence currentHead 3d95887138045df840ea9384bf8ed403114036ed does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json: admin truth evidence currentHead 7be0129c345767e7c85ea7854f5e036f8df4746c does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json: admin truth evidence currentHead aa03645b4bbfaebfb9008adc219369204b8abcef does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49."
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json: admin truth evidence currentHead e963678ba9cafd265bdce93b522509ad41dc8eda does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json: admin truth evidence currentHead 6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json: admin truth evidence currentHead 3d95887138045df840ea9384bf8ed403114036ed does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json: admin truth evidence currentHead 7be0129c345767e7c85ea7854f5e036f8df4746c does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json: admin truth evidence currentHead aa03645b4bbfaebfb9008adc219369204b8abcef does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96."
   ],
   "readinessImpact": {
     "adminTruthSampleGatePassed": true,
@@ -107,18 +107,18 @@
     "adminTruthSample.staleArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json",
     "adminTruthSample.staleArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json",
     "adminTruthSample.staleArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth evidence currentHead 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth evidence currentHead 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json: admin truth evidence currentHead b0f74b9e016ed3eef9f51964c4cd7a3db866a99a does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json: admin truth evidence currentHead b0f74b9e016ed3eef9f51964c4cd7a3db866a99a does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json: admin truth evidence currentHead cdfa8c88a152cfd73684b2eb57aa5e22a2a627ee does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json: admin truth evidence currentHead cdfa8c88a152cfd73684b2eb57aa5e22a2a627ee does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
     "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json: admin truth sourceFreshnessUtc is older than 24h or missing.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json: admin truth evidence currentHead e963678ba9cafd265bdce93b522509ad41dc8eda does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json: admin truth evidence currentHead 6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json: admin truth evidence currentHead 3d95887138045df840ea9384bf8ed403114036ed does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json: admin truth evidence currentHead 7be0129c345767e7c85ea7854f5e036f8df4746c does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49.",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json: admin truth evidence currentHead aa03645b4bbfaebfb9008adc219369204b8abcef does not match eac7c3ba84cff3b13a878f74da4ad81b27e22d49."
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json: admin truth evidence currentHead e963678ba9cafd265bdce93b522509ad41dc8eda does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json: admin truth evidence currentHead 6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json: admin truth evidence currentHead 3d95887138045df840ea9384bf8ed403114036ed does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json: admin truth evidence currentHead 7be0129c345767e7c85ea7854f5e036f8df4746c does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json: admin truth evidence currentHead aa03645b4bbfaebfb9008adc219369204b8abcef does not match 84016ee29f191e9b0f75f1431727fd9ad059dc96."
   ]
 }
