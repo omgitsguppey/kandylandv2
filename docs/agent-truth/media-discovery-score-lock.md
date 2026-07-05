@@ -1,7 +1,7 @@
 # Media Discovery Score Lock
 
-Generated: 2026-07-05T00:39:44.743Z
-Head: e963678ba9cafd265bdce93b522509ad41dc8eda
+Generated: 2026-07-05T00:50:11.391Z
+Head: 6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a
 Status: pass
 
 ## Summary
@@ -16,7 +16,7 @@ Status: pass
 - Debug visibility: pass
 - Sensitive route access: pass
 - Raw sensitive telemetry protected: true
-- Score: 81.72 -> 81.72
+- Score: 76.56 -> 76.56
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk
 
 ## Event Spines
@@ -58,33 +58,7 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
-| agent/state/admin-truth-sample-evidence.generated.json | current_generated_artifact_to_commit |
-| agent/state/admin-truth-source-sample.generated.json | current_generated_artifact_to_commit |
-| agent/state/creator-monetization-readiness-lock.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/current-beta-exit-status.generated.json | current_generated_artifact_to_commit |
-| agent/state/evidence-capture-status.generated.json | current_generated_artifact_to_commit |
-| agent/state/final-parity-telemetry-lock.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/media-discovery-score-lock.generated.json | current_generated_artifact_to_commit |
 | agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
-| agent/state/targeted-behavior-evidence.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/user-creator-ui-parity.generated.json | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/admin-truth-source-sample.md | documentation_artifact_expected |
-| docs/agent-truth/creator-monetization-readiness-lock.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/evidence-capture-status.md | documentation_artifact_expected |
-| docs/agent-truth/final-parity-telemetry-lock.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/media-discovery-score-lock.md | documentation_artifact_expected |
-| docs/agent-truth/targeted-behavior-evidence.md | stale_generated_artifact_to_regenerate |
-| scripts/agent/score-public-beta-readiness.ts | validator_artifact_expected |
-| scripts/agent/validate-creator-monetization-readiness-lock.ts | validator_artifact_expected |
-| scripts/agent/validate-current-beta-exit-status.ts | validator_artifact_expected |
-| scripts/agent/validate-evidence-capture-status.ts | validator_artifact_expected |
-| scripts/agent/validate-final-parity-telemetry-lock.ts | validator_artifact_expected |
-| scripts/agent/validate-media-discovery-score-lock.ts | validator_artifact_expected |
-| src/lib/agent-score/core.ts | real_source_change_needs_review |
-| src/lib/agent-score/evidence-quality.ts | real_source_change_needs_review |
-| src/lib/agent-score/formal-evidence-bridge.ts | real_source_change_needs_review |
-| agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json | current_generated_artifact_to_commit |
-| agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.redacted.json | current_generated_artifact_to_commit |
 
 ## Remaining Gaps
 

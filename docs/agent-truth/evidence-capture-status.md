@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-07-05T00:37:24.552Z
+Generated: 2026-07-05T00:50:43.922Z
 
-Latest code version: `e963678ba9cafd265bdce93b522509ad41dc8eda`
+Latest code version: `6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a`
 
 ## Summary
 
@@ -13,7 +13,7 @@ Latest code version: `e963678ba9cafd265bdce93b522509ad41dc8eda`
 - Deployed route evidence: `complete`.
 - Admin source activity sample evidence: `complete`.
 - Templates created: 4.
-- Complete artifacts: 7.
+- Complete artifacts: 8.
 - Strict mode ready: yes.
 - Beta exit review can start: no.
 - Operator revenue smoke: `operator_confirmed_revenue_smoke`.
