@@ -403,7 +403,7 @@ function NotificationItem({
                 onClick={handleToggleExpanded}
                 className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/10"
               >
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
+                <ChevronDown aria-hidden="true" className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
                 {isExpanded ? "Less" : "Details"}
               </button>
             ) : null}
