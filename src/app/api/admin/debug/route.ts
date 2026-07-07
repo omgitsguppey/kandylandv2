@@ -6203,25 +6203,33 @@ export async function GET(request: NextRequest) {
                     laneFailures: "full realtime lane failures remain in Admin Debug/client debug metadata",
                 },
             },
-            adminAnalyticsSnapshotMigration: {
-                surface: "admin-analytics-snapshot-migration",
-                snapshotFirstMigrationEnabled: true,
-                verifiedSnapshotFirstRenderPath: true,
-                manualRefreshEnabled: true,
-                realtimeUpgradeOptional: true,
-                dataValidationFullListLocation: "Admin Debug validation groups; Admin Analytics may only show the compact Data Health summary.",
-                manualRefreshRoute: "/api/admin/analytics/refresh",
-                clientDebugWindow: "window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__",
-                actorLaneRules: {
-                    guestAuthenticatedCreatorAdminSystemSeparated: true,
-                    adminExcludedFromUserGuestBehavior: true,
-                    unknownActorNeverPromotedToAuthenticatedUser: true,
-                },
-                modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
-                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
-                    return {
-                        moduleKey: entry.moduleKey,
-                        label: entry.label,
+            adminAnalyticsSnapshotMigration: (() => {
+                const adminMetricSnapshotsMap = new Map<string, typeof adminMetricSnapshots[0]>();
+                for (const snapshot of adminMetricSnapshots) {
+                    if (typeof snapshot.moduleKey === "string" && !adminMetricSnapshotsMap.has(snapshot.moduleKey)) {
+                        adminMetricSnapshotsMap.set(snapshot.moduleKey, snapshot);
+                    }
+                }
+
+                return {
+                    surface: "admin-analytics-snapshot-migration",
+                    snapshotFirstMigrationEnabled: true,
+                    verifiedSnapshotFirstRenderPath: true,
+                    manualRefreshEnabled: true,
+                    realtimeUpgradeOptional: true,
+                    dataValidationFullListLocation: "Admin Debug validation groups; Admin Analytics may only show the compact Data Health summary.",
+                    manualRefreshRoute: "/api/admin/analytics/refresh",
+                    clientDebugWindow: "window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__",
+                    actorLaneRules: {
+                        guestAuthenticatedCreatorAdminSystemSeparated: true,
+                        adminExcludedFromUserGuestBehavior: true,
+                        unknownActorNeverPromotedToAuthenticatedUser: true,
+                    },
+                    modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
+                        const latestSnapshot = adminMetricSnapshotsMap.get(entry.moduleKey) ?? null;
+                        return {
+                            moduleKey: entry.moduleKey,
+                            label: entry.label,
                         supportedRanges: entry.supportedRanges,
                         currentImplementationStatus: entry.currentImplementationStatus,
                         defaultAdminAnalyticsCoverage: entry.defaultAdminAnalyticsCoverage,
@@ -6267,7 +6275,8 @@ export async function GET(request: NextRequest) {
                     "No backend jargon in visible operator copy.",
                     "Detailed source, parity, legacy, and failure proof lives in Admin Debug.",
                 ],
-            },
+                };
+            })(),
             adminAnalyticsLegacyParity: buildAnalyticsLegacyParityDebugMetadata(),
             adminAnalyticsRecoveryEvidence: buildAdminAnalyticsRecoveryEvidenceDebugMetadata(),
             adminAnalyticsOverview: {
