@@ -504,7 +504,7 @@ export function CreatorExperiencesPanel({
             {selectedExperience === "subscriptions" && settings.subscriptionsEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-brand-purple/20 bg-gradient-to-b from-brand-purple/10 to-transparent p-4 sm:p-5">
                     <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
                     <div className="ml-10 flex flex-col gap-1.5">
@@ -569,7 +569,7 @@ export function CreatorExperiencesPanel({
             {selectedExperience === "messages" && settings.messagingEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/40 p-4 sm:p-5">
                     <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
                     <div className="mb-4 ml-10 flex flex-col gap-1.5">
@@ -627,7 +627,7 @@ export function CreatorExperiencesPanel({
                                 }}
                                 className="ml-2 flex min-h-11 shrink-0 items-center gap-1 rounded-full bg-white/10 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-white/20"
                             >
-                                Open private chat <ChevronRight className="h-3 w-3" />
+                                Open private chat <ChevronRight aria-hidden="true" className="h-3 w-3" />
                             </button>
                         </div>
                     ) : (
@@ -651,7 +651,7 @@ export function CreatorExperiencesPanel({
             {selectedExperience === "requests" && settings.customRequestsEnabled && requestCategories.length > 0 && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/40 p-4 sm:p-5">
                     <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
                     <div className="mb-4 ml-10 flex flex-col gap-1.5">
@@ -716,7 +716,7 @@ export function CreatorExperiencesPanel({
             {selectedExperience === "bookings" && settings.bookingsEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/40 p-4 sm:p-5">
                     <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
                     <div className="mb-4 ml-10 flex flex-col gap-1.5">
