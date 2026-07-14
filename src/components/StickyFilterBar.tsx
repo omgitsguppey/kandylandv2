@@ -137,7 +137,7 @@ export default function StickyFilterBar({
                             aria-label={isExpanded ? "Collapse Drop filters" : "Show all Drop filters"}
                             aria-expanded={isExpanded}
                         >
-                            {isExpanded ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </button>
                     ) : null}
                 </div>

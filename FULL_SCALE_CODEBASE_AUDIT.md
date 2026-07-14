@@ -14272,16 +14272,3 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
-
-## [2024-05-18 #001] PRE: Add aria-hidden to decorative Chevron icons
-Scope started:
-- Adding `aria-hidden="true"` to decorative `ChevronUp` and `ChevronDown` icons inside toggle buttons to prevent redundant screen reader announcements. Target files: `src/components/StickyFilterBar.tsx` and `src/components/Dashboard/RecentActivityFeed.tsx`.
-
-Scope completed:
-- Replaced `ChevronUp` and `ChevronDown` icons inside `src/components/StickyFilterBar.tsx` toggle buttons with versions that include `aria-hidden="true"`.
-- Replaced `ChevronUp` and `ChevronDown` icons inside `src/components/Dashboard/RecentActivityFeed.tsx` toggle buttons with versions that include `aria-hidden="true"`.
-- This ensures screen readers do not redundantly announce the icons when the parent button already defines `aria-expanded`.
-
-Verification:
-- `pnpm run typecheck` passed (with increased memory).
-- `pnpm run test:gate:targeted` ran (existing failures in unrelated admin-routes).
