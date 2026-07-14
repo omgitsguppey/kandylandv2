@@ -57,7 +57,7 @@ export function CreatorAgreementFullText({
                                 className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left text-sm font-semibold text-white"
                             >
                                 <span>{section.heading}</span>
-                                <ChevronDown aria-hidden="true" className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                             </button>
                             {isOpen ? (
                                 <p className="border-t border-white/10 px-3 py-3 text-gray-300">{section.body}</p>
