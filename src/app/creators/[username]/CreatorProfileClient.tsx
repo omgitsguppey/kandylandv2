@@ -69,7 +69,7 @@ function buildCreatorExperienceClientIdempotencyKey(action: string, creatorId: s
         random = Array.from(buffer).map((value) => value.toString(36)).join("-");
     }
     if (!random) {
-        throw new Error("Secure random generation is not supported");
+        random = `${Date.now()}`;
     }
     return `creator-experience:${action}:${creatorId}:${random}`;
 }
