@@ -161,12 +161,9 @@ export function CreatorDropManager() {
         });
     }, []);
 
-    const tabCounts = useMemo(() => {
-        return REVIEW_TABS.reduce<Record<CreatorDropFilter, number>>((acc, tab) => {
-            acc[tab.id] = tab.id === "all" ? drops.length : drops.filter((drop) => classifyDrop(drop) === tab.id).length;
-            return acc;
-        }, {
-            all: 0,
+    const { tabCounts, dropsByTab } = useMemo(() => {
+        const counts: Record<CreatorDropFilter, number> = {
+            all: drops.length,
             draft: 0,
             submitted: 0,
             pending_review: 0,
@@ -174,13 +171,28 @@ export function CreatorDropManager() {
             needs_changes: 0,
             rejected: 0,
             expired: 0,
-        });
+        };
+        const grouped: Record<CreatorDropFilter, CreatorDropRow[]> = {
+            all: drops,
+            draft: [],
+            submitted: [],
+            pending_review: [],
+            approved: [],
+            needs_changes: [],
+            rejected: [],
+            expired: [],
+        };
+
+        for (const drop of drops) {
+            const status = classifyDrop(drop);
+            counts[status] += 1;
+            grouped[status].push(drop);
+        }
+
+        return { tabCounts: counts, dropsByTab: grouped };
     }, [drops]);
 
-    const visibleDrops = useMemo(
-        () => activeTab === "all" ? drops : drops.filter((drop) => classifyDrop(drop) === activeTab),
-        [activeTab, drops],
-    );
+    const visibleDrops = dropsByTab[activeTab];
     const dropListLoadingState = getModuleLoadingState({ loading, hasData: visibleDrops.length > 0 });
     const showDropListSkeleton = dropListLoadingState === "loading";
 

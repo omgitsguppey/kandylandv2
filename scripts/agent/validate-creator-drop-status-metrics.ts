@@ -27,7 +27,6 @@ export type CreatorDropStatusMetricsReport = {
     adminOnlyControlsHidden: boolean;
     mobileDensityCompact: boolean;
     protectedNavChatUntouched: boolean;
-    openPrsClassified: boolean;
     p0Count: number;
     p1Count: number;
     p2Count: number;
@@ -39,7 +38,6 @@ export type CreatorDropStatusMetricsReport = {
   uiFindings: Finding[];
   protectedSurfaceFindings: Finding[];
   fixesApplied: Finding[];
-  prCleanupActions: string[];
   nextFixOrder: string[];
 };
 
@@ -47,7 +45,6 @@ export type CreatorDropStatusMetricsInputs = {
   currentHead: string;
   generatedAtUtc: string;
   changedFiles: string[];
-  prCleanupActions: string[];
   sources: {
     packageJson: string;
     manager: string;
@@ -174,7 +171,6 @@ export function buildCreatorDropStatusMetricsReport(inputs: CreatorDropStatusMet
   const mobileDensityCompact = inputs.sources.manager.includes('data-creator-drop-mobile-density="compact"')
     && !/\btext-4xl\b|\bp-8\b|\brounded-3xl\b/u.test(inputs.sources.manager);
   const protectedNavChatUntouched = !hasProtectedChange(inputs.changedFiles);
-  const openPrsClassified = inputs.prCleanupActions.length > 0;
 
   const dependencyFindings = [
     finding("dependency-present", dependencyPresent, "Creator drop manager, API, and package script are present.", "P0"),
@@ -199,7 +195,6 @@ export function buildCreatorDropStatusMetricsReport(inputs: CreatorDropStatusMet
     finding("protected-nav-chat-untouched", protectedNavChatUntouched, "Chat and navigation files were not changed.", "P0"),
   ];
   const fixesApplied = [
-    finding("open-prs-classified", openPrsClassified, "Relevant open PRs were classified.", "P0"),
     finding("unit-test-covers-missing-metrics", inputs.sources.testSource.includes("missing metrics as zero"), "Unit tests cover missing metrics not displaying as zero.", "P1"),
     finding("unit-test-covers-expired", inputs.sources.testSource.includes("expired creator drop"), "Unit tests cover expired creator drop status.", "P1"),
   ];
@@ -229,7 +224,6 @@ export function buildCreatorDropStatusMetricsReport(inputs: CreatorDropStatusMet
       adminOnlyControlsHidden,
       mobileDensityCompact,
       protectedNavChatUntouched,
-      openPrsClassified,
       p0Count: countMissing(allFindings, "P0"),
       p1Count: countMissing(allFindings, "P1"),
       p2Count: countMissing(allFindings, "P2"),
@@ -241,7 +235,6 @@ export function buildCreatorDropStatusMetricsReport(inputs: CreatorDropStatusMet
     uiFindings,
     protectedSurfaceFindings,
     fixesApplied,
-    prCleanupActions: inputs.prCleanupActions,
     nextFixOrder: [
       "Wire materialized event-fact summaries into creator drop metrics when that source is available.",
       "Add creator-safe drilldown for metric freshness after admin analytics exposes a bounded drop metric read model.",
@@ -263,7 +256,6 @@ export function validateCreatorDropStatusMetricsReport(report: CreatorDropStatus
   if (!report.summary.adminOnlyControlsHidden) failures.push("creator manager exposes admin-only publish/approval controls.");
   if (!report.summary.mobileDensityCompact) failures.push("creator drop card mobile density is too large or unmarked.");
   if (!report.summary.protectedNavChatUntouched) failures.push("chat/nav changed.");
-  if (!report.summary.openPrsClassified) failures.push("open PRs are unclassified.");
   if (!Array.isArray(report.nextFixOrder) || report.nextFixOrder.length === 0) failures.push("nextFixOrder missing.");
   if (report.summary.p0Count > 0 || report.summary.p1Count > 0) failures.push("blocking creator drop status metrics findings remain.");
   return failures;
@@ -274,10 +266,6 @@ function readInputs(): CreatorDropStatusMetricsInputs {
     currentHead: currentHead(),
     generatedAtUtc: new Date().toISOString(),
     changedFiles: changedFiles(),
-    prCleanupActions: [
-      "Preserved PR #274: broad monolith governance doc PR outside creator drop status/metrics scope.",
-      "Preserved PR #275: admin analytics aggregation optimization outside creator drop status/metrics scope.",
-    ],
     sources: {
       packageJson: read("package.json"),
       manager: optionalRead("src/components/Creators/CreatorDropManager.tsx"),
@@ -316,10 +304,6 @@ function renderMarkdown(report: CreatorDropStatusMetricsReport) {
     "## Fixes Applied",
     "",
     ...[...report.statusFindings, ...report.metricsFindings, ...report.apiFindings, ...report.uiFindings].map((entry) => `- ${entry.status}: ${entry.detail}`),
-    "",
-    "## PR Cleanup",
-    "",
-    ...report.prCleanupActions.map((entry) => `- ${entry}`),
     "",
     "## Next Fix Order",
     "",

@@ -1,7 +1,7 @@
 # Creator Drop Status Metrics
 
-Generated: 2026-06-19T07:56:14.715Z
-Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
+Generated: 2026-07-14T17:06:25.225Z
+Current code version: dc962dbed9b43fafd0f5b2b8eab0a0314ef3804e
 
 ## Summary
 
@@ -24,11 +24,6 @@ Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
 - fixed: Creator drops API returns safe lifecycle and metrics read fields.
 - fixed: Creator manager does not expose admin-only publish/approval/rotation controls.
 - fixed: Creator drop cards use compact mobile density without large card tokens.
-
-## PR Cleanup
-
-- Preserved PR #274: broad monolith governance doc PR outside creator drop status/metrics scope.
-- Preserved PR #275: admin analytics aggregation optimization outside creator drop status/metrics scope.
 
 ## Next Fix Order
 

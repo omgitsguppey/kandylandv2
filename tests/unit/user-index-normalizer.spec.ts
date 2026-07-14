@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildUserContentConsumptionIndex,
   buildUserJourneyIndex,
+  buildUserNotificationIndex,
   buildUserTrackingIndex,
   buildUserValueIndex,
   mergeUserJourneyIndexLifetime,
@@ -106,6 +107,52 @@ describe("user index normalizer", () => {
     });
     expect(index.guestToUserLinked).toBe(true);
     expect(index.identityLinkId).toBe("link_1");
+  });
+
+  it("preserves journey minima and session order across mixed event facts", () => {
+    const index = buildUserJourneyIndex({
+      userId: "user_1",
+      facts: [
+        fact({ sessionId: "session_2", normalizedAction: "message_sent", timestampMs: 500 }),
+        fact({ sessionId: "session_1", normalizedAction: "gumdrops_purchased", timestampMs: 200 }),
+        fact({ sessionId: "session_2", normalizedAction: "drop_unlocked", timestampMs: 300 }),
+        fact({ sessionId: undefined, normalizedAction: "page_viewed", timestampMs: 100 }),
+      ],
+    });
+
+    expect(index).toMatchObject({
+      sessionIds: ["session_2", "session_1"],
+      firstSeenAtMs: 100,
+      firstPurchaseAtMs: 200,
+      firstUnlockAtMs: 300,
+      firstMessageAtMs: 500,
+      funnelStage: "messaged",
+    });
+  });
+
+  it("keeps notification and content counts scoped to the requested user", () => {
+    const facts = [
+      fact({ normalizedAction: "notification_opened", timestampMs: 100 }),
+      fact({ normalizedAction: "notification_read", timestampMs: 200 }),
+      fact({ normalizedAction: "notification_read", timestampMs: 300 }),
+      fact({ normalizedAction: "file_viewed", timestampMs: 400 }),
+      fact({ normalizedAction: "drop_previewed", timestampMs: 500 }),
+      fact({ normalizedAction: "drop_unlocked", timestampMs: 600 }),
+      fact({ actorUserId: "user_2", normalizedAction: "notification_read", timestampMs: 700 }),
+      fact({ actorUserId: "user_2", normalizedAction: "drop_unlocked", timestampMs: 800 }),
+    ];
+
+    expect(buildUserNotificationIndex("user_1", facts)).toMatchObject({
+      notificationReadCount: 2,
+      notificationOpenCount: 3,
+      lastNotificationReadAtMs: 300,
+    });
+    expect(buildUserContentConsumptionIndex("user_1", facts)).toMatchObject({
+      viewedFileCount: 1,
+      openedDropCount: 1,
+      unwrappedDropCount: 1,
+      dataAvailabilityReason: "partial",
+    });
   });
 
   it("preserves lifetime journey minima and never regresses the funnel stage", () => {

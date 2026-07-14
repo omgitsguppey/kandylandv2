@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -213,6 +215,15 @@ describe("user index materializer schedule", () => {
     await expect(handleUserIndexMaterializerSchedule()).resolves.toBeUndefined();
 
     expect(mocks.fetch).not.toHaveBeenCalled();
+  });
+
+  it("keeps the source scorer aligned with the canonical default-off resolver", () => {
+    const scorer = readFileSync(join(process.cwd(), "scripts/agent/score-user-tracking-indexes.ts"), "utf8");
+
+    expect(scorer).toContain('scheduledConsumer.includes("resolveUserIndexMaterializerDispatchMode")');
+    expect(scorer).toContain('normalized === "shadow" || normalized === "active" ? normalized : "off"');
+    expect(scorer).toContain('scheduledConsumer.includes(\'if (dispatchMode === "off")\')');
+    expect(scorer).not.toContain('scheduledConsumer.includes(\'|| "off"\')');
   });
 
   it("rejects a receipt above the five-request or 1,000-fact schedule budget", async () => {

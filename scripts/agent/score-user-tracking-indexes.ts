@@ -38,6 +38,10 @@ function main() {
   const adminUsersPage = read("src/app/admin/users/page.tsx");
   const adminUserDetailPage = read("src/app/admin/user/[userId]/page.tsx");
   const packageJson = read("package.json");
+  const scheduledConsumerDefaultsOff =
+    scheduledConsumer.includes("resolveUserIndexMaterializerDispatchMode")
+    && scheduledConsumer.includes('normalized === "shadow" || normalized === "active" ? normalized : "off"')
+    && scheduledConsumer.includes('if (dispatchMode === "off")');
 
   const checks: ScoreCheck[] = [
     { id: "contract_exists", pass: contract.includes("type UserTrackingIndex"), detail: "User tracking index contract exists." },
@@ -51,7 +55,7 @@ function main() {
     { id: "guest_ingest_enqueues_projection", pass: guestIngest.includes("writeBehavioralTimelineProjection") && !guestIngest.includes("await materializeUserTrackingIndexes("), detail: "Guest ingest persists the atomic projection without running the materializer in-request." },
     { id: "identified_ingest_enqueues_projection", pass: identifiedIngest.includes("writeBehavioralTimelineProjection") && !identifiedIngest.includes("await materializeUserTrackingIndexes("), detail: "Identified ingest persists the atomic projection without running the materializer in-request." },
     { id: "internal_consumer_route", pass: internalRoute.includes("consumeUserIndexMaterializerOutbox") && internalRoute.includes("CRON_SECRET") && internalRoute.includes("timingSafeEqual") && internalRoute.includes("readBoundedJsonBody"), detail: "The registered internal consumer route is bounded and service-authenticated." },
-    { id: "scheduled_consumer_registered", pass: scheduledConsumer.includes("onSchedule") && scheduledConsumer.includes("USER_INDEX_MATERIALIZER_ENDPOINT") && scheduledConsumer.includes("USER_INDEX_MATERIALIZER_ALLOWED_HOSTS") && scheduledConsumer.includes("USER_INDEX_MATERIALIZER_PATH") && scheduledConsumer.includes("maxInstances: 1") && scheduledConsumer.includes('|| "off"'), detail: "The scheduled HTTP consumer is exact-path/host allowlisted, serialized, and off by default." },
+    { id: "scheduled_consumer_registered", pass: scheduledConsumer.includes("onSchedule") && scheduledConsumer.includes("USER_INDEX_MATERIALIZER_ENDPOINT") && scheduledConsumer.includes("USER_INDEX_MATERIALIZER_ALLOWED_HOSTS") && scheduledConsumer.includes("USER_INDEX_MATERIALIZER_PATH") && scheduledConsumer.includes("maxInstances: 1") && scheduledConsumerDefaultsOff, detail: "The scheduled HTTP consumer is exact-path/host allowlisted, serialized, and off by default." },
     { id: "safe_environment_defaults", pass: /^USER_INDEX_MATERIALIZER_MODE=\s*$/mu.test(envExample) && envExample.includes("USER_INDEX_SOURCE_FINGERPRINT=") && envExample.includes("USER_INDEX_MATERIALIZER_ENDPOINT=") && envExample.includes("USER_INDEX_MATERIALIZER_ALLOWED_HOSTS=") && appHosting.includes("USER_INDEX_MATERIALIZER_MODE") && appHosting.includes('value: "off"'), detail: "Environment examples stay value-free, while App Hosting keeps the materializer off and requires explicit endpoint/host configuration before dispatch." },
     { id: "firestore_query_indexes", pass: firestoreIndexes.includes('"fieldPath": "actorUserId"') && firestoreIndexes.includes('"fieldPath": "anonymousVisitorId"') && firestoreIndexes.includes('"fieldPath": "timestampMs"'), detail: "Bounded subject-window queries have source-owned Firestore index declarations." },
     { id: "materialization_registry_updated", pass: materializationRegistry.includes("user_index_materializer_requests v3 worker") && materializationRegistry.includes("user_tracking_indexes") && materializationRegistry.includes("guest_tracking_indexes"), detail: "The existing materialization registry names the v3 worker and its serving outputs." },

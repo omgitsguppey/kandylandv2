@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T07:56:14.715Z",
+  "generatedAtUtc": "2026-07-14T17:06:25.225Z",
   "reportKey": "creator-drop-status-metrics",
-  "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+  "currentHead": "dc962dbed9b43fafd0f5b2b8eab0a0314ef3804e",
   "summary": {
     "dependencyPresent": true,
     "statusResolverReady": true,
@@ -13,7 +13,6 @@
     "adminOnlyControlsHidden": true,
     "mobileDensityCompact": true,
     "protectedNavChatUntouched": true,
-    "openPrsClassified": true,
     "p0Count": 0,
     "p1Count": 0,
     "p2Count": 0
@@ -92,12 +91,6 @@
   ],
   "fixesApplied": [
     {
-      "id": "open-prs-classified",
-      "status": "fixed",
-      "severity": "P0",
-      "detail": "Relevant open PRs were classified."
-    },
-    {
       "id": "unit-test-covers-missing-metrics",
       "status": "fixed",
       "severity": "P1",
@@ -109,10 +102,6 @@
       "severity": "P1",
       "detail": "Unit tests cover expired creator drop status."
     }
-  ],
-  "prCleanupActions": [
-    "Preserved PR #274: broad monolith governance doc PR outside creator drop status/metrics scope.",
-    "Preserved PR #275: admin analytics aggregation optimization outside creator drop status/metrics scope."
   ],
   "nextFixOrder": [
     "Wire materialized event-fact summaries into creator drop metrics when that source is available.",

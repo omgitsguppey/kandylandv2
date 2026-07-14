@@ -1997,11 +1997,13 @@ async function GET_handler(request: NextRequest) {
         });
       });
 
+      const usernameByUserId = new Map(users.map((user) => [user.uid, user.username]));
+
       fallbackStats.forEach((stats, uid) => {
         factRecoveredUserIds.add(uid);
         const existing = analyticsByUser[uid] ?? {
           uid,
-          username: users.find((user) => user.uid === uid)?.username || uid,
+          username: usernameByUserId.get(uid) || uid,
           eventCount: 0,
           sessionCount: 0,
           viewCount: 0,

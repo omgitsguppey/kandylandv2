@@ -69,7 +69,6 @@ describe("creator drop status and metrics", () => {
         "src/components/Creators/CreatorDropManager.tsx",
         "src/app/api/creator/drops/route.ts",
       ],
-      prCleanupActions: ["Preserved PR #275: unrelated admin analytics optimization."],
       sources: {
         packageJson: "check:creator-drop-status-metrics",
         manager: source,
@@ -91,7 +90,6 @@ describe("creator drop status and metrics", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-20T12:00:00.000Z",
       changedFiles: ["src/components/Creators/CreatorDropManager.tsx"],
-      prCleanupActions: ["Preserved PR #275: unrelated admin analytics optimization."],
       sources: {
         packageJson: "check:creator-drop-status-metrics",
         manager: "Submit drop",
