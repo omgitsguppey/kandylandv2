@@ -1,5 +1,58 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-07-10 #190] Full Source-First Codebase Damage Audit
+
+Scope started:
+- User-requested, no-stone-unturned source audit before any new fixes. This pass classifies damage and produces bounded repair slices; it does not deploy, call live providers, mutate production data, run payment flows, or use browser/screenshots as readiness proof.
+- `selectedIssueIdOrFingerprint`: `full-source-damage-audit-2026-07-10`
+- `affectedSurface`: multi-surface architecture, identity/hydration/analytics, user/creator/admin workflows, server truth, security/cost, tests, build, and release evidence.
+- `expectedUserImpact`: expose the real failure map and distinguish product defects, measurement gaps, display gaps, test gaps, stale evidence, and external-proof requirements before repair work begins.
+- `filesAllowed`: read-only repository source/config/test/evidence inspection plus this required audit prelog.
+- `filesForbidden`: payment/GumDrop math, Firebase/security rules, production data, deploy configuration, provider credentials, live APIs, and runtime mutation.
+- `validatorToRun`: promoted deterministic source/readiness scores and targeted validators selected from current doctrine; no default Playwright, Lighthouse, Cypress, deploy, provider, or full `npm run check` lane.
+- `releaseNoteImpact`: none; audit-only and not an accepted public beta release.
+- `rollbackNote`: remove this prelog if the broad audit is abandoned before findings are reported; no runtime rollback is applicable.
+- The uncommitted local executable/build-unblock slice is quarantined as deferred debug tooling and evaluated separately from pre-existing repository damage.
+
+Scope completed:
+- Completed a source-first architecture, identity/analytics, backend/security, workflow, build, test, and release-evidence audit without deploys, production/provider reads, payment calls, browser proof, or production mutation.
+- Verdict: serious and release-blocking in bounded lanes, but recoverable without a rewrite. Core creator workflow, content protection, identity contracts, typecheck, device UI, telemetry catalog, hydration scoring, and the quarantined working-tree production build have substantial passing coverage. The dominant damage is unsafe payment/local-audit isolation, missing runtime bridges, giant ownership surfaces, and false-green verification.
+- Restored audit-generated `agent/**` and `docs/agent-truth/**` churn to the current commit after reading the reports; no generated score snapshot was accepted as doctrine or runtime proof.
+- Disabled the generated scratch `KandyDrops-Audit.exe` by renaming it to `KandyDrops-Audit.exe.UNSAFE-QUARANTINED`. No KandyDrops launcher server was listening on its expected local ports when checked. Launcher source remains deferred for a proper offline/provider-kill-switch repair.
+
+Critical release blockers:
+- The local Audit launcher is not an offline sandbox: it starts a normal production build, exposes the admin fixture, inherits configured Firebase/PayPal services, and no Firebase, storage, analytics, or PayPal owner consults `KANDYDROPS_LOCAL_EXE`. This proves unsafe isolation, not a known production mutation.
+- PayPal capture occurs before server-owned pending-order validation, identity/package validation, the payment lock, and account credit. The create route persists no pending order and current deployment truth documents no webhook recovery lane. A completed provider charge can therefore be followed by local rejection or Firestore failure with no recoverable credit record. No live customer harm was asserted without provider/admin evidence.
+
+Confirmed high-priority findings:
+- `src/app/api/drops/unlock/route.ts` can spend and grant entitlement for a pending, rejected, archived, private, unlisted, or out-of-window Drop when its ID is known because it does not call the existing canonical creator Drop visibility/approval owner.
+- Request-size protection is incomplete: many mutating routes parse bodies without a bounded owner; `Content-Length` can be absent or untrusted; the bounded JSON helper buffers the full body before measuring it. Large upload/content routes buffer up to 250 MiB despite smaller route contracts, and direct chat storage writes lack size/content-type rules.
+- Client session ownership does not rotate across user A -> logout -> user B, while identity-link writes have no conflict reader. This can join multiple accounts to one persistent guest/session lineage.
+- Guest ingest's `queueUserTrackingMaterialization` returns queue metadata but performs no enqueue/write/materializer call. Guest batch Functions build other rollups, while journey stitching consumes `analytics_event_facts`; the promised guest-to-user materialization/timeline bridge is absent.
+- Identity lineage collections are write-only in app runtime, authenticated/admin tracking can also emit anonymous guest batches, Admin Debug declares identity readiness from hardcoded debug identities, and person hydration there is built without canonical runtime envelopes.
+- Nineteen API method contracts are absent from route-runtime-health ownership, leaving existing routes invisible to the Debug/runtime health lane.
+- App architecture contains seven dependency cycles, 155 runtime modules over 500 lines, and 55 over 1,000 lines. Largest owners include the 7,049-line Admin Debug route, 4,402-line analytics recovery spine, 4,261-line Chat experience, and 3,297-line Admin Analytics state hook.
+- Three client-marked Admin pages import a `src/lib/server` loader that computes commerce/revenue fallback math client-side; the dependency rule does not inspect client modules under `src/app`.
+- Scheduler/materializer configuration has no complete source-owned environment/trigger contract; Functions dependency and lockfile declarations disagree; CI does not run a production Next build, clean Functions install/build, unit suite, rules tests, or payment/security lane.
+
+Verification and audit-truth findings:
+- `score:code-organization` reported 10/100; `score:orphans` reported 0/100 with 156 candidates; `score:speed-security` reported 52/beta-risk with 83 findings. Static candidates were source-checked before promotion and were not all treated as confirmed vulnerabilities.
+- `check:architecture` passed for 1,373 modules/3,911 dependencies, but `check:cycles:app` failed seven cycles and `check:deps` failed. Functions cycle checking passed.
+- Root tooling has 892 package scripts, 789 `check:*` aliases, 737 validator files, and 618 generated state JSONs. The package-script consolidator hardcodes one debt lane empty and its test treats more than 500 scripts as an expected passing state.
+- Analytics/identity source contracts and 74 focused tests can pass while the materializer call count is zero. The Admin Analytics integration test mocks the real hydration hook, so it does not prove guest event -> identity link -> person materialization -> hook -> rendered metric.
+- Several failures were stale or syntactic rather than product defects: the identity-continuity validator expects an older inline literal even though canonicalization exists; payment-unlock expects retired copy; not-found checks reject typed/custom 404s; chat shell checks expect older constant spellings; UI runtime reports the impossible ratio 10/9; related-test selection can exit green after running zero tests.
+- Current beta score was approximately 83/100 but depended on stale/external evidence and did not incorporate the severe architecture/security findings consistently. Provider, deployed rules, scheduler, rollout, billing, and real-user impact remain formal external-evidence lanes, not facts inferred from source.
+
+Bounded repair order accepted from this audit:
+1. Make the Audit executable truly offline and provider-disabled.
+2. Repair PayPal with a server-owned pending/captured-uncredited recovery state before any provider capture.
+3. Enforce canonical Drop approval/visibility inside unlock.
+4. Fix cross-account identity rotation, link conflicts, the real guest materializer, journey stitching, and one end-to-end rendered-metric test.
+5. Enforce streaming/request/upload limits and storage rules, then reconcile cost contracts.
+6. Repair route-runtime visibility, scheduler ownership, Functions lock reproducibility, and CI build/test proof.
+7. Correct false-green validators and stale generated evidence before using scores to guide consolidation.
+8. Remove cycles and split super-owners one seam at a time; delete verified ghosts only after consumer checks.
+
 ## [2026-06-20 #189] External Audit Doctrine Conflict Cleanup
 
 Scope started:
