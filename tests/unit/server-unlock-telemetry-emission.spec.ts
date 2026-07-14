@@ -18,7 +18,7 @@ describe("server unlock telemetry emission", () => {
       sourceComponent: "drops_unlock_route",
     });
 
-    expect(event.eventName).toBe("drop_unwrapped");
+    expect(event.eventName).toBe("drop_unlocked");
     expect(event.eventId).toBe(event.idempotencyKey);
     expect(event.params).toMatchObject({
       transaction_id: "tx-1",
@@ -46,7 +46,7 @@ describe("server unlock telemetry emission", () => {
   it("keeps entitlement telemetry from overwriting the canonical unlock fact", () => {
     const route = readFileSync("src/app/api/drops/unlock/route.ts", "utf8");
 
-    expect(route).toContain("idempotency_key: serverUnlockTelemetry.idempotencyKey");
+    expect(route).toContain("...serverUnlockTelemetry.params");
     expect(route).toContain("entitlement_granted:${result.transactionId || result.entitlementId}:${dropId}");
   });
 });

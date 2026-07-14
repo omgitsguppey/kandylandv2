@@ -4,12 +4,12 @@ Generated source-only artifact. No production reads, provider calls, deployed ru
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T19:37:49.329Z",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "generatedAtUtc": "2026-07-14T07:08:22.318Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "telemetryParityAgeBefore": 488.7,
-  "telemetryParityAgeAfter": 0.12,
+  "telemetryParityAgeAfter": 0.01,
   "behaviorMathAgeBefore": 67.3,
-  "behaviorMathAgeAfter": 0.12,
+  "behaviorMathAgeAfter": 0.01,
   "privacyBehaviorLegacyHeadStatus": "current",
   "monolithOrphanHeadStatus": "current_warning",
   "eventCatalogStatusBefore": "delayed_unknown",

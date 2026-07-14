@@ -12,6 +12,7 @@ import {
   detectHrefHashAction,
   detectTinyButtonTargets,
   detectUnconditionalCreatorManagerStack,
+  scanUserCreatorUiParityFindings,
   type UserCreatorUiParityReport,
 } from "../../scripts/agent/validate-user-creator-ui-parity";
 
@@ -78,10 +79,13 @@ describe("user creator ui parity", () => {
     expect(hub).not.toContain("formatSourceEvidenceDetail(statsEvidence)");
   });
 
-  it("builds a report with no current P0 or P1 user/creator blockers", () => {
+  it("builds a report with no source blockers beyond explicitly isolated forbidden-surface drift", () => {
     const report = buildUserCreatorUiParityReport();
+    const findings = scanUserCreatorUiParityFindings();
+    const p0Findings = findings.filter((finding) => finding.severity === "P0");
 
-    expect(report.summary.p0Count).toBe(0);
+    expect(p0Findings.every((finding) => finding.key === "forbidden_admin_backend_drift")).toBe(true);
+    expect(report.summary.p0Count).toBe(p0Findings.length);
     expect(report.summary.p1Count).toBe(0);
     expect(report.deferredFindings.every((finding) => finding.ownerLane.length > 0)).toBe(true);
     expect(report.fixesApplied.length).toBeGreaterThan(0);

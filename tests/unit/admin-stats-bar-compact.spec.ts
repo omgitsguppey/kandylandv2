@@ -82,6 +82,6 @@ describe("AdminStatsBar compact platform pulse", () => {
     );
 
     expect(container.querySelector("[data-admin-truth-state='cached']")).toBeTruthy();
-    expect(screen.getByText("CACHED")).toBeTruthy();
+    expect(screen.getByText("Cached")).toBeTruthy();
   });
 });

@@ -4,6 +4,9 @@ import * as firebaseAdmin from "firebase-admin";
 import { fromCSTInput, getCSTDateKey, getCSTDateParts, shiftCSTDateKey } from "@/lib/timezone";
 import { TELEMETRY_EVENT_ALIAS_MAP } from "@/lib/telemetry-catalog";
 import { mapLegacyEventToCurrentMetric } from "@/lib/math/legacy-metric-canonicalization";
+import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
+
+const ADMIN_ANALYTICS_EVENT_FACT_QUERY_CONCURRENCY = 3;
 
 export type RangeWindow = {
   startDate: string;
@@ -445,7 +448,10 @@ export async function fetchTelemetryLogs(
       eventNameChunks.push(normalizedEventNames.slice(index, index + 10));
     }
 
-    const snapshots = await Promise.all(eventNameChunks.map(async (eventNameChunk) => {
+    const snapshots = await mapWithConcurrency(
+      eventNameChunks,
+      ADMIN_ANALYTICS_EVENT_FACT_QUERY_CONCURRENCY,
+      async (eventNameChunk) => {
       try {
         return await firebaseAdmin.firestore()
           .collection("analytics_event_facts")
@@ -456,7 +462,8 @@ export async function fetchTelemetryLogs(
         console.warn(`Admin analytics fact query failed for ${eventNameChunk.join(", ")}:`, error);
         return null;
       }
-    }));
+      },
+    );
 
     snapshots.forEach((snapshot) => {
       if (!snapshot) {
@@ -609,9 +616,15 @@ export function sumSnapshotField(
 export async function safeRunReport(
   analyticsClient: BetaAnalyticsDataClient,
   requestConfig: Parameters<BetaAnalyticsDataClient["runReport"]>[0],
+  options?: { timeoutMs?: number },
 ): Promise<AnalyticsReportResponse> {
   try {
-    const [response] = await analyticsClient.runReport(requestConfig);
+    const timeoutMs = Math.max(1_000, Math.min(options?.timeoutMs ?? 10_000, 30_000));
+    const quotaAwareRequest = {
+      ...requestConfig,
+      returnPropertyQuota: true,
+    };
+    const [response] = await analyticsClient.runReport(quotaAwareRequest, { timeout: timeoutMs });
     return response as AnalyticsReportResponse;
   } catch (error) {
     console.warn("GA runReport failed, falling back to first-party analytics:", error);
@@ -622,9 +635,15 @@ export async function safeRunReport(
 export async function safeRunRealtimeReport(
   analyticsClient: BetaAnalyticsDataClient,
   requestConfig: Parameters<BetaAnalyticsDataClient["runRealtimeReport"]>[0],
+  options?: { timeoutMs?: number },
 ): Promise<AnalyticsReportResponse> {
   try {
-    const [response] = await analyticsClient.runRealtimeReport(requestConfig);
+    const timeoutMs = Math.max(1_000, Math.min(options?.timeoutMs ?? 10_000, 30_000));
+    const quotaAwareRequest = {
+      ...requestConfig,
+      returnPropertyQuota: true,
+    };
+    const [response] = await analyticsClient.runRealtimeReport(quotaAwareRequest, { timeout: timeoutMs });
     return response as AnalyticsReportResponse;
   } catch (error) {
     console.warn("GA realtime report failed, falling back to first-party analytics:", error);

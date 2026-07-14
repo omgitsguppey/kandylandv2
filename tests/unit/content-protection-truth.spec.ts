@@ -171,7 +171,24 @@ describe("locked content protection truth", () => {
     expect(viewSource).toContain("data-drop-preview-cover-aspect=\"1:1\"");
     expect(viewSource).toContain("getCoverCtaLabel");
     expect(imagePolicySource).toContain("const DROP_GRID_STANDARD_SIZES");
-    expect(imagePolicySource).toContain("const DROP_PREVIEW_SIZES = \"(max-width: 640px) 64vw, 320px\"");
+    expect(imagePolicySource).toContain("const DROP_PREVIEW_SIZES = \"(max-width: 600px) 64vw, 320px\"");
+  });
+
+  it("keeps every locked primary action in the bottom-nav-safe sticky owner", () => {
+    const viewSource = readFileSync(join(process.cwd(), "src/components/Drops/LockedDropPreviewView.tsx"), "utf8");
+
+    expect(viewSource).toContain("truth.shouldShowSignupCta || truth.shouldShowTopUpCta || truth.shouldShowUnwrapCta");
+    expect(viewSource).toContain("data-drop-preview-sticky-cta-above-bottom-nav=\"true\"");
+    expect(viewSource).toContain("bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)]");
+    expect(viewSource).toContain("min-h-[3.25rem]");
+    expect(viewSource).toContain("disabled={authLoading || unlocking}");
+    expect(viewSource).toContain("aria-busy={unlocking}");
+    expect(viewSource).toContain('onShare={onShare}');
+    expect(viewSource).toContain('onClick={onShare}');
+    expect(viewSource).toContain("Share cover");
+    expect(viewSource).not.toContain("Full access follows unlock rules");
+    expect(viewSource).not.toContain("function CoverCreatorShareCta");
+    expect(viewSource.match(/Share cover/g)).toHaveLength(1);
   });
 
   it("wires creator preview cover and share telemetry from the preview page", () => {

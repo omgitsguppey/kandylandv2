@@ -35,6 +35,7 @@ const mockState = vi.hoisted(() => {
         touchUserRuntime: vi.fn(),
         recordRouteRuntimeSample: vi.fn(),
         getErrorMessage: vi.fn(),
+        broadcastFCMWithReport: vi.fn(),
         adminDb: {
             collection,
             getAll: vi.fn(async (...refs: Array<{ id: string; path: string }>) => refs.map((ref) => {
@@ -61,6 +62,7 @@ const mockState = vi.hoisted(() => {
             this.touchUserRuntime.mockReset();
             this.recordRouteRuntimeSample.mockReset();
             this.getErrorMessage.mockReset();
+            this.broadcastFCMWithReport.mockReset();
             this.adminDb.collection.mockClear();
             this.adminDb.getAll.mockClear();
             this.adminDb.batch.mockClear();
@@ -84,7 +86,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 
 vi.mock("@/lib/server/fcm-utils", () => ({
-    broadcastFCMWithReport: vi.fn(),
+    broadcastFCMWithReport: mockState.broadcastFCMWithReport,
 }));
 
 vi.mock("@/lib/server/notification-runtime", () => ({
@@ -117,7 +119,31 @@ vi.mock("firebase-admin/firestore", () => ({
     },
 }));
 
-import { PUT } from "@/app/api/notifications/route";
+import { POST, PUT } from "@/app/api/notifications/route";
+
+describe("POST /api/notifications", () => {
+    beforeEach(() => {
+        mockState.reset();
+        mockState.guardApiRequest.mockResolvedValue({ uid: "admin_1" });
+        mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
+            error: error instanceof Error ? error.message : String(error),
+        }, { status: 500 }));
+    });
+
+    it("rejects an oversized admin notification before persistence or fan-out", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/notifications", {
+            method: "POST",
+            body: JSON.stringify({ title: "Notice", padding: "x".repeat(32_768) }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({ errorCode: "payload_too_large", retryable: false });
+        expect(mockState.adminDb.collection).not.toHaveBeenCalled();
+        expect(mockState.broadcastFCMWithReport).not.toHaveBeenCalled();
+        expect(mockState.batchCommit).not.toHaveBeenCalled();
+    });
+});
 
 describe("PUT /api/notifications", () => {
     beforeEach(() => {
@@ -186,5 +212,20 @@ describe("PUT /api/notifications", () => {
         expect(response.status).toBe(404);
         expect(body.error).toBe("Notification not available");
         expect(mockState.batchUpdate).not.toHaveBeenCalled();
+    });
+
+    it("rejects an oversized read-state mutation before document reads or writes", async () => {
+        const response = await PUT(new NextRequest("http://localhost/api/notifications", {
+            method: "PUT",
+            body: JSON.stringify({ notificationId: "note_1", padding: "x".repeat(32_768) }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({ errorCode: "payload_too_large", retryable: false });
+        expect(mockState.adminDb.collection).not.toHaveBeenCalled();
+        expect(mockState.adminDb.getAll).not.toHaveBeenCalled();
+        expect(mockState.adminDb.batch).not.toHaveBeenCalled();
+        expect(mockState.touchUserRuntime).not.toHaveBeenCalled();
     });
 });

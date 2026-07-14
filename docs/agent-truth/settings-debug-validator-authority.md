@@ -1,10 +1,10 @@
 # Settings Debug Validator Authority
 
-Generated: 2026-05-24T16:27:47.899Z
+Generated: 2026-07-14T16:10:24.557Z
 
 ## Status
 
-passed
+failed
 
 ## Settings Health Lane
 
@@ -32,4 +32,4 @@ passed
 
 ## Failures
 
-- None
+- protected surfaces changed: src/app/api/chat/attachments/cancel/route.ts, src/app/api/chat/attachments/complete/route.ts, src/app/api/chat/attachments/prepare/route.ts, src/app/api/chat/threads/[threadId]/messages/route.ts, src/app/api/paypal/capture/route.ts, src/app/api/paypal/create/route.ts, src/app/api/wallet/packages/route.ts, src/components/Chat/ChatExperience.tsx, src/components/Navigation/NotificationBell.tsx, src/components/Navigation/ProfileDropdown.tsx

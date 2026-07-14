@@ -47,6 +47,9 @@ const mockState = vi.hoisted(() => {
                 return makeCollection(name);
             },
         },
+        adminAuth: {
+            createUser: vi.fn(),
+        },
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
         trackServerEvent: vi.fn(async () => undefined),
@@ -89,12 +92,14 @@ const mockState = vi.hoisted(() => {
             this.trackServerEvent.mockReset();
             this.recordServerDiagnostic.mockReset();
             this.ensureCreatorOnboardingSubmission.mockClear();
+            this.adminAuth.createUser.mockReset();
         },
     };
 });
 
 vi.mock("@/lib/server/firebase-admin", () => ({
     adminDb: mockState.adminDb,
+    adminAuth: mockState.adminAuth,
 }));
 
 vi.mock("@/lib/server/request-guard", () => ({
@@ -136,7 +141,7 @@ vi.mock("@/lib/server/creator-onboarding", () => ({
     isCreatorOwnerEmail: () => false,
 }));
 
-import { GET } from "@/app/api/admin/roster/route";
+import { GET, POST } from "@/app/api/admin/roster/route";
 
 describe("GET /api/admin/roster", () => {
     beforeEach(() => {
@@ -252,5 +257,30 @@ describe("GET /api/admin/roster", () => {
             waitingOnIdCount: 1,
         });
         expect(payload.searchResults).toHaveLength(0);
+    });
+
+    it("rejects an oversized direct-creator request before creating an auth user", async () => {
+        const request = new NextRequest("http://localhost/api/admin/roster", {
+            method: "POST",
+            body: JSON.stringify({
+                displayName: "Creator",
+                email: "creator@example.com",
+                platform: "video",
+                contentType: "fashion",
+                password: "safe-password",
+                padding: "x".repeat(64_000),
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            code: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminAuth.createUser).not.toHaveBeenCalled();
     });
 });

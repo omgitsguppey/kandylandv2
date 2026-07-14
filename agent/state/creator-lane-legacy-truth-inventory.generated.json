@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T19:37:50.059Z",
+  "generatedAt": "2026-07-14T07:08:25.289Z",
   "task": "creator-lane-legacy-truth-inventory",
   "scope": "Creator onboarding, admin roster, agreement, creator experience, tests, and Firebase rules truth-lane inventory.",
   "doctrine": {
@@ -1414,9 +1414,9 @@
     "Do not make public creator routes read private onboarding/legal/ID metadata.",
     "Do not create a parallel CreatorSettings model for fan experiences."
   ],
-  "generatedAtUtc": "2026-05-24T19:37:50.059Z",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
-  "sourceCommit": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "generatedAtUtc": "2026-07-14T07:08:25.289Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "status": "current_review",
   "sourceStatus": "current_static_inventory"
 }

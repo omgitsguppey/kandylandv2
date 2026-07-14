@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { getResolvedQueueConfig, setDropQueueMembership } from "@/lib/server/drop-queue";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+
+const ADMIN_QUEUE_TOGGLE_BODY_LIMIT_BYTES = 64_000;
 
 async function POST_handler(request: NextRequest) {
     try {
@@ -14,7 +17,11 @@ async function POST_handler(request: NextRequest) {
             auth: "admin",
         });
 
-        const { dropId } = await request.json();
+        const { dropId } = await readBoundedJsonBody<{ dropId?: string }>(request, {
+            maxBytes: ADMIN_QUEUE_TOGGLE_BODY_LIMIT_BYTES,
+            routeName: "admin/queue/toggle",
+            allowEmpty: false,
+        });
 
         if (!dropId) {
             return NextResponse.json({ error: "Missing dropId" }, { status: 400 });
@@ -25,6 +32,14 @@ async function POST_handler(request: NextRequest) {
         await setDropQueueMembership(dropId, !isQueued);
         return NextResponse.json({ success: true, added: !isQueued });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "Admin.Queue.Toggle");
     }
 }

@@ -304,7 +304,7 @@ export function CreatorBroadcastManager({
           <textarea
             value={message}
             onChange={(event) => setMessage(event.target.value.slice(0, 280))}
-            placeholder="Message your fans"
+            placeholder="Message your followers"
             rows={3}
             className="w-full resize-none rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30"
             maxLength={280}

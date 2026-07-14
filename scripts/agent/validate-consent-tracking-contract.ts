@@ -112,7 +112,8 @@ if (!deepTrackerSource.includes("canUseBehavioralAnalytics")
   failures.push("DeepTracker does not read consent policy or drop queued behavior when disabled.");
 }
 
-if (!serverConsentSource.includes("canUseBehavioralSignals")
+if (!serverConsentSource.includes("canTrackEvent")
+  || !serverConsentSource.includes("resolveRequestConsentMode")
   || !apiConsentSource.includes("consentMode")) {
   failures.push("server/API consent path is not connected to consent modes.");
 }
@@ -144,8 +145,8 @@ if (getConsentUpgradeEffect("accept_all").consentMode !== "full_behavioral"
 }
 
 if (canUseBehavioralSignals("minimal_analytics")
-  || canTrackEvent("semantic_page_viewed", "minimal_analytics")
-  || canTrackEvent("drop_card_impression", "necessary_only")) {
+  || canTrackEvent("semantic_target_clicked", "minimal_analytics")
+  || canTrackEvent("watch_session_completed", "necessary_only")) {
   failures.push("full behavioral events can fire under minimal/decline.");
 }
 

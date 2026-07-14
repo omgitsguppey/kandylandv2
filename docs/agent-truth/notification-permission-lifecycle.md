@@ -1,7 +1,7 @@
 # Notification Permission Lifecycle
 
-Generated: 2026-06-09T01:08:18.932Z
-Current HEAD: 00b18bf22
+Generated: 2026-07-14T06:24:27.565Z
+Current HEAD: dc4dad82c
 
 ## Status
 
@@ -36,38 +36,38 @@ Current HEAD: 00b18bf22
 
 ## Score Impact
 
-- sourceHealth: 91.7 -> 91.7 (Notification prompt lifecycle has explicit source contract, telemetry events, and validator coverage.)
-- runtimeHealth: 72.8 -> 72.8 (Runtime push/provider proof remains separate; this phase adds source-safe lifecycle readiness only.)
-- evidenceCompleteness: 43.4 -> 43.4 (Prompt views, grants, denials, failures, cooldown, and blocked browser states feed debug evidence.)
-- freshness: 59.38 -> 59.38 (Notification lifecycle report is regenerated from current source.)
-- costRisk: 42 -> 42 (Prompt state is local and event-only; no production reads or provider calls are added.)
+- sourceHealth: 95.5 -> 95.5 (Notification prompt lifecycle has explicit source contract, telemetry events, and validator coverage.)
+- runtimeHealth: 70.22 -> 70.22 (Runtime push/provider proof remains separate; this phase adds source-safe lifecycle readiness only.)
+- evidenceCompleteness: 80 -> 80 (Prompt views, grants, denials, failures, cooldown, and blocked browser states feed debug evidence.)
+- freshness: 92.5 -> 92.5 (Notification lifecycle report is regenerated from current source.)
+- costRisk: 92.5 -> 92.5 (Prompt state is local and event-only; no production reads or provider calls are added.)
 - regressionRisk: 94 -> 94 (Unit and validator checks protect no-auto-prompt, cooldown, telemetry mapping, debug lane, and protected-surface boundaries.)
-- overallHealthScore: 68.67 -> 68.67 (Moves notification readiness evidence without clearing formal runtime/provider gates.)
+- overallHealthScore: 83.38 -> 83.38 (Moves notification readiness evidence without clearing formal runtime/provider gates.)
 
 ## Dirty Files
 
-- .agent/workflows/auto-tasks.md: unsafe_unknown
-- .agent/workflows/pre-commit.md: unsafe_unknown
 - .env.example: unsafe_unknown
-- .gitignore: unsafe_unknown
-- agent/context/doctrine.cards.jsonl: unsafe_unknown
-- agent/context/doctrine.index.json: unsafe_unknown
-- agent/context/file-size-budget.json: unsafe_unknown
-- agent/context/legacy-registry.json: unsafe_unknown
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/context/task-pack.generated.json: unsafe_unknown
-- agent/context/validator-map.json: unsafe_unknown
-- agent/index/blast-radius.json: unsafe_unknown
-- agent/index/canonical-helpers.json: unsafe_unknown
-- agent/index/dependency-graph.summary.json: unsafe_unknown
-- agent/index/governance-truth.json: unsafe_unknown
-- agent/index/known-pitfalls.json: unsafe_unknown
-- agent/index/package-manager-truth.json: unsafe_unknown
-- agent/index/recent-passes.json: unsafe_unknown
-- agent/index/repo-inventory.json: unsafe_unknown
-- agent/index/retrieval-index.json: unsafe_unknown
-- agent/README.md: unsafe_unknown
-- scripts/agent/validate-notification-permission-lifecycle.ts: validator_artifact_expected
-- scripts/agent/validate-notification-return-loop.ts: validator_artifact_expected
-- scripts/agent/validate-push-token-registration.ts: validator_artifact_expected
-- tests/unit/notification-permission-lifecycle.spec.ts: test_artifact_expected
+- agent/index/ui-surface-coverage.json: unsafe_unknown
+- agent/state/4xx-cost-guardrails.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/account-settings-delete-flow.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/account-settings-mobile-padding.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/admin-truth-replacement.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-cost-runtime-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-ingest-firestore-closure.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/backend-route-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/backend-service-ownership.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-composer-modal-lift.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-presence-typing.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/codebase-hardening.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/config-env-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/config-infra-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/config-infra-memory-writeback.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/consent-tracking-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/content-protection-score.generated.json: stale_generated_artifact_to_regenerate
+- FULL_SCALE_CODEBASE_AUDIT.md: unsafe_unknown
+- README.md: unsafe_unknown
+- REPO_MEMORY_LEDGER.md: unsafe_unknown
+- src/app/api/notifications/push-token/route.ts: real_source_change_needs_review
+- src/app/api/notifications/route.ts: unsafe_unknown
+- tests/unit/notifications-route.spec.ts: unsafe_unknown

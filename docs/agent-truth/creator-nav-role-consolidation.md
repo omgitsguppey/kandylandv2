@@ -31,8 +31,8 @@ Creator accounts can access creator operations and user/shop/drop/library surfac
 - Fan Pass CRM rows use `FanPassSubscriberRow` or equivalent readable identity display.
 - Normal creator UI must not use `subscription.userId || subscription.id` as a primary subscriber label.
 - Full raw user IDs are debug/admin details only.
-- Creator-facing broadcast copy uses Fans or Fan Pass, not followers.
-- Broadcast surfaces expose an explicit audience marker such as `data-broadcast-audience="all_fans"`.
+- Creator-facing broadcast copy uses the exact supported audience: `Followers` for the relationship-backed follower lane and `Fan Pass subscribers` for the paid subscriber lane.
+- Broadcast surfaces expose an explicit audience marker such as `data-broadcast-audience="followers"`; legacy `all_fans` input is normalized at the broadcast contract boundary and is not a product-facing audience.
 
 ## Dashboard Boundary Rules
 
@@ -49,4 +49,4 @@ Run:
 npm run check:creator-nav-role-consolidation
 ```
 
-The validator fails if nav routes cross creator/account settings, creator and user dashboards stack, Fan Pass CRM regresses to raw IDs, creator-facing broadcast copy says followers, the broadcast audience marker is missing, or conflicting doctrine remains.
+The validator fails if nav routes cross creator/account settings, creator and user dashboards stack, Fan Pass CRM regresses to raw IDs, creator-facing broadcast copy revives legacy `all_fans` semantics, the supported audience marker is missing, or conflicting doctrine remains.

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T04:00:55.445Z",
+  "generatedAt": "2026-07-14T14:58:35.050Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -17,9 +17,9 @@
     "agent/context/validator-map.json",
     "agent/context/legacy-registry.json"
   ],
-  "taskSummary": "Finish creator dashboard refinements so the dashboard can be reviewed through real read-only admin creator projection without logging into creator accounts",
+  "taskSummary": "validate repo intelligence fabric outputs",
   "changedFiles": [
-    "src/context/AdminViewAsContext.tsx"
+    "scripts/agent/build-agent-indexes.ts"
   ],
   "affectedSurfaces": [
     "agent-context"
@@ -60,7 +60,7 @@
         "build:agent-context",
         "check:affected-audit-router"
       ],
-      "lastUpdated": "2026-05-08T01:56:59.584Z",
+      "lastUpdated": "2026-07-14T09:09:59.869Z",
       "sourceDoc": "docs/agent-truth/compact-agent-context.md",
       "priority": "high",
       "tokenEstimate": 233
@@ -80,21 +80,7 @@
     "check:audit-runtime-ledger": "agent-context",
     "score:audit-runtime": "agent-context"
   },
-  "legacyWarnings": [
-    {
-      "id": "synthetic-view-as-local-projection",
-      "name": "Synthetic/simulative admin view-as",
-      "status": "deprecated",
-      "ownerSurface": "admin_creator_projection",
-      "canonicalReplacement": "Admin creator projection with actorAdminId, performedAs, local-only source truth, and write-block diagnostics",
-      "reviewBy": "2026-05-26",
-      "removeBy": "2026-07-15",
-      "riskIfKept": "Local projection and synthetic creator state can be mistaken for live creator behavior or user engagement.",
-      "matchedFiles": [
-        "src/context/AdminViewAsContext.tsx"
-      ]
-    }
-  ],
+  "legacyWarnings": [],
   "excludedByDesign": {
     "sourceMarkdown": "Not loaded unless a compact card or validator leaves uncertainty.",
     "unrelatedCards": 18

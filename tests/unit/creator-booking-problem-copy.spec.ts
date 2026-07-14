@@ -22,7 +22,7 @@ describe("creator booking problem copy", () => {
     expect(getCreatorBookingProblemCopy({
       code: "insufficient_paid_gumdrops",
       shortfallGd: 750,
-    })).toBe("You need 750 more paid GD to book this.");
+    })).toBe("Open Wallet to add 750 more paid GD, then book this again.");
   });
 
   it("does not use internal server error as the fallback booking copy", () => {
@@ -36,7 +36,7 @@ describe("creator subscription problem copy", () => {
     expect(getCreatorSubscriptionProblemCopy({
       code: "insufficient_paid_gumdrops",
       shortfallGd: 250,
-    })).toBe("You need 250 more paid GD to start this Fan Pass.");
+    })).toBe("Open Wallet to add 250 more paid GD, then start this Fan Pass again.");
     expect(getCreatorSubscriptionProblemCopy({ code: "subscriptions_unavailable" }))
       .toBe("Fan Pass is not available for this creator right now.");
     expect(getCreatorSubscriptionProblemCopy({ code: "creator_unavailable" }))

@@ -10,6 +10,8 @@ import type { LegacyEventRecoveryCandidate } from "@/lib/legacy/legacy-event-rec
 import {
   PERSON_METRIC_DEFINITIONS,
   PERSON_METRIC_IDS,
+  createEmptyPersonMetricCounts,
+  type PersonMetricCounts,
   type PersonMetricDefinition,
   type PersonMetricId,
 } from "./person-metrics-contract";
@@ -168,6 +170,27 @@ function sourceEventMap() {
     }
   }
   return map;
+}
+
+export function buildMaterializedPersonMetricCounts(
+  facts: readonly { eventName: string; timestampMs: number }[],
+): PersonMetricCounts {
+  const counts = createEmptyPersonMetricCounts();
+  const definitionsByEvent = sourceEventMap();
+  const activeDayKeys = new Set<string>();
+  for (const fact of facts) {
+    for (const metric of definitionsByEvent.get(fact.eventName) ?? []) {
+      if (metric.id === "active_days") {
+        if (Number.isFinite(fact.timestampMs)) {
+          activeDayKeys.add(new Date(fact.timestampMs).toISOString().slice(0, 10));
+        }
+        continue;
+      }
+      counts[metric.id] += 1;
+    }
+  }
+  counts.active_days = activeDayKeys.size;
+  return counts;
 }
 
 function createScope(scope: PersonMetricHydrationScope): PersonMetricScopeSummary {
@@ -339,7 +362,7 @@ function applyDecisionGroup(input: {
         suppressedDuplicates += 1;
       }
     }
-    if (decision.scopeDecisions.creatorRole.count) {
+    if (decision.countForSignedInUser && decision.scopeDecisions.creatorRole.count) {
       const key = decision.scopeDecisions.creatorRole.dedupeKey;
       if (!seenCreatorKeys.has(key)) {
         addToScope(scopes.creatorRole, metric, envelope, decision.identityConfidence);
@@ -497,7 +520,10 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
     .map((metricId) => userParityStatus[metricId])
     .filter((metric) => metric.blocksUserParity)
     .sort((left, right) => left.metricId.localeCompare(right.metricId));
-  const gapCount = missingHydration.length + userParityGaps.length;
+  const gapCount = new Set([
+    ...missingHydration.map((gap) => gap.metricId),
+    ...userParityGaps.map((gap) => gap.metricId),
+  ]).size;
 
   return {
     reportKey: "person-metrics-hydration",
@@ -639,7 +665,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "src/lib/fan-pass/fan-pass-lifecycle-contract.ts" || normalized === "src/lib/fan-pass/fan-pass-access-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/creator-monetization/creator-entitlement-contract.ts" || normalized === "src/lib/creator-monetization/creator-entitlement-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/creator/subscriptions/route.ts" || normalized === "src/lib/server/chat.ts") return "real_source_change_needs_review";
-  if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts" || normalized === "src/app/api/chat/attachments/cancel/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/creator-relationship-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/search-telemetry-contract.ts" || normalized === "src/lib/discovery/search-cost-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/creator/relationships/route.ts") return "real_source_change_needs_review";

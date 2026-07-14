@@ -80,7 +80,7 @@ const FINDINGS: SelfRevealingFinding[] = [
     severity: "high",
     actionability: "fix_now",
     rootCause: "Missing metric producers or bridges must show as gaps, not zero.",
-    exactNextAction: "Keep missingHydration.length wired to debugLane.gaps and scoreImpactByDimension.",
+    exactNextAction: "Keep unique metric IDs across missing hydration and blocking user-parity gaps wired to debugLane.gaps and scoreImpactByDimension.",
     validator: "npm run check:person-metrics-hydration",
     scoreImpact: ["evidenceCompleteness"],
     costImpact: "none",

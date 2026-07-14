@@ -1,16 +1,16 @@
 {
-  "generatedAtUtc": "2026-07-05T02:02:09.944Z",
+  "generatedAtUtc": "2026-07-14T10:17:24.403Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "betaVersion": "1.6.15",
-    "betaScore": 84,
+    "betaScore": 83.38,
     "betaStatus": "Source evidence required",
     "scoreVersion": "beta_health_v2",
-    "healthScore": 90.85,
+    "healthScore": 83.38,
     "launchGateStatus": "source_ready",
     "sourceHealthScore": 95.5,
-    "runtimeHealthScore": 95.11,
+    "runtimeHealthScore": 70.22,
     "evidenceCompletenessScore": 80,
     "freshnessScore": 92.5,
     "costRiskScore": 92.5,
@@ -22,7 +22,7 @@
     "economyP0": 0,
     "economyP1": 0,
     "visualEvidenceStatus": "source_surface_checks_current",
-    "providerSmokeStatus": "operator_reported_not_formal_provider_smoke",
+    "providerSmokeStatus": "stale_provider_smoke_evidence",
     "operatorRevenueSmokeStatus": "operator_confirmed_revenue_smoke",
     "operatorRevenueSmokeAmountUsd": 50,
     "operatorRevenueSmokeProduct": "GumDrops",
@@ -31,7 +31,7 @@
     "operatorRevenueSmokeFormalProviderSmokePassed": false,
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
     "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate.",
-    "runtimeSmokeStatus": "formal_runtime_smoke_passed",
+    "runtimeSmokeStatus": "stale_runtime_smoke_evidence",
     "adminTruthSampleStatus": "formal_admin_truth_sample_passed",
     "cloudRunCostReadiness": "cost_review_required",
     "cloudSqlCostReadiness": "owner_review_external_billing_required",
@@ -40,7 +40,7 @@
     "errorHandlingSourceStatus": "error_handling_source_complete",
     "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required; runtime watch-time accuracy still needs deployed media evidence",
     "liveRuntimeEvidenceStatus": "live_runtime_evidence_bridge=not_observed_but_expected; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=0; not_observed_but_expected=7; runtime_export_required=3; provider_required=2; admin_truth_source_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
-    "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
+    "speedSecurityStatus": "100/clean; findings=1; critical=0",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "betaExitReviewState": "blocked_by_source_evidence",
     "proofLanes": [
@@ -52,7 +52,7 @@
         "sourceStatus": "source_surface_checks_current",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "7be0129c345767e7c85ea7854f5e036f8df4746c",
+        "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
         "canClearGate": true,
         "nextAction": "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues."
       },
@@ -60,8 +60,8 @@
         "id": "providerSmoke",
         "label": "Provider-backed source activity evidence",
         "truthState": "external_evidence_required",
-        "actionState": "attach_external_evidence",
-        "sourceStatus": "operator_reported_not_formal_provider_smoke",
+        "actionState": "refresh_stale_evidence",
+        "sourceStatus": "stale_provider_smoke_evidence",
         "sourcePath": "agent/state/provider-smoke-evidence.generated.json",
         "captureStatus": "missing",
         "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
@@ -71,13 +71,13 @@
       {
         "id": "runtimeSmoke",
         "label": "Deployed route evidence",
-        "truthState": "current_source_evidence",
-        "actionState": "gate_cleared",
-        "sourceStatus": "formal_runtime_smoke_passed",
+        "truthState": "stale_evidence",
+        "actionState": "refresh_stale_evidence",
+        "sourceStatus": "stale_runtime_smoke_evidence",
         "sourcePath": "agent/state/runtime-smoke-evidence.generated.json",
         "captureStatus": "complete",
         "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
-        "canClearGate": true,
+        "canClearGate": false,
         "nextAction": "Produce or refresh deployed route evidence for the current code version."
       },
       {
@@ -88,7 +88,7 @@
         "sourceStatus": "formal_admin_truth_sample_passed",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+        "sourceCommit": "84016ee29f191e9b0f75f1431727fd9ad059dc96",
         "canClearGate": true,
         "nextAction": "Produce or refresh redacted admin source activity evidence for the current code version."
       }
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T02:02:09.944Z",
+      "generatedAtUtc": "2026-07-14T10:17:24.403Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-05T02:01:34.108Z",
-      "ageHours": 0.009954444444444445,
+      "generatedAtUtc": "2026-07-14T10:05:54.432Z",
+      "ageHours": 0.1916586111111111,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -379,10 +379,21 @@
       "status": "external_evidence_required",
       "evidence": [
         "agent/state/provider-smoke-evidence.generated.json",
-        "sourceStatus=operator_reported_not_formal_provider_smoke",
-        "actionState=attach_external_evidence"
+        "sourceStatus=stale_provider_smoke_evidence",
+        "actionState=refresh_stale_evidence"
       ],
       "nextAction": "Produce redacted provider-backed source activity evidence; operator confirmation alone cannot clear this gate."
+    },
+    {
+      "id": "runtimeSmoke",
+      "severity": "P1",
+      "status": "stale_evidence",
+      "evidence": [
+        "agent/state/runtime-smoke-evidence.generated.json",
+        "sourceStatus=stale_runtime_smoke_evidence",
+        "actionState=refresh_stale_evidence"
+      ],
+      "nextAction": "Produce or refresh deployed route evidence for the current code version."
     }
   ],
   "deferredOwnerReview": [

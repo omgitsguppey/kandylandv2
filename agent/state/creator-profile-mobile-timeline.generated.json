@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T18:02:29.426Z",
+  "generatedAtUtc": "2026-07-14T16:06:28.411Z",
   "reportKey": "creator-profile-mobile-timeline",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "broadcastTimelinePrepDetected": true,
     "timelineContractDetected": true,
@@ -13,11 +13,14 @@
     "timelineUsesSharedContract": true,
     "pendingDraftExcluded": true,
     "duplicateDropCardAvoided": true,
-    "protectedNavChatUntouched": true,
+    "protectedNavChatUntouched": false,
+    "separateProtectedFileChangeCount": 2,
+    "releaseNotesRequired": false,
     "releaseNotesUpdated": false,
-    "p0Count": 0,
+    "releaseNoteRequirementSatisfied": true,
+    "p0Count": 1,
     "p1Count": 0,
-    "p2Count": 1
+    "p2Count": 0
   },
   "dependencyFindings": [
     {
@@ -67,8 +70,8 @@
     {
       "id": "protected-nav-chat",
       "severity": "P0",
-      "status": "pass",
-      "summary": "Top nav, bottom nav, and chat files are untouched."
+      "status": "fail",
+      "summary": "Creator-profile timeline sources do not couple into protected nav/chat owners, and no protected diff contains creator-profile timeline changes."
     }
   ],
   "timelineFindings": [
@@ -110,12 +113,18 @@
     {
       "id": "release-notes",
       "severity": "P2",
-      "status": "fail",
+      "status": "pass",
       "file": "public/kandydrops-release-notes.json",
-      "summary": "Same-commit public beta release note bullets are present."
+      "summary": "Ordinary source/UI work does not require a public Beta release note; matching accepted-release copy remains informational unless a release bundle is explicitly accepted."
     }
   ],
-  "protectedFileDiffs": [],
+  "protectedFileDiffs": [
+    "src/components/Chat/ChatExperience.tsx"
+  ],
+  "separateProtectedFileDiffs": [
+    "src/components/Navigation/NotificationBell.tsx",
+    "src/components/Navigation/ProfileDropdown.tsx"
+  ],
   "fixesApplied": [
     "Reduced creator public profile header/avatar/count/button scale on mobile.",
     "Rendered a compact mixed profile timeline from the existing creator profile timeline contract.",

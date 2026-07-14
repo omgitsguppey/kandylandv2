@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildEventTranslationBridgeReport,
+  classifyEventTranslationDirtyFile,
   classifyWaitingOnActivityReason,
   detectTranslationGap,
   translateEnvelopeToDebugEvidence,
@@ -11,6 +12,13 @@ import {
 } from "@/lib/analytics/event-translation-bridge";
 
 describe("event translation bridge", () => {
+  it("classifies the complete chat attachment lifecycle as reviewable source", () => {
+    for (const action of ["prepare", "complete", "cancel"]) {
+      expect(classifyEventTranslationDirtyFile(`src/app/api/chat/attachments/${action}/route.ts`))
+        .toBe("real_source_change_needs_review");
+    }
+  });
+
   it("translates a raw event through envelope, feature activity, person metric, debug evidence, and score inputs", () => {
     const envelope = translateRawEventToEnvelope({
       eventId: "evt_bridge_drop",

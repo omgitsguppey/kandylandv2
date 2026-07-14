@@ -318,7 +318,7 @@ export default function ContentManagerPage() {
                             <div className="flex items-start gap-3 w-full sm:w-auto overflow-hidden">
                                 <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/5 bg-black/50 md:h-16 md:w-16">
                                     {isImagePreview ? (
-                                        <Image src={previewUrl} alt={file.name} fill sizes="(max-width: 768px) 64px, 80px" className="object-cover bg-black" />
+                                        <Image src={previewUrl} alt={file.name} fill sizes="64px" className="object-cover bg-black" />
                                     ) : isVideoPreview ? (
                                         <video src={previewUrl} className="w-full h-full object-cover bg-black" muted loop playsInline />
                                     ) : (

@@ -25,11 +25,11 @@ import {
 describe("canonical math ledger", () => {
   it("freezes explicit beta score dimension weights and the known weighted calculation", () => {
     expect(SCORE_DIMENSION_WEIGHTS).toEqual({
-      sourceHealth: 25,
-      runtimeHealth: 20,
-      evidenceCompleteness: 20,
-      freshness: 15,
-      costRisk: 10,
+      sourceHealth: 18,
+      runtimeHealth: 30,
+      evidenceCompleteness: 25,
+      freshness: 10,
+      costRisk: 7,
       regressionRisk: 10,
     });
     expect(Object.values(SCORE_DIMENSION_WEIGHTS).reduce((total, weight) => total + weight, 0)).toBe(100);
@@ -43,8 +43,8 @@ describe("canonical math ledger", () => {
       regressionRisk: 86,
     });
 
-    expect(weighted.raw).toBeCloseTo(77.8295, 4);
-    expect(weighted.rounded).toBe(77.83);
+    expect(weighted.raw).toBeCloseTo(78.269, 4);
+    expect(weighted.rounded).toBe(78.27);
   });
 
   it("freezes confidence, legacy, proven-zero, and non-event score rules", () => {

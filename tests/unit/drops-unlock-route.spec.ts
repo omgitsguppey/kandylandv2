@@ -136,6 +136,14 @@ describe("POST /api/drops/unlock", () => {
       title: "Paid Drop",
       unlockCost: 7,
       tags: ["Sweet"],
+      status: "active",
+      reviewStatus: "approved",
+      approvalStatus: "approved",
+      publicDiscovery: true,
+      rotationEligibility: true,
+      visibility: "public",
+      validFrom: Date.now() - 60_000,
+      validUntil: Date.now() + 60_000,
     });
     mockState.documents.set("users/fan_1", {
       username: "fan",
@@ -202,17 +210,17 @@ describe("POST /api/drops/unlock", () => {
       expect.objectContaining({
         transaction_id: "generated_tx",
         entitlement_id: "drop-entitlement:fan_1:drop_1",
-        sourceTruth: "server",
+        sourceTruth: "server_unlock_route",
       }),
     );
     expect(mockState.trackServerEvent).toHaveBeenCalledWith(
-      "drop_unwrapped",
+      "drop_unlocked",
       expect.objectContaining({
         drop_id: "drop_1",
         price_gd: 7,
         entitlement_id: "drop-entitlement:fan_1:drop_1",
         transaction_id: "generated_tx",
-        sourceTruth: "server",
+        sourceTruth: "server_unlock_route",
       }),
       "fan_1",
     );
@@ -223,13 +231,21 @@ describe("POST /api/drops/unlock", () => {
         target_user_id: "fan_1",
         entitlement_id: "drop-entitlement:fan_1:drop_1",
         transaction_id: "generated_tx",
-        sourceTruth: "server",
+        sourceTruth: "server_unlock_route",
       }),
       "fan_1",
     );
   });
 
   it("returns already unlocked without writing another deduction or transaction", async () => {
+    mockState.documents.set("drops/drop_1", {
+      creatorId: "creator_1",
+      title: "Archived owned Drop",
+      unlockCost: 7,
+      status: "active",
+      reviewStatus: "approved",
+      visibility: "archived",
+    });
     mockState.documents.set("users/fan_1", {
       username: "fan",
       gumDropsBalance: 10,
@@ -256,5 +272,106 @@ describe("POST /api/drops/unlock", () => {
     expect(mockState.transactionSet).not.toHaveBeenCalled();
     expect(mockState.recordCanonicalTaskEvent).not.toHaveBeenCalled();
     expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+  });
+
+  it("rejects an oversized payload before any spend or entitlement write", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/drops/unlock", {
+      method: "POST",
+      body: JSON.stringify({ dropId: "drop_1", padding: "x".repeat(12_288) }),
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      errorCode: "payload_too_large",
+      retryable: false,
+    });
+    expect(mockState.transactionUpdate).not.toHaveBeenCalled();
+    expect(mockState.transactionSet).not.toHaveBeenCalled();
+    expect(mockState.recordCanonicalTaskEvent).not.toHaveBeenCalled();
+    expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+    expect(mockState.touchUserRuntime).not.toHaveBeenCalled();
+  });
+
+  it("returns invalid_unlock_request for an invalid Drop identifier", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/drops/unlock", {
+      method: "POST",
+      body: JSON.stringify({ dropId: "not a valid id" }),
+      headers: { "content-type": "application/json" },
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      errorCode: "invalid_unlock_request",
+      retryable: false,
+    });
+    expect(mockState.transactionSet).not.toHaveBeenCalled();
+    expect(mockState.transactionUpdate).not.toHaveBeenCalled();
+  });
+
+  it("returns insufficient_gumdrops without writing an entitlement", async () => {
+    mockState.documents.set("users/fan_1", {
+      username: "fan",
+      gumDropsBalance: 1,
+      gumDropsPurchasedBalance: 1,
+      gumDropsRewardBalance: 0,
+      unlockedContent: [],
+      unlockedContentTimestamps: {},
+    });
+
+    const response = await POST(new NextRequest("http://localhost/api/drops/unlock", {
+      method: "POST",
+      body: JSON.stringify({ dropId: "drop_1" }),
+      headers: { "content-type": "application/json" },
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(402);
+    expect(payload).toMatchObject({
+      errorCode: "insufficient_gumdrops",
+      retryable: false,
+      required: 7,
+      balance: 1,
+    });
+    expect(mockState.transactionSet).not.toHaveBeenCalled();
+    expect(mockState.transactionUpdate).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["pending review", { status: "active", reviewStatus: "pending_admin_approval" }],
+    ["rejected", { status: "active", reviewStatus: "rejected" }],
+    ["scheduled", { status: "scheduled", reviewStatus: "approved", validFrom: Date.now() + 60_000 }],
+    ["expired", { status: "active", reviewStatus: "approved", validUntil: Date.now() - 60_000 }],
+    ["private", { status: "active", reviewStatus: "approved", visibility: "private" }],
+    ["unlisted", { status: "active", reviewStatus: "approved", visibility: "unlisted" }],
+    ["archived", { status: "active", reviewStatus: "approved", visibility: "archived" }],
+    ["not discoverable", { status: "active", reviewStatus: "approved", publicDiscovery: false }],
+    ["not rotation eligible", { status: "active", reviewStatus: "approved", rotationEligibility: false }],
+  ])("rejects a %s Drop before spend or entitlement writes", async (_label, lifecyclePatch) => {
+    mockState.documents.set("drops/drop_1", {
+      creatorId: "creator_1",
+      title: "Unavailable Drop",
+      unlockCost: 7,
+      publicDiscovery: true,
+      rotationEligibility: true,
+      visibility: "public",
+      ...lifecyclePatch,
+    });
+
+    const response = await POST(unlockRequest());
+    const payload = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(payload).toMatchObject({
+      error: "This drop cannot be unlocked right now.",
+      errorCode: "drop_unavailable",
+      resource: "drop",
+    });
+    expect(mockState.transactionUpdate).not.toHaveBeenCalled();
+    expect(mockState.transactionSet).not.toHaveBeenCalled();
+    expect(mockState.recordCanonicalTaskEvent).not.toHaveBeenCalled();
+    expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+    expect(mockState.touchUserRuntime).not.toHaveBeenCalled();
   });
 });

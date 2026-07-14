@@ -45,7 +45,11 @@ function classifyDirtyFile(filePath: string) {
   if (normalized === "scripts/agent/validate-feature-registration-gate.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/media-upload-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/media/media-upload-contract.ts" || normalized === "src/lib/media/media-upload-telemetry.ts") return "real_source_change_needs_review";
-  if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts") return "real_source_change_needs_review";
+  if (
+    normalized === "src/app/api/chat/attachments/prepare/route.ts"
+    || normalized === "src/app/api/chat/attachments/complete/route.ts"
+    || normalized === "src/app/api/chat/attachments/cancel/route.ts"
+  ) return "real_source_change_needs_review";
   if (normalized === "src/components/Chat/ChatExperience.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts" || normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";

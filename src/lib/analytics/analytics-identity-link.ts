@@ -7,6 +7,7 @@ import {
   normalizeConsentMode,
   type ConsentMode,
 } from "@/lib/privacy/consent-tracking-policy";
+import { ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION } from "@/lib/analytics/identity-link-contract";
 
 export const GUEST_USER_IDENTITY_TRANSFER_ROUTE = "/api/analytics/identity-link";
 export const GUEST_USER_IDENTITY_LINK_STORAGE_PREFIX = "kandydrops.identityLink.sent";
@@ -35,6 +36,7 @@ export type AnalyticsIdentityActorType = (typeof ANALYTICS_IDENTITY_ACTOR_TYPES)
 export type GuestUserIdentityLinkReason = "login" | "signup" | "session_restore";
 
 export type GuestUserIdentityLink = {
+  ownerKeyVersion: typeof ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION;
   guestId: string;
   userId: string;
   sessionId: string;
@@ -209,6 +211,7 @@ export function buildIdentityLink(input: {
   const confidence = resolveIdentityLinkConfidence(consentMode);
 
   return {
+    ownerKeyVersion: ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
     guestId,
     userId,
     sessionId,

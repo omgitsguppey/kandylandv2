@@ -30,7 +30,7 @@ import {
 const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
 
 type SanitizedEventParams = SanitizedTelemetryParams;
-type TelemetryTransportReason = "interval" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online" | "priority";
+type TelemetryTransportReason = "batch" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online" | "priority";
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "semantic_page_viewed",
@@ -263,15 +263,42 @@ function getGaDispatchParams(eventParams?: SanitizedEventParams) {
     return sanitizeTelemetryParamsForGa4(eventParams);
 }
 
+export type GuestAnalyticsIngestTransportOutcome =
+    | { status: "accepted"; httpStatus?: number }
+    | { status: "permanent_failure"; httpStatus?: number; reason: string }
+    | { status: "retryable_failure"; httpStatus?: number; reason: string };
+
+type GuestAnalyticsIngestResponseBody = {
+    permanent?: unknown;
+    retryable?: unknown;
+    reason?: unknown;
+};
+
+export function shouldAdvanceGuestAnalyticsQueue(outcome: GuestAnalyticsIngestTransportOutcome) {
+    return outcome.status !== "retryable_failure";
+}
+
+function readGuestAnalyticsFailureReason(body: GuestAnalyticsIngestResponseBody | null, fallback: string) {
+    return typeof body?.reason === "string" && body.reason.trim() ? body.reason.trim() : fallback;
+}
+
+async function readGuestAnalyticsResponseBody(response: Response) {
+    try {
+        return await response.json() as GuestAnalyticsIngestResponseBody;
+    } catch {
+        return null;
+    }
+}
+
 export async function submitGuestAnalyticsIngestPayload(input: {
     payload: unknown;
     pagePath: string;
     reason: TelemetryTransportReason;
     preferBeacon?: boolean;
     eventCount: number;
-}) {
+}): Promise<GuestAnalyticsIngestTransportOutcome> {
     if (typeof window === "undefined") {
-        return false;
+        return { status: "retryable_failure", reason: "browser_unavailable" };
     }
 
     const preferBeacon = input.preferBeacon === true
@@ -287,7 +314,7 @@ export async function submitGuestAnalyticsIngestPayload(input: {
             if (!accepted) {
                 throw new Error("Guest analytics sendBeacon was rejected");
             }
-            return true;
+            return { status: "accepted" };
         }
 
         const response = await fetch("/api/analytics/ingest", {
@@ -295,18 +322,47 @@ export async function submitGuestAnalyticsIngestPayload(input: {
             body: blob,
             keepalive: preferBeacon,
         });
-        if (!response.ok) {
-            throw new Error(`Guest analytics flush failed (${response.status})`);
+        const responseBody = await readGuestAnalyticsResponseBody(response);
+        if (response.ok && responseBody?.permanent !== true) {
+            return { status: "accepted", httpStatus: response.status };
         }
-        return true;
-    } catch (error) {
+
+        const permanent = responseBody?.permanent === true
+            || responseBody?.retryable === false
+            || (response.status >= 400 && response.status < 500 && response.status !== 408 && response.status !== 429);
+        const reason = readGuestAnalyticsFailureReason(
+            responseBody,
+            response.ok ? "permanent_server_outcome" : `http_${response.status}`,
+        );
+
+        if (permanent) {
+            recordClientDiagnostic("telemetry", "Guest analytics batch permanently rejected", {
+                pagePath: input.pagePath,
+                reason: input.reason,
+                rejectionReason: reason,
+                httpStatus: response.status,
+                droppedEvents: input.eventCount,
+            });
+            return { status: "permanent_failure", httpStatus: response.status, reason };
+        }
+
         recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
             pagePath: input.pagePath,
             reason: input.reason,
             queuedEvents: input.eventCount,
-            message: error instanceof Error ? error.message : String(error),
+            httpStatus: response.status,
+            message: reason,
         });
-        return false;
+        return { status: "retryable_failure", httpStatus: response.status, reason };
+    } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
+            pagePath: input.pagePath,
+            reason: input.reason,
+            queuedEvents: input.eventCount,
+            message: reason,
+        });
+        return { status: "retryable_failure", reason };
     }
 }
 

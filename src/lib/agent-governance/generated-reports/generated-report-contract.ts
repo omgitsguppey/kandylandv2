@@ -10,9 +10,30 @@ export const GENERATED_REPORT_SCAN_ROOTS = [
 ] as const;
 
 export const GENERATED_REPORT_RUNTIME_FORBIDDEN_ROOTS = [
+  "functions/src",
   "src/app",
   "src/components",
   "src/lib/server",
+] as const;
+
+export const GENERATED_REPORT_RUNTIME_READ_PATTERN =
+  /^\s*(?!(?:\/\/|\/\*|\*))[^\r\n]*\b(?:import\s*\(\s*|import\s+|require\(\s*|from\s+|readFile(?:Sync)?\(\s*|readText\(\s*|readJsonFile\(\s*)["'`][^"'`\r\n]*agent\/(?:state|index|context)\//mu;
+
+const GENERATED_REPORT_PATH_SIGNATURE =
+  String.raw`(?:["'\x60][^"'\x60\r\n]*agent\/(?:state|index|context)\/|["']agent["']\s*,\s*["'](?:state|index|context)["'])`;
+const GENERATED_REPORT_FILE_READ_SIGNATURE =
+  String.raw`\b(?:readFile|readFileSync|readText|readJsonFile)\s*\(`;
+const GENERATED_REPORT_PATH_THEN_READ_PATTERN = new RegExp(
+  `${GENERATED_REPORT_PATH_SIGNATURE}[\\s\\S]{0,800}?${GENERATED_REPORT_FILE_READ_SIGNATURE}`,
+  "u",
+);
+const GENERATED_REPORT_READ_THEN_PATH_PATTERN = new RegExp(
+  `${GENERATED_REPORT_FILE_READ_SIGNATURE}[\\s\\S]{0,400}?${GENERATED_REPORT_PATH_SIGNATURE}`,
+  "u",
+);
+
+export const GENERATED_REPORT_RUNTIME_EVIDENCE_READER_PATHS = [
+  "src/app/api/admin/debug/route.ts",
 ] as const;
 
 export const GENERATED_REPORT_FRESHNESS_STATES = [
@@ -116,6 +137,24 @@ export function isGeneratedReportPath(repoPath: string) {
   }
 
   return false;
+}
+
+export function findGeneratedReportRuntimeRead(source: string) {
+  return GENERATED_REPORT_RUNTIME_READ_PATTERN.exec(source)
+    ?? GENERATED_REPORT_PATH_THEN_READ_PATTERN.exec(source)
+    ?? GENERATED_REPORT_READ_THEN_PATH_PATTERN.exec(source);
+}
+
+export function isGeneratedReportRuntimeSourcePath(repoPath: string) {
+  const normalized = repoPath.replace(/\\/gu, "/");
+  return GENERATED_REPORT_RUNTIME_FORBIDDEN_ROOTS.some(
+    (root) => normalized === root || normalized.startsWith(`${root}/`),
+  );
+}
+
+export function isGeneratedReportRuntimeEvidenceReaderPath(repoPath: string) {
+  const normalized = repoPath.replace(/\\/gu, "/");
+  return GENERATED_REPORT_RUNTIME_EVIDENCE_READER_PATHS.some((path) => normalized === path);
 }
 
 export function buildGeneratedReportCompleteness(input: {

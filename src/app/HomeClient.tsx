@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
+import { getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import { trackEvent } from "@/lib/telemetry";
 
 const HomepageRuntimeDiagnostics = dynamic(
@@ -44,7 +45,7 @@ export default function HomeClient() {
 
     useEffect(() => {
         if (!loading && user && userProfile && !isAdmin) {
-            const nextPath = "/dashboard";
+            const nextPath = getPreferredAuthenticatedPathForProfile(userProfile, user.uid);
             if (redirectPathRef.current === nextPath) {
                 return;
             }

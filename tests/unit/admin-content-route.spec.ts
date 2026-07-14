@@ -292,6 +292,12 @@ describe("admin content route", () => {
     expect(payload.file).not.toHaveProperty("fullPath");
     expect(payload.file.url).toContain("X-Goog-Signature=signed");
     expect(payload.file.url).not.toContain("token=");
+    expect(mockState.guardApiRequest).toHaveBeenCalledWith(request, expect.objectContaining({
+      auth: "admin",
+      requireTrustedOrigin: true,
+      rateLimit: mockState.ADMIN_STORAGE_UPLOAD,
+      maxBodyBytes: 262_209_536,
+    }));
     expect(mockState.getOrCreateFile(expectedPath).save).toHaveBeenCalled();
     expect(mockState.getOrCreateFile(expectedPath).setMetadata).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
@@ -394,6 +400,45 @@ describe("admin content route", () => {
     expect(mockState.files.size).toBe(0);
   });
 
+  it("rejects an honestly declared oversized upload before resolving storage", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/content", {
+      method: "POST",
+      headers: {
+        "content-type": "multipart/form-data; boundary=bounded-admin-content",
+        "content-length": "262209537",
+      },
+      body: "--bounded-admin-content--",
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      success: false,
+      errorCode: "payload_too_large",
+      retryable: false,
+    });
+    expect(mockState.files.size).toBe(0);
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("returns a typed 400 for malformed multipart before resolving storage", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/content", {
+      method: "POST",
+      headers: { "content-type": "multipart/form-data; boundary=broken" },
+      body: "not-a-valid-multipart-body",
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      success: false,
+      errorCode: "invalid_multipart_body",
+      retryable: false,
+    });
+    expect(mockState.files.size).toBe(0);
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
   it("returns a typed upload failure when storage save fails", async () => {
     mockState.getOrCreateFile(`drops/${Date.now()}_hero_image.png`);
     mockState.getOrCreateFile(`drops/${Date.now()}_hero_image.png`).save.mockRejectedValueOnce(new Error("storage save failed"));
@@ -462,5 +507,46 @@ describe("admin content route", () => {
       errorCode: "invalid_storage_reference",
       rawStorageUrlExposed: false,
     });
+  });
+
+  it("rejects an oversized delete body before resolving a storage file", async () => {
+    const request = new NextRequest("http://localhost/api/admin/content", {
+      method: "DELETE",
+      headers: {
+        "content-type": "application/json",
+        "content-length": "262209537",
+      },
+      body: "{}",
+    });
+
+    const response = await DELETE(request);
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      success: false,
+      errorCode: "payload_too_large",
+      retryable: false,
+    });
+    expect(mockState.files.size).toBe(0);
+  });
+
+  it("classifies malformed delete JSON without resolving a storage file", async () => {
+    const request = new NextRequest("http://localhost/api/admin/content", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: "{not-json",
+    });
+
+    const response = await DELETE(request);
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      success: false,
+      errorCode: "invalid_json",
+      retryable: false,
+    });
+    expect(mockState.files.size).toBe(0);
   });
 });

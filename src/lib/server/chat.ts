@@ -19,11 +19,14 @@ import {
     type ChatThreadRecord,
     type ChatViewerRole,
 } from "@/lib/chat";
+import { resolveChatAttachmentKind } from "@/lib/chat-attachments";
 import { buildChatGatingTelemetryPayload } from "@/lib/chat/chat-gating-contract";
+import { CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
 import { resolveFanPassAccess } from "@/lib/fan-pass/fan-pass-access-resolver";
 import { resolveCreatorMonetizationSettings } from "@/lib/creator-monetization/creator-monetization-resolver";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
 import { buildNotificationDocumentId, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
+import { resolveFirebaseStorageMediaLocation } from "@/lib/media-hosts";
 import { buildChatSoftSealScope, softOpenChatValue, softSealChatValue } from "@/lib/chat-soft-seal";
 import {
     CREATOR_COLLECTIONS,
@@ -35,6 +38,8 @@ import {
 } from "@/lib/creator-experiences";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
+    CREATOR_EXPERIENCE_OPERATION_COLLECTION,
+    buildChatAttachmentOperationIdentity,
     buildCreatorAccrual,
     buildCreatorExperienceAttribution,
     buildCreatorExperienceIdempotencyKey,
@@ -43,13 +48,16 @@ import {
     buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
+    matchesChatAttachmentOperationIdentity,
     readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops,
+    type ChatAttachmentOperationIdentity,
 } from "@/lib/server/creator-experiences";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity-truth/identity/actor-markers";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { AuthError } from "@/lib/server/auth";
-import { adminDb } from "@/lib/server/firebase-admin";
+import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
+import { resolveServerChatMediaLimitPolicy } from "@/lib/server/chat-media-limit-policy";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
@@ -544,6 +552,155 @@ function buildChatErrorBody(input: {
     };
 }
 
+function readChatReplayBalanceSnapshot(messageData: Record<string, unknown>, key: "sourceAwareBalanceBefore" | "sourceAwareBalanceAfter") {
+    const transactionDebug = messageData.transactionDebug;
+    if (!transactionDebug || typeof transactionDebug !== "object" || Array.isArray(transactionDebug)) {
+        return null;
+    }
+
+    const value = (transactionDebug as Record<string, unknown>)[key];
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return null;
+    }
+
+    const source = value as Record<string, unknown>;
+    if (
+        typeof source.total !== "number"
+        || !Number.isFinite(source.total)
+        || typeof source.purchased !== "number"
+        || !Number.isFinite(source.purchased)
+        || typeof source.reward !== "number"
+        || !Number.isFinite(source.reward)
+    ) {
+        return null;
+    }
+
+    return {
+        total: Math.max(0, Math.trunc(source.total)),
+        purchased: Math.max(0, Math.trunc(source.purchased)),
+        reward: Math.max(0, Math.trunc(source.reward)),
+    };
+}
+
+function resolveCommittedChatReplay(input: {
+    messageExists: boolean;
+    messageData?: Record<string, unknown>;
+    threadExists: boolean;
+    threadData?: Record<string, unknown>;
+    transactionExists: boolean;
+    transactionData?: Record<string, unknown>;
+    messageId: string;
+    transactionId: string;
+    creatorAccrualId: string;
+    idempotencyKey: string;
+    callerUid: string;
+    threadId: string;
+    creatorId: string;
+    userId: string;
+    viewerRole: ChatViewerRole;
+    messageKind: ChatMessageKind;
+    text?: string;
+    assetUrl?: string;
+    assetName?: string;
+    assetMimeType?: string;
+}) {
+    if (!input.messageExists && !input.transactionExists) {
+        return null;
+    }
+    if (!input.messageExists || !input.threadExists || !input.messageData || !input.threadData) {
+        throw new ChatClientError("This creator message is already being processed.", 409, buildChatErrorBody({
+            error: "This creator message is already being processed.",
+            errorCode: "duplicate_processing",
+            detail: { idempotencyKey: input.idempotencyKey },
+        }));
+    }
+
+    const existingMessage = mapCreatorMessage(input.messageId, input.messageData);
+    const existingThread = mapCreatorMessageThread(input.threadId, input.threadData);
+    const messageIdentityMatches = input.messageData.idempotencyKey === input.idempotencyKey
+        && existingMessage.threadId === input.threadId
+        && existingMessage.creatorId === input.creatorId
+        && existingMessage.userId === input.userId
+        && existingMessage.senderRole === input.viewerRole
+        && existingMessage.messageKind === input.messageKind
+        && (existingMessage.text ?? "") === (input.text ?? "")
+        && (existingMessage.assetUrl ?? "") === (input.assetUrl ?? "")
+        && (existingMessage.assetName ?? "") === (input.assetName ?? "")
+        && (existingMessage.assetMimeType ?? "") === (input.assetMimeType ?? "");
+    const threadIdentityMatches = existingThread.creatorId === input.creatorId
+        && existingThread.userId === input.userId;
+    if (!messageIdentityMatches || !threadIdentityMatches) {
+        throw new ChatClientError("This message key is already associated with different content.", 409, buildChatErrorBody({
+            error: "This message key is already associated with different content.",
+            errorCode: "idempotency_conflict",
+        }));
+    }
+
+    const paidMessage = existingMessage.costGd > 0;
+    if (paidMessage && (!input.transactionExists || !input.transactionData)) {
+        throw new ChatClientError("This creator message is already being processed.", 409, buildChatErrorBody({
+            error: "This creator message is already being processed.",
+            errorCode: "duplicate_processing",
+            detail: { idempotencyKey: input.idempotencyKey },
+        }));
+    }
+    if (input.transactionExists) {
+        const expectedTransactionType = existingMessage.messageKind === "video"
+            ? "creator_message_video"
+            : existingMessage.messageKind === "image"
+                ? "creator_message_image"
+                : "creator_message_text";
+        const transactionData = input.transactionData;
+        if (
+            !transactionData
+            || transactionData.verifiedServerSide !== true
+            || transactionData.status !== "completed"
+            || transactionData.type !== expectedTransactionType
+            || transactionData.amount !== -existingMessage.costGd
+            || transactionData.userId !== input.userId
+            || transactionData.creatorId !== input.creatorId
+            || transactionData.idempotencyKey !== input.idempotencyKey
+            || transactionData.userTransactionId !== input.transactionId
+            || transactionData.creatorExperienceRecordId !== input.messageId
+        ) {
+            throw new ChatClientError("This message key conflicts with an existing transaction.", 409, buildChatErrorBody({
+                error: "This message key conflicts with an existing transaction.",
+                errorCode: "idempotency_conflict",
+            }));
+        }
+    }
+
+    const balanceBefore = readChatReplayBalanceSnapshot(input.messageData, "sourceAwareBalanceBefore");
+    const balanceAfter = readChatReplayBalanceSnapshot(input.messageData, "sourceAwareBalanceAfter");
+    const subscriberFreeChatApplies = input.viewerRole === "user"
+        && existingThread.subscriberChatFree
+        && existingMessage.costGd === 0;
+    const existingAccrualId = existingMessage.creatorAccrualId;
+    return {
+        thread: toChatThreadRecord(existingThread, input.callerUid),
+        message: existingMessage,
+        pricing: buildChatPricingSummary({
+            purchasedBalanceGd: input.viewerRole === "user" ? balanceAfter?.purchased ?? 0 : 0,
+            fanPassActive: subscriberFreeChatApplies,
+            subscriberFreeChatApplies,
+            subscriberFreeChatEnabled: existingThread.subscriberChatFree,
+        }),
+        costGd: existingMessage.costGd,
+        creatorAccrualId: existingAccrualId,
+        duplicatePrevented: true,
+        debug: buildCreatorExperienceTransactionDebug({
+            userTransactionId: input.transactionId,
+            creatorAccrualId: existingAccrualId ?? input.creatorAccrualId,
+            creatorExperienceRecordId: input.messageId,
+            priceGd: existingMessage.costGd,
+            idempotencyKey: input.idempotencyKey,
+            duplicatePrevented: true,
+            sourceAwareBalanceBefore: balanceBefore,
+            sourceAwareBalanceAfter: balanceAfter,
+        }),
+    };
+}
+
 async function listMessagesForThread(threadId: string) {
     const db = requireAdminDb();
     const snapshot = await db.collection(CHAT_COLLECTIONS.messages)
@@ -886,7 +1043,8 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
     const text = readOptionalString(input.text);
     const assetUrl = readOptionalString(input.assetUrl);
     const assetName = readOptionalString(input.assetName);
-    const assetMimeType = readOptionalString(input.assetMimeType);
+    let assetMimeType = readOptionalString(input.assetMimeType)?.toLowerCase();
+    let attachmentOperation: ChatAttachmentOperationIdentity | null = null;
     if (!text && !assetUrl) {
         throw new ChatClientError("Add a message or attachment before sending.", 400, buildChatErrorBody({
             error: "Add a message or attachment before sending.",
@@ -902,12 +1060,19 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             },
         }));
     }
+    const clientIdempotencyKey = readOptionalString(input.idempotencyKey);
+    if (assetUrl && !clientIdempotencyKey) {
+        throw new ChatClientError("This chat attachment is missing its message operation key.", 400, buildChatErrorBody({
+            error: "This chat attachment is missing its message operation key.",
+            errorCode: "invalid_idempotency_key",
+        }));
+    }
 
     const idempotencyKey = buildCreatorExperienceIdempotencyKey({
         action: "private_chat",
         userId: parsedThread.userId,
         creatorId: parsedThread.creatorId,
-        clientKey: input.idempotencyKey,
+        clientKey: clientIdempotencyKey,
         payloadParts: [
             input.threadId,
             input.callerUid,
@@ -922,6 +1087,147 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         action: "private_chat",
         idempotencyKey,
     });
+    const creatorRef = db.collection("users").doc(parsedThread.creatorId);
+    const participantRef = db.collection("users").doc(parsedThread.userId);
+    const threadRef = db.collection(CHAT_COLLECTIONS.threads).doc(input.threadId);
+    const messageRef = db.collection(CHAT_COLLECTIONS.messages).doc(recordIds.creatorExperienceRecordId);
+    const transactionRef = db.collection("transactions").doc(recordIds.userTransactionId);
+    const ledgerRef = db.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc(recordIds.creatorAccrualId);
+    if (assetUrl) {
+        const [committedMessageSnap, committedThreadSnap, committedTransactionSnap] = await Promise.all([
+            messageRef.get(),
+            threadRef.get(),
+            transactionRef.get(),
+        ]);
+        const committedReplay = resolveCommittedChatReplay({
+            messageExists: committedMessageSnap.exists,
+            messageData: committedMessageSnap.data() as Record<string, unknown> | undefined,
+            threadExists: committedThreadSnap.exists,
+            threadData: committedThreadSnap.data() as Record<string, unknown> | undefined,
+            transactionExists: committedTransactionSnap.exists,
+            transactionData: committedTransactionSnap.data() as Record<string, unknown> | undefined,
+            messageId: messageRef.id,
+            transactionId: transactionRef.id,
+            creatorAccrualId: ledgerRef.id,
+            idempotencyKey,
+            callerUid: input.callerUid,
+            threadId: input.threadId,
+            creatorId: parsedThread.creatorId,
+            userId: parsedThread.userId,
+            viewerRole,
+            messageKind,
+            text,
+            assetUrl,
+            assetName,
+            assetMimeType,
+        });
+        if (committedReplay) {
+            return {
+                ...committedReplay,
+                warnings: [],
+            };
+        }
+    }
+
+    if (assetUrl) {
+        const attachmentKind = resolveChatAttachmentKind(assetMimeType);
+        const storageLocation = resolveFirebaseStorageMediaLocation(assetUrl);
+        const storageBucket = adminStorage.bucket();
+        const expectedStorageBucket = storageBucket.name;
+        const expectedStoragePrefix = `creator/messages/${input.callerUid}/${input.threadId}/`;
+        const attachmentOriginAllowed = storageLocation?.bucket === expectedStorageBucket;
+        const attachmentPathOwned = Boolean(storageLocation?.objectPath.startsWith(expectedStoragePrefix));
+        if (
+            !storageLocation
+            || !attachmentOriginAllowed
+            || !attachmentPathOwned
+            || attachmentKind !== messageKind
+        ) {
+            throw new ChatClientError("This chat attachment is unavailable. Upload it again before sending.", 400, buildChatErrorBody({
+                error: "This chat attachment is unavailable. Upload it again before sending.",
+                errorCode: "invalid_attachment",
+                detail: {
+                    messageKind,
+                    attachmentKind,
+                    attachmentOriginAllowed,
+                    attachmentPathOwned,
+                },
+            }));
+        }
+        attachmentOperation = buildChatAttachmentOperationIdentity({
+            userId: parsedThread.userId,
+            creatorId: parsedThread.creatorId,
+            callerUid: input.callerUid,
+            threadId: input.threadId,
+            clientKey: clientIdempotencyKey,
+            storagePath: storageLocation.objectPath,
+        });
+
+        let metadata: {
+            contentType?: string;
+            size?: string | number;
+            metadata?: Record<string, string | number | boolean | null>;
+        };
+        try {
+            [metadata] = await storageBucket.file(storageLocation.objectPath).getMetadata();
+        } catch (error) {
+            const storageErrorCode = error && typeof error === "object" ? Reflect.get(error, "code") : null;
+            const attachmentMissing = storageErrorCode === 404 || storageErrorCode === "404" || storageErrorCode === "not-found";
+            throw new ChatClientError(
+                attachmentMissing
+                    ? "This chat attachment is unavailable. Upload it again before sending."
+                    : "We couldn't verify this chat attachment right now. Try again shortly.",
+                attachmentMissing ? 400 : 503,
+                buildChatErrorBody({
+                    error: attachmentMissing
+                        ? "This chat attachment is unavailable. Upload it again before sending."
+                        : "We couldn't verify this chat attachment right now. Try again shortly.",
+                    errorCode: attachmentMissing ? "invalid_attachment" : "attachment_verification_unavailable",
+                    detail: {
+                        retryable: !attachmentMissing,
+                    },
+                }),
+            );
+        }
+
+        const storedMimeType = (readOptionalString(metadata.contentType) || "").toLowerCase();
+        const storedAttachmentKind = resolveChatAttachmentKind(storedMimeType);
+        const storedSize = Number(metadata.size ?? 0);
+        const attachmentFinalized = metadata.metadata?.chatAttachmentFinalized === "true";
+        const storedAttachmentOperationId = readOptionalString(metadata.metadata?.chatAttachmentOperationId);
+        const attachmentOperationMatches = !storedAttachmentOperationId
+            || storedAttachmentOperationId === attachmentOperation.operationId;
+        const mediaLimitPolicy = await resolveServerChatMediaLimitPolicy({
+            threadId: input.threadId,
+            actorUid: input.callerUid,
+        });
+        if (
+            storedAttachmentKind !== messageKind
+            || !Number.isFinite(storedSize)
+            || storedSize <= 0
+            || storedSize > CHAT_MEDIA_LIMIT_BYTES_FAN_PASS
+            || storedSize > mediaLimitPolicy.maxBytes
+            || !attachmentFinalized
+            || !attachmentOperationMatches
+        ) {
+            throw new ChatClientError("This chat attachment is unavailable. Upload it again before sending.", 400, buildChatErrorBody({
+                error: "This chat attachment is unavailable. Upload it again before sending.",
+                errorCode: "invalid_attachment",
+                detail: {
+                    messageKind,
+                    storedAttachmentKind,
+                    attachmentFinalized,
+                    attachmentOperationMatches,
+                    attachmentSizeValid: Number.isFinite(storedSize)
+                        && storedSize > 0
+                        && storedSize <= CHAT_MEDIA_LIMIT_BYTES_FAN_PASS
+                        && storedSize <= mediaLimitPolicy.maxBytes,
+                },
+            }));
+        }
+        assetMimeType = storedMimeType;
+    }
+
     const actorMarker = assertKnownActor(buildActorMarker({
         actor: {
             uid: input.callerUid,
@@ -938,21 +1244,47 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         source: "creator_experience_transaction",
     }));
 
-    const creatorRef = db.collection("users").doc(parsedThread.creatorId);
-    const participantRef = db.collection("users").doc(parsedThread.userId);
-    const threadRef = db.collection(CHAT_COLLECTIONS.threads).doc(input.threadId);
-    const messageRef = db.collection(CHAT_COLLECTIONS.messages).doc(recordIds.creatorExperienceRecordId);
-    const transactionRef = db.collection("transactions").doc(recordIds.userTransactionId);
-    const ledgerRef = db.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc(recordIds.creatorAccrualId);
+    const attachmentOperationRef = attachmentOperation
+        ? db.collection(CREATOR_EXPERIENCE_OPERATION_COLLECTION).doc(attachmentOperation.operationId)
+        : null;
 
     const sendResult = await db.runTransaction(async (transaction) => {
-        const [creatorSnap, participantSnap, threadSnap, subscriptionSnap, messageSnap, transactionSnap] = await Promise.all([
-            transaction.get(creatorRef),
-            transaction.get(participantRef),
+        const [threadSnap, messageSnap, transactionSnap] = await Promise.all([
             transaction.get(threadRef),
-            transaction.get(db.collection("creator_subscriptions").doc(`${parsedThread.userId}__${parsedThread.creatorId}`)),
             transaction.get(messageRef),
             transaction.get(transactionRef),
+        ]);
+        const transactionalReplay = resolveCommittedChatReplay({
+            messageExists: messageSnap.exists,
+            messageData: messageSnap.data() as Record<string, unknown> | undefined,
+            threadExists: threadSnap.exists,
+            threadData: threadSnap.data() as Record<string, unknown> | undefined,
+            transactionExists: transactionSnap.exists,
+            transactionData: transactionSnap.data() as Record<string, unknown> | undefined,
+            messageId: messageRef.id,
+            transactionId: transactionRef.id,
+            creatorAccrualId: ledgerRef.id,
+            idempotencyKey,
+            callerUid: input.callerUid,
+            threadId: input.threadId,
+            creatorId: parsedThread.creatorId,
+            userId: parsedThread.userId,
+            viewerRole,
+            messageKind,
+            text,
+            assetUrl,
+            assetName,
+            assetMimeType,
+        });
+        if (transactionalReplay) {
+            return transactionalReplay;
+        }
+
+        const [creatorSnap, participantSnap, subscriptionSnap, attachmentOperationSnap] = await Promise.all([
+            transaction.get(creatorRef),
+            transaction.get(participantRef),
+            transaction.get(db.collection("creator_subscriptions").doc(`${parsedThread.userId}__${parsedThread.creatorId}`)),
+            attachmentOperationRef ? transaction.get(attachmentOperationRef) : Promise.resolve(null),
         ]);
 
         if (!creatorSnap.exists || !participantSnap.exists) {
@@ -969,6 +1301,36 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 error: "Messaging is unavailable for this creator.",
                 errorCode: "creator_unavailable",
             }));
+        }
+
+        const attachmentOperationData = attachmentOperationSnap?.data() as Record<string, unknown> | undefined;
+        if (
+            attachmentOperation
+            && attachmentOperationSnap?.exists
+            && !matchesChatAttachmentOperationIdentity(attachmentOperationData, attachmentOperation)
+        ) {
+            throw new ChatClientError("This message operation conflicts with an existing attachment.", 409, buildChatErrorBody({
+                error: "This message operation conflicts with an existing attachment.",
+                errorCode: "idempotency_conflict",
+            }));
+        }
+        if (attachmentOperation && !messageSnap.exists) {
+            if (
+                !attachmentOperationSnap?.exists
+            ) {
+                throw new ChatClientError("This chat attachment is unavailable. Upload it again before sending.", 400, buildChatErrorBody({
+                    error: "This chat attachment is unavailable. Upload it again before sending.",
+                    errorCode: "invalid_attachment",
+                }));
+            }
+            if (attachmentOperationData?.status !== "finalized") {
+                throw new ChatClientError("This chat attachment is no longer available to send.", 409, buildChatErrorBody({
+                    error: "This chat attachment is no longer available to send.",
+                    errorCode: attachmentOperationData?.status === "canceling" || attachmentOperationData?.status === "canceled"
+                        ? "attachment_canceled"
+                        : "attachment_not_ready",
+                }));
+            }
         }
 
         const subscriptionActive = subscriptionSnap.exists && readString((subscriptionSnap.data() as Record<string, unknown>).status) === "active";
@@ -991,46 +1353,6 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                     : messageKind === "video"
                         ? chatMonetization.chatVideoPriceGd
                         : chatMonetization.chatTextPriceGd;
-        if (messageSnap.exists || transactionSnap.exists) {
-            if (!messageSnap.exists || !threadSnap.exists) {
-                throw new ChatClientError("This creator message is already being processed.", 409, buildChatErrorBody({
-                    error: "This creator message is already being processed.",
-                    errorCode: "duplicate_processing",
-                    detail: {
-                        idempotencyKey,
-                    },
-                }));
-            }
-
-            const existingMessage = mapCreatorMessage(messageRef.id, messageSnap.data() as Record<string, unknown>);
-            const existingThread = mapCreatorMessageThread(threadSnap.id, threadSnap.data() as Record<string, unknown>);
-            const existingAccrualId = existingMessage.creatorAccrualId;
-
-            return {
-                thread: toChatThreadRecord(existingThread, input.callerUid),
-                message: existingMessage,
-                pricing: buildChatPricingSummary({
-                    purchasedBalanceGd: viewerRole === "user" ? participantBalance.purchased : 0,
-                    fanPassActive: subscriptionActive,
-                    subscriberFreeChatApplies,
-                    subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
-                    creatorSettings: creator.creatorSettings,
-                }),
-                costGd: existingMessage.costGd,
-                creatorAccrualId: existingAccrualId,
-                duplicatePrevented: true,
-                debug: buildCreatorExperienceTransactionDebug({
-                    userTransactionId: transactionRef.id,
-                    creatorAccrualId: existingAccrualId ?? ledgerRef.id,
-                    creatorExperienceRecordId: messageRef.id,
-                    priceGd: existingMessage.costGd,
-                    idempotencyKey,
-                    duplicatePrevented: true,
-                    sourceAwareBalanceBefore: participantBalance,
-                    sourceAwareBalanceAfter: participantBalance,
-                }),
-            };
-        }
         const preview = describeMessagePreview({
             text,
             messageKind,
@@ -1170,6 +1492,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             userTransactionId: costGd > 0 ? transactionRef.id : null,
             idempotencyKey,
             duplicatePrevented: false,
+            ...(attachmentOperation ? { attachmentOperationId: attachmentOperation.operationId } : {}),
             transactionDebug,
             createdAt: now,
         });
@@ -1179,6 +1502,16 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         };
         transaction.set(messageRef, messageRecord);
         transaction.set(threadRef, sealedThreadPatch, { merge: true });
+        if (attachmentOperation && attachmentOperationRef) {
+            transaction.update(attachmentOperationRef, {
+                status: "attached",
+                attachedMessageId: messageRef.id,
+                storageCleanupRequested: false,
+                storageCleanupCompleted: false,
+                attachedAt: now,
+                updatedAt: now,
+            });
+        }
         const nextThreadState = existingThread
             ? {
                 ...existingThread,

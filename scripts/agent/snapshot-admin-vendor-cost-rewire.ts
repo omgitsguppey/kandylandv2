@@ -630,7 +630,6 @@ function buildRuntimeAwareIssues(root: string) {
     && debugRoute.includes("recovery_evidence_debug_first");
   const moduleVendorLabelsPresent = displayStateHelper.includes("Estimated from vendor analytics")
     && displayStateHelper.includes("Debug-only recovery evidence")
-    && audienceTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
     && audienceTab.includes('data-admin-analytics-vendor-source-label="vendor_evidence"')
     && audienceTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"")
     && operationsTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
@@ -638,12 +637,13 @@ function buildRuntimeAwareIssues(root: string) {
     && operationsTab.includes("data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}")
     && operationsTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"")
     && commerceTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
-    && commerceTab.includes("stays supporting evidence, not product truth")
+    && commerceTab.includes("data-admin-analytics-raw-ledger-display=\"debug_only\"")
     && commerceTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"");
   const rawRealtimeListenersDemoted = stateHook.includes("ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST")
     && stateHook.includes("rawDisplayFallbackDisabled: true")
     && stateHook.includes("sourceUse: \"snapshot_first_route\"")
-    && stateHook.includes("Snapshot-first realtime route has no verified payload; raw listener fallback is disabled for cost control.")
+    && stateHook.includes("ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL")
+    && stateHook.includes("ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_SOURCE_LABEL")
     && !stateHook.includes("from \"./useAdminAnalyticsRealtime\"")
     && !stateHook.includes("useAdminAnalyticsRealtime(");
   const materializerAuthorityLabeled = materializerRegistry.includes("ADMIN_ANALYTICS_CANONICAL_DISPLAY_AUTHORITY")

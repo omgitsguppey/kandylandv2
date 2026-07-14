@@ -1,10 +1,22 @@
-import { createHash } from "node:crypto";
-
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { CHAT_COLLECTIONS } from "@/lib/chat";
+import {
+    isStorageNotFoundFailure,
+    isStoragePreconditionFailure,
+    readStorageObjectVersion,
+    type StorageObjectVersion,
+} from "@/lib/media/media-upload-contract";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { handleApiError } from "@/lib/server/auth";
+import {
+    CREATOR_EXPERIENCE_OPERATION_COLLECTION,
+    buildChatAttachmentOperationIdentity,
+    matchesChatAttachmentOperationIdentity,
+    type ChatAttachmentOperationIdentity,
+} from "@/lib/server/creator-experiences";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { MEDIA_PROXY } from "@/lib/server/rate-limit";
@@ -18,34 +30,24 @@ const cancelAttachmentSchema = z.object({
     idempotencyKey: z.string().trim().min(1).max(180).optional(),
 });
 
-const ATTACHMENT_CANCEL_ACTION = "chat_attachment_cancel";
-const ATTACHMENT_CANCEL_IDEMPOTENCY_COLLECTION = "operation_idempotency";
 const CLIENT_IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{1,180}$/u;
+const CHAT_JSON_BODY_LIMIT_BYTES = 64_000;
 const ATTACHMENT_CANCEL_GUARD_EVIDENCE = {
-    firestoreReadScope: "single_document",
+    firestoreReadScope: "bounded_documents",
     attachmentCancelGuarded: true,
     ownershipChecked: true,
     storagePathValidated: true,
     rawStorageUrlExposed: false,
     idempotencyGuarded: true,
-    idempotencyScope: "caller_attachment_action",
+    idempotencyScope: "creator_experience_message_operation",
     transactionBound: true,
 } as const;
 const UNSAFE_STORAGE_PATH_PATTERN = /(?:^https?:|^gs:|^[a-z][a-z0-9+.-]*:|\\|\/\/|\.\.)/iu;
 
-type CancelOperation = {
-    idempotencyKey: string;
-    operationId: string;
-    storagePathHash: string;
-    uploadSessionId: string;
-};
-
 type CancelOperationState =
-    | { kind: "accepted"; idempotentReplay: boolean; storageCleanupNeeded: boolean }
+    | { kind: "accepted"; idempotentReplay: boolean }
     | { kind: "forbidden" }
-    | { kind: "finalized" }
-    | { kind: "not_found" }
-    | { kind: "failed" };
+    | { kind: "attached" };
 
 function buildAttachmentCancelForbiddenResponse() {
     return NextResponse.json({
@@ -62,15 +64,6 @@ function isSafePendingAttachmentPath(storagePath: string, expectedPrefix: string
         && !UNSAFE_STORAGE_PATH_PATTERN.test(storagePath);
 }
 
-function hasFinalizedAttachmentToken(metadata: { metadata?: Record<string, unknown> }) {
-    const tokens = metadata.metadata?.firebaseStorageDownloadTokens ?? metadata.metadata?.downloadTokens;
-    return typeof tokens === "string" && tokens.trim().length > 0;
-}
-
-function hashOperationPart(value: string) {
-    return createHash("sha256").update(value).digest("hex");
-}
-
 function getClientIdempotencyKey(request: NextRequest, bodyKey?: string) {
     return bodyKey
         ?? request.headers.get("idempotency-key")?.trim()
@@ -78,78 +71,53 @@ function getClientIdempotencyKey(request: NextRequest, bodyKey?: string) {
         ?? undefined;
 }
 
-function buildCancelOperation(input: {
-    callerUid: string;
-    threadId: string;
-    storagePath: string;
-    clientIdempotencyKey?: string;
-}): CancelOperation {
-    const storagePathHash = hashOperationPart(input.storagePath);
-    const uploadSessionId = storagePathHash.slice(0, 32);
-    const scopedOperationPart = input.clientIdempotencyKey
-        ? `client:${input.clientIdempotencyKey}:${uploadSessionId}`
-        : `fallback:${uploadSessionId}`;
-    // idempotency: chat attachment cancel uses caller-scoped deterministic operation key.
-    const idempotencyKey = `${ATTACHMENT_CANCEL_ACTION}:${input.callerUid}:${input.threadId || "no-thread"}:${scopedOperationPart}`;
-    return {
-        idempotencyKey,
-        operationId: hashOperationPart(idempotencyKey),
-        storagePathHash,
-        uploadSessionId,
-    };
-}
-
 async function beginCancelOperation(input: {
     db: NonNullable<typeof adminDb>;
-    operation: CancelOperation;
-    callerUid: string;
-    threadId: string;
+    operation: ChatAttachmentOperationIdentity;
 }) {
     const operationRef = input.db
-        .collection(ATTACHMENT_CANCEL_IDEMPOTENCY_COLLECTION)
+        .collection(CREATOR_EXPERIENCE_OPERATION_COLLECTION)
         .doc(input.operation.operationId);
+    const messageRef = input.db
+        .collection(CHAT_COLLECTIONS.messages)
+        .doc(input.operation.messageId);
     const now = Date.now();
 
     // transaction-bound: attachment cancel state transition is guarded by Firestore transaction.
     return input.db.runTransaction<CancelOperationState>(async (transaction) => {
-        const snapshot = await transaction.get(operationRef);
-        if (snapshot.exists) {
-            const data = snapshot.data() as Record<string, unknown> | undefined;
-            if (
-                data?.action !== ATTACHMENT_CANCEL_ACTION
-                || data.callerUid !== input.callerUid
-                || data.threadId !== input.threadId
-                || data.storagePathHash !== input.operation.storagePathHash
-            ) {
+        const [operationSnapshot, messageSnapshot] = await Promise.all([
+            transaction.get(operationRef),
+            transaction.get(messageRef),
+        ]);
+        if (messageSnapshot.exists) {
+            return { kind: "attached" };
+        }
+        if (operationSnapshot.exists) {
+            const data = operationSnapshot.data() as Record<string, unknown> | undefined;
+            if (!matchesChatAttachmentOperationIdentity(data, input.operation)) {
                 return { kind: "forbidden" };
             }
 
-            if (data.status === "finalized") return { kind: "finalized" };
-            if (data.status === "not_found") return { kind: "not_found" };
-            if (data.status === "failed") return { kind: "failed" };
-            if (data.status === "canceled") {
+            if (data?.status === "attached") return { kind: "attached" };
+            if (data?.status === "canceled") {
                 return {
                     kind: "accepted",
                     idempotentReplay: true,
-                    storageCleanupNeeded: data.storageCleanupCompleted !== true,
                 };
             }
 
-            return {
-                kind: "accepted",
-                idempotentReplay: true,
-                storageCleanupNeeded: true,
-            };
+            transaction.set(operationRef, {
+                status: "canceling",
+                storageCleanupRequested: true,
+                storageCleanupCompleted: false,
+                errorCode: null,
+                updatedAt: now,
+            }, { merge: true });
+            return { kind: "accepted", idempotentReplay: true };
         }
 
         transaction.set(operationRef, {
-            action: ATTACHMENT_CANCEL_ACTION,
-            callerUid: input.callerUid,
-            threadId: input.threadId,
-            storagePathHash: input.operation.storagePathHash,
-            uploadSessionId: input.operation.uploadSessionId,
-            idempotencyKey: input.operation.idempotencyKey,
-            cancelOperationId: input.operation.operationId,
+            ...input.operation,
             status: "canceling",
             storageCleanupRequested: true,
             storageCleanupCompleted: false,
@@ -160,36 +128,56 @@ async function beginCancelOperation(input: {
         return {
             kind: "accepted",
             idempotentReplay: false,
-            storageCleanupNeeded: true,
         };
     });
 }
 
 async function markCancelOperation(input: {
     db: NonNullable<typeof adminDb>;
-    operation: CancelOperation;
-    status: "canceled" | "finalized" | "not_found" | "failed";
+    operation: ChatAttachmentOperationIdentity;
+    status: "canceled" | "failed";
     storageCleanupCompleted: boolean;
     errorCode?: string;
 }) {
-    await input.db
-        .collection(ATTACHMENT_CANCEL_IDEMPOTENCY_COLLECTION)
-        .doc(input.operation.operationId)
-        .set({
+    const operationRef = input.db
+        .collection(CREATOR_EXPERIENCE_OPERATION_COLLECTION)
+        .doc(input.operation.operationId);
+    return input.db.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(operationRef);
+        const data = snapshot.data() as Record<string, unknown> | undefined;
+        if (snapshot.exists && !matchesChatAttachmentOperationIdentity(data, input.operation)) {
+            return "forbidden" as const;
+        }
+        if (data?.status === "attached") return "attached" as const;
+        if (data?.status === "canceled") {
+            if (input.status === "canceled" && input.storageCleanupCompleted && data.storageCleanupCompleted !== true) {
+                transaction.set(operationRef, {
+                    storageCleanupCompleted: true,
+                    errorCode: null,
+                    updatedAt: Date.now(),
+                }, { merge: true });
+            }
+            return "canceled" as const;
+        }
+        if (!snapshot.exists || data?.status !== "canceling") return "conflict" as const;
+
+        transaction.set(operationRef, {
             status: input.status,
             storageCleanupCompleted: input.storageCleanupCompleted,
             errorCode: input.errorCode ?? null,
             updatedAt: Date.now(),
             ...(input.status === "canceled" ? { canceledAt: Date.now() } : {}),
         }, { merge: true });
+        return "updated" as const;
+    });
 }
 
-function buildCancelSuccessResponse(operation: CancelOperation, idempotentReplay: boolean) {
+function buildCancelSuccessResponse(clientIdempotencyKey: string, idempotentReplay: boolean) {
     return NextResponse.json({
         ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
         success: true,
         status: "canceled",
-        idempotencyKey: operation.idempotencyKey,
+        idempotencyKey: clientIdempotencyKey,
         idempotentReplay,
     });
 }
@@ -224,12 +212,17 @@ export async function POST(request: NextRequest) {
 
         let rawBody: unknown;
         try {
-            rawBody = await request.json();
-        } catch {
+            rawBody = await readBoundedJsonBody<unknown>(request, {
+                maxBytes: CHAT_JSON_BODY_LIMIT_BYTES,
+                routeName: "chat/attachments/cancel",
+            });
+        } catch (error) {
+            const payloadTooLarge = isBoundedJsonBodyError(error) && error.code === "payload_too_large";
             return finalize(NextResponse.json({
-                error: "Malformed request body.",
-                errorCode: "malformed_body",
-            }, { status: 400 }));
+                error: payloadTooLarge ? "Request payload is too large." : "Malformed request body.",
+                errorCode: payloadTooLarge ? "payload_too_large" : "malformed_body",
+                retryable: false,
+            }, { status: payloadTooLarge ? 413 : 400 }));
         }
 
         const parsedPayload = cancelAttachmentSchema.safeParse(rawBody);
@@ -242,7 +235,7 @@ export async function POST(request: NextRequest) {
 
         const payload = parsedPayload.data;
         const clientIdempotencyKey = getClientIdempotencyKey(request, payload.idempotencyKey);
-        if (clientIdempotencyKey && !CLIENT_IDEMPOTENCY_KEY_PATTERN.test(clientIdempotencyKey)) {
+        if (!clientIdempotencyKey || !CLIENT_IDEMPOTENCY_KEY_PATTERN.test(clientIdempotencyKey)) {
             return finalize(NextResponse.json({
                 ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
                 error: "Invalid idempotency key.",
@@ -250,7 +243,7 @@ export async function POST(request: NextRequest) {
             }, { status: 400 }));
         }
 
-        // cost-bound: single Firestore document read scoped to authenticated attachment cancellation; not a collection scan.
+        // cost-bound: caller, thread, lifecycle, and deterministic message documents only; never a collection scan.
         const callerSnap = await db.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
@@ -276,99 +269,160 @@ export async function POST(request: NextRequest) {
             }, { status: 400 }));
         }
 
-        const operation = buildCancelOperation({
+        const operation = buildChatAttachmentOperationIdentity({
+            userId: detail.thread.userId,
+            creatorId: detail.thread.creatorId,
             callerUid: caller.uid,
             threadId: payload.threadId,
+            clientKey: clientIdempotencyKey,
             storagePath: payload.storagePath,
-            clientIdempotencyKey,
         });
+        const bucket = adminStorage.bucket();
+        const file = bucket.file(payload.storagePath);
+        let exists = true;
+        let objectVersion: StorageObjectVersion | null = null;
+        try {
+            const [metadata] = await file.getMetadata();
+            objectVersion = readStorageObjectVersion(metadata);
+            if (!objectVersion) {
+                return finalize(NextResponse.json({
+                    ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                    error: "Attachment object version is unavailable. Retry cancellation.",
+                    errorCode: "attachment_object_version_missing",
+                    retryable: true,
+                }, { status: 409 }));
+            }
+            const boundOperationId = metadata.metadata?.chatAttachmentOperationId;
+            if (
+                typeof boundOperationId === "string"
+                && boundOperationId.trim().length > 0
+                && boundOperationId !== operation.operationId
+            ) {
+                return finalize(buildAttachmentCancelForbiddenResponse());
+            }
+        } catch (error) {
+            if (isStorageNotFoundFailure(error)) {
+                exists = false;
+            } else {
+                throw error;
+            }
+        }
         const operationState = await beginCancelOperation({
             db,
             operation,
-            callerUid: caller.uid,
-            threadId: payload.threadId,
         });
         if (operationState.kind === "forbidden") {
             return finalize(buildAttachmentCancelForbiddenResponse());
         }
-        if (operationState.kind === "finalized") {
+        if (operationState.kind === "attached") {
             return finalize(NextResponse.json({
                 ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
-                error: "Attachment is already finalized.",
-                errorCode: "attachment_already_finalized",
+                error: "Attachment is already attached to a message.",
+                errorCode: "attachment_already_attached",
             }, { status: 409 }));
         }
-        if (operationState.kind === "not_found") {
-            return finalize(NextResponse.json({
-                ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
-                error: "Attachment was not found.",
-                errorCode: "attachment_not_found",
-            }, { status: 404 }));
-        }
-        if (operationState.kind === "failed") {
-            return finalize(NextResponse.json({
-                ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
-                error: "Attachment cancel failed.",
-                errorCode: "attachment_cancel_failed",
-            }, { status: 500 }));
-        }
-        if (!operationState.storageCleanupNeeded) {
-            return finalize(buildCancelSuccessResponse(operation, true));
+        if (!exists) {
+            const markState = await markCancelOperation({
+                db,
+                operation,
+                status: "canceled",
+                storageCleanupCompleted: true,
+            });
+            if (markState === "attached") {
+                return finalize(NextResponse.json({
+                    ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                    error: "Attachment is already attached to a message.",
+                    errorCode: "attachment_already_attached",
+                }, { status: 409 }));
+            }
+            if (markState === "forbidden") return finalize(buildAttachmentCancelForbiddenResponse());
+            if (markState === "conflict") {
+                return finalize(NextResponse.json({
+                    ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                    error: "Attachment cancellation could not be reconciled.",
+                    errorCode: "attachment_cancel_conflict",
+                    retryable: true,
+                    preserveIdempotencyKey: true,
+                }, { status: 409 }));
+            }
+            return finalize(buildCancelSuccessResponse(clientIdempotencyKey, true));
         }
 
-        const file = adminStorage.bucket().file(payload.storagePath);
-        const [exists] = await file.exists();
-        if (!exists) {
-            if (operationState.idempotentReplay) {
-                await markCancelOperation({
+        try {
+            const observedFile = bucket.file(payload.storagePath, {
+                generation: objectVersion!.generation,
+                preconditionOpts: { ifGenerationMatch: objectVersion!.generation },
+            });
+            await observedFile.delete();
+        } catch (error) {
+            if (isStorageNotFoundFailure(error)) {
+                const markState = await markCancelOperation({
                     db,
                     operation,
                     status: "canceled",
                     storageCleanupCompleted: true,
                 });
-                return finalize(buildCancelSuccessResponse(operation, true));
+                if (markState === "attached") {
+                    return finalize(NextResponse.json({
+                        ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                        error: "Attachment is already attached to a message.",
+                        errorCode: "attachment_already_attached",
+                    }, { status: 409 }), error);
+                }
+                if (markState === "forbidden") return finalize(buildAttachmentCancelForbiddenResponse());
+                if (markState === "conflict") {
+                    return finalize(NextResponse.json({
+                        ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                        error: "Attachment cancellation could not be reconciled.",
+                        errorCode: "attachment_cancel_conflict",
+                        retryable: true,
+                        preserveIdempotencyKey: true,
+                    }, { status: 409 }), error);
+                }
+                return finalize(buildCancelSuccessResponse(clientIdempotencyKey, true));
             }
-
-            await markCancelOperation({
-                db,
-                operation,
-                status: "not_found",
-                storageCleanupCompleted: false,
-                errorCode: "attachment_not_found",
-            });
-            return finalize(NextResponse.json({
-                ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
-                error: "Attachment was not found.",
-                errorCode: "attachment_not_found",
-            }, { status: 404 }));
-        }
-
-        const [metadata] = await file.getMetadata();
-        if (hasFinalizedAttachmentToken(metadata)) {
-            await markCancelOperation({
-                db,
-                operation,
-                status: "finalized",
-                storageCleanupCompleted: false,
-                errorCode: "attachment_already_finalized",
-            });
-            return finalize(NextResponse.json({
-                ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
-                error: "Attachment is already finalized.",
-                errorCode: "attachment_already_finalized",
-            }, { status: 409 }));
-        }
-
-        try {
-            await file.delete({ ignoreNotFound: true });
-        } catch (error) {
-            await markCancelOperation({
+            if (isStoragePreconditionFailure(error)) {
+                const markState = await markCancelOperation({
+                    db,
+                    operation,
+                    status: "failed",
+                    storageCleanupCompleted: false,
+                    errorCode: "attachment_cancel_conflict",
+                });
+                if (markState === "attached") {
+                    return finalize(NextResponse.json({
+                        ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                        error: "Attachment is already attached to a message.",
+                        errorCode: "attachment_already_attached",
+                    }, { status: 409 }), error);
+                }
+                if (markState === "forbidden") return finalize(buildAttachmentCancelForbiddenResponse());
+                return finalize(NextResponse.json({
+                    ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                    error: "Attachment changed while cancellation was in progress. Retry with the same message key.",
+                    errorCode: "attachment_cancel_conflict",
+                    retryable: true,
+                    preserveIdempotencyKey: true,
+                }, { status: 409 }), error);
+            }
+            const markState = await markCancelOperation({
                 db,
                 operation,
                 status: "failed",
                 storageCleanupCompleted: false,
                 errorCode: "attachment_cancel_failed",
             });
+            if (markState === "canceled") {
+                return finalize(buildCancelSuccessResponse(clientIdempotencyKey, true));
+            }
+            if (markState === "attached") {
+                return finalize(NextResponse.json({
+                    ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                    error: "Attachment is already attached to a message.",
+                    errorCode: "attachment_already_attached",
+                }, { status: 409 }), error);
+            }
+            if (markState === "forbidden") return finalize(buildAttachmentCancelForbiddenResponse());
             return finalize(NextResponse.json({
                 ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
                 error: "Attachment cancel failed.",
@@ -376,14 +430,31 @@ export async function POST(request: NextRequest) {
             }, { status: 500 }), error);
         }
 
-        await markCancelOperation({
+        const markState = await markCancelOperation({
             db,
             operation,
             status: "canceled",
             storageCleanupCompleted: true,
         });
+        if (markState === "attached") {
+            return finalize(NextResponse.json({
+                ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                error: "Attachment is already attached to a message.",
+                errorCode: "attachment_already_attached",
+            }, { status: 409 }));
+        }
+        if (markState === "forbidden") return finalize(buildAttachmentCancelForbiddenResponse());
+        if (markState === "conflict") {
+            return finalize(NextResponse.json({
+                ...ATTACHMENT_CANCEL_GUARD_EVIDENCE,
+                error: "Attachment cancellation could not be reconciled.",
+                errorCode: "attachment_cancel_conflict",
+                retryable: true,
+                preserveIdempotencyKey: true,
+            }, { status: 409 }));
+        }
 
-        return finalize(buildCancelSuccessResponse(operation, operationState.idempotentReplay));
+        return finalize(buildCancelSuccessResponse(clientIdempotencyKey, operationState.idempotentReplay));
     } catch (error) {
         const chatError = toChatClientError(error);
         if (chatError) {

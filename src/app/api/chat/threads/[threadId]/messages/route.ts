@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { safeSendChatMessageForViewer, toChatClientError } from "@/lib/server/chat";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { STANDARD } from "@/lib/server/rate-limit";
@@ -17,6 +18,7 @@ const sendMessageSchema = z.object({
     messageKind: z.enum(["text", "image", "video"]).default("text"),
     idempotencyKey: z.string().trim().min(1).max(180),
 });
+const CHAT_JSON_BODY_LIMIT_BYTES = 64_000;
 
 type RouteContext = {
     params: Promise<{
@@ -54,12 +56,17 @@ export async function POST(request: NextRequest, context: RouteContext) {
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
         let rawBody: unknown;
         try {
-            rawBody = await request.json();
-        } catch {
+            rawBody = await readBoundedJsonBody<unknown>(request, {
+                maxBytes: CHAT_JSON_BODY_LIMIT_BYTES,
+                routeName: "chat/messages",
+            });
+        } catch (error) {
+            const payloadTooLarge = isBoundedJsonBodyError(error) && error.code === "payload_too_large";
             return finalize(NextResponse.json({
-                error: "Malformed request body.",
-                errorCode: "malformed_body",
-            }, { status: 400 }));
+                error: payloadTooLarge ? "Request payload is too large." : "Malformed request body.",
+                errorCode: payloadTooLarge ? "payload_too_large" : "malformed_body",
+                retryable: false,
+            }, { status: payloadTooLarge ? 413 : 400 }));
         }
         const parsedBody = sendMessageSchema.safeParse(rawBody);
         if (!parsedBody.success) {

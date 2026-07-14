@@ -8,7 +8,14 @@ import type {
   UserJourneyIndex,
   UserNotificationIndex,
   UserContentConsumptionIndex,
+  IdentityLineageIndex,
+  UserIndexMaterializerExclusionCounts,
 } from "@/lib/user-indexes/user-tracking-index-contract";
+import {
+  USER_INDEX_MATERIALIZER_LINKED_COPY_WINDOW_MS,
+  USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT,
+} from "@/lib/user-indexes/user-tracking-index-contract";
+import { buildMaterializedPersonMetricCounts } from "@/lib/analytics/person-metrics-hydration";
 
 function clamp01(value: number) {
   if (!Number.isFinite(value)) return 0;
@@ -157,6 +164,7 @@ export function buildUserTrackingIndex(input: {
         ? "insufficient_signal"
         : "available",
     actionCounts,
+    personMetricCounts: buildMaterializedPersonMetricCounts(facts),
     lastSeenAtMs,
     lastMeaningfulActionAtMs,
     sourceBreakdown,
@@ -188,6 +196,7 @@ export function buildGuestTrackingIndex(input: {
     confidenceLabel: confidence.confidenceLabel,
     dataAvailabilityReason: facts.length === 0 ? "insufficient_signal" : "guest_only",
     actionCounts: toActionCounts(facts),
+    personMetricCounts: buildMaterializedPersonMetricCounts(facts),
     lastSeenAtMs: facts.reduce((max, fact) => Math.max(max, fact.timestampMs), 0),
     lastMeaningfulActionAtMs: facts.reduce((max, fact) => fact.metricEligible ? Math.max(max, fact.timestampMs) : max, 0),
     sourceBreakdown: toSourceBreakdown(facts),
@@ -222,18 +231,23 @@ export function buildUserValueIndex(userId: string, facts: BehavioralTimelineFac
       purchaseCount += 1;
     }
   }
-  const valueScore = Math.min(100, purchaseCount * 15);
-  const valueTier: UserValueIndex["valueTier"] = purchaseCount >= 8 ? "vip" : purchaseCount >= 4 ? "repeat_buyer" : purchaseCount >= 1 ? "buyer" : "observer";
   return {
     userId,
-    verifiedSpendUsd: 0,
+    verifiedSpendUsd: null,
     purchaseCount,
-    paidGdPurchased: 0,
-    rewardGdEarned: 0,
-    unlockCountAfterPurchase: 0,
-    valueScore,
-    valueTier,
-    sourceTruth: purchaseCount > 0 ? "server_transaction" : "materialized",
+    paidGdPurchased: null,
+    rewardGdEarned: null,
+    unlockCountAfterPurchase: null,
+    valueScore: null,
+    valueTier: null,
+    sourceTruth: purchaseCount > 0 ? "behavioral_timeline_projection" : "source_missing",
+    dataAvailabilityReason: purchaseCount > 0 ? "partial" : "source_missing",
+    issues: [
+      "verified_transaction_amount_source_missing",
+      "paid_gd_source_missing",
+      "reward_gd_source_missing",
+      "post_purchase_unlock_source_missing",
+    ],
     updatedAtMs: Date.now(),
   };
 }
@@ -271,6 +285,88 @@ export function buildUserJourneyIndex(input: {
   };
 }
 
+const USER_JOURNEY_FUNNEL_STAGES = [
+  "guest",
+  "signed_up",
+  "onboarded",
+  "checked_in",
+  "previewed",
+  "purchased",
+  "unwrapped",
+  "viewed",
+  "messaged",
+] as const satisfies readonly UserJourneyIndex["funnelStage"][];
+
+function earliestKnownJourneyTimestamp(...values: Array<number | undefined>) {
+  const known = values.filter((value): value is number =>
+    typeof value === "number" && Number.isFinite(value) && value > 0);
+  return known.length > 0 ? Math.min(...known) : undefined;
+}
+
+function isSameJourneySubject(current: UserJourneyIndex, incoming: UserJourneyIndex) {
+  if (incoming.userId) return current.userId === incoming.userId;
+  if (incoming.anonymousVisitorId) {
+    return current.anonymousVisitorId === incoming.anonymousVisitorId;
+  }
+  return false;
+}
+
+/** Preserve lifetime journey milestones when publishing a bounded source window. */
+export function mergeUserJourneyIndexLifetime(
+  current: UserJourneyIndex | null | undefined,
+  incoming: UserJourneyIndex,
+): UserJourneyIndex {
+  if (!current || !isSameJourneySubject(current, incoming)) return incoming;
+  const currentStageIndex = USER_JOURNEY_FUNNEL_STAGES.indexOf(current.funnelStage);
+  const incomingStageIndex = USER_JOURNEY_FUNNEL_STAGES.indexOf(incoming.funnelStage);
+  const funnelStage = currentStageIndex > incomingStageIndex
+    ? current.funnelStage
+    : incoming.funnelStage;
+  const currentSessionIds = Array.isArray(current.sessionIds) ? current.sessionIds : [];
+  const incomingSessionIds = Array.isArray(incoming.sessionIds) ? incoming.sessionIds : [];
+  const sessionIds = Array.from(new Set(
+    [
+      ...incomingSessionIds.slice(0, USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT),
+      ...currentSessionIds.slice(0, USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT),
+    ]
+      .filter((sessionId): sessionId is string => typeof sessionId === "string")
+      .map((sessionId) => sessionId.trim())
+      .filter(Boolean),
+  )).slice(0, USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT);
+  const currentIdentityLinkId = typeof current.identityLinkId === "string"
+    ? current.identityLinkId.trim()
+    : "";
+  const incomingIdentityLinkId = typeof incoming.identityLinkId === "string"
+    ? incoming.identityLinkId.trim()
+    : "";
+
+  return {
+    ...incoming,
+    sessionIds,
+    firstSeenAtMs: earliestKnownJourneyTimestamp(
+      current.firstSeenAtMs,
+      incoming.firstSeenAtMs,
+    ) ?? 0,
+    signedUpAtMs: earliestKnownJourneyTimestamp(current.signedUpAtMs, incoming.signedUpAtMs),
+    onboardedAtMs: earliestKnownJourneyTimestamp(current.onboardedAtMs, incoming.onboardedAtMs),
+    firstPurchaseAtMs: earliestKnownJourneyTimestamp(
+      current.firstPurchaseAtMs,
+      incoming.firstPurchaseAtMs,
+    ),
+    firstUnlockAtMs: earliestKnownJourneyTimestamp(
+      current.firstUnlockAtMs,
+      incoming.firstUnlockAtMs,
+    ),
+    firstMessageAtMs: earliestKnownJourneyTimestamp(
+      current.firstMessageAtMs,
+      incoming.firstMessageAtMs,
+    ),
+    guestToUserLinked: current.guestToUserLinked === true || incoming.guestToUserLinked === true,
+    identityLinkId: incomingIdentityLinkId || currentIdentityLinkId || undefined,
+    funnelStage,
+  };
+}
+
 export function buildUserNotificationIndex(userId: string, facts: BehavioralTimelineFact[]): UserNotificationIndex {
   const relevant = facts.filter((fact) => fact.actorUserId === userId && fact.normalizedAction.includes("notification"));
   return {
@@ -287,17 +383,356 @@ export function buildUserContentConsumptionIndex(userId: string, facts: Behavior
   const viewedFileCount = relevant.filter((fact) => fact.normalizedAction.includes("file_viewed")).length;
   const openedDropCount = relevant.filter((fact) => fact.normalizedAction.includes("drop_viewed") || fact.normalizedAction.includes("preview")).length;
   const unwrappedDropCount = relevant.filter((fact) => fact.normalizedAction.includes("unlock")).length;
-  const hasServerWatch = relevant.some((fact) => (fact.sourceTruth === "server" || fact.sourceTruth === "canonical") && fact.normalizedAction.includes("watch"));
+  const hasObservedConsumption = viewedFileCount > 0 || openedDropCount > 0 || unwrappedDropCount > 0;
   return {
     userId,
-    validWatchTimeMs: 0,
+    validWatchTimeMs: null,
     viewedFileCount,
-    completedFileCount: 0,
+    completedFileCount: null,
     openedDropCount,
     unwrappedDropCount,
-    watchScoreSource: hasServerWatch ? "watch_session_rollup" : "legacy_page_duration",
-    watchConfidence: hasServerWatch ? 0.85 : 0.25,
-    issues: hasServerWatch ? [] : ["watch_session_missing"],
+    watchScoreSource: "source_missing",
+    watchConfidence: 0,
+    dataAvailabilityReason: hasObservedConsumption ? "partial" : "source_missing",
+    issues: ["valid_watch_duration_source_missing", "completed_file_source_missing"],
     updatedAtMs: Date.now(),
   };
+}
+
+export type UserIndexMaterializerFact = BehavioralTimelineFact & {
+  idempotencyKey?: string;
+};
+
+export type NormalizedUserIndexFacts = {
+  globalFacts: UserIndexMaterializerFact[];
+  personFacts: UserIndexMaterializerFact[];
+  exclusions: UserIndexMaterializerExclusionCounts;
+};
+
+type LineageSummary = {
+  ownerUserIds: Set<string>;
+  eligibleSessionIds: Set<string>;
+  personAttributionAllowed: boolean;
+  recordCount: number;
+};
+
+type PersonFactCandidate = {
+  fact: UserIndexMaterializerFact;
+  identityKind: "guest" | "identified";
+  personUserId: string;
+  action: string;
+  target: string;
+};
+
+function cleanMaterializerString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : "";
+}
+
+function exclusionIncrement(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.max(1, Math.min(1_000, Math.trunc(value)))
+    : 1;
+}
+
+export function normalizeUserIndexAction(value: unknown) {
+  return cleanMaterializerString(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/gu, "_")
+    .replace(/^_+|_+$/gu, "");
+}
+
+export function canonicalizeUserIndexFactTarget(fact: Pick<UserIndexMaterializerFact, "route" | "target">) {
+  const targetEntries = Object.entries(fact.target ?? {})
+    .map(([key, value]) => [key, cleanMaterializerString(value)] as const)
+    .filter((entry) => Boolean(entry[1]))
+    .sort(([left], [right]) => left.localeCompare(right));
+  if (targetEntries.length > 0) {
+    return targetEntries.map(([key, value]) => `${key}:${value}`).join("|");
+  }
+  const route = cleanMaterializerString(fact.route).split(/[?#]/u, 1)[0] || "unknown";
+  return `route:${route}`;
+}
+
+function readFactIdempotencyKey(fact: UserIndexMaterializerFact) {
+  return cleanMaterializerString(fact.idempotencyKey);
+}
+
+function sourceTruthRank(fact: UserIndexMaterializerFact) {
+  switch (fact.sourceTruth) {
+    case "canonical": return 5;
+    case "server": return 4;
+    case "materialized": return 3;
+    case "client": return 2;
+    case "ga4_optional": return 1;
+    case "legacy": return 0;
+  }
+}
+
+function preferExactReplayCandidate(
+  candidate: UserIndexMaterializerFact,
+  current: UserIndexMaterializerFact,
+) {
+  const candidateScores = [
+    candidate.actorType === "admin" || candidate.actorType === "system" ? 0 : 1,
+    cleanMaterializerString(candidate.actorUserId) ? 1 : 0,
+    sourceTruthRank(candidate),
+    candidate.metricEligible ? 1 : 0,
+    Number.isFinite(candidate.sourceReliability) ? candidate.sourceReliability : 0,
+  ];
+  const currentScores = [
+    current.actorType === "admin" || current.actorType === "system" ? 0 : 1,
+    cleanMaterializerString(current.actorUserId) ? 1 : 0,
+    sourceTruthRank(current),
+    current.metricEligible ? 1 : 0,
+    Number.isFinite(current.sourceReliability) ? current.sourceReliability : 0,
+  ];
+  for (let index = 0; index < candidateScores.length; index += 1) {
+    if (candidateScores[index] !== currentScores[index]) {
+      return candidateScores[index] > currentScores[index];
+    }
+  }
+  if (candidate.timestampMs !== current.timestampMs) return candidate.timestampMs < current.timestampMs;
+  return cleanMaterializerString(candidate.factId).localeCompare(cleanMaterializerString(current.factId)) < 0;
+}
+
+export function dedupeExactUserIndexFactReplays(facts: readonly UserIndexMaterializerFact[]) {
+  const parent = facts.map((_, index) => index);
+  const find = (input: number): number => {
+    let value = input;
+    while (parent[value] !== value) value = parent[value];
+    let cursor = input;
+    while (parent[cursor] !== cursor) {
+      const next = parent[cursor];
+      parent[cursor] = value;
+      cursor = next;
+    }
+    return value;
+  };
+  const union = (left: number, right: number) => {
+    const leftRoot = find(left);
+    const rightRoot = find(right);
+    if (leftRoot !== rightRoot) parent[rightRoot] = leftRoot;
+  };
+  const seenKeys = new Map<string, number>();
+  facts.forEach((fact, index) => {
+    const keys = [
+      cleanMaterializerString(fact.factId) ? `fact:${cleanMaterializerString(fact.factId)}` : "",
+      readFactIdempotencyKey(fact) ? `idempotency:${readFactIdempotencyKey(fact)}` : "",
+    ].filter(Boolean);
+    for (const key of keys) {
+      const existingIndex = seenKeys.get(key);
+      if (existingIndex === undefined) seenKeys.set(key, index);
+      else union(index, existingIndex);
+    }
+  });
+
+  const groups = new Map<number, UserIndexMaterializerFact[]>();
+  facts.forEach((fact, index) => {
+    const root = find(index);
+    const group = groups.get(root) ?? [];
+    group.push(fact);
+    groups.set(root, group);
+  });
+  const dedupedFacts = Array.from(groups.values()).map((group) =>
+    group.slice(1).reduce(
+      (selected, candidate) => preferExactReplayCandidate(candidate, selected) ? candidate : selected,
+      group[0],
+    ),
+  ).sort((left, right) =>
+    left.timestampMs - right.timestampMs
+    || cleanMaterializerString(left.factId).localeCompare(cleanMaterializerString(right.factId)),
+  );
+  return {
+    facts: dedupedFacts,
+    excludedCount: Math.max(0, facts.length - dedupedFacts.length),
+  };
+}
+
+function addLineageSummary(
+  map: Map<string, LineageSummary>,
+  key: string,
+  lineage: IdentityLineageIndex,
+) {
+  if (!key) return;
+  const summary = map.get(key) ?? {
+    ownerUserIds: new Set<string>(),
+    eligibleSessionIds: new Set<string>(),
+    personAttributionAllowed: true,
+    recordCount: 0,
+  };
+  const ownerUserId = cleanMaterializerString(lineage.userId);
+  if (ownerUserId) summary.ownerUserIds.add(ownerUserId);
+  for (const sessionId of lineage.sessionIds) {
+    const normalizedSessionId = cleanMaterializerString(sessionId);
+    if (normalizedSessionId) summary.eligibleSessionIds.add(normalizedSessionId);
+  }
+  const recordAllowsAttribution = lineage.mergeAllowed === true
+    && lineage.personLevelBehaviorAllowed === true
+    && lineage.consentState === "granted"
+    && lineage.consentMode === "full_behavioral"
+    && lineage.linkageConfidenceSource === "full_behavioral_consent";
+  summary.personAttributionAllowed = summary.personAttributionAllowed && recordAllowsAttribution;
+  summary.recordCount += 1;
+  map.set(key, summary);
+}
+
+function buildLineageMaps(lineages: readonly IdentityLineageIndex[]) {
+  const byAnonymousVisitorId = new Map<string, LineageSummary>();
+  const byIdentityLinkId = new Map<string, LineageSummary>();
+  for (const lineage of lineages) {
+    addLineageSummary(
+      byAnonymousVisitorId,
+      cleanMaterializerString(lineage.anonymousVisitorId),
+      lineage,
+    );
+    addLineageSummary(byIdentityLinkId, cleanMaterializerString(lineage.identityLinkId), lineage);
+  }
+  return { byAnonymousVisitorId, byIdentityLinkId };
+}
+
+function resolveLineageSummary(
+  fact: UserIndexMaterializerFact,
+  lineageMaps: ReturnType<typeof buildLineageMaps>,
+) {
+  const anonymousVisitorId = cleanMaterializerString(fact.anonymousVisitorId);
+  const identityLinkId = cleanMaterializerString(fact.identityLinkId);
+  const summaries = [
+    anonymousVisitorId ? lineageMaps.byAnonymousVisitorId.get(anonymousVisitorId) : undefined,
+    identityLinkId ? lineageMaps.byIdentityLinkId.get(identityLinkId) : undefined,
+  ].filter((summary): summary is LineageSummary => Boolean(summary));
+  if (summaries.length === 0) return undefined;
+  if (summaries.length === 1) return summaries[0];
+  const combined: LineageSummary = {
+    ownerUserIds: new Set<string>(),
+    eligibleSessionIds: new Set<string>(),
+    personAttributionAllowed: summaries.every((summary) => summary.personAttributionAllowed),
+    recordCount: summaries.reduce((count, summary) => count + summary.recordCount, 0),
+  };
+  for (const summary of summaries) {
+    for (const ownerUserId of summary.ownerUserIds) combined.ownerUserIds.add(ownerUserId);
+    for (const sessionId of summary.eligibleSessionIds) combined.eligibleSessionIds.add(sessionId);
+  }
+  return combined;
+}
+
+function dedupeLinkedGuestIdentifiedCopies(candidates: PersonFactCandidate[]) {
+  const ordered = [...candidates].sort((left, right) =>
+    left.fact.timestampMs - right.fact.timestampMs
+    || (left.identityKind === right.identityKind ? 0 : left.identityKind === "identified" ? -1 : 1)
+    || cleanMaterializerString(left.fact.factId).localeCompare(cleanMaterializerString(right.fact.factId)),
+  );
+  const retained = ordered.map(() => true);
+  const unmatched = new Map<string, { guest: number[]; identified: number[] }>();
+  let excludedCount = 0;
+
+  ordered.forEach((candidate, index) => {
+    const key = `${candidate.personUserId}\0${candidate.action}\0${candidate.target}`;
+    const lanes = unmatched.get(key) ?? { guest: [], identified: [] };
+    const oppositeLane = candidate.identityKind === "guest" ? lanes.identified : lanes.guest;
+    while (
+      oppositeLane.length > 0
+      && candidate.fact.timestampMs - ordered[oppositeLane[0]].fact.timestampMs > USER_INDEX_MATERIALIZER_LINKED_COPY_WINDOW_MS
+    ) {
+      oppositeLane.shift();
+    }
+    const oppositeIndex = oppositeLane.pop();
+    if (oppositeIndex !== undefined) {
+      excludedCount += 1;
+      if (candidate.identityKind === "identified") retained[oppositeIndex] = false;
+      else retained[index] = false;
+    } else {
+      lanes[candidate.identityKind].push(index);
+    }
+    unmatched.set(key, lanes);
+  });
+
+  return {
+    candidates: ordered.filter((_, index) => retained[index]),
+    excludedFacts: new Set(ordered.filter((_, index) => !retained[index]).map((candidate) => candidate.fact)),
+    excludedCount,
+  };
+}
+
+export function normalizeFactsForUserIndexMaterialization(input: {
+  facts: readonly UserIndexMaterializerFact[];
+  lineages: readonly IdentityLineageIndex[];
+}): NormalizedUserIndexFacts {
+  const exact = dedupeExactUserIndexFactReplays(input.facts);
+  const lineageMaps = buildLineageMaps(input.lineages);
+  const globalFacts: UserIndexMaterializerFact[] = [];
+  const personCandidates: PersonFactCandidate[] = [];
+  const exclusions: UserIndexMaterializerExclusionCounts = {
+    exactReplayExcludedCount: exact.excludedCount,
+    linkedCopyExcludedCount: 0,
+    identityConflictExcludedCount: 0,
+    lineageBlockedCount: 0,
+    adminExcludedCount: 0,
+    systemExcludedCount: 0,
+  };
+
+  for (const fact of exact.facts) {
+    if (fact.actorType === "admin") {
+      exclusions.adminExcludedCount += exclusionIncrement(fact.adminExcludedCount);
+      continue;
+    }
+    if (fact.actorType === "system") {
+      exclusions.systemExcludedCount += exclusionIncrement(fact.systemExcludedCount);
+      continue;
+    }
+    if (fact.includeInGlobalEvents !== false) globalFacts.push(fact);
+
+    const actorUserId = cleanMaterializerString(fact.actorUserId);
+    const anonymousVisitorId = cleanMaterializerString(fact.anonymousVisitorId);
+    const identityLinkId = cleanMaterializerString(fact.identityLinkId);
+    const sessionId = cleanMaterializerString(fact.sessionId);
+    const lineage = resolveLineageSummary(fact, lineageMaps);
+    const ownerUserIds = lineage ? Array.from(lineage.ownerUserIds) : [];
+    if (ownerUserIds.length > 1 || (actorUserId && ownerUserIds.length === 1 && ownerUserIds[0] !== actorUserId)) {
+      exclusions.identityConflictExcludedCount += 1;
+      continue;
+    }
+
+    let personUserId = actorUserId;
+    let identityKind: PersonFactCandidate["identityKind"] = "identified";
+    const linkedIdentityContext = Boolean(anonymousVisitorId || identityLinkId);
+    if (personUserId && fact.includeInPersonMetrics === false) continue;
+    if (linkedIdentityContext) {
+      const eligibleSession = Boolean(sessionId && lineage?.eligibleSessionIds.has(sessionId));
+      if (
+        !lineage
+        || lineage.personAttributionAllowed !== true
+        || !eligibleSession
+        || fact.consentState !== "granted"
+      ) {
+        exclusions.lineageBlockedCount += 1;
+        continue;
+      }
+    }
+    if (!personUserId) {
+      if (ownerUserIds.length !== 1 || !linkedIdentityContext) {
+        if (ownerUserIds.length === 1 || linkedIdentityContext) exclusions.lineageBlockedCount += 1;
+        continue;
+      }
+      personUserId = ownerUserIds[0];
+      identityKind = "guest";
+    }
+
+    personCandidates.push({
+      fact,
+      identityKind,
+      personUserId,
+      action: normalizeUserIndexAction(fact.normalizedAction),
+      target: canonicalizeUserIndexFactTarget(fact),
+    });
+  }
+
+  const linkedDedupe = dedupeLinkedGuestIdentifiedCopies(personCandidates);
+  exclusions.linkedCopyExcludedCount = linkedDedupe.excludedCount;
+  const personFacts = linkedDedupe.candidates.map((candidate) => ({
+    ...candidate.fact,
+    actorUserId: candidate.personUserId,
+  }));
+  const dedupedGlobalFacts = globalFacts.filter((fact) => !linkedDedupe.excludedFacts.has(fact));
+
+  return { globalFacts: dedupedGlobalFacts, personFacts, exclusions };
 }

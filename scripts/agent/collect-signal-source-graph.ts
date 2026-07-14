@@ -17,6 +17,8 @@ import {
   type GitToolStatus,
   type SourceFileDiscovery,
 } from "./shared";
+import { buildVerificationCommandEntries } from "./build-agent-indexes";
+import { buildRepoInventory } from "./classify-repo-files";
 import {
   SIGNAL_FINDING_SCHEMA_VERSION,
   buildSignalSarifProjection,
@@ -972,7 +974,8 @@ export function buildSignalSourceGraphReport(input: SourceGraphInput): SignalSou
 }
 
 export function buildSignalSourceGraphReportFromRepo() {
-  const inventory = readJsonFile<RepoInventoryMetadata & { items: RepoInventoryItem[] }>("agent/index/repo-inventory.json");
+  const inventory = readJsonFile<RepoInventoryMetadata>("agent/index/repo-inventory.json");
+  const inventoryItems = buildRepoInventory();
   const discovery = discoverRepoFiles();
   const toolchain = readRepoToolchainState();
   if (discovery.toolingDegraded) {
@@ -983,10 +986,10 @@ export function buildSignalSourceGraphReportFromRepo() {
     trackedFiles: discovery.files,
     toolchain,
     inventoryMetadata: inventory,
-    inventoryItems: inventory.items,
+    inventoryItems,
     canonicalHelpers: readJsonFile<{ entries: CanonicalHelperEntry[] }>("agent/index/canonical-helpers.json").entries,
     surfaceDomains: readJsonFile<{ domains: SurfaceDomain[] }>("agent/index/surface-map.json").domains,
-    verificationCommands: readJsonFile<{ commands: VerificationCommand[] }>("agent/index/verification-commands.json").commands,
+    verificationCommands: buildVerificationCommandEntries(),
     packageScripts: getPackageScripts("package.json"),
   });
 }

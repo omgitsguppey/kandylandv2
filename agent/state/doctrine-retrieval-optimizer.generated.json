@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-05T07:50:00.467Z",
+  "generatedAt": "2026-07-14T16:00:39.724Z",
   "sampleCount": 10,
   "averageCardsSelected": 4.4,
-  "averageEstimatedTokens": 865.7,
-  "averageContextSavings": 0.9927210506844247,
+  "averageEstimatedTokens": 873.5,
+  "averageContextSavings": 0.9977820491986431,
   "tasksOverBudget": [],
   "unresolvedConflicts": [],
   "mostUsedCards": [
@@ -80,20 +80,20 @@
     "doctrine-card-surface-creator-profile",
     "doctrine-card-surface-drops",
     "doctrine-card-surface-image-loading",
+    "doctrine-card-docs-agent-truth-behavioral-math-calibration",
+    "doctrine-card-docs-agent-truth-event-facts-materializer-closure",
+    "doctrine-card-docs-agent-truth-user-journey-behavioral-intelligence",
+    "doctrine-card-docs-agent-truth-creator-monetization-admin-debug",
+    "doctrine-card-docs-agent-truth-creator-monetization-readiness-lock",
+    "doctrine-card-docs-agent-truth-person-metrics-hydration",
     "doctrine-card-agents",
-    "doctrine-card-every-file-function-checklist",
-    "doctrine-card-full-scale-codebase-audit",
-    "doctrine-card-repo-memory-ledger",
-    "doctrine-card-docs-agent-truth-rollback-incident-response",
-    "doctrine-card-docs-agent-truth-analytics-file-inventory",
-    "doctrine_card__wallet",
-    "doctrine_card__drops",
-    "doctrine_card__viewer",
-    "doctrine_card__watch-time",
-    "doctrine_card__user-management",
-    "doctrine_card__behavioral-intelligence",
-    "doctrine_card__telemetry",
-    "doctrine_card__support"
+    "doctrine-card-docs-agent-truth-account-settings-delete-flow",
+    "doctrine-card-docs-agent-truth-chat-composer-modal-lift",
+    "doctrine-card-docs-agent-truth-claim-truth-audit",
+    "doctrine-card-docs-agent-truth-daily-task-reward-ledger",
+    "doctrine-card-docs-agent-truth-debug-cockpit-batch10-cleanup",
+    "doctrine-card-docs-agent-truth-debug-cockpit-batch3-cleanup",
+    "doctrine-card-docs-agent-truth-debug-cockpit-batch4-cleanup"
   ],
   "missingSurfaceCards": [],
   "sampleSummaries": [
@@ -108,8 +108,8 @@
         "doctrine-card-legacy-old-wallet-total-only-balance-chip",
         "doctrine-card-legacy-old-green-bonus-chips"
       ],
-      "estimatedTokens": 1396,
-      "contextSavings": 0.9882622002488817,
+      "estimatedTokens": 1422,
+      "contextSavings": 0.9963893233663085,
       "affectedSurfaces": [
         "user"
       ],
@@ -125,7 +125,7 @@
         "doctrine-card-surface-watch-time"
       ],
       "estimatedTokens": 482,
-      "contextSavings": 0.9959472639827801,
+      "contextSavings": 0.9987761278920961,
       "affectedSurfaces": [],
       "affectedFeatures": [
         "viewer",
@@ -143,7 +143,7 @@
         "doctrine-card-surface-user-management"
       ],
       "estimatedTokens": 1252,
-      "contextSavings": 0.9894729761544412,
+      "contextSavings": 0.9968209795039509,
       "affectedSurfaces": [
         "admin"
       ],
@@ -161,7 +161,7 @@
         "doctrine-card-legacy-synthetic-view-as-local-projection"
       ],
       "estimatedTokens": 553,
-      "contextSavings": 0.9953502841960111,
+      "contextSavings": 0.9985958479757866,
       "affectedSurfaces": [],
       "affectedFeatures": [
         "creator-dashboard"
@@ -175,7 +175,7 @@
         "doctrine-card-legacy-old-moderation-screenshot-certainty"
       ],
       "estimatedTokens": 510,
-      "contextSavings": 0.9957118353344768,
+      "contextSavings": 0.9987050315870727,
       "affectedSurfaces": [],
       "affectedFeatures": [
         "moderation"
@@ -189,8 +189,8 @@
         "doctrine-card-surface-user-ui",
         "doctrine-card-surface-support"
       ],
-      "estimatedTokens": 845,
-      "contextSavings": 0.9928950997208489,
+      "estimatedTokens": 871,
+      "contextSavings": 0.9977883970830201,
       "affectedSurfaces": [
         "user"
       ],
@@ -207,7 +207,7 @@
         "doctrine-card-surface-routing-map"
       ],
       "estimatedTokens": 848,
-      "contextSavings": 0.9928698752228164,
+      "contextSavings": 0.9978467976192894,
       "affectedSurfaces": [],
       "affectedFeatures": [
         "doctrine-retrieval"
@@ -223,7 +223,7 @@
         "doctrine_card__speed-security"
       ],
       "estimatedTokens": 958,
-      "contextSavings": 0.9919449769616251,
+      "contextSavings": 0.9975674907066973,
       "affectedSurfaces": [
         "server"
       ],
@@ -242,7 +242,7 @@
         "doctrine_card__google-cost"
       ],
       "estimatedTokens": 965,
-      "contextSavings": 0.9918861197995493,
+      "contextSavings": 0.9975497166304415,
       "affectedSurfaces": [
         "server"
       ],
@@ -259,8 +259,8 @@
         "doctrine-card-surface-user-ui",
         "doctrine-card-surface-device-ui"
       ],
-      "estimatedTokens": 848,
-      "contextSavings": 0.9928698752228164,
+      "estimatedTokens": 874,
+      "contextSavings": 0.9977807796217677,
       "affectedSurfaces": [
         "user"
       ],

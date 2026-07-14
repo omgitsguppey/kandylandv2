@@ -289,6 +289,7 @@ describe("GET /api/admin/overview", () => {
     expect(mockState.collectionCalls).toEqual([
       "admin_hot_cache_snapshots",
       "admin_surface_heartbeats",
+      "admin_hot_cache_snapshots",
     ]);
     expect(mockState.handleApiError).not.toHaveBeenCalled();
   });
@@ -311,6 +312,7 @@ describe("GET /api/admin/overview", () => {
     expect(mockState.collectionCalls).toEqual([
       "admin_hot_cache_snapshots",
       "admin_surface_heartbeats",
+      "admin_hot_cache_snapshots",
     ]);
   });
 });

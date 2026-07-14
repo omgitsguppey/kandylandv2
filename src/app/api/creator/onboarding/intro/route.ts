@@ -25,7 +25,17 @@ import {
 } from "@/lib/identity-truth/identity/actor-markers";
 
 function buildErrorResponse(status: number, message: string) {
-    return NextResponse.json({ error: message }, { status });
+    const expectedCode = status === 401
+        ? "unauthorized"
+        : status >= 400 && status < 500
+            ? "invalid_creator_request"
+            : null;
+    return NextResponse.json({
+        success: false,
+        error: message,
+        message,
+        ...(expectedCode ? { code: expectedCode, retryable: false } : {}),
+    }, { status });
 }
 
 function readRole(value: unknown) {

@@ -21,6 +21,20 @@ service firebase.storage {
         && request.auth.uid == userId;
     }
 
+    function isValidCreatorMessageUpload() {
+      return request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 500 * 1024 * 1024
+        && request.resource.contentType.matches('(image|video)/.*');
+    }
+
+    function isFinalizedCreatorMessageAttachment() {
+      return resource != null
+        && resource.metadata != null
+        && 'chatAttachmentFinalized' in resource.metadata
+        && resource.metadata.chatAttachmentFinalized == 'true';
+    }
+
     match /avatars/{fileName} {
       allow read: if isOwnAvatar(fileName);
       allow write: if isOwnAvatar(fileName)
@@ -28,7 +42,12 @@ service firebase.storage {
     }
 
     match /creator/messages/{userId}/{allPaths=**} {
-      allow read, write: if isOwnCreatorMessagePath(userId);
+      allow read: if isOwnCreatorMessagePath(userId);
+      allow create: if isOwnCreatorMessagePath(userId)
+        && isValidCreatorMessageUpload();
+      allow update, delete: if isOwnCreatorMessagePath(userId)
+        && !isFinalizedCreatorMessageAttachment()
+        && (request.resource == null || isValidCreatorMessageUpload());
     }
 
     match /drops/{allPaths=**} {

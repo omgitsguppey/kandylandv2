@@ -36,6 +36,7 @@ type CreatorRequestProblemCode =
     | "creator_unavailable"
     | "requests_unavailable"
     | "insufficient_paid_gumdrops"
+    | "idempotency_conflict"
     | "invalid_request"
     | "unauthorized";
 
@@ -94,6 +95,7 @@ function buildRequestProblemResponse(problem: CreatorRequestProblem) {
         priceGd: toOptionalNumber(problem.context.priceGd),
         paidBalanceGd: toOptionalNumber(problem.context.paidBalanceGd),
         shortfallGd: toOptionalNumber(problem.context.shortfallGd),
+        preserveIdempotencyKey: problem.code === "idempotency_conflict",
     }, { status: problem.status });
 }
 
@@ -104,6 +106,33 @@ function buildBoundedRequestBodyResponse(error: { status: 400 | 413; code: strin
         error: error.message,
         message: error.message,
     }, { status: error.status });
+}
+
+function matchesCommittedRequestReplay(input: {
+    requestData: Record<string, unknown>;
+    transactionData: Record<string, unknown>;
+    requestId: string;
+    transactionId: string;
+    userId: string;
+    creatorId: string;
+    categoryId: string;
+    details: string;
+    idempotencyKey: string;
+}) {
+    return input.requestData.userId === input.userId
+        && input.requestData.creatorId === input.creatorId
+        && input.requestData.categoryId === input.categoryId
+        && input.requestData.details === input.details
+        && input.requestData.idempotencyKey === input.idempotencyKey
+        && input.requestData.userTransactionId === input.transactionId
+        && input.transactionData.verifiedServerSide === true
+        && input.transactionData.status === "completed"
+        && input.transactionData.type === "creator_custom_request"
+        && input.transactionData.userId === input.userId
+        && input.transactionData.creatorId === input.creatorId
+        && input.transactionData.idempotencyKey === input.idempotencyKey
+        && input.transactionData.userTransactionId === input.transactionId
+        && input.transactionData.creatorExperienceRecordId === input.requestId;
 }
 
 async function GET_handler(request: NextRequest) {
@@ -230,11 +259,61 @@ async function POST_handler(request: NextRequest) {
         const transactionRef = adminDb.collection("transactions").doc(recordIds.userTransactionId);
 
         const result = await adminDb.runTransaction(async (transaction) => {
-            const [creatorSnap, userSnap, requestSnap, transactionSnap] = await Promise.all([
-                transaction.get(creatorRef),
-                transaction.get(userRef),
+            const [requestSnap, transactionSnap] = await Promise.all([
                 transaction.get(requestRef),
                 transaction.get(transactionRef),
+            ]);
+
+            if (requestSnap.exists || transactionSnap.exists) {
+                const requestData = requestSnap.data() as Record<string, unknown> | undefined;
+                const transactionData = transactionSnap.data() as Record<string, unknown> | undefined;
+                if (
+                    !requestSnap.exists
+                    || !transactionSnap.exists
+                    || !requestData
+                    || !transactionData
+                    || !matchesCommittedRequestReplay({
+                        requestData,
+                        transactionData,
+                        requestId: requestRef.id,
+                        transactionId: transactionRef.id,
+                        userId: caller.uid,
+                        creatorId,
+                        categoryId,
+                        details,
+                        idempotencyKey,
+                    })
+                ) {
+                    throw new CreatorRequestProblem(
+                        409,
+                        "idempotency_conflict",
+                        "This request key is already associated with a different or incomplete request.",
+                        { creatorId, categoryId },
+                    );
+                }
+
+                const existingPrice = typeof requestData.priceGd === "number" ? requestData.priceGd : 0;
+                const existingAccrualId = typeof requestData.creatorAccrualId === "string"
+                    ? requestData.creatorAccrualId
+                    : ledgerRef.id;
+                return {
+                    priceGd: existingPrice,
+                    creatorAccrualId: existingAccrualId,
+                    duplicatePrevented: true,
+                    debug: buildCreatorExperienceTransactionDebug({
+                        userTransactionId: transactionRef.id,
+                        creatorAccrualId: existingAccrualId,
+                        creatorExperienceRecordId: requestRef.id,
+                        priceGd: existingPrice,
+                        idempotencyKey,
+                        duplicatePrevented: true,
+                    }),
+                };
+            }
+
+            const [creatorSnap, userSnap] = await Promise.all([
+                transaction.get(creatorRef),
+                transaction.get(userRef),
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
@@ -286,27 +365,6 @@ async function POST_handler(request: NextRequest) {
 
             const priceGd = requestPricing?.priceGd ?? (typeof selectedCategory.priceGd === "number" ? Math.round(selectedCategory.priceGd) : 0);
             const balance = readPaidSourceBalanceForRestrictedSpend(userData).balance;
-            if (requestSnap.exists || transactionSnap.exists) {
-                const requestData = requestSnap.data() as Record<string, unknown> | undefined;
-                const existingPrice = typeof requestData?.priceGd === "number" ? requestData.priceGd : priceGd;
-                const existingAccrualId = typeof requestData?.creatorAccrualId === "string" ? requestData.creatorAccrualId : ledgerRef.id;
-
-                return {
-                    priceGd: existingPrice,
-                    creatorAccrualId: existingAccrualId,
-                    duplicatePrevented: true,
-                    debug: buildCreatorExperienceTransactionDebug({
-                        userTransactionId: transactionRef.id,
-                        creatorAccrualId: existingAccrualId,
-                        creatorExperienceRecordId: requestRef.id,
-                        priceGd: existingPrice,
-                        idempotencyKey,
-                        duplicatePrevented: true,
-                        sourceAwareBalanceBefore: balance,
-                        sourceAwareBalanceAfter: balance,
-                    }),
-                };
-            }
             const spend = spendCreatorExperienceGumdrops(balance, priceGd, "custom_request");
             if (!spend.ok) {
                 throw new CreatorRequestProblem(

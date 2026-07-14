@@ -1,6 +1,14 @@
 export const CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS = 15_000;
 export const CLIENT_TELEMETRY_NON_PRIORITY_QUEUE_CAP = 200;
 export const CLIENT_TELEMETRY_PRIORITY_FLUSH_DELAY_MS = 0;
+export const CLIENT_TELEMETRY_RETRY_DELAYS_MS = [15_000, 30_000, 60_000, 120_000] as const;
+
+export function resolveClientTelemetryRetryDelayMs(attemptCount: number) {
+  if (!Number.isInteger(attemptCount) || attemptCount < 1) {
+    return null;
+  }
+  return CLIENT_TELEMETRY_RETRY_DELAYS_MS[attemptCount - 1] ?? null;
+}
 
 export const CLIENT_TELEMETRY_PRIORITIES = [
   "priority_immediate",

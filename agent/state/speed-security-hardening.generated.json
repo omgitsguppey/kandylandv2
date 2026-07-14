@@ -1,47 +1,47 @@
 {
-  "generatedAt": "2026-06-19T12:59:57.387Z",
-  "overallScore": 52,
-  "overallStatus": "beta-risk",
+  "generatedAt": "2026-07-14T16:08:32.855Z",
+  "overallScore": 100,
+  "overallStatus": "clean",
   "domainScores": {
     "speedCachingHydration": {
       "weight": 25,
-      "score": 50,
-      "status": "beta-risk",
-      "findingCount": 5,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 5
+      "majorCount": 0
     },
     "apiRouteSecurityExploitHardening": {
       "weight": 25,
-      "score": 0,
-      "status": "beta-risk",
-      "findingCount": 68,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 68
+      "majorCount": 0
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
-      "score": 93,
-      "status": "pass",
-      "findingCount": 2,
+      "score": 98,
+      "status": "clean",
+      "findingCount": 1,
       "criticalCount": 0,
       "majorCount": 0
     },
     "contentPaymentEconomyProtection": {
       "weight": 15,
-      "score": 80,
-      "status": "beta-risk",
-      "findingCount": 2,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 2
+      "majorCount": 0
     },
     "costRunawayWorkControls": {
       "weight": 10,
-      "score": 40,
-      "status": "beta-risk",
-      "findingCount": 6,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 6
+      "majorCount": 0
     },
     "docsDebugEvidenceCompleteness": {
       "weight": 5,
@@ -54,11 +54,11 @@
   },
   "routeCacheClassification": {
     "totals": {
-      "static": 2,
+      "static": 1,
       "force_cache": 0,
       "swr": 3,
       "hot_cache": 4,
-      "no_store": 99,
+      "no_store": 101,
       "must_not_cache": 23,
       "unknown": 0
     },
@@ -1510,8 +1510,8 @@
         "surface": "api",
         "userSpecific": false,
         "sensitive": false,
-        "sourceNoStoreEvidence": true,
-        "sourceForceDynamicEvidence": true
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
       },
       {
         "routePath": "/api/drops/track",
@@ -1562,12 +1562,26 @@
           "GET"
         ],
         "contractPattern": "/api/health",
-        "cacheMode": "static",
+        "cacheMode": "no_store",
         "surface": "api",
         "userSpecific": false,
         "sensitive": false,
         "sourceNoStoreEvidence": true,
         "sourceForceDynamicEvidence": true
+      },
+      {
+        "routePath": "/api/internal/analytics/materialize-user-index",
+        "filePath": "src/app/api/internal/analytics/materialize-user-index/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "contractPattern": "/api/**",
+        "cacheMode": "no_store",
+        "surface": "api",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
       },
       {
         "routePath": "/api/notifications/push-token",
@@ -1952,23 +1966,23 @@
         "surface": "api",
         "userSpecific": false,
         "sensitive": false,
-        "sourceNoStoreEvidence": true,
-        "sourceForceDynamicEvidence": true
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
       }
     ]
   },
   "routeSecurityClassification": {
     "totals": {
-      "routes": 131,
-      "mutations": 93,
+      "routes": 132,
+      "mutations": 94,
       "trustedOriginRequired": 93,
       "trustedOriginPresent": 106,
-      "guardPresent": 129,
-      "rateLimitEvidence": 129,
-      "idempotencyRequired": 12,
-      "idempotencyEvidence": 24,
-      "bodyLimitRequired": 123,
-      "bodyLimitEvidence": 40
+      "guardPresent": 130,
+      "rateLimitEvidence": 130,
+      "idempotencyRequired": 14,
+      "idempotencyEvidence": 25,
+      "bodyLimitRequired": 82,
+      "bodyLimitEvidence": 85
     },
     "routes": [
       {
@@ -1991,6 +2005,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2021,7 +2036,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2052,7 +2068,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2071,7 +2088,7 @@
           "PUT",
           "DELETE"
         ],
-        "contractPattern": "/api/admin/ai/**",
+        "contractPattern": "/api/admin/ai/drop-covers/references",
         "authRequired": "admin",
         "rateLimitPolicy": "ai_budgeted",
         "costRisk": "critical",
@@ -2085,13 +2102,15 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
-          "ai_disabled",
-          "budget_exceeded",
+          "payload_too_large",
+          "invalid_multipart_body",
+          "invalid_json",
           "invalid_ai_request"
         ]
       },
@@ -2116,6 +2135,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2147,6 +2167,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2164,7 +2185,7 @@
           "POST",
           "DELETE"
         ],
-        "contractPattern": "/api/admin/ai/**",
+        "contractPattern": "/api/admin/ai/drop-covers/template",
         "authRequired": "admin",
         "rateLimitPolicy": "ai_budgeted",
         "costRisk": "critical",
@@ -2178,13 +2199,14 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
-          "ai_disabled",
-          "budget_exceeded",
+          "payload_too_large",
+          "invalid_multipart_body",
           "invalid_ai_request"
         ]
       },
@@ -2208,6 +2230,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2238,6 +2261,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2268,6 +2292,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2299,6 +2324,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2329,7 +2355,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2359,6 +2386,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2388,7 +2416,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2418,6 +2447,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2447,7 +2477,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2475,6 +2506,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2505,6 +2537,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2517,7 +2550,9 @@
           "storage_bucket_unavailable",
           "upload_failed",
           "invalid_storage_reference",
-          "file_not_found"
+          "file_not_found",
+          "payload_too_large",
+          "invalid_multipart_body"
         ]
       },
       {
@@ -2540,6 +2575,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2569,6 +2605,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2597,6 +2634,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2625,7 +2663,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2653,8 +2692,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -2681,8 +2721,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -2711,8 +2752,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -2739,7 +2781,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2767,7 +2810,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2796,6 +2840,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -2824,7 +2869,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2854,8 +2900,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -2882,7 +2929,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -2912,8 +2960,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -2942,8 +2991,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -2972,8 +3022,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3000,7 +3051,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3028,7 +3080,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3056,7 +3109,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3084,7 +3138,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3112,7 +3167,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3140,7 +3196,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3168,8 +3225,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3196,7 +3254,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3224,7 +3283,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3253,8 +3313,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3281,8 +3342,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3310,8 +3372,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3338,7 +3401,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3367,8 +3431,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3398,8 +3463,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3429,8 +3495,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3458,8 +3525,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3486,8 +3554,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
-        "bodyLimitPresent": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
+        "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3514,7 +3583,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3542,7 +3612,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3572,8 +3643,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3600,8 +3672,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3628,8 +3701,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3656,6 +3730,7 @@
         "rateLimitPresent": false,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -3683,6 +3758,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -3711,6 +3787,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -3739,6 +3816,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -3767,8 +3845,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3796,7 +3875,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3824,6 +3904,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -3852,8 +3933,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3882,8 +3964,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3912,8 +3995,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -3942,7 +4026,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -3972,8 +4057,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4002,7 +4088,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4033,7 +4120,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4049,11 +4137,11 @@
         "methods": [
           "POST"
         ],
-        "contractPattern": "/api/**",
+        "contractPattern": "/api/checkin",
         "authRequired": "user",
-        "rateLimitPolicy": "standard",
-        "costRisk": "medium",
-        "csrfRisk": "medium",
+        "rateLimitPolicy": "sensitive_write",
+        "costRisk": "high",
+        "csrfRisk": "high",
         "mutation": true,
         "sensitiveWrites": true,
         "trustedOriginRequired": true,
@@ -4061,14 +4149,15 @@
         "trustedOriginChecked": true,
         "guardPresent": true,
         "rateLimitPresent": true,
-        "idempotencyRequired": false,
+        "idempotencyRequired": true,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
-          "forbidden",
-          "invalid_request"
+          "duplicate_claim",
+          "profile_missing"
         ]
       },
       {
@@ -4093,6 +4182,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4129,6 +4219,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4157,6 +4248,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -4183,6 +4275,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4213,6 +4306,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4243,8 +4337,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4271,7 +4366,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4299,8 +4395,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4327,8 +4424,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4355,6 +4453,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4383,7 +4482,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4413,8 +4513,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4442,6 +4543,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4472,6 +4574,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4503,6 +4606,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4532,6 +4636,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4564,6 +4669,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -4591,7 +4697,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4619,7 +4726,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4647,7 +4755,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4675,8 +4784,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "invalid_debug_evidence",
           "payload_too_large"
@@ -4702,6 +4812,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -4731,8 +4842,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4759,8 +4871,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4787,8 +4900,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4815,7 +4929,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4843,7 +4958,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4871,6 +4987,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -4897,8 +5014,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4925,8 +5043,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "drop_not_found",
@@ -4955,7 +5074,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -4983,9 +5103,44 @@
         "rateLimitPresent": false,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": []
+      },
+      {
+        "routePath": "/api/internal/analytics/materialize-user-index",
+        "filePath": "src/app/api/internal/analytics/materialize-user-index/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "contractPattern": "/api/internal/analytics/materialize-user-index",
+        "authRequired": "cron",
+        "rateLimitPolicy": "cron",
+        "costRisk": "high",
+        "csrfRisk": "none",
+        "mutation": true,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": false,
+        "trustedOriginPresent": false,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": true,
+        "idempotencyPresent": true,
+        "bodyConsumed": true,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": true,
+        "expectedFailureCodes": [
+          "configuration_missing",
+          "source_fingerprint_missing",
+          "activation_gate_missing",
+          "request_batch_too_large",
+          "unauthorized",
+          "invalid_json",
+          "payload_too_large",
+          "materializer_failed"
+        ]
       },
       {
         "routePath": "/api/notifications/push-token",
@@ -5008,8 +5163,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5038,8 +5194,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "notification_not_found",
@@ -5066,8 +5223,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "payment_failed",
@@ -5095,8 +5253,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": true,
         "idempotencyPresent": true,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "payment_failed",
@@ -5124,8 +5283,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "invalid_consent_request"
         ]
@@ -5150,8 +5310,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "invalid_security_event"
         ]
@@ -5176,7 +5337,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -5204,6 +5366,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -5232,8 +5395,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5263,8 +5427,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5295,8 +5460,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5325,8 +5491,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5353,8 +5520,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5381,7 +5549,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -5409,7 +5578,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -5437,7 +5607,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -5465,6 +5636,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -5491,8 +5663,9 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5519,7 +5692,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -5547,7 +5721,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -5575,6 +5750,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -5603,6 +5779,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -5633,6 +5810,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -5661,6 +5839,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -5689,7 +5868,8 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
-        "bodyLimitRequired": true,
+        "bodyConsumed": false,
+        "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
           "unauthorized",
@@ -5717,6 +5897,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": true,
         "expectedFailureCodes": [
@@ -5745,6 +5926,7 @@
         "rateLimitPresent": true,
         "idempotencyRequired": false,
         "idempotencyPresent": false,
+        "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -5754,22 +5936,6 @@
     ]
   },
   "firebaseRulesFindings": [
-    {
-      "domain": "firebaseRulesAppCheckReadiness",
-      "severity": "moderate",
-      "filePath": "src/lib/authFetch.ts",
-      "title": "Custom backend App Check token path is not source-visible",
-      "evidence": [
-        "App Check readiness should include a client token path before monitor/enforce rollout."
-      ],
-      "expectedRule": "Auth fetch has a staged path to include App Check tokens where custom backend protection is enabled.",
-      "actualPattern": "missing App Check token path evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Document or add a monitor-mode App Check token attachment path without enforcing yet.",
-      "humanReadableEscalation": "App Check enforcement can break real traffic if rolled out without monitor evidence.",
-      "id": "speed_security_1f42hxq"
-    },
     {
       "domain": "firebaseRulesAppCheckReadiness",
       "severity": "minor",
@@ -5801,1172 +5967,13 @@
       "/api/creator/**",
       "/api/drops/content"
     ],
-    "rolloutNotes": "Current source contract records App Check as readiness-only. Roll out monitor mode first, verify real traffic, then enforce high-abuse custom backend routes without breaking PayPal webhooks or cron routes.",
+    "rolloutNotes": "The authFetch client token path is source-ready, env-gated, fail-open, and off by default. Configure a public site key and token mode only for a bounded monitor trial; verify real traffic before adding server verification or enforcing high-abuse custom backend routes, and keep PayPal webhooks and cron routes outside client-token assumptions.",
     "status": "off",
     "findings": [
-      "Custom backend App Check token path is not source-visible",
       "App Check readiness is contract-only and not yet enforced"
     ]
   },
   "exploitRisks": [
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 17,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_n23v2i"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creators/[userId]/action/route.ts",
-      "line": 32,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1oc3zu2"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/fix/route.ts",
-      "line": 81,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1rmwqup"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 230,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_o1you5"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 35,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1om0ucq"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/economy/offers/route.ts",
-      "line": 50,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_g0ng0t"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/economy/packages/route.ts",
-      "line": 50,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8gl3fj"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/economy/promos/route.ts",
-      "line": 50,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1ialt94"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "line": 32,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1sqeh5j"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/queue/route.ts",
-      "line": 30,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_10hfbnw"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/queue/toggle/route.ts",
-      "line": 17,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_c5ikno"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 820,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1uqffkb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/support/threads/[threadId]/messages/route.ts",
-      "line": 56,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_l6qorr"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/support/threads/[threadId]/route.ts",
-      "line": 141,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_14ir6ij"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/tasks/route.ts",
-      "line": 122,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_d9h8r5"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/ui/preferences/route.ts",
-      "line": 66,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_973kl9"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
-      "line": 35,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8ljmcc"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 2457,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_12dtoka"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 15,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_17htsb3"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 67,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_fe0b3m"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/auth/manual-sign-in-lookup/route.ts",
-      "line": 108,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_o720j3"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/auth/navigation-session/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_6nyev4"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 227,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1r2q2gv"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 120,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_fcow5m"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/prepare/route.ts",
-      "line": 74,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1kx99e4"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/messages/route.ts",
-      "line": 57,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1qexxed"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/read/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_2txxqx"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_3v6kk6"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/checkin/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1ns6xfh"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/checkin/route.ts",
-      "line": 3,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: forbidden, invalid_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1ohqyp7"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/assets/route.ts",
-      "line": 6,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1kwx0cg"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 14,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_mr8uth"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/messages/route.ts",
-      "line": 148,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1dcmjwa"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 58,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_wwolbs"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 10,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_gg1b2t"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 115,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_hi8z1d"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 27,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_pic2gu"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "line": 4,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1yk9ba6"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1qfm34r"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "line": 8,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_dzrwa8"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 101,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_80lx1m"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 8,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_gc909j"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 4,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_ztse23"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/debug/evidence/route.ts",
-      "line": 73,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1sfagcd"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/[dropId]/click/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1k8qtx8"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/duplicate-filenames/route.ts",
-      "line": 34,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_453pwk"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/feedback/route.ts",
-      "line": 34,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_brzj85"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/impression/route.ts",
-      "line": 52,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1q4ohqn"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/track/route.ts",
-      "line": 27,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_w6m9ir"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/unlock/route.ts",
-      "line": 40,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 12288 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1ylfiml"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/unlock/route.ts",
-      "line": 4,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, insufficient_gumdrops, invalid_unlock_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_i2mo12"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/notifications/push-token/route.ts",
-      "line": 98,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1akn92g"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/notifications/route.ts",
-      "line": 144,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_m2dewz"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 64,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1t9i6jg"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/paypal/create/route.ts",
-      "line": 25,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_lfudlb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/paypal/create/route.ts",
-      "line": 3,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, payment_failed, invalid_payment_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1wt1fzm"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/privacy/consent/route.ts",
-      "line": 26,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 16384 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_7ifhvb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/security/log-attempt/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 16384 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_eb2dg9"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/support/threads/[threadId]/route.ts",
-      "line": 73,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_153a831"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/support/threads/guest/route.ts",
-      "line": 34,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1us1ii3"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/support/threads/route.ts",
-      "line": 97,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1h3e8eb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/feedback/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_iujhqo"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/materialize/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1hmvf2o"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/reminders/sync/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_s4c31g"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/rotate/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_g55pc8"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/complete-onboarding/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1p9gwxl"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/delete/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1e6k3jd"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/revoke-sessions/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_iweet8"
-    },
-    {
-      "domain": "firebaseRulesAppCheckReadiness",
-      "severity": "moderate",
-      "filePath": "src/lib/authFetch.ts",
-      "title": "Custom backend App Check token path is not source-visible",
-      "evidence": [
-        "App Check readiness should include a client token path before monitor/enforce rollout."
-      ],
-      "expectedRule": "Auth fetch has a staged path to include App Check tokens where custom backend protection is enabled.",
-      "actualPattern": "missing App Check token path evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Document or add a monitor-mode App Check token attachment path without enforcing yet.",
-      "humanReadableEscalation": "App Check enforcement can break real traffic if rolled out without monitor evidence.",
-      "id": "speed_security_1f42hxq"
-    },
     {
       "domain": "firebaseRulesAppCheckReadiness",
       "severity": "minor",
@@ -6984,1578 +5991,10 @@
       "id": "speed_security_3t4ofs"
     }
   ],
-  "speedRisks": [
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/app/api/drops/route.ts",
-      "line": 12,
-      "title": "Public/cacheable route uses no-store or force-dynamic",
-      "evidence": [
-        "/api/drops contract is swr, but source shows no-store/force-dynamic evidence."
-      ],
-      "expectedRule": "Public stable routes should avoid unnecessary no-store and force-dynamic when SWR/static/hot-cache is safe.",
-      "actualPattern": "no-store/force-dynamic on cacheable route",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
-      "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_1bkvcbz"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/app/api/health/route.ts",
-      "line": 28,
-      "title": "Public/cacheable route uses no-store or force-dynamic",
-      "evidence": [
-        "/api/health contract is static, but source shows no-store/force-dynamic evidence."
-      ],
-      "expectedRule": "Public stable routes should avoid unnecessary no-store and force-dynamic when SWR/static/hot-cache is safe.",
-      "actualPattern": "no-store/force-dynamic on cacheable route",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
-      "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_15xujpe"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/app/api/wallet/packages/route.ts",
-      "line": 10,
-      "title": "Public/cacheable route uses no-store or force-dynamic",
-      "evidence": [
-        "/api/wallet/packages contract is static, but source shows no-store/force-dynamic evidence."
-      ],
-      "expectedRule": "Public stable routes should avoid unnecessary no-store and force-dynamic when SWR/static/hot-cache is safe.",
-      "actualPattern": "no-store/force-dynamic on cacheable route",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
-      "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_5000bo"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/components/Analytics/DeepTracker.tsx",
-      "line": 962,
-      "title": "Public shell surface uses interval work",
-      "evidence": [
-        "Speed fixes must not add polling; startup timers can increase input delay and cost."
-      ],
-      "expectedRule": "Use event-driven, SWR, visibility/focus, after-paint, or idle scheduling instead of polling.",
-      "actualPattern": "setInterval in shell/public surface",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
-      "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_mnfr1s"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 2383,
-      "title": "Public shell surface uses interval work",
-      "evidence": [
-        "Speed fixes must not add polling; startup timers can increase input delay and cost."
-      ],
-      "expectedRule": "Use event-driven, SWR, visibility/focus, after-paint, or idle scheduling instead of polling.",
-      "actualPattern": "setInterval in shell/public surface",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
-      "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_1s3bji1"
-    }
-  ],
-  "costRisks": [
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 132,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_l8tz1l"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics-shared.ts",
-      "line": 1,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_8xt8u9"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics-shared.ts",
-      "line": 447,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1x7q06v"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics/ga4-evidence.ts",
-      "line": 3,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_l1rvhw"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/ai-drop-covers.ts",
-      "line": 4,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_1ndxm2n"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/ai-drop-covers.ts",
-      "line": 1942,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_17y55aj"
-    }
-  ],
+  "speedRisks": [],
+  "costRisks": [],
   "criticalFindings": [],
   "findings": [
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 17,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_n23v2i"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creators/[userId]/action/route.ts",
-      "line": 32,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1oc3zu2"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/fix/route.ts",
-      "line": 81,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1rmwqup"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 230,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_o1you5"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 35,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1om0ucq"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/economy/offers/route.ts",
-      "line": 50,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_g0ng0t"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/economy/packages/route.ts",
-      "line": 50,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8gl3fj"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/economy/promos/route.ts",
-      "line": 50,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1ialt94"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "line": 32,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1sqeh5j"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/queue/route.ts",
-      "line": 30,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_10hfbnw"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/queue/toggle/route.ts",
-      "line": 17,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_c5ikno"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 820,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1uqffkb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/support/threads/[threadId]/messages/route.ts",
-      "line": 56,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_l6qorr"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/support/threads/[threadId]/route.ts",
-      "line": 141,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_14ir6ij"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/tasks/route.ts",
-      "line": 122,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_d9h8r5"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/ui/preferences/route.ts",
-      "line": 66,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_973kl9"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
-      "line": 35,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8ljmcc"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 2457,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_12dtoka"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 15,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_17htsb3"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 67,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_fe0b3m"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/auth/manual-sign-in-lookup/route.ts",
-      "line": 108,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_o720j3"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/auth/navigation-session/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_6nyev4"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 227,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1r2q2gv"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 120,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_fcow5m"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/prepare/route.ts",
-      "line": 74,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1kx99e4"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/messages/route.ts",
-      "line": 57,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1qexxed"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/read/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_2txxqx"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_3v6kk6"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/checkin/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1ns6xfh"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/checkin/route.ts",
-      "line": 3,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: forbidden, invalid_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1ohqyp7"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/assets/route.ts",
-      "line": 6,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1kwx0cg"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 14,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_mr8uth"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/messages/route.ts",
-      "line": 148,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1dcmjwa"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 58,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_wwolbs"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 10,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_gg1b2t"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 115,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_hi8z1d"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 27,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_pic2gu"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "line": 4,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1yk9ba6"
-    },
-    {
-      "domain": "contentPaymentEconomyProtection",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "line": 3,
-      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
-      "evidence": [
-        "/api/creator/onboarding/id-submission touches Storage but does not show entitlement/admin/media proxy markers."
-      ],
-      "expectedRule": "Storage/media egress routes enforce entitlement/admin scope, byte/rate guards, and no raw locked URL leakage.",
-      "actualPattern": "storage usage without entitlement/media proxy evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify entitlement, media proxy rate limit, and safe URL handling before exposing storage bytes.",
-      "humanReadableEscalation": "Locked content access must be manually reviewed.",
-      "id": "speed_security_7ba3l0"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1qfm34r"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "line": 8,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_dzrwa8"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 101,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_80lx1m"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 8,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_gc909j"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 4,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_ztse23"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 132,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_l8tz1l"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/debug/evidence/route.ts",
-      "line": 73,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1sfagcd"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/[dropId]/click/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1k8qtx8"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/duplicate-filenames/route.ts",
-      "line": 34,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_453pwk"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/feedback/route.ts",
-      "line": 34,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_brzj85"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/impression/route.ts",
-      "line": 52,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1q4ohqn"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/app/api/drops/route.ts",
-      "line": 12,
-      "title": "Public/cacheable route uses no-store or force-dynamic",
-      "evidence": [
-        "/api/drops contract is swr, but source shows no-store/force-dynamic evidence."
-      ],
-      "expectedRule": "Public stable routes should avoid unnecessary no-store and force-dynamic when SWR/static/hot-cache is safe.",
-      "actualPattern": "no-store/force-dynamic on cacheable route",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
-      "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_1bkvcbz"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/track/route.ts",
-      "line": 27,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_w6m9ir"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/unlock/route.ts",
-      "line": 40,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 12288 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1ylfiml"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/drops/unlock/route.ts",
-      "line": 4,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, insufficient_gumdrops, invalid_unlock_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_i2mo12"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/app/api/health/route.ts",
-      "line": 28,
-      "title": "Public/cacheable route uses no-store or force-dynamic",
-      "evidence": [
-        "/api/health contract is static, but source shows no-store/force-dynamic evidence."
-      ],
-      "expectedRule": "Public stable routes should avoid unnecessary no-store and force-dynamic when SWR/static/hot-cache is safe.",
-      "actualPattern": "no-store/force-dynamic on cacheable route",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
-      "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_15xujpe"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/notifications/push-token/route.ts",
-      "line": 98,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1akn92g"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/notifications/route.ts",
-      "line": 144,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_m2dewz"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 64,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1t9i6jg"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/paypal/create/route.ts",
-      "line": 25,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_lfudlb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/paypal/create/route.ts",
-      "line": 3,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, payment_failed, invalid_payment_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_1wt1fzm"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/privacy/consent/route.ts",
-      "line": 26,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 16384 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_7ifhvb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/security/log-attempt/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 16384 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_eb2dg9"
-    },
-    {
-      "domain": "contentPaymentEconomyProtection",
-      "severity": "major",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "line": 2,
-      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
-      "evidence": [
-        "/api/settings/landing/upload touches Storage but does not show entitlement/admin/media proxy markers."
-      ],
-      "expectedRule": "Storage/media egress routes enforce entitlement/admin scope, byte/rate guards, and no raw locked URL leakage.",
-      "actualPattern": "storage usage without entitlement/media proxy evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify entitlement, media proxy rate limit, and safe URL handling before exposing storage bytes.",
-      "humanReadableEscalation": "Locked content access must be manually reviewed.",
-      "id": "speed_security_1chyfzp"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/support/threads/[threadId]/route.ts",
-      "line": 73,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_153a831"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/support/threads/guest/route.ts",
-      "line": 34,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1us1ii3"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/support/threads/route.ts",
-      "line": 97,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1h3e8eb"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/feedback/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_iujhqo"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/materialize/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1hmvf2o"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/reminders/sync/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_s4c31g"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/tasks/rotate/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_g55pc8"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/complete-onboarding/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1p9gwxl"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/delete/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1e6k3jd"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/revoke-sessions/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_iweet8"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/app/api/wallet/packages/route.ts",
-      "line": 10,
-      "title": "Public/cacheable route uses no-store or force-dynamic",
-      "evidence": [
-        "/api/wallet/packages contract is static, but source shows no-store/force-dynamic evidence."
-      ],
-      "expectedRule": "Public stable routes should avoid unnecessary no-store and force-dynamic when SWR/static/hot-cache is safe.",
-      "actualPattern": "no-store/force-dynamic on cacheable route",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
-      "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_5000bo"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/components/Analytics/DeepTracker.tsx",
-      "line": 962,
-      "title": "Public shell surface uses interval work",
-      "evidence": [
-        "Speed fixes must not add polling; startup timers can increase input delay and cost."
-      ],
-      "expectedRule": "Use event-driven, SWR, visibility/focus, after-paint, or idle scheduling instead of polling.",
-      "actualPattern": "setInterval in shell/public surface",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
-      "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_mnfr1s"
-    },
-    {
-      "domain": "speedCachingHydration",
-      "severity": "major",
-      "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 2383,
-      "title": "Public shell surface uses interval work",
-      "evidence": [
-        "Speed fixes must not add polling; startup timers can increase input delay and cost."
-      ],
-      "expectedRule": "Use event-driven, SWR, visibility/focus, after-paint, or idle scheduling instead of polling.",
-      "actualPattern": "setInterval in shell/public surface",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
-      "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_1s3bji1"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics-shared.ts",
-      "line": 1,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_8xt8u9"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics-shared.ts",
-      "line": 447,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1x7q06v"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics/ga4-evidence.ts",
-      "line": 3,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_l1rvhw"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/ai-drop-covers.ts",
-      "line": 4,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_1ndxm2n"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/ai-drop-covers.ts",
-      "line": 1942,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_17y55aj"
-    },
-    {
-      "domain": "firebaseRulesAppCheckReadiness",
-      "severity": "moderate",
-      "filePath": "src/lib/authFetch.ts",
-      "title": "Custom backend App Check token path is not source-visible",
-      "evidence": [
-        "App Check readiness should include a client token path before monitor/enforce rollout."
-      ],
-      "expectedRule": "Auth fetch has a staged path to include App Check tokens where custom backend protection is enabled.",
-      "actualPattern": "missing App Check token path evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Document or add a monitor-mode App Check token attachment path without enforcing yet.",
-      "humanReadableEscalation": "App Check enforcement can break real traffic if rolled out without monitor evidence.",
-      "id": "speed_security_1f42hxq"
-    },
     {
       "domain": "firebaseRulesAppCheckReadiness",
       "severity": "minor",
@@ -8574,11 +6013,7 @@
     }
   ],
   "recommendedFixOrder": [
-    "Classify route caching/hydration first; remove no-store, eager overlays, polling, and image-size issues only after source review.",
-    "Close route guard, trusted-origin, rate-limit, idempotency, typed-error, and body-limit gaps with targeted route tests.",
-    "Review Firebase rules default-deny/owner-admin scopes and stage App Check monitor before enforcement.",
-    "Escalate locked-content, payment, unlock, and GumDrops findings before any behavior change.",
-    "Bound Firestore reads, paid Google calls, cleanup loops, and Cloud Run/SQL/BigQuery cost surfaces."
+    "Review Firebase rules default-deny/owner-admin scopes and stage App Check monitor before enforcement."
   ],
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
@@ -8603,5 +6038,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 83 findings across 131 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 1 findings across 132 API routes."
 }

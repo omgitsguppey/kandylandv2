@@ -43,6 +43,34 @@
             ]
         },
         {
+            "collectionGroup": "behavioral_timeline_facts",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "actorUserId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "timestampMs",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "behavioral_timeline_facts",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "anonymousVisitorId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "timestampMs",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
             "collectionGroup": "security_events",
             "queryScope": "COLLECTION",
             "fields": [

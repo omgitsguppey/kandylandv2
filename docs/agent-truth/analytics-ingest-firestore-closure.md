@@ -1,7 +1,7 @@
 # Analytics Ingest Firestore Closure
 
-Generated: 2026-05-21T15:23:22.027Z
-Current code version: 13dc614b575932b3bc589acabe8cccb675a2f614
+Generated: 2026-07-14T05:39:31.790Z
+Current code version: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
 
 ## Summary
 

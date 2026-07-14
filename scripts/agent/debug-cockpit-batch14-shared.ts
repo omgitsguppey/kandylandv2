@@ -89,6 +89,16 @@ function arrayValue(value: unknown) {
   return Array.isArray(value) ? value : [];
 }
 
+export function resolveDuplicateNormalizerCount(report: JsonRecord | null) {
+  const categoryCounts = report?.categoryCounts;
+  if (!categoryCounts || typeof categoryCounts !== "object" || Array.isArray(categoryCounts)) {
+    return null;
+  }
+  const value = (categoryCounts as JsonRecord).duplicate_normalizer;
+  if (typeof value === "undefined") return 0;
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : null;
+}
+
 function packageScripts() {
   return (readJson("package.json") as { scripts?: Record<string, string> } | null)?.scripts ?? {};
 }
@@ -193,17 +203,18 @@ function openPrsClassified() {
 
 export function buildOrphanedLogicRefreshReport() {
   const report = readJson("agent/state/orphaned-logic-score.generated.json");
+  const duplicateNormalizerCount = resolveDuplicateNormalizerCount(report);
   const findings = arrayValue(report?.findings).map((finding) => {
     const record = finding as JsonRecord;
-    const category = stringValue(record.category);
     return {
       id: stringValue(record.id),
-      category,
+      category: stringValue(record.category),
       filePath: stringValue(record.filePath),
-      owner: category === "realtime_hot_cache" ? "admin-analytics" : "telemetry",
-      nextAction: category === "realtime_hot_cache"
-        ? "Classify the realtime listener under hot-cache doctrine before migration."
-        : "Classify drop preview events as telemetry aliases and preserve history.",
+      owner: stringValue(record.canonicalOwner, "owner_review_required"),
+      nextAction: stringValue(
+        record.suggestedFix,
+        "Assign the finding to a canonical owner before changing source.",
+      ),
     };
   });
   return {
@@ -214,6 +225,7 @@ export function buildOrphanedLogicRefreshReport() {
     statusBefore: "stale_orphaned_logic_artifact_to_refresh",
     statusAfter: "refreshed_current",
     sourceHeadMatchesCurrent: true,
+    duplicateNormalizerCount,
     findings,
     missingScriptTreatedAsPass: false,
   };
@@ -223,6 +235,7 @@ export function validateOrphanedLogicRefreshReport(report: ReturnType<typeof bui
   const failures: string[] = [];
   if (report.ageAfter > STALE_HOURS) failures.push("orphaned logic report remains stale.");
   if (!report.sourceHeadMatchesCurrent) failures.push("orphaned logic source head mismatch remains.");
+  if (report.duplicateNormalizerCount === null) failures.push("orphaned logic category counts are missing or malformed.");
   if (report.missingScriptTreatedAsPass) failures.push("missing script was treated as pass.");
   if (!report.findings.every((finding) => finding.owner && finding.nextAction)) failures.push("orphaned logic findings lack owner or next action.");
   if (packageScripts()["check:orphaned-logic"] !== "tsx scripts/agent/validate-orphaned-logic.ts") failures.push("check:orphaned-logic script is missing.");

@@ -133,7 +133,7 @@ function buildTemplateForm(action: string) {
   const form = new FormData();
   form.set("action", action);
   form.set("agreementVersion", "v2.0");
-  form.set("agreementTitle", "Creator Agreement v2");
+  form.set("agreementTitle", "Creator Agreement v2 \u2014 Cr\u00e8me \ud83c\udf6c");
   form.set("agreementSource", "native_full_text");
   return form;
 }
@@ -198,6 +198,7 @@ describe("/api/admin/creator-agreements", () => {
     expect(mockState.activateCreatorAgreementTemplate).toHaveBeenCalledWith(expect.objectContaining({
       template: expect.objectContaining({
         agreementVersion: "v2.0",
+        agreementTitle: "Creator Agreement v2 \u2014 Cr\u00e8me \ud83c\udf6c",
         agreementHash: buildDefaultCreatorAgreementTemplate().agreementHash,
       }),
       activatedByUid: "admin_1",
@@ -236,6 +237,47 @@ describe("/api/admin/creator-agreements", () => {
     expect(payload).toMatchObject({
       code: "invalid_admin_request",
     });
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("rejects honestly declared oversized multipart before agreement storage or state mutation", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/creator-agreements", {
+      method: "POST",
+      headers: {
+        "content-type": "multipart/form-data; boundary=bounded-agreement",
+        "content-length": String((12 * 1024 * 1024) + 16_385),
+      },
+      body: "--bounded-agreement--",
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      code: "payload_too_large",
+      retryable: false,
+    });
+    expect(mockState.saveCreatorAgreementTemplate).not.toHaveBeenCalled();
+    expect(mockState.activateCreatorAgreementTemplate).not.toHaveBeenCalled();
+    expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("returns a typed 400 for malformed multipart without agreement state mutation", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/creator-agreements", {
+      method: "POST",
+      headers: { "content-type": "multipart/form-data; boundary=broken" },
+      body: "not-a-valid-multipart-body",
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      code: "invalid_admin_request",
+      retryable: false,
+    });
+    expect(mockState.saveCreatorAgreementTemplate).not.toHaveBeenCalled();
+    expect(mockState.activateCreatorAgreementTemplate).not.toHaveBeenCalled();
+    expect(mockState.trackServerEvent).not.toHaveBeenCalled();
     expect(mockState.handleApiError).not.toHaveBeenCalled();
   });
 

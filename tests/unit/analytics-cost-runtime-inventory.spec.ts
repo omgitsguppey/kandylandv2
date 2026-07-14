@@ -82,6 +82,25 @@ describe("analytics cost runtime inventory", () => {
     expect(report.geminiCloudAssistFindings[0]?.status).not.toMatch(/\bpass(ed)?\b/iu);
   });
 
+  it("classifies the current event-triggered batch, permanent failure policy, and off-hot-path outbox from source", () => {
+    const report = buildAnalyticsCostRuntimeInventoryReport(inputsFixture({
+      sources: {
+        deepTracker: 'scheduleNonPriorityFlush(); flushQueue("batch");',
+        telemetry: 'shouldAdvanceGuestAnalyticsQueue(outcome); permanent_failure; return outcome.status !== "retryable_failure";',
+        analyticsIngestRoute: 'writeBehavioralTimelineProjection({ queueMode: "written_with_outbox" });',
+      },
+    }));
+
+    expect(report.cloudRunFindings.find((entry) => entry.id === "analytics-ingest-cloud-run-request-work")?.status)
+      .toBe("source_bounded_outbox_external_runtime_evidence_required");
+    expect(report.cloudRunFindings.find((entry) => entry.id === "guest-analytics-flush-cadence")?.status)
+      .toBe("source_bounded_event_triggered_15s_batch");
+    expect(report.retry4xxFindings.find((entry) => entry.id === "analytics-ingest-503-retryable")?.status)
+      .toBe("source_classifies_permanent_4xx_and_transient_retry");
+    expect(report.analyticsCadenceFindings.find((entry) => entry.id === "deeptracker-non-priority-cadence")?.status)
+      .toBe("source_bounded_event_triggered_guest_batch");
+  });
+
   it("fails validation when analytics cadence, 4xx retry, guest/user, or watch-time inventory is missing", () => {
     const report = buildAnalyticsCostRuntimeInventoryReport(inputsFixture());
     report.analyticsCadenceFindings = [];

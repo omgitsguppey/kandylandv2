@@ -36,10 +36,10 @@ export interface ImageLoadingPolicy {
     sizesPolicy: string;
 }
 
-const DROP_GRID_STANDARD_SIZES = "(max-width: 480px) 50vw, (max-width: 768px) 33vw, 240px";
-const DROP_GRID_WIDE_SIZES = "(max-width: 480px) 96vw, (max-width: 768px) 66vw, 720px";
-const FEATURED_CAROUSEL_SIZES = "(max-width: 768px) 100vw, 720px";
-const DROP_PREVIEW_SIZES = "(max-width: 640px) 64vw, 320px";
+const DROP_GRID_STANDARD_SIZES = "(max-width: 480px) 50vw, (max-width: 840px) 33vw, 240px";
+const DROP_GRID_WIDE_SIZES = "(max-width: 480px) 96vw, (max-width: 840px) 66vw, 720px";
+const FEATURED_CAROUSEL_SIZES = "(max-width: 840px) 100vw, 720px";
+const DROP_PREVIEW_SIZES = "(max-width: 600px) 64vw, 320px";
 const VIEWER_CONTENT_SIZES = "100vw";
 
 const BASE_SURFACE_POLICIES: Record<ImageLoadingSurface, Omit<ImageLoadingPolicy, "surface">> = {
@@ -74,7 +74,7 @@ const BASE_SURFACE_POLICIES: Record<ImageLoadingSurface, Omit<ImageLoadingPolicy
         loading: "lazy",
         preload: false,
         fetchPriority: "low",
-        sizes: "(max-width: 640px) 46vw, (max-width: 1024px) 38vw, 360px",
+        sizes: "(max-width: 600px) 46vw, (max-width: 960px) 38vw, 360px",
         quality: 74,
         lcpCandidate: false,
         sizesPolicy: "home-active-drops-carousel",
@@ -119,7 +119,7 @@ const BASE_SURFACE_POLICIES: Record<ImageLoadingSurface, Omit<ImageLoadingPolicy
         loading: "lazy",
         preload: false,
         fetchPriority: "low",
-        sizes: "(max-width: 768px) 100vw, 640px",
+        sizes: "(max-width: 840px) 100vw, 640px",
         quality: 72,
         lcpCandidate: false,
         sizesPolicy: "creator-updates-feed",

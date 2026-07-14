@@ -91,7 +91,7 @@ paidRoutes.forEach((route) => {
     "idempotencyKey",
     "buildCreatorExperienceIdempotencyKey",
     "buildCreatorExperienceRecordIds",
-    "readSourceAwareBalance",
+    "readPaidSourceBalanceForRestrictedSpend",
     "spendCreatorExperienceGumdrops",
     "buildSourceAwareBalancePatch",
     "buildCompletedGumdropTransaction",

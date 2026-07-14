@@ -4,6 +4,11 @@ type StoredDoc = Record<string, unknown>;
 
 const mockState = vi.hoisted(() => {
     const documents = new Map<string, StoredDoc>();
+    const storageMetadata = new Map<string, {
+        contentType?: string;
+        size?: string | number;
+        metadata?: Record<string, string>;
+    }>();
     let autoId = 0;
 
     const hasUndefinedValue = (value: unknown): boolean => {
@@ -82,15 +87,36 @@ const mockState = vi.hoisted(() => {
             return result;
         },
     };
+    const adminStorage = {
+        bucket() {
+            return {
+                name: "test-bucket.appspot.com",
+                file(path: string) {
+                    return {
+                        async getMetadata() {
+                            const metadata = storageMetadata.get(path);
+                            if (!metadata) {
+                                throw Object.assign(new Error("Storage object not found"), { code: 404 });
+                            }
+                            return [metadata];
+                        },
+                    };
+                },
+            };
+        },
+    };
 
     return {
         adminDb,
+        adminStorage,
         documents,
+        storageMetadata,
         trackServerEvent: vi.fn().mockResolvedValue(undefined),
         recordRouteWarning: vi.fn(),
         recordServerDiagnostic: vi.fn().mockResolvedValue(undefined),
         reset() {
             documents.clear();
+            storageMetadata.clear();
             autoId = 0;
             this.trackServerEvent.mockReset();
             this.trackServerEvent.mockResolvedValue(undefined);
@@ -104,6 +130,7 @@ const mockState = vi.hoisted(() => {
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/server/firebase-admin", () => ({
     adminDb: mockState.adminDb,
+    adminStorage: mockState.adminStorage,
 }));
 vi.mock("@/lib/server/analytics", () => ({
     trackServerEvent: mockState.trackServerEvent,
@@ -118,6 +145,7 @@ vi.mock("@/lib/server/server-diagnostics", () => ({
 
 import { buildChatThreadId, type ChatInsufficientFundsPayload } from "@/lib/chat";
 import { ChatClientError, sendChatMessageForViewer } from "@/lib/server/chat";
+import { buildChatAttachmentOperationIdentity } from "@/lib/server/creator-experiences";
 
 describe("sendChatMessageForViewer", () => {
     const creatorId = "creator_1";
@@ -271,6 +299,287 @@ describe("sendChatMessageForViewer", () => {
         expect(result.pricing).toMatchObject({
             purchasedBalanceGd: 1,
         });
+    });
+
+    it("persists only caller-owned attachments from the configured Firebase Storage bucket", async () => {
+        mockState.documents.set(`users/${userId}`, {
+            uid: userId,
+            role: "user",
+            displayName: "Fan One",
+            username: "fanone",
+            gumDropsBalance: 10,
+            gumDropsPurchasedBalance: 10,
+            gumDropsRewardBalance: 0,
+        });
+        const objectPath = `creator/messages/${userId}/${threadId}/upload_image.png`;
+        const assetUrl = `https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/${encodeURIComponent(objectPath)}?alt=media&token=test`;
+        const attachmentOperation = buildChatAttachmentOperationIdentity({
+            userId,
+            creatorId,
+            callerUid: userId,
+            threadId,
+            clientKey: "owned-attachment-1",
+            storagePath: objectPath,
+        });
+        mockState.storageMetadata.set(objectPath, {
+            contentType: "image/png",
+            size: "4096",
+            metadata: {
+                chatAttachmentFinalized: "true",
+                chatAttachmentOperationId: attachmentOperation.operationId,
+            },
+        });
+        mockState.documents.set(`operation_idempotency/${attachmentOperation.operationId}`, {
+            ...attachmentOperation,
+            status: "finalized",
+        });
+
+        const result = await sendChatMessageForViewer({
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            messageKind: "image",
+            assetUrl,
+            assetName: "image.png",
+            assetMimeType: "image/png",
+            idempotencyKey: "owned-attachment-1",
+        });
+
+        expect(result.message).toMatchObject({
+            messageKind: "image",
+            assetUrl,
+            assetName: "image.png",
+            assetMimeType: "image/png",
+        });
+        expect(mockState.documents.get(`operation_idempotency/${attachmentOperation.operationId}`)).toMatchObject({
+            status: "attached",
+            attachedMessageId: result.message.id,
+        });
+        expect(mockState.documents.has(`creator_messages/${result.message.id}`)).toBe(true);
+
+        const attachedLifecycle = { ...mockState.documents.get(`operation_idempotency/${attachmentOperation.operationId}`) };
+        mockState.storageMetadata.delete(objectPath);
+        mockState.documents.set(`users/${creatorId}`, {
+            uid: creatorId,
+            role: "creator",
+            status: "suspended",
+            creatorSettings: { messagingEnabled: false },
+            creatorRestrictions: { messagingRestricted: true },
+        });
+        mockState.documents.set(`users/${userId}`, {
+            uid: userId,
+            role: "user",
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+        });
+        const replay = await sendChatMessageForViewer({
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            messageKind: "image",
+            assetUrl,
+            assetName: "image.png",
+            assetMimeType: "image/png",
+            idempotencyKey: "owned-attachment-1",
+        });
+        expect(replay.duplicatePrevented).toBe(true);
+        expect(mockState.documents.get(`operation_idempotency/${attachmentOperation.operationId}`)).toEqual(attachedLifecycle);
+
+        const conflictingObjectPath = `creator/messages/${userId}/${threadId}/different_image.png`;
+        const conflictingAssetUrl = `https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/${encodeURIComponent(conflictingObjectPath)}?alt=media&token=test`;
+        mockState.storageMetadata.set(conflictingObjectPath, {
+            contentType: "image/png",
+            size: "4096",
+            metadata: {
+                chatAttachmentFinalized: "true",
+                chatAttachmentOperationId: attachmentOperation.operationId,
+            },
+        });
+        await expect(sendChatMessageForViewer({
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            messageKind: "image",
+            assetUrl: conflictingAssetUrl,
+            assetName: "different.png",
+            assetMimeType: "image/png",
+            idempotencyKey: "owned-attachment-1",
+        })).rejects.toMatchObject({
+            status: 409,
+            body: expect.objectContaining({ errorCode: "idempotency_conflict" }),
+        });
+        expect(mockState.documents.get(`operation_idempotency/${attachmentOperation.operationId}`)).toEqual(attachedLifecycle);
+    });
+
+    it("does not persist an attachment after cancellation wins the lifecycle transaction", async () => {
+        mockState.documents.set(`users/${userId}`, {
+            uid: userId,
+            role: "user",
+            displayName: "Fan One",
+            username: "fanone",
+            gumDropsBalance: 10,
+            gumDropsPurchasedBalance: 10,
+            gumDropsRewardBalance: 0,
+        });
+        const objectPath = `creator/messages/${userId}/${threadId}/canceled_image.png`;
+        const assetUrl = `https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/${encodeURIComponent(objectPath)}?alt=media&token=test`;
+        const attachmentOperation = buildChatAttachmentOperationIdentity({
+            userId,
+            creatorId,
+            callerUid: userId,
+            threadId,
+            clientKey: "canceled-attachment-1",
+            storagePath: objectPath,
+        });
+        mockState.storageMetadata.set(objectPath, {
+            contentType: "image/png",
+            size: "4096",
+            metadata: {
+                chatAttachmentFinalized: "true",
+                chatAttachmentOperationId: attachmentOperation.operationId,
+            },
+        });
+        mockState.documents.set(`operation_idempotency/${attachmentOperation.operationId}`, {
+            ...attachmentOperation,
+            status: "canceled",
+        });
+
+        await expect(sendChatMessageForViewer({
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            messageKind: "image",
+            assetUrl,
+            assetName: "image.png",
+            assetMimeType: "image/png",
+            idempotencyKey: "canceled-attachment-1",
+        })).rejects.toMatchObject({
+            status: 409,
+            body: expect.objectContaining({ errorCode: "attachment_canceled" }),
+        });
+        expect(mockState.documents.has(`creator_messages/${attachmentOperation.messageId}`)).toBe(false);
+    });
+
+    it.each([
+        {
+            label: "a missing object",
+            metadata: null,
+        },
+        {
+            label: "unfinalized metadata",
+            metadata: { contentType: "image/png", size: "4096", metadata: {} as Record<string, string> },
+        },
+        {
+            label: "a mismatched stored content type",
+            metadata: { contentType: "video/mp4", size: "4096", metadata: { chatAttachmentFinalized: "true" } },
+        },
+        {
+            label: "an oversized object",
+            metadata: { contentType: "image/png", size: String((25 * 1024 * 1024) + 1), metadata: { chatAttachmentFinalized: "true" } },
+        },
+    ])("rejects $label before attachment persistence", async ({ metadata }) => {
+        mockState.documents.set(`users/${userId}`, {
+            uid: userId,
+            role: "user",
+            displayName: "Fan One",
+            username: "fanone",
+            gumDropsBalance: 10,
+            gumDropsPurchasedBalance: 10,
+            gumDropsRewardBalance: 0,
+        });
+        const objectPath = `creator/messages/${userId}/${threadId}/forged_image.png`;
+        const assetUrl = `https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/${encodeURIComponent(objectPath)}?alt=media&token=test`;
+        if (metadata) {
+            mockState.storageMetadata.set(objectPath, metadata);
+        }
+
+        await expect(sendChatMessageForViewer({
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            messageKind: "image",
+            assetUrl,
+            assetName: "image.png",
+            assetMimeType: "image/png",
+            idempotencyKey: "forged-attachment-1",
+        })).rejects.toMatchObject({
+            status: 400,
+            body: expect.objectContaining({
+                errorCode: "invalid_attachment",
+            }),
+        });
+
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("creator_messages/"))).toHaveLength(0);
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it.each([
+        {
+            label: "a script URL",
+            assetUrl: "javascript:alert(1)",
+            messageKind: "image" as const,
+            assetMimeType: "image/png",
+        },
+        {
+            label: "an arbitrary HTTPS host",
+            assetUrl: `https://example.com/creator/messages/${userId}/${threadId}/image.png`,
+            messageKind: "image" as const,
+            assetMimeType: "image/png",
+        },
+        {
+            label: "a different Firebase bucket",
+            assetUrl: `https://firebasestorage.googleapis.com/v0/b/other-bucket.appspot.com/o/${encodeURIComponent(`creator/messages/${userId}/${threadId}/image.png`)}?alt=media`,
+            messageKind: "image" as const,
+            assetMimeType: "image/png",
+        },
+        {
+            label: "another user's storage path",
+            assetUrl: `https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/${encodeURIComponent(`creator/messages/other_user/${threadId}/image.png`)}?alt=media`,
+            messageKind: "image" as const,
+            assetMimeType: "image/png",
+        },
+        {
+            label: "a mismatched attachment type",
+            assetUrl: `https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/${encodeURIComponent(`creator/messages/${userId}/${threadId}/image.png`)}?alt=media`,
+            messageKind: "image" as const,
+            assetMimeType: "text/html",
+        },
+    ])("rejects $label before persistence", async ({ assetUrl, messageKind, assetMimeType }) => {
+        mockState.documents.set(`users/${userId}`, {
+            uid: userId,
+            role: "user",
+            displayName: "Fan One",
+            username: "fanone",
+            gumDropsBalance: 10,
+            gumDropsPurchasedBalance: 10,
+            gumDropsRewardBalance: 0,
+        });
+
+        await expect(sendChatMessageForViewer({
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            messageKind,
+            assetUrl,
+            assetName: "image.png",
+            assetMimeType,
+            idempotencyKey: "invalid-attachment-1",
+        })).rejects.toMatchObject({
+            status: 400,
+            body: expect.objectContaining({
+                errorCode: "invalid_attachment",
+            }),
+        });
+
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("creator_messages/"))).toHaveLength(0);
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
     });
 
     it("preserves existing read-state fields in the immediate returned thread", async () => {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
@@ -16,6 +17,8 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+
+const COMPLETE_ONBOARDING_BODY_LIMIT_BYTES = 32_768;
 
 type OnboardingFactWrite = {
     key: string;
@@ -36,7 +39,11 @@ async function POST_handler(req: NextRequest) {
         }
 
         const { uid } = caller;
-        const body = await req.json().catch(() => ({}));
+        const body = await readBoundedJsonBody<Record<string, unknown>>(req, {
+            maxBytes: COMPLETE_ONBOARDING_BODY_LIMIT_BYTES,
+            routeName: "user/complete-onboarding",
+            allowEmpty: true,
+        });
         const startedAtMs = Math.max(0, toOnboardingNumber(body?.startedAtMs));
         const durationMs = typeof body?.durationMs === "number" && Number.isFinite(body.durationMs) && body.durationMs > 0
             ? Math.max(0, Math.round(body.durationMs))
@@ -286,6 +293,14 @@ async function POST_handler(req: NextRequest) {
             newBalance: result.newBalance,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "User.CompleteOnboarding");
     }
 }

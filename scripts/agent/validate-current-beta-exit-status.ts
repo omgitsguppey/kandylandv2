@@ -168,6 +168,7 @@ const uiSurfaceCoverageRelativePath = "agent/state/ui-visual-smoke-minimal.gener
 const providerSmokeEvidenceRelativePath = "agent/state/provider-smoke-evidence.generated.json";
 const runtimeSmokeEvidenceRelativePath = "agent/state/runtime-smoke-evidence.generated.json";
 const adminTruthSampleEvidenceRelativePath = "agent/state/admin-truth-sample-evidence.generated.json";
+const speedSecurityRelativePath = "agent/state/speed-security-hardening.generated.json";
 const currentBetaExitOwnedInputPaths = [
   "scripts/agent/validate-current-beta-exit-status.ts",
   "src/lib/agent-score",
@@ -178,6 +179,7 @@ const currentBetaExitOwnedInputPaths = [
   providerSmokeEvidenceRelativePath,
   runtimeSmokeEvidenceRelativePath,
   adminTruthSampleEvidenceRelativePath,
+  speedSecurityRelativePath,
 ] as const;
 const uiSurfaceCoverageOwnedInputPaths = [
   "agent/index/ui-surface-coverage.json",
@@ -397,6 +399,7 @@ function hasProofLaneArtifactDrift(report: CurrentBetaExitStatusReport, head: st
 
 function hasBetaScoreArtifactDrift(report: CurrentBetaExitStatusReport) {
   const beta = readJson("agent/state/public-beta-score.generated.json");
+  const speedSecurity = readJson(speedSecurityRelativePath);
   if (!beta) return false;
   return numberValue(beta.overallScore, report.summary.betaScore) !== report.summary.betaScore
     || numberValue(beta.healthScore, report.summary.healthScore) !== report.summary.healthScore
@@ -405,7 +408,23 @@ function hasBetaScoreArtifactDrift(report: CurrentBetaExitStatusReport) {
     || numberValue(beta.evidenceCompletenessScore, report.summary.evidenceCompletenessScore) !== report.summary.evidenceCompletenessScore
     || numberValue(beta.freshnessScore, report.summary.freshnessScore) !== report.summary.freshnessScore
     || stringValue(beta.readinessStatus, report.summary.betaStatus) !== report.summary.betaStatus
-    || stringValue(beta.launchGateStatus, report.summary.launchGateStatus) !== report.summary.launchGateStatus;
+    || stringValue(beta.launchGateStatus, report.summary.launchGateStatus) !== report.summary.launchGateStatus
+    || speedSecurityStatusFromArtifact(speedSecurity, report.summary.speedSecurityStatus) !== report.summary.speedSecurityStatus;
+}
+
+export function speedSecurityStatusFromArtifact(
+  artifact: Record<string, unknown> | null,
+  fallback: string,
+) {
+  if (!artifact) return fallback;
+  const score = artifact.overallScore;
+  const status = artifact.overallStatus;
+  if (typeof score !== "number" || !Number.isFinite(score) || typeof status !== "string" || !status.trim()) {
+    return fallback;
+  }
+  const findings = Array.isArray(artifact.findings) ? artifact.findings.length : 0;
+  const critical = Array.isArray(artifact.criticalFindings) ? artifact.criticalFindings.length : 0;
+  return `${score}/${status.trim()}; findings=${findings}; critical=${critical}`;
 }
 
 function hasUiSourceBlockerContradiction(report: CurrentBetaExitStatusReport) {
@@ -686,6 +705,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
   const provider = readJson(providerSmokeEvidenceRelativePath);
   const runtime = readJson(runtimeSmokeEvidenceRelativePath);
   const admin = readJson(adminTruthSampleEvidenceRelativePath);
+  const speedSecurity = readJson(speedSecurityRelativePath);
   const operator = readOperatorRevenueSmoke();
   const captureSummary = evidenceCapture?.summary ?? {};
   const generatedAtUtc = new Date().toISOString();
@@ -745,6 +765,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     operatorRevenueSmokeNote: normalizeTechnicalFreshnessTerms(operator?.plainLanguageNote
       ?? "Operator-confirmed GumDrop revenue smoke was recorded. Provider source evidence is still separate."),
     liveRuntimeEvidenceStatus,
+    speedSecurityStatus: speedSecurityStatusFromArtifact(speedSecurity, report.summary.speedSecurityStatus),
     betaExitReviewState: betaExitReviewStateFor({
       launchGateStatus,
       liveRuntimeEvidenceStatus,

@@ -1,17 +1,17 @@
 {
   "reportKey": "individual-user-metric-truth",
-  "generatedAtUtc": "2026-07-03T06:50:05.402Z",
-  "currentHead": "dc413affae8c5a51c2bb7244dbf01bdca3ade7f5",
+  "generatedAtUtc": "2026-07-14T09:54:07.339Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",
-  "individualMetricHydrationStatus": "classified",
-  "globalVsUserMismatchCount": 3,
-  "activeGlobalVsUserMismatchCount": 0,
+  "individualMetricHydrationStatus": "review",
+  "globalVsUserMismatchCount": 4,
+  "activeGlobalVsUserMismatchCount": 1,
   "classifiedNonBlockingMismatchCount": 3,
   "expectedNoUserMappingCount": 3,
-  "missingIdentityLinkCount": 0,
-  "unsafeUnknownMismatchCount": 0,
+  "missingIdentityLinkCount": 1,
+  "unsafeUnknownMismatchCount": 1,
   "duplicateSuppressionCount": 0,
   "unknownLegacyIdentityCount": 0,
   "analyticAlgorithmsAudited": 5,
@@ -27,7 +27,8 @@
   "scoreBefore": 76.61,
   "scoreAfter": 76.61,
   "remainingGaps": [
-    "global_without_user_mapping"
+    "global_without_user_mapping",
+    "identity_link_missing"
   ],
   "nextExactSteps": [
     "Keep user-level panel proof separate from global activity proof.",

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
+import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Loader2, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
 
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
@@ -15,7 +15,13 @@ import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-sc
 import { getMobileSkeletonClass } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import { cn } from "@/lib/utils";
 import { resolveCreatorPricing } from "@/lib/creator-settings/creator-pricing-resolver";
-import type { CreatorSettingsCompletion, CreatorSettingsControlPlane, CreatorSettingsSectionId, CreatorSettingsUserFacingImpact } from "@/lib/creator-settings/creator-settings-contract";
+import {
+  pickCreatorSettingsControlPlaneSection,
+  type CreatorSettingsCompletion,
+  type CreatorSettingsControlPlane,
+  type CreatorSettingsSectionId,
+  type CreatorSettingsUserFacingImpact,
+} from "@/lib/creator-settings/creator-settings-contract";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { CreatorBroadcastManager } from "@/components/Creators/CreatorBroadcastManager";
@@ -280,15 +286,42 @@ export function CreatorDashboardSettingsHub() {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [reloadNonce, setReloadNonce] = useState(0);
   const dashboardRequestIdRef = useRef(0);
+  const savingSectionRef = useRef<CreatorSettingsSectionId | null>(null);
+  const settingsSurfaceGenerationRef = useRef({ identity: "", generation: 0 });
+  const loadedSettingsSurfaceIdentityRef = useRef<string | null>(null);
 
   const creatorId = viewAsState?.adminViewingAsUserId || userProfile?.uid || "";
   const creatorName = viewAsState?.adminViewingAsDisplayName || userProfile?.displayName || "Creator";
   const query = useMemo(() => (viewAsState?.adminViewingAsUserId ? `?creatorId=${encodeURIComponent(viewAsState.adminViewingAsUserId)}` : ""), [viewAsState?.adminViewingAsUserId]);
   const isCreatorOrProjection = Boolean(viewAsState || userProfile?.role === "creator");
   const canLoadCreatorDashboard = Boolean(user?.uid && creatorId && isCreatorOrProjection);
+  const settingsSurfaceIdentity = JSON.stringify([
+    user?.uid ?? "signed-out",
+    creatorId || "no-creator",
+    viewAsState ? "projection" : "own-account",
+    viewAsState?.viewAsActorUid ?? "",
+    viewAsState?.simulationStartedAt ?? "",
+  ]);
+  if (settingsSurfaceGenerationRef.current.identity !== settingsSurfaceIdentity) {
+    settingsSurfaceGenerationRef.current = {
+      identity: settingsSurfaceIdentity,
+      generation: settingsSurfaceGenerationRef.current.generation + 1,
+    };
+  }
+  const settingsSurfaceGeneration = settingsSurfaceGenerationRef.current.generation;
+  const settingsBelongToCurrentSurface = loadedSettingsSurfaceIdentityRef.current === settingsSurfaceIdentity;
+  const currentSurfaceSettings = settingsBelongToCurrentSurface ? settings : null;
+
+  useEffect(() => {
+    savingSectionRef.current = null;
+    setSavingSection(null);
+    setSettingsSaveError(null);
+    setOpenSection(null);
+  }, [settingsSurfaceGeneration]);
 
   useEffect(() => {
     if (!canLoadCreatorDashboard) {
+      loadedSettingsSurfaceIdentityRef.current = null;
       setSettings(null);
       setDraftSettings(null);
       setSettingsError(null);
@@ -299,6 +332,7 @@ export function CreatorDashboardSettingsHub() {
     let cancelled = false;
     const requestId = dashboardRequestIdRef.current + 1;
     dashboardRequestIdRef.current = requestId;
+    loadedSettingsSurfaceIdentityRef.current = null;
     async function load() {
       try {
         setLoading(true);
@@ -322,16 +356,19 @@ export function CreatorDashboardSettingsHub() {
             },
           });
           if (!cancelled && dashboardRequestIdRef.current === requestId) {
+            loadedSettingsSurfaceIdentityRef.current = settingsSurfaceIdentity;
             setSettingsError(resolved);
           }
           return;
         }
         if (!cancelled && dashboardRequestIdRef.current === requestId) {
+          loadedSettingsSurfaceIdentityRef.current = settingsSurfaceIdentity;
           setSettings(body);
           setDraftSettings(body.settings ?? null);
         }
       } catch (loadError) {
         if (!cancelled && dashboardRequestIdRef.current === requestId) {
+          loadedSettingsSurfaceIdentityRef.current = settingsSurfaceIdentity;
           setSettingsError(resolveClientActionError(loadError, {
             surface: "creator_dashboard",
             route: "/api/creator/settings",
@@ -353,10 +390,10 @@ export function CreatorDashboardSettingsHub() {
     return () => {
       cancelled = true;
     };
-  }, [canLoadCreatorDashboard, creatorId, query, reloadNonce]);
+  }, [canLoadCreatorDashboard, creatorId, query, reloadNonce, settingsSurfaceIdentity]);
 
   useEffect(() => {
-    if (!isCreatorOrProjection) {
+    if (!isCreatorOrProjection || !settingsBelongToCurrentSurface || !currentSurfaceSettings) {
       return;
     }
 
@@ -366,7 +403,7 @@ export function CreatorDashboardSettingsHub() {
       target_creator_id: creatorId,
       section: "dashboard",
       source_component: "CreatorDashboardSettingsHub",
-      truth_state: settings?.projection?.readOnly ? "blocked" : "live",
+      truth_state: currentSurfaceSettings?.projection?.readOnly ? "blocked" : "live",
     });
     trackEvent("settings_surface_viewed", {
       actor_role: userProfile?.role || "creator",
@@ -375,19 +412,21 @@ export function CreatorDashboardSettingsHub() {
       section: "creator",
       settings_surface: "creator",
       source_component: "CreatorDashboardSettingsHub",
-      truth_state: settings?.projection?.readOnly ? "blocked" : "source_ready",
+      truth_state: currentSurfaceSettings?.projection?.readOnly ? "blocked" : "source_ready",
     });
-  }, [creatorId, isCreatorOrProjection, settings?.projection?.readOnly, userProfile?.role]);
+  }, [creatorId, currentSurfaceSettings, isCreatorOrProjection, settingsBelongToCurrentSurface, userProfile?.role]);
 
-  const stats = settings?.stats ?? null;
-  const statsEvidence = settings?.statsEvidence ?? null;
-  const settingsState = settings?.settingsState ?? (settings?.creatorSettings ? "configured" : "not_configured");
-  const creatorSettings = (settings?.creatorSettings ?? {}) as Record<string, unknown>;
-  const controlPlaneSettings = draftSettings ?? settings?.settings ?? null;
-  const settingsCompletion = settings?.settingsCompletion ?? null;
-  const creatorRestrictions = (settings?.creatorRestrictions ?? {}) as Record<string, unknown>;
+  const stats = currentSurfaceSettings?.stats ?? null;
+  const statsEvidence = currentSurfaceSettings?.statsEvidence ?? null;
+  const settingsState = currentSurfaceSettings?.settingsState ?? (currentSurfaceSettings?.creatorSettings ? "configured" : "not_configured");
+  const creatorSettings = (currentSurfaceSettings?.creatorSettings ?? {}) as Record<string, unknown>;
+  const controlPlaneSettings = settingsBelongToCurrentSurface
+    ? draftSettings ?? currentSurfaceSettings?.settings ?? null
+    : null;
+  const settingsCompletion = currentSurfaceSettings?.settingsCompletion ?? null;
+  const creatorRestrictions = (currentSurfaceSettings?.creatorRestrictions ?? {}) as Record<string, unknown>;
   const sourceReviewNotice = useMemo(() => {
-    if (!settings || settingsError) {
+    if (!currentSurfaceSettings || settingsError) {
       return null;
     }
     if (settingsState === "not_configured" || statsEvidence?.issues?.includes("creator_settings_not_configured")) {
@@ -405,7 +444,7 @@ export function CreatorDashboardSettingsHub() {
       };
     }
     return null;
-  }, [settings, settingsError, settingsState, statsEvidence?.issues, statsEvidence?.sourceTruth]);
+  }, [currentSurfaceSettings, settingsError, settingsState, statsEvidence?.issues, statsEvidence?.sourceTruth]);
   const availabilityWindows = Array.isArray(creatorSettings.availabilityWindows) ? creatorSettings.availabilityWindows : [];
   const creatorPricing = resolveCreatorPricing(creatorSettings, {
     bookingServiceType: "video",
@@ -444,7 +483,7 @@ export function CreatorDashboardSettingsHub() {
     : fanPassEnabled && subscriptionPriceGd > 0
       ? "subscriber_visibility"
       : "configuration_only";
-  const isReadOnlyProjection = settings?.projection?.readOnly === true;
+  const isReadOnlyProjection = currentSurfaceSettings?.projection?.readOnly === true;
   const publicProfileHref = buildCreatorPublicHref({
     creatorId,
     creatorUsername: typeof userProfile?.username === "string" ? userProfile.username : "",
@@ -461,19 +500,34 @@ export function CreatorDashboardSettingsHub() {
   };
 
   const saveSettingsSection = async (section: CreatorSettingsSectionId) => {
-    if (!controlPlaneSettings || isReadOnlyProjection) {
+    if (
+      !controlPlaneSettings
+      || !settingsBelongToCurrentSurface
+      || isReadOnlyProjection
+      || savingSectionRef.current !== null
+    ) {
       return;
     }
 
+    savingSectionRef.current = section;
+    const saveSurfaceGeneration = settingsSurfaceGenerationRef.current.generation;
+    const submittedDraftSettings = controlPlaneSettings;
+    const submittedSectionSettings = pickCreatorSettingsControlPlaneSection(submittedDraftSettings, section);
+    const isCurrentSaveSurface = () => (
+      settingsSurfaceGenerationRef.current.generation === saveSurfaceGeneration
+    );
     try {
       setSavingSection(section);
       setSettingsSaveError(null);
       const response = await authFetch("/api/creator/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settings: controlPlaneSettings }),
+        body: JSON.stringify({ settings: submittedSectionSettings }),
       });
       const body = await response.json().catch(() => ({})) as CreatorSettingsResponse & { message?: string; errors?: string[] };
+      if (!isCurrentSaveSurface()) {
+        return;
+      }
       if (!response.ok) {
         const message = Array.isArray(body.errors) && body.errors.length > 0
           ? body.errors.join(" ")
@@ -497,7 +551,14 @@ export function CreatorDashboardSettingsHub() {
         ...(current ?? {}),
         ...body,
       }));
-      setDraftSettings(body.settings ?? controlPlaneSettings);
+      setDraftSettings((current) => (
+        current === submittedDraftSettings && body.settings
+          ? {
+              ...current,
+              ...pickCreatorSettingsControlPlaneSection(body.settings, section),
+            }
+          : current
+      ));
       trackEvent("creator_settings_control_plane_saved", {
         actor_role: userProfile?.role || "creator",
         creator_id: creatorId,
@@ -527,6 +588,9 @@ export function CreatorDashboardSettingsHub() {
         truth_state: "creator_settings_doc",
       });
     } catch {
+      if (!isCurrentSaveSurface()) {
+        return;
+      }
       setSettingsSaveError("Creator settings could not be saved. Try again.");
       trackEvent("setting_save_failed", {
         actor_role: userProfile?.role || "creator",
@@ -540,7 +604,10 @@ export function CreatorDashboardSettingsHub() {
         failure_code: "network_or_unknown",
       });
     } finally {
-      setSavingSection(null);
+      if (isCurrentSaveSurface() && savingSectionRef.current === section) {
+        savingSectionRef.current = null;
+        setSavingSection(null);
+      }
     }
   };
 
@@ -785,7 +852,7 @@ export function CreatorDashboardSettingsHub() {
     );
   }
 
-  if (loading) {
+  if (loading || !settingsBelongToCurrentSurface) {
     return (
       <div
         className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
@@ -798,6 +865,41 @@ export function CreatorDashboardSettingsHub() {
           {[0, 1, 2, 3].map((item) => (
             <div key={item} className={creatorSettingsCardSkeletonClassName} data-mobile-skeleton={`creator-settings-card-${item}`} />
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (settingsError || !currentSurfaceSettings) {
+    return (
+      <div
+        className="mx-auto w-full max-w-4xl px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
+        data-creator-settings-source-state="unavailable"
+        data-mobile-density="compact"
+        data-mobile-sprawl-guard="true"
+      >
+        <div className={cn(creatorManagerModuleClassName, "bg-black/50")}>
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Creator dashboard settings</p>
+          <h1 className="mt-1 text-xl font-black text-white sm:text-2xl">Manage creator operations</h1>
+          {settingsError ? (
+            <HumanErrorNotice
+              descriptor={settingsError.descriptor}
+              compact
+              className="mt-3"
+              onPrimaryAction={handleSettingsErrorPrimaryAction}
+              onSubmitBug={() => settingsBugReporter.submit(settingsError.descriptor, buildBugReportContext({
+                descriptor: settingsError.descriptor,
+                route: "/api/creator/settings",
+                previousRoute: getSafePreviousRoute(),
+                extra: {
+                  manager: "creator_settings",
+                  surface: "creator_dashboard",
+                  route: "/api/creator/settings",
+                  errorKey: settingsError.descriptor.errorKey,
+                },
+              }))}
+            />
+          ) : null}
         </div>
       </div>
     );
@@ -826,25 +928,6 @@ export function CreatorDashboardSettingsHub() {
             <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Read-only projection</span>
           ) : null}
         </div>
-        {settingsError ? (
-          <HumanErrorNotice
-            descriptor={settingsError.descriptor}
-            compact
-            className="mt-3"
-            onPrimaryAction={handleSettingsErrorPrimaryAction}
-            onSubmitBug={() => settingsBugReporter.submit(settingsError.descriptor, buildBugReportContext({
-              descriptor: settingsError.descriptor,
-              route: "/api/creator/settings",
-              previousRoute: getSafePreviousRoute(),
-              extra: {
-                manager: "creator_settings",
-                surface: "creator_dashboard",
-                route: "/api/creator/settings",
-                errorKey: settingsError.descriptor.errorKey,
-              },
-            }))}
-          />
-        ) : null}
         {!settingsError && sourceReviewNotice ? (
           <div
             className="mt-3 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100 sm:text-sm"
@@ -913,8 +996,8 @@ export function CreatorDashboardSettingsHub() {
                   className="min-h-20 resize-y rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
                 />
               </label>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "profile_basics" ? "Saving..." : "Save profile"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "profile_basics" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save profile"}
               </button>
             </div>
 
@@ -936,8 +1019,8 @@ export function CreatorDashboardSettingsHub() {
                   />
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "fan_pass" ? "Saving..." : "Save Fan Pass"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "fan_pass" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save Fan Pass"}
               </button>
             </div>
 
@@ -952,8 +1035,8 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Enable live time" checked={controlPlaneSettings.callsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callsEnabled", value)} />
                 <NumberControl label="Call price per minute GD" value={controlPlaneSettings.callPriceGd} min={500} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callPriceGd", value)} />
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "gumdrop_experiences" ? "Saving..." : "Save experiences"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "gumdrop_experiences" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save experiences"}
               </button>
             </div>
 
@@ -978,8 +1061,8 @@ export function CreatorDashboardSettingsHub() {
                   </select>
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "broadcasts" ? "Saving..." : "Save broadcasts"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "broadcasts" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save broadcasts"}
               </button>
             </div>
 
@@ -994,8 +1077,8 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Show broadcasts" checked={controlPlaneSettings.showBroadcastsOnTimeline} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("showBroadcastsOnTimeline", value)} />
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-400">Drop approval, public discovery, and rotation stay admin-only.</p>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
-                {savingSection === "timeline" ? "Saving..." : "Save timeline"}
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "timeline" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save timeline"}
               </button>
             </div>
           </div>

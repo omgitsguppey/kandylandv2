@@ -13,6 +13,8 @@ import { toAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+import { buildAdminInvalidRequestResponse } from "@/lib/server/admin-route-errors";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { BUILT_IN_DAILY_TASK_MAP } from "@/lib/tasks/task-catalog";
 import { getDropReferenceMap } from "@/lib/server/drop-references";
@@ -78,12 +80,17 @@ import {
 } from "@/lib/watch-time-rollup-contract";
 
 const ADMIN_USERS_LIST_LIMIT = 500;
+const ADMIN_USERS_BODY_LIMIT_BYTES = 64_000;
 const ADMIN_USERS_DAILY_ROLLUP_LIMIT = 1_000;
 const ADMIN_USERS_WATCH_SESSION_LIMIT = 500;
 const ADMIN_USERS_CREATOR_OPS_LIMIT = 500;
 const ADMIN_USERS_PENDING_DROP_LIMIT = 200;
 const ADMIN_USERS_EVENT_FACT_RECOVERY_LIMIT = 1_000;
 const ADMIN_USERS_DEFAULT_MODE = "summary";
+
+function isAdminUsersRequestRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
 
 type AdminUsersKpiFreshness = AdminUsersKpiCard["freshnessState"];
 
@@ -947,21 +954,15 @@ function buildAdminUsersActor(input: {
 async function readAggregateCount(query: unknown): Promise<number> {
   const maybeCount = query as {
     count?: () => { get: () => Promise<{ data: () => { count?: unknown } }> };
-    get?: () => Promise<{ docs?: unknown[] }>;
   };
 
-  if (typeof maybeCount.count === "function") {
-    const snapshot = await maybeCount.count().get();
-    const count = snapshot.data().count;
-    return typeof count === "number" && Number.isFinite(count) ? count : 0;
+  if (typeof maybeCount.count !== "function") {
+    throw new Error("Firestore aggregate count is unavailable.");
   }
 
-  if (typeof maybeCount.get === "function") {
-    const snapshot = await maybeCount.get();
-    return Array.isArray(snapshot.docs) ? snapshot.docs.length : 0;
-  }
-
-  return 0;
+  const snapshot = await maybeCount.count().get();
+  const count = snapshot.data().count;
+  return typeof count === "number" && Number.isFinite(count) ? count : 0;
 }
 
 async function readAdminUsersFastSummarySnapshot() {
@@ -1337,7 +1338,7 @@ async function GET_handler(request: NextRequest) {
     if (mode === "detail") {
       const userId = readStringValue(request.nextUrl.searchParams.get("userId"));
       if (!userId) {
-        return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+        return buildAdminInvalidRequestResponse("Missing userId");
       }
 
       const [userSnap, analyticsSnap, userDailySnapshot, watchSessionsSnapshot] = await Promise.all([
@@ -1599,7 +1600,12 @@ async function GET_handler(request: NextRequest) {
         return;
       }
 
-      watchSessionsByUser.set(userId, [...(watchSessionsByUser.get(userId) ?? []), raw]);
+      const existingSessions = watchSessionsByUser.get(userId);
+      if (existingSessions) {
+        existingSessions.push(raw);
+      } else {
+        watchSessionsByUser.set(userId, [raw]);
+      }
     });
     const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
 
@@ -2392,10 +2398,19 @@ async function PUT_handler(request: NextRequest) {
       auth: "admin",
     });
 
-    const { userId, updates } = await request.json();
+    const rawBody = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: ADMIN_USERS_BODY_LIMIT_BYTES,
+      routeName: "admin/users",
+      allowEmpty: false,
+    });
+    if (!isAdminUsersRequestRecord(rawBody)) {
+      return buildAdminInvalidRequestResponse("Request body must be a JSON object");
+    }
+    const userId = typeof rawBody.userId === "string" ? rawBody.userId : undefined;
+    const updates = isAdminUsersRequestRecord(rawBody.updates) ? rawBody.updates : undefined;
 
     if (!userId || !updates) {
-      return NextResponse.json({ error: "Missing userId or updates" }, { status: 400 });
+      return buildAdminInvalidRequestResponse("Missing userId or updates");
     }
 
     const allowedFields = ["role", "isVerified", "status", "statusReason"];
@@ -2417,7 +2432,7 @@ async function PUT_handler(request: NextRequest) {
     }
 
     if (Object.keys(sanitized).length === 0 && !creatorApplicationPatch) {
-      return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+      return buildAdminInvalidRequestResponse("No valid fields to update");
     }
 
     const isOwnerActor = isCreatorOwnerEmail(authResult?.email);
@@ -2719,9 +2734,9 @@ async function PUT_handler(request: NextRequest) {
               },
             });
 
-            return NextResponse.json({
-              error: "Creator role cannot be activated until intro acknowledgment, ID verification, and agreement signatures are complete.",
-            }, { status: 400 });
+            return buildAdminInvalidRequestResponse(
+              "Creator role cannot be activated until intro acknowledgment, ID verification, and agreement signatures are complete.",
+            );
           }
 
           if (readUserRole(userData.role) !== "creator") {
@@ -2796,12 +2811,20 @@ async function PUT_handler(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        retryable: false,
+      }, { status: error.status });
+    }
     if (error instanceof InvalidCreatorApplicationUpdateError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return buildAdminInvalidRequestResponse(error.message);
     }
 
     if (error instanceof InvalidCreatorOnboardingTransitionError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return buildAdminInvalidRequestResponse(error.message);
     }
 
     if (error instanceof ForbiddenCreatorOnboardingActionError) {
@@ -2821,10 +2844,20 @@ async function POST_handler(request: NextRequest) {
       auth: "admin",
     });
 
-    const { userId, action, dropId } = await request.json();
+    const rawBody = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: ADMIN_USERS_BODY_LIMIT_BYTES,
+      routeName: "admin/users",
+      allowEmpty: false,
+    });
+    if (!isAdminUsersRequestRecord(rawBody)) {
+      return buildAdminInvalidRequestResponse("Request body must be a JSON object");
+    }
+    const userId = typeof rawBody.userId === "string" ? rawBody.userId : undefined;
+    const action = typeof rawBody.action === "string" ? rawBody.action : undefined;
+    const dropId = rawBody.dropId;
 
     if (!userId || !action || !dropId) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return buildAdminInvalidRequestResponse("Missing required fields");
     }
 
     const normalizedDropId = String(dropId).trim();
@@ -2838,7 +2871,7 @@ async function POST_handler(request: NextRequest) {
     const dropRef = adminDb.collection("drops").doc(normalizedDropId);
 
     if (action !== "add" && action !== "remove") {
-      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+      return buildAdminInvalidRequestResponse("Invalid action");
     }
 
     const result = await adminDb.runTransaction(async (transaction) => {
@@ -2965,6 +2998,14 @@ async function POST_handler(request: NextRequest) {
 
     return NextResponse.json({ success: true, dropReference, changed: result.changed });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        retryable: false,
+      }, { status: error.status });
+    }
     if (error instanceof Error && error.message === "User not found") {
       return buildNotFoundResponse("user", "User not found");
     }

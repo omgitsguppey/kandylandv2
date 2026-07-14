@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { savePlatformEconomyPromo, PlatformEconomyMutationError } from "@/lib/server/platform-economy-mutations";
 import { readPlatformEconomyPromos } from "@/lib/server/platform-economy";
 
+const ADMIN_ECONOMY_PROMOS_BODY_LIMIT_BYTES = 64_000;
+
 function handleMutationError(error: unknown) {
+    if (isBoundedJsonBodyError(error)) {
+        return NextResponse.json({
+            success: false,
+            error: error.message,
+            errorCode: error.code,
+            retryable: false,
+        }, { status: error.status });
+    }
     if (error instanceof PlatformEconomyMutationError) {
         return NextResponse.json({ error: error.message, errorCode: error.code }, { status: error.status });
     }
@@ -47,7 +58,11 @@ async function POST_handler(request: NextRequest) {
             scopeToCaller: true,
         });
 
-        const body = await request.json() as Record<string, unknown>;
+        const body = await readBoundedJsonBody<Record<string, unknown>>(request, {
+            maxBytes: ADMIN_ECONOMY_PROMOS_BODY_LIMIT_BYTES,
+            routeName: "admin/economy/promos",
+            allowEmpty: false,
+        });
         const record = await savePlatformEconomyPromo({
             body,
             actorUid: caller?.uid ?? "",
@@ -70,7 +85,11 @@ async function PATCH_handler(request: NextRequest) {
             scopeToCaller: true,
         });
 
-        const body = await request.json() as Record<string, unknown>;
+        const body = await readBoundedJsonBody<Record<string, unknown>>(request, {
+            maxBytes: ADMIN_ECONOMY_PROMOS_BODY_LIMIT_BYTES,
+            routeName: "admin/economy/promos",
+            allowEmpty: false,
+        });
         const record = await savePlatformEconomyPromo({
             promoId: typeof body.promoId === "string" ? body.promoId : undefined,
             body,

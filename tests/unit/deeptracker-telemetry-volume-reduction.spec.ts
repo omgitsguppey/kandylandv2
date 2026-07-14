@@ -6,6 +6,8 @@ import {
   classifyClientTelemetryEventPriority,
   CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS,
   CLIENT_TELEMETRY_NON_PRIORITY_QUEUE_CAP,
+  CLIENT_TELEMETRY_RETRY_DELAYS_MS,
+  resolveClientTelemetryRetryDelayMs,
 } from "../../src/lib/analytics/client-telemetry-priority";
 import {
   buildIdentityLinkPayload,
@@ -40,12 +42,31 @@ function createMemoryStorage(): Storage {
 }
 
 describe("DeepTracker telemetry volume reduction", () => {
-  it("sets non-priority flush interval to 15 seconds", () => {
+  it("uses an event-triggered 15 second non-priority batch delay without recurring polling", () => {
     expect(CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS).toBe(15_000);
 
     const source = readRepoFile("src/components/Analytics/DeepTracker.tsx");
     expect(source).toContain("GUEST_ANALYTICS_FLUSH_INTERVAL_MS = CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS");
+    expect(source).toContain("scheduleNonPriorityFlush");
+    expect(source).toContain('flushQueue("batch")');
+    expect(source).not.toContain("window.setInterval(");
     expect(source).not.toContain("2_500");
+  });
+
+  it("retries retained batches with bounded event-driven backoff", () => {
+    expect(CLIENT_TELEMETRY_RETRY_DELAYS_MS).toEqual([15_000, 30_000, 60_000, 120_000]);
+    expect(CLIENT_TELEMETRY_RETRY_DELAYS_MS.map((_, index) =>
+      resolveClientTelemetryRetryDelayMs(index + 1))).toEqual(CLIENT_TELEMETRY_RETRY_DELAYS_MS);
+    expect(resolveClientTelemetryRetryDelayMs(0)).toBeNull();
+    expect(resolveClientTelemetryRetryDelayMs(5)).toBeNull();
+    expect(resolveClientTelemetryRetryDelayMs(Number.NaN)).toBeNull();
+
+    const source = readRepoFile("src/components/Analytics/DeepTracker.tsx");
+    expect(source).toContain("scheduleRetainedQueueRetry");
+    expect(source).toContain("resolveClientTelemetryRetryDelayMs");
+    expect(source).toContain("persistGuestQueue(eventQueue.current)");
+    expect(source).toContain('document.visibilityState === "visible"');
+    expect(source).not.toContain("window.setInterval(");
   });
 
   it("keeps priority events out of the 15 second batch delay", () => {
@@ -143,9 +164,12 @@ describe("DeepTracker telemetry volume reduction", () => {
 
     expect(report.reportKey).toBe("deeptracker-telemetry-volume-reduction");
     expect(report.summary.nonPriorityFlushSeconds).toBe(15);
+    expect(report.summary.eventTriggeredBatch).toBe(true);
     expect(report.summary.runtimeWatchUnaffected).toBe(true);
     expect(report.auditItemsAddressed).toEqual([1, 2, 3, 4, 5, 6, 14]);
     expect(JSON.stringify(report.costSavingsModel)).not.toMatch(/\$\d/u);
+    expect(JSON.stringify(report.costSavingsModel)).not.toContain("deeptracker_interval_flush");
+    expect(report.prCleanupActions).toEqual([]);
     expect(report.nextFixOrder.length).toBeGreaterThan(0);
   });
 });

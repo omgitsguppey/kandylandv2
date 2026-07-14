@@ -184,4 +184,28 @@ describe("POST /api/admin/view-as-creator", () => {
       eventType: "admin_view_as_action_blocked",
     }), { merge: true });
   });
+
+  it("rejects oversized view-as input before reading or writing creator state", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/view-as-creator", {
+      method: "POST",
+      body: JSON.stringify({
+        action: "start",
+        targetUserId: "creator_1",
+        reason: "Roster QA",
+        padding: "x".repeat(64_000),
+      }),
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "payload_too_large",
+      retryable: false,
+    });
+    expect(mockState.targetGet).not.toHaveBeenCalled();
+    expect(mockState.targetSet).not.toHaveBeenCalled();
+    expect(mockState.historySet).not.toHaveBeenCalled();
+    expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+  });
 });

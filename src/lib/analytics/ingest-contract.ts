@@ -71,6 +71,20 @@ export const ANALYTICS_INGEST_COST_POLICY = {
   diagnosticsCapPerHour: 12,
 } as const;
 
+export const ANALYTICS_CLIENT_ID_PATTERN = /^(?:sess|subject)_[A-Za-z0-9_-]{4,150}$/u;
+
+export function resolveCanonicalGuestAnonymousVisitorId(input: {
+  clientAnonymousVisitorId?: string | null;
+  sessionKey: string;
+}) {
+  const candidate = input.clientAnonymousVisitorId?.trim();
+  if (candidate && ANALYTICS_CLIENT_ID_PATTERN.test(candidate)) {
+    return candidate;
+  }
+
+  return input.sessionKey;
+}
+
 const PRIORITY_EVENT_TYPES = new Set<AnalyticsIngestEventType>(["page_view", "page_leave", "click"]);
 
 function buildEventContract(eventType: AnalyticsIngestEventType): AnalyticsIngestEventContract {

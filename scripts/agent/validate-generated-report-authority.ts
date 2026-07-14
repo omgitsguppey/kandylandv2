@@ -3,10 +3,13 @@ import { statSync } from "node:fs";
 import {
   GENERATED_REPORT_AUTHORITY_STATE_PATH,
   GENERATED_REPORT_DEFAULT_STALE_HOURS,
+  GENERATED_REPORT_RUNTIME_EVIDENCE_READER_PATHS,
   GENERATED_REPORT_RUNTIME_FORBIDDEN_ROOTS,
   GENERATED_REPORT_SCAN_ROOTS,
   deriveGeneratedReportFreshness,
+  findGeneratedReportRuntimeRead,
   isGeneratedReportPath,
+  isGeneratedReportRuntimeEvidenceReaderPath,
   type GeneratedReportFreshness,
   type GeneratedReportMetadataSource,
   buildGeneratedReportCleanupMetadata,
@@ -96,6 +99,7 @@ type GeneratedReportAuthorityDocument = {
     staleCount: number;
     unknownFreshnessCount: number;
     runtimeViolationCount: number;
+    runtimeEvidenceReaderCount: number;
     doctrineOverrideViolationCount: number;
     targetActionabilityAuditCount: number;
     targetArchiveCandidateCount: number;
@@ -107,6 +111,7 @@ type GeneratedReportAuthorityDocument = {
   reports: GeneratedReportAuthorityEntry[];
   targetReportAudits: TargetReportActionabilityAudit[];
   runtimeViolations: string[];
+  runtimeEvidenceReaders: string[];
   doctrineOverrideViolations: string[];
   guidance: string[];
   failures: string[];
@@ -338,21 +343,33 @@ function buildReportEntry(
   };
 }
 
-function findRuntimeViolations() {
+function findRuntimeReads() {
   const violations: string[] = [];
-  const importPattern =
-    /\b(?:import\s*\(\s*|require\(\s*|from\s+|readFileSync\(\s*|readText\(\s*|readJsonFile\(\s*)["'][^"']*agent\/(?:state|index|context)\//u;
+  const evidenceReaders: string[] = [];
 
   for (const root of GENERATED_REPORT_RUNTIME_FORBIDDEN_ROOTS) {
     for (const repoPath of walkDirectoryFiles(root).filter((candidate) => /\.(?:ts|tsx|js|jsx|mjs|cjs)$/u.test(candidate))) {
       const source = readText(repoPath);
-      if (importPattern.test(source)) {
-        violations.push(`${repoPath} must not import or read generated report artifacts from agent/.`);
+      if (findGeneratedReportRuntimeRead(source)) {
+        if (isGeneratedReportRuntimeEvidenceReaderPath(repoPath)) {
+          evidenceReaders.push(repoPath);
+        } else {
+          violations.push(`${repoPath} must not import or read generated report artifacts from agent/.`);
+        }
       }
     }
   }
 
-  return violations.sort((left, right) => left.localeCompare(right));
+  for (const repoPath of GENERATED_REPORT_RUNTIME_EVIDENCE_READER_PATHS) {
+    if (!evidenceReaders.includes(repoPath)) {
+      violations.push(`${repoPath} is a stale generated-report evidence-reader exception; remove it from the canonical contract or restore its bounded diagnostic reader.`);
+    }
+  }
+
+  return {
+    violations: violations.sort((left, right) => left.localeCompare(right)),
+    evidenceReaders: evidenceReaders.sort((left, right) => left.localeCompare(right)),
+  };
 }
 
 function findDoctrineOverrideViolations() {
@@ -438,7 +455,8 @@ function main() {
   const nowMs = Date.parse(now);
 
   const reports = listGeneratedReportFiles().map((repoPath) => buildReportEntry(repoPath, headCommit, nowMs));
-  const runtimeViolations = findRuntimeViolations();
+  const runtimeReads = findRuntimeReads();
+  const runtimeViolations = runtimeReads.violations;
   const doctrineOverrideViolations = findDoctrineOverrideViolations();
   const targetReportAudits = TARGET_REPORT_SPECS.map(buildTargetReportActionabilityAudit);
 
@@ -486,6 +504,7 @@ function main() {
     staleCount: reports.filter((report) => report.freshness === "stale").length,
     unknownFreshnessCount: reports.filter((report) => report.freshness === "unknown").length,
     runtimeViolationCount: runtimeViolations.length,
+    runtimeEvidenceReaderCount: runtimeReads.evidenceReaders.length,
     doctrineOverrideViolationCount: doctrineOverrideViolations.length,
     targetActionabilityAuditCount: targetReportAudits.length,
     targetArchiveCandidateCount: targetReportAudits.filter((audit) => audit.classification === "archive_candidate").length,
@@ -565,11 +584,12 @@ function main() {
       .slice(0, 80),
     targetReportAudits,
     runtimeViolations,
+    runtimeEvidenceReaders: runtimeReads.evidenceReaders,
     doctrineOverrideViolations,
     guidance: [
       "Generated reports are evidence snapshots only and never runtime business truth.",
       "Reports older than 24 hours are stale unless a stricter or looser contract is explicitly added later.",
-      "Runtime src/app, src/components, and src/lib/server business logic must not import or read agent-generated report artifacts.",
+      "Runtime business logic must not import or read agent-generated report artifacts; the explicit Admin Debug evidence reader is diagnostic-only and cannot define business truth or clear runtime/provider/admin gates.",
     ],
     failures,
     metadataWarnings,

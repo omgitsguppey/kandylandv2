@@ -1,8 +1,8 @@
 # Creator Monetization Settings Truth
 
-Generated: 2026-05-26T02:44:52.523Z
-Current head: 1bac904e
-Status: pass
+Generated: 2026-07-14T16:06:28.627Z
+Current head: dc4dad82c
+Status: fail
 
 ## Coverage
 
@@ -13,8 +13,8 @@ Status: pass
 - Person metrics: pass
 - Feature registration: pass
 - Debug lane: Creator monetization settings
-- Payment runtime: unchanged
-- Payout math: unchanged
+- Payment runtime: changed
+- Payout math: changed
 - GumDrop math: unchanged
 
 ## User-Facing Consumers
@@ -38,4 +38,4 @@ Status: pass
 
 ## Remaining Gaps
 
-- None
+- Fix the first failing resolver, consumer, telemetry, or dirty-file scope assertion.

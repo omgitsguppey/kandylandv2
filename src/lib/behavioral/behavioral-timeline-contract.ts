@@ -24,6 +24,7 @@ export type BehavioralTimelineFactTarget = {
 
 export type BehavioralTimelineFact = {
   factId: string;
+  idempotencyKey?: string;
   actorType: BehavioralTimelineActorType;
   actorUserId?: string;
   anonymousVisitorId?: string;
@@ -39,6 +40,10 @@ export type BehavioralTimelineFact = {
   sourceTruth: BehavioralTimelineSourceTruth;
   sourceReliability: number;
   consentState: BehavioralConsentState;
+  includeInGlobalEvents?: boolean;
+  includeInPersonMetrics?: boolean;
+  adminExcludedCount?: number;
+  systemExcludedCount?: number;
   metricEligible: boolean;
   metricExclusionReason?: string;
   confidenceInputs: {

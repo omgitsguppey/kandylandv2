@@ -362,4 +362,20 @@ describe("POST /api/creator/relationships", () => {
             error: "Invalid JSON body.",
         });
     });
+
+    it("returns invalid_creator_request when a user tries to follow themselves", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/creator/relationships", {
+            method: "POST",
+            body: JSON.stringify({ creatorId: "fan_1", action: "follow" }),
+            headers: { "content-type": "application/json" },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            success: false,
+            code: "invalid_creator_request",
+            retryable: false,
+        });
+    });
 });

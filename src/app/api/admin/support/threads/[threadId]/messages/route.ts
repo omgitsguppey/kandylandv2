@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { AuthError, handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { addSupportMessage, getSupportThreadForAdmin } from "@/lib/server/support-threads";
+
+const ADMIN_SUPPORT_MESSAGE_BODY_LIMIT_BYTES = 64_000;
 
 const adminMessageSchema = z.object({
     message: z.string().trim().min(1).max(2_000),
@@ -53,7 +56,12 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
             throw new AuthError("Support thread not found", 404);
         }
 
-        const { message } = adminMessageSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof adminMessageSchema>>(request, {
+            maxBytes: ADMIN_SUPPORT_MESSAGE_BODY_LIMIT_BYTES,
+            routeName: "admin/support/thread/messages",
+            allowEmpty: false,
+        });
+        const { message } = adminMessageSchema.parse(body);
         await addSupportMessage({
             threadId,
             senderRole: "admin",
@@ -86,6 +94,14 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
             }),
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalizeAdminSupportMessageRoute(startedAt, NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         return finalizeAdminSupportMessageRoute(startedAt, handleApiError(error, "admin/support/thread/messages"), error);
     }
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T04:00:58.532Z",
+  "generatedAt": "2026-07-14T14:58:36.408Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -32,82 +32,418 @@
   "warnings": {
     "markdownDoctrineOverBudget": [
       {
+        "path": "docs/agent-truth/debug-cockpit-batch10-cleanup.md",
+        "lines": 2184
+      },
+      {
+        "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+        "lines": 1414
+      },
+      {
+        "path": "docs/agent-truth/mega-legacy-pipeline-hardening.md",
+        "lines": 936
+      },
+      {
+        "path": "docs/agent-truth/claim-truth-audit.md",
+        "lines": 875
+      },
+      {
+        "path": "docs/agent-truth/final-math-normalization-lock.md",
+        "lines": 811
+      },
+      {
+        "path": "docs/agent-truth/chat-composer-modal-lift.md",
+        "lines": 711
+      },
+      {
+        "path": "docs/agent-truth/final-open-pr-closure.md",
+        "lines": 684
+      },
+      {
+        "path": "docs/agent-truth/final-user-tracking-handoff-lock.md",
+        "lines": 682
+      },
+      {
+        "path": "docs/agent-truth/account-settings-delete-flow.md",
+        "lines": 630
+      },
+      {
+        "path": "docs/agent-truth/creator-monetization-admin-debug.md",
+        "lines": 597
+      },
+      {
+        "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
+        "lines": 583
+      },
+      {
+        "path": "docs/agent-truth/validator-authority-audit.md",
+        "lines": 554
+      },
+      {
+        "path": "docs/agent-truth/debug-cockpit-batch3-cleanup.md",
+        "lines": 553
+      },
+      {
+        "path": "docs/agent-truth/daily-task-reward-ledger.md",
+        "lines": 525
+      },
+      {
+        "path": "docs/agent-truth/debug-signal-actionability.md",
+        "lines": 479
+      },
+      {
+        "path": "docs/agent-truth/event-facts-materializer-closure.md",
+        "lines": 465
+      },
+      {
+        "path": "docs/agent-truth/person-metrics-hydration.md",
+        "lines": 443
+      },
+      {
         "path": "docs/agent-truth/analytics-file-inventory.md",
-        "lines": 442
+        "lines": 440
+      },
+      {
+        "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+        "lines": 423
+      },
+      {
+        "path": "docs/agent-truth/event-translation-bridge.md",
+        "lines": 423
+      },
+      {
+        "path": "docs/agent-truth/event-liveness-source-repair.md",
+        "lines": 419
+      },
+      {
+        "path": "docs/agent-truth/operator-final-qa-packet.md",
+        "lines": 416
+      },
+      {
+        "path": "docs/agent-truth/user-journey-behavioral-intelligence.md",
+        "lines": 404
+      },
+      {
+        "path": "docs/agent-truth/debug-recovery-playbooks.md",
+        "lines": 377
+      },
+      {
+        "path": "docs/agent-truth/debug-cockpit-batch4-cleanup.md",
+        "lines": 371
+      },
+      {
+        "path": "docs/agent-truth/behavioral-math-calibration.md",
+        "lines": 368
       },
       {
         "path": "docs/agent-truth/rollback-incident-response.md",
         "lines": 368
       },
       {
-        "path": "docs/agent-truth/behavioral-math-calibration.md",
-        "lines": 355
+        "path": "docs/agent-truth/debug-cockpit-batch5-cleanup.md",
+        "lines": 346
+      },
+      {
+        "path": "docs/agent-truth/open-pr-dependency-hygiene.md",
+        "lines": 331
+      },
+      {
+        "path": "docs/agent-truth/release-rollback-incident-readiness.md",
+        "lines": 331
       }
     ],
     "generatedJsonOverBudget": [
       {
-        "path": "agent/index/retrieval-index.json",
-        "lines": 53145
-      },
-      {
-        "path": "agent/index/repo-inventory.json",
-        "lines": 32119
-      },
-      {
-        "path": "agent/index/blast-radius.json",
-        "lines": 18020
-      },
-      {
-        "path": "agent/state/speed-security-hardening.generated.json",
-        "lines": 9744
-      },
-      {
         "path": "agent/context/validator-authority.json",
-        "lines": 7099
-      },
-      {
-        "path": "agent/state/event-catalog-telemetry-audit.generated.json",
-        "lines": 6809
+        "lines": 23707
       },
       {
         "path": "agent/state/google-cost-bleed.generated.json",
-        "lines": 6642
+        "lines": 7423
       },
       {
-        "path": "agent/index/verification-commands.json",
-        "lines": 5618
+        "path": "agent/state/event-translation-bridge.generated.json",
+        "lines": 6907
       },
       {
-        "path": "agent/index/ui-surface-coverage.json",
-        "lines": 2660
+        "path": "agent/state/speed-security-hardening.generated.json",
+        "lines": 6043
       },
       {
-        "path": "agent/state/codebase-hardening.generated.json",
-        "lines": 1641
+        "path": "agent/state/signal-telemetry-graph.generated.json",
+        "lines": 4559
       },
       {
-        "path": "agent/state/global-cost-surfaces.generated.json",
-        "lines": 1619
+        "path": "agent/state/feature-registration-gate.generated.json",
+        "lines": 4466
       },
       {
-        "path": "agent/state/code-organization-score.generated.json",
-        "lines": 1454
+        "path": "agent/state/signal-problem-rank.generated.json",
+        "lines": 3812
+      },
+      {
+        "path": "agent/state/creator-monetization-admin-debug.generated.json",
+        "lines": 3654
+      },
+      {
+        "path": "agent/state/event-liveness-audit.generated.json",
+        "lines": 3560
+      },
+      {
+        "path": "agent/state/launch-analytics-recovery.generated.json",
+        "lines": 3471
+      },
+      {
+        "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+        "lines": 3195
+      },
+      {
+        "path": "agent/context/task-pack.generated.json",
+        "lines": 3109
+      },
+      {
+        "path": "agent/state/role-permission-parity.generated.json",
+        "lines": 3065
       },
       {
         "path": "agent/state/generated-report-authority.generated.json",
-        "lines": 1257
+        "lines": 3040
       },
       {
-        "path": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
-        "lines": 1078
+        "path": "agent/state/creator-monetization-settings-truth.generated.json",
+        "lines": 2983
+      },
+      {
+        "path": "agent/index/ui-surface-coverage.json",
+        "lines": 2901
+      },
+      {
+        "path": "agent/state/chat-realtime-cost-control.generated.json",
+        "lines": 2893
+      },
+      {
+        "path": "agent/state/signal-source-graph.generated.json",
+        "lines": 2835
+      },
+      {
+        "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "lines": 2827
+      },
+      {
+        "path": "agent/state/debug-signal-actionability.generated.json",
+        "lines": 2584
+      },
+      {
+        "path": "agent/state/global-cost-surfaces.generated.json",
+        "lines": 2384
+      },
+      {
+        "path": "agent/state/billing-spike-radar.generated.json",
+        "lines": 2269
+      },
+      {
+        "path": "agent/state/final-math-normalization-lock.generated.json",
+        "lines": 2242
+      },
+      {
+        "path": "agent/state/debug-cockpit-batch10-cleanup.generated.json",
+        "lines": 2178
+      },
+      {
+        "path": "agent/state/signal-telemetry-disconnects.generated.json",
+        "lines": 2093
+      },
+      {
+        "path": "agent/state/daily-task-reward-ledger.generated.json",
+        "lines": 2026
+      },
+      {
+        "path": "agent/state/debug-backlog-engine.generated.json",
+        "lines": 1786
+      },
+      {
+        "path": "agent/state/event-catalog-telemetry-audit.generated.json",
+        "lines": 1727
+      },
+      {
+        "path": "agent/context/validator-map.json",
+        "lines": 1720
+      },
+      {
+        "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+        "lines": 1635
+      },
+      {
+        "path": "agent/state/ai-critic-p1-triage.generated.json",
+        "lines": 1522
+      },
+      {
+        "path": "agent/state/analytics-rewire-phase-one.generated.json",
+        "lines": 1513
       },
       {
         "path": "agent/state/launch-pr-triage.generated.json",
-        "lines": 785
+        "lines": 1479
+      },
+      {
+        "path": "agent/state/code-organization-score.generated.json",
+        "lines": 1455
+      },
+      {
+        "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
+        "lines": 1449
+      },
+      {
+        "path": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+        "lines": 1423
+      },
+      {
+        "path": "agent/state/live-evidence-gate-replacement.generated.json",
+        "lines": 1391
+      },
+      {
+        "path": "agent/state/codebase-hardening.generated.json",
+        "lines": 1389
+      },
+      {
+        "path": "agent/state/recovery-timeline-spine.generated.json",
+        "lines": 1335
+      },
+      {
+        "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+        "lines": 1325
+      },
+      {
+        "path": "agent/state/feature-telemetry-coverage-cleanup.generated.json",
+        "lines": 1268
+      },
+      {
+        "path": "agent/state/public-beta-score.generated.json",
+        "lines": 1265
+      },
+      {
+        "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+        "lines": 1244
+      },
+      {
+        "path": "agent/state/surface-parity-doctrine.generated.json",
+        "lines": 1243
+      },
+      {
+        "path": "agent/state/error-language-contract.generated.json",
+        "lines": 1178
+      },
+      {
+        "path": "agent/state/chat-functionality-score-lock.generated.json",
+        "lines": 1165
+      },
+      {
+        "path": "agent/state/final-parity-telemetry-lock.generated.json",
+        "lines": 1143
+      },
+      {
+        "path": "agent/state/future-activity-signal-reclassification.generated.json",
+        "lines": 1098
+      },
+      {
+        "path": "agent/state/surface-telemetry-parity.generated.json",
+        "lines": 1023
+      },
+      {
+        "path": "agent/state/route-runtime-display-cleanup.generated.json",
+        "lines": 1022
+      },
+      {
+        "path": "agent/state/final-cost-audit-lock.generated.json",
+        "lines": 1019
+      },
+      {
+        "path": "agent/state/orphaned-logic-score.generated.json",
+        "lines": 1013
+      },
+      {
+        "path": "agent/context/file-size-budget.json",
+        "lines": 983
+      },
+      {
+        "path": "agent/state/event-facts-materializer-closure.generated.json",
+        "lines": 979
+      },
+      {
+        "path": "agent/state/debug-signal-grouping.generated.json",
+        "lines": 942
+      },
+      {
+        "path": "agent/state/mega-legacy-pipeline-hardening.generated.json",
+        "lines": 930
+      },
+      {
+        "path": "agent/state/chat-presence-typing.generated.json",
+        "lines": 922
+      },
+      {
+        "path": "agent/state/privacy-behavior-legacy-recovery.generated.json",
+        "lines": 913
+      },
+      {
+        "path": "agent/state/chat-gating-moderation.generated.json",
+        "lines": 879
+      },
+      {
+        "path": "agent/state/user-creator-ui-parity.generated.json",
+        "lines": 870
+      },
+      {
+        "path": "agent/state/canonical-math-ledger.generated.json",
+        "lines": 869
+      },
+      {
+        "path": "agent/state/product-surface-integrity.generated.json",
+        "lines": 856
+      },
+      {
+        "path": "agent/state/claim-truth-audit.generated.json",
+        "lines": 852
+      },
+      {
+        "path": "agent/state/lost-data-recovery-dry-run.generated.json",
+        "lines": 845
+      },
+      {
+        "path": "agent/state/debug-panel-output-triage.generated.json",
+        "lines": 840
+      },
+      {
+        "path": "agent/state/source-truth-authority-map.generated.json",
+        "lines": 840
+      },
+      {
+        "path": "agent/state/evidence-freshness-index.generated.json",
+        "lines": 819
+      },
+      {
+        "path": "agent/state/settings-debug-validator-authority.generated.json",
+        "lines": 812
+      },
+      {
+        "path": "agent/state/daily-task-debug-score-lock.generated.json",
+        "lines": 791
+      },
+      {
+        "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+        "lines": 790
+      },
+      {
+        "path": "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "lines": 777
       },
       {
         "path": "agent/state/analytics-ecosystem-parity.generated.json",
         "lines": 773
+      },
+      {
+        "path": "agent/state/debug-score-impact-triage.generated.json",
+        "lines": 757
       },
       {
         "path": "agent/state/analytics-legacy-mapping-report.generated.json",
@@ -115,11 +451,75 @@
       },
       {
         "path": "agent/state/analytics-legacy-source-inventory.generated.json",
-        "lines": 705
+        "lines": 724
+      },
+      {
+        "path": "agent/state/support-policy-surface-cleanup.generated.json",
+        "lines": 722
+      },
+      {
+        "path": "agent/state/chat-composer-modal-lift.generated.json",
+        "lines": 709
+      },
+      {
+        "path": "agent/state/final-signal-zero-lock.generated.json",
+        "lines": 700
+      },
+      {
+        "path": "agent/state/daily-task-reset-truth.generated.json",
+        "lines": 692
+      },
+      {
+        "path": "agent/state/settings-connection-parity.generated.json",
+        "lines": 692
+      },
+      {
+        "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "lines": 688
+      },
+      {
+        "path": "agent/state/final-open-pr-closure.generated.json",
+        "lines": 676
+      },
+      {
+        "path": "agent/state/final-user-tracking-handoff-lock.generated.json",
+        "lines": 669
+      },
+      {
+        "path": "agent/state/telemetry-dependency-graph.generated.json",
+        "lines": 648
+      },
+      {
+        "path": "agent/state/settings-route-alias-cleanup.generated.json",
+        "lines": 646
+      },
+      {
+        "path": "agent/state/codebase-junk-cleanup.generated.json",
+        "lines": 644
+      },
+      {
+        "path": "agent/state/account-settings-delete-flow.generated.json",
+        "lines": 634
       },
       {
         "path": "agent/state/background-job-idempotency-audit.generated.json",
-        "lines": 625
+        "lines": 633
+      },
+      {
+        "path": "agent/state/debug-recovery-playbooks.generated.json",
+        "lines": 612
+      },
+      {
+        "path": "agent/state/user-profile-api-contract.generated.json",
+        "lines": 612
+      },
+      {
+        "path": "agent/state/account-settings-mobile-padding.generated.json",
+        "lines": 610
+      },
+      {
+        "path": "agent/state/user-management-refactor.generated.json",
+        "lines": 597
       },
       {
         "path": "agent/state/accessibility-tap-target-audit.generated.json",
@@ -130,12 +530,28 @@
         "lines": 595
       },
       {
-        "path": "agent/index/dependency-graph.summary.json",
-        "lines": 578
+        "path": "agent/state/notification-targeting-intent.generated.json",
+        "lines": 573
       },
       {
-        "path": "agent/context/validator-map.json",
-        "lines": 572
+        "path": "agent/index/dependency-graph.summary.json",
+        "lines": 569
+      },
+      {
+        "path": "agent/state/task-context.generated.json",
+        "lines": 566
+      },
+      {
+        "path": "agent/state/consent-tracking-contract.generated.json",
+        "lines": 561
+      },
+      {
+        "path": "agent/state/final-release-exit-readiness-packet.generated.json",
+        "lines": 560
+      },
+      {
+        "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+        "lines": 554
       },
       {
         "path": "agent/state/security-role-boundary-audit.generated.json",
@@ -146,133 +562,233 @@
         "lines": 539
       },
       {
-        "path": "agent/state/final-launch-readiness-report.generated.json",
+        "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+        "lines": 539
+      },
+      {
+        "path": "agent/state/activity-verification-engine.generated.json",
         "lines": 531
+      },
+      {
+        "path": "agent/state/validator-authority-audit.generated.json",
+        "lines": 531
+      },
+      {
+        "path": "agent/state/auth-readiness-lock.generated.json",
+        "lines": 513
+      },
+      {
+        "path": "agent/state/final-phase-cleanup-lock.generated.json",
+        "lines": 504
       }
     ],
     "sourceFilesOverWarningBudget": [
       {
         "path": "src/app/api/admin/debug/route.ts",
-        "loc": 6361
+        "loc": 7062
       },
       {
         "path": "src/components/Chat/ChatExperience.tsx",
-        "loc": 3233
+        "loc": 4561
       },
       {
-        "path": "src/app/api/admin/users/route.ts",
-        "loc": 3148
+        "path": "src/lib/analytics/recovery-timeline-spine.ts",
+        "loc": 4402
       },
       {
         "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "loc": 2865
+        "loc": 3297
       },
       {
-        "path": "src/lib/server/ai-drop-covers.ts",
-        "loc": 2824
+        "path": "src/app/api/admin/users/route.ts",
+        "loc": 3143
       },
       {
         "path": "scripts/agent/validate-admin-debug-control-tower.ts",
-        "loc": 2581
+        "loc": 3045
+      },
+      {
+        "path": "src/lib/server/ai-drop-covers.ts",
+        "loc": 2865
       },
       {
         "path": "functions/src/behavioral-intelligence-runtime.ts",
-        "loc": 2381
+        "loc": 2564
+      },
+      {
+        "path": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "loc": 2320
+      },
+      {
+        "path": "src/lib/server/admin-analytics-historical-validation.ts",
+        "loc": 2260
+      },
+      {
+        "path": "src/lib/release-notes/public-release-notes.ts",
+        "loc": 2239
+      },
+      {
+        "path": "src/app/api/admin/analytics/historical/route.ts",
+        "loc": 2229
+      },
+      {
+        "path": "src/lib/agent-score/core.ts",
+        "loc": 2179
+      },
+      {
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "loc": 2043
+      },
+      {
+        "path": "src/lib/telemetry-catalog.ts",
+        "loc": 1967
       },
       {
         "path": "src/lib/creator-onboarding.ts",
         "loc": 1947
       },
       {
+        "path": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "loc": 1939
+      },
+      {
         "path": "src/lib/server/daily-tasks.ts",
-        "loc": 1875
-      },
-      {
-        "path": "src/lib/server/admin-analytics-historical-validation.ts",
-        "loc": 1808
-      },
-      {
-        "path": "src/app/api/admin/analytics/historical/route.ts",
-        "loc": 1762
-      },
-      {
-        "path": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "loc": 1664
+        "loc": 1893
       },
       {
         "path": "src/app/admin/users/page.tsx",
-        "loc": 1608
-      },
-      {
-        "path": "src/app/admin/roster/page.tsx",
-        "loc": 1550
-      },
-      {
-        "path": "src/hooks/useViewerWatchSession.ts",
-        "loc": 1499
-      },
-      {
-        "path": "src/app/admin/user/[userId]/page.tsx",
-        "loc": 1437
-      },
-      {
-        "path": "src/types/admin-analytics.ts",
-        "loc": 1393
-      },
-      {
-        "path": "src/app/api/admin/user/[userId]/route.ts",
-        "loc": 1366
-      },
-      {
-        "path": "src/lib/route-runtime-health.ts",
-        "loc": 1363
+        "loc": 1855
       },
       {
         "path": "src/lib/server/chat.ts",
-        "loc": 1360
+        "loc": 1838
       },
       {
-        "path": "src/lib/telemetry-catalog.ts",
-        "loc": 1319
+        "path": "scripts/agent/validate-repo-spring-cleaning-rewire.ts",
+        "loc": 1711
       },
       {
-        "path": "src/lib/ai-drop-covers.ts",
-        "loc": 1257
+        "path": "src/lib/release-readiness/final-release-readiness.ts",
+        "loc": 1655
       },
       {
-        "path": "scripts/agent/score-speed-security-hardening.ts",
-        "loc": 1214
+        "path": "src/types/admin-analytics.ts",
+        "loc": 1637
       },
       {
-        "path": "src/app/admin/drops/page.tsx",
-        "loc": 1189
+        "path": "src/app/admin/user/[userId]/page.tsx",
+        "loc": 1630
       },
       {
-        "path": "src/lib/server/ai-drop-descriptions.ts",
-        "loc": 1188
+        "path": "src/app/admin/roster/page.tsx",
+        "loc": 1627
       },
       {
-        "path": "src/lib/tasks/task-observability.ts",
-        "loc": 1164
+        "path": "src/components/Admin/CreateDropModal.tsx",
+        "loc": 1612
       },
       {
-        "path": "src/components/Auth/AuthModal.tsx",
-        "loc": 1147
-      },
-      {
-        "path": "src/components/Admin/AssetUploader.tsx",
-        "loc": 1146
-      },
-      {
-        "path": "src/lib/device-layout-score.ts",
-        "loc": 1124
+        "path": "src/hooks/useViewerWatchSession.ts",
+        "loc": 1581
       },
       {
         "path": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "loc": 1112
+        "loc": 1545
       },
       {
-        "path": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "loc": 1503
+      },
+      {
+        "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+        "loc": 1502
+      },
+      {
+        "path": "src/lib/admin-debug-control-tower.ts",
+        "loc": 1484
+      },
+      {
+        "path": "src/app/api/admin/user/[userId]/route.ts",
+        "loc": 1388
+      },
+      {
+        "path": "scripts/agent/score-speed-security-hardening.ts",
+        "loc": 1387
+      },
+      {
+        "path": "src/lib/math/canonical-math-authority-ledger.ts",
+        "loc": 1380
+      },
+      {
+        "path": "src/context/AuthContext.tsx",
+        "loc": 1372
+      },
+      {
+        "path": "src/lib/route-runtime-health.ts",
+        "loc": 1369
+      },
+      {
+        "path": "src/components/Auth/AuthModal.tsx",
+        "loc": 1365
+      },
+      {
+        "path": "src/app/admin/drops/page.tsx",
+        "loc": 1333
+      },
+      {
+        "path": "src/components/Admin/AssetUploader.tsx",
+        "loc": 1327
+      },
+      {
+        "path": "src/lib/ai-drop-covers.ts",
+        "loc": 1269
+      },
+      {
+        "path": "src/lib/server/admin-analytics-historical-engagement.ts",
+        "loc": 1264
+      },
+      {
+        "path": "scripts/agent/score-orphaned-logic.ts",
+        "loc": 1262
+      },
+      {
+        "path": "src/lib/server/ai-drop-descriptions.ts",
+        "loc": 1189
+      },
+      {
+        "path": "src/lib/tasks/task-observability.ts",
+        "loc": 1173
+      },
+      {
+        "path": "scripts/agent/validate-current-beta-exit-status.ts",
+        "loc": 1153
+      },
+      {
+        "path": "src/app/admin/debug/page.tsx",
+        "loc": 1134
+      },
+      {
+        "path": "src/lib/device-layout-score.ts",
+        "loc": 1134
+      },
+      {
+        "path": "src/lib/release-readiness/automated-truth-reconciliation.ts",
+        "loc": 1125
+      },
+      {
+        "path": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+        "loc": 1122
+      },
+      {
+        "path": "scripts/agent/analytics-rewire-phase-one.ts",
+        "loc": 1114
+      },
+      {
+        "path": "src/app/api/admin/roster/route.ts",
+        "loc": 1111
+      },
+      {
+        "path": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
         "loc": 1100
       },
       {
@@ -280,24 +796,36 @@
         "loc": 1098
       },
       {
-        "path": "src/lib/server/admin-analytics-historical-engagement.ts",
+        "path": "scripts/agent/score-public-beta-readiness.ts",
         "loc": 1093
-      },
-      {
-        "path": "src/app/api/admin/roster/route.ts",
-        "loc": 1085
       },
       {
         "path": "src/lib/server/creator-onboarding-diagnostics.ts",
         "loc": 1084
       },
       {
-        "path": "src/components/Admin/CreateDropModal.tsx",
-        "loc": 1050
+        "path": "functions/src/analytics-truth-runtime.ts",
+        "loc": 1067
+      },
+      {
+        "path": "src/components/Analytics/DeepTracker.tsx",
+        "loc": 1066
+      },
+      {
+        "path": "src/lib/analytics/person-metrics-hydration.ts",
+        "loc": 1065
+      },
+      {
+        "path": "src/lib/analytics/source-agreement-detail.ts",
+        "loc": 1051
       },
       {
         "path": "src/lib/server/admin-ops-health.ts",
         "loc": 1050
+      },
+      {
+        "path": "scripts/agent/collect-signal-source-graph.ts",
+        "loc": 1042
       },
       {
         "path": "functions/src/queue-runtime.ts",
@@ -308,32 +836,56 @@
         "loc": 1030
       },
       {
-        "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "loc": 1018
+        "path": "src/lib/server/admin-analytics-historical-viewer.ts",
+        "loc": 1014
       },
       {
-        "path": "src/lib/server/admin-analytics-historical-viewer.ts",
+        "path": "scripts/agent/score-codebase-hardening.ts",
+        "loc": 1002
+      },
+      {
+        "path": "src/components/PurchaseModal.tsx",
         "loc": 996
       },
       {
         "path": "scripts/agent/score-google-cost-bleed.ts",
-        "loc": 991
+        "loc": 993
       },
       {
-        "path": "src/lib/tasks/task-catalog.ts",
-        "loc": 970
+        "path": "src/lib/analytics/event-translation-bridge.ts",
+        "loc": 982
       },
       {
-        "path": "scripts/agent/score-codebase-hardening.ts",
-        "loc": 967
+        "path": "src/lib/analytics/analytics-event-contract.ts",
+        "loc": 980
+      },
+      {
+        "path": "src/lib/server/ai-debug-assistant.ts",
+        "loc": 978
+      },
+      {
+        "path": "scripts/agent/validate-recovery-timeline-spine.ts",
+        "loc": 977
       },
       {
         "path": "scripts/agent/score-code-organization.ts",
-        "loc": 966
+        "loc": 965
       },
       {
-        "path": "functions/src/analytics-truth-runtime.ts",
-        "loc": 945
+        "path": "scripts/agent/collect-signal-telemetry-graph.ts",
+        "loc": 958
+      },
+      {
+        "path": "src/components/CreatorDiscoveryRail.tsx",
+        "loc": 958
+      },
+      {
+        "path": "scripts/agent/validate-event-catalog-telemetry.ts",
+        "loc": 943
+      },
+      {
+        "path": "src/app/api/creator/subscriptions/route.ts",
+        "loc": 932
       },
       {
         "path": "src/lib/server/creator-onboarding.ts",
@@ -344,44 +896,84 @@
         "loc": 927
       },
       {
-        "path": "src/lib/server/ai-debug-assistant.ts",
-        "loc": 905
+        "path": "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "loc": 926
       },
       {
-        "path": "scripts/agent/score-orphaned-logic.ts",
-        "loc": 888
+        "path": "src/lib/server/admin-analytics-historical-content.ts",
+        "loc": 926
       },
       {
-        "path": "src/app/api/admin/overview/route.ts",
-        "loc": 859
+        "path": "src/app/admin/analytics/page.tsx",
+        "loc": 925
       },
       {
-        "path": "src/app/dashboard/profile/hooks/useProfileState.tsx",
-        "loc": 858
-      },
-      {
-        "path": "src/components/Auth/GuidedOnboarding.tsx",
-        "loc": 854
+        "path": "src/lib/tasks/task-catalog.ts",
+        "loc": 925
       },
       {
         "path": "src/components/Dashboard/DailyTasksModule.tsx",
-        "loc": 844
+        "loc": 902
+      },
+      {
+        "path": "scripts/agent/validate-debug-panel-output-triage.ts",
+        "loc": 901
+      },
+      {
+        "path": "src/lib/server/analytics-metrics.ts",
+        "loc": 884
+      },
+      {
+        "path": "src/lib/debug/debug-backlog-builder.ts",
+        "loc": 874
+      },
+      {
+        "path": "scripts/agent/lost-data-recovery-dry-run.ts",
+        "loc": 868
+      },
+      {
+        "path": "src/components/Auth/GuidedOnboarding.tsx",
+        "loc": 866
+      },
+      {
+        "path": "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "loc": 858
+      },
+      {
+        "path": "src/lib/analytics/person-metrics-contract.ts",
+        "loc": 852
+      },
+      {
+        "path": "src/lib/release-readiness/live-evidence-resolver.ts",
+        "loc": 850
+      },
+      {
+        "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "loc": 843
       },
       {
         "path": "src/lib/server/admin-panel-system-logs.ts",
         "loc": 843
       },
       {
-        "path": "src/lib/server/admin-analytics-historical-content.ts",
-        "loc": 836
+        "path": "scripts/agent/build-task-context.ts",
+        "loc": 835
+      },
+      {
+        "path": "src/lib/server/admin-analytics-historical-traffic.ts",
+        "loc": 831
       },
       {
         "path": "scripts/agent/validate-phase-one-lock.ts",
         "loc": 827
       },
       {
-        "path": "src/lib/server/analytics-metrics.ts",
-        "loc": 822
+        "path": "src/app/api/admin/creator-account-controls/route.ts",
+        "loc": 811
+      },
+      {
+        "path": "scripts/agent/validate-phase-one-score-ui-triage.ts",
+        "loc": 809
       }
     ],
     "cardsOverBudget": []

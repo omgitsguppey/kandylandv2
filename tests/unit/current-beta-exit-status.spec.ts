@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   remainingBlockersFromProofLanes,
   refreshPlanWithCurrentArtifactVersions,
+  speedSecurityStatusFromArtifact,
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitProofLane,
   type CurrentBetaExitStatusReport,
@@ -224,6 +225,15 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
 }
 
 describe("current beta exit status validator", () => {
+  it("formats the canonical speed/security artifact instead of retaining a stale summary", () => {
+    expect(speedSecurityStatusFromArtifact({
+      overallScore: 100,
+      overallStatus: "clean",
+      findings: [{ severity: "minor" }],
+      criticalFindings: [],
+    }, "52/beta-risk; findings=83; critical=0")).toBe("100/clean; findings=1; critical=0");
+  });
+
   it("blocks beta exit when UI surface coverage is missing", () => {
     const report = reportFixture({
       summary: {

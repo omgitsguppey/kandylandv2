@@ -228,13 +228,15 @@ export function buildWatchTimeTruthReport() {
   const watchSession = readIfExists("src/hooks/useViewerWatchSession.ts");
   const watchRoute = readIfExists("src/app/api/viewer/watch-session/route.ts");
   const registryItem = runtimeWatchRegistryItem();
+  const routeMentionsPageDuration = /pageDuration|page_duration|legacy_page_duration/u.test(watchRoute);
+  const routeRejectsPageDuration = /pageDurationMs:\s*z\.never\(\)\.optional\(\)/u.test(watchRoute);
   return {
     generatedAtUtc: new Date().toISOString(),
     currentHead: currentHead(),
     status: registryItem?.orphanStatus === "source_ready_evidence_gap" ? "source_ready_evidence_gap" : "live_persisted",
     sourceReady: watchSession.includes("useViewerWatchSession") || watchSession.includes("WATCH_VISIBLE_TICK_INTERVAL_MS"),
     dropWatchTimeEngineExists: existsSync(join(ROOT, "src/lib/analytics/drop-watch-time-engine.ts")),
-    pageTimeCountsAsWatchTime: /pageDuration|page_duration|legacy_page_duration/u.test(watchRoute) || /pageDuration|page_duration/u.test(watchSource),
+    pageTimeCountsAsWatchTime: (routeMentionsPageDuration && !routeRejectsPageDuration) || /pageDuration|page_duration/u.test(watchSource),
     hiddenOrIdleExcluded: watchSource.includes("hidden_time_excluded") && watchSource.includes("idle_time_excluded"),
     adminDebugConsumerPresent: readIfExists("src/lib/admin-debug-control-tower.ts").includes("watch-time-truth"),
     claimsPersistedLiveMetric: false,

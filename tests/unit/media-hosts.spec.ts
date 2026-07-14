@@ -15,6 +15,7 @@ describe("media-hosts", () => {
       expect(hosts).toContain("firebasestorage.googleapis.com");
       expect(hosts).toContain("storage.googleapis.com");
       expect(hosts).toContain("test-bucket.appspot.com");
+      expect(hosts).toContain("test-bucket.appspot.com.storage.googleapis.com");
     });
 
     it("handles an undefined storage bucket correctly", async () => {
@@ -135,6 +136,65 @@ describe("media-hosts", () => {
       const { isAllowedRemoteMediaUrl } = await import("@/lib/media-hosts");
       expect(isAllowedRemoteMediaUrl("not-a-url")).toBe(false);
       expect(isAllowedRemoteMediaUrl("")).toBe(false);
+    });
+  });
+
+  describe("Firebase Storage media URLs", () => {
+    it("parses supported Firebase download URL forms without widening to arbitrary hosts", async () => {
+      vi.doMock("@/lib/firebase-runtime", () => ({
+        FIREBASE_STORAGE_BUCKET: "test-bucket.appspot.com",
+      }));
+      const {
+        isFirebaseStorageMediaUrl,
+        resolveFirebaseStorageMediaLocation,
+      } = await import("@/lib/media-hosts");
+
+      expect(resolveFirebaseStorageMediaLocation(
+        "https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/creator%2Fmessages%2Ffan_1%2Fthread_1%2Fimage.png?alt=media&token=test",
+      )).toEqual({
+        bucket: "test-bucket.appspot.com",
+        objectPath: "creator/messages/fan_1/thread_1/image.png",
+      });
+      expect(resolveFirebaseStorageMediaLocation(
+        "https://storage.googleapis.com/test-bucket.appspot.com/creator/messages/fan_1/thread_1/video.mp4",
+      )).toEqual({
+        bucket: "test-bucket.appspot.com",
+        objectPath: "creator/messages/fan_1/thread_1/video.mp4",
+      });
+      expect(resolveFirebaseStorageMediaLocation(
+        "https://test-bucket.appspot.com.storage.googleapis.com/creator/messages/fan_1/thread_1/video.mp4",
+      )).toEqual({
+        bucket: "test-bucket.appspot.com",
+        objectPath: "creator/messages/fan_1/thread_1/video.mp4",
+      });
+      expect(isFirebaseStorageMediaUrl("https://example.com/v0/b/test/o/image.png")).toBe(false);
+      expect(isFirebaseStorageMediaUrl("javascript:alert(1)")).toBe(false);
+      expect(isFirebaseStorageMediaUrl("data:text/html,test")).toBe(false);
+    });
+
+    it("fails closed for malformed object paths, credentials, ports, and the wrong bucket", async () => {
+      vi.doMock("@/lib/firebase-runtime", () => ({
+        FIREBASE_STORAGE_BUCKET: "test-bucket.appspot.com",
+      }));
+      const {
+        isConfiguredFirebaseStorageMediaUrl,
+        isFirebaseStorageMediaUrl,
+        isFirebaseStorageMediaUrlForBucket,
+      } = await import("@/lib/media-hosts");
+      const validUrl = "https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/creator%2Fmessages%2Ffan_1%2Fthread_1%2Fimage.png?alt=media&token=test";
+
+      expect(isConfiguredFirebaseStorageMediaUrl(validUrl)).toBe(true);
+      expect(isFirebaseStorageMediaUrlForBucket(validUrl, "gs://test-bucket.appspot.com")).toBe(true);
+      expect(isFirebaseStorageMediaUrlForBucket(validUrl, "other-bucket.appspot.com")).toBe(false);
+      expect(isFirebaseStorageMediaUrl(
+        "https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/creator%2Fmessages%2Ffan_1%2F..%2Fimage.png",
+      )).toBe(false);
+      expect(isFirebaseStorageMediaUrl(
+        "https://user:pass@firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/image.png",
+      )).toBe(false);
+      expect(isFirebaseStorageMediaUrl(
+        "https://firebasestorage.googleapis.com:444/v0/b/test-bucket.appspot.com/o/image.png",
+      )).toBe(false);
     });
   });
 });

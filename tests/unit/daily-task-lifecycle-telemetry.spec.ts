@@ -35,7 +35,9 @@ function envelope(eventName: string): CanonicalEventEnvelope {
     debugVisibility: "admin_debug",
     scoreImpact: "evidence_completeness",
     privacyClass: "minimal_product",
-    metadata: {},
+    metadata: eventName === "daily_task_reward_granted"
+      ? { taskId: "check_in_today", resetWindowId: "2026-05-24" }
+      : {},
     pipelineStatus: "normal",
     unavailableGuestReason: null,
     includeInUserBehavior: true,

@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { AuthError, handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { addSupportMessage, getSupportThreadForUser, updateSupportThreadStatus } from "@/lib/server/support-threads";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { trackServerEvent } from "@/lib/server/analytics";
+
+const SUPPORT_THREAD_BODY_LIMIT_BYTES = 64_000;
 
 const supportMessageSchema = z.object({
     message: z.string().trim().min(1).max(2_000),
@@ -64,13 +67,16 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
             throw new AuthError("Unauthorized", 401);
         }
 
+        const { message } = supportMessageSchema.parse(await readBoundedJsonBody<unknown>(request, {
+            maxBytes: SUPPORT_THREAD_BODY_LIMIT_BYTES,
+            routeName: "support/thread/reply",
+        }));
         const { threadId } = await context.params;
         const existing = await getSupportThreadForUser(caller.uid, threadId, { markRead: false });
         if (!existing) {
             throw new AuthError("Support thread not found", 404);
         }
 
-        const { message } = supportMessageSchema.parse(await request.json());
         await addSupportMessage({
             threadId,
             senderRole: "user",
@@ -97,6 +103,14 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
             ...refreshed,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "support/thread");
     }
 }
@@ -115,13 +129,16 @@ async function PATCH_handler(request: NextRequest, context: RouteContext) {
             throw new AuthError("Unauthorized", 401);
         }
 
+        const { action } = supportStatusSchema.parse(await readBoundedJsonBody<unknown>(request, {
+            maxBytes: SUPPORT_THREAD_BODY_LIMIT_BYTES,
+            routeName: "support/thread/status",
+        }));
         const { threadId } = await context.params;
         const existing = await getSupportThreadForUser(caller.uid, threadId, { markRead: false });
         if (!existing) {
             throw new AuthError("Support thread not found", 404);
         }
 
-        const { action } = supportStatusSchema.parse(await request.json());
         const nextStatus = action === "resolve" ? "resolved" : "waiting_on_support";
         await updateSupportThreadStatus(threadId, nextStatus);
         const refreshed = await getSupportThreadForUser(caller.uid, threadId, { markRead: false });
@@ -131,6 +148,14 @@ async function PATCH_handler(request: NextRequest, context: RouteContext) {
             ...refreshed,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "support/thread");
     }
 }

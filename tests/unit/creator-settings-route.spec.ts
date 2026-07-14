@@ -506,6 +506,23 @@ describe("creator settings route", () => {
     expect(mockState.update).not.toHaveBeenCalled();
   });
 
+  it("returns invalid_creator_request when no creator setting is provided", async () => {
+    const response = await PUT(new NextRequest("http://localhost/api/creator/settings", {
+      method: "PUT",
+      body: JSON.stringify({}),
+      headers: { "Content-Type": "application/json" },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      success: false,
+      code: "invalid_creator_request",
+      retryable: false,
+    });
+    expect(mockState.update).not.toHaveBeenCalled();
+  });
+
   it("blocks admin projection writes on creator settings", async () => {
     mockState.readProjection.mockReturnValue({
       active: true,

@@ -1,7 +1,7 @@
 # Creator Settings Control Plane
 
-Generated: 2026-06-19T07:56:20.304Z
-Head: 0659a3764bcb3ada363f4a30e741d6e59743781f
+Generated: 2026-07-14T16:06:07.532Z
+Head: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
 
 ## Summary
 
@@ -12,7 +12,7 @@ Head: 0659a3764bcb3ada363f4a30e741d6e59743781f
 - Missing settings return defaults/checklist: true
 - User-facing profile consumes settings: true
 - Mobile compact sections: true
-- Protected nav/chat untouched: true
+- Protected nav/chat untouched: false
 
 ## Doctrine
 
@@ -31,4 +31,4 @@ Head: 0659a3764bcb3ada363f4a30e741d6e59743781f
 
 ## Next Fix Order
 
-- Run manual mobile UI evidence for Creator Settings before beta visual signoff.
+- protected_nav_chat

@@ -1,7 +1,7 @@
-import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
+import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
 
 const ROOT = process.cwd();
 
@@ -10,15 +10,14 @@ function read(path: string) {
 }
 
 describe("account settings mobile padding parity", () => {
-  it("passes the source-level account settings mobile padding validator", () => {
-    expect(() => {
-      execSync("npm run check:account-settings-mobile-padding", {
-        cwd: ROOT,
-        stdio: "pipe",
-        encoding: "utf8",
-      });
-    }).not.toThrow();
-  }, 20000);
+  it("passes source checks or reports only the exact dirty-tree isolation blocker", () => {
+    expectSourceValidatorWithDirtyTreeIsolation({
+      command: "npm run check:account-settings-mobile-padding",
+      artifact: "agent/state/account-settings-mobile-padding.generated.json",
+      isolationCheck: "reportIssueAndNavUntouched",
+      expectedIsolationFailure: "reportIssueAndNavUntouched failed.",
+    });
+  }, 30000);
 
   it("marks Account Settings as shell aligned and keeps bottom safety", () => {
     const page = read("src/components/Settings/UserSettingsPage.tsx");

@@ -107,7 +107,7 @@ const ACTION_ALIASES: Record<string, ActionAliasConfig> = {
   recommendation_dismissed: { normalizedAction: "recommendation_dismissed", entityType: "recommendation", entityKeys: ["drop_id", "dropId", "target_drop_id", "targetDropId", "recommendation_id", "recommendationId"] },
   drop_unlock_attempted: { normalizedAction: "drop_unwrap_attempted", entityType: "drop", entityKeys: ["drop_id", "dropId", "transaction_id", "transactionId", "idempotency_key", "idempotencyKey"] },
   unlock_drop_success: { normalizedAction: "drop_unlocked", entityType: "drop", entityKeys: ["drop_id", "dropId", "transaction_id", "transactionId", "idempotency_key", "idempotencyKey", "entitlement_id", "entitlementId"] },
-  drop_unwrapped: { normalizedAction: "drop_unlocked", entityType: "drop", entityKeys: ["drop_id", "dropId", "watch_session_id", "watchSessionId", "entitlement_id", "entitlementId"] },
+  drop_unwrapped: { normalizedAction: "drop_unwrapped", entityType: "drop", entityKeys: ["drop_id", "dropId", "watch_session_id", "watchSessionId", "entitlement_id", "entitlementId"] },
   drop_unlocked: { normalizedAction: "drop_unlocked", entityType: "drop", entityKeys: ["drop_id", "dropId", "transaction_id", "transactionId", "entitlement_id", "entitlementId"] },
   entitlement_granted: { normalizedAction: "drop_unlocked", entityType: "drop", entityKeys: ["drop_id", "dropId", "transaction_id", "transactionId", "entitlement_id", "entitlementId"] },
   unlock_drop_failed: { normalizedAction: "drop_unwrap_failed", entityType: "drop", entityKeys: ["drop_id", "dropId", "transaction_id", "transactionId", "idempotency_key", "idempotencyKey"] },

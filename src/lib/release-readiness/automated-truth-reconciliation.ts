@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import { classifyGeneratedArtifactFromGit } from "../agent-score/generated-artifact-version-policy";
+import { PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS } from "../agent-score/weights";
 import {
   buildReleaseReadinessContext,
   classifyOpenPr,
@@ -725,7 +726,36 @@ export function buildScoreTruthAuditReport(root: string): ScoreTruthAuditReport 
     return entry.needsRefresh;
   });
   const d = context.scoreDimensions;
-  const weightedFormulaScore = Number((((d.sourceHealth ?? 0) * 0.25) + ((d.runtimeHealth ?? 0) * 0.2) + ((d.evidenceCompleteness ?? 0) * 0.2) + ((d.freshness ?? 0) * 0.15) + ((d.costRisk ?? 0) * 0.1) + ((d.regressionRisk ?? 0) * 0.1)).toFixed(2));
+  const weightedFormulaScore = Number(((
+    ((d.sourceHealth ?? 0) * PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.sourceHealth)
+    + ((d.runtimeHealth ?? 0) * PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.runtimeHealth)
+    + ((d.evidenceCompleteness ?? 0) * PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.evidenceCompleteness)
+    + ((d.freshness ?? 0) * PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.freshness)
+    + ((d.costRisk ?? 0) * PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.costRisk)
+    + ((d.regressionRisk ?? 0) * PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.regressionRisk)
+  ) / 100).toFixed(2));
+  const costReadiness = context.publicBetaScore.costReadiness;
+  const costReadinessRecord = costReadiness && typeof costReadiness === "object"
+    ? costReadiness as Record<string, unknown>
+    : {};
+  const externallyReviewedCostLanes = [
+    "cloudRunCostReadiness",
+    "cloudSqlCostReadiness",
+    "geminiCloudAssistCostReadiness",
+  ].map((laneId) => {
+    const lane = costReadinessRecord[laneId];
+    return lane && typeof lane === "object" ? lane as Record<string, unknown> : {};
+  });
+  const costRiskHonestlyClassified = Number.isFinite(d.costRisk)
+    && (d.costRisk ?? -1) >= 0
+    && (d.costRisk ?? 101) <= 100
+    && externallyReviewedCostLanes.every((lane) => {
+      const evidence = Array.isArray(lane.evidence) ? lane.evidence.map(String) : [];
+      return typeof lane.status === "string"
+        && !/^(?:pass|ready|complete)$/u.test(lane.status)
+        && evidence.includes("externalReviewRequired=true")
+        && evidence.includes("externalBillingReviewed=false");
+    });
   const source = [
     readText(root, "src/lib/analytics/person-metrics-hydration.ts"),
     readText(root, "src/lib/agent-score/core.ts"),
@@ -747,7 +777,7 @@ export function buildScoreTruthAuditReport(root: string): ScoreTruthAuditReport 
     sourceOnlyClearsFormalProof: context.betaExitReadyFromSource === true,
     futureQuietEventPenaltyDetected: false,
     hardcodedZeroGapDetected,
-    costRiskHonestlyClassified: (context.scoreDimensions.costRisk ?? 0) === 42 && context.launchGateStatus === "owner_review",
+    costRiskHonestlyClassified,
     betaExitReady: false,
     formalBlockersRemain: context.launchBlockers.length > 0,
     validationFailures: [],
@@ -763,7 +793,7 @@ export function validateScoreTruthAuditReport(report: ScoreTruthAuditReport) {
   if (report.sourceOnlyClearsFormalProof) failures.push("source-only artifact clears formal proof.");
   if (report.futureQuietEventPenaltyDetected) failures.push("future quiet event can drag score.");
   if (report.hardcodedZeroGapDetected) failures.push("missing gap is hardcoded to zero.");
-  if (!report.costRiskHonestlyClassified) failures.push("costRisk 42 is hidden or mislabeled.");
+  if (!report.costRiskHonestlyClassified) failures.push("cost risk is hidden, out of range, or mislabeled as externally reviewed.");
   if (report.betaExitReady && report.formalBlockersRemain) failures.push("betaExitReady true while formal blockers remain.");
   return failures;
 }

@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+
+vi.mock("@/context/AdminViewAsContext", () => ({
+    useAdminViewAs: () => ({ viewAsState: null }),
+}));
 
 import { CreatorWorkspacePanel } from "@/components/Dashboard/CreatorWorkspacePanel";
 
@@ -16,7 +20,7 @@ describe("CreatorWorkspacePanel", () => {
             />,
         );
 
-        expect(markup).toContain("Subscribers");
+        expect(markup).toContain("Fan Pass CRM");
         expect(markup).toContain("No subscriber rows are active yet.");
     });
 });

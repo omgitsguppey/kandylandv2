@@ -512,7 +512,7 @@ describe("telemetry flow logic", () => {
                 eventCount: 1,
             });
 
-            expect(result).toBe(true);
+            expect(result).toEqual({ status: "accepted" });
             expect(navigator.sendBeacon).toHaveBeenCalledWith(
                 "/api/analytics/ingest",
                 expect.any(Blob),
@@ -531,13 +531,72 @@ describe("telemetry flow logic", () => {
                 eventCount: 2,
             });
 
-            expect(result).toBe(false);
+            expect(result).toEqual({ status: "retryable_failure", reason: "offline" });
             expect(diagnostics.recordClientDiagnostic).toHaveBeenCalledWith("telemetry", "Guest analytics flush failed", expect.objectContaining({
                 pagePath: "/test-path",
                 reason: "page_view",
                 queuedEvents: 2,
                 message: "offline",
             }));
+        });
+
+        it("advances past permanent guest ingest failures so later batches are not blocked", async () => {
+            vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({
+                reason: "invalid_analytics_payload",
+                retryable: false,
+                permanent: true,
+            }), {
+                status: 422,
+                headers: { "content-type": "application/json" },
+            }));
+
+            const result = await telemetry.submitGuestAnalyticsIngestPayload({
+                payload: { batchId: "batch_invalid", events: [] },
+                pagePath: "/test-path",
+                reason: "page_view",
+                eventCount: 2,
+            });
+
+            expect(result).toEqual({
+                status: "permanent_failure",
+                httpStatus: 422,
+                reason: "invalid_analytics_payload",
+            });
+            expect(telemetry.shouldAdvanceGuestAnalyticsQueue(result)).toBe(true);
+            expect(diagnostics.recordClientDiagnostic).toHaveBeenCalledWith(
+                "telemetry",
+                "Guest analytics batch permanently rejected",
+                expect.objectContaining({
+                    rejectionReason: "invalid_analytics_payload",
+                    httpStatus: 422,
+                    droppedEvents: 2,
+                }),
+            );
+        });
+
+        it("retains transient guest ingest failures for a later retry", async () => {
+            vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({
+                reason: "temporary_server_failure",
+                retryable: true,
+                permanent: false,
+            }), {
+                status: 503,
+                headers: { "content-type": "application/json" },
+            }));
+
+            const result = await telemetry.submitGuestAnalyticsIngestPayload({
+                payload: { batchId: "batch_retry", events: [] },
+                pagePath: "/test-path",
+                reason: "page_view",
+                eventCount: 1,
+            });
+
+            expect(result).toEqual({
+                status: "retryable_failure",
+                httpStatus: 503,
+                reason: "temporary_server_failure",
+            });
+            expect(telemetry.shouldAdvanceGuestAnalyticsQueue(result)).toBe(false);
         });
 
         it("submits runtime watch events through the canonical helper", () => {

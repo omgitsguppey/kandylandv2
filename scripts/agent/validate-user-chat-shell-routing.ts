@@ -126,9 +126,11 @@ for (const needle of [
 for (const needle of [
   "documentElement.style.overflow = \"hidden\"",
   "USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
-  "mainElement.style.height = androidPwa",
+  "mainElement.style.height = USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT",
+  "mainElement.style.height = USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT",
   "mainElement.style.boxSizing = \"border-box\"",
-  "mainElement.style.paddingBottom = \"var(--user-mobile-chat-bottom-reserved-height, 0px)\"",
+  "mainElement.style.setProperty(\"--user-mobile-chat-bottom-reserved-height\"",
+  "mainElement.style.paddingBottom = USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT",
   "--chat-visual-viewport-height",
   "min-h-0",
 ]) {

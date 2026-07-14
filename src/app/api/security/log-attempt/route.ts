@@ -8,6 +8,9 @@ import { handleApiError } from "@/lib/server/auth";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+
+const SECURITY_ATTEMPT_BODY_LIMIT_BYTES = 16_384;
 
 async function POST_handler(req: NextRequest) {
     try {
@@ -23,7 +26,10 @@ async function POST_handler(req: NextRequest) {
         }
         const uid = caller.uid;
 
-        const body = await req.json();
+        const body = await readBoundedJsonBody<Record<string, unknown>>(req, {
+            maxBytes: SECURITY_ATTEMPT_BODY_LIMIT_BYTES,
+            routeName: "security/log-attempt",
+        });
         const {
             dropId,
             reason,
@@ -137,6 +143,13 @@ async function POST_handler(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "SecurityLogAttempt.POST");
     }
 }

@@ -10,7 +10,11 @@ import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { buildClientTrackingDecision } from "@/lib/analytics/client-tracking-policy";
 import { canUseBehavioralAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
-import { submitGuestAnalyticsIngestPayload, trackEvent } from "@/lib/telemetry";
+import {
+    shouldAdvanceGuestAnalyticsQueue,
+    submitGuestAnalyticsIngestPayload,
+    trackEvent,
+} from "@/lib/telemetry";
 import {
     closeSession,
     startSession,
@@ -22,6 +26,7 @@ import {
     CLIENT_TELEMETRY_NON_PRIORITY_QUEUE_CAP,
     CLIENT_TELEMETRY_PRIORITY_FLUSH_DELAY_MS,
     classifyClientTelemetryEventPriority,
+    resolveClientTelemetryRetryDelayMs,
     shouldFlushClientTelemetryOnNextTurn,
 } from "@/lib/analytics/client-telemetry-priority";
 
@@ -91,7 +96,7 @@ const GUEST_ANALYTICS_MAX_DIAGNOSTIC_EVENTS_PER_SESSION = 60;
 const GUEST_ANALYTICS_MAX_EVENTS_PER_FLUSH = 200;
 const SCROLL_MILESTONES = [25, 50, 75, 100] as const;
 
-type GuestAnalyticsFlushReason = "interval" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online" | "priority";
+type GuestAnalyticsFlushReason = "batch" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online" | "priority";
 type HoverSummaryState = {
     totalHoverMs: number;
     hoveredTargetCount: number;
@@ -392,12 +397,13 @@ export function DeepTracker() {
             semanticSurfaceLabel: semanticContext.surfaceLabel,
         } satisfies Partial<TelemetryEvent>;
 
-        let trackingInterval: number | undefined;
+        let nonPriorityFlushTimeout: number | null = null;
         let currentHoverTarget: HTMLElement | null = null;
         let currentHoverKey: string | null = null;
         let finalized = false;
         const shouldCaptureAnonymousBatch = true;
         let queuePersistTimeout: number | null = null;
+        let guestFlushRetryAttempt = 0;
 
         pageEnteredAt.current = Date.now();
         lastScrollDepth.current = 0;
@@ -429,24 +435,31 @@ export function DeepTracker() {
 
             guestFlushInFlightRef.current = (async () => {
                 try {
-                    const flushed = await submitGuestAnalyticsIngestPayload({
+                    const outcome = await submitGuestAnalyticsIngestPayload({
                         payload,
                         pagePath: pathname,
                         reason,
                         preferBeacon: options.preferBeacon,
                         eventCount: queuedEvents.length,
                     });
-                    if (!flushed) {
+                    if (!shouldAdvanceGuestAnalyticsQueue(outcome)) {
+                        persistGuestQueue(eventQueue.current);
+                        scheduleRetainedQueueRetry();
                         return;
                     }
+                    guestFlushRetryAttempt = 0;
                     eventQueue.current = eventQueue.current.slice(queuedEvents.length);
                     stableGuestBatchRef.current = clearStableGuestAnalyticsBatchAfterSuccess(
                         stableGuestBatchRef.current,
                         stableBatch.signature,
                     );
                     persistGuestQueue(eventQueue.current);
+                    if (eventQueue.current.length > 0 && document.visibilityState === "visible") {
+                        scheduleNonPriorityFlush();
+                    }
                 } catch {
                     persistGuestQueue(eventQueue.current);
+                    scheduleRetainedQueueRetry();
                 } finally {
                     guestFlushInFlightRef.current = null;
                 }
@@ -470,6 +483,28 @@ export function DeepTracker() {
             window.setTimeout(() => {
                 void flushQueue("priority");
             }, CLIENT_TELEMETRY_PRIORITY_FLUSH_DELAY_MS);
+        };
+
+        const scheduleNonPriorityFlush = (delayMs = GUEST_ANALYTICS_FLUSH_INTERVAL_MS) => {
+            if (nonPriorityFlushTimeout !== null) {
+                return;
+            }
+
+            nonPriorityFlushTimeout = window.setTimeout(() => {
+                nonPriorityFlushTimeout = null;
+                if (document.visibilityState === "visible") {
+                    void flushQueue("batch");
+                }
+            }, delayMs);
+        };
+
+        const scheduleRetainedQueueRetry = () => {
+            guestFlushRetryAttempt += 1;
+            const retryDelayMs = resolveClientTelemetryRetryDelayMs(guestFlushRetryAttempt);
+            if (retryDelayMs === null || document.visibilityState !== "visible") {
+                return;
+            }
+            scheduleNonPriorityFlush(retryDelayMs);
         };
 
         const pushEvent = (event: TelemetryEvent) => {
@@ -511,10 +546,42 @@ export function DeepTracker() {
             }
 
             eventQueue.current.push(event);
+            guestFlushRetryAttempt = 0;
             persistQueueSoon();
             if (shouldFlushClientTelemetryOnNextTurn(event)) {
                 schedulePriorityFlush();
+            } else {
+                scheduleNonPriorityFlush();
             }
+        };
+
+        const emitSessionActivityTick = () => {
+            if (document.visibilityState !== "visible") {
+                return;
+            }
+
+            const now = Date.now();
+            const tickPolicy = resolveSessionTelemetryPolicy({
+                eventName: "session_activity_tick",
+                lastActivityTickAtMs: lastSessionActivityTickAtRef.current,
+                nowMs: now,
+            });
+            if (!tickPolicy.shouldEmit) {
+                return;
+            }
+
+            lastSessionActivityTickAtRef.current = now;
+            trackEvent("session_activity_tick", {
+                ...semanticParams,
+                page_path: pathname,
+                session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
+                active_ms: Math.max(0, now - pageEnteredAt.current - visibilitySummaryRef.current.totalHiddenMs),
+                idle_ms: 0,
+                hidden_ms: visibilitySummaryRef.current.totalHiddenMs,
+                bounce_status: "unknown",
+                engagement_status: "engaged",
+                source_component: "DeepTracker",
+            });
         };
 
         const closeCurrentHover = () => {
@@ -533,6 +600,7 @@ export function DeepTracker() {
             delete hoverStart.current[currentHoverKey];
             if (duration > 1000) {
                 hoverCountRef.current += 1;
+                emitSessionActivityTick();
                 const label = getSafeTargetLabel(currentHoverTarget);
                 const summary = hoverSummaryRef.current;
                 summary.totalHoverMs += duration;
@@ -805,6 +873,7 @@ export function DeepTracker() {
             }
 
             clickCountRef.current += 1;
+            emitSessionActivityTick();
             const dropId = interactiveTarget.getAttribute("data-drop-id") || undefined;
             const targetLabel = getSafeTargetLabel(interactiveTarget);
 
@@ -857,6 +926,7 @@ export function DeepTracker() {
                 lastScrollDepth.current = Math.min(100, scrollPercent);
             }
 
+            const previousScrollCount = scrollCountRef.current;
             while (
                 nextScrollMilestoneIndexRef.current < SCROLL_MILESTONES.length
                 && scrollPercent >= SCROLL_MILESTONES[nextScrollMilestoneIndexRef.current]
@@ -874,6 +944,9 @@ export function DeepTracker() {
                     scrollDepthPercent: milestone,
                     ...rawSemanticFields,
                 });
+            }
+            if (scrollCountRef.current > previousScrollCount) {
+                emitSessionActivityTick();
             }
         };
 
@@ -942,12 +1015,17 @@ export function DeepTracker() {
             }
 
             updateVisibilitySummary("visible");
+            guestFlushRetryAttempt = 0;
+            if (eventQueue.current.length > 0) {
+                scheduleNonPriorityFlush();
+            }
         };
 
         const handlePageHide = () => {
             emitPageSummary("pagehide");
         };
         const handleOnline = () => {
+            guestFlushRetryAttempt = 0;
             void flushQueue("online");
         };
 
@@ -959,37 +1037,6 @@ export function DeepTracker() {
         window.addEventListener("pagehide", handlePageHide);
         window.addEventListener("online", handleOnline);
 
-        trackingInterval = window.setInterval(() => {
-            if (document.visibilityState !== "visible") {
-                return;
-            }
-            const now = Date.now();
-            const tickPolicy = resolveSessionTelemetryPolicy({
-                eventName: "session_activity_tick",
-                lastActivityTickAtMs: lastSessionActivityTickAtRef.current,
-                nowMs: now,
-            });
-            if (tickPolicy.shouldEmit) {
-                lastSessionActivityTickAtRef.current = now;
-                trackEvent("session_activity_tick", {
-                    ...semanticParams,
-                    page_path: pathname,
-                    session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
-                    active_ms: clickCountRef.current + hoverCountRef.current + scrollCountRef.current > 0
-                        ? Math.max(0, now - pageEnteredAt.current - visibilitySummaryRef.current.totalHiddenMs)
-                        : 0,
-                    idle_ms: clickCountRef.current + hoverCountRef.current + scrollCountRef.current > 0
-                        ? 0
-                        : Math.max(0, now - pageEnteredAt.current - visibilitySummaryRef.current.totalHiddenMs),
-                    hidden_ms: visibilitySummaryRef.current.totalHiddenMs,
-                    bounce_status: "unknown",
-                    engagement_status: clickCountRef.current + hoverCountRef.current + scrollCountRef.current > 0 ? "engaged" : "passive",
-                    source_component: "DeepTracker",
-                });
-            }
-            void flushQueue("interval");
-        }, GUEST_ANALYTICS_FLUSH_INTERVAL_MS);
-
         return () => {
             document.removeEventListener("click", handleClick, true);
             window.removeEventListener("scroll", throttledScroll);
@@ -998,8 +1045,8 @@ export function DeepTracker() {
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             window.removeEventListener("pagehide", handlePageHide);
             window.removeEventListener("online", handleOnline);
-            if (trackingInterval) {
-                window.clearInterval(trackingInterval);
+            if (nonPriorityFlushTimeout !== null) {
+                window.clearTimeout(nonPriorityFlushTimeout);
             }
             if (scrollRafRef.current !== null) {
                 window.cancelAnimationFrame(scrollRafRef.current);

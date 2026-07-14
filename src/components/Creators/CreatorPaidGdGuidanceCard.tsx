@@ -28,29 +28,32 @@ const REASON_COPY: Record<CreatorPaidGdGuidanceReason, {
     chat: {
         eyebrow: "Private chat",
         title: "Paid GumDrops are required to message creators",
-        body: "Creator experiences use paid GumDrops only. Free and reward GumDrops are for unwrapping Drops.",
+        body: "Reward GumDrops do not count toward private chat.",
     },
     fan_pass: {
         eyebrow: "Fan Pass",
         title: "Fan Pass uses paid GumDrops only",
-        body: "Creator experiences use paid GumDrops only. Reward GumDrops do not count toward Fan Pass.",
+        body: "Reward GumDrops do not count toward Fan Pass.",
     },
     request: {
         eyebrow: "Custom request",
         title: "Custom requests need paid GumDrops",
-        body: "Creator experiences use paid GumDrops, not reward balance.",
+        body: "Custom requests use paid GumDrops, not reward balance.",
     },
     booking: {
         eyebrow: "Live time",
         title: "Bookings need paid GumDrops",
-        body: "Creator experiences use paid GumDrops only. Free and reward GumDrops cannot book live time.",
+        body: "Reward GumDrops do not cover live-time bookings.",
     },
     paid_media: {
         eyebrow: "Paid media",
         title: "Paid creator media needs paid GumDrops",
-        body: "Creator experiences use paid GumDrops only, including paid media and paid chat.",
+        body: "Reward GumDrops do not unlock paid creator media or chat.",
     },
 };
+
+const PAID_SOURCE_RULE_COPY = "Creator experiences use paid GumDrops only.";
+const FREE_GD_RULE_COPY = "Free GumDrops are only for unwrapping Drops.";
 
 export function CreatorPaidGdGuidanceCard({
     creatorName,
@@ -84,7 +87,7 @@ export function CreatorPaidGdGuidanceCard({
                         {copy.title}
                     </p>
                     <p className="mt-2 text-[12px] leading-5 text-[#e5ddff]">
-                        {copy.body}
+                        {copy.body} {PAID_SOURCE_RULE_COPY} {FREE_GD_RULE_COPY}
                     </p>
                     <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-[#cdbdff]">
                         Paid GD {formatCompactGd(currentPaidGd)} / Need {formatCompactGd(requiredPaidGd)} for {creatorName}

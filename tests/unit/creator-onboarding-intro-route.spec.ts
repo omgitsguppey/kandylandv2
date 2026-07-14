@@ -203,6 +203,8 @@ describe("POST /api/creator/onboarding/intro", () => {
 
         expect(response.status).toBe(409);
         expect(payload).toMatchObject({
+            code: "invalid_creator_request",
+            retryable: false,
             error: "Creator onboarding was not found for this account.",
         });
         expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({

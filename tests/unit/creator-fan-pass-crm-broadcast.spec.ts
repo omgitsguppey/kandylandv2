@@ -57,20 +57,20 @@ describe("creator Fan Pass CRM and broadcast semantics", () => {
     expect(route).toContain("fanIdentitySource");
   });
 
-  it("makes broadcast audience explicit and removes follower copy from creator broadcast UI", () => {
+  it("makes the supported follower audience explicit and removes legacy all_fans copy", () => {
     const workspace = readCreatorWorkspaceSurface();
     const manager = read("src/components/Creators/CreatorBroadcastManager.tsx");
     const broadcastsRoute = read("src/app/api/creator/broadcasts/route.ts");
     const combinedUi = `${workspace}\n${manager}`;
 
-    expect(workspace).toContain('data-broadcast-audience="all_fans"');
+    expect(workspace).toContain('data-broadcast-audience="followers"');
     expect(workspace).toContain('data-broadcast-copy-audited="true"');
-    expect(workspace).toContain("Audience: Fans");
-    expect(workspace).toContain("Message your fans...");
-    expect(combinedUi).not.toMatch(/all followers|blast to all followers|for followers/iu);
-    expect(broadcastsRoute).toContain("CREATOR_BROADCAST_SUPPORTED_AUDIENCE");
-    expect(broadcastsRoute).toContain("supportedAudience");
-    expect(broadcastsRoute).toContain("all_fans");
+    expect(workspace).toContain("Audience: Followers");
+    expect(workspace).toContain("Message your followers...");
+    expect(combinedUi).not.toMatch(/all_fans|all followers|blast to all followers|for followers/iu);
+    expect(broadcastsRoute).toContain("resolveCreatorBroadcastAudience");
+    expect(broadcastsRoute).toContain("supportedAudiences");
+    expect(broadcastsRoute).toContain("followers");
   });
 
   it("documents CRM privacy and audience doctrine", () => {
@@ -79,7 +79,7 @@ describe("creator Fan Pass CRM and broadcast semantics", () => {
     expect(doc).toContain("Creator Dashboard subscriber rows are CRM rows");
     expect(doc).toContain("Raw user IDs are debug/admin-only");
     expect(doc).toContain("Broadcast audience must be explicit");
-    expect(doc).toContain("all_fans");
+    expect(doc).toContain("Followers, not legacy all_fans");
     expect(doc).toContain("fan_pass_subscribers");
   });
 

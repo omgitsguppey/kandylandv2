@@ -9,6 +9,7 @@ type BroadcastRecord = {
 const mockState = vi.hoisted(() => ({
   guardApiRequest: vi.fn(),
   handleApiError: vi.fn(),
+  trackServerEvent: vi.fn(async () => undefined),
   readProjection: vi.fn(),
   adminDb: null as unknown as ReturnType<typeof buildAdminDb>,
   callerUser: {
@@ -50,6 +51,10 @@ vi.mock("@/lib/server/auth", () => ({
 
 vi.mock("@/lib/server/request-guard", () => ({
   guardApiRequest: mockState.guardApiRequest,
+}));
+
+vi.mock("@/lib/server/analytics", () => ({
+  trackServerEvent: mockState.trackServerEvent,
 }));
 
 vi.mock("@/lib/server/admin-creator-projection", () => ({
@@ -119,18 +124,19 @@ function buildAdminDb() {
       }
 
       if (name === "creator_relationships") {
-        return {
-          where: vi.fn(() => ({
-            limit: vi.fn(() => ({
-              get: vi.fn(async () => ({
-                docs: mockState.relationships.map((record) => ({
-                  id: record.id,
-                  data: () => record.data,
-                })),
-              })),
+        const query = {
+          where: vi.fn(),
+          limit: vi.fn(),
+          get: vi.fn(async () => ({
+            docs: mockState.relationships.map((record) => ({
+              id: record.id,
+              data: () => record.data,
             })),
           })),
         };
+        query.where.mockReturnValue(query);
+        query.limit.mockReturnValue(query);
+        return query;
       }
 
       return {
@@ -166,6 +172,8 @@ describe("creator broadcasts route", () => {
   beforeEach(() => {
     mockState.guardApiRequest.mockReset();
     mockState.handleApiError.mockReset();
+    mockState.trackServerEvent.mockReset();
+    mockState.trackServerEvent.mockResolvedValue(undefined);
     mockState.readProjection.mockReset();
     mockState.broadcasts = [];
     mockState.relationships = [];
@@ -223,7 +231,7 @@ describe("creator broadcasts route", () => {
       body: JSON.stringify({
         title: "Weekly update",
         message: "New post is live",
-        audience: "all_fans",
+        audience: "followers",
       }),
       headers: {
         "Content-Type": "application/json",
@@ -232,17 +240,15 @@ describe("creator broadcasts route", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.broadcast.status).toBe("sent");
+    expect(body.broadcast.status).toBe("published");
     expect(mockState.batchSet).toHaveBeenCalledWith(expect.objectContaining({ id: "broadcast_1" }), expect.objectContaining({
       creatorId: mockState.callerUser.uid,
-      status: "sent",
-      target: "all_fans",
-      audience: "all_fans",
-      supportedAudience: "all_fans",
+      status: "published",
+      audience: "followers",
+      sourceTruth: "creator_broadcast_source_record",
     }));
     expect(body.broadcast).toMatchObject({
-      audience: "all_fans",
-      supportedAudience: "all_fans",
+      audience: "followers",
       audienceFanCount: expect.any(Number),
     });
   });
@@ -253,7 +259,7 @@ describe("creator broadcasts route", () => {
       body: JSON.stringify({
         title: "Weekly update",
         message: "New post is live",
-        audience: "fan_pass_subscribers",
+        audience: "selected_segment",
       }),
       headers: {
         "Content-Type": "application/json",
@@ -265,9 +271,10 @@ describe("creator broadcasts route", () => {
     expect(body).toMatchObject({
       success: false,
       code: "unsupported_broadcast_audience",
-      supportedAudience: "all_fans",
+      requestedAudience: "selected_segment",
+      supportedAudiences: ["followers", "fan_pass_subscribers", "followers_and_subscribers"],
     });
-    expect(body.message).toContain("Fans");
+    expect(body.message).toContain("Fan Pass");
     expect(mockState.batchSet).not.toHaveBeenCalled();
   });
 

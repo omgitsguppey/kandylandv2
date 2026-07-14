@@ -31,5 +31,7 @@ describe("backend service ownership", () => {
     expect(report.routeServiceMap["/api/admin/debug"]).toBe("debug/control tower service");
     expect(report.routeServiceMap["/api/checkin"]).toBe("task/checkin/reward service");
     expect(report.routeServiceMap["/api/paypal/capture"]).toBe("wallet/payment/GumDrop ledger service");
+    expect(report.routeServiceMap["functions:user-index-materializer-schedule"]).toBe("analytics ingest/event fact service");
+    expect(report.routeServiceMap["functions:scheduled-http-client"]).toBe("analytics ingest/event fact service");
   });
 });

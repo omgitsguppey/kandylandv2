@@ -171,6 +171,7 @@ function addFinding(findings: LegacyPhaseoutFinding[], input: Omit<LegacyPhaseou
 }
 
 function overdueStateFor(item: LegacyRegistryItem, now: Date): LegacyPhaseoutScoredItem["overdueState"] {
+  if (item.phaseOutStage === "removed" || item.status === "canonical") return "current";
   const current = now.getTime();
   const removeBy = Date.parse(`${item.removeBy}T00:00:00.000Z`);
   const reviewBy = Date.parse(`${item.reviewBy}T00:00:00.000Z`);
@@ -315,7 +316,10 @@ function buildNextActions(items: readonly LegacyPhaseoutScoredItem[], findings: 
   for (const item of items.filter((entry) => entry.overdueState !== "current")) {
     actions.add(`Review overdue legacy item ${item.id}; replacement is ${item.canonicalReplacement}.`);
   }
-  for (const item of [...items].sort((left, right) => right.debtScore - left.debtScore).slice(0, 5)) {
+  for (const item of items
+    .filter((entry) => entry.phaseOutStage !== "removed" && entry.debtScore > 0)
+    .sort((left, right) => right.debtScore - left.debtScore)
+    .slice(0, 5)) {
     actions.add(`Phase out ${item.id} by ${item.removeBy}; owner surface ${item.ownerSurface}.`);
   }
   if (actions.size === 0) {

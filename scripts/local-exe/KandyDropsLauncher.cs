@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -12,8 +13,6 @@ internal static class KandyDropsLauncher
 
     private static int Main()
     {
-        string exeName = Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]) ?? "";
-        bool testMode = exeName.IndexOf("test", StringComparison.OrdinalIgnoreCase) >= 0;
         string repoRoot = FindRepoRoot(AppDomain.CurrentDomain.BaseDirectory);
         if (repoRoot.Length == 0)
         {
@@ -21,14 +20,17 @@ internal static class KandyDropsLauncher
             return 1;
         }
 
-        string url = testMode
-            ? "http://" + Host + ":" + Port.ToString() + "/api/admin-ui-test-session?redirect=/admin"
-            : "http://" + Host + ":" + Port.ToString() + "/";
-        string command = "npm run build && npm run start -- --hostname " + Host + " --port " + Port.ToString();
+        string url = "http://" + Host + ":" + Port.ToString() + "/";
+        string command = "npm run build -- --webpack && npm run start -- --hostname " + Host + " --port " + Port.ToString();
 
-        Console.WriteLine(testMode
-            ? "Starting KandyDrops local production test server with admin fixture access."
-            : "Starting KandyDrops connected local production server.");
+        if (IsPortInUse())
+        {
+            Console.Error.WriteLine("Port " + Port.ToString() + " is already in use. Stop the existing local server, then reopen this launcher.");
+            return 1;
+        }
+
+        Console.WriteLine("Starting KandyDrops connected local production server.");
+        Console.WriteLine("This launcher uses the services configured in .env.local; it is not an offline audit sandbox.");
         Console.WriteLine("Repo: " + repoRoot);
         Console.WriteLine("URL:  " + url);
         Console.WriteLine("Close this window to stop the local server.");
@@ -43,11 +45,8 @@ internal static class KandyDropsLauncher
         startInfo.EnvironmentVariables["HOSTNAME"] = Host;
         startInfo.EnvironmentVariables["PORT"] = Port.ToString();
         startInfo.EnvironmentVariables["BROWSER"] = "none";
-        startInfo.EnvironmentVariables["KANDYDROPS_LOCAL_EXE"] = testMode ? "test" : "connected_live";
-        if (testMode)
-        {
-            startInfo.EnvironmentVariables["NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION"] = "1";
-        }
+        startInfo.EnvironmentVariables["NEXT_TELEMETRY_DISABLED"] = "1";
+        startInfo.EnvironmentVariables["KANDYDROPS_LOCAL_EXE"] = "connected_live";
 
         using (var server = Process.Start(startInfo))
         {
@@ -98,14 +97,22 @@ internal static class KandyDropsLauncher
                     return false;
                 }
 
-                using (var client = new TcpClient())
+                var request = (HttpWebRequest)WebRequest.Create(
+                    "http://" + Host + ":" + Port.ToString() + "/api/health"
+                );
+                request.Method = "GET";
+                request.Proxy = null;
+                request.Timeout = 2000;
+                request.ReadWriteTimeout = 2000;
+
+                using (var response = (HttpWebResponse)request.GetResponse())
+                using (var reader = new StreamReader(response.GetResponseStream()))
                 {
-                    IAsyncResult result = client.BeginConnect(Host, Port, null, null);
-                    bool connected = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
-                    if (connected)
+                    string body = reader.ReadToEnd();
+                    if (response.StatusCode == HttpStatusCode.OK
+                        && body.IndexOf("\"status\":\"healthy\"", StringComparison.Ordinal) >= 0)
                     {
-                        client.EndConnect(result);
-                        Console.WriteLine("Local server is ready.");
+                        Console.WriteLine("KandyDrops local server is healthy.");
                         return true;
                     }
                 }
@@ -126,6 +133,29 @@ internal static class KandyDropsLauncher
 
         Console.Error.WriteLine("Timed out waiting for the local server. Open the URL above manually if it finishes later.");
         return false;
+    }
+
+    private static bool IsPortInUse()
+    {
+        try
+        {
+            using (var client = new TcpClient())
+            {
+                IAsyncResult result = client.BeginConnect(Host, Port, null, null);
+                bool connected = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
+                if (!connected)
+                {
+                    return false;
+                }
+
+                client.EndConnect(result);
+                return true;
+            }
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static void OpenBrowser(string url)

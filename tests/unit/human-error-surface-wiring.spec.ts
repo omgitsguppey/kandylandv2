@@ -8,7 +8,6 @@ function readSource(path: string) {
 }
 
 const WIRED_SURFACES = [
-  "src/components/Dashboard/CreatorWorkspacePanel.tsx",
   "src/components/Creators/CreatorDashboardSettingsHub.tsx",
   "src/components/Creators/CreatorExperiencesPanel.tsx",
   "src/components/Creators/CreatorRequestsManager.tsx",
@@ -25,6 +24,12 @@ describe("human error surface wiring", () => {
       expect(source, path).toContain("resolveClientActionError");
       expect(source, path).toContain("HumanErrorNotice");
     }
+
+    const creatorWorkspaceSource = readSource("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const creatorSourceNotice = readSource("src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx");
+    expect(creatorWorkspaceSource).toContain("resolveClientActionError");
+    expect(creatorWorkspaceSource).toContain("CreatorDashboardSourceNotice");
+    expect(creatorSourceNotice).toContain("HumanErrorNotice");
   });
 
   it("does not render raw error.message or String(error) in wired visible UI", () => {
@@ -46,6 +51,7 @@ describe("human error surface wiring", () => {
   it("keeps creator dashboard settings errors translated and mobile compact", () => {
     const source = readSource("src/components/Creators/CreatorDashboardSettingsHub.tsx");
     const landingSource = readSource("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landingNoticeSource = readSource("src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx");
 
     expect(source).toContain("data-creator-dashboard-density=\"mobile_compact\"");
     expect(source).toContain("data-bottom-nav-safe=\"true\"");
@@ -57,7 +63,8 @@ describe("human error surface wiring", () => {
     expect(landingSource).toContain("data-creator-dashboard-landing-density=\"mobile_compact\"");
     expect(landingSource).toContain("data-creator-landing-mobile-density=\"compact_v2\"");
     expect(landingSource).toContain("data-creator-landing-error-language=\"human\"");
-    expect(landingSource).toContain("data-creator-landing-source-review=\"partial_safe\"");
+    expect(landingNoticeSource).toContain("data-creator-landing-source-review=\"partial_safe\"");
+    expect(landingNoticeSource).toContain("HumanErrorNotice");
     expect(landingSource).toContain("dashboard_source_unavailable");
     expect(landingSource).not.toContain("body={moduleErrors.bookings}");
     expect(landingSource).not.toContain("body={moduleErrors.subscriptions}");

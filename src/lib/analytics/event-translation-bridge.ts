@@ -503,7 +503,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/lib/creator-monetization/creator-monetization-contract.ts" || normalized === "src/lib/creator-monetization/creator-monetization-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/creator/settings/route.ts" || normalized === "src/app/api/creator/broadcasts/route.ts" || normalized === "src/app/api/creators/[username]/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/Creators/CreatorExperiencesPanel.tsx" || normalized === "src/lib/creator-public-pages.ts") return "real_source_change_needs_review";
-  if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts" || normalized === "src/app/api/chat/attachments/cancel/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/creator-relationship-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/search-telemetry-contract.ts" || normalized === "src/lib/discovery/search-cost-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/creator/relationships/route.ts") return "real_source_change_needs_review";

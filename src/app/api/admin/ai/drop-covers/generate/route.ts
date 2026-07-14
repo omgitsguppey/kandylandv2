@@ -11,6 +11,7 @@ import { ADMIN_AI_GENERATE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -38,15 +39,7 @@ async function POST_handler(request: NextRequest) {
             maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
-        const settings = await getAdminAiDropCoverSettings();
-        if (!settings.enabled) {
-            return finalize(NextResponse.json({
-                error: "AI cover generation is turned off.",
-                errorCode: "feature_disabled",
-            }, { status: 409 }));
-        }
-
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             title?: unknown;
             creatorName?: unknown;
             creatorId?: unknown;
@@ -57,7 +50,19 @@ async function POST_handler(request: NextRequest) {
             previousJobId?: unknown;
             clientRequestId?: unknown;
             requestedModel?: unknown;
-        };
+        }>(request, {
+            maxBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
+            routeName: "admin/ai/drop-covers/generate:POST",
+            allowEmpty: false,
+        });
+
+        const settings = await getAdminAiDropCoverSettings();
+        if (!settings.enabled) {
+            return finalize(NextResponse.json({
+                error: "AI cover generation is turned off.",
+                errorCode: "feature_disabled",
+            }, { status: 409 }));
+        }
         const title = typeof body.title === "string" ? body.title.trim() : "";
         if (title.length < 3) {
             return finalize(NextResponse.json({
@@ -116,6 +121,16 @@ async function POST_handler(request: NextRequest) {
             },
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(NextResponse.json({
+                success: false,
+                code: error.code,
+                errorCode: error.code,
+                error: error.message,
+                message: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
             return finalize(NextResponse.json(aiError.body, { status: aiError.status }), error);

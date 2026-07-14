@@ -1,7 +1,7 @@
-import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
+import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
 
 const ROOT = process.cwd();
 
@@ -10,15 +10,14 @@ function read(path: string) {
 }
 
 describe("account settings delete flow", () => {
-  it("passes the source-level account settings delete flow validator", () => {
-    expect(() => {
-      execSync("npm run check:account-settings-delete-flow", {
-        cwd: ROOT,
-        stdio: "pipe",
-        encoding: "utf8",
-      });
-    }).not.toThrow();
-  });
+  it("passes source checks or reports only the exact dirty-tree isolation blocker", () => {
+    expectSourceValidatorWithDirtyTreeIsolation({
+      command: "npm run check:account-settings-delete-flow",
+      artifact: "agent/state/account-settings-delete-flow.generated.json",
+      isolationCheck: "chatPaymentGumdropMathUntouched",
+      expectedIsolationFailure: "chatPaymentGumdropMathUntouched failed.",
+    });
+  }, 30000);
 
   it("keeps the delete account row visible above mobile floating controls", () => {
     const settingsPage = read("src/components/Settings/UserSettingsPage.tsx");

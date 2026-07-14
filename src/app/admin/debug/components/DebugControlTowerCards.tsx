@@ -106,7 +106,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "The source evidence could not be read and cannot clear this lane." };
     }
     if (typedEvidenceBoundaryOnly) {
-        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Site activity evidence required", findingLabel: evidenceGateOnly ? findingLabel : "Source evidence lane", sourceDetail: "Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves." };
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source activity evidence required", findingLabel: evidenceGateOnly ? findingLabel : "Source evidence lane", sourceDetail: "Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves." };
     }
     if (sourceOnlyGateOnly) return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source checks only", findingLabel: evidenceGateOnly ? findingLabel : "Source-only evidence", sourceDetail: "Source validators passed; deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks remain separate source lanes." };
     if (sourceNeedsRefresh || refreshGateOnly) {

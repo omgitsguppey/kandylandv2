@@ -173,7 +173,7 @@ requireNotIncludes(realtimePanel, "Update time not recorded", "Realtime diagnost
 for (const expected of [
   "optimizerModel: z.literal(ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL)",
   "Gemini 2.5 Flash Image",
-  "Gemini 3 Pro Image Preview",
+  "Gemini 3 Pro Image",
   "ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL",
   "referenceLimitApplied: z.boolean().optional()",
   "usedReferenceCount: z.number().optional()",

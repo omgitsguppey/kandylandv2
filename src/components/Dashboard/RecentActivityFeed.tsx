@@ -359,9 +359,9 @@ function ExpandedActivityView({
                             type="button"
                             onClick={onPreviousPage}
                             disabled={currentPage === 1}
-                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                            <ChevronLeft className="h-4 w-4" />
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                             Previous
                         </button>
                         <span className="text-xs font-medium text-gray-400">
@@ -371,10 +371,10 @@ function ExpandedActivityView({
                             type="button"
                             onClick={onNextPage}
                             disabled={currentPage >= totalPages}
-                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Next
-                            <ChevronRight className="h-4 w-4" />
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
                         </button>
                     </div>
                 </>
@@ -733,12 +733,12 @@ export function RecentActivityFeed() {
                 <button
                     type="button"
                     onClick={handleToggleExpanded}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10"
                     aria-expanded={expanded}
                     aria-label={expanded ? "Collapse recent activity" : "Expand recent activity"}
                 >
                     {expanded ? "Collapse" : "View all"}
-                    {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    {expanded ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
                 </button>
             </div>
 

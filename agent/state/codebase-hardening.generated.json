@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-06-19T12:59:57.875Z",
-  "overallScore": 93,
-  "status": "beta-risk",
+  "generatedAt": "2026-07-14T16:05:18.486Z",
+  "overallScore": 100,
+  "status": "clean",
   "domainScores": {
     "routeCachingAndDataCost": {
       "weight": 12,
-      "score": 95,
+      "score": 100,
       "status": "clean",
-      "findingCount": 1,
+      "findingCount": 0,
       "criticalCount": 0,
       "majorCount": 0
     },
@@ -21,11 +21,11 @@
     },
     "apiRateLimitAndCloudCost": {
       "weight": 14,
-      "score": 90,
-      "status": "beta-risk",
-      "findingCount": 1,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 1
+      "majorCount": 0
     },
     "paymentWalletAndEconomyTruth": {
       "weight": 12,
@@ -45,11 +45,11 @@
     },
     "telemetryPrivacyAndDebugEvidence": {
       "weight": 12,
-      "score": 60,
-      "status": "beta-risk",
-      "findingCount": 4,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 4
+      "majorCount": 0
     },
     "deviceUiAndImagePerformance": {
       "weight": 10,
@@ -69,417 +69,20 @@
     },
     "legacyOrphanCleanup": {
       "weight": 8,
-      "score": 95,
+      "score": 100,
       "status": "clean",
-      "findingCount": 1,
+      "findingCount": 0,
       "criticalCount": 0,
       "majorCount": 0
     }
   },
-  "findings": [
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 315,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_3axnse",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
-      "line": 187,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: creator_profile_opened, creator_follow_succeeded, creator_unfollow_succeeded, creator_unfollow_succeeded, creator_follow_failed."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_zxgvmi",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 493,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: chat_message_send_failed, chat_message_failed, media_upload_blocked_type, media_upload_blocked_size, media_upload_prepare_started, media_upload_prepare_failed, media_upload_prepare_completed, media_storage_upload_started, ...."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_1kw7cr",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Dashboard/DailyCheckIn.tsx",
-      "line": 124,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: daily_task_surface_viewed, daily_task_card_viewed, daily_task_reset_locked, daily_task_next_eligible_viewed, daily_task_started, daily_task_action_attempted, daily_task_failed, daily_task_completed, ...."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_1dx0vhu",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Dashboard/DailyTasksModule.tsx",
-      "line": 327,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: daily_task_guidance_opened."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_1vz2o7w",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "legacyOrphanCleanup",
-      "severity": "moderate",
-      "filePath": "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
-      "line": 3,
-      "title": "Stale economy vocabulary remains in source",
-      "evidence": [
-        "Approved economy term is GumDrops; Coins is forbidden vocabulary."
-      ],
-      "expectedRule": "User/admin economy copy and labels use GumDrops.",
-      "actualPattern": "Coins",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Replace only if the occurrence is product-facing copy and update copy validators.",
-      "humanReadableEscalation": "Vocabulary cleanup can touch copy doctrine; review before editing visible text.",
-      "id": "hardening_1bytjj7",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "routeCachingAndDataCost",
-      "severity": "moderate",
-      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
-      "line": 127,
-      "title": "Public route or page uses no-store caching without source-level policy evidence",
-      "evidence": [
-        "Stable public or server-seeded data should use static, SWR, Data Cache, or hot-cache when safe."
-      ],
-      "expectedRule": "Do not default public/stable route data to no-store; document no_store only when freshness/security requires it.",
-      "actualPattern": "no-store/noStore in public route surface",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Classify the route as static, SWR, hot_cache, or no_store and update fetch/cache behavior only after verifying freshness needs.",
-      "humanReadableEscalation": "Route caching must be reviewed against source-of-truth freshness before changing runtime behavior.",
-      "id": "hardening_1oplf38",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    }
-  ],
+  "findings": [],
   "criticalFindings": [],
-  "topFindings": [
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 315,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_3axnse",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
-      "line": 187,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: creator_profile_opened, creator_follow_succeeded, creator_unfollow_succeeded, creator_unfollow_succeeded, creator_follow_failed."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_zxgvmi",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 493,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: chat_message_send_failed, chat_message_failed, media_upload_blocked_type, media_upload_blocked_size, media_upload_prepare_started, media_upload_prepare_failed, media_upload_prepare_completed, media_storage_upload_started, ...."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_1kw7cr",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Dashboard/DailyCheckIn.tsx",
-      "line": 124,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: daily_task_surface_viewed, daily_task_card_viewed, daily_task_reset_locked, daily_task_next_eligible_viewed, daily_task_started, daily_task_action_attempted, daily_task_failed, daily_task_completed, ...."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_1dx0vhu",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Dashboard/DailyTasksModule.tsx",
-      "line": 327,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: daily_task_guidance_opened."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_1vz2o7w",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "legacyOrphanCleanup",
-      "severity": "moderate",
-      "filePath": "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
-      "line": 3,
-      "title": "Stale economy vocabulary remains in source",
-      "evidence": [
-        "Approved economy term is GumDrops; Coins is forbidden vocabulary."
-      ],
-      "expectedRule": "User/admin economy copy and labels use GumDrops.",
-      "actualPattern": "Coins",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Replace only if the occurrence is product-facing copy and update copy validators.",
-      "humanReadableEscalation": "Vocabulary cleanup can touch copy doctrine; review before editing visible text.",
-      "id": "hardening_1bytjj7",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "routeCachingAndDataCost",
-      "severity": "moderate",
-      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
-      "line": 127,
-      "title": "Public route or page uses no-store caching without source-level policy evidence",
-      "evidence": [
-        "Stable public or server-seeded data should use static, SWR, Data Cache, or hot-cache when safe."
-      ],
-      "expectedRule": "Do not default public/stable route data to no-store; document no_store only when freshness/security requires it.",
-      "actualPattern": "no-store/noStore in public route surface",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Classify the route as static, SWR, hot_cache, or no_store and update fetch/cache behavior only after verifying freshness needs.",
-      "humanReadableEscalation": "Route caching must be reviewed against source-of-truth freshness before changing runtime behavior.",
-      "id": "hardening_1oplf38",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    }
-  ],
+  "topFindings": [],
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedFixOrder": [
-    "Classify route caching and eliminate unnecessary no-store/client refetch cost.",
-    "Close API guard, rate-limit, trusted-origin, and cloud-cost gaps.",
-    "Restore consent-aware telemetry, source_component payloads, and debug evidence.",
-    "Quarantine stale modal, vocabulary, and duplicate logic only when validators prove safety."
+    "No current hardening findings. Keep using score:hardening before broad audits."
   ],
   "minimalCommands": [
     "npm run score:hardening",
@@ -522,43 +125,12 @@
     ],
     "maxCommands": 6
   },
-  "filesMostAtRisk": [
-    {
-      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
-      "findingCount": 2,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/components/Chat/ChatExperience.tsx",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/components/Dashboard/DailyCheckIn.tsx",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/components/Dashboard/DailyTasksModule.tsx",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
-      "findingCount": 1,
-      "highestSeverity": "moderate"
-    }
-  ],
+  "filesMostAtRisk": [],
   "routeCostClassificationSummary": {
     "static": 1,
     "swr": 4,
     "hot_cache": 4,
-    "no_store": 122,
+    "no_store": 123,
     "unknown": 0,
     "routes": [
       {
@@ -1548,6 +1120,15 @@
         "costClass": "free_read"
       },
       {
+        "routePath": "/api/internal/analytics/materialize-user-index",
+        "filePath": "src/app/api/internal/analytics/materialize-user-index/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_transaction"
+      },
+      {
         "routePath": "/api/notifications/push-token",
         "filePath": "src/app/api/notifications/push-token/route.ts",
         "methods": [
@@ -1801,7 +1382,7 @@
     ]
   },
   "legacyCleanupPlan": [
-    "src/app/admin/debug/components/DebugOperatorCockpit.tsx: Replace only if the occurrence is product-facing copy and update copy validators."
+    "No legacy cleanup blockers found by the deterministic hardening scan."
   ],
-  "summary": "KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. Current report found 7 findings across 9 domains."
+  "summary": "KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. Current report found 0 findings across 9 domains."
 }

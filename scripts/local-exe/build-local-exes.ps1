@@ -20,9 +20,21 @@ if (-not $compiler) {
 New-Item -ItemType Directory -Force -Path $outputRoot | Out-Null
 
 $targets = @(
+    "KandyDrops-Connected.exe"
+)
+
+$retiredTargets = @(
+    "KandyDrops-Audit.exe",
     "KandyDrops-Test.exe",
     "KandyDrops-Live.exe"
 )
+
+foreach ($retiredTarget in $retiredTargets) {
+    $retiredOutput = Join-Path $outputRoot $retiredTarget
+    if (Test-Path -LiteralPath $retiredOutput) {
+        Remove-Item -LiteralPath $retiredOutput -Force
+    }
+}
 
 foreach ($target in $targets) {
     $output = Join-Path $outputRoot $target
@@ -36,3 +48,5 @@ Write-Host "Built local launchers:"
 foreach ($target in $targets) {
     Write-Host " - $(Join-Path $OutputDir $target)"
 }
+
+Write-Warning "KandyDrops-Connected.exe uses the services configured in .env.local; it is not an offline sandbox."

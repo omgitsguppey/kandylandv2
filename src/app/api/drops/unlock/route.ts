@@ -15,6 +15,10 @@ import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildServerUnlockTelemetryEvent } from "@/lib/commerce/unlock-watch-parity-contract";
+import { resolveDropLifecycleStatus } from "@/lib/drop-status";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+
+const DROP_UNLOCK_BODY_LIMIT_BYTES = 12_288;
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -37,7 +41,11 @@ async function POST_handler(request: NextRequest) {
       auth: "user",
       scopeToCaller: true,
     });
-    const { dropId } = unlockRequestSchema.parse(await request.json());
+    const rawBody = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: DROP_UNLOCK_BODY_LIMIT_BYTES,
+      routeName: "drops/unlock",
+    });
+    const { dropId } = unlockRequestSchema.parse(rawBody);
 
     if (!adminDb) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 });
@@ -97,6 +105,14 @@ async function POST_handler(request: NextRequest) {
           transactionId: "",
           priceGd: 0,
         };
+      }
+
+      const unlockLifecycle = resolveDropLifecycleStatus(dropData, {
+        audience: "public",
+        now: Date.now(),
+      });
+      if (!unlockLifecycle.publicVisible) {
+        throw new Error(`DROP_UNAVAILABLE:${unlockLifecycle.reason}`);
       }
 
       let usedSubscriptionAccess = false;
@@ -230,7 +246,7 @@ async function POST_handler(request: NextRequest) {
         price_gd: result.priceGd ?? result.cost ?? 0,
         paid_gd_used: result.paidGdUsed ?? 0,
         reward_gd_used: result.rewardGdUsed ?? 0,
-        idempotency_key: serverUnlockTelemetry.idempotencyKey,
+        idempotency_key: `entitlement_granted:${result.transactionId || result.entitlementId}:${dropId}`,
         sourceTruth: "server_unlock_route",
         source_component: "drops_unlock_route",
         route: "/api/drops/unlock",
@@ -274,12 +290,32 @@ async function POST_handler(request: NextRequest) {
       sourceTruth: "server",
     });
   } catch (error: unknown) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        error: error.message,
+        errorCode: error.code,
+        retryable: false,
+      }, { status: error.status });
+    }
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: "Choose a valid Drop before unwrapping.",
+        errorCode: "invalid_unlock_request",
+        retryable: false,
+        details: error.issues.map((issue) => issue.message).slice(0, 8),
+      }, { status: 400 });
+    }
+
     const message = error instanceof Error ? error.message : "";
     if (message.startsWith("INSUFFICIENT_FUNDS:")) {
       const parts = message.split(":");
       return NextResponse.json(
         {
           error: "Not enough Gum Drops",
+          errorCode: "insufficient_gumdrops",
+          retryable: false,
           required: Number.parseInt(parts[1], 10),
           balance: Number.parseInt(parts[2], 10),
         },
@@ -289,6 +325,14 @@ async function POST_handler(request: NextRequest) {
 
     if (message.startsWith("SUBSCRIPTION_REQUIRED:")) {
       return NextResponse.json({ error: "This creator drop requires an active subscription." }, { status: 403 });
+    }
+
+    if (message.startsWith("DROP_UNAVAILABLE:")) {
+      return buildNotFoundResponse("drop", "This drop cannot be unlocked right now.", "drop_unavailable");
+    }
+
+    if (message === "Drop not found") {
+      return buildNotFoundResponse("drop", "This drop cannot be unlocked right now.");
     }
 
     if (message === "User not found") {

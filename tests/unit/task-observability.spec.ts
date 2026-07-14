@@ -162,7 +162,7 @@ describe("daily task observability inventory", () => {
     expect(customEntry?.claimedAssignments).toBe(1);
     expect(customEntry?.recentCompletedCount).toBe(1);
     expect(customEntry?.recentRewardClaimCount).toBe(1);
-    expect(customEntry?.recentReceiptCount).toBe(0);
+    expect(customEntry?.recentReceiptCount).toBe(1);
     expect(customEntry?.cooldownConflictUsers).toBe(1);
     expect(customEntry?.usersWithRefreshIssues).toBe(1);
     expect(customEntry?.driftReasons).toContain("cooldown_reassignment_detected");

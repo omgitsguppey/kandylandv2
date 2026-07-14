@@ -515,4 +515,45 @@ describe("/api/admin/creators/[userId]/action", () => {
       approvalStatus: "creator_pending",
     });
   });
+
+  it("rejects an oversized action before any creator workflow mutation", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/creators/creator_1/action", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "request_id", padding: "x".repeat(64_000) }),
+    }), {
+      params: Promise.resolve({ userId: "creator_1" }),
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "payload_too_large",
+      retryable: false,
+    });
+    expect(mockState.documents.size).toBe(0);
+    expect(mockState.sendCreatorAgreementDispatch).not.toHaveBeenCalled();
+    expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+  });
+
+  it("classifies malformed action JSON without starting the creator workflow", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/creators/creator_1/action", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{not-json",
+    }), {
+      params: Promise.resolve({ userId: "creator_1" }),
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "invalid_json",
+      retryable: false,
+    });
+    expect(mockState.documents.size).toBe(0);
+    expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+  });
 });

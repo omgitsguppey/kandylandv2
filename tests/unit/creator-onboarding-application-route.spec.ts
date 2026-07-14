@@ -99,6 +99,10 @@ vi.mock("@/lib/server/rate-limit", () => ({
     STRICT: {},
 }));
 
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
+}));
+
 import { PUT } from "@/app/api/creator/onboarding/application/route";
 
 describe("PUT /api/creator/onboarding/application", () => {
@@ -231,6 +235,8 @@ describe("PUT /api/creator/onboarding/application", () => {
 
         expect(response.status).toBe(409);
         expect(payload).toMatchObject({
+            code: "invalid_creator_request",
+            retryable: false,
             error: "Approved creator applications must be managed through the standard creator profile tools.",
         });
         expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
@@ -269,5 +275,43 @@ describe("PUT /api/creator/onboarding/application", () => {
         expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
             message: "Creator application edit materialized canonical onboarding from legacy projection",
         }));
+    });
+
+    it("rejects oversized JSON before onboarding mutation", async () => {
+        const request = new NextRequest("http://localhost/api/creator/onboarding/application", {
+            method: "PUT",
+            headers: { "content-length": "64001" },
+            body: "{}",
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+        expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
+    });
+
+    it("classifies malformed JSON without onboarding mutation", async () => {
+        const request = new NextRequest("http://localhost/api/creator/onboarding/application", {
+            method: "PUT",
+            body: "{not-json",
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "invalid_json",
+            retryable: false,
+        });
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
     });
 });

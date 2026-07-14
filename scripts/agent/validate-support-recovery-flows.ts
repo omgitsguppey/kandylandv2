@@ -96,6 +96,7 @@ const pushNotifications = readRequired("src/lib/server/push-notifications.ts");
 const dropsUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const dropsContentRoute = readRequired("src/app/api/drops/content/route.ts");
 const paypalCaptureRoute = readRequired("src/app/api/paypal/capture/route.ts");
+const paypalOrderState = readRequired("src/lib/server/paypal-order-state.ts");
 const chatThreadRoute = readRequired("src/app/api/chat/threads/[threadId]/route.ts");
 const chatMessagesRoute = readRequired("src/app/api/chat/threads/[threadId]/messages/route.ts");
 const chatServer = readRequired("src/lib/server/chat.ts");
@@ -326,9 +327,21 @@ for (const expected of [
   "existingLock.exists",
   "customId",
   "capturedUserId !== userId",
-  "logFailedTransaction",
+  "markPayPalCaptureRecoveryRequired",
+  "persistCapturedPayPalPayment",
+  "payment_capture_recovery_required",
 ]) {
   requireIncludes(paypalCaptureRoute, expected, "PayPal capture recovery evidence");
+}
+
+for (const expected of [
+  'status: "capture_recovery_required"',
+  "captureAttemptId",
+  "captureLeaseExpiresAtMs",
+  "recoveryReason",
+  "captureVerification",
+]) {
+  requireIncludes(paypalOrderState, expected, "PayPal durable recovery state");
 }
 
 for (const expected of [

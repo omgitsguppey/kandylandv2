@@ -69,7 +69,7 @@ assert(normalizer.includes('task_guidance_banner_dismissed: { normalizedAction: 
 assert(normalizer.includes('task_help_opened: { normalizedAction: "task_help_opened"'), "Task help event is missing from event fact normalization.");
 assert(normalizer.includes('notification_marked_read: { normalizedAction: "notification_read"'), "Notification read alias is missing from event fact normalization.");
 assert(normalizer.includes('unlock_drop_success: { normalizedAction: "drop_unlocked"'), "Legacy unlock success alias is missing from event fact normalization.");
-assert(normalizer.includes('drop_unwrapped: { normalizedAction: "drop_unlocked"'), "Canonical unlock alias is missing from event fact normalization.");
+assert(normalizer.includes('drop_unwrapped: { normalizedAction: "drop_unwrapped"'), "Payload reveal is not separated from entitlement unlock normalization.");
 assert(normalizer.includes('entitlement_granted: { normalizedAction: "drop_unlocked"'), "Entitlement granted unlock alias is missing from event fact normalization.");
 assert(normalizer.includes('server_purchase_verified: { normalizedAction: "gumdrops_purchased"'), "Canonical server purchase alias is missing from event fact normalization.");
 assert(normalizer.includes('purchase_verified: { normalizedAction: "gumdrops_purchased"'), "Legacy purchase alias is missing from event fact normalization.");

@@ -23,10 +23,21 @@ import {
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_DROP_LIST_LIMIT = 100;
 const MAX_CREATOR_DROP_BODY_BYTES = 80_000;
 const CREATOR_DROP_422 = { status: 422 } as const;
+
+function buildCreatorDropRequestFailurePayload(
+    errorClass: CreatorDrop4xxClass,
+    options: { details?: string[]; overrideCopy?: string } = {},
+) {
+    return {
+        ...buildCreatorDrop4xxPayload(errorClass, options),
+        code: "invalid_creator_request" as const,
+    };
+}
 
 class CreatorDropRouteError extends Error {
     errorClass: CreatorDrop4xxClass;
@@ -50,7 +61,7 @@ function creatorDrop4xxResponse(
 ) {
     const policy = getCreatorDrop4xxPolicy(errorClass);
     return NextResponse.json(
-        buildCreatorDrop4xxPayload(errorClass, {
+        buildCreatorDropRequestFailurePayload(errorClass, {
             details: options.details,
             overrideCopy: options.overrideCopy,
         }),
@@ -67,13 +78,6 @@ function classifyCreatorPublishValidation(errors: string[]): CreatorDrop4xxClass
         return "invalid_creator_drop_payload";
     }
     return "invalid_creator_drop_payload";
-}
-
-function assertBoundedBody(request: NextRequest) {
-    const contentLength = Number(request.headers.get("content-length") || "0");
-    if (Number.isFinite(contentLength) && contentLength > MAX_CREATOR_DROP_BODY_BYTES) {
-        throw new CreatorDropRouteError("invalid_creator_drop_payload", "Drop submission is too large.");
-    }
 }
 
 function readPositiveLimit(request: NextRequest) {
@@ -241,12 +245,15 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        assertBoundedBody(request);
         const creatorData = await requireCreator(caller.uid);
-        const body = await request.json() as { dropData?: Record<string, unknown> };
+        const body = await readBoundedJsonBody<{ dropData?: Record<string, unknown> }>(request, {
+            maxBytes: MAX_CREATOR_DROP_BODY_BYTES,
+            routeName: "creator/drops:POST",
+            allowEmpty: false,
+        });
         const dropData = body.dropData;
         if (!dropData) {
-            return NextResponse.json(buildCreatorDrop4xxPayload("invalid_creator_drop_payload"), CREATOR_DROP_422);
+            return NextResponse.json(buildCreatorDropRequestFailurePayload("invalid_creator_drop_payload"), CREATOR_DROP_422);
         }
 
         let pendingPayload: Record<string, unknown>;
@@ -254,7 +261,7 @@ async function POST_handler(request: NextRequest) {
             pendingPayload = buildCreatorPendingDropPayload(dropData, caller.uid, caller.uid);
         } catch (validationError) {
             return NextResponse.json(
-                buildCreatorDrop4xxPayload("invalid_creator_drop_payload", {
+                buildCreatorDropRequestFailurePayload("invalid_creator_drop_payload", {
                     overrideCopy: validationError instanceof Error ? validationError.message : undefined,
                 }),
                 CREATOR_DROP_422,
@@ -267,7 +274,7 @@ async function POST_handler(request: NextRequest) {
         if (!publishValidation.ok) {
             const errorClass = classifyCreatorPublishValidation(publishValidation.errors);
             return NextResponse.json(
-                buildCreatorDrop4xxPayload(errorClass, {
+                buildCreatorDropRequestFailurePayload(errorClass, {
                     details: publishValidation.errors,
                     overrideCopy: "Some required drop details are missing or invalid.",
                 }),
@@ -308,6 +315,16 @@ async function POST_handler(request: NextRequest) {
                 overrideCopy: error.message,
             });
         }
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                code: error.code,
+                errorCode: "invalid_creator_request",
+                error: error.message,
+                message: error.message,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "Creator.Drops.POST");
     }
 }
@@ -325,14 +342,20 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        assertBoundedBody(request);
         await requireCreator(caller.uid);
-        const { dropId, dropData } = await request.json() as { dropId?: string; dropData?: Record<string, unknown> };
+        const { dropId, dropData } = await readBoundedJsonBody<{
+            dropId?: string;
+            dropData?: Record<string, unknown>;
+        }>(request, {
+            maxBytes: MAX_CREATOR_DROP_BODY_BYTES,
+            routeName: "creator/drops:PUT",
+            allowEmpty: false,
+        });
         if (!dropId) {
-            return NextResponse.json(buildCreatorDrop4xxPayload("missing_creator_drop_id"), CREATOR_DROP_422);
+            return NextResponse.json(buildCreatorDropRequestFailurePayload("missing_creator_drop_id"), CREATOR_DROP_422);
         }
         if (!dropData) {
-            return NextResponse.json(buildCreatorDrop4xxPayload("invalid_creator_drop_payload"), CREATOR_DROP_422);
+            return NextResponse.json(buildCreatorDropRequestFailurePayload("invalid_creator_drop_payload"), CREATOR_DROP_422);
         }
 
         const dropRef = adminDb.collection("drops").doc(dropId);
@@ -362,7 +385,7 @@ async function PUT_handler(request: NextRequest) {
             sanitized = sanitizeCreatorDropSubmission(dropData, caller.uid, caller.uid);
         } catch (validationError) {
             return NextResponse.json(
-                buildCreatorDrop4xxPayload("invalid_creator_drop_payload", {
+                buildCreatorDropRequestFailurePayload("invalid_creator_drop_payload", {
                     overrideCopy: validationError instanceof Error ? validationError.message : undefined,
                 }),
                 CREATOR_DROP_422,
@@ -376,7 +399,7 @@ async function PUT_handler(request: NextRequest) {
         if (!publishValidation.ok) {
             const errorClass = classifyCreatorPublishValidation(publishValidation.errors);
             return NextResponse.json(
-                buildCreatorDrop4xxPayload(errorClass, {
+                buildCreatorDropRequestFailurePayload(errorClass, {
                     details: publishValidation.errors,
                     overrideCopy: "Some required drop details are missing or invalid.",
                 }),
@@ -416,6 +439,16 @@ async function PUT_handler(request: NextRequest) {
                 details: error.details,
                 overrideCopy: error.message,
             });
+        }
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                code: error.code,
+                errorCode: "invalid_creator_request",
+                error: error.message,
+                message: error.message,
+                retryable: false,
+            }, { status: error.status });
         }
         return handleApiError(error, "Creator.Drops.PUT");
     }

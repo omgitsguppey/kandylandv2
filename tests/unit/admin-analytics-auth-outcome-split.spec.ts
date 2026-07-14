@@ -160,7 +160,7 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     expect(model.attempts.value).toBeNull();
     expect(model.successRate.value).toBeNull();
     expect(model.fakeZeroPrevented).toBe(true);
-    expect(model.modeLabel).toBe("WAIT");
+    expect(model.modeLabel).toBe("Collecting");
   });
 
   it("does not map missing non-loading auth data to error", () => {
@@ -171,8 +171,8 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     });
 
     expect(model.hydrationState).toBe("no_sample");
-    expect(model.modeLabel).not.toBe("ERROR");
-    expect(model.modeLabel).toBe("NO SAMPLE");
+    expect(model.modeLabel).not.toBe("Failed");
+    expect(model.modeLabel).toBe("No sample");
     expect(model.hasUsableAuthSample).toBe(false);
     expect(model.canRenderMethodDetails).toBe(false);
     expect(model.attempts.value).toBeNull();
@@ -191,7 +191,7 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     });
 
     expect(model.hydrationState).toBe("error");
-    expect(model.modeLabel).toBe("ERROR");
+    expect(model.modeLabel).toBe("Failed");
   });
 
   it("labels legacy auth count fallback as partial, not exact attempt chain", () => {
@@ -213,7 +213,7 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
       overviewTruthState: "live",
     });
 
-    expect(model.modeLabel).toBe("PARTIAL");
+    expect(model.modeLabel).toBe("Partial");
     expect(model.hydrationState).toBe("legacy_fallback");
     expect(model.measurementMode).toBe("legacy_event_counts");
     expect(model.hasLegacyAuthSample).toBe(true);
@@ -314,7 +314,7 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     });
 
     expect(model.stale).toBe(false);
-    expect(model.modeLabel).toBe("CACHED");
+    expect(model.modeLabel).toBe("Cached");
     expect(model.currentSource).toBe("first_party_telemetry");
     expect(model.methodBreakdown[0]?.truthState).toBe("cached");
     expect(model.attempts.value).toBe(8);

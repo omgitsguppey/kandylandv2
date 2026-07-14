@@ -8,6 +8,10 @@ describe("Admin Analytics Auth Outcomes mobile contract", () => {
     join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
     "utf8",
   );
+  const utilitySource = readFileSync(
+    join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.utils.ts"),
+    "utf8",
+  );
 
   it("renders compact no-sample auth state instead of metric-card spam", () => {
     expect(source).toContain("authHasUsableSample");
@@ -36,7 +40,8 @@ describe("Admin Analytics Auth Outcomes mobile contract", () => {
     expect(source).toContain("data-admin-analytics-auth-exact-chain-available");
     expect(source).toContain("data-admin-analytics-auth-failure-reasons-available");
     expect(source).toContain("data-admin-analytics-auth-next-source-step");
-    expect(source).toContain("Failure reason not captured");
+    expect(source).toContain("formatAuthFailureReason");
+    expect(utilitySource).toContain("Failure reason not captured");
     expect(source).not.toContain("failure_code_unavailable}");
     expect(source).not.toContain("Manual:");
   });

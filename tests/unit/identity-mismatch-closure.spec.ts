@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import { runValidation } from "../../scripts/agent/validate-identity-mismatch-closure";
 
+vi.mock("../../src/lib/agent-score/generated-artifact-version-policy", () => ({
+  classifyGeneratedArtifactFromGit: vi.fn(() => ({ needsRefresh: false, reason: "current test fixture" })),
+}));
+
 vi.mock("node:fs", async (importOriginal) => {
   const actual = await importOriginal<any>();
   return {
@@ -15,8 +19,6 @@ vi.mock("node:fs", async (importOriginal) => {
 });
 
 function makeClosureData(overrides: Record<string, any> = {}) {
-  const { execSync } = require("node:child_process");
-  const latestHead = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
   return {
     individualMetricHydrationStatus: "classified",
     globalVsUserMismatchCount: 3,
@@ -33,17 +35,15 @@ function makeClosureData(overrides: Record<string, any> = {}) {
     remainingGaps: [
       { gapId: "identity_link_missing", source: "client_session_without_guest_id", nextAction: "preserve journey continuity" },
     ],
-    currentHead: latestHead,
+    currentHead: "test-head",
     ...overrides,
   };
 }
 
 function makeIdentityReport(overrides: Record<string, any> = {}) {
-  const { execSync } = require("node:child_process");
-  const latestHead = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
   return {
     individualMetricHydrationStatus: "classified",
-    currentHead: latestHead,
+    currentHead: "test-head",
     ...overrides,
   };
 }

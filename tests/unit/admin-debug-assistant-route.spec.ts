@@ -57,6 +57,7 @@ const mockState = vi.hoisted(() => {
         generateAdminAiDebugSummary: vi.fn(),
         getAdminAiDebugAssistantSettings: vi.fn(),
         saveAdminAiDebugAssistantSettings: vi.fn(),
+        recordServerDiagnostic: vi.fn(),
         recordRouteRuntimeSample: vi.fn(),
         adminDb: {
             collection(name: string) {
@@ -80,6 +81,7 @@ const mockState = vi.hoisted(() => {
             this.generateAdminAiDebugSummary.mockReset();
             this.getAdminAiDebugAssistantSettings.mockReset();
             this.saveAdminAiDebugAssistantSettings.mockReset();
+            this.recordServerDiagnostic.mockReset();
             this.recordRouteRuntimeSample.mockReset();
         },
     };
@@ -122,8 +124,15 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
     recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
     withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
 }));
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    getErrorMessage: (error: unknown) => error instanceof Error ? error.message : String(error),
+}));
+vi.mock("@/lib/server/server-diagnostics", () => ({
+    recordServerDiagnostic: mockState.recordServerDiagnostic,
+}));
 
-import { GET, POST, dynamic, revalidate } from "@/app/api/admin/debug/assistant/route";
+import { GET, POST, PUT, dynamic, revalidate } from "@/app/api/admin/debug/assistant/route";
+import { POST as POST_FIX } from "@/app/api/admin/debug/assistant/fix/route";
 
 describe("GET /api/admin/debug/assistant", () => {
     beforeEach(() => {
@@ -318,5 +327,78 @@ describe("GET /api/admin/debug/assistant", () => {
         });
         expect(mockState.generateAdminAiDebugSummary).toHaveBeenCalledTimes(1);
         expect(mockState.saveAdminAiDebugAssistantSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it("updates assistant settings through the bounded JSON path", async () => {
+        const response = await PUT(new NextRequest("http://localhost/api/admin/debug/assistant", {
+            method: "PUT",
+            body: JSON.stringify({ enabled: false, model: "gemini-test" }),
+            headers: { "content-type": "application/json" },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body).toMatchObject({
+            success: true,
+            settings: {
+                enabled: false,
+                model: "gemini-test",
+            },
+        });
+        expect(mockState.saveAdminAiDebugAssistantSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects oversized assistant settings before saving", async () => {
+        const response = await PUT(new NextRequest("http://localhost/api/admin/debug/assistant", {
+            method: "PUT",
+            body: JSON.stringify({ enabled: true, model: "x".repeat(64_000) }),
+            headers: { "content-type": "application/json" },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.saveAdminAiDebugAssistantSettings).not.toHaveBeenCalled();
+    });
+
+    it("classifies malformed assistant fix JSON before writing diagnostics", async () => {
+        const response = await POST_FIX(new NextRequest("http://localhost/api/admin/debug/assistant/fix", {
+            method: "POST",
+            body: "{not-json",
+            headers: { "content-type": "application/json" },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "invalid_json",
+            retryable: false,
+        });
+        expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
+    });
+
+    it("rejects an oversized assistant fix before writing diagnostics", async () => {
+        const response = await POST_FIX(new NextRequest("http://localhost/api/admin/debug/assistant/fix", {
+            method: "POST",
+            body: JSON.stringify({
+                action: "inspect",
+                diagnosticMessage: "x".repeat(64_000),
+            }),
+            headers: { "content-type": "application/json" },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
     });
 });

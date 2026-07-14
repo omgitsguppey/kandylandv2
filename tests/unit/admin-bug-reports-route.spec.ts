@@ -92,7 +92,14 @@ describe("GET /api/admin/debug/bug-reports", () => {
     }));
     expect(mockState.query.limit).toHaveBeenCalledWith(50);
     expect(body.summary.totalReports).toBe(1);
-    expect(JSON.stringify(body)).not.toMatch(/raw|token/i);
+    expect(body.summary.latestReports[0].sanitizedContext).toEqual({});
+    expect(body.reports[0]).toEqual(expect.objectContaining({
+      id: "bug_1",
+      status: "rewarded",
+      rewardGd: 10,
+    }));
+    expect(body.reports[0]).not.toHaveProperty("sanitizedContext");
+    expect(JSON.stringify(body)).not.toContain('"token"');
   });
 
   it("does not export mutation handlers", async () => {

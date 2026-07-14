@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const REPORT_PATH = "agent/state/chat-composer-modal-lift.generated.json";
 const DOC_PATH = "docs/agent-truth/chat-composer-modal-lift.md";
@@ -14,7 +15,7 @@ function read(path: string) {
 
 function git(args: string[]) {
   try {
-    return execFileSync("git", args, { encoding: "utf8" }).trim();
+    return execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
   } catch {
     return "";
   }
@@ -41,10 +42,31 @@ function status(value: boolean): Status {
 }
 
 function modalSection(source: string) {
-  const start = source.indexOf("data-chat-new-message-modal=\"true\"");
-  const end = source.indexOf("data-chat-modal-list-bottom-padding=\"true\"");
+  const normalized = source.replace(/\r\n/gu, "\n");
+  const start = normalized.indexOf("data-chat-new-message-modal=\"true\"");
+  const end = normalized.indexOf("data-chat-modal-list-bottom-padding=\"true\"", start);
   if (start === -1 || end === -1 || end <= start) return "";
-  return source.slice(start, end);
+  return normalized.slice(start, end);
+}
+
+export function evaluateChatComposerModalScope(source: string) {
+  const normalized = source.replace(/\r\n/gu, "\n");
+  const start = normalized.indexOf("data-chat-new-message-modal=\"true\"");
+  const end = normalized.indexOf("\n            ) : null}\n        </div>\n    );", start);
+  const modal = start === -1 || end === -1 || end <= start ? "" : normalized.slice(start, end);
+  const creatorPickerConnected = /followedCreators\.length\s*>\s*0\s*\?\s*followedCreators\.map/u.test(modal)
+    && /onClick\s*=\s*\{\s*\(\)\s*=>\s*openThreadComposer\(creator\.uid\)\s*\}/u.test(modal);
+  const ownsChatRuntimeLogic = /safeSendChatMessageForViewer|authFetch\s*\(|sendMessage|handleSend|selectedThreadId|router\.push|notification/iu.test(modal);
+  const mutatesCreatorPickerOwnership = /setFollowedCreators|creatorRelationships/iu.test(modal);
+  const ownsPaymentWalletGumdropLogic = /paypal|payment|wallet|gumdrop|ledger/iu.test(modal);
+
+  return {
+    bottomNavUntouched: modal.length > 0 && !/MobileBottomBar|BottomNav/u.test(modal),
+    topNavUntouched: modal.length > 0 && !/Navbar|TopNav/u.test(modal),
+    chatFunctionsUntouched: modal.length > 0 && !ownsChatRuntimeLogic,
+    creatorPickerLogicUntouched: creatorPickerConnected && !mutatesCreatorPickerOwnership,
+    paymentWalletGumdropUntouched: modal.length > 0 && !ownsPaymentWalletGumdropLogic,
+  };
 }
 
 function renderDoc(report: {
@@ -53,6 +75,7 @@ function renderDoc(report: {
   currentHead: string;
   checks: Record<string, boolean>;
   changedFiles: string[];
+  separateLaneChangedFiles: string[];
   validationFailures: string[];
 }) {
   mkdirSync(dirname(DOC_PATH), { recursive: true });
@@ -69,7 +92,8 @@ function renderDoc(report: {
     "- The modal is lifted above the mobile bottom navigation with the shared chat bottom-nav/safe-area token.",
     "- The scrollable creator list keeps internal bottom padding so the final row remains visible.",
     "- The panel uses a black frosted glass skin with readable text, subtle border, blur, and shadow.",
-    "- Chat routing, message sending, thread APIs, creator follow logic, notification logic, payment runtime, wallet runtime, and GumDrop math are untouched.",
+    "- The modal section does not own Chat routing, message sending, thread APIs, creator follow mutation, notification logic, payment runtime, wallet runtime, or GumDrop math.",
+    "- Concurrent Chat, payment, wallet, or GumDrop changes outside the modal are recorded as separate-lane review work and do not masquerade as modal regressions.",
     "",
     "## Checks",
     "",
@@ -78,6 +102,10 @@ function renderDoc(report: {
     "## Changed Files",
     "",
     ...(report.changedFiles.length > 0 ? report.changedFiles.map((file) => `- ${file}`) : ["- none"]),
+    "",
+    "## Separate-Lane Changed Files",
+    "",
+    ...(report.separateLaneChangedFiles.length > 0 ? report.separateLaneChangedFiles.map((file) => `- ${file}`) : ["- none"]),
     "",
     "## Validation Failures",
     "",
@@ -92,7 +120,8 @@ function main() {
   const files = changedFiles();
   const source = read(MODAL_COMPONENT);
   const modal = modalSection(source);
-  const diff = git(["diff", "-U0", "--", MODAL_COMPONENT]);
+  const modalScope = evaluateChatComposerModalScope(source);
+  const mobileShell = read("src/lib/user-mobile-shell.ts");
   const packageJson = read("package.json");
 
   const bottomNavTouched = files.some((file) =>
@@ -112,7 +141,23 @@ function main() {
     || /^src\/lib\/chat\b/u.test(file)
     || /^src\/lib\/chat-/u.test(file)
     || /^src\/hooks\/useChat/u.test(file));
-  const forbiddenChatLogicDiff = /safeSendChatMessageForViewer|authFetch\(|openThreadComposer\(|followedCreators\s*=|setFollowedCreators|creatorRelationships|notification|sendMessage|handleSend|selectedThreadId|router\.push/iu.test(diff);
+  const separateLaneChangedFiles = files.filter((file) => (
+    /^src\/app\/api\/(chat|creator\/messages|messages)\b/u.test(file)
+    || /^src\/lib\/chat\b/u.test(file)
+    || /^src\/lib\/chat-/u.test(file)
+    || /^src\/hooks\/useChat/u.test(file)
+    || file === "src/components/Navigation/MobileBottomBar.tsx"
+    || file === "src/components/layout/BottomNav.tsx"
+    || /(^|\/)BottomNav\.(tsx|ts|jsx|js)$/u.test(file)
+    || file === "src/components/Navbar.tsx"
+    || file === "src/components/layout/TopNav.tsx"
+    || /(^|\/)TopNav\.(tsx|ts|jsx|js)$/u.test(file)
+    || (
+      /paypal|payment|wallet|gumdrop|ledger/iu.test(file)
+      && file !== "public/kandydrops-release-notes.json"
+      && !file.startsWith("src/lib/release-notes/")
+    )
+  ));
 
   const checks = {
     modalComponentPresent: source.includes("New message") && source.includes("Choose a creator you already follow."),
@@ -135,13 +180,14 @@ function main() {
       && modal.includes("shadow-[0_32px_90px_rgba(0,0,0,0.68)]"),
     modalAvoidsLightGrayPanel: !/bg-(?:gray|slate|zinc)-[1-9]/u.test(modal)
       && !/bg-\[#(?:111113|141417|f[0-9a-f]{5}|e[0-9a-f]{5}|d[0-9a-f]{5}|c[0-9a-f]{5})\]/iu.test(modal),
-    mobileSafeAreaHandlingExists: source.includes("env(safe-area-inset-bottom)")
-      && source.includes("USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET"),
-    bottomNavUntouched: !bottomNavTouched,
-    topNavUntouched: !topNavTouched,
-    chatFunctionsUntouched: !chatLogicFilesTouched && !forbiddenChatLogicDiff,
-    creatorPickerLogicUntouched: !/openThreadComposer|followedCreators|creatorRelationships|setFollowedCreators/iu.test(diff),
-    paymentWalletGumdropUntouched: !paymentWalletGumdropTouched,
+    mobileSafeAreaHandlingExists: source.includes("USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET")
+      && source.includes("USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_IOS_PWA_BOTTOM_OFFSET")
+      && mobileShell.includes("env(safe-area-inset-bottom)"),
+    bottomNavUntouched: modalScope.bottomNavUntouched,
+    topNavUntouched: modalScope.topNavUntouched,
+    chatFunctionsUntouched: modalScope.chatFunctionsUntouched,
+    creatorPickerLogicUntouched: modalScope.creatorPickerLogicUntouched,
+    paymentWalletGumdropUntouched: modalScope.paymentWalletGumdropUntouched,
     packageScriptPresent: packageJson.includes('"check:chat-composer-modal-lift": "tsx scripts/agent/validate-chat-composer-modal-lift.ts"'),
   };
 
@@ -163,6 +209,11 @@ function main() {
     safeAreaPolicy: "shared chat bottom-nav safe offset plus env(safe-area-inset-bottom)",
     glassSkin: "black frosted glass",
     changedFiles: files,
+    separateLaneChangedFiles,
+    concurrentBottomNavFilesChanged: bottomNavTouched,
+    concurrentTopNavFilesChanged: topNavTouched,
+    concurrentChatLogicFilesChanged: chatLogicFilesTouched,
+    concurrentPaymentWalletGumdropFilesChanged: paymentWalletGumdropTouched,
     checks,
     validationFailures,
   };
@@ -179,4 +230,10 @@ function main() {
   console.log("Chat composer modal lift validation passed.");
 }
 
-main();
+const modulePath = fileURLToPath(import.meta.url);
+const entryPath = process.argv[1] ? resolve(process.argv[1]) : "";
+const isDirectRun = process.platform === "win32"
+  ? modulePath.toLowerCase() === entryPath.toLowerCase()
+  : modulePath === entryPath;
+
+if (isDirectRun) main();

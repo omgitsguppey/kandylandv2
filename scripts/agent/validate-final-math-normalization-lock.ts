@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+
+import { LAUNCH_ANALYTICS_FIRST_DAY_KEY } from "@/lib/analytics/source-agreement-detail";
 import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
@@ -232,7 +234,7 @@ function legacyRecoverySummary(): FinalMathNormalizationLockReport["legacyRecove
   const duplicateRiskCounts = summary?.duplicateRiskCounts as Record<string, number> | undefined;
   return {
     dryRunOnly: legacy.dryRunOnly === true && dryRun?.mutationsAllowed === false,
-    startDate: String(legacy.recoveryStartDate ?? dryRun?.recoveryStartDate ?? "2026-03-01"),
+    startDate: String(legacy.recoveryStartDate ?? dryRun?.recoveryStartDate ?? LAUNCH_ANALYTICS_FIRST_DAY_KEY),
     candidatesCanonicalized: typeof actionCounts?.normalize_candidate === "number" ? actionCounts.normalize_candidate : 0,
     archiveOnly: typeof actionCounts?.archive_only === "number" ? actionCounts.archive_only : 0,
     manualReview: typeof actionCounts?.needs_manual_review === "number" ? actionCounts.needs_manual_review : 0,
@@ -264,7 +266,7 @@ function accuracyImprovements(): AccuracyImprovement[] {
     {
       area: "legacyRecovery",
       oldBehavior: "Legacy aliases could be read as if they were current metrics unless every recovery path repeated the confidence cap.",
-      newFormula: "Legacy recovery is dry-run only from 2026-03-01; unknown legacy stays archive-only and cannot become exact.",
+      newFormula: `Legacy recovery is dry-run only from ${LAUNCH_ANALYTICS_FIRST_DAY_KEY}; unknown legacy stays archive-only and cannot become exact.`,
       whyMoreAccurate: "Recovered history is mapped into candidates without mutating production or inflating exact user truth.",
       userVisibleImpact: "Old data does not silently inflate current user-facing metrics.",
       adminVisibleImpact: "Operators see canonicalization candidates, archive-only records, manual review, and duplicate risk separately.",
@@ -509,7 +511,7 @@ export function validateFinalMathNormalizationLockReport(report: FinalMathNormal
   if (report.deployPerformed) failures.push("Deploy was performed.");
   if (report.paymentRuntimeChanged) failures.push("Payment runtime changed.");
   if (report.gumdropPricingMathChanged) failures.push("GumDrop pricing math changed.");
-  if (report.legacyRecoverySummary.startDate !== "2026-03-01") failures.push("Legacy recovery March 1 boundary missing.");
+  if (report.legacyRecoverySummary.startDate !== LAUNCH_ANALYTICS_FIRST_DAY_KEY) failures.push("Legacy recovery launch boundary missing.");
   if (!report.legacyRecoverySummary.exactPromotionsBlocked) failures.push("Unknown legacy can become exact.");
   if (!report.accuracyImprovements.find((entry) => entry.area === "watchTime")?.newFormula.includes("excludes hidden/idle/page preload")) failures.push("Watch/page-time rules regress.");
   if (!report.accuracyImprovements.find((entry) => entry.area === "sessionBounce")?.newFormula.includes("activeMs <10000")) failures.push("Session bounce rules regress.");

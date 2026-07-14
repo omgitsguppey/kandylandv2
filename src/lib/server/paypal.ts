@@ -95,3 +95,20 @@ export async function capturePayPalOrder(orderId: string): Promise<Record<string
 
   return response.json() as Promise<Record<string, unknown>>;
 }
+
+export async function getPayPalOrder(orderId: string): Promise<Record<string, unknown>> {
+  const accessToken = await getPayPalAccessToken();
+  const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`PayPal order lookup failed: ${await readPayPalErrorMessage(response)}`);
+  }
+
+  return response.json() as Promise<Record<string, unknown>>;
+}

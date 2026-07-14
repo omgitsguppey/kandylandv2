@@ -6,6 +6,7 @@ import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { sanitizeAdminDropPayload } from "@/lib/drops/drop-submission-contract";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { handleApiError } from "@/lib/server/auth";
+import { BoundedJsonBodyError, isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { adminDb } from "@/lib/server/firebase-admin";
 import {
@@ -23,6 +24,22 @@ import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 
+const ADMIN_DROPS_BODY_LIMIT_BYTES = 64_000;
+
+type AdminDropRequestBody = {
+    dropId?: string;
+    dropData?: Record<string, unknown>;
+};
+
+function buildBoundedAdminDropBodyResponse(error: BoundedJsonBodyError) {
+    return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        retryable: false,
+    }, { status: error.status });
+}
+
 async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -32,7 +49,11 @@ async function POST_handler(request: NextRequest) {
             auth: "admin",
         });
 
-        const body = await request.json();
+        const body = await readBoundedJsonBody<AdminDropRequestBody>(request, {
+            maxBytes: ADMIN_DROPS_BODY_LIMIT_BYTES,
+            routeName: "admin/drops",
+            allowEmpty: false,
+        });
         const { dropData } = body;
 
         if (!dropData) {
@@ -88,6 +109,9 @@ async function POST_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, id: docRef.id });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildBoundedAdminDropBodyResponse(error);
+        }
         return handleApiError(error, "Admin.Drops.POST");
     }
 }
@@ -101,7 +125,11 @@ async function PUT_handler(request: NextRequest) {
             auth: "admin",
         });
 
-        const { dropId, dropData } = await request.json();
+        const { dropId, dropData } = await readBoundedJsonBody<AdminDropRequestBody>(request, {
+            maxBytes: ADMIN_DROPS_BODY_LIMIT_BYTES,
+            routeName: "admin/drops",
+            allowEmpty: false,
+        });
 
         if (!dropId || !dropData) {
             return NextResponse.json({ error: "Missing dropId or data" }, { status: 400 });
@@ -238,6 +266,9 @@ async function PUT_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildBoundedAdminDropBodyResponse(error);
+        }
         return handleApiError(error, "Admin.Drops.PUT");
     }
 }
@@ -251,7 +282,11 @@ async function DELETE_handler(request: NextRequest) {
             auth: "admin",
         });
 
-        const { dropId } = await request.json();
+        const { dropId } = await readBoundedJsonBody<AdminDropRequestBody>(request, {
+            maxBytes: ADMIN_DROPS_BODY_LIMIT_BYTES,
+            routeName: "admin/drops",
+            allowEmpty: false,
+        });
 
         if (!dropId) {
             return NextResponse.json({ error: "Missing dropId" }, { status: 400 });
@@ -272,6 +307,9 @@ async function DELETE_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildBoundedAdminDropBodyResponse(error);
+        }
         return handleApiError(error, "Admin.Drops.DELETE");
     }
 }

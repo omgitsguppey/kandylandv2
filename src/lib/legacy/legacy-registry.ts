@@ -46,7 +46,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     paths: ["src/components/DropPreviewModal.tsx"],
     status: "allowed_fallback",
     canonicalReplacement: "Full-page locked Drop preview route at /drops/[id]/preview",
-    phaseOutStage: "guarded",
+    phaseOutStage: "unused",
     ownerSurface: "locked_drop_preview",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-19",
@@ -74,7 +74,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     paths: ["src/app/drops/DropsClient.tsx"],
     status: "remove_by_deadline",
     canonicalReplacement: "Redirect or hand off to /drops/[id]/preview only",
-    phaseOutStage: "redirected",
+    phaseOutStage: "removed",
     ownerSurface: "drops_discovery_to_preview",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-19",
@@ -95,20 +95,20 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
   },
   {
     id: "synthetic-view-as-local-projection",
-    name: "Synthetic/simulative admin view-as",
+    name: "Retired unsafe synthetic/simulative admin view-as semantics",
     paths: [
       "src/lib/admin/synthetic-creators-view-as.ts",
       "src/context/AdminViewAsContext.tsx",
       "src/app/api/admin/view-as-creator/route.ts",
     ],
-    status: "deprecated",
+    status: "blocked",
     canonicalReplacement: "Admin creator projection with actorAdminId, performedAs, local-only source truth, and write-block diagnostics",
-    phaseOutStage: "guarded",
+    phaseOutStage: "removed",
     ownerSurface: "admin_creator_projection",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-26",
     removeBy: "2026-07-15",
-    riskIfKept: "Local projection and synthetic creator state can be mistaken for live creator behavior or user engagement.",
+    riskIfKept: "Unsafe local projection semantics could make Admin QA look like live creator behavior or user engagement.",
     allowedReferences: [
       "src/lib/admin/synthetic-creators-view-as.ts",
       "src/context/AdminViewAsContext.tsx",
@@ -125,7 +125,6 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     ],
     blockedReferences: [
       "sourceTruth: \"live_projection\"",
-      "includeInUserBehavior: true",
       "performedAs: \"creator\"",
     ],
   },
@@ -139,7 +138,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     ],
     status: "blocked",
     canonicalReplacement: "Evidence-weighted theft-risk and scrape-risk scoring",
-    phaseOutStage: "guarded",
+    phaseOutStage: "removed",
     ownerSurface: "admin_moderation_real_risk",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-12",
@@ -192,7 +191,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     paths: ["src/components/PurchaseModal.tsx"],
     status: "blocked",
     canonicalReplacement: "Source-aware split balance chip showing free GD and paid GD",
-    phaseOutStage: "guarded",
+    phaseOutStage: "removed",
     ownerSurface: "wallet_density",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-12",
@@ -216,7 +215,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     paths: ["src/components/PurchaseModal.tsx"],
     status: "blocked",
     canonicalReplacement: "Brand-purple bonus chip theme",
-    phaseOutStage: "guarded",
+    phaseOutStage: "removed",
     ownerSurface: "wallet_density",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-12",
@@ -246,7 +245,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     ],
     status: "blocked",
     canonicalReplacement: "Canonical behavioral action notification_read; opened/clicked remain UI diagnostics only",
-    phaseOutStage: "guarded",
+    phaseOutStage: "removed",
     ownerSurface: "notification_behavior_truth",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-12",
@@ -281,7 +280,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     ],
     status: "allowed_fallback",
     canonicalReplacement: "Unified support inbox model with admin support route truth and debug evidence",
-    phaseOutStage: "guarded",
+    phaseOutStage: "removed",
     ownerSurface: "support_recovery_flows",
     createdAt: "2026-05-05",
     reviewBy: "2026-05-26",
@@ -320,6 +319,7 @@ export function getLegacyRiskWeight(item: LegacyRegistryItem) {
 }
 
 export function getLegacyOverdueMultiplier(item: LegacyRegistryItem, now = new Date()) {
+  if (item.phaseOutStage === "removed" || item.status === "canonical") return 1;
   const reviewBy = Date.parse(`${item.reviewBy}T00:00:00.000Z`);
   const removeBy = Date.parse(`${item.removeBy}T00:00:00.000Z`);
   const current = now.getTime();

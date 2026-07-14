@@ -3,6 +3,7 @@ import "server-only";
 import { adminDb } from "@/lib/server/firebase-admin";
 import {
   ANALYTICS_IDENTITY_LINK_COLLECTION,
+  ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
   type AnalyticsIdentityLinkRecord,
 } from "@/lib/analytics/identity-link-contract";
 import { buildGuestUserIdentityLinkId } from "@/lib/analytics/identity-transfer";
@@ -15,7 +16,7 @@ function clamp01(value: number) {
 }
 
 export async function upsertAnalyticsIdentityLink(
-  input: Omit<AnalyticsIdentityLinkRecord, "identityLinkId">,
+  input: Omit<AnalyticsIdentityLinkRecord, "identityLinkId" | "ownerKeyVersion">,
 ) {
   if (!adminDb) {
     return { identityLinkId: "", created: false };
@@ -32,6 +33,7 @@ export async function upsertAnalyticsIdentityLink(
   const payload: AnalyticsIdentityLinkRecord = {
     ...input,
     identityLinkId,
+    ownerKeyVersion: ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
     confidence: clamp01(input.confidence),
   };
   if (!snap.exists) {
@@ -42,6 +44,7 @@ export async function upsertAnalyticsIdentityLink(
 
   await adminDb.collection(USER_INDEX_COLLECTIONS.identityLineageIndexes).doc(identityLinkId).set({
     identityLinkId,
+    ownerKeyVersion: ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
     userId: input.userId,
     anonymousVisitorId: input.anonymousVisitorId,
     sessionIds: Array.from(new Set([input.sessionId, ...(input.eligiblePastSessionIds || [])])).filter(Boolean),
@@ -57,6 +60,7 @@ export async function upsertAnalyticsIdentityLink(
 
   await trackServerEvent("identity_linked", {
     identity_link_id: identityLinkId,
+    owner_key_version: ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
     anonymous_visitor_id: input.anonymousVisitorId,
     session_id: input.sessionId,
     method: input.method,

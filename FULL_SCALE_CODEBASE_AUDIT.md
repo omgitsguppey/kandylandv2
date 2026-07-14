@@ -1,5 +1,731 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-07-13 #191] Release-Gate Normalization And Source-First Remediation
+
+Scope started:
+- User-requested remediating finalization pass over the accepted 2026-07-10 damage audit, including bounded UI/usability refinement and truthful independent behavior, repository-health, release, and deployment verdicts.
+- `selectedIssueIdOrFingerprint`: `release-gate-normalization-2026-07-13`
+- `affectedSurface`: current quarantined launcher work, identity/analytics/admin-user truth, source-first user/creator/admin usability, architecture/security/data/concurrency, deterministic verification, generated evidence, and release readiness.
+- `expectedUserImpact`: repair locally provable release blockers, make critical workflows clearer and safer, remove false-green evidence, and leave every remaining external/runtime/provider/admin/deployment gate explicitly typed instead of presenting missing proof as passed.
+- `filesAllowed`: current dirty files; canonical owners, callers, focused tests, and generated artifacts selected by verified findings; this audit ledger; release-note artifacts only if the operator explicitly accepts a public beta bundle.
+- `filesForbidden`: production data mutation, deploys, live billing/PayPal calls, provider writes, broad dependency upgrades, unbounded rewrites, and unrelated Firebase/security-rule or GumDrop-math changes without a separately classified source finding and targeted validator.
+- `validatorToRun`: Antigravity onboarding guards; compact-context-selected source validators; targeted unit/contract tests; typecheck for TypeScript; deterministic device/layout, hardening, security, cost, beta, release-note, cleanup, and release-readiness owners as applicable. Full `npm run check`, Playwright, Lighthouse, Cypress, deploy, provider, and production lanes remain unpromoted.
+- `releaseNoteImpact`: pending product-impact review; ordinary source/config/UI repairs do not publish a Beta badge update unless explicitly accepted into a public beta release bundle.
+- `rollbackNote`: each remediation slice must remain independently reversible through its focused diff; generated artifacts must be restored or normalized by their owning command; no production rollback is applicable because deployment and production mutation are excluded.
+
+Slice BM - Batch 7 canonical score directionality truth:
+- `selectedIssueIdOrFingerprint`: `debug-batch7-canonical-score-directionality-20260714`
+- `affectedSurface`: the existing Control Tower canonical score projection, Batch 7 cleanup validator, and focused source contract test.
+- `expectedUserImpact`: prevent an honestly lower or stale public beta score from failing merely because it is below the legacy 79 display, while still failing closed when the canonical score artifact or numeric score is missing or invalid.
+- `canonicalOwner`: `scripts/agent/control-tower-cleanup-shared.ts` reading `agent/state/public-beta-score.generated.json`; no new score owner, report family, validator, or package command is permitted.
+- `filesAllowed`: `scripts/agent/control-tower-cleanup-shared.ts`, `tests/unit/debug-cockpit-batch7-control-tower-cleanup.spec.ts`, and this audit entry.
+- `filesForbidden`: `agent/state/public-beta-score.generated.json`, score regeneration, fabricated artifact heads or freshness, runtime product source, UI/copy, payment/GumDrop behavior, Firebase/security rules, production data, deploy/provider actions, and public Beta release-note acceptance.
+- `validatorToRun`: focused Batch 7 cleanup and canonical-source tests; targeted ESLint; TypeScript only if required by the bounded TypeScript change; exact diff check.
+- `releaseNoteImpact`: none; this corrects internal score evidence interpretation and does not accept or publish a public Beta release.
+- `rollbackNote`: revert the source projection, fail-closed assertions, and this audit slice together; do not restore numeric directionality or modify the canonical score artifact as rollback.
+- `sourceEvidenceBoundary`: local source and tests can prove artifact ownership, finite-score validation, readiness-status preservation, and honest head mismatch only; they cannot make stale evidence current or clear runtime, provider, admin-truth, release, or deployment gates.
+
+Slice BL - cross-actor privacy, paid-action replay, Chat retry, and landing replacement concurrency:
+- `selectedIssueIdOrFingerprint`: `cross-actor-paid-replay-chat-retry-landing-cas-20260714`
+- `affectedSurface`: Creator Profile viewer-scoped state, Creator Dashboard settings/projection state and section saves, creator subscription replay/cancel truth, Chat actor/thread send and attachment retry state, and Admin landing-asset replacement ownership.
+- `expectedUserImpact`: prevent one signed-in actor or projected creator from seeing another actor's private state, prevent section labels from saving unrelated monetization edits, preserve payment idempotency when materialization is incomplete, allow subscribers to cancel even when a creator is unavailable, keep failed Chat drafts recoverable without terminal-operation retry loops, and prevent concurrent landing uploads from invalidating or leaking the winning object.
+- `canonicalOwner`: existing creator profile/settings components and contracts, creator subscription route, Chat attachment/message lifecycle and durable client idempotency owner, and the existing landing upload route; no parallel state manager, payment subsystem, report family, validator, or package command is permitted.
+- `filesAllowed`: `src/app/creators/[username]/CreatorProfileClient.tsx`, `src/components/Creators/CreatorDashboardSettingsHub.tsx`, `src/lib/creator-settings/creator-settings-contract.ts`, `src/app/api/creator/subscriptions/route.ts`, `src/components/Chat/ChatExperience.tsx`, `src/lib/client-random.ts`, `src/lib/chat-realtime.ts`, `src/app/api/settings/landing/upload/route.ts`, their existing focused tests plus narrowly justified behavioral regression tests, and this audit entry.
+- `filesForbidden`: GumDrop price/math changes, PayPal/provider calls, production data or Storage mutation, Firebase/security-rule or deployment configuration changes, deploys, new report/validator/package-script families, dependency upgrades, and public Beta release-note acceptance.
+- `validatorToRun`: focused creator profile/settings/subscription, Chat attachment/realtime/idempotency, landing upload, accessibility, and bounded-body tests; targeted ESLint; TypeScript; media/payment/security/frontend/device/cost owners selected by compact context; production build and exact diff/duplicate-owner review. Browser, Playwright, Lighthouse, Cypress, live provider/admin, deploy, and full `npm run check` lanes remain unpromoted.
+- `releaseNoteImpact`: candidate user-facing privacy/reliability/usability bundle only; ordinary source repair does not accept, increment, or publish a public Beta release.
+- `rollbackNote`: revert each canonical owner with its focused regression tests; for landing assets, restore the prior route only before any deployment because no production object migration is performed here; no live rollback applies in this non-deploying task.
+- `sourceEvidenceBoundary`: source, deterministic tests, and build evidence can prove local state ownership, replay classification, retry transitions, and transaction/CAS behavior only; they cannot prove deployed rules, provider/runtime/admin truth, production object health, billing, or release readiness.
+
+Slice BK - compact generated repo-intelligence indexes:
+- `selectedIssueIdOrFingerprint`: `generated-repo-intelligence-default-artifact-bloat-20260714`
+- `affectedSurface`: the existing agent index builder, compact repo-inventory/retrieval/blast-radius/verification-command artifacts, their schemas, and source-derived consumers.
+- `expectedUserImpact`: keep agent startup and verification selection fast and truthful without committing several megabytes of derivable per-file/per-command detail, while preserving complete counts, explicit emitted/omitted metadata, SQL/schema compatibility, and Git-missing filesystem discovery.
+- `canonicalOwner`: `scripts/agent/build-agent-indexes.ts` plus the existing agent-index schemas, shared source discovery, verification selector, and SQL sync consumers; no new report, validator, helper registry, or package command is permitted.
+- `filesAllowed`: `scripts/agent/build-agent-indexes.ts`, `scripts/agent/shared.ts`, `scripts/agent/verification-selector.ts`, `scripts/agent/sync-sql.ts`, existing agent-index schemas and focused tests, the four owned generated indexes, this audit entry, and the compact context generated by the required startup command.
+- `filesForbidden`: runtime/product source, UI/copy, payment/GumDrop behavior, Firebase/security rules, production data, deployment/provider calls, `agent/context/validator-authority.json`, new report/validator/helper/package-script families, and unrelated generated artifacts.
+- `validatorToRun`: existing agent-index/context/schema and doctrine-retrieval checks; focused index/selector/SQL-schema tests; targeted ESLint and TypeScript if TypeScript changes; addition-bloat; exact artifact size/count comparison and diff review. Full `npm run check`, browser, deploy, provider, and production lanes remain unpromoted.
+- `releaseNoteImpact`: none; this is internal generated-artifact consolidation and does not accept or publish a public Beta release.
+- `rollbackNote`: revert the builder/schema/consumer changes and regenerate the four existing indexes together; no runtime or production rollback applies.
+- `sourceEvidenceBoundary`: repository source discovery and deterministic schema/consumer validation can prove local index completeness and default artifact compactness only; generated snapshots remain non-runtime evidence and cannot establish deployed, provider, admin-truth, or release readiness.
+
+Slice BI - open PR consolidation, accessibility, security, and bounded admin lookup cleanup:
+- `selectedIssueIdOrFingerprint`: `open-pr-current-source-consolidation-25-prs-20260714`
+- `affectedSurface`: the 25 open GitHub pull requests targeting `main`, user/creator accessibility affordances, Chat and creator-action client idempotency, Chat attachment ingestion/rendering, and bounded Admin Debug/Admin Users lookup paths.
+- `expectedUserImpact`: preserve every current-source improvement with unique value, prevent insecure client-ID fallback and untrusted Chat attachment URLs from reaching persistence or clickable media, improve assistive-technology state without changing product intent, and remove repeated bounded lookups without changing first-match/source-order truth.
+- `filesAllowed`: `src/lib/client-random.ts`, `src/lib/media-hosts.ts`, `src/lib/server/chat.ts`, `src/components/Chat/ChatExperience.tsx`, `src/app/creators/[username]/CreatorProfileClient.tsx`, `src/components/Creators/CreatorExperiencesPanel.tsx`, `src/components/Creators/CreatorAgreementFullText.tsx`, `src/components/Creators/CreatorDashboardSettingsHub.tsx`, `src/components/Dashboard/RecentActivityFeed.tsx`, `src/components/Dashboard/DailyTasksModule.tsx`, `src/components/StickyFilterBar.tsx`, `src/components/Admin/CreateDropModal.tsx`, `src/components/Admin/AdminDashboardModule.tsx`, `src/components/Navigation/NotificationBell.tsx`, `src/app/api/admin/debug/route.ts`, `src/app/api/admin/users/route.ts`, existing focused tests for those owners, this audit entry, and Git metadata/GitHub PR state needed to preserve and close the reviewed branches.
+- `filesForbidden`: `.jules/**` or `.Jules/**` bot notes, stale/empty audit claims from the PRs, generated-report churn not written by an owning validator, dependency changes, payment/GumDrop/Firebase/security-rule behavior, production data, provider/live billing calls, deploys, new helper/report/validator families, and public Beta release-note artifacts.
+- `validatorToRun`: focused client-random, media-host, server Chat, Chat route, accessibility/component, Admin Debug, and Admin Users tests; root TypeScript/build; targeted ESLint; accessibility/device/frontend-consolidation, speed/security/hardening, addition-bloat, and current release-readiness owners as applicable; exact diff/duplicate-owner review. Full `npm run check`, Playwright, Lighthouse, Cypress, provider, deploy, and production lanes remain unpromoted.
+- `releaseNoteImpact`: candidate user-facing accessibility/security/usability bundle only; do not accept, increment, or publish the Beta badge until an operator intentionally accepts a public beta release bundle.
+- `rollbackNote`: revert the selective consolidation source/test commit(s) together; reopen a closed PR only if its unique hunk was not preserved; no production rollback applies because deployment and production mutation are excluded.
+- `sourceEvidenceBoundary`: local source, PR diffs, and deterministic tests can prove selective integration, source semantics, and branch/PR hygiene only; they cannot prove deployed parity, provider activity, current Admin truth, billing, or production behavior.
+
+Slice BJ - finalized Chat attachment integrity and canonical Storage URL ownership:
+- `selectedIssueIdOrFingerprint`: `chat-attachment-finalization-integrity-20260714`
+- `affectedSurface`: Chat attachment prepare/complete/send/render lifecycle, the scoped Firebase Storage write policy, canonical Firebase media URL parsing, and landing-asset replacement cleanup that consumes stored media URLs.
+- `expectedUserImpact`: prevent missing, oversized, wrong-type, unfinalized, replaced, or unsupported attachment objects from becoming paid Chat messages or clickable historical content, preserve safe ambiguous-outcome retries, and prevent a poisoned landing setting from deleting an unrelated same-bucket object.
+- `filesAllowed`: `storage.rules`, `src/lib/media-hosts.ts`, `src/lib/server/chat.ts`, `src/app/api/chat/attachments/complete/route.ts`, `src/components/Chat/ChatExperience.tsx`, `src/app/api/settings/landing/upload/route.ts`, and existing focused unit/rules tests for those owners.
+- `filesForbidden`: Firestore/database rules, payment/GumDrop math, production Storage objects, Firebase deploys, live provider calls, App Check enforcement promotion, new validator/report families, and public Beta release-note artifacts.
+- `validatorToRun`: compact-context-selected speed/security and hardening owners; Chat send/attachment/media lifecycle tests; Firebase Storage emulator rules tests; security-rule inventory/role-boundary checks; targeted TypeScript/ESLint; production build; exact diff review. No deploy, provider, browser, Lighthouse, Cypress, or full `npm run check` authority is granted.
+- `releaseNoteImpact`: candidate user-facing reliability/security note only; do not accept or publish a Beta release from this source slice.
+- `rollbackNote`: revert Storage policy, completion marker, send-time verification, renderer fail-closed behavior, canonical URL ownership, and focused tests together; production rollback is not applicable because this task does not deploy the rules or app.
+- `sourceEvidenceBoundary`: local source, emulator rules, and deterministic tests can prove source policy and lifecycle behavior only; they cannot prove deployed Firebase rule parity, existing-object metadata, runtime client retry behavior across process loss, or production attachment health.
+
+Slice BC - generated task-prompt dirty-file ownership:
+- `selectedIssueIdOrFingerprint`: `frontend-consolidation-generated-prompt-ownership-gap-20260714`
+- `affectedSurface`: the existing frontend consolidation dirty-file classifier and its focused contract test.
+- `expectedUserImpact`: keep broad source-first UI verification actionable by classifying generated task prompts as generated context instead of unsafe unknown files.
+- `filesAllowed`: `src/lib/frontend-hardening/frontend-surface-inventory.ts`, `tests/unit/frontend-component-consolidation.spec.ts`, the existing consolidation artifacts, and this audit entry.
+- `filesForbidden`: runtime UI behavior, payments, identity, telemetry, Firebase/security rules, deploy/provider work, new validators/reports, and release-note artifacts.
+- `validatorToRun`: the focused frontend consolidation contract test; `check:frontend-component-consolidation`; targeted ESLint; TypeScript; diff check.
+- `releaseNoteImpact`: none; this corrects internal validator ownership and does not accept or publish a public Beta release.
+- `rollbackNote`: revert the generated-prompt classification and focused assertion together; no runtime or production rollback applies.
+- `sourceEvidenceBoundary`: local source can prove only that files generated under `agent/prompts/` have an existing owner classification; it does not clear unrelated dirty-tree isolation, runtime, provider, admin-truth, or release evidence.
+
+Slice BD - duplicate exported hardening path normalizer cleanup:
+- `selectedIssueIdOrFingerprint`: `hardening-duplicate-exported-normalize-path-20260714`
+- `affectedSurface`: the shared test-hardening and type-hardening utility modules.
+- `expectedUserImpact`: remove duplicate public helper ownership while preserving the two modules' existing internal path normalization behavior.
+- `filesAllowed`: `src/lib/test-hardening/test-hardening-shared.ts`, `src/lib/type-hardening/type-hardening-shared.ts`, existing hardening/orphan validators and artifacts, and this audit entry.
+- `filesForbidden`: runtime product behavior, routes, UI/copy, payments, identity, telemetry, Firebase/security rules, new helper modules, deploy/provider work, and release-note artifacts.
+- `validatorToRun`: TypeScript; targeted ESLint; existing test/type hardening validators; orphan scorer/validator; addition-bloat; diff and import searches.
+- `releaseNoteImpact`: none; this is internal source cleanup and does not accept or publish a public Beta release.
+- `rollbackNote`: restore the two export modifiers together if a verified external consumer appears; no runtime or production rollback applies.
+- `sourceEvidenceBoundary`: repository import search and adjacency tracing prove no caller imports either `normalizePath` symbol; local validation does not establish release, runtime, provider, or admin truth.
+
+Slice BE - canonical release-note truth in the final readiness packet:
+- `selectedIssueIdOrFingerprint`: `final-release-ledger-stale-notes-false-formal-pass-20260714`
+- `affectedSurface`: the existing final release-readiness packet's formal evidence ledger and focused contract test.
+- `expectedUserImpact`: prevent stale/non-ancestor release notes from appearing formally passed in one part of the readiness packet while the same packet correctly blocks on them elsewhere.
+- `filesAllowed`: `src/lib/release-readiness/final-release-readiness.ts`, `tests/unit/final-release-exit-readiness-packet.spec.ts`, the existing final release packet artifact, and this audit entry.
+- `filesForbidden`: release-note publication/acceptance, Beta version increments, runtime product behavior, deploy/provider/admin actions, new validators/reports, and production data.
+- `validatorToRun`: focused final-readiness and release-note integrity tests; final packet and release-note validators; targeted ESLint; TypeScript; addition-bloat; diff check.
+- `releaseNoteImpact`: none by itself; the repair intentionally leaves release notes blocked until an operator accepts a public Beta bundle.
+- `rollbackNote`: revert the canonical release-note status derivation and focused assertions together; do not modify public release artifacts as a rollback.
+- `sourceEvidenceBoundary`: local source proves consistent classification of the existing release-note integrity result only; it cannot create accepted release ancestry or runtime/provider/admin evidence.
+
+Slice BF - current-beta speed/security summary freshness:
+- `selectedIssueIdOrFingerprint`: `current-beta-stale-embedded-speed-security-summary-20260714`
+- `affectedSurface`: the existing current-beta exit-status refresher and focused contract test.
+- `expectedUserImpact`: keep the beta summary aligned with the canonical current speed/security score instead of retaining an older score after that owner is refreshed.
+- `filesAllowed`: `scripts/agent/validate-current-beta-exit-status.ts`, `tests/unit/current-beta-exit-status.spec.ts`, the existing current-beta artifact, and this audit entry.
+- `filesForbidden`: speed/security runtime policy changes, App Check promotion, deploy/provider/admin actions, new validators/reports, product UI, and public release-note artifacts.
+- `validatorToRun`: focused current-beta tests; speed/security scorer/check; current-beta check with refresh; targeted ESLint; TypeScript; addition-bloat; diff check.
+- `releaseNoteImpact`: none; summary normalization does not accept or publish a Beta release.
+- `rollbackNote`: revert the speed artifact dependency, formatter, drift comparison, and focused assertion together; no runtime or production rollback applies.
+- `sourceEvidenceBoundary`: the current-beta summary can reflect the canonical local speed/security artifact, but it still cannot clear stale deployed-route, provider, admin-truth, billing, PR, or release-note evidence.
+
+Slice BH - canonical generated-report runtime-read ownership:
+- `selectedIssueIdOrFingerprint`: `generated-report-runtime-read-false-debt-20260714`
+- `affectedSurface`: the shared generated-report authority contract and its authority/orphan scanners.
+- `expectedUserImpact`: keep runtime business truth isolated from generated snapshots while preventing harmless report-path metadata from being reported as active runtime consumption and preserving the explicit diagnostic-only Admin Debug evidence reader.
+- `filesAllowed`: `src/lib/agent-governance/generated-reports/generated-report-contract.ts`, the existing generated-report authority and orphan scorers, their existing contract test, generated owner reports, `REPO_MEMORY_LEDGER.md`, and this audit entry.
+- `filesForbidden`: runtime product behavior, generated-report freshness policy, new validators or report families, deploy/provider/admin actions, and public release-note artifacts.
+- `validatorToRun`: focused generated-report contract test; generated-report authority check; orphan scorer/check; TypeScript; targeted ESLint; addition-bloat; diff review.
+- `releaseNoteImpact`: none; this is internal validator-owner consolidation and does not accept or publish a public Beta release.
+- `rollbackNote`: restore the prior local matchers only if the shared matcher misses a proven runtime import/read; do not restore literal-path-only detection or hide the Admin Debug reader as an unclassified exception.
+- `sourceEvidenceBoundary`: local source can prove scanner agreement and runtime import/read isolation, but cannot prove deployed behavior, provider/admin truth, or release readiness.
+
+Slice BG - zero-reference legacy semantic retirement:
+- `selectedIssueIdOrFingerprint`: `legacy-zero-blocked-reference-stage-retirement-20260714`
+- `affectedSurface`: the canonical legacy registry for locked-preview query flow, moderation certainty, Wallet presentation, notification scoring, support queue semantics, and the unimported Drop preview fallback.
+- `expectedUserImpact`: stop charging active-debt penalties for forbidden semantics that are absent from runtime source while preserving their regression guards and keeping genuinely active realtime/fallback debt visible.
+- `filesAllowed`: `src/lib/legacy/legacy-registry.ts`, `scripts/agent/score-legacy-phaseout.ts`, `scripts/agent/validate-legacy-phaseout.ts`, `tests/unit/synthetic-creators-view-as.spec.ts`, the existing legacy report/doc, `REPO_MEMORY_LEDGER.md`, and this audit entry.
+- `filesForbidden`: deletion of fallback/runtime files, Admin users realtime migration, Wallet/payment behavior, notification behavior, moderation behavior, support behavior, new validators/reports, deploy/provider/admin actions, and public release-note artifacts.
+- `validatorToRun`: legacy scorer/check; focused legacy stage test; owning locked-preview, moderation, Wallet, notification, and support source validators as applicable; TypeScript; targeted ESLint; addition-bloat; diff and blocked-reference searches.
+- `releaseNoteImpact`: none; retiring internal legacy semantics does not accept or publish a public Beta release.
+- `rollbackNote`: restore only a stage whose forbidden runtime pattern or active consumer is proven to have returned; retain all blocked-reference guards either way.
+- `sourceEvidenceBoundary`: local source and the legacy scanner can prove zero blocked references and absent imports, but cannot prove deployed behavior, provider/admin truth, or release readiness.
+
+Slice BB - creator monetization Wallet recovery and validator-owner consolidation:
+- `selectedIssueIdOrFingerprint`: `creator-monetization-wallet-recovery-owner-drift-20260714`
+- `affectedSurface`: the shared creator paid-GD guidance card, booking/Fan Pass problem copy, and the existing creator monetization gate validator.
+- `expectedUserImpact`: state that free GumDrops are for unwrapping, keep paid-source creator actions explicit, and send insufficient-balance booking/Fan Pass users to Wallet instead of leaving them at an unactionable balance message.
+- `filesAllowed`: `src/components/Creators/CreatorPaidGdGuidanceCard.tsx`, `src/lib/problem-state-copy.ts`, `scripts/agent/validate-creator-monetization-gates-lock.ts`, existing focused copy/source tests, the validator's existing generated artifact, and this ledger entry.
+- `filesForbidden`: GumDrop accounting or spend math, PayPal/provider behavior, creator transaction truth, Firebase/security rules, production data, deploy/provider calls, new components/validators/reports, and public Beta release-note artifacts.
+- `validatorToRun`: `check:creator-monetization-gates-lock`; focused creator problem-copy and source-connection tests; targeted ESLint; TypeScript in the integrated pass; diff and duplicate-owner checks.
+- `releaseNoteImpact`: candidate usability refinement only; do not publish or increment the Beta badge without explicit public-release acceptance.
+- `rollbackNote`: revert the shared guidance/copy changes, validator owner paths, focused assertions, and regenerated existing artifact together; payment and balance truth remain unchanged.
+- `sourceEvidenceBoundary`: source/tests can prove copy, action guidance, helper ownership, and send/refill consumer wiring only; they do not prove provider balances, deployed creator flows, or runtime Wallet behavior.
+
+Slice BA - identity lineage, materializer truncation, and zero-proof closure:
+- `selectedIssueIdOrFingerprint`: `identity-materializer-owner-version-truncation-freshness-closure-20260714`
+- `affectedSurface`: canonical identity-link lineage, bounded user-index normalization/publication, scheduled receipt validation, lifetime journey merge, Admin individual-metric hydration, and retry-safe client telemetry delivery.
+- `expectedUserImpact`: preserve guest-to-user journey continuity without duplicate attribution, reject unsupported identity owners and potentially truncated active windows, and never display stale or incompatible materialization as a proven zero.
+- `filesAllowed`: existing `src/lib/analytics/identity-*`, `src/lib/identity-truth/*`, `src/lib/server/user-index-*`, `src/lib/user-indexes/*`, `functions/src/user-index-materializer-schedule.ts`, Admin User/Debug projection owners, DeepTracker priority owners, their existing focused tests/validators/artifacts, durable memory, and this ledger entry.
+- `filesForbidden`: payment/GumDrop math, Firebase/security rules, production identity or analytics data, enabling shadow/active materialization, deploy/provider calls, parallel identity/materializer systems, new validator/report families, and release-note artifacts.
+- `validatorToRun`: focused identity/materializer/scheduler/DeepTracker tests; Functions lint/build; root TypeScript/build; identity, individual-user, user-tracking, telemetry, global-cost, speed/security, doctrine, and existing generated-evidence checks; diff and duplicate/stale/orphan searches.
+- `releaseNoteImpact`: none by itself; internal identity/evidence correctness does not publish or increment the public Beta badge.
+- `rollbackNote`: keep materialization mode off; revert owner-version, merge, freshness, truncation, retry, scheduler validation, focused tests, artifacts, and this memory note as one coherent contract rollback without deleting facts or receipts.
+- `sourceEvidenceBoundary`: local source and deterministic tests prove contract/version/fingerprint/time-window checks, bounded truncation handling, merge monotonicity, and retry scheduling only; deployment, TTL enforcement, scheduler invocation, shadow cleanliness, Admin truth samples, and production person metrics remain external evidence.
+
+Slice AZ - orphan-score truth audit against committed baseline:
+- `selectedIssueIdOrFingerprint`: `orphan-score-zero-baseline-and-line-threshold-truth-20260714`
+- `affectedSurface`: the existing orphaned-logic scorer/report and the current critical/major source findings only; no runtime source was changed.
+- `expectedUserImpact`: keep cleanup pressure visible without mislabeling a bounded-body or typed-4xx edit as newly introduced business ownership, and avoid treating a zero score as proof that every reported item is a live product defect.
+- `filesAllowed`: the existing orphan report/validator, current source and committed-baseline reads needed to classify critical/major findings, and this ledger entry.
+- `filesForbidden`: broad route extraction/deletion, payment/auth/Firebase/deploy/release artifacts, production data, new validators/reports/helpers, and unrelated moderate/minor cleanup.
+- `validatorToRun`: `npm run score:orphans` and `npm run check:orphaned-logic`; committed-report comparison and focused source/diff inspection for every critical/major finding.
+- `releaseNoteImpact`: none; this is source-evidence classification and does not accept or publish a public Beta release.
+- `rollbackNote`: remove this audit entry and regenerate the existing orphan report with its owner; no runtime or production rollback applies.
+- `sourceEvidenceBoundary`: current score is `0/100 (fail)`, `161` findings, `0` critical, and `35` major versus committed `0/100`, `140`, `0`, and `34`. Of the current majors, `31` are connected route-owned transaction, persistence, storage, export, or aggregation risks; two are route-scanner heuristics (`admin/analytics/refresh` delegates to the existing materializer owner, and `admin/debug/assistant/fix` only contains the matched word in diagnostic classification); one is the generic mechanical `normalizePath` export duplicated across independent test/type hardening utilities; and one is an intentional Admin Debug evidence-only generated-report consumer with explicit missing-report states, not runtime business truth. The only newly reported majors are the diagnostic-regex false positive and the creator intro route's pre-existing transaction crossing the scorer's `>220` line threshold after a typed-error response change; neither diff introduced new business ownership. A prior realtime hot-cache major and one moderate generated-report reference disappeared. No scorer exception was added because path-specific suppression or changing shared severity/consumption semantics would be a validator-policy slice, not a safe orphan deletion.
+
+Slice AY - retired unsafe admin projection legacy semantics:
+- `selectedIssueIdOrFingerprint`: `legacy-phaseout-generic-user-behavior-literal-false-positive-20260714`
+- `affectedSurface`: the hardcoded legacy-phaseout record and scorer semantics for the retired unsafe synthetic/simulative admin view-as behavior, plus the existing canonical Admin projection owner checks.
+- `expectedUserImpact`: keep real signed-in-user and guest behavior eligible without misreporting it as unsafe Admin projection behavior, while continuing to exclude every Admin projection from user metrics and blocking live-projection/creator-impersonation semantics from re-entering runtime source.
+- `filesAllowed`: `src/lib/legacy/legacy-registry.ts`, `scripts/agent/score-legacy-phaseout.ts`, `scripts/agent/validate-legacy-phaseout.ts`, `docs/agent-truth/legacy-phaseout.md`, the existing `tests/unit/synthetic-creators-view-as.spec.ts`, the existing generated legacy-phaseout report, the durable memory ledger required by validator-lane retirement, and this audit entry.
+- `filesForbidden`: Admin view-as helper/context/route runtime behavior, identity-handoff or canonical test-factory behavior, analytics/event formulas, telemetry emission, UI/copy, payment/GumDrop/Firebase/security-rule logic, production data, browser/provider/deploy work, package scripts, new validators/reports/helpers, and public Beta release-note artifacts.
+- `validatorToRun`: `score:legacy-phaseout` followed by `check:legacy-phaseout`; the existing Admin projection exclusion and synthetic creator/view-as checks; the focused synthetic/view-as unit test; orphaned-logic owner checks; targeted ESLint; TypeScript; addition-bloat; scoped diff and duplicate/stale reference search.
+- `releaseNoteImpact`: none; this retires stale internal legacy-scanner ownership and does not publish or increment the public Beta badge.
+- `rollbackNote`: restore the prior guarded/deprecated registry record, generic blocked literal, scorer deadline handling, focused assertions, memory note, and generated report together; canonical Admin projection runtime behavior remains unchanged and no production rollback applies.
+- `sourceEvidenceBoundary`: local source and focused checks prove that Admin projection payloads carry the Admin actor, local/read-only projection markers, user-behavior exclusion, and write-block diagnostics, and that the two reported `true` literals belong to valid user/test-fixture lanes; they do not prove deployed Admin sessions or production analytics materialization.
+
+Slice AX - creator-profile validator owner and lane-scope normalization:
+- `selectedIssueIdOrFingerprint`: `creator-profile-validator-delegated-owner-and-unrelated-dirty-lane-false-failures-20260714`
+- `affectedSurface`: the existing creator-profile routing and mobile-timeline deterministic validators only.
+- `expectedUserImpact`: keep canonical creator links, public timeline visibility, mobile density, and protected shell isolation genuinely enforced while following the current broadcast-notification owner and reporting unrelated authorized Chat/navigation work separately instead of failing this creator-profile lane.
+- `filesAllowed`: `scripts/agent/validate-creator-profile-routing.ts`, `scripts/agent/validate-creator-profile-mobile-timeline.ts`, the existing `tests/unit/creator-profile-routing.spec.ts` and `tests/unit/creator-profile-mobile-timeline.spec.ts`, the existing `agent/state/creator-profile-mobile-timeline.generated.json` and `docs/agent-truth/creator-profile-mobile-timeline.md` artifacts written by the mobile-timeline owner, and this ledger entry.
+- `filesForbidden`: creator-profile, broadcast, notification, Chat, navigation, timeline, route, telemetry, payment/GumDrop, Firebase/security-rule, or other runtime product behavior; package scripts; new validators/helpers/reports; production data; provider/deploy calls; and public Beta release-note artifacts.
+- `validatorToRun`: the two owning checks and their two existing focused unit tests; targeted ESLint; addition-bloat and scoped diff checks. The routing check must still fail if the route stops delegating notification fan-out or the delegated notification owner stops using `buildCreatorPublicHref`; the mobile check must still fail concrete timeline, visibility, density, dependency, or creator-profile-related protected-shell regressions.
+- `releaseNoteImpact`: none; ordinary UI/source and internal validator normalization do not publish or increment the Beta badge without explicit public-release acceptance.
+- `rollbackNote`: revert the two existing validator assertions, focused tests, and regenerated mobile-timeline artifacts together; runtime source remains unchanged and no production rollback applies.
+- `sourceEvidenceBoundary`: local source and deterministic tests can prove delegated owner linkage, source markers, lane-scoped diff classification, and non-coupling into protected shell modules only; they do not prove deployed navigation, runtime notification delivery, or real-device visual behavior.
+
+Slice AY - bundle package selector touch target:
+- `selectedIssueIdOrFingerprint`: `wallet-bundle-package-selector-inner-button-32px-hit-area-20260714`
+- `affectedSurface`: the existing bundle row inside the wallet purchase modal.
+- `expectedUserImpact`: keep the package-selection control itself at the shared 44px minimum after separating it from the sibling bundle-size buttons, rather than leaving only the non-interactive card background visually tall.
+- `filesAllowed`: `src/components/PurchaseModal.tsx`, the existing `tests/unit/purchase-modal.spec.tsx`, and this ledger entry.
+- `filesForbidden`: package/pricing/promo/payment/GumDrop math, PayPal routes or provider behavior, telemetry, wallet density outside this row, production data, deploy/provider calls, new helpers/validators/reports, and release-note artifacts.
+- `validatorToRun`: the focused PurchaseModal test; accessibility tap-target and purchase-telemetry checks; targeted ESLint; scoped diff check; TypeScript in the integrated root pass.
+- `releaseNoteImpact`: none by itself; this source-level target correction does not publish or increment the Beta badge.
+- `rollbackNote`: revert the inner selector minimum-height token and focused assertion together; payment and package behavior are unchanged.
+
+Slice AW - Admin User last-seen zero-proof label:
+- `selectedIssueIdOrFingerprint`: `admin-user-hydrated-metric-missing-last-seen-mislabeled-proven-zero-20260714`
+- `affectedSurface`: the Admin User behavior summary's individual last-seen label.
+- `expectedUserImpact`: show `Proven zero` only when the canonical bounded source contract actually sets `provenZero=true`; keep an absent timestamp in an otherwise hydrated projection distinct from zero.
+- `filesAllowed`: `src/app/admin/user/[userId]/page.tsx`, the existing `tests/unit/individual-user-metric-truth.spec.ts`, and this ledger entry.
+- `filesForbidden`: Admin User API/materializer/identity truth, metric formulas, analytics telemetry, other admin layout/copy, production data, deploy/provider calls, new helpers/validators/reports, and release-note artifacts.
+- `validatorToRun`: focused individual-user metric tests; `check:admin-user-behavior-truth`; human-readable admin copy; targeted ESLint; TypeScript in the integrated pass.
+- `releaseNoteImpact`: none; this is an admin truth-label correction and does not publish or increment the public Beta badge.
+- `rollbackNote`: revert the conditional last-seen label and focused assertion together; canonical metric data and source windows remain untouched.
+
+Slice AV - profile-menu semantics and consent-action state/targets:
+- `selectedIssueIdOrFingerprint`: `shared-profile-menu-role-keyboard-and-cookie-action-state-targets-20260714`
+- `affectedSurface`: the signed-in profile dropdown's menu semantics/Escape recovery and the privacy banner's pending-choice labels and action hit areas.
+- `expectedUserImpact`: expose the profile popup as a labeled menu with first-item focus, Arrow/Home/End navigation, and Escape focus recovery, identify the privacy choice actually being saved instead of labeling a different button as pending, and keep every privacy-choice button at the shared 44px target baseline on compact and desktop layouts.
+- `filesAllowed`: `src/components/Navigation/ProfileDropdown.tsx`, `src/components/CookieBanner.tsx`, `scripts/agent/validate-cookie-banner-settings-sync.ts`, the existing `tests/unit/accessibility-tap-targets.spec.ts` and `tests/unit/cookie-banner-settings-sync.spec.ts`, the cookie validator's existing generated state/doc artifacts, and this ledger entry.
+- `filesForbidden`: navigation destinations, auth/logout behavior, privacy decision semantics/storage/telemetry, shell layout physics, production data, deploy/provider calls, new primitives/validators/reports, and release-note artifacts.
+- `validatorToRun`: focused accessibility/cookie settings tests; `check:accessibility-tap-targets`; device UI/layout; cookie-banner settings sync and consent-effect unit checks; targeted ESLint; addition-bloat and diff checks; TypeScript in the integrated pass. The broader consent validator's unrelated dirty-lane and pre-existing policy findings remain outside this bounded validator correction.
+- `releaseNoteImpact`: none by itself; accessibility-source refinements do not publish or increment the public Beta badge.
+- `rollbackNote`: revert the menu keyboard/focus semantics and desktop button height tokens together with their source assertions; routes, consent data, and auth state are unchanged.
+
+Slice AU - shared human-error action availability truth:
+- `selectedIssueIdOrFingerprint`: `human-error-notice-renders-actions-without-handlers-20260714`
+- `affectedSurface`: shared human-readable error notices in wallet and creator/user workflows.
+- `expectedUserImpact`: stop displaying retry, secondary, or bug-report controls that cannot perform an action because the owning surface supplied no handler, while preserving every wired recovery and bug-reward path.
+- `filesAllowed`: `src/components/errors/HumanErrorNotice.tsx`, the existing `tests/unit/human-error-notice.spec.tsx`, and this ledger entry.
+- `filesForbidden`: error taxonomy/copy, bug-report persistence or reward math, caller routing/business actions, payment/creator APIs, production data, provider/deploy work, new helpers/validators/reports, and release-note artifacts.
+- `validatorToRun`: focused HumanErrorNotice tests; existing human-error wiring and accessibility checks; targeted ESLint; TypeScript in the integrated pass.
+- `releaseNoteImpact`: none by itself; removing dead recovery controls does not publish or increment the public Beta badge.
+- `rollbackNote`: revert handler-aware visibility and its focused test only; error descriptors and all working caller actions remain unchanged.
+
+Slice AT - creator-preview sticky primary action closure:
+- `selectedIssueIdOrFingerprint`: `locked-drop-creator-sticky-cta-informational-dead-end-20260714`
+- `affectedSurface`: the canonical full-page locked Drop preview in creator-cover preview state.
+- `expectedUserImpact`: make the bottom-nav-safe primary control execute the existing share-cover action instead of opening an informational toast, while retaining unlock/entitlement boundaries and existing creator-share telemetry.
+- `filesAllowed`: `src/components/Drops/LockedDropPreviewView.tsx`, the existing `tests/unit/content-protection-truth.spec.ts`, and this ledger entry.
+- `filesForbidden`: preview truth resolution, unlock/payment/GumDrop/entitlement behavior, share implementation or telemetry taxonomy, legacy modal behavior, server routes, production data, deploy/provider calls, new helpers/validators/reports, and release-note artifacts.
+- `validatorToRun`: focused content-protection tests; drop-preview, content-protection, accessibility, device layout/UI, sitewide image, targeted ESLint, and TypeScript in the integrated pass.
+- `releaseNoteImpact`: candidate usability refinement only; do not publish or increment the public Beta badge without explicit release-bundle acceptance.
+- `rollbackNote`: revert the sticky creator action prop/label and focused source assertion together; no data, entitlement, or deployment rollback applies.
+
+Slice AS - creator profile stale-hydration guard:
+- `selectedIssueIdOrFingerprint`: `creator-profile-route-change-stale-response-overwrite-20260714`
+- `affectedSurface`: public creator-profile initial hydration when the route username changes or the prior request is aborted.
+- `expectedUserImpact`: prevent a slower prior creator response from replacing the newly selected creator, reset stale profile/drop/timeline content while the next profile loads, and keep aborted navigation from producing a false load error.
+- `filesAllowed`: `src/app/creators/[username]/CreatorProfileClient.tsx`, the existing `tests/unit/creator-profile-mobile-timeline.spec.ts` source guard, and this ledger entry.
+- `filesForbidden`: creator API/cache policy, creator relationship/monetization actions, Drop visibility or approval truth, telemetry taxonomy, payment/GumDrop logic, Firebase/security rules, production data, deploy/provider calls, new helper/validator/report families, and release-note artifacts.
+- `validatorToRun`: the focused creator-profile test; targeted ESLint; existing creator-profile mobile/routing, UI runtime/coverage, frontend consolidation, device UI, accessibility, and TypeScript lanes in the integrated pass; duplicate/stale async-profile hydration search.
+- `releaseNoteImpact`: none by itself; this navigation-state reliability fix does not publish or increment the public Beta badge.
+- `rollbackNote`: revert the effect cancellation/reset logic and its focused source assertion together; no stored data, provider state, or deployment rollback is involved.
+- `sourceEvidenceBoundary`: local source and deterministic tests can prove abort ownership, stale-result rejection, and loading reset only; they do not prove deployed cache behavior or real-device navigation timing.
+
+Slice AT - chat attachment cancel evidence classification:
+- `selectedIssueIdOrFingerprint`: `attachment-cancel-analytics-classifier-omission-20260714`
+- `affectedSurface`: the existing event-translation and person-metrics dirty-file evidence classifiers for the canonical chat attachment lifecycle.
+- `expectedUserImpact`: keep cancellation hardening reviewable beside prepare/complete without silently classifying the route as unknown or changing attachment runtime behavior.
+- `filesAllowed`: `src/lib/analytics/event-translation-bridge.ts`, `src/lib/analytics/person-metrics-hydration.ts`, their existing tests/validators/generated artifacts, and this ledger entry.
+- `filesForbidden`: attachment runtime behavior, telemetry/math/identity semantics, UI/copy, payment/GumDrop logic, Firebase/security rules, production data, providers, deploys, and new report/validator families.
+- `validatorToRun`: focused event-translation/person-metrics tests, both owning checks, targeted ESLint, telemetry parity, addition-bloat, and final diff check.
+- `releaseNoteImpact`: none; this is evidence-classifier normalization only.
+- `rollbackNote`: revert the two symmetric classifier additions and regenerated owner artifacts; the canonical cancel route remains unchanged.
+
+Slice AS - event-catalog canonical-owner validator normalization:
+- `selectedIssueIdOrFingerprint`: `event-catalog-stale-client-owner-review-findings-20260714`
+- `affectedSurface`: the existing event-catalog telemetry validator's discovery, identified-ingest, unlock, and purchase source assertions.
+- `expectedUserImpact`: keep discovery telemetry object semantics accurate and ensure individual-user inclusion, unlock transactions, and PayPal purchase truth are validated at their current canonical server/runtime-fact owners instead of obsolete client source shapes.
+- `filesAllowed`: `scripts/agent/validate-event-catalog-telemetry.ts`, existing telemetry/identified-ingest/unlock/purchase contract tests and generated event-catalog evidence, plus this ledger entry.
+- `filesForbidden`: runtime event payloads, payment/unlock/GumDrop behavior, UI/copy, Firebase/security rules, production data, providers, deploys, new validator/report families, and release-note artifacts.
+- `validatorToRun`: `check:event-catalog-telemetry`, telemetry contract and focused identified-ingest/server-unlock/purchase tests, `check:telemetry-parity-score`, targeted ESLint, addition-bloat, and final diff check.
+- `releaseNoteImpact`: none; this aligns internal validation with existing canonical owners and does not publish a Beta update.
+- `rollbackNote`: revert the validator owner assertions and regenerated event-catalog snapshot together; runtime source remains unchanged.
+
+Slice AR - canonical chat modal safe-area tokens:
+- `selectedIssueIdOrFingerprint`: `chat-new-message-modal-hardcoded-safe-area-20260714`
+- `affectedSurface`: the mobile chat new-message sheet bottom offset and internal scroll padding.
+- `expectedUserImpact`: keep the creator picker clear of the floating bottom navigation and iOS safe area without duplicating device-layout physics inside the component.
+- `filesAllowed`: `src/lib/user-mobile-shell.ts`, `src/components/Chat/ChatExperience.tsx`, existing user-mobile-shell/chat modal tests and validators, and this ledger entry.
+- `filesForbidden`: chat routing, message/payment/GumDrop logic, telemetry semantics, Firebase/security rules, provider/runtime configuration, production data, deploys, and release-note artifacts.
+- `validatorToRun`: targeted chat/mobile-shell tests and ESLint; `check:ast-grep-rules`, `check:device-layout-contract`, `check:device-ui`, `check:ios-pwa-chat-refinements`, and TypeScript in the integrated root pass.
+- `releaseNoteImpact`: none by itself; this source-level layout correction does not publish or increment the public Beta badge.
+- `rollbackNote`: revert the two canonical token exports and their ChatExperience imports together; no data, runtime, or deployment rollback is involved.
+
+Slice AQ - deterministic validator scope and semantic-source normalization:
+- `selectedIssueIdOrFingerprint`: `validator-dirty-tree-scope-and-brittle-source-semantics-20260714`
+- `affectedSurface`: the existing content/media pipeline, media-upload lifecycle, Chat composer modal-lift, and frontend-component consolidation source validators plus their existing focused unit tests and generated evidence owners.
+- `expectedUserImpact`: keep current image fallback, attachment cancellation, Chat behavior, payment safety, and broad frontend/backend hardening work reviewable without forcing product regressions or reporting unrelated dirty-tree files as failures, while preserving failures for concrete modal/source contract regressions and genuinely unknown paths.
+- `filesAllowed`: `scripts/agent/validate-content-media-pipeline.ts`, `scripts/agent/validate-media-upload-lifecycle.ts`, `scripts/agent/validate-chat-composer-modal-lift.ts`, `scripts/agent/validate-frontend-component-consolidation.ts`, `src/lib/frontend-hardening/frontend-surface-inventory.ts` only if the existing canonical owner is the smallest testable home for dirty-file classification, the existing `tests/unit/image-loading-policy.spec.ts`, `tests/unit/media-upload-lifecycle.spec.ts`, `tests/unit/chat-composer-modal-lift.spec.ts`, and `tests/unit/frontend-component-consolidation.spec.ts`, artifacts written by the four owning validators, and this ledger entry.
+- `filesForbidden`: user-facing component behavior, Chat/API/payment/GumDrop runtime logic, media upload/storage owners, Firebase/security rules, production data, live provider calls, deployment/config activation, new validator/report/helper families, package-script aliases, and release-note artifacts.
+- `validatorToRun`: the four owning checks and focused Vitest files; targeted ESLint; TypeScript if canonical TypeScript ownership moves; addition-bloat; final diff check; and duplicate/stale/orphan searches across the four validator lanes. Broad `npm run check`, browser/visual suites, provider calls, and deploy commands remain unpromoted.
+- `releaseNoteImpact`: none; this corrects internal validator semantics and does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only the four validator semantics, any existing-owner classifier export, focused expectations, and regenerated artifacts; current product/runtime source remains untouched and no production rollback applies.
+- `sourceEvidenceBoundary`: local source and focused tests can prove semantic fallback detection, complete attachment-route classification, modal-section-scoped regression detection, separate-lane dirty-file classification, and retained `unsafe_unknown` handling only; they do not prove deployed/runtime/provider/admin truth.
+
+Slice AL - materializer scheduler trust, truthful cost caps, and retention metadata:
+- `selectedIssueIdOrFingerprint`: `user-index-materializer-scheduler-secret-cost-retention-20260713`
+- `affectedSurface`: the Functions scheduled HTTP trust boundary, user-index materializer schedule limits and receipt parsing, canonical API cost contract, user-index outbox/request/shadow/window persistence contracts, the guest-ingest materializer-version diagnostic, and existing config/global-cost/backend evidence owners.
+- `expectedUserImpact`: prevent CRON secret disclosure through a misconfigured endpoint, keep one scheduled run inside its declared Firestore read/write budget, and give ephemeral materializer records explicit durable expiration metadata without pretending Firebase TTL enforcement is deployed.
+- `filesAllowed`: `functions/src/scheduled-http-client.ts`, `functions/src/user-index-materializer-schedule.ts`, `src/lib/user-indexes/user-tracking-index-contract.ts`, `src/lib/server/behavioral-timeline-writer.ts`, `src/lib/server/user-index-materializer.ts`, `src/lib/server/user-index-writer.ts`, `src/lib/server/api-cost-contract.ts`, existing focused scheduler/materializer/cost/config/global-cost tests and owner artifacts, `.env.example` or existing config registry only when required to register an explicit allowlist input, plus the exact guest-ingest route/test/cutover-validator v3 diagnostic label after consumer search proved no other runtime owner, and this ledger entry.
+- `filesForbidden`: user-index metric formulas or zero/missing semantics, guest/identified ingest projection behavior beyond the authorized diagnostic version-label migration, UI/copy, payment/GumDrop owners, Firebase/security rules, provider or production data, deploy/TTL/index commands, live endpoints, enabling shadow/active mode, new helper/validator/report families, and release-note artifacts.
+- `owner`: `analytics/materializers`; endpoint validation remains in the canonical Functions scheduled HTTP transport, schedule limits remain in the materializer contract/schedule, API budgets remain in `src/lib/server/api-cost-contract.ts`, and expiration metadata remains in the existing user-index contract/writer.
+- `environment`: local/source only; `USER_INDEX_MATERIALIZER_MODE` remains `off`. Production host, CRON secret, endpoint deployment, Firebase TTL policy, and index/hosting rollout remain external operator configuration and are not inferred from source.
+- `expectedCommand`: the existing single-instance five-minute schedule may call only an explicitly allowlisted HTTPS host at the exact internal materializer pathname, with loopback permitted only for tokenless local tests; focused source tests/build/lint and existing global-cost, speed/security, backend-route, config-env, and addition-bloat validators are permitted, while deploy/provider/Firebase commands are forbidden.
+- `safetyClass`: release-risk security/config and bounded persistent-metadata change; fail closed on missing or ambiguous endpoint allowlist, never log or transmit secrets to an unapproved target, and do not mutate production or enable scheduling.
+- `costClass`: high but bounded Firestore scheduled materialization; source caps and the API cost contract must agree at or above the calculated worst-case candidate, transaction, fact, lineage, and publication reads/writes for one run.
+- `validatorToRun`: focused scheduled HTTP/schedule/materializer core/consumer/writer/API-cost tests; Functions build; root TypeScript and targeted ESLint; existing `score:global-cost`/`check:global-cost`, `score:speed-security`/`check:speed-security`, backend-route inventory, config-env, addition-bloat, diff, and duplicate/stale/orphan owner searches.
+- `releaseNoteImpact`: none by itself; internal scheduler security, cost, and retention readiness do not publish or increment the public Beta badge unless later accepted into a public beta bundle.
+- `rollbackNote`: keep `USER_INDEX_MATERIALIZER_MODE=off`; revert endpoint validation/config, lowered schedule caps, cost contract, and expiration metadata/tests together. Existing facts and active serving indexes are not deleted or rewritten, and no Firebase TTL policy or production data mutation is included.
+- `sourceEvidenceBoundary`: local source and isolated tests may prove fail-closed URL validation, bounded cap arithmetic, expiration-field construction, transaction preservation, build/type/lint health, and existing-validator alignment only.
+- `externalEvidenceRequired`: deployed App Hosting/Functions host mapping, configured allowlist/secret/fingerprint, observed scheduler invocation, Firebase TTL policy and index rollout, actual document expiry, two clean shadow windows, active promotion, runtime/admin truth, and provider/deployment parity remain red formal evidence gates.
+
+Slice AK - bounded identity/materializer data-truth normalization:
+- `selectedIssueIdOrFingerprint`: `identity-materializer-silent-truncation-fabricated-zero-proof-20260713`
+- `affectedSurface`: guest analytics ingest and batch-to-timeline projection, authenticated identity-link ingest, canonical per-user value and content-consumption index contracts, the v2 user-index materializer projection, and Admin User individual-metric zero-proof classification.
+- `expectedUserImpact`: reject oversized analytics and identity-link JSON from raw bytes before parsing or persistence even when `Content-Length` is absent or dishonest, retain every accepted guest fact needed for bounded retry projection, report intentional writer truncation with accurate counts, prevent absent spend/GumDrop/unlock/watch-duration/completion facts from appearing as exact zero or canonical transaction/watch truth, and prevent legacy/stale user-index documents from authorizing a displayed zero.
+- `filesAllowed`: `src/app/api/analytics/ingest/route.ts`, `src/app/api/analytics/identity-link/route.ts`, `src/lib/user-indexes/user-tracking-index-contract.ts`, `src/lib/user-indexes/user-index-normalizer.ts`, `src/lib/identity-truth/individual-user-metric-truth.ts`, `src/app/api/admin/user/[userId]/route.ts`, their existing focused analytics ingest/projection, identity-transfer, user-index, materializer, and individual-user metric tests, and this ledger entry.
+- `filesForbidden`: identity-link ownership or handoff semantics, materializer scheduler/mode/activation/lease/cost/retention behavior, transaction/payment/GumDrop/watch-session source owners, Admin User layout/copy, Firebase/security rules, production data, deploy/provider calls, new helper/validator/report families, and release-note artifacts.
+- `validatorToRun`: focused analytics-ingest raw-byte/retention, identity-transfer raw-byte/no-side-effect, behavioral-timeline projection, user-index normalizer/materializer, and individual-user-metric Vitest; targeted ESLint; existing guest analytics, identity/user-tracking, admin-user behavior, global-cost, speed/security, addition-bloat, and diff owners; direct-body plus duplicate/stale/orphan searches in the touched identity/materializer domain. Integrated TypeScript remains with the root pass if shared edits are active.
+- `releaseNoteImpact`: none by itself; this corrects internal analytics/admin truth and does not publish or increment the public Beta badge.
+- `rollbackNote`: revert the two canonical bounded-parser integrations, bounded projection retention, nullable/source-missing index contract, Admin User v2 fingerprint proof, and focused tests together; keep `USER_INDEX_MATERIALIZER_MODE=off`, retain existing facts/outbox/index data, and perform no production mutation or deployment.
+- `sourceEvidenceBoundary`: local source and focused tests can prove retained retry inputs, explicit bounded truncation counts, missing-versus-zero contracts, and current v2 fingerprint matching only; they cannot prove deployed ingestion, scheduler invocation, production materialization, Admin truth samples, or data correctness.
+
+Slice AA - bounded Admin Control Tower and economy request bodies:
+- `selectedIssueIdOrFingerprint`: `admin-control-economy-body-consumption-before-byte-cap-20260713`
+- `affectedSurface`: ten authenticated Admin content, creator action, Debug assistant, Drops, economy, orchestration repair, and queue routes using the canonical bounded JSON request owner.
+- `expectedUserImpact`: reject oversized or misleading-length JSON payloads before parsing or any database, AI, repair, queue, content, creator, Drop, package, offer, or promo mutation while preserving existing authorization, trusted-origin, schema, typed domain-error, and valid-request behavior.
+- `filesAllowed`: `src/app/api/admin/content/route.ts`, `src/app/api/admin/creators/[userId]/action/route.ts`, `src/app/api/admin/debug/assistant/fix/route.ts`, `src/app/api/admin/debug/assistant/route.ts`, `src/app/api/admin/drops/route.ts`, `src/app/api/admin/economy/offers/route.ts`, `src/app/api/admin/economy/packages/route.ts`, `src/app/api/admin/economy/promos/route.ts`, `src/app/api/admin/orchestration/repairs/route.ts`, `src/app/api/admin/queue/route.ts`, their existing focused tests or one consolidated focused regression test, generated speed/security evidence written by its existing owner, and this ledger entry.
+- `filesForbidden`: canonical bounded-body helper behavior, admin/creator/content/economy/debug business rules, AI/provider adapters, payment or GumDrop math, Firebase/security rules, production data, deploy/provider configuration, new helper/validator/report families, public UI/copy, and release-note artifacts.
+- `validatorToRun`: focused route tests proving valid, malformed, and oversized behavior plus mutation-not-called where practical; targeted ESLint; TypeScript when the shared worktree settles; addition-bloat; existing speed/security score/check; global-cost; final diff check; and duplicate/stale/orphan owner search across the touched backend routes.
+- `releaseNoteImpact`: none by itself; backend request-size hardening does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only the ten route integrations and focused tests; the canonical parser and existing Admin business/state owners remain unchanged, and no production mutation, provider action, rules change, or deploy is included.
+
+Slice AB - bounded admin and manual-sign-in request bodies:
+- `selectedIssueIdOrFingerprint`: `admin-auth-body-consumption-before-byte-cap-20260713`
+- `affectedSurface`: ten authenticated admin/support/account mutation or query routes plus the manual sign-in lookup route, using the canonical bounded JSON request owner.
+- `expectedUserImpact`: reject oversized or misleading-length JSON payloads before any database or session mutation, retain the existing authorization, trusted-origin, schema, and domain-error behavior for valid requests, and return a typed non-retryable 413 instead of buffering unbounded input.
+- `filesAllowed`: `src/app/api/admin/queue/toggle/route.ts`, `src/app/api/admin/roster/route.ts`, `src/app/api/admin/support/threads/[threadId]/messages/route.ts`, `src/app/api/admin/support/threads/[threadId]/route.ts`, `src/app/api/admin/tasks/route.ts`, `src/app/api/admin/ui/preferences/route.ts`, `src/app/api/admin/users/[userId]/username/route.ts`, `src/app/api/admin/users/route.ts`, `src/app/api/admin/view-as-creator/route.ts`, `src/app/api/auth/manual-sign-in-lookup/route.ts`, their existing focused tests or one consolidated focused test file, existing generated speed/security evidence written by its owner, and this ledger entry.
+- `filesForbidden`: canonical bounded-body helper behavior, unrelated Admin Users aggregate-count repair, auth/session ownership, support/account business rules, Firebase/security rules, production data, provider/deploy config, new helper/validator/report families, public UI/copy, and release-note artifacts.
+- `validatorToRun`: focused route tests proving valid/malformed/oversized behavior and that oversized input cannot reach mutation; targeted ESLint; TypeScript; addition-bloat; the existing speed/security score/check; and final diff plus duplicate/stale/orphan owner search.
+- `releaseNoteImpact`: none by itself; backend request-size hardening does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only the ten route integrations and their focused tests; the canonical parser and stored admin, support, account, and session state remain unchanged, and no production mutation or deploy is included.
+
+Slice AC - event-driven telemetry batching and visibility-aware chat presence:
+- `selectedIssueIdOrFingerprint`: `public-shell-recurring-timer-classification-20260713`
+- `affectedSurface`: deferred first-party DeepTracker batching/session activity, realtime chat presence lease refresh, and the canonical speed/security source scanner.
+- `expectedUserImpact`: remove unconditional visible-shell telemetry polling, avoid chat presence writes while the app is hidden, restore presence promptly on return, and keep the deterministic score red for arbitrary intervals while recognizing only the fully bounded canonical chat lease heartbeat.
+- `filesAllowed`: `src/components/Analytics/DeepTracker.tsx`, `src/lib/telemetry.ts`, `src/components/Chat/ChatExperience.tsx`, the existing DeepTracker/chat/speed-security validators and focused tests, generated artifacts written by those existing owners, and this ledger entry.
+- `filesForbidden`: analytics ingestion/materializer truth, identity linkage, chat message persistence, Firebase/RTDB rules, production data, new report or validator families, provider/deploy config, and release-note artifacts.
+- `validatorToRun`: focused DeepTracker and chat-presence tests; existing DeepTracker volume, chat presence, user-chat shell, global-cost, ast-grep, hardening, speed/security, TypeScript, targeted ESLint, addition-bloat, and diff checks.
+- `releaseNoteImpact`: candidate performance/reliability refinement, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert the event-triggered batching and visibility heartbeat/scanner-test slice together; no stored analytics facts, chat messages, production state, or provider configuration is changed.
+
+Slice AD - env-gated Firebase App Check client token readiness:
+- `selectedIssueIdOrFingerprint`: `app-check-custom-backend-client-path-missing-20260713`
+- `affectedSurface`: authenticated same-origin client transport, Firebase App Check client initialization, source security readiness, and optional public environment registration.
+- `expectedUserImpact`: provide a real, fail-open, off-by-default path to attach the standard Firebase App Check header before a later monitor rollout, without enabling enforcement or breaking authenticated requests when provider configuration/evidence is absent.
+- `filesAllowed`: `src/lib/authFetch.ts`, `.env.example`, `src/lib/server/security-hardening-contract.ts`, focused existing/new unit tests, existing speed/security and config/global-cost owners, their generated artifacts, and this ledger entry.
+- `filesForbidden`: server App Check enforcement, Firebase/security rules, live provider calls, production env values, apphosting/deploy activation, auth semantics, PayPal/webhook/cron routes, new validator/report families, and release-note artifacts.
+- `validatorToRun`: focused App Check/auth transport and speed-security tests; config-env, security/rules inventory, hardening, global-cost, speed/security, TypeScript, targeted ESLint, addition-bloat, and diff checks. Provider token issuance and monitor/enforcement remain external evidence.
+- `releaseNoteImpact`: none; source readiness and optional security plumbing do not publish a Beta badge update.
+- `rollbackNote`: revert the env-gated helper/header path and optional env documentation; default behavior remains off in either direction and no provider or production state is mutated.
+
+Slice AE - bounded creator onboarding, debug evidence, and Drop telemetry request bodies:
+- `selectedIssueIdOrFingerprint`: `creator-debug-drop-body-consumption-before-byte-cap-20260713`
+- `affectedSurface`: creator Drop asset and identity uploads, creator onboarding application/agreement/payout mutations, debug evidence ingest, and Drop duplicate-name/feedback/impression/click routes using the canonical bounded JSON owner or the existing guarded multipart upload owner.
+- `expectedUserImpact`: reject malformed or oversized requests before Storage, Firestore, GumDrop reward, onboarding, payout, debug-evidence, or telemetry mutation while preserving existing authentication, trusted-origin, schema/domain, creator ownership, and valid-request behavior.
+- `filesAllowed`: `src/app/api/creator/drops/assets/route.ts`, `src/app/api/creator/onboarding/application/route.ts`, `src/app/api/creator/onboarding/contract-signature/route.ts`, `src/app/api/creator/onboarding/id-submission/route.ts`, `src/app/api/creator/payouts/route.ts`, `src/app/api/debug/evidence/route.ts`, `src/app/api/drops/duplicate-filenames/route.ts`, `src/app/api/drops/feedback/route.ts`, `src/app/api/drops/impression/route.ts`, `src/app/api/drops/track/route.ts`, their focused existing tests or one consolidated focused regression test, existing generated speed/security evidence written by its owner, and this ledger entry.
+- `filesForbidden`: canonical bounded-body helper behavior, creator approval/payout/economy or Drop reward math, identity/onboarding/storage ownership, debug-evidence rollup semantics, telemetry taxonomy, Firebase/security rules, production data, live provider calls, deploy configuration, new multipart/helper/validator/report families, UI/copy, and release-note artifacts.
+- `validatorToRun`: focused tests proving valid, malformed, and oversized behavior plus no storage/database/reward/telemetry mutation on oversized input where practical; targeted ESLint; addition-bloat; existing speed/security score/check; relevant creator workflow, content-protection/media, telemetry, and global-cost owners; final diff check; and duplicate/stale/orphan owner search. Integrated TypeScript validation remains with the root pass after shared worktree edits settle.
+- `releaseNoteImpact`: none by itself; request-size safety hardening does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only the ten route integrations and focused tests; canonical creator, onboarding, payout, storage, debug-evidence, Drop, GumDrop, and telemetry state owners remain unchanged, and no production mutation, provider call, rules change, or deployment is included.
+
+Slice AJ - analytics cost inventory current-source reconciliation:
+- `selectedIssueIdOrFingerprint`: `analytics-cost-inventory-stale-hot-path-and-2_5s-claims-20260713`
+- `affectedSurface`: existing analytics cost/runtime inventory builder and its generated source-evidence artifacts.
+- `expectedUserImpact`: prevent operators from acting on stale claims that guest telemetry still polls every 2.5 seconds, retries permanent 4xx responses, or runs user-index materialization on the ingest request path; retain external billing/runtime evidence as unproven.
+- `filesAllowed`: `scripts/agent/validate-analytics-cost-runtime-inventory.ts`, its existing focused unit test, the two artifacts generated by that existing owner, and this ledger entry.
+- `filesForbidden`: analytics runtime behavior, telemetry taxonomy, identity/materializer implementation, provider APIs, billing claims, new reports/validators/scripts, deploy config, and release-note artifacts.
+- `validatorToRun`: focused analytics cost inventory unit test, existing inventory validator, global-cost validator, TypeScript, addition-bloat, and diff checks.
+- `releaseNoteImpact`: none; this reconciles internal evidence and does not publish a Beta badge update.
+- `rollbackNote`: revert the builder/test/artifact reconciliation together; no runtime analytics facts, production data, billing state, or provider configuration changes.
+
+Slice AF - bounded critical user, payment, notification, privacy, and security request bodies:
+- `selectedIssueIdOrFingerprint`: `critical-user-route-body-consumption-before-byte-cap-20260713`
+- `affectedSurface`: authenticated Drop unlock, notification read/clear and push-token registration, PayPal create/capture, privacy consent, security-attempt logging, and creator landing-media upload routes using the canonical bounded request-body or existing bounded multipart owner.
+- `expectedUserImpact`: reject oversized inputs before spend, entitlement, provider capture/order creation, balance credit, notification fan-out or persistence, consent mutation, security logging, or Storage/Firestore mutation, while preserving valid request behavior and typed non-retryable failures.
+- `filesAllowed`: `src/app/api/drops/unlock/route.ts`, `src/app/api/notifications/push-token/route.ts`, `src/app/api/notifications/route.ts`, `src/app/api/paypal/capture/route.ts`, `src/app/api/paypal/create/route.ts`, `src/app/api/privacy/consent/route.ts`, `src/app/api/security/log-attempt/route.ts`, `src/app/api/settings/landing/upload/route.ts`, their existing focused tests or one consolidated focused regression test, existing generated speed/security evidence written by its owner, and this ledger entry.
+- `filesForbidden`: canonical bounded-body helper behavior, PayPal pending-order/recovery/idempotency or provider adapters, Drop lifecycle/entitlement/source-of-funds math, notification fan-out policy, consent semantics, auth/trusted-origin policy, Firebase/security rules, production data, live provider calls, deploy config, new multipart/helper/validator/report families, public UI/copy, and release-note artifacts.
+- `validatorToRun`: focused tests proving valid, malformed, and oversized behavior plus no spend/write/fan-out/provider call on oversized input; targeted ESLint; payment/unlock, content-protection, privacy, notification, global-cost, addition-bloat, and existing speed/security score/check owners; final diff check; and duplicate/stale/orphan owner search. Integrated TypeScript validation remains with the root pass after shared worktree edits settle.
+- `releaseNoteImpact`: none by itself; request-size safety hardening does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only the eight route integrations and focused tests; canonical payment, Drop, notification, consent, security, upload, and stored state owners remain unchanged, and no provider call, production mutation, rules change, or deployment is included.
+
+Slice AG - bounded support, task, and onboarding request bodies:
+- `selectedIssueIdOrFingerprint`: `support-task-onboarding-body-consumption-before-byte-cap-20260713`
+- `affectedSurface`: authenticated and guest Support thread creation/reply/status routes, user feedback and daily-task materialization routes, and onboarding completion using the canonical bounded JSON request owner.
+- `expectedUserImpact`: reject oversized JSON before Support, feedback, task, onboarding reward, analytics, database, provider, fan-out, or telemetry side effects while preserving existing auth, trusted-origin, schema/domain, idempotency, and valid-request behavior.
+- `filesAllowed`: `src/app/api/support/threads/[threadId]/route.ts`, `src/app/api/support/threads/guest/route.ts`, `src/app/api/support/threads/route.ts`, `src/app/api/tasks/feedback/route.ts`, `src/app/api/tasks/materialize/route.ts`, `src/app/api/user/complete-onboarding/route.ts`, their focused existing tests or one consolidated focused regression test, existing generated speed/security evidence written by its owner, and this ledger entry.
+- `filesForbidden`: canonical bounded-body helper behavior, Support permission/thread ownership, task/reset or onboarding reward/source-of-funds math, analytics/telemetry taxonomy, provider adapters, Firebase/security rules, production data, live provider calls, deploy config, new helper/validator/report families, UI/copy, and release-note artifacts.
+- `validatorToRun`: focused tests proving valid and oversized behavior plus no database/write/provider/fan-out/telemetry side effects on oversized input; targeted ESLint; existing support recovery/tracking, onboarding, task, global-cost, addition-bloat, and speed/security score/check owners; final diff check; and duplicate/stale/orphan owner search. Integrated TypeScript validation remains with the root pass after shared worktree edits settle.
+- `releaseNoteImpact`: none by itself; request-size safety hardening does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only the six route integrations and focused tests; canonical Support, daily-task, onboarding, GumDrop, analytics, and stored-state owners remain unchanged, and no provider call, production mutation, rules change, or deployment is included.
+
+Slice AN - streaming-bounded multipart uploads and creator validation errors:
+- `selectedIssueIdOrFingerprint`: `multipart-native-parser-absent-dishonest-length-overflow-20260714`
+- `affectedSurface`: the canonical bounded request-body owner; seven admin, creator, onboarding, landing, agreement, content, and AI Drop-cover multipart upload routes; the AI Drop-cover reference PUT/DELETE JSON methods; multipart overhead, API-cost, and security-contract truth; and known expected validation failures in the creator Drop-asset and ID-submission routes.
+- `expectedUserImpact`: stop native multipart parsing and reference JSON consumption after the route byte budget even when `Content-Length` is absent or dishonest, reserve bounded multipart envelope space so documented maximum-size files remain accepted, return typed non-retryable 413/400 failures before Storage, Firestore, AI, provider, notification, or business telemetry mutation, preserve existing valid upload/file/type/count/auth behavior, and expose real `invalid_creator_request` codes for expected creator validation failures without collapsing unexpected failures.
+- `filesAllowed`: `src/lib/server/bounded-json-body.ts`, `src/lib/server/api-cost-contract.ts`, `src/lib/server/security-hardening-contract.ts`, `src/app/api/admin/creator-agreements/route.ts`, `src/app/api/admin/ai/drop-covers/template/route.ts`, `src/app/api/admin/content/route.ts`, `src/app/api/admin/ai/drop-covers/references/route.ts`, `src/app/api/settings/landing/upload/route.ts`, `src/app/api/creator/onboarding/id-submission/route.ts`, `src/app/api/creator/drops/assets/route.ts`, their existing focused unit tests, the existing speed/security scanner and its existing focused test only to recognize the canonical form-data reader, existing speed/global-cost/content/media/config artifacts written by their owners, and this ledger entry.
+- `filesForbidden`: new parser packages or helper/report/validator families, UI/copy, upload product limits other than reconciling the verified creator API-cost declaration to existing route/global-cost truth, Storage/business persistence owners, creator workflow state/math, AI/provider behavior, Firebase/security rules, production data, deploy/provider calls, telemetry taxonomy, and release-note artifacts.
+- `validatorToRun`: canonical helper tests for honest, absent-header, dishonest-header, malformed, valid metadata/multibyte, and streaming overflow behavior; route-focused no-mutation tests; targeted ESLint; existing speed/security, global-cost, content-media, media-upload, API-cost/config, addition-bloat, and route-domain owners; final diff check; and duplicate/stale/orphan parser/cost/error-owner search. Integrated TypeScript remains with the root pass if the shared worktree is still active.
+- `releaseNoteImpact`: none by itself; backend upload and typed-error hardening does not publish or increment the public Beta badge.
+- `rollbackNote`: revert the canonical form-data reader, seven multipart route integrations, two bounded reference JSON methods, bounded envelope allowances and matching cost/security declarations, focused tests, two creator typed-error mappings, and creator asset API-cost declaration together; existing stored objects/state, upload product limits, provider configuration, and deployment remain unchanged.
+- `sourceEvidenceBoundary`: local source and focused tests prove raw-byte caps, upstream cancellation, typed failures, bounded multipart envelope allowances, and no route-owned storage/provider/database mutation after rejected parsing; they do not prove deployed proxy behavior or production memory pressure.
+- `residualRisk`: the required native `Response.formData()` parser still materializes accepted `FormData` and `File` values before route storage calls. The 250 MiB admin/creator upload lanes therefore retain high accepted-request peak-memory risk even though over-cap streams are stopped; true direct-to-storage multipart streaming would require a separately owned parser/storage architecture and was not fabricated in this slice.
+
+Slice AM - Functions npm lock reproducibility normalization:
+- `selectedIssueIdOrFingerprint`: `functions-package-lock-missing-functions-framework-20260713`
+- `affectedSurface`: the tracked npm dependency lock for the Firebase Functions workspace and clean-install/build reproducibility for the existing analytics materializer scheduler dependency.
+- `expectedUserImpact`: prevent a clean CI or operator install from failing before Functions validation while preserving the already-declared scheduler implementation and dependency range.
+- `filesAllowed`: `functions/package-lock.json` and this ledger entry; `functions/package.json` or `functions/pnpm-lock.yaml` only if a targeted comparison proves their existing declaration is internally inconsistent.
+- `filesForbidden`: Functions runtime/source behavior, scheduler activation, Firebase/security rules, production environment or data, deploy configuration, broad dependency upgrades, root dependency files, new scripts/validators/reports, and release-note artifacts.
+- `validatorToRun`: inspect the lock-only diff; `npm ci --ignore-scripts --dry-run` in `functions`; a clean-install-compatible `npm ci --ignore-scripts` if safe; `npm --prefix functions run build`; existing dependency/config and addition-bloat owners; final diff check.
+- `releaseNoteImpact`: none; dependency-lock reproducibility does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only `functions/package-lock.json`; the manifest and pnpm lock remain the canonical declared dependency inputs, and no runtime/provider/production state is changed.
+- `owner`: Functions workspace dependency manifest/lock owner.
+- `environment`: local and CI Functions dependency installation; no production activation.
+- `expectedCommand`: `npm install --package-lock-only --ignore-scripts --no-audit --no-fund` from `functions`, followed by clean-install and build verification.
+- `safetyClass`: build/reproducibility configuration; release-risk but non-runtime and non-deploying.
+- `costClass`: local/CI install minutes only; no provider, billing, storage, or production cost.
+
+Slice AO - typed expected API domain-error normalization:
+- `selectedIssueIdOrFingerprint`: `expected-domain-errors-collapse-into-generic-500-20260713`
+- `affectedSurface`: Admin creator settings and user management, Daily Check-In, creator Drop/onboarding/relationship/settings workflows, Drop unlock, and PayPal create/capture expected-failure responses.
+- `expectedUserImpact`: return stable, non-retryable, diagnostic-safe domain codes for known validation, insufficient-balance, and payment failures so clients can recover correctly without misclassifying them as generic server failures; preserve unexpected-error logging and all business/state owners.
+- `filesAllowed`: `src/app/api/admin/creator-fan-experience-settings/route.ts`, `src/app/api/admin/users/route.ts`, `src/app/api/checkin/route.ts`, `src/app/api/creator/drops/route.ts`, `src/app/api/creator/onboarding/application/route.ts`, `src/app/api/creator/onboarding/contract-signature/route.ts`, `src/app/api/creator/onboarding/intro/route.ts`, `src/app/api/creator/relationships/route.ts`, `src/app/api/creator/settings/route.ts`, `src/app/api/drops/unlock/route.ts`, `src/app/api/paypal/capture/route.ts`, `src/app/api/paypal/create/route.ts`, `src/lib/server/security-hardening-contract.ts`, their existing focused tests, existing generated speed/security evidence written by its owner, and this ledger entry.
+- `filesForbidden`: creator asset and ID multipart routes owned by Slice AN, payment provider adapters or live PayPal, GumDrop/source-of-funds/unlock math, creator/admin workflow state transitions, UI/copy redesign, Firebase/security rules, production data, deploy configuration, new error-helper/validator/report families, and release-note artifacts.
+- `validatorToRun`: focused route tests proving each expected failure code/status/retryability and unexpected-error delegation; existing creator workflow, Daily Check-In, payment/unlock, GumDrop, speed/security, route-runtime, TypeScript, targeted ESLint, addition-bloat, diff, and duplicate/stale/orphan checks.
+- `releaseNoteImpact`: none by itself; response-contract normalization does not publish or increment the public Beta badge unless explicitly accepted into a public release bundle.
+- `rollbackNote`: revert only the typed response mappings and focused expectations; canonical payment, GumDrop, creator, onboarding, admin, check-in, telemetry, and stored state remain unchanged, and no provider call, production mutation, or deployment is included.
+
+Slice AP - bounded Admin AI JSON request bodies:
+- `selectedIssueIdOrFingerprint`: `admin-ai-direct-json-consumption-before-raw-byte-cap-20260713`
+- `affectedSurface`: Admin AI Drop-description and Drop-cover command, prompt-policy, generation, feedback, and review-gallery server routes before model/provider, storage, job-history, or prompt-learning work.
+- `expectedUserImpact`: reject absent-length, dishonest-length, malformed, and oversized Admin AI JSON before any paid/provider call, database write, storage action, or AI history mutation while preserving valid requests and canonical AI model/history ownership.
+- `filesAllowed`: `src/app/api/admin/ai/drop-descriptions/route.ts`, `src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts`, `src/app/api/admin/ai/drop-descriptions/generate/route.ts`, `src/app/api/admin/ai/drop-descriptions/feedback/route.ts`, `src/app/api/admin/ai/drop-covers/route.ts`, `src/app/api/admin/ai/drop-covers/review-gallery/route.ts`, `src/app/api/admin/ai/drop-covers/generate/route.ts`, `src/app/api/admin/ai/drop-covers/feedback/route.ts`, their existing focused tests, existing generated cost/security evidence written by its owner, and this ledger entry.
+- `filesForbidden`: paid/live AI calls, AI model selection or prompt behavior, canonical Admin AI history semantics, Drop-cover reference multipart/JSON methods owned by Slice AN, analytics/identity routes owned by Slice AK, UI/copy, Firebase/security rules, production data, deploy configuration, new body-parser/validator/report families, and release-note artifacts.
+- `validatorToRun`: focused route/helper tests proving valid, malformed, advertised oversize, absent-length oversize, dishonest-length oversize, and no provider/storage/database side effects; Admin AI Control Tower, Google/global cost, speed/security, hardening, TypeScript, targeted ESLint, addition-bloat, diff, and duplicate/stale/orphan checks.
+- `releaseNoteImpact`: none by itself; backend input/cost hardening does not publish or increment the public Beta badge.
+- `rollbackNote`: revert only the eight canonical bounded-parser integrations and focused expectations; existing AI prompts, model registry, history, provider adapters, stored state, and production configuration remain unchanged, with no provider call or deployment in this pass.
+
+Slice A — unsafe local Audit launcher retirement:
+- `selectedIssueIdOrFingerprint`: `local-audit-provider-isolation-2026-07-13`
+- `affectedSurface`: Windows local launcher and optional admin browser-diagnostic entry.
+- `expectedUserImpact`: prevent a fixture-authenticated admin browser session from inheriting configured Firebase, analytics, storage, or PayPal services while keeping the explicitly connected local launcher available.
+- `filesAllowed`: `scripts/local-exe/KandyDropsLauncher.cs`, `scripts/local-exe/build-local-exes.ps1`, `tests/unit/local-exe-launcher.spec.ts`, and this ledger entry.
+- `filesForbidden`: Firebase client/admin owners, PayPal runtime/capture, analytics dispatch, security rules, environment files, deploy config, production data, and provider APIs.
+- `validatorToRun`: focused launcher unit test, launcher compilation/build script, addition-bloat guard, and source grep proving the retired fixture mode cannot be built or enabled.
+- `releaseNoteImpact`: none; local developer tooling safety is not an accepted public beta release by itself.
+- `rollbackNote`: revert the three-file launcher/test slice to restore the prior quarantined implementation; do not re-enable the Audit target without a separately proven offline/provider kill-switch contract.
+
+Slice B — server unlock lifecycle enforcement:
+- `selectedIssueIdOrFingerprint`: `unlock-public-lifecycle-bypass-2026-07-13`
+- `affectedSurface`: server Drop unlock, entitlement grant, source-aware GumDrop spend, and user-facing typed unlock failure.
+- `expectedUserImpact`: prevent a known pending, rejected, scheduled, expired, private, unlisted, archived, or otherwise non-public Drop id from granting a new entitlement or spending GumDrops; preserve already-owned entitlement continuity.
+- `filesAllowed`: `src/app/api/drops/unlock/route.ts`, `tests/unit/drops-unlock-route.spec.ts`, and this ledger entry.
+- `filesForbidden`: GumDrop math/ledger owners, payment routes, creator/admin approval writers, Firebase/security rules, client unlock telemetry, production data, and deploy config.
+- `validatorToRun`: focused unlock route test; lifecycle resolver coverage; payment/unlock, content-protection, unlock-telemetry, speed/security, and TypeScript validators selected by compact context.
+- `releaseNoteImpact`: candidate user-facing safety fix, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert the route/test slice; no data migration or production mutation is performed. Existing entitlements remain unchanged in either direction.
+
+Slice C - Admin Regions truth-copy consolidation:
+- `selectedIssueIdOrFingerprint`: `admin-regions-separation-copy-conflict-2026-07-13`
+- `affectedSurface`: Admin Analytics audience Regions panel, canonical region-demand presentation model, and the validator that incorrectly duplicated ownership of Regions copy.
+- `expectedUserImpact`: stop claiming internal/admin traffic was separated when the fallback source explicitly says it could not be separated, while keeping adjusted-count and source/freshness limitations visible without duplicate lines.
+- `filesAllowed`: `src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx`, `src/lib/admin-analytics-region-demand.ts`, `tests/unit/admin-analytics-region-demand.spec.ts`, `scripts/agent/validate-admin-user-behavior-truth.ts`, and this ledger entry.
+- `filesForbidden`: analytics ingestion, provider adapters, identity linkage, recovery math, admin-truth artifacts, production data, Firebase/security rules, and release-note artifacts.
+- `validatorToRun`: focused region-demand unit test plus the existing Admin Analytics audience, overview, user-behavior, and Admin Debug source validators that jointly exposed the contradiction; TypeScript validation after the combined TypeScript slices settle.
+- `releaseNoteImpact`: candidate usability/truth clarification, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert the four source/test/validator files; no stored analytics facts or provider data are changed.
+
+Slice D - locked-preview primary action reachability:
+- `selectedIssueIdOrFingerprint`: `locked-preview-primary-sticky-cta-missing-20260713`
+- `affectedSurface`: user-facing locked Drop full-page preview on compact and mobile layouts.
+- `expectedUserImpact`: keep the context-appropriate sign-in, refill, or unwrap action reachable without requiring a long scroll, while preserving the global shell, bottom navigation, safe-area reservation, lifecycle truth, and existing unlock behavior.
+- `filesAllowed`: the canonical locked-preview view, its existing focused source validators/tests, and this ledger entry.
+- `filesForbidden`: server unlock, GumDrop math/ledger, payment routes, Firebase/security rules, creator/admin workflow, navigation ownership, telemetry taxonomy, and deploy config.
+- `validatorToRun`: locked-preview page, device-layout, content-protection, component behavior, and TypeScript source validators selected by compact context; no browser/screenshot lane.
+- `releaseNoteImpact`: candidate user-facing usability fix, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert the isolated preview layout/test slice; no entitlement, wallet, or stored Drop state is changed.
+
+Slice E - PayPal pending-order and post-capture recovery truth:
+- `selectedIssueIdOrFingerprint`: `paypal-capture-before-validation-and-recovery-20260713`
+- `affectedSurface`: server PayPal order creation/capture, payment idempotency/locking, durable recovery state, source-aware package credit, and focused payment contracts.
+- `expectedUserImpact`: ensure package and account truth is validated before capture, prevent duplicate charge or duplicate credit under retries/concurrency, and retain a durable recoverable record when a provider capture succeeds before local credit completes.
+- `filesAllowed`: canonical PayPal create/capture routes, an existing payment owner or at most one uniquely owned pending-order contract, focused PayPal tests, and this ledger entry.
+- `filesForbidden`: live PayPal/provider calls, production data, client wallet redesign, GumDrop package/source-of-funds math changes, Firebase/security rules, deploy config, broad payment rewrites, and unrelated release artifacts.
+- `validatorToRun`: focused create/capture route tests covering missing/mismatched pending orders, duplicate/concurrent capture, captured-uncredited recovery, and credit failure after capture; canonical payment/ledger, route-runtime, speed/security, cost, and TypeScript checks selected by compact context.
+- `releaseNoteImpact`: candidate critical user-facing payment safety fix, but no Beta badge update unless accepted into a public beta release bundle and provider/runtime evidence is separately supplied.
+- `rollbackNote`: revert the bounded server/test contract slice before deployment; no provider call or production migration is performed during this pass. Any captured-but-uncredited state must never be removed without an explicit recovery/migration plan.
+
+Slice F - guest ingest permanent-failure queue policy:
+- `selectedIssueIdOrFingerprint`: `guest_ingest_permanent_failure_retry_contract`
+- `affectedSurface`: canonical client telemetry transport, anonymous analytics queue advancement, shared guest identity contract validation, and creator-controls patch hygiene.
+- `expectedUserImpact`: prevent permanently rejected analytics batches from blocking later valid events or generating repeated 4xx traffic, while retaining transient/network failures for retry and preserving stable-batch dedupe.
+- `filesAllowed`: `src/lib/telemetry.ts`, `src/components/Analytics/DeepTracker.tsx`, `src/lib/analytics/ingest-contract.ts`, `scripts/agent/validate-guest-user-analytics-cutover.ts`, `src/app/api/admin/creator-account-controls/route.ts`, focused existing telemetry/ingest tests, and this ledger entry.
+- `filesForbidden`: identity materializer implementation, admin person-metrics hydration, payment routes, Firebase/security rules, production data, new validator/report families, deploy config, and release-note artifacts.
+- `validatorToRun`: focused telemetry and ingest tests, existing guest-user analytics cutover validator, creator account controls validator, duplicate/stale source search, and TypeScript validation after combined TypeScript work settles.
+- `releaseNoteImpact`: candidate analytics reliability fix, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert typed transport outcome and queue-consumer handling together; reverting only one side would restore ambiguous retry behavior.
+
+Slice G - Admin User corrupted separator cleanup:
+- `selectedIssueIdOrFingerprint`: `admin-user-corrupted-separator-copy-20260713`
+- `affectedSurface`: Admin User behavior and recommendation metadata labels.
+- `expectedUserImpact`: replace mojibake/Cyrillic-looking separator text with the shared readable middle-dot delimiter so scores, ids, categories, and fallback labels scan correctly.
+- `filesAllowed`: `src/app/admin/user/[userId]/page.tsx`, its existing source validators/tests, and this ledger entry.
+- `filesForbidden`: admin-user data loading, metric math, identity linkage, permissions, telemetry, user-facing UI, and release-note artifacts.
+- `validatorToRun`: source search proving the corrupted separators are absent, Admin User behavior/fixture validators, and TypeScript validation after combined TypeScript work settles.
+- `releaseNoteImpact`: none by itself; ordinary admin copy normalization does not create a Beta badge update.
+- `rollbackNote`: revert only the five delimiter substitutions; no state or analytics data changes.
+
+Slice H - Firestore document-read scanner precision:
+- `selectedIssueIdOrFingerprint`: `identified-ingest-document-get-false-unbounded-20260713`
+- `affectedSurface`: existing hardening and speed/security source scanners plus their focused regression tests.
+- `expectedUserImpact`: keep genuinely unbounded collection reads blocking while no longer misclassifying a single document-id idempotency read as an unbounded query, so security/cost verdicts reflect real source risk.
+- `filesAllowed`: the existing `score-codebase-hardening` and `score-speed-security-hardening` owners, their existing focused tests/fixtures, and this ledger entry.
+- `filesForbidden`: identified-ingest runtime behavior, Firestore writes, payment, Firebase/security rules, production data, new scanner/report/script families, package-script additions, deploy config, and release-note artifacts.
+- `validatorToRun`: focused scanner regression tests with both document-get exclusion and truly unbounded collection-query detection, then both owning score commands and addition-bloat guard.
+- `releaseNoteImpact`: none; validator precision is internal release evidence, not a public Beta update.
+- `rollbackNote`: revert the scanner/test slice together; generated scores must then be regenerated by their existing owners rather than hand-edited.
+
+Slice I - canonical unlock versus unwrap telemetry reconciliation:
+- `selectedIssueIdOrFingerprint`: `server-unlock-stale-unwrap-validator-20260713`
+- `affectedSurface`: canonical server unlock telemetry contract, entitlement event idempotency, and the existing focused test/validator.
+- `expectedUserImpact`: preserve `drop_unlocked` as entitlement/access truth, keep `drop_unwrapped` reserved for payload reveal/consumption, and prevent the supporting entitlement event from overwriting the canonical unlock fact document.
+- `filesAllowed`: `src/app/api/drops/unlock/route.ts`, `src/lib/commerce/unlock-watch-parity-contract.ts`, canonical behavioral/runtime fact normalization, identified ingest's legacy unwrap adapter, the existing focused unlock/event-fact tests and validators, and this ledger entry.
+- `filesForbidden`: unlock spend/entitlement math, viewer payload-reveal telemetry, payment routes, telemetry catalog expansion, production data, Firebase/security rules, new validators, deploy config, and release-note artifacts.
+- `validatorToRun`: focused unlock telemetry, event-fact, and identified-ingest tests plus existing server-unlock, unlock-telemetry-truth, drop-watch-unlock-math, event-catalog, payment/unlock, source-of-funds, and TypeScript validators.
+- `releaseNoteImpact`: candidate telemetry correctness fix only when bundled with an accepted public beta release; no automatic Beta badge update.
+- `rollbackNote`: revert route/test/validator idempotency and naming changes together; no runtime backfill or production fact mutation is included.
+
+Slice J - chat composer accessibility and device-contract normalization:
+- `selectedIssueIdOrFingerprint`: `chat-ios-pwa-composer-subminimum-targets-20260713`
+- `affectedSurface`: user-facing Chat thread composer across browser and installed iOS PWA layouts, its compact paid-GumDrop summary, and README device-layout onboarding.
+- `expectedUserImpact`: keep attachment, input-row, and send controls at the canonical 44-48px minimum in every platform branch while retaining compact shell-safe spacing and preventing the price summary from increasing composer height.
+- `filesAllowed`: `src/components/Chat/ChatExperience.tsx`, `tests/unit/accessibility-tap-targets.spec.ts`, `README.md`, existing device/accessibility generated reports selected by their owning commands, and this ledger entry.
+- `filesForbidden`: chat server pricing/gating, message transport, upload lifecycle, viewport/safe-area token owners, bottom navigation, telemetry taxonomy, payment routes, Firebase/security rules, production data, deploy config, new component or validator families, and release-note artifacts.
+- `validatorToRun`: focused accessibility test; device-layout contract and score; device UI score/check; iOS/Android PWA chat, chat paid-GumDrop guidance, accessibility tap-target, design-system, surface-doctrine, AST source, and TypeScript checks selected by compact context.
+- `releaseNoteImpact`: candidate user-facing accessibility/usability refinement, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert the Chat class/test and README onboarding changes together; no stored chat, wallet, pricing, or telemetry state changes.
+
+Slice K - iOS new-message sheet safety-validator alignment:
+- `selectedIssueIdOrFingerprint`: `ios-chat-sheet-unconditional-safe-marker-validator-drift-20260713`
+- `affectedSurface`: existing iOS PWA Chat source validator only.
+- `expectedUserImpact`: keep the new-message sheet classified as bottom-nav-safe on every platform instead of forcing a weaker `default` label outside iOS merely to satisfy a stale exact-string check.
+- `filesAllowed`: `scripts/agent/validate-ios-pwa-chat-refinements.ts` and this ledger entry.
+- `filesForbidden`: Chat runtime layout, viewport/safe-area tokens, platform detection, message behavior, telemetry, bottom navigation, production data, deploy config, new validators, and release-note artifacts.
+- `validatorToRun`: existing iOS PWA Chat refinement validator plus the device-layout and mobile-shell source validators that own the marker semantics.
+- `releaseNoteImpact`: none; validator alignment is internal evidence hygiene.
+- `rollbackNote`: revert the single assertion change; no runtime source or stored state changes.
+
+Slice L - chat paid-balance reset validator whitespace precision:
+- `selectedIssueIdOrFingerprint`: `chat-paid-reminder-reset-multiline-false-failure-20260713`
+- `affectedSurface`: existing paid-GumDrop Chat guidance source validator only.
+- `expectedUserImpact`: continue proving the canonical below-100 to 100-plus paid-balance crossing while allowing normal TypeScript line wrapping, so a formatting change cannot create a false red verdict.
+- `filesAllowed`: `scripts/agent/validate-chat-paid-gumdrops-guidance.ts` and this ledger entry.
+- `filesForbidden`: PayPal capture behavior, wallet/source-of-funds math, Chat reminder state, telemetry taxonomy, production data, deploy config, new validators, and release-note artifacts.
+- `validatorToRun`: existing paid-GumDrop Chat guidance validator and its focused unit tests plus PayPal/source-of-funds validators already selected by Slice E.
+- `releaseNoteImpact`: none; validator precision is internal release evidence.
+- `rollbackNote`: revert the assertion normalization; no payment, balance, reminder, or provider state changes.
+
+Slice M - Admin User individual-metric source-state truth:
+- `selectedIssueIdOrFingerprint`: `admin-user-missing-metrics-rendered-as-zero-20260713`
+- `affectedSurface`: guest analytics ingest acknowledgement, canonical individual-user metric truth, the Admin User detail API and UI, and the existing identity/Admin User validators.
+- `expectedUserImpact`: stop claiming an unregistered guest materializer was queued and prevent absent signed-in or linked-person evidence from appearing as zero activity; show `source_missing`, `bridge_missing`, or `materializer_missing` until observed user evidence or a bounded source window proves zero.
+- `filesAllowed`: `src/lib/identity-truth/individual-user-metric-truth.ts`, `src/app/api/analytics/ingest/route.ts`, `src/app/api/admin/user/[userId]/route.ts`, `src/app/admin/user/[userId]/page.tsx`, `tests/unit/individual-user-metric-truth.spec.ts`, `tests/unit/analytics-ingest-route.spec.ts`, `scripts/agent/validate-guest-user-analytics-cutover.ts`, `scripts/agent/validate-admin-user-behavior-truth.ts`, and this ledger entry.
+- `filesForbidden`: new identity, queue, materializer, person-metrics, report, or validator subsystems; production data; Firebase/security rules; telemetry event expansion; payment/GumDrop math; deploy config; browser evidence; live provider calls; and public release-note artifacts.
+- `validatorToRun`: focused individual-user truth and guest-ingest tests; existing `check:individual-user-metric-truth`, `check:guest-user-analytics`, and `check:admin-user-behavior-truth` owners; TypeScript; addition-bloat; and a duplicate/stale owner search for guest materialization, identity lineage, and Admin User zero fallbacks.
+- `releaseNoteImpact`: candidate admin-truth and analytics reliability fix only if included in an accepted public beta bundle; no automatic Beta badge or release-note update.
+- `rollbackNote`: revert the guest acknowledgement, identity truth helper, Admin route/UI projection, tests, and validator assertions together; no stored analytics facts, identity links, or materialized indexes are mutated by this source pass.
+
+Slice N - wallet, profile, and shared error action target normalization:
+- `selectedIssueIdOrFingerprint`: `shared-user-controls-subminimum-touch-targets-20260713`
+- `affectedSurface`: user wallet bundle selection, Profile menu navigation, and shared human-error recovery actions.
+- `expectedUserImpact`: replace 28-40px controls with canonical 44px targets and remove nested interactive semantics from the configurable wallet bundle without changing package values, selection, pricing, payment, routing, or error behavior.
+- `filesAllowed`: `src/components/PurchaseModal.tsx`, `src/components/Navigation/ProfileDropdown.tsx`, `src/components/errors/HumanErrorNotice.tsx`, `tests/unit/accessibility-tap-targets.spec.ts`, `tests/unit/purchase-modal.spec.tsx`, existing owning generated accessibility/device reports, and this ledger entry.
+- `filesForbidden`: PayPal create/capture, GumDrop package/economics/source-of-funds math, wallet state ownership, profile routing contracts, error vocabulary, telemetry taxonomy, Firebase/security rules, production data, deploy config, new components/validators, and release-note artifacts.
+- `validatorToRun`: focused accessibility, Purchase Modal, and HumanErrorNotice tests plus accessibility tap-target, wallet density/single-button, device UI, design-system, surface doctrine, legacy-phaseout, and TypeScript checks selected by compact context.
+- `releaseNoteImpact`: candidate user-facing accessibility/usability refinement, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert only the component class/semantics and focused assertions; no wallet, payment, chat, account, or stored state changes.
+
+Slice O - accessibility validator component-owner alignment:
+- `selectedIssueIdOrFingerprint`: `accessibility-validator-pre-refactor-owner-drift-20260713`
+- `affectedSurface`: existing accessibility tap-target validator only.
+- `expectedUserImpact`: keep package selection state, account-settings naming, and alert semantics enforced at their current component owners instead of failing on retired inline variable names or duplicated shared error markup.
+- `filesAllowed`: `scripts/agent/validate-accessibility-tap-targets.ts` and this ledger entry.
+- `filesForbidden`: runtime UI behavior, accessibility doctrine, generated score math, new validators/reports, production data, deploy config, and release-note artifacts.
+- `validatorToRun`: existing accessibility tap-target validator and focused accessibility tests, followed by addition-bloat and duplicate-owner checks.
+- `releaseNoteImpact`: none; validator owner alignment is internal evidence hygiene.
+- `rollbackNote`: revert the validator read/assertion changes; no runtime source or stored state changes.
+
+Slice P - aggregate-count fallback cost bound:
+- `selectedIssueIdOrFingerprint`: `firestore-aggregate-unbounded-compatibility-fallback-20260713`
+- `affectedSurface`: Admin Users fast-summary counts and Creator Settings evidence counts.
+- `expectedUserImpact`: retain exact Firestore aggregate counts without silently falling back to full collection/query reads when the aggregate API is unavailable; failures remain visible to the existing route/evidence error paths instead of creating unbounded cost.
+- `filesAllowed`: `src/app/api/admin/users/route.ts`, `src/app/api/creator/settings/route.ts`, their existing focused route tests, and this ledger entry.
+- `filesForbidden`: count formulas, user/creator UI, stored documents, new cache/materializer owners, Firebase/security rules, production data, deploy config, new validators, and release-note artifacts.
+- `validatorToRun`: focused Admin Users and Creator Settings tests plus hardening/speed-security, admin-user, creator-settings, global-cost, and TypeScript validators selected by compact context.
+- `releaseNoteImpact`: none by itself; this is backend cost/reliability hardening unless later bundled into an accepted public beta release.
+- `rollbackNote`: restore the compatibility fallback only with a separately bounded/exact replacement; no data migration or production mutation is included.
+
+Slice Q - hardening telemetry and vocabulary scanner precision:
+- `selectedIssueIdOrFingerprint`: `hardening-canonical-payload-and-icon-false-positives-20260713`
+- `affectedSurface`: existing codebase-hardening scorer and its existing focused scanner tests.
+- `expectedUserImpact`: continue blocking telemetry calls that genuinely omit `source_component` and visible economy copy that says Coins, while recognizing canonical payload builders/local payload variables and excluding the non-copy Lucide `Coins` icon identifier.
+- `filesAllowed`: `scripts/agent/score-codebase-hardening.ts`, `tests/unit/speed-security-hardening.spec.ts`, owning hardening generated report, and this ledger entry.
+- `filesForbidden`: runtime telemetry payloads, event catalog, UI copy, icons, new scanner/report/script families, package scripts, production data, deploy config, and release-note artifacts.
+- `validatorToRun`: focused scanner tests containing positive and negative cases, `score:hardening`, `check:hardening`, addition-bloat, and TypeScript.
+- `releaseNoteImpact`: none; scanner precision is internal evidence hygiene.
+- `rollbackNote`: revert helper/tests together and regenerate the owning report; do not hand-edit generated findings.
+
+Slice R - public creator profile SWR alignment:
+- `selectedIssueIdOrFingerprint`: `creator-profile-client-bypasses-public-swr-20260713`
+- `affectedSurface`: public creator profile client hydration only.
+- `expectedUserImpact`: allow the existing sanitized, bounded creator-profile API response and its 60-second browser/5-minute shared SWR policy to prevent redundant reads instead of forcing every client request to bypass cache.
+- `filesAllowed`: `src/app/creators/[username]/CreatorProfileClient.tsx`, existing creator-profile/cache-focused tests and validators, and this ledger entry.
+- `filesForbidden`: creator profile response shape, relationship state, follow actions, monetization, timeline composition, server cache headers, telemetry, production data, deploy config, and release-note artifacts.
+- `validatorToRun`: creator public-profile/content pipeline tests plus hardening, speed-security, creator relationship, cache/global-cost, and TypeScript validators selected by compact context.
+- `releaseNoteImpact`: candidate transparent performance/reliability improvement, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: restore the client no-store override if current runtime evidence later proves public SWR unsafe; no stored state changes.
+
+Slice T - device-tier and Cookie Banner action normalization:
+- `selectedIssueIdOrFingerprint`: `device-layout-raw-breakpoints-and-cookie-targets-20260713`
+- `affectedSurface`: approved responsive tier usage across the nine current device-layout findings, plus compact Cookie Banner action reachability.
+- `expectedUserImpact`: align responsive image hints and density transitions with the canonical 360/480/600/840/960 device tiers, avoid crowded sub-480 admin cards, and make every Cookie Banner action meet the 44px touch-target minimum.
+- `filesAllowed`: `src/app/admin/users/page.tsx`, `src/components/CookieBanner.tsx`, `src/app/admin/content/page.tsx`, `src/app/dashboard/viewer/components/MediaViewer.tsx`, `src/components/Admin/AiDropCoverGeneratorPanel.tsx`, `src/components/DropPreviewModal.tsx`, `src/lib/image-loading-policy.ts`, focused existing tests/validators, owning device/layout reports, and this ledger entry.
+- `filesForbidden`: state ownership, privacy consent behavior/copy/telemetry, admin data truth, media access/content protection, image URLs/loading priority, business math, server routes, Firebase/security rules, production data, deploy config, new component/validator/report families, and release-note artifacts.
+- `validatorToRun`: `score:layout`, `check:device-layout-contract`, `score:device-ui`, `check:device-ui`, accessibility tap-target and image-loading validators, focused existing tests, TypeScript, and duplicate raw-breakpoint search.
+- `releaseNoteImpact`: candidate user-facing accessibility/usability refinement, but no Beta badge update unless accepted into a public beta release bundle.
+- `rollbackNote`: revert the responsive tokens/image hints and Cookie Banner min-height classes together; no consent decision, stored state, telemetry, or media access behavior changes.
+
+Slice S - speed/security body and typed-error scanner precision:
+- `selectedIssueIdOrFingerprint`: `speed-security-body-consumption-and-canonical-error-evidence-20260713`
+- `affectedSurface`: existing speed/security source scorer, its focused scanner tests, and the generated speed/security evidence report only.
+- `expectedUserImpact`: keep routes that parse unbounded bodies or collapse domain failures into generic 500s blocking, while removing false findings for mutation handlers that do not consume a body and auth failures that provably flow from the canonical request guard through the shared typed `AuthError` handler.
+- `filesAllowed`: `scripts/agent/score-speed-security-hardening.ts`, `tests/unit/speed-security-hardening.spec.ts`, `agent/state/speed-security-hardening.generated.json`, and this ledger entry.
+- `filesForbidden`: application routes, request-guard or bounded-parser runtime behavior, route/security/cost contracts, error dictionaries and runtime error handlers, payment, identity, UI, Firebase/security rules, production data, deploy config, package scripts, new validator/report families, and release-note artifacts.
+- `validatorToRun`: focused speed/security scanner tests with conservative positive and negative fixtures, `score:speed-security`, `check:speed-security`, TypeScript, addition-bloat, and duplicate/stale scanner-owner search.
+- `releaseNoteImpact`: none; scanner precision and evidence regeneration are internal release hygiene, not a public Beta update.
+- `rollbackNote`: revert the scorer helper/tests together and regenerate the existing report; do not hand-edit findings or weaken runtime contracts.
+
+Slice U - public API cache-contract normalization:
+- `selectedIssueIdOrFingerprint`: `public-api-cache-override-and-health-contract-drift-20260713`
+- `affectedSurface`: public Drops feed response caching, static wallet package catalog caching, and the canonical cache classification for the live deployment health endpoint.
+- `expectedUserImpact`: reduce redundant public Firestore/package-catalog work through the already-approved SWR/static policies while keeping `/api/health` honestly live and no-store instead of caching a process-health timestamp.
+- `filesAllowed`: `src/app/api/drops/route.ts`, `src/app/api/wallet/packages/route.ts`, `src/lib/server/route-cache-contract.ts`, `src/lib/server/api-cost-contract.ts`, existing focused cache/route tests, and this ledger entry.
+- `filesForbidden`: protected Drop content, unlock/payment routes, package values or GumDrop math, health provider calls, UI, Firebase/security rules, production data, deploy config, new cache helpers/validators, and release-note artifacts.
+- `validatorToRun`: focused Drops and wallet-package route tests; existing route-cache, speed/security, hardening, content-protection, payment-module, API-cost/global-cost, and TypeScript checks selected by compact context.
+- `releaseNoteImpact`: candidate transparent performance/reliability improvement only if later accepted into a public beta bundle; no automatic Beta badge or release-note update.
+- `rollbackNote`: restore the route-level dynamic overrides and private Drops cache header together if deployed cache evidence proves the public response unsafe; restore the former health cache classification only if the endpoint is intentionally redesigned as a static build-status route. No stored data changes.
+
+Slice W - GA4 evidence refresh quota, timeout, and cache boundary:
+- `selectedIssueIdOrFingerprint`: `ga4-explicit-refresh-unbounded-provider-window-20260713`
+- `affectedSurface`: admin-only GA4 evidence refresh, canonical safe report wrapper, and the existing ephemeral historical-source cache.
+- `expectedUserImpact`: keep first-party analytics as default truth while making an explicit GA4 evidence refresh actually distinct, limited to the fixed report budget, quota-aware, timeout-bounded, and reused inside the existing refresh TTL rather than repeatedly consuming provider quota.
+- `filesAllowed`: `src/lib/server/admin-analytics-shared.ts`, `src/lib/server/admin-analytics/ga4-evidence.ts`, `src/lib/server/admin-analytics-data.ts`, focused existing admin-analytics/GA4 tests, and this ledger entry.
+- `filesForbidden`: analytics ingestion, metric formulas, Admin Analytics UI/copy, identity/materializers, live Google calls, credentials/env, production data, new cache/budget/report families, deploy config, and release-note artifacts.
+- `validatorToRun`: focused admin-analytics shared/data and GA4 recovery tests; existing Google-cost, speed/security, hardening, analytics truth, global-cost, and TypeScript checks selected by compact context.
+- `releaseNoteImpact`: none by itself; this is internal provider-cost/evidence reliability and does not publish a Beta update.
+- `rollbackNote`: revert the bounded report wrapper, explicit-refresh cache key, and tests together; first-party analytics remains authoritative and no live provider or stored analytics data is touched by this source pass.
+
+Slice X - paid AI provider timeout and canonical fan-out bounds:
+- `selectedIssueIdOrFingerprint`: `ai-cover-provider-timeout-and-health-fanout-20260713`
+- `affectedSurface`: admin-only AI Drop cover provider request, per-request provider-call budget, model-health inspection concurrency, and canonical bounded-concurrency use in source-proven fan-out paths.
+- `expectedUserImpact`: stop an AI cover request from waiting indefinitely, preserve the one-provider-call-per-generation budget and typed timeout recovery, and prevent model-health or analytics reads from scaling into unbounded concurrent work as catalogs grow.
+- `filesAllowed`: `src/lib/server/ai-drop-covers.ts`, `src/lib/server/admin-analytics-shared.ts`, `src/app/api/cron/process-creator-subscriptions/route.ts` only if its existing bound needs canonical helper expression, existing focused AI/concurrency tests, and this ledger entry.
+- `filesForbidden`: AI model/product settings or prompts, live paid AI calls, provider credentials, creator subscription money/ledger behavior, admin UI, payment routes, production data, Firebase/security rules, new worker/budget/helper owners, deploy config, and release-note artifacts.
+- `validatorToRun`: focused AI cover request/provider-error and bounded-concurrency tests plus creator-subscription bench if touched; existing AI admin, Google-cost, speed/security, hardening, background-job idempotency, global-cost, and TypeScript checks selected by compact context.
+- `releaseNoteImpact`: candidate reliability improvement only if accepted into a public beta bundle; no automatic Beta badge or release-note update and no provider proof is claimed.
+- `rollbackNote`: revert timeout signal, one-call budget evidence, bounded mapper use, and tests together; no provider call, subscription processing, or production mutation is performed during verification.
+
+Slice Y - pre-buffer JSON body bounds and high-risk route adoption:
+- `selectedIssueIdOrFingerprint`: `bounded-json-helper-still-buffers-oversized-stream-20260713`
+- `affectedSurface`: canonical server JSON request-body parsing plus the highest-risk non-payment Chat and creator-message mutation routes still calling `request.json()` directly.
+- `expectedUserImpact`: reject oversized, chunked, falsely labeled, or multibyte JSON payloads before the full body is buffered or any route mutation runs, while preserving each route's existing schema, malformed-body response, authorization order, and non-retryable 400/413 recovery.
+- `filesAllowed`: `src/lib/server/bounded-json-body.ts`, `tests/unit/bounded-json-body.spec.ts`, the four Chat attachment/message JSON routes, the creator-messages compatibility route, their existing focused tests, the owning speed/security generated report, and this ledger entry.
+- `filesForbidden`: PayPal create/capture, analytics ingest/identified, Drop unlock, Creator Settings, Admin User/users, multipart upload routes, concurrent Slice V/W/X owners, route/security contract rewrites, Firebase/security rules, production data, deploy config, live provider calls, package scripts, new validator/report/helper families, and release-note artifacts.
+- `validatorToRun`: focused bounded-body, Chat attachment/message, and creator-message route tests; existing `score:speed-security` and `check:speed-security`; TypeScript; addition-bloat; `git diff --check`; and a duplicate/stale body-parser search.
+- `releaseNoteImpact`: candidate transparent reliability/security hardening only if later accepted into a public beta bundle; no automatic Beta badge or release-note update.
+- `rollbackNote`: revert the streaming helper, route call sites, and focused tests together; no data migration, production mutation, provider call, or deployment occurs. Reverting only route call sites would leave known direct-buffer paths; reverting only the helper would restore false pre-buffer safety.
+
+Slice V - registered guest-batch user-index materializer consumer (source/config integrated; external activation proof required):
+- `selectedIssueIdOrFingerprint`: `guest-user-index-consumer-unregistered-20260713`
+- `affectedSurface`: canonical guest analytics batch persistence, behavioral timeline facts, user/guest tracking index materialization, the existing Functions guest-batch trigger, and the user-tracking-index cutover score.
+- `expectedUserImpact`: ensure accepted guest batches reach the canonical bounded user-index materializer outside the ingest request path, while preserving stable-batch and fact-id dedupe, guest-to-user attribution rules, missing-versus-zero truth, and explicit materializer failure states.
+- `filesAllowed`: the existing user-index materializer/writer/contracts, behavioral timeline projection owner, guest and identified ingest projection call sites, one authenticated internal materializer route, the existing Functions scheduled-job export surface and bounded HTTP transport, focused identity/materializer tests, current cutover scorer/validator, existing analytics/materialization/cost/security/route registries, environment/index contracts, and this ledger entry.
+- `filesForbidden`: analytics ingest hot-path materialization, a second user-index algorithm in Functions, fake queue acknowledgements, production data mutation, deploys, live provider reads/writes, payment/GumDrop math, UI, Firebase/security-rule changes, and unrelated release artifacts.
+- `owner`: `analytics/materializers`; canonical algorithm `src/lib/server/user-index-materializer.ts`, atomic producer `src/lib/server/behavioral-timeline-writer.ts`, serving contracts `src/lib/user-indexes/*`, registered transport `functions/src/user-index-materializer-schedule.ts` -> `/api/internal/analytics/materialize-user-index`.
+- `environment`: local/source and App Hosting default `USER_INDEX_MATERIALIZER_MODE=off`; shadow/active require an externally configured current-source fingerprint, Functions endpoint, and CRON secret. Active publication additionally requires two distinct clean current-source shadow windows.
+- `expectedCommand`: every five minutes, the single-instance scheduled Function posts one bounded JSON request to the internal route; the route verifies the bearer CRON secret and consumes at most 50 leased requests / 500 facts per subject / 30 seconds. Source verification uses the focused Vitest suites, Functions build, cutover/identity/config/route/cost checks, and TypeScript only.
+- `safetyClass`: release-risk source/config integration, default-off, service-to-service authenticated, no deploy, live service, provider, payment, production write, or security-rule action in this pass.
+- `costClass`: high / bounded Firestore transaction and query work; one scheduled instance, retryCount 0, deterministic leases/receipts, maximum 25,000 facts examined per run, and no materializer execution inside ingest requests.
+- `validatorToRun`: focused materializer core/consumer/projection/route/scheduler and guest/identified ingest tests; `check:user-tracking-index-cutover`; `check:guest-user-analytics`; identity chain/link continuity; Functions build; config-env, backend-route inventory, speed/security, global-cost, TypeScript, diff, and duplicate/stale-owner searches.
+- `releaseNoteImpact`: candidate analytics/identity reliability fix only if later accepted into a public beta bundle; no automatic Beta badge or release-note update.
+- `rollbackNote`: set `USER_INDEX_MATERIALIZER_MODE=off` in every configured runtime and, if necessary, disable the scheduled export; retain raw guest batches, timeline facts, outbox requests, shadow receipts, identity links, and serving indexes for diagnosis. Reverting the source slice must restore honest `materializer_missing` classification rather than leaving fake queued acknowledgements.
+- `sourceEvidence`: timeline facts and outbox requests now share one transaction; guest duplicates can repair projection from durable server-owned facts; identified failures are retryable; the internal route is bounded and CRON-authenticated; the single-instance scheduler validates an exact receipt; Firestore query indexes and route/security/cost/global-cost contracts are declared; the cutover scorer tests this executing chain rather than direct hot-path calls.
+- `externalEvidenceRequired`: Functions/App Hosting deployment, endpoint/secret/source-fingerprint configuration, Firestore index rollout, observed scheduler invocation, two clean shadow windows, active-mode promotion, admin truth samples, and production person-metric correctness. These remain red and cannot be cleared by source tests.
+
+Slice AH - identified-ingest durable projection retry recovery:
+- `selectedIssueIdOrFingerprint`: `identified-ingest-projection-retry-stranded-20260713`
+- `affectedSurface`: authenticated analytics ingest, canonical runtime event facts, behavioral timeline projection, and the user-index materializer outbox.
+- `expectedUserImpact`: a transient timeline/outbox transaction failure must remain genuinely retryable; the accepted canonical event must not become permanently absent from individual-user metrics after the client retries.
+- `filesAllowed`: `src/app/api/analytics/ingest-identified/route.ts`, its focused unit test, and this audit ledger entry.
+- `filesForbidden`: guest ingest, the materializer algorithm/writer, UI, payment/GumDrop logic, Firebase/security rules, production data, deploys, live providers, package scripts, new report/validator families, and unrelated release artifacts.
+- `validatorToRun`: focused identified-ingest route tests; materializer projection/core tests; TypeScript; targeted ESLint; addition-bloat; `git diff --check`; and a duplicate/stale projection-recovery search.
+- `releaseNoteImpact`: candidate analytics reliability fix only if later accepted into a public beta bundle; no automatic Beta badge or release-note update.
+- `rollbackNote`: revert the stored projection fact, actor-bound retry reader, focused regression, and this ledger entry together. Existing canonical event facts remain authoritative; no migration, production mutation, provider call, or deployment occurs.
+
+Slice Z - storage-upload and bounded-fanout scorer precision:
+- `selectedIssueIdOrFingerprint`: `speed-storage-fanout-complete-evidence-false-findings-20260713`
+- `affectedSurface`: the existing speed/security source scorer and its focused regression tests for Storage upload boundaries and Promise fan-out caps.
+- `expectedUserImpact`: keep unsafe Storage access and unbounded concurrent work release-blocking while no longer misclassifying uploads that already prove auth, file-byte/type, scoped-path/access, and cleanup boundaries or Promise work that is capped by a fixed chunk/query/concurrency limit.
+- `filesAllowed`: `scripts/agent/score-speed-security-hardening.ts`, `tests/unit/speed-security-hardening.spec.ts`, the owning `agent/state/speed-security-hardening.generated.json`, and this ledger entry.
+- `filesForbidden`: application/runtime routes, UI, identity materializers, PayPal/payment/GumDrop owners, bounded JSON/body parsing, Firebase/security rules, App Check/provider/runtime evidence, production data, deploy config, package scripts, new validator/report/helper families, and unrelated generated docs.
+- `validatorToRun`: focused speed/security scorer helper tests; existing `score:speed-security` and `check:speed-security`; TypeScript; addition-bloat guard; `git diff --check`; and source searches proving negative fixtures still flag incomplete Storage and fan-out evidence.
+- `releaseNoteImpact`: none; deterministic scorer precision is internal release evidence and does not publish a Beta badge update.
+- `rollbackNote`: revert the scorer/test slice together and regenerate only the owning speed/security report; no runtime behavior, stored data, provider state, or deployment is changed.
+
 ## [2026-07-10 #190] Full Source-First Codebase Damage Audit
 
 Scope started:

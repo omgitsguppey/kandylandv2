@@ -115,7 +115,7 @@ function PurchasePackageRow({
       ? "border-brand-purple/55 bg-brand-purple/[0.12] ring-1 ring-brand-purple/25"
       : "border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer",
   );
-  const content = (
+  const rowContent = (
     <>
       <div
         className={cn(
@@ -134,29 +134,26 @@ function PurchasePackageRow({
         <p className="mt-0.5 truncate text-[10.5px] font-medium leading-tight text-gray-400">{label}</p>
       </div>
       <PurchasePriceBlock price={price} promo={promo} selected={selected} />
-      {children}
     </>
   );
 
   if (children) {
     return (
       <div
-        role="button"
-        tabIndex={0}
-        onClick={onSelect}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            onSelect();
-          }
-        }}
-        aria-pressed={selected}
-        aria-label={ariaLabel}
         data-wallet-mobile-density="compact"
         data-payment-module-density="compact-v2"
         className={className}
       >
-        {content}
+        <button
+          type="button"
+          onClick={onSelect}
+          aria-pressed={selected}
+          aria-label={ariaLabel}
+          className="col-span-3 grid min-h-11 w-full cursor-pointer grid-cols-[2rem_minmax(0,1fr)_6.6rem] items-center gap-2.5 text-left"
+        >
+          {rowContent}
+        </button>
+        {children}
       </div>
     );
   }
@@ -171,7 +168,7 @@ function PurchasePackageRow({
       data-payment-module-density="compact-v2"
       className={className}
     >
-      {content}
+      {rowContent}
     </button>
   );
 }
@@ -738,7 +735,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         {isBundleSelected && (
                            <div className="col-span-3 mt-1 flex items-center justify-between gap-3 border-t border-white/5 pt-1.5">
                              <span className="text-[10px] text-gray-400 font-medium tracking-wide">Configure:</span>
-                             <div className="flex shrink-0 items-center justify-between w-[118px] rounded-lg border border-white/10 bg-black/40 p-0.5">
+                             <div className="flex w-[142px] shrink-0 items-center justify-between rounded-lg border border-white/10 bg-black/40 p-0.5">
                                 <button
                                   aria-label="Decrease bundle size"
                                   type="button"
@@ -748,7 +745,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   }}
                                   disabled={!canDecreaseBundle}
                                   className={cn(
-                                    "flex h-7 w-7 flex-col items-center justify-center rounded-md text-white transition-colors cursor-pointer",
+                                    "flex h-11 w-11 flex-col items-center justify-center rounded-md text-white transition-colors cursor-pointer",
                                     !canDecreaseBundle ? "opacity-30 cursor-not-allowed bg-transparent" : "bg-white/10 hover:bg-white/20"
                                   )}
                                 >
@@ -764,7 +761,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   }}
                                   disabled={!canIncreaseBundle}
                                   className={cn(
-                                    "flex h-7 w-7 items-center justify-center rounded-md text-white transition-colors cursor-pointer",
+                                    "flex h-11 w-11 items-center justify-center rounded-md text-white transition-colors cursor-pointer",
                                     !canIncreaseBundle ? "opacity-30 cursor-not-allowed bg-brand-purple/30" : "bg-brand-purple/80 hover:bg-brand-purple text-white"
                                   )}
                                 >

@@ -17,4 +17,4 @@ Status: cookie consent and privacy tracking are connected to a first-class conse
 
 ## Validation
 
-- Pass.
+- FAIL: chat/nav/payment protected files changed: agent/state/gumdrop-economy-accuracy.generated.json, agent/state/gumdrop-economy-score.generated.json, agent/state/wallet-packages-route-repair.generated.json, scripts/agent/validate-chat-paid-gumdrops-guidance.ts, scripts/agent/validate-payment-unlock-security.ts, src/app/api/chat/attachments/cancel/route.ts, src/app/api/chat/attachments/complete/route.ts, src/app/api/chat/attachments/prepare/route.ts, src/app/api/chat/threads/[threadId]/messages/route.ts, src/app/api/paypal/capture/route.ts, src/app/api/paypal/create/route.ts, src/app/api/wallet/packages/route.ts, src/components/Navigation/ProfileDropdown.tsx, src/lib/server/paypal.ts, tests/unit/paypal-capture-route.spec.ts, tests/unit/wallet-packages-route-repair.spec.ts

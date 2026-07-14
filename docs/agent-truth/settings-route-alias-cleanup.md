@@ -1,8 +1,8 @@
 # Settings Route Alias Cleanup
 
-Generated: 2026-05-23T01:14:18.735Z
-Status: pass
-Head: 17353b5ca414da32c9fa3bca2abc005fe483aa2c
+Generated: 2026-07-14T16:10:28.594Z
+Status: fail
+Head: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
 
 ## Canonical Route Table
 
@@ -33,8 +33,8 @@ Head: 17353b5ca414da32c9fa3bca2abc005fe483aa2c
 - pass: featureRegistrationIncludesCanonicalAndAliases
 - pass: splitValidatorUpdated
 - pass: publicCreatorProfileRoutePresent
-- pass: protectedSurfacesUntouched
+- fail: protectedSurfacesUntouched
 
 ## Validation Failures
 
-- none
+- protectedSurfacesUntouched failed.

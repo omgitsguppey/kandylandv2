@@ -700,6 +700,11 @@ if (TELEMETRY_EVENT_PAYLOAD_CONTRACTS.length !== TELEMETRY_EVENT_OPTIONS.length)
   failures.push("Every telemetry catalog event must have a payload contract.");
 }
 
+const DROP_DISCOVERY_EVENTS_WITHOUT_DROP_ID = new Set([
+  "drops_category_selected",
+  "drops_searched",
+]);
+
 for (const contract of TELEMETRY_EVENT_PAYLOAD_CONTRACTS) {
   if (!TELEMETRY_EVENT_NAME_SET.has(contract.eventName)) {
     failures.push(`Payload contract references unknown event: ${contract.eventName}`);
@@ -707,7 +712,11 @@ for (const contract of TELEMETRY_EVENT_PAYLOAD_CONTRACTS) {
   if (contract.family === "admin" && !contract.adminExcludedFromUserAnalytics) {
     failures.push(`${contract.eventName} must be excluded from user behavior analytics.`);
   }
-  if ((contract.family === "drop" || contract.family === "unlock") && !contract.requiredObjectFields.some((field) => field.includes("drop_id"))) {
+  if (
+    (contract.family === "drop" || contract.family === "unlock")
+    && !DROP_DISCOVERY_EVENTS_WITHOUT_DROP_ID.has(contract.eventName)
+    && !contract.requiredObjectFields.some((field) => field.includes("drop_id"))
+  ) {
     failures.push(`${contract.eventName} must require drop_id/dropId.`);
   }
   if (contract.family === "notification" && !contract.eventName.includes("prompt") && !contract.requiredObjectFields.some((field) => field.includes("idempotency"))) {
@@ -725,11 +734,14 @@ requireContract("admin_analytics_viewed", { actor: "admin_id" });
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const analyticsClientEngine = readRequired("src/lib/analytics-client-engine.ts");
 const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
+const runtimeFactNormalizer = readRequired("src/lib/runtime-facts/normalize-runtime-fact.ts");
 const serverAnalytics = readRequired("src/lib/server/analytics.ts");
 const dropCard = readRequired("src/components/DropCard.tsx");
 const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
+const serverUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
 const paypalCaptureRoute = readRequired("src/app/api/paypal/capture/route.ts");
+const serverPurchaseContract = readRequired("src/lib/commerce/commerce-parity-contract.ts");
 const notificationBell = readRequired("src/components/Navigation/NotificationBell.tsx");
 const notificationHook = readRequired("src/hooks/useNotifications.ts");
 const notificationRuntimeBridge = readRequired("src/components/Notifications/NotificationRuntimeBridge.tsx");
@@ -746,18 +758,27 @@ const audit = parseJson("agent/state/event-catalog-telemetry-audit.generated.jso
 requireIncludes(telemetryCatalog, "TELEMETRY_EVENT_PAYLOAD_CONTRACTS", "telemetry catalog");
 requireIncludes(telemetryCatalog, "normalizeTelemetryEventPayloadParams", "telemetry catalog");
 requireIncludes(analyticsClientEngine, "normalizeTelemetryEventPayloadParams", "analytics client engine");
-requireIncludes(identifiedIngestRoute, "explainEventInclusion", "identified ingest route");
-requireIncludes(identifiedIngestRoute, "analyticsUserId", "identified ingest route");
-requireIncludes(identifiedIngestRoute, "inclusion.includeInUserBehavior &&", "identified ingest active-user write");
+requireIncludes(runtimeFactNormalizer, "explainEventInclusion", "runtime fact inclusion owner");
+requireIncludes(runtimeFactNormalizer, "actorUserId: runtimeActorUserId", "runtime fact identity owner");
+requireIncludes(runtimeFactNormalizer, "includeInUserBehavior: inclusion.includeInUserBehavior", "runtime fact inclusion owner");
+requireIncludes(identifiedIngestRoute, "normalizeIdentifiedRuntimeFact", "identified ingest route");
+requireIncludes(identifiedIngestRoute, "userId: ingestRuntimeFact.actor.actorUserId || caller.uid", "identified ingest actor projection");
+requireIncludes(identifiedIngestRoute, "ingestRuntimeFact.includeInUserBehavior &&", "identified ingest active-user write");
 requireIncludes(serverAnalytics, "explainEventInclusion", "server analytics");
 requireIncludes(serverAnalytics, "analyticsUserId", "server analytics");
 requireIncludes(serverAnalytics, "userId && inclusion.includeInUserBehavior", "server analytics active-user write");
-requireIncludes(dropCard, "transaction_id", "DropCard unlock telemetry");
+requireIncludes(dropCard, "drop_unlock_attempted", "DropCard unlock-attempt telemetry");
+requireIncludes(dropCard, "drop_id", "DropCard unlock-attempt telemetry");
 requireIncludes(dropCard, "idempotency_key", "DropCard unlock telemetry");
-requireIncludes(dropPreviewModal, "transaction_id", "DropPreviewModal unlock telemetry");
+requireIncludes(dropPreviewModal, "drop_unlock_attempted", "DropPreviewModal unlock-attempt telemetry");
+requireIncludes(dropPreviewModal, "drop_id", "DropPreviewModal unlock-attempt telemetry");
 requireIncludes(dropPreviewModal, "idempotency_key", "DropPreviewModal unlock telemetry");
+requireIncludes(serverUnlockRoute, "buildServerUnlockTelemetryEvent", "server unlock telemetry owner");
+requireIncludes(serverUnlockRoute, "transaction_id: result.transactionId", "server unlock transaction telemetry");
+requireIncludes(serverUnlockRoute, "trackServerEvent(serverUnlockTelemetry.eventName", "server unlock telemetry emission");
 requireIncludes(purchaseModal, "order_id: orderId", "PurchaseModal purchase telemetry");
-requireIncludes(paypalCaptureRoute, "purchase_source: \"paypal_capture\"", "PayPal verified telemetry");
+requireIncludes(paypalCaptureRoute, "buildServerPurchaseTelemetryEvent", "PayPal verified telemetry owner");
+requireIncludes(serverPurchaseContract, "purchase_source: \"server_paypal_capture\"", "canonical PayPal purchase telemetry");
 requireIncludes(notificationBell, "recipient_id: currentUserId", "NotificationBell opened telemetry");
 requireIncludes(notificationHook, "notification_type: \"in_app\"", "notification hook telemetry");
 requireIncludes(notificationRuntimeBridge, "notification_type: \"browser_push\"", "notification runtime telemetry");

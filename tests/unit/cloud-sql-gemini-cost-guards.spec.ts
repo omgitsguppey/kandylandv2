@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { shouldSyncAgentSqlMirrorDuringCheck } from "../../scripts/agent/check-agent-context";
-import { assertSqlMirrorSyncAllowed, syncAgentSqlMirror } from "../../scripts/agent/sync-sql";
+import { assertSqlMirrorSyncAllowed, inferRows, syncAgentSqlMirror } from "../../scripts/agent/sync-sql";
 import { validateCloudSqlGeminiCostGuards } from "../../scripts/agent/validate-cloud-sql-gemini-cost-guards";
 
 describe("cloud sql and gemini cost guards", () => {
@@ -36,6 +36,17 @@ describe("cloud sql and gemini cost guards", () => {
     expect(shouldSyncAgentSqlMirrorDuringCheck({})).toBe(false);
     expect(shouldSyncAgentSqlMirrorDuringCheck({ ALLOW_SQL_MIRROR_SYNC: "0" })).toBe(false);
     expect(shouldSyncAgentSqlMirrorDuringCheck({ ALLOW_SQL_MIRROR_SYNC: "1" })).toBe(true);
+  });
+
+  it("preserves logical full counts when compact index artifacts are mirrored", () => {
+    expect(inferRows("repo-inventory.json", {
+      totalFindingCount: 4_914,
+      items: [{}, {}],
+    })).toBe(4_914);
+    expect(inferRows("verification-commands.json", {
+      counts: { total: 905, emitted: 12, omitted: 893 },
+      commands: [{}],
+    })).toBe(905);
   });
 
   it("lists runtime SQL detection separately from Data Connect mirror config", () => {

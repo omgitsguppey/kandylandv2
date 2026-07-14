@@ -253,4 +253,26 @@ describe("POST /api/drops/feedback", () => {
         expect(mockState.transactionUpdate).not.toHaveBeenCalled();
         expect(mockState.trackServerEvent).not.toHaveBeenCalled();
     });
+
+    it("rejects oversized JSON before feedback reward mutation", async () => {
+        const request = new NextRequest("http://localhost/api/drops/feedback", {
+            method: "POST",
+            headers: { "content-length": "16385" },
+            body: "{}",
+        });
+
+        const response = await POST(request);
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+        expect(mockState.transactionSet).not.toHaveBeenCalled();
+        expect(mockState.transactionUpdate).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+    });
 });

@@ -46,7 +46,7 @@ describe("DebugBugReportSummary", () => {
     expect(screen.getByText("3")).toBeTruthy();
     expect(screen.getAllByText(/rewarded/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/internal_server_error/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Unhandled server failure/i)).toBeTruthy();
+    expect(screen.getByText(/This hit a platform snag/i)).toBeTruthy();
     expect(screen.queryByText(/token|secret|paypal|capture|stack/i)).toBeNull();
   });
 });

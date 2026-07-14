@@ -69,7 +69,7 @@ describe("creator nav and role consolidation", () => {
     expect(dashboard).toContain("<CollectionList");
   });
 
-  it("keeps Fan Pass CRM and broadcasts on readable Fans semantics", () => {
+  it("keeps Fan Pass CRM readable and broadcasts on the supported follower audience", () => {
     const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
     const workspaceModules = readCreatorWorkspaceModules();
     const fanPassManager = read("src/components/Creators/CreatorFanPassManager.tsx");
@@ -83,10 +83,10 @@ describe("creator nav and role consolidation", () => {
     expect(fanPassManager).toContain('data-fan-pass-crm="mobile_v1"');
     expect(subscriberRow).toContain('data-raw-user-id-hidden="true"');
     expect(combinedCreatorUi).not.toContain("subscription.userId || subscription.id");
-    expect(combinedCreatorUi).not.toMatch(/all followers|Tell followers|Broadcast sent to followers|for followers/iu);
-    expect(combinedCreatorUi).toContain('data-broadcast-audience="all_fans"');
-    expect(broadcastManager).toContain('data-broadcast-audience="all_fans"');
-    expect(combinedCreatorUi).toContain("Audience: Fans");
+    expect(combinedCreatorUi).not.toMatch(/all_fans|all followers|Tell followers|for followers/iu);
+    expect(combinedCreatorUi).toContain('data-broadcast-audience="followers"');
+    expect(broadcastManager).toContain('data-broadcast-audience="followers"');
+    expect(combinedCreatorUi).toContain("Audience: Followers");
   });
 
   it("keeps the compact overview and removes old standalone metric grids", () => {

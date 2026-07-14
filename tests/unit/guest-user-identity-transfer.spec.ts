@@ -37,6 +37,12 @@ import {
   createCanonicalAnalyticsEvent,
   createIdentityLinkedEvent,
 } from "@/lib/analytics/analytics-event-contract";
+import {
+  ANALYTICS_IDENTITY_LINEAGE_LEGACY_OWNER_VERSION,
+  ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
+  classifyAnalyticsIdentityLineageOwnerVersion,
+  summarizeAnalyticsIdentityLineageOwnerVersions,
+} from "@/lib/analytics/identity-link-contract";
 import { POST } from "@/app/api/analytics/identity-link/route";
 
 function buildRequest(body: unknown) {
@@ -92,9 +98,30 @@ describe("guest-to-user identity transfer", () => {
     });
 
     expect(first.identityLinkId).toBe(second.identityLinkId);
+    expect(first.identityLinkId).toBe("identity_link_08qui4x");
+    expect(first.ownerKeyVersion).toBe("fnv1a32_guest_session_user_base36_v1");
+    expect(first.ownerKeyVersion).toBe(ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION);
     expect(getAnalyticsIdentityLinkId(first)).toBe(first.identityLinkId);
     expect(first.authTransitionId).toBe("auth_transition_login_subject_guest_sess_1_user_1");
     expect(first.identityState).toBe("guest_linked_to_user");
+  });
+
+  it("classifies missing and old lineage-owner labels without accepting them", () => {
+    expect(classifyAnalyticsIdentityLineageOwnerVersion(undefined)).toBe("owner_version_missing");
+    expect(classifyAnalyticsIdentityLineageOwnerVersion(ANALYTICS_IDENTITY_LINEAGE_LEGACY_OWNER_VERSION))
+      .toBe("legacy_owner_version");
+    expect(classifyAnalyticsIdentityLineageOwnerVersion("future_hash_v9")).toBe("unsupported_owner_version");
+    expect(classifyAnalyticsIdentityLineageOwnerVersion(ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION)).toBe("current");
+    expect(summarizeAnalyticsIdentityLineageOwnerVersions([
+      ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
+      undefined,
+      ANALYTICS_IDENTITY_LINEAGE_LEGACY_OWNER_VERSION,
+    ])).toMatchObject({
+      state: "mixed_rejected",
+      currentCount: 1,
+      rejectedCount: 2,
+      rejectedStates: ["owner_version_missing", "legacy_owner_version"],
+    });
   });
 
   it("uses local idempotency keys so the same link submits once", () => {
@@ -333,6 +360,50 @@ describe("guest-to-user identity transfer", () => {
     expect(trackIndex).toBeGreaterThan(ownerSyncIndex);
     expect(submitIndex).toBeGreaterThan(trackIndex);
     expect(authStateOwnerSyncIndex).toBe(-1);
+  });
+
+  it("preserves the non-retryable malformed identity-link response before persistence", async () => {
+    const request = new NextRequest("http://localhost/api/analytics/identity-link", {
+      method: "POST",
+      body: "{",
+      headers: { "content-type": "application/json" },
+    });
+    const response = await POST(request);
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      reason: "invalid_identity_link",
+      retryable: false,
+    });
+    expect(routeMocks.upsertAnalyticsIdentityLink).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["absent", undefined],
+    ["dishonest", "8"],
+  ])("rejects an oversized identity-link body with %s Content-Length before persistence", async (_label, contentLength) => {
+    const headers: Record<string, string> = { "content-type": "application/json" };
+    if (contentLength) headers["content-length"] = contentLength;
+    const request = new NextRequest("http://localhost/api/analytics/identity-link", {
+      method: "POST",
+      body: JSON.stringify({
+        guestId: "subject_guest",
+        sessionId: "sess_1",
+        padding: "x".repeat(17 * 1024),
+      }),
+      headers,
+    });
+    expect(request.headers.get("content-length")).toBe(contentLength ?? null);
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      reason: "payload_too_large",
+      retryable: false,
+    });
+    expect(routeMocks.upsertAnalyticsIdentityLink).not.toHaveBeenCalled();
   });
 
   it("requires auth for the transfer route", async () => {

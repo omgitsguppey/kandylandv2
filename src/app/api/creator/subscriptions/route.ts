@@ -44,6 +44,8 @@ type CreatorSubscriptionProblemCode =
     | "creator_unavailable"
     | "subscriptions_unavailable"
     | "insufficient_paid_gumdrops"
+    | "idempotency_conflict"
+    | "materializer_missing"
     | "invalid_subscription_request"
     | "unauthorized";
 
@@ -90,6 +92,9 @@ function buildSubscriptionProblemResponse(problem: CreatorSubscriptionProblem) {
         priceGd: toOptionalNumber(problem.context.priceGd),
         paidBalanceGd: toOptionalNumber(problem.context.paidBalanceGd),
         shortfallGd: toOptionalNumber(problem.context.shortfallGd),
+        reconciliationState: problem.code === "materializer_missing" ? "materializer_missing" : undefined,
+        retryable: problem.code === "materializer_missing" ? true : undefined,
+        preserveIdempotencyKey: problem.code === "idempotency_conflict" || problem.code === "materializer_missing",
     }, { status: problem.status });
 }
 
@@ -100,6 +105,82 @@ function buildBoundedSubscriptionBodyResponse(error: { status: 400 | 413; code: 
         error: error.message,
         message: error.message,
     }, { status: error.status });
+}
+
+function readSourceAwareBalanceSnapshot(value: unknown) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return null;
+    }
+
+    const source = value as Record<string, unknown>;
+    if (
+        typeof source.total !== "number"
+        || !Number.isFinite(source.total)
+        || typeof source.purchased !== "number"
+        || !Number.isFinite(source.purchased)
+        || typeof source.reward !== "number"
+        || !Number.isFinite(source.reward)
+    ) {
+        return null;
+    }
+
+    return {
+        total: Math.max(0, Math.trunc(source.total)),
+        purchased: Math.max(0, Math.trunc(source.purchased)),
+        reward: Math.max(0, Math.trunc(source.reward)),
+    };
+}
+
+function matchesCommittedSubscriptionReplay(input: {
+    transactionData: Record<string, unknown>;
+    subscriptionId: string;
+    transactionId: string;
+    userId: string;
+    creatorId: string;
+    idempotencyKey: string;
+}) {
+    const amount = input.transactionData.amount;
+    return input.transactionData.verifiedServerSide === true
+        && input.transactionData.status === "completed"
+        && input.transactionData.type === "creator_subscription"
+        && typeof amount === "number"
+        && Number.isFinite(amount)
+        && amount < 0
+        && input.transactionData.userId === input.userId
+        && input.transactionData.creatorId === input.creatorId
+        && input.transactionData.idempotencyKey === input.idempotencyKey
+        && input.transactionData.userTransactionId === input.transactionId
+        && input.transactionData.creatorExperienceRecordId === input.subscriptionId;
+}
+
+function matchesSubscriptionOwner(
+    subscriptionData: Record<string, unknown>,
+    userId: string,
+    creatorId: string,
+) {
+    return subscriptionData.userId === userId && subscriptionData.creatorId === creatorId;
+}
+
+function readPersistedId(value: unknown) {
+    return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
+function buildSubscriptionStateDebug(input: {
+    subscriptionExists: boolean;
+    subscriptionData?: Record<string, unknown>;
+    subscriptionId: string;
+    priceGd: number;
+    idempotencyKey: string;
+    duplicatePrevented: boolean;
+}) {
+    return {
+        userTransactionId: readPersistedId(input.subscriptionData?.userTransactionId),
+        creatorAccrualId: readPersistedId(input.subscriptionData?.creatorAccrualId),
+        creatorExperienceRecordId: input.subscriptionExists ? input.subscriptionId : null,
+        priceGd: Math.max(0, Math.trunc(input.priceGd)),
+        idempotencyKey: input.idempotencyKey,
+        duplicatePrevented: input.duplicatePrevented,
+    };
 }
 
 function isAuthUnauthorized(error: unknown) {
@@ -436,19 +517,24 @@ async function POST_handler(request: NextRequest) {
             source: "creator_experience_transaction",
         }));
         if (action === "subscribe") {
-            void trackServerEvent("fan_pass_purchase_attempted", buildFanPassTelemetry({
-                eventName: "fan_pass_purchase_attempted",
-                creatorId,
-                fanUserId: caller.uid,
-                fanPassId: buildSubscriptionId(caller.uid, creatorId),
-                state: "purchase_attempted",
-                sourceTruth: "creator_settings",
-                price: 0,
-                surface: "creator_profile",
-                route: "/api/creator/subscriptions",
-            }), caller.uid).catch(() => undefined);
+            const attemptedEventId = `fan-pass-attempted:${idempotencyKey}`;
+            await trackServerEvent("fan_pass_purchase_attempted", {
+                ...buildFanPassTelemetry({
+                    eventName: "fan_pass_purchase_attempted",
+                    creatorId,
+                    fanUserId: caller.uid,
+                    fanPassId: buildSubscriptionId(caller.uid, creatorId),
+                    state: "purchase_attempted",
+                    sourceTruth: "creator_settings",
+                    price: 0,
+                    surface: "creator_profile",
+                    route: "/api/creator/subscriptions",
+                }),
+                eventId: attemptedEventId,
+                idempotencyKey: attemptedEventId,
+                actionIdempotencyKey: idempotencyKey,
+            }, caller.uid);
         }
-
         const creatorRef = adminDb.collection("users").doc(creatorId);
         const userRef = adminDb.collection("users").doc(caller.uid);
         const subscriptionRef = adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId));
@@ -456,11 +542,142 @@ async function POST_handler(request: NextRequest) {
         const transactionRef = adminDb.collection("transactions").doc(recordIds.userTransactionId);
 
         const result = await adminDb.runTransaction(async (transaction) => {
-            const [creatorSnap, userSnap, subscriptionSnap, transactionSnap] = await Promise.all([
-                transaction.get(creatorRef),
-                transaction.get(userRef),
+            const [subscriptionSnap, transactionSnap] = await Promise.all([
                 transaction.get(subscriptionRef),
                 transaction.get(transactionRef),
+            ]);
+
+            if (transactionSnap.exists) {
+                const transactionData = transactionSnap.data() as Record<string, unknown> | undefined;
+                const subscriptionData = subscriptionSnap.data() as Record<string, unknown> | undefined;
+                if (
+                    action !== "subscribe"
+                    || !transactionData
+                    || !matchesCommittedSubscriptionReplay({
+                        transactionData,
+                        subscriptionId: subscriptionRef.id,
+                        transactionId: transactionRef.id,
+                        userId: caller.uid,
+                        creatorId,
+                        idempotencyKey,
+                    })
+                ) {
+                    throw new CreatorSubscriptionProblem(
+                        409,
+                        "idempotency_conflict",
+                        "This Fan Pass key is already associated with a different or incomplete action.",
+                        subscriptionContext,
+                    );
+                }
+                if (!subscriptionData) {
+                    throw new CreatorSubscriptionProblem(
+                        409,
+                        "materializer_missing",
+                        "Your Fan Pass payment was recorded, but access is still reconciling. Retry with the same key.",
+                        subscriptionContext,
+                    );
+                }
+                if (!matchesSubscriptionOwner(subscriptionData, caller.uid, creatorId)) {
+                    throw new CreatorSubscriptionProblem(
+                        409,
+                        "idempotency_conflict",
+                        "This Fan Pass key is associated with a different subscription owner.",
+                        subscriptionContext,
+                    );
+                }
+
+                const amount = transactionData.amount as number;
+                const priceGd = Math.max(0, Math.trunc(Math.abs(amount)));
+                const creatorAccrualId = readPersistedId(transactionData.creatorAccrualId)
+                    ?? readPersistedId(subscriptionData.creatorAccrualId);
+                const balanceBefore = readSourceAwareBalanceSnapshot(transactionData.sourceAwareBalanceBefore);
+                const balanceAfter = readSourceAwareBalanceSnapshot(transactionData.sourceAwareBalanceAfter);
+                const subscriptionStatus = readTrimmedString(subscriptionData.status) || "unknown";
+                const renewAt = subscriptionStatus === "active"
+                    && subscriptionData.idempotencyKey === idempotencyKey
+                    && subscriptionData.userTransactionId === transactionRef.id
+                    && typeof subscriptionData.renewAt === "number"
+                    ? subscriptionData.renewAt
+                    : null;
+                const currentAction = subscriptionStatus === "active" ? "subscribe" as const : "cancel" as const;
+                return {
+                    action: currentAction,
+                    priceGd,
+                    renewAt,
+                    creatorAccrualId,
+                    subscriptionStatus,
+                    accessGranted: subscriptionStatus === "active",
+                    historicalReceipt: true,
+                    historicalAction: "subscribe" as const,
+                    duplicatePrevented: true,
+                    emitLifecycleTelemetry: false,
+                    debug: {
+                        userTransactionId: transactionRef.id,
+                        creatorAccrualId,
+                        creatorExperienceRecordId: subscriptionRef.id,
+                        priceGd,
+                        idempotencyKey,
+                        duplicatePrevented: true,
+                        sourceAwareBalanceBefore: balanceBefore,
+                        sourceAwareBalanceAfter: balanceAfter,
+                        paidBalanceBefore: balanceBefore?.purchased ?? null,
+                        paidBalanceAfter: balanceAfter?.purchased ?? null,
+                        rewardBalanceBefore: balanceBefore?.reward ?? null,
+                        rewardBalanceAfter: balanceAfter?.reward ?? null,
+                        purchasedOnly: true,
+                        source_policy: "creator_experience_paid_only",
+                        subscription_source_policy: "creator_subscription_paid_only",
+                    },
+                };
+            }
+
+            const subscriptionData = subscriptionSnap.data() as Record<string, unknown> | undefined;
+            if (subscriptionData && !matchesSubscriptionOwner(subscriptionData, caller.uid, creatorId)) {
+                throw new CreatorSubscriptionProblem(
+                    409,
+                    "idempotency_conflict",
+                    "This Fan Pass subscription belongs to a different account.",
+                    subscriptionContext,
+                );
+            }
+
+            if (action === "cancel") {
+                const alreadyCanceled = subscriptionData
+                    ? (subscriptionData.status === "canceled" || subscriptionData.status === "cancelled")
+                        && subscriptionData.autoRenew === false
+                    : true;
+                if (subscriptionData && !alreadyCanceled) {
+                    transaction.set(subscriptionRef, {
+                        status: "canceled",
+                        canceledAt: Date.now(),
+                        autoRenew: false,
+                    }, { merge: true });
+                }
+                return {
+                    action: "cancel" as const,
+                    priceGd: 0,
+                    renewAt: null,
+                    creatorAccrualId: readPersistedId(subscriptionData?.creatorAccrualId),
+                    subscriptionStatus: subscriptionData ? "canceled" : "missing",
+                    accessGranted: false,
+                    historicalReceipt: false,
+                    historicalAction: undefined,
+                    duplicatePrevented: alreadyCanceled,
+                    emitLifecycleTelemetry: Boolean(subscriptionData) && !alreadyCanceled,
+                    debug: buildSubscriptionStateDebug({
+                        subscriptionExists: subscriptionSnap.exists,
+                        subscriptionData,
+                        subscriptionId: subscriptionRef.id,
+                        priceGd: 0,
+                        idempotencyKey,
+                        duplicatePrevented: alreadyCanceled,
+                    }),
+                };
+            }
+
+            const [creatorSnap, userSnap] = await Promise.all([
+                transaction.get(creatorRef),
+                transaction.get(userRef),
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
@@ -506,51 +723,34 @@ async function POST_handler(request: NextRequest) {
                 );
             }
 
-            if (action === "cancel") {
-                if (subscriptionSnap.exists) {
-                    transaction.set(subscriptionRef, {
-                        status: "canceled",
-                        canceledAt: Date.now(),
-                        autoRenew: false,
-                    }, { merge: true });
-                }
-                return {
-                    action: "cancel" as const,
-                    priceGd: 0,
-                    duplicatePrevented: false,
-                    debug: buildCreatorExperienceTransactionDebug({
-                        ...recordIds,
-                        priceGd: 0,
-                        idempotencyKey,
-                        duplicatePrevented: false,
-                    }),
-                };
-            }
-
             const priceGd = fanPassPricing.priceGd;
             const balance = readPaidSourceBalanceForRestrictedSpend(userData).balance;
-            if (transactionSnap.exists || (subscriptionSnap.exists && (subscriptionSnap.data() as Record<string, unknown>).status === "active")) {
+            if (subscriptionData?.status === "active") {
+                const persistedPriceGd = typeof subscriptionData.priceGd === "number" && Number.isFinite(subscriptionData.priceGd)
+                    ? Math.max(0, Math.trunc(subscriptionData.priceGd))
+                    : priceGd;
+                const creatorAccrualId = readPersistedId(subscriptionData.creatorAccrualId);
                 return {
                     action: "subscribe" as const,
-                    priceGd,
-                    renewAt: typeof (subscriptionSnap.data() as Record<string, unknown> | undefined)?.renewAt === "number"
-                        ? (subscriptionSnap.data() as Record<string, unknown>).renewAt as number
+                    priceGd: persistedPriceGd,
+                    renewAt: typeof subscriptionData.renewAt === "number"
+                        ? subscriptionData.renewAt
                         : null,
-                    creatorAccrualId: typeof (subscriptionSnap.data() as Record<string, unknown> | undefined)?.creatorAccrualId === "string"
-                        ? (subscriptionSnap.data() as Record<string, unknown>).creatorAccrualId as string
-                        : recordIds.creatorAccrualId,
+                    creatorAccrualId,
+                    subscriptionStatus: "active",
+                    accessGranted: true,
+                    historicalReceipt: false,
+                    historicalAction: undefined,
                     duplicatePrevented: true,
+                    emitLifecycleTelemetry: false,
                     debug: {
-                        ...buildCreatorExperienceTransactionDebug({
-                            ...recordIds,
-                            creatorAccrualId: typeof (subscriptionSnap.data() as Record<string, unknown> | undefined)?.creatorAccrualId === "string"
-                                ? (subscriptionSnap.data() as Record<string, unknown>).creatorAccrualId as string
-                                : recordIds.creatorAccrualId,
-                            priceGd,
+                        ...buildSubscriptionStateDebug({
+                            subscriptionExists: true,
+                            subscriptionData,
+                            subscriptionId: subscriptionRef.id,
+                            priceGd: persistedPriceGd,
                             idempotencyKey,
                             duplicatePrevented: true,
-                            sourceAwareBalanceBefore: balance,
-                            sourceAwareBalanceAfter: balance,
                         }),
                         paidBalanceBefore: balance.purchased,
                         paidBalanceAfter: balance.purchased,
@@ -683,99 +883,120 @@ async function POST_handler(request: NextRequest) {
                 priceGd,
                 renewAt,
                 creatorAccrualId: ledgerRef.id,
+                subscriptionStatus: "active",
+                accessGranted: true,
+                historicalReceipt: false,
+                historicalAction: undefined,
                 duplicatePrevented: false,
+                emitLifecycleTelemetry: true,
                 debug: transactionDebug,
             };
         });
 
-        const eventName = result.action === "cancel" ? "creator_subscription_canceled" : "creator_subscription_started";
-        await Promise.allSettled([
-            trackServerEvent(result.action === "cancel" ? "fan_pass_cancelled" : "fan_pass_purchase_succeeded", buildFanPassTelemetry({
-                eventName: result.action === "cancel" ? "fan_pass_cancelled" : "fan_pass_purchase_succeeded",
-                creatorId,
-                fanUserId: caller.uid,
-                fanPassId: buildSubscriptionId(caller.uid, creatorId),
-                state: result.action === "cancel" ? "cancelled" : "purchase_succeeded",
-                sourceTruth: "creator_subscription",
-                price: result.priceGd,
-                surface: "creator_profile",
-                route: "/api/creator/subscriptions",
-            }), caller.uid),
-            result.action === "subscribe"
-                ? trackServerEvent("fan_pass_access_granted", buildFanPassTelemetry({
-                    eventName: "fan_pass_access_granted",
+        if (result.emitLifecycleTelemetry) {
+            const eventName = result.action === "cancel" ? "creator_subscription_canceled" : "creator_subscription_started";
+            const userTransactionId = readPersistedId(result.debug.userTransactionId) ?? undefined;
+            const creatorAccrualId = readPersistedId(result.debug.creatorAccrualId) ?? undefined;
+            const creatorExperienceRecordId = readPersistedId(result.debug.creatorExperienceRecordId) ?? undefined;
+            await Promise.allSettled([
+                trackServerEvent(result.action === "cancel" ? "fan_pass_cancelled" : "fan_pass_purchase_succeeded", buildFanPassTelemetry({
+                    eventName: result.action === "cancel" ? "fan_pass_cancelled" : "fan_pass_purchase_succeeded",
                     creatorId,
                     fanUserId: caller.uid,
                     fanPassId: buildSubscriptionId(caller.uid, creatorId),
-                    state: "access_granted",
+                    state: result.action === "cancel" ? "cancelled" : "purchase_succeeded",
                     sourceTruth: "creator_subscription",
                     price: result.priceGd,
                     surface: "creator_profile",
                     route: "/api/creator/subscriptions",
-                }), caller.uid)
-                : Promise.resolve(null),
-            trackServerEvent(eventName, {
-                ...buildCreatorExperienceTelemetryPayload({
-                    marker: actorMarker,
-                    creatorId,
-                    priceGd: result.priceGd,
-                    idempotencyKey,
-                    duplicatePrevented: result.duplicatePrevented,
-                    userTransactionId: result.debug.userTransactionId,
-                    creatorAccrualId: result.debug.creatorAccrualId,
-                    creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
-                    extra: result.action === "subscribe"
-                        ? buildSubscriptionSourceTelemetry(result.debug)
-                        : undefined,
-                }),
-                creator_id: creatorId,
-                spend_gd: result.priceGd,
-                transaction_id: result.debug.userTransactionId,
-            }, caller.uid),
-            result.action === "subscribe"
-                ? trackServerEvent(paidEventName, buildCreatorExperienceTelemetryPayload({
-                    marker: actorMarker,
-                    creatorId,
-                    priceGd: result.priceGd,
-                    idempotencyKey,
-                    duplicatePrevented: result.duplicatePrevented,
-                    userTransactionId: result.debug.userTransactionId,
-                    creatorAccrualId: result.debug.creatorAccrualId,
-                    creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
-                    extra: buildSubscriptionSourceTelemetry(result.debug),
-                }), caller.uid)
-                : Promise.resolve(null),
-            result.action === "subscribe" && result.creatorAccrualId
-                ? trackServerEvent("creator_ledger_accrual_created", {
+                }), caller.uid),
+                result.action === "subscribe"
+                    ? trackServerEvent("fan_pass_access_granted", buildFanPassTelemetry({
+                        eventName: "fan_pass_access_granted",
+                        creatorId,
+                        fanUserId: caller.uid,
+                        fanPassId: buildSubscriptionId(caller.uid, creatorId),
+                        state: "access_granted",
+                        sourceTruth: "creator_subscription",
+                        price: result.priceGd,
+                        surface: "creator_profile",
+                        route: "/api/creator/subscriptions",
+                    }), caller.uid)
+                    : Promise.resolve(null),
+                trackServerEvent(eventName, {
                     ...buildCreatorExperienceTelemetryPayload({
                         marker: actorMarker,
                         creatorId,
                         priceGd: result.priceGd,
                         idempotencyKey,
                         duplicatePrevented: result.duplicatePrevented,
-                        userTransactionId: result.debug.userTransactionId,
-                        creatorAccrualId: result.creatorAccrualId,
-                        creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
-                        extra: buildSubscriptionSourceTelemetry(result.debug),
+                        userTransactionId,
+                        creatorAccrualId,
+                        creatorExperienceRecordId,
+                        extra: result.action === "subscribe"
+                            ? buildSubscriptionSourceTelemetry(result.debug)
+                            : undefined,
                     }),
                     creator_id: creatorId,
-                    source_type: "subscription",
-                    accrual_id: result.creatorAccrualId,
                     spend_gd: result.priceGd,
-                }, caller.uid)
-                : Promise.resolve(null),
-        ]);
+                    ...(userTransactionId ? { transaction_id: userTransactionId } : {}),
+                }, caller.uid),
+                result.action === "subscribe"
+                    ? trackServerEvent(paidEventName, buildCreatorExperienceTelemetryPayload({
+                        marker: actorMarker,
+                        creatorId,
+                        priceGd: result.priceGd,
+                        idempotencyKey,
+                        duplicatePrevented: result.duplicatePrevented,
+                        userTransactionId,
+                        creatorAccrualId,
+                        creatorExperienceRecordId,
+                        extra: buildSubscriptionSourceTelemetry(result.debug),
+                    }), caller.uid)
+                    : Promise.resolve(null),
+                result.action === "subscribe" && result.creatorAccrualId
+                    ? trackServerEvent("creator_ledger_accrual_created", {
+                        ...buildCreatorExperienceTelemetryPayload({
+                            marker: actorMarker,
+                            creatorId,
+                            priceGd: result.priceGd,
+                            idempotencyKey,
+                            duplicatePrevented: result.duplicatePrevented,
+                            userTransactionId,
+                            creatorAccrualId: result.creatorAccrualId,
+                            creatorExperienceRecordId,
+                            extra: buildSubscriptionSourceTelemetry(result.debug),
+                        }),
+                        creator_id: creatorId,
+                        source_type: "subscription",
+                        accrual_id: result.creatorAccrualId,
+                        spend_gd: result.priceGd,
+                    }, caller.uid)
+                    : Promise.resolve(null),
+            ]);
+        }
 
         return NextResponse.json({
             success: true,
             action: result.action,
-            code: result.action === "subscribe" && result.duplicatePrevented ? "already_active" : undefined,
+            requestedAction: action,
+            code: result.historicalReceipt && !result.accessGranted
+                ? "historical_receipt"
+                : result.action === "subscribe" && result.duplicatePrevented
+                    ? "already_active"
+                    : undefined,
+            subscriptionStatus: result.subscriptionStatus,
+            accessGranted: result.accessGranted,
+            priceGd: result.priceGd,
+            renewAt: result.renewAt,
+            historicalReceipt: result.historicalReceipt,
+            historicalAction: result.historicalAction,
             duplicatePrevented: result.duplicatePrevented,
             debug: result.debug,
         });
     } catch (error) {
         if (error instanceof CreatorSubscriptionProblem) {
-            if (lifecycleTelemetryContext?.action === "subscribe") {
+            if (lifecycleTelemetryContext?.action === "subscribe" && error.code !== "materializer_missing") {
                 await Promise.allSettled([
                     trackServerEvent("fan_pass_purchase_failed", buildFanPassTelemetry({
                         eventName: "fan_pass_purchase_failed",

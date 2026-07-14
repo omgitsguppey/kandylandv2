@@ -33,7 +33,14 @@ describe("cookie banner mobile UX and settings sync", () => {
     expect(banner).toContain("Accept all");
     expect(banner).toContain("Minimal analytics");
     expect(banner).toContain("Decline optional");
+    expect(banner).toContain('aria-busy={pendingDecision === "decline_optional"}');
+    expect(banner).toContain('aria-busy={pendingDecision === "minimal"}');
+    expect(banner).toContain('aria-busy={pendingDecision === "accept_all"}');
+    expect(banner).toContain("if (savingChoiceRef.current) return");
+    expect(banner).not.toContain("savingChoice ? \"Saving...\" : \"Accept all\"");
     expect(banner).toContain("Manage settings");
+    expect(banner).toContain("grid grid-cols-1 gap-1.5 min-[360px]:grid-cols-2");
+    expect(banner).toContain("min-h-11");
     expect(banner).not.toMatch(/\btruncate\b/u);
   });
 
@@ -127,7 +134,7 @@ describe("cookie banner mobile UX and settings sync", () => {
     expect(shouldSyncGuestConsentToAccount(accepted, { consentUpdatedAt: 1700000000001 })).toBe(false);
   });
 
-  it("wires account preference sync in auth handoff without touching nav or chat", () => {
+  it("wires account preference sync and classifies unrelated dirty lanes separately", () => {
     const authContext = read("src/context/AuthContext.tsx");
 
     expect(authContext).toContain("syncGuestConsentIntoAccountProfile");
@@ -138,8 +145,9 @@ describe("cookie banner mobile UX and settings sync", () => {
     expect(authContext).toContain("setUserProfile(profile)");
 
     const changedFilesValidator = read("scripts/agent/validate-cookie-banner-settings-sync.ts");
-    expect(changedFilesValidator).toContain("protectedChanges");
-    expect(changedFilesValidator).toContain("Navigation");
-    expect(changedFilesValidator).toContain("chat");
+    expect(changedFilesValidator).toContain("isCookieConsentOwnedPath");
+    expect(changedFilesValidator).toContain("consentLaneChanges");
+    expect(changedFilesValidator).toContain("separateLaneChanges");
+    expect(changedFilesValidator).not.toContain("bottom nav/chat touched");
   });
 });

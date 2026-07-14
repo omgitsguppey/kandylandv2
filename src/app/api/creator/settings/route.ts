@@ -110,13 +110,12 @@ function evidenceStateForSum(value: number, queried: boolean): CreatorStatsEvide
 }
 
 async function readCountFromQuery(query: any): Promise<number> {
-    if (typeof query.count === "function") {
-        const snapshot = await query.count().get();
-        return toFiniteNumber(snapshot.data().count);
+    if (typeof query.count !== "function") {
+        throw new Error("Firestore aggregate count is unavailable.");
     }
 
-    const snapshot = await query.get();
-    return toFiniteNumber(snapshot.size ?? snapshot.docs?.length);
+    const snapshot = await query.count().get();
+    return toFiniteNumber(snapshot.data().count);
 }
 
 async function readCreatorFanCountSource(creatorId: string, userData: Record<string, unknown>): Promise<{
@@ -607,8 +606,10 @@ async function PUT_handler(request: NextRequest) {
                 return NextResponse.json({
                     success: false,
                     code: "invalid_creator_settings",
+                    errorCode: "invalid_creator_request",
                     error: "Check creator settings and try again.",
                     message: "Check creator settings and try again.",
+                    retryable: false,
                     errors: sanitized.errors,
                     rejectedAdminOnlyFields: sanitized.rejectedAdminOnlyFields,
                 }, { status: 400 });
@@ -628,8 +629,10 @@ async function PUT_handler(request: NextRequest) {
                 return NextResponse.json({
                     success: false,
                     code: "admin_only_creator_settings_fields",
+                    errorCode: "invalid_creator_request",
                     error: "Creator settings cannot include admin-only fields.",
                     message: "Creator settings cannot include admin-only fields.",
+                    retryable: false,
                     rejectedAdminOnlyFields: stripped.rejectedAdminOnlyFields,
                 }, { status: 400 });
             }
@@ -640,7 +643,13 @@ async function PUT_handler(request: NextRequest) {
         if (payload.creatorRestrictions) {
             const isAdmin = data.role === "admin";
             if (!isAdmin) {
-                return NextResponse.json({ error: "Only admins can update creator restrictions from this route." }, { status: 403 });
+                return NextResponse.json({
+                    success: false,
+                    code: "forbidden",
+                    error: "Only admins can update creator restrictions from this route.",
+                    message: "Only admins can update creator restrictions from this route.",
+                    retryable: false,
+                }, { status: 403 });
             }
             update.creatorRestrictions = sanitizeCreatorRestrictionsUpdate(payload.creatorRestrictions);
         }
@@ -650,7 +659,13 @@ async function PUT_handler(request: NextRequest) {
             ...profilePatch,
         };
         if (Object.keys(mergedUpdate).length === 0) {
-            return NextResponse.json({ error: "No valid creator settings provided." }, { status: 400 });
+            return NextResponse.json({
+                success: false,
+                code: "invalid_creator_request",
+                error: "No valid creator settings provided.",
+                message: "No valid creator settings provided.",
+                retryable: false,
+            }, { status: 400 });
         }
 
         const actorMarker = assertKnownActor(buildActorMarker({

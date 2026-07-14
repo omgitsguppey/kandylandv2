@@ -1,13 +1,13 @@
 # Final Math Normalization Lock
 
-Generated: 2026-05-27T05:21:28.560Z
-Current head: eb93068b
+Generated: 2026-07-14T06:34:49.281Z
+Current head: dc4dad82c
 Status: fail
 
 ## Score
 
-- Before: {"sourceHealth":91.7,"runtimeHealth":84.2,"evidenceCompleteness":69.6,"freshness":67.5,"costRisk":42,"regressionRisk":86,"overallHealthScore":76.61}
-- After: {"sourceHealth":91.7,"runtimeHealth":84.2,"evidenceCompleteness":69.6,"freshness":67.5,"costRisk":42,"regressionRisk":86,"overallHealthScore":76.61}
+- Before: {"sourceHealth":95.5,"runtimeHealth":70.22,"evidenceCompleteness":80,"freshness":92.5,"costRisk":92.5,"regressionRisk":94,"overallHealthScore":83.38}
+- After: {"sourceHealth":95.5,"runtimeHealth":70.22,"evidenceCompleteness":80,"freshness":92.5,"costRisk":92.5,"regressionRisk":94,"overallHealthScore":83.38}
 - Dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk
 
 ## Formulas Finalized
@@ -39,7 +39,7 @@ Status: fail
 ## Legacy Recovery Summary
 
 - Dry run only: true
-- Start date: 2026-03-01
+- Start date: 2026-02-12
 - Candidates canonicalized: 1
 - Archive only: 1
 - Manual review: 1
@@ -72,48 +72,438 @@ Status: fail
 
 ## Dirty Files
 
-- AGENTS.md: unsafe_unknown
+- .env.example: unsafe_unknown
+- FULL_SCALE_CODEBASE_AUDIT.md: unsafe_unknown
+- README.md: unsafe_unknown
 - REPO_MEMORY_LEDGER.md: unsafe_unknown
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/index/known-pitfalls.json: unsafe_unknown
-- agent/state/generated-artifact-size-policy.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/qa-harness-consolidation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-fixture-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-fixture-inventory.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-fixture-memory-writeback.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-quality-guards.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/validator-ownership-map.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/generated-artifact-size-policy.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/qa-harness-consolidation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-fixture-gut-consolidation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-fixture-inventory.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-fixture-memory-writeback.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-quality-guards.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/validator-ownership-map.md: stale_generated_artifact_to_regenerate
-- package.json: real_source_change_needs_review
-- scripts/agent/validate-generated-artifact-size-policy.ts: unsafe_unknown
-- scripts/agent/validate-qa-harness-consolidation.ts: unsafe_unknown
-- scripts/agent/validate-test-fixture-gut-consolidation.ts: unsafe_unknown
-- scripts/agent/validate-test-fixture-inventory.ts: unsafe_unknown
-- scripts/agent/validate-test-fixture-memory-writeback.ts: unsafe_unknown
-- scripts/agent/validate-test-quality-guards.ts: unsafe_unknown
-- scripts/agent/validate-validator-ownership-map.ts: unsafe_unknown
-- src/lib/test-hardening/generated-artifact-size-policy.ts: unsafe_unknown
-- src/lib/test-hardening/qa-harness-map.ts: unsafe_unknown
-- src/lib/test-hardening/test-fixture-gut-consolidation.ts: unsafe_unknown
-- src/lib/test-hardening/test-fixture-inventory.ts: unsafe_unknown
-- src/lib/test-hardening/test-fixture-memory-writeback.ts: unsafe_unknown
-- src/lib/test-hardening/test-hardening-shared.ts: unsafe_unknown
-- src/lib/test-hardening/test-quality-guards.ts: unsafe_unknown
-- src/lib/test-hardening/validator-ownership-map.ts: unsafe_unknown
-- src/lib/testing/canonical-test-factories.ts: unsafe_unknown
-- src/lib/testing/mock-evidence-classifier.ts: unsafe_unknown
-- tests/unit/generated-artifact-size-policy.spec.ts: unsafe_unknown
-- tests/unit/qa-harness-consolidation.spec.ts: unsafe_unknown
-- tests/unit/test-fixture-inventory.spec.ts: unsafe_unknown
-- tests/unit/test-fixture-memory-writeback.spec.ts: unsafe_unknown
-- tests/unit/test-quality-guards.spec.ts: unsafe_unknown
-- tests/unit/validator-ownership-map.spec.ts: unsafe_unknown
+- agent/index/ui-surface-coverage.json: unsafe_unknown
+- agent/state/4xx-cost-guardrails.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/account-settings-delete-flow.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/account-settings-mobile-padding.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/admin-truth-replacement.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-cost-runtime-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-ingest-firestore-closure.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/backend-route-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/backend-service-ownership.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-composer-modal-lift.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-presence-typing.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/codebase-hardening.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/config-env-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/config-infra-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/config-infra-memory-writeback.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/consent-tracking-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/content-protection-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cookie-banner-settings-sync.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cost-4xx-reduction.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-4xx-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-manager-mobile-refinement.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-submit-repair.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-workflow-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-landing-dashboard-mobile.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-profile-mobile-timeline.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-settings-source-health.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-surface-routing.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/deeptracker-telemetry-volume-reduction.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/dependency-toolchain-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/device-layout-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/device-ui-dry-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/drop-watch-unlock-math.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-catalog-telemetry-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/evidence-freshness-index.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/final-release-exit-readiness-packet.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/final-user-tracking-handoff-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/frontend-component-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/frontend-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/generated-report-authority.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/global-cost-surfaces.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/google-cost-bleed.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/guest-user-analytics-cutover.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/gumdrop-economy-accuracy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/identity-chain-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/identity-handoff-4xx-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/identity-tracking-memory-writeback.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/individual-user-metric-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/legacy-phaseout.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/media-upload-lifecycle.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/notification-permission-lifecycle.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/orphaned-logic-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/private-media-access.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/release-notes-integrity.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/release-rollback-incident-readiness.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/security-header-route-config.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/security-rules-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/settings-connection-parity.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/settings-debug-validator-authority.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/settings-route-alias-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/sitewide-image-optimization-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/sitewide-image-optimization.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/speed-security-hardening.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/support-policy-surface-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-parity-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/unlock-transaction-source-metadata.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/user-profile-api-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/user-tracking-index-cutover.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/wallet-packages-route-repair.generated.json: stale_generated_artifact_to_regenerate
+- apphosting.yaml: unsafe_unknown
+- docs/agent-truth/account-settings-delete-flow.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/account-settings-mobile-padding.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-cost-runtime-inventory.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-ingest-firestore-closure.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/backend-route-inventory.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/backend-service-ownership.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/chat-composer-modal-lift.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/chat-presence-typing.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/config-env-contract.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/config-infra-gut-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/config-infra-memory-writeback.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/consent-tracking-contract.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/cost-4xx-reduction.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-drop-4xx-policy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-drop-submit-repair.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-drop-workflow-contract.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-nav-role-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-profile-mobile-timeline.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-settings-source-health.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-surface-routing.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/deeptracker-telemetry-volume-reduction.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/dependency-toolchain-policy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/drop-watch-unlock-math.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/evidence-freshness-index.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/final-release-exit-readiness-packet.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/final-user-tracking-handoff-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/frontend-component-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/frontend-gut-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/guest-user-analytics-cutover.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/identity-chain-contract.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/identity-handoff-4xx-policy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/identity-tracking-memory-writeback.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/individual-user-metric-truth.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/legacy-phaseout.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/media-upload-lifecycle.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/notification-permission-lifecycle.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/private-media-access.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/release-notes-integrity.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/release-rollback-incident-readiness.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/security-rules-inventory.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/settings-connection-parity.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/settings-debug-validator-authority.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/settings-route-alias-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/sitewide-image-optimization-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/support-policy-surface-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/unlock-transaction-source-metadata.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/user-profile-api-contract.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/user-tracking-indexes.md: stale_generated_artifact_to_regenerate
+- firestore.indexes.json: unsafe_unknown
+- functions/package-lock.json: unsafe_unknown
+- functions/src/analytics-bigquery-export.ts: unsafe_unknown
+- functions/src/index.ts: unsafe_unknown
+- functions/src/scheduled-http-client.ts: unsafe_unknown
+- functions/src/user-index-materializer-schedule.ts: unsafe_unknown
+- functions/tsconfig.json: unsafe_unknown
+- scripts/agent/score-codebase-hardening.ts: unsafe_unknown
+- scripts/agent/score-guest-user-analytics-cutover.ts: unsafe_unknown
+- scripts/agent/score-legacy-phaseout.ts: unsafe_unknown
+- scripts/agent/score-speed-security-hardening.ts: unsafe_unknown
+- scripts/agent/score-user-tracking-indexes.ts: unsafe_unknown
+- scripts/agent/validate-accessibility-tap-targets.ts: unsafe_unknown
+- scripts/agent/validate-admin-user-behavior-truth.ts: unsafe_unknown
+- scripts/agent/validate-analytics-cost-runtime-inventory.ts: unsafe_unknown
+- scripts/agent/validate-chat-composer-modal-lift.ts: unsafe_unknown
+- scripts/agent/validate-chat-paid-gumdrops-guidance.ts: unsafe_unknown
+- scripts/agent/validate-content-media-pipeline.ts: unsafe_unknown
+- scripts/agent/validate-cookie-banner-settings-sync.ts: unsafe_unknown
+- scripts/agent/validate-creator-nav-role-consolidation.ts: unsafe_unknown
+- scripts/agent/validate-creator-profile-mobile-timeline.ts: unsafe_unknown
+- scripts/agent/validate-creator-profile-routing.ts: unsafe_unknown
+- scripts/agent/validate-deeptracker-telemetry-volume-reduction.ts: unsafe_unknown
+- scripts/agent/validate-event-catalog-telemetry.ts: unsafe_unknown
+- scripts/agent/validate-event-fact-truth.ts: unsafe_unknown
+- scripts/agent/validate-event-translation-bridge.ts: unsafe_unknown
+- scripts/agent/validate-final-math-normalization-lock.ts: validator_artifact_expected
+- scripts/agent/validate-frontend-component-consolidation.ts: unsafe_unknown
+- scripts/agent/validate-guest-user-analytics-cutover.ts: unsafe_unknown
+- scripts/agent/validate-identity-link-continuity.ts: unsafe_unknown
+- scripts/agent/validate-ios-pwa-chat-refinements.ts: unsafe_unknown
+- scripts/agent/validate-legacy-phaseout.ts: unsafe_unknown
+- scripts/agent/validate-media-upload-lifecycle.ts: unsafe_unknown
+- scripts/agent/validate-payment-unlock-security.ts: unsafe_unknown
+- scripts/agent/validate-public-beta-changelog.ts: unsafe_unknown
+- scripts/agent/validate-purchase-telemetry-truth.ts: unsafe_unknown
+- scripts/agent/validate-server-unlock-telemetry-emission.ts: unsafe_unknown
+- scripts/agent/validate-unlock-telemetry-truth.ts: unsafe_unknown
+- scripts/agent/validate-user-chat-shell-routing.ts: unsafe_unknown
+- scripts/local-exe/KandyDropsLauncher.cs: unsafe_unknown
+- scripts/local-exe/build-local-exes.ps1: unsafe_unknown
+- src/app/HomeClient.tsx: unsafe_unknown
+- src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx: unsafe_unknown
+- src/app/admin/content/page.tsx: unsafe_unknown
+- src/app/admin/debug/components/DebugControlTowerCards.tsx: unsafe_unknown
+- src/app/admin/user/[userId]/page.tsx: unsafe_unknown
+- src/app/admin/users/page.tsx: unsafe_unknown
+- src/app/api/admin/ai/drop-covers/feedback/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-covers/generate/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-covers/references/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-covers/review-gallery/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-covers/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-covers/template/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-descriptions/feedback/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-descriptions/generate/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts: unsafe_unknown
+- src/app/api/admin/ai/drop-descriptions/route.ts: unsafe_unknown
+- src/app/api/admin/content/route.ts: unsafe_unknown
+- src/app/api/admin/creator-account-controls/route.ts: unsafe_unknown
+- src/app/api/admin/creator-agreements/route.ts: unsafe_unknown
+- src/app/api/admin/creator-fan-experience-settings/route.ts: unsafe_unknown
+- src/app/api/admin/creators/[userId]/action/route.ts: unsafe_unknown
+- src/app/api/admin/debug/assistant/fix/route.ts: unsafe_unknown
+- src/app/api/admin/debug/assistant/route.ts: unsafe_unknown
+- src/app/api/admin/drops/route.ts: unsafe_unknown
+- src/app/api/admin/economy/offers/route.ts: unsafe_unknown
+- src/app/api/admin/economy/packages/route.ts: unsafe_unknown
+- src/app/api/admin/economy/promos/route.ts: unsafe_unknown
+- src/app/api/admin/orchestration/repairs/route.ts: unsafe_unknown
+- src/app/api/admin/queue/route.ts: unsafe_unknown
+- src/app/api/admin/queue/toggle/route.ts: unsafe_unknown
+- src/app/api/admin/roster/route.ts: unsafe_unknown
+- src/app/api/admin/support/threads/[threadId]/messages/route.ts: unsafe_unknown
+- src/app/api/admin/support/threads/[threadId]/route.ts: unsafe_unknown
+- src/app/api/admin/tasks/route.ts: unsafe_unknown
+- src/app/api/admin/ui/preferences/route.ts: unsafe_unknown
+- src/app/api/admin/user/[userId]/route.ts: unsafe_unknown
+- src/app/api/admin/users/[userId]/username/route.ts: unsafe_unknown
+- src/app/api/admin/users/route.ts: unsafe_unknown
+- src/app/api/admin/view-as-creator/route.ts: unsafe_unknown
+- src/app/api/analytics/identity-link/route.ts: unsafe_unknown
+- src/app/api/analytics/ingest-identified/route.ts: unsafe_unknown
+- src/app/api/analytics/ingest/route.ts: unsafe_unknown
+- src/app/api/auth/manual-sign-in-lookup/route.ts: unsafe_unknown
+- src/app/api/chat/attachments/cancel/route.ts: unsafe_unknown
+- src/app/api/chat/attachments/complete/route.ts: unsafe_unknown
+- src/app/api/chat/attachments/prepare/route.ts: unsafe_unknown
+- src/app/api/chat/threads/[threadId]/messages/route.ts: unsafe_unknown
+- src/app/api/creator/drops/assets/route.ts: unsafe_unknown
+- src/app/api/creator/drops/route.ts: unsafe_unknown
+- src/app/api/creator/messages/route.ts: unsafe_unknown
+- src/app/api/creator/onboarding/application/route.ts: unsafe_unknown
+- src/app/api/creator/onboarding/contract-signature/route.ts: unsafe_unknown
+- src/app/api/creator/onboarding/id-submission/route.ts: unsafe_unknown
+- src/app/api/creator/onboarding/intro/route.ts: unsafe_unknown
+- src/app/api/creator/payouts/route.ts: unsafe_unknown
+- src/app/api/creator/relationships/route.ts: unsafe_unknown
+- src/app/api/creator/settings/route.ts: unsafe_unknown
+- src/app/api/debug/evidence/route.ts: unsafe_unknown
+- src/app/api/drops/duplicate-filenames/route.ts: unsafe_unknown
+- src/app/api/drops/feedback/route.ts: unsafe_unknown
+- src/app/api/drops/impression/route.ts: unsafe_unknown
+- src/app/api/drops/route.ts: unsafe_unknown
+- src/app/api/drops/track/route.ts: unsafe_unknown
+- src/app/api/drops/unlock/route.ts: unsafe_unknown
+- src/app/api/internal/analytics/materialize-user-index/route.ts: unsafe_unknown
+- src/app/api/notifications/push-token/route.ts: unsafe_unknown
+- src/app/api/notifications/route.ts: unsafe_unknown
+- src/app/api/paypal/capture/route.ts: unsafe_unknown
+- src/app/api/paypal/create/route.ts: unsafe_unknown
+- src/app/api/privacy/consent/route.ts: unsafe_unknown
+- src/app/api/security/log-attempt/route.ts: unsafe_unknown
+- src/app/api/settings/landing/upload/route.ts: unsafe_unknown
+- src/app/api/support/threads/[threadId]/route.ts: unsafe_unknown
+- src/app/api/support/threads/guest/route.ts: unsafe_unknown
+- src/app/api/support/threads/route.ts: unsafe_unknown
+- src/app/api/tasks/feedback/route.ts: unsafe_unknown
+- src/app/api/tasks/materialize/route.ts: unsafe_unknown
+- src/app/api/user/complete-onboarding/route.ts: unsafe_unknown
+- src/app/api/wallet/packages/route.ts: unsafe_unknown
+- src/app/creators/[username]/CreatorProfileClient.tsx: unsafe_unknown
+- src/app/dashboard/profile/hooks/useProfileState.tsx: unsafe_unknown
+- src/app/dashboard/viewer/components/MediaViewer.tsx: unsafe_unknown
+- src/components/Admin/AiDropCoverGeneratorPanel.tsx: unsafe_unknown
+- src/components/Analytics/DeepTracker.tsx: unsafe_unknown
+- src/components/Chat/ChatExperience.tsx: unsafe_unknown
+- src/components/CookieBanner.tsx: unsafe_unknown
+- src/components/Creators/CreatorBroadcastManager.tsx: unsafe_unknown
+- src/components/DropPreviewModal.tsx: unsafe_unknown
+- src/components/Drops/LockedDropPreviewView.tsx: unsafe_unknown
+- src/components/Navigation/ProfileDropdown.tsx: unsafe_unknown
+- src/components/PurchaseModal.tsx: unsafe_unknown
+- src/components/errors/HumanErrorNotice.tsx: unsafe_unknown
+- src/lib/admin-ai-models.ts: unsafe_unknown
+- src/lib/admin-analytics-region-demand.ts: unsafe_unknown
+- src/lib/ai-cover/cover-semantic-brief.ts: unsafe_unknown
+- src/lib/ai-cover/cover-title-parser.ts: unsafe_unknown
+- src/lib/ai-drop-covers.ts: unsafe_unknown
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/identity-link-contract.ts: real_source_change_needs_review
+- src/lib/analytics/ingest-contract.ts: real_source_change_needs_review
+- src/lib/analytics/materialization-contract.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/authFetch.ts: unsafe_unknown
+- src/lib/behavioral/behavioral-explanation.ts: unsafe_unknown
+- src/lib/behavioral/behavioral-timeline-contract.ts: unsafe_unknown
+- src/lib/behavioral/normalize-event-fact.ts: unsafe_unknown
+- src/lib/codebase-hardening/legacy-pipeline-inventory.ts: unsafe_unknown
+- src/lib/codebase-hardening/self-revealing-codebase-engine.ts: unsafe_unknown
+- src/lib/frontend-hardening/frontend-surface-inventory.ts: unsafe_unknown
+- src/lib/identity-truth/individual-user-metric-truth.ts: unsafe_unknown
+- src/lib/image-loading-policy.ts: unsafe_unknown
+- src/lib/legacy/legacy-registry.ts: unsafe_unknown
+- src/lib/math/canonical-math-ledger.ts: real_source_change_needs_review
+- src/lib/math/global-formula-audit.ts: real_source_change_needs_review
+- src/lib/math/math-authority-map.ts: real_source_change_needs_review
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- src/lib/release-readiness/final-release-readiness.ts: unsafe_unknown
+- src/lib/route-runtime-health.ts: unsafe_unknown
+- src/lib/runtime-facts/normalize-runtime-fact.ts: unsafe_unknown
+- src/lib/runtime-facts/runtime-fact-contract.ts: unsafe_unknown
+- src/lib/server/admin-analytics-data.ts: unsafe_unknown
+- src/lib/server/admin-analytics-shared.ts: unsafe_unknown
+- src/lib/server/admin-analytics/ga4-evidence.ts: unsafe_unknown
+- src/lib/server/ai-drop-covers.ts: unsafe_unknown
+- src/lib/server/analytics-governance.ts: unsafe_unknown
+- src/lib/server/api-cost-contract.ts: unsafe_unknown
+- src/lib/server/behavioral-timeline-mapper.ts: unsafe_unknown
+- src/lib/server/behavioral-timeline-writer.ts: unsafe_unknown
+- src/lib/server/bounded-json-body.ts: unsafe_unknown
+- src/lib/server/global-cost-surface-contract.ts: unsafe_unknown
+- src/lib/server/paypal-order-state.ts: unsafe_unknown
+- src/lib/server/paypal.ts: unsafe_unknown
+- src/lib/server/route-cache-contract.ts: unsafe_unknown
+- src/lib/server/security-hardening-contract.ts: unsafe_unknown
+- src/lib/server/user-index-materializer.ts: unsafe_unknown
+- src/lib/server/user-index-writer.ts: unsafe_unknown
+- src/lib/telemetry.ts: unsafe_unknown
+- src/lib/user-indexes/user-index-normalizer.ts: unsafe_unknown
+- src/lib/user-indexes/user-tracking-index-contract.ts: unsafe_unknown
+- src/lib/user-mobile-shell.ts: unsafe_unknown
+- tests/unit/accessibility-tap-targets.spec.ts: unsafe_unknown
+- tests/unit/account-settings-delete-flow.spec.ts: unsafe_unknown
+- tests/unit/account-settings-mobile-padding.spec.ts: unsafe_unknown
+- tests/unit/admin-ai-drop-covers-generate-route.spec.ts: unsafe_unknown
+- tests/unit/admin-ai-drop-covers-ops-routes.spec.ts: unsafe_unknown
+- tests/unit/admin-ai-drop-covers-template-route.spec.ts: unsafe_unknown
+- tests/unit/admin-analytics-auth-outcome-split.spec.ts: unsafe_unknown
+- tests/unit/admin-analytics-auth-outcomes-mobile.spec.tsx: unsafe_unknown
+- tests/unit/admin-analytics-data.spec.ts: unsafe_unknown
+- tests/unit/admin-analytics-region-demand.spec.ts: unsafe_unknown
+- tests/unit/admin-analytics-shared.spec.ts: unsafe_unknown
+- tests/unit/admin-auth-bounded-body-routes.spec.ts: unsafe_unknown
+- tests/unit/admin-bug-reports-route.spec.ts: unsafe_unknown
+- tests/unit/admin-content-route.spec.ts: unsafe_unknown
+- tests/unit/admin-core-bounded-body-routes.spec.ts: unsafe_unknown
+- tests/unit/admin-creator-action-route.spec.ts: unsafe_unknown
+- tests/unit/admin-creator-agreements-route.spec.ts: unsafe_unknown
+- tests/unit/admin-creator-fan-experience-settings-route.spec.ts: unsafe_unknown
+- tests/unit/admin-debug-assistant-route.spec.ts: unsafe_unknown
+- tests/unit/admin-debug-control-tower-component.spec.tsx: unsafe_unknown
+- tests/unit/admin-debug-control-tower.spec.ts: unsafe_unknown
+- tests/unit/admin-overview-route.spec.ts: unsafe_unknown
+- tests/unit/admin-roster-route.spec.ts: unsafe_unknown
+- tests/unit/admin-stats-bar-compact.spec.ts: unsafe_unknown
+- tests/unit/admin-support-threads-route.spec.ts: unsafe_unknown
+- tests/unit/admin-task-pipeline.spec.ts: unsafe_unknown
+- tests/unit/admin-user-username-route.spec.ts: unsafe_unknown
+- tests/unit/admin-users-route.spec.ts: unsafe_unknown
+- tests/unit/admin-view-as-creator-route.spec.ts: unsafe_unknown
+- tests/unit/ai-drop-covers.spec.ts: unsafe_unknown
+- tests/unit/analytics-cost-hot-path-reduction.spec.ts: unsafe_unknown
+- tests/unit/analytics-cost-runtime-inventory.spec.ts: unsafe_unknown
+- tests/unit/analytics-hot-path-cost-reduction.spec.ts: unsafe_unknown
+- tests/unit/analytics-ingest-identified-route.spec.ts: unsafe_unknown
+- tests/unit/analytics-ingest-route.spec.ts: unsafe_unknown
+- tests/unit/auth-fetch-app-check.spec.ts: unsafe_unknown
+- tests/unit/behavioral-timeline-projection.spec.ts: unsafe_unknown
+- tests/unit/bounded-json-body.spec.ts: unsafe_unknown
+- tests/unit/canonical-math-ledger.spec.ts: real_source_change_needs_review
+- tests/unit/chat-attachments-route.spec.ts: unsafe_unknown
+- tests/unit/chat-composer-modal-lift.spec.ts: unsafe_unknown
+- tests/unit/chat-thread-messages-route.spec.ts: unsafe_unknown
+- tests/unit/complete-onboarding-route.spec.ts: unsafe_unknown
+- tests/unit/consent-tracking-contract.spec.ts: unsafe_unknown
+- tests/unit/content-protection-truth.spec.ts: unsafe_unknown
+- tests/unit/cookie-banner-settings-sync.spec.ts: unsafe_unknown
+- tests/unit/creator-broadcast-manager.spec.tsx: unsafe_unknown
+- tests/unit/creator-broadcasts-route.spec.ts: unsafe_unknown
+- tests/unit/creator-contract-signature-route.spec.ts: unsafe_unknown
+- tests/unit/creator-debug-drop-bounded-body-routes.spec.ts: unsafe_unknown
+- tests/unit/creator-drop-management-approval.spec.ts: unsafe_unknown
+- tests/unit/creator-drop-manager-mobile-refinement.spec.ts: unsafe_unknown
+- tests/unit/creator-drops-assets-route.spec.ts: unsafe_unknown
+- tests/unit/creator-drops-route.spec.ts: unsafe_unknown
+- tests/unit/creator-fan-pass-crm-broadcast.spec.ts: unsafe_unknown
+- tests/unit/creator-id-submission-route.spec.ts: unsafe_unknown
+- tests/unit/creator-messages-route.spec.ts: unsafe_unknown
+- tests/unit/creator-nav-role-consolidation.spec.ts: unsafe_unknown
+- tests/unit/creator-onboarding-alerts.spec.ts: unsafe_unknown
+- tests/unit/creator-onboarding-application-route.spec.ts: unsafe_unknown
+- tests/unit/creator-onboarding-intro-route.spec.ts: unsafe_unknown
+- tests/unit/creator-profile-mobile-timeline.spec.ts: unsafe_unknown
+- tests/unit/creator-profile-routing.spec.ts: unsafe_unknown
+- tests/unit/creator-relationships-route.spec.ts: unsafe_unknown
+- tests/unit/creator-settings-route.spec.ts: unsafe_unknown
+- tests/unit/creator-workspace-panel.spec.tsx: unsafe_unknown
+- tests/unit/critical-user-bounded-body-routes.spec.ts: unsafe_unknown
+- tests/unit/daily-checkin-variant.spec.tsx: unsafe_unknown
+- tests/unit/daily-task-lifecycle-telemetry.spec.ts: unsafe_unknown
+- tests/unit/debug-bug-report-summary.spec.tsx: unsafe_unknown
+- tests/unit/deeptracker-telemetry-volume-reduction.spec.ts: unsafe_unknown
+- tests/unit/drops-feedback-route.spec.ts: unsafe_unknown
+- tests/unit/drops-route.spec.ts: unsafe_unknown
+- tests/unit/drops-unlock-route.spec.ts: unsafe_unknown
+- tests/unit/duplicate-filenames-route.spec.ts: unsafe_unknown
+- tests/unit/event-fact-truth.spec.ts: unsafe_unknown
+- tests/unit/event-translation-bridge.spec.ts: unsafe_unknown
+- tests/unit/final-math-normalization-lock.spec.ts: test_artifact_expected
+- tests/unit/final-release-exit-readiness-packet.spec.ts: unsafe_unknown
+- tests/unit/frontend-component-consolidation.spec.ts: unsafe_unknown
+- tests/unit/ga4-recovery-truth.spec.ts: unsafe_unknown
+- tests/unit/guest-user-identity-transfer.spec.ts: unsafe_unknown
+- tests/unit/human-error-notice.spec.tsx: unsafe_unknown
+- tests/unit/human-error-surface-wiring.spec.ts: unsafe_unknown
+- tests/unit/image-loading-policy.spec.ts: unsafe_unknown
+- tests/unit/individual-user-metric-truth.spec.ts: unsafe_unknown
+- tests/unit/local-exe-launcher.spec.ts: unsafe_unknown
+- tests/unit/manual-sign-in-lookup-route.spec.ts: unsafe_unknown
+- tests/unit/media-upload-lifecycle.spec.ts: unsafe_unknown
+- tests/unit/mobile-ui-scaling-doctrine.spec.ts: unsafe_unknown
+- tests/unit/notifications-route.spec.ts: unsafe_unknown
+- tests/unit/paypal-capture-route.spec.ts: unsafe_unknown
+- tests/unit/person-metrics-hydration.spec.ts: real_source_change_needs_review
+- tests/unit/public-beta-release-notes.spec.tsx: unsafe_unknown
+- tests/unit/purchase-modal.spec.tsx: unsafe_unknown
+- tests/unit/release-notes-integrity.spec.ts: unsafe_unknown
+- tests/unit/scheduled-http-client.spec.ts: unsafe_unknown
+- tests/unit/security-log-attempt-route.spec.ts: unsafe_unknown
+- tests/unit/server-ai-drop-covers.spec.ts: unsafe_unknown
+- tests/unit/server-drops.spec.ts: unsafe_unknown
+- tests/unit/server-unlock-telemetry-emission.spec.ts: unsafe_unknown
+- tests/unit/settings-connection-parity.spec.ts: unsafe_unknown
+- tests/unit/settings-debug-validator-authority.spec.ts: unsafe_unknown
+- tests/unit/settings-route-alias-cleanup.spec.ts: unsafe_unknown
+- tests/unit/source-agreement-failure-detail.spec.ts: unsafe_unknown
+- tests/unit/speed-security-hardening.spec.ts: unsafe_unknown
+- tests/unit/support-policy-surface-cleanup.spec.ts: unsafe_unknown
+- tests/unit/support-threads-route.spec.ts: unsafe_unknown
+- tests/unit/synthetic-creators-view-as.spec.ts: unsafe_unknown
+- tests/unit/task-observability.spec.ts: unsafe_unknown
+- tests/unit/tasks-feedback-route.spec.ts: unsafe_unknown
+- tests/unit/tasks-materialize-route.spec.ts: unsafe_unknown
+- tests/unit/telemetry.spec.ts: unsafe_unknown
+- tests/unit/use-chat-unread-status.spec.tsx: unsafe_unknown
+- tests/unit/user-index-materializer-consumer.spec.ts: unsafe_unknown
+- tests/unit/user-index-materializer-core.spec.ts: unsafe_unknown
+- tests/unit/user-index-materializer-route.spec.ts: unsafe_unknown
+- tests/unit/user-index-materializer-schedule.spec.ts: unsafe_unknown
+- tests/unit/user-index-normalizer.spec.ts: unsafe_unknown
+- tests/unit/user-profile-api-contract.spec.ts: unsafe_unknown
+- tests/unit/user-register-route.spec.ts: unsafe_unknown
+- tests/unit/utils/source-validator-contract.ts: unsafe_unknown
+- tests/unit/wallet-packages-route-repair.spec.ts: unsafe_unknown
 
 ## Open PRs
 
@@ -121,29 +511,300 @@ Status: fail
 
 ## Validation Failures
 
-- AGENTS.md is unclassified for final math normalization lock.
+- .env.example is unclassified for final math normalization lock.
+- FULL_SCALE_CODEBASE_AUDIT.md is unclassified for final math normalization lock.
+- README.md is unclassified for final math normalization lock.
 - REPO_MEMORY_LEDGER.md is unclassified for final math normalization lock.
-- agent/index/known-pitfalls.json is unclassified for final math normalization lock.
-- scripts/agent/validate-generated-artifact-size-policy.ts is unclassified for final math normalization lock.
-- scripts/agent/validate-qa-harness-consolidation.ts is unclassified for final math normalization lock.
-- scripts/agent/validate-test-fixture-gut-consolidation.ts is unclassified for final math normalization lock.
-- scripts/agent/validate-test-fixture-inventory.ts is unclassified for final math normalization lock.
-- scripts/agent/validate-test-fixture-memory-writeback.ts is unclassified for final math normalization lock.
-- scripts/agent/validate-test-quality-guards.ts is unclassified for final math normalization lock.
-- scripts/agent/validate-validator-ownership-map.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/generated-artifact-size-policy.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/qa-harness-map.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/test-fixture-gut-consolidation.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/test-fixture-inventory.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/test-fixture-memory-writeback.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/test-hardening-shared.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/test-quality-guards.ts is unclassified for final math normalization lock.
-- src/lib/test-hardening/validator-ownership-map.ts is unclassified for final math normalization lock.
-- src/lib/testing/canonical-test-factories.ts is unclassified for final math normalization lock.
-- src/lib/testing/mock-evidence-classifier.ts is unclassified for final math normalization lock.
-- tests/unit/generated-artifact-size-policy.spec.ts is unclassified for final math normalization lock.
-- tests/unit/qa-harness-consolidation.spec.ts is unclassified for final math normalization lock.
-- tests/unit/test-fixture-inventory.spec.ts is unclassified for final math normalization lock.
-- tests/unit/test-fixture-memory-writeback.spec.ts is unclassified for final math normalization lock.
-- tests/unit/test-quality-guards.spec.ts is unclassified for final math normalization lock.
-- tests/unit/validator-ownership-map.spec.ts is unclassified for final math normalization lock.
+- agent/index/ui-surface-coverage.json is unclassified for final math normalization lock.
+- apphosting.yaml is unclassified for final math normalization lock.
+- firestore.indexes.json is unclassified for final math normalization lock.
+- functions/package-lock.json is unclassified for final math normalization lock.
+- functions/src/analytics-bigquery-export.ts is unclassified for final math normalization lock.
+- functions/src/index.ts is unclassified for final math normalization lock.
+- functions/src/scheduled-http-client.ts is unclassified for final math normalization lock.
+- functions/src/user-index-materializer-schedule.ts is unclassified for final math normalization lock.
+- functions/tsconfig.json is unclassified for final math normalization lock.
+- scripts/agent/score-codebase-hardening.ts is unclassified for final math normalization lock.
+- scripts/agent/score-guest-user-analytics-cutover.ts is unclassified for final math normalization lock.
+- scripts/agent/score-legacy-phaseout.ts is unclassified for final math normalization lock.
+- scripts/agent/score-speed-security-hardening.ts is unclassified for final math normalization lock.
+- scripts/agent/score-user-tracking-indexes.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-accessibility-tap-targets.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-admin-user-behavior-truth.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-analytics-cost-runtime-inventory.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-chat-composer-modal-lift.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-chat-paid-gumdrops-guidance.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-content-media-pipeline.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-cookie-banner-settings-sync.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-creator-nav-role-consolidation.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-creator-profile-mobile-timeline.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-creator-profile-routing.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-deeptracker-telemetry-volume-reduction.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-event-catalog-telemetry.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-event-fact-truth.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-event-translation-bridge.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-frontend-component-consolidation.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-guest-user-analytics-cutover.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-identity-link-continuity.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-ios-pwa-chat-refinements.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-legacy-phaseout.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-media-upload-lifecycle.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-payment-unlock-security.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-public-beta-changelog.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-purchase-telemetry-truth.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-server-unlock-telemetry-emission.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-unlock-telemetry-truth.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-user-chat-shell-routing.ts is unclassified for final math normalization lock.
+- scripts/local-exe/KandyDropsLauncher.cs is unclassified for final math normalization lock.
+- scripts/local-exe/build-local-exes.ps1 is unclassified for final math normalization lock.
+- src/app/HomeClient.tsx is unclassified for final math normalization lock.
+- src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx is unclassified for final math normalization lock.
+- src/app/admin/content/page.tsx is unclassified for final math normalization lock.
+- src/app/admin/debug/components/DebugControlTowerCards.tsx is unclassified for final math normalization lock.
+- src/app/admin/user/[userId]/page.tsx is unclassified for final math normalization lock.
+- src/app/admin/users/page.tsx is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-covers/feedback/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-covers/generate/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-covers/references/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-covers/review-gallery/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-covers/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-covers/template/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-descriptions/feedback/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-descriptions/generate/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ai/drop-descriptions/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/content/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/creator-account-controls/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/creator-agreements/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/creator-fan-experience-settings/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/creators/[userId]/action/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/debug/assistant/fix/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/debug/assistant/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/drops/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/economy/offers/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/economy/packages/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/economy/promos/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/orchestration/repairs/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/queue/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/queue/toggle/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/roster/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/support/threads/[threadId]/messages/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/support/threads/[threadId]/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/tasks/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/ui/preferences/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/user/[userId]/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/users/[userId]/username/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/users/route.ts is unclassified for final math normalization lock.
+- src/app/api/admin/view-as-creator/route.ts is unclassified for final math normalization lock.
+- src/app/api/analytics/identity-link/route.ts is unclassified for final math normalization lock.
+- src/app/api/analytics/ingest-identified/route.ts is unclassified for final math normalization lock.
+- src/app/api/analytics/ingest/route.ts is unclassified for final math normalization lock.
+- src/app/api/auth/manual-sign-in-lookup/route.ts is unclassified for final math normalization lock.
+- src/app/api/chat/attachments/cancel/route.ts is unclassified for final math normalization lock.
+- src/app/api/chat/attachments/complete/route.ts is unclassified for final math normalization lock.
+- src/app/api/chat/attachments/prepare/route.ts is unclassified for final math normalization lock.
+- src/app/api/chat/threads/[threadId]/messages/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/drops/assets/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/drops/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/messages/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/onboarding/application/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/onboarding/contract-signature/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/onboarding/id-submission/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/onboarding/intro/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/payouts/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/relationships/route.ts is unclassified for final math normalization lock.
+- src/app/api/creator/settings/route.ts is unclassified for final math normalization lock.
+- src/app/api/debug/evidence/route.ts is unclassified for final math normalization lock.
+- src/app/api/drops/duplicate-filenames/route.ts is unclassified for final math normalization lock.
+- src/app/api/drops/feedback/route.ts is unclassified for final math normalization lock.
+- src/app/api/drops/impression/route.ts is unclassified for final math normalization lock.
+- src/app/api/drops/route.ts is unclassified for final math normalization lock.
+- src/app/api/drops/track/route.ts is unclassified for final math normalization lock.
+- src/app/api/drops/unlock/route.ts is unclassified for final math normalization lock.
+- src/app/api/internal/analytics/materialize-user-index/route.ts is unclassified for final math normalization lock.
+- src/app/api/notifications/push-token/route.ts is unclassified for final math normalization lock.
+- src/app/api/notifications/route.ts is unclassified for final math normalization lock.
+- src/app/api/paypal/capture/route.ts is unclassified for final math normalization lock.
+- src/app/api/paypal/create/route.ts is unclassified for final math normalization lock.
+- src/app/api/privacy/consent/route.ts is unclassified for final math normalization lock.
+- src/app/api/security/log-attempt/route.ts is unclassified for final math normalization lock.
+- src/app/api/settings/landing/upload/route.ts is unclassified for final math normalization lock.
+- src/app/api/support/threads/[threadId]/route.ts is unclassified for final math normalization lock.
+- src/app/api/support/threads/guest/route.ts is unclassified for final math normalization lock.
+- src/app/api/support/threads/route.ts is unclassified for final math normalization lock.
+- src/app/api/tasks/feedback/route.ts is unclassified for final math normalization lock.
+- src/app/api/tasks/materialize/route.ts is unclassified for final math normalization lock.
+- src/app/api/user/complete-onboarding/route.ts is unclassified for final math normalization lock.
+- src/app/api/wallet/packages/route.ts is unclassified for final math normalization lock.
+- src/app/creators/[username]/CreatorProfileClient.tsx is unclassified for final math normalization lock.
+- src/app/dashboard/profile/hooks/useProfileState.tsx is unclassified for final math normalization lock.
+- src/app/dashboard/viewer/components/MediaViewer.tsx is unclassified for final math normalization lock.
+- src/components/Admin/AiDropCoverGeneratorPanel.tsx is unclassified for final math normalization lock.
+- src/components/Analytics/DeepTracker.tsx is unclassified for final math normalization lock.
+- src/components/Chat/ChatExperience.tsx is unclassified for final math normalization lock.
+- src/components/CookieBanner.tsx is unclassified for final math normalization lock.
+- src/components/Creators/CreatorBroadcastManager.tsx is unclassified for final math normalization lock.
+- src/components/DropPreviewModal.tsx is unclassified for final math normalization lock.
+- src/components/Drops/LockedDropPreviewView.tsx is unclassified for final math normalization lock.
+- src/components/Navigation/ProfileDropdown.tsx is unclassified for final math normalization lock.
+- src/components/PurchaseModal.tsx is unclassified for final math normalization lock.
+- src/components/errors/HumanErrorNotice.tsx is unclassified for final math normalization lock.
+- src/lib/admin-ai-models.ts is unclassified for final math normalization lock.
+- src/lib/admin-analytics-region-demand.ts is unclassified for final math normalization lock.
+- src/lib/ai-cover/cover-semantic-brief.ts is unclassified for final math normalization lock.
+- src/lib/ai-cover/cover-title-parser.ts is unclassified for final math normalization lock.
+- src/lib/ai-drop-covers.ts is unclassified for final math normalization lock.
+- src/lib/authFetch.ts is unclassified for final math normalization lock.
+- src/lib/behavioral/behavioral-explanation.ts is unclassified for final math normalization lock.
+- src/lib/behavioral/behavioral-timeline-contract.ts is unclassified for final math normalization lock.
+- src/lib/behavioral/normalize-event-fact.ts is unclassified for final math normalization lock.
+- src/lib/codebase-hardening/legacy-pipeline-inventory.ts is unclassified for final math normalization lock.
+- src/lib/codebase-hardening/self-revealing-codebase-engine.ts is unclassified for final math normalization lock.
+- src/lib/frontend-hardening/frontend-surface-inventory.ts is unclassified for final math normalization lock.
+- src/lib/identity-truth/individual-user-metric-truth.ts is unclassified for final math normalization lock.
+- src/lib/image-loading-policy.ts is unclassified for final math normalization lock.
+- src/lib/legacy/legacy-registry.ts is unclassified for final math normalization lock.
+- src/lib/release-readiness/final-release-readiness.ts is unclassified for final math normalization lock.
+- src/lib/route-runtime-health.ts is unclassified for final math normalization lock.
+- src/lib/runtime-facts/normalize-runtime-fact.ts is unclassified for final math normalization lock.
+- src/lib/runtime-facts/runtime-fact-contract.ts is unclassified for final math normalization lock.
+- src/lib/server/admin-analytics-data.ts is unclassified for final math normalization lock.
+- src/lib/server/admin-analytics-shared.ts is unclassified for final math normalization lock.
+- src/lib/server/admin-analytics/ga4-evidence.ts is unclassified for final math normalization lock.
+- src/lib/server/ai-drop-covers.ts is unclassified for final math normalization lock.
+- src/lib/server/analytics-governance.ts is unclassified for final math normalization lock.
+- src/lib/server/api-cost-contract.ts is unclassified for final math normalization lock.
+- src/lib/server/behavioral-timeline-mapper.ts is unclassified for final math normalization lock.
+- src/lib/server/behavioral-timeline-writer.ts is unclassified for final math normalization lock.
+- src/lib/server/bounded-json-body.ts is unclassified for final math normalization lock.
+- src/lib/server/global-cost-surface-contract.ts is unclassified for final math normalization lock.
+- src/lib/server/paypal-order-state.ts is unclassified for final math normalization lock.
+- src/lib/server/paypal.ts is unclassified for final math normalization lock.
+- src/lib/server/route-cache-contract.ts is unclassified for final math normalization lock.
+- src/lib/server/security-hardening-contract.ts is unclassified for final math normalization lock.
+- src/lib/server/user-index-materializer.ts is unclassified for final math normalization lock.
+- src/lib/server/user-index-writer.ts is unclassified for final math normalization lock.
+- src/lib/telemetry.ts is unclassified for final math normalization lock.
+- src/lib/user-indexes/user-index-normalizer.ts is unclassified for final math normalization lock.
+- src/lib/user-indexes/user-tracking-index-contract.ts is unclassified for final math normalization lock.
+- src/lib/user-mobile-shell.ts is unclassified for final math normalization lock.
+- tests/unit/accessibility-tap-targets.spec.ts is unclassified for final math normalization lock.
+- tests/unit/account-settings-delete-flow.spec.ts is unclassified for final math normalization lock.
+- tests/unit/account-settings-mobile-padding.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-ai-drop-covers-generate-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-ai-drop-covers-ops-routes.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-ai-drop-covers-template-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-analytics-auth-outcome-split.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-analytics-auth-outcomes-mobile.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/admin-analytics-data.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-analytics-region-demand.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-analytics-shared.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-auth-bounded-body-routes.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-bug-reports-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-content-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-core-bounded-body-routes.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-creator-action-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-creator-agreements-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-creator-fan-experience-settings-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-debug-assistant-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-debug-control-tower-component.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/admin-debug-control-tower.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-overview-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-roster-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-stats-bar-compact.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-support-threads-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-task-pipeline.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-user-username-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-users-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/admin-view-as-creator-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/ai-drop-covers.spec.ts is unclassified for final math normalization lock.
+- tests/unit/analytics-cost-hot-path-reduction.spec.ts is unclassified for final math normalization lock.
+- tests/unit/analytics-cost-runtime-inventory.spec.ts is unclassified for final math normalization lock.
+- tests/unit/analytics-hot-path-cost-reduction.spec.ts is unclassified for final math normalization lock.
+- tests/unit/analytics-ingest-identified-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/analytics-ingest-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/auth-fetch-app-check.spec.ts is unclassified for final math normalization lock.
+- tests/unit/behavioral-timeline-projection.spec.ts is unclassified for final math normalization lock.
+- tests/unit/bounded-json-body.spec.ts is unclassified for final math normalization lock.
+- tests/unit/chat-attachments-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/chat-composer-modal-lift.spec.ts is unclassified for final math normalization lock.
+- tests/unit/chat-thread-messages-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/complete-onboarding-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/consent-tracking-contract.spec.ts is unclassified for final math normalization lock.
+- tests/unit/content-protection-truth.spec.ts is unclassified for final math normalization lock.
+- tests/unit/cookie-banner-settings-sync.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-broadcast-manager.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/creator-broadcasts-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-contract-signature-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-debug-drop-bounded-body-routes.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-drop-management-approval.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-drop-manager-mobile-refinement.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-drops-assets-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-drops-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-fan-pass-crm-broadcast.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-id-submission-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-messages-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-nav-role-consolidation.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-onboarding-alerts.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-onboarding-application-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-onboarding-intro-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-profile-mobile-timeline.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-profile-routing.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-relationships-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-settings-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/creator-workspace-panel.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/critical-user-bounded-body-routes.spec.ts is unclassified for final math normalization lock.
+- tests/unit/daily-checkin-variant.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/daily-task-lifecycle-telemetry.spec.ts is unclassified for final math normalization lock.
+- tests/unit/debug-bug-report-summary.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/deeptracker-telemetry-volume-reduction.spec.ts is unclassified for final math normalization lock.
+- tests/unit/drops-feedback-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/drops-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/drops-unlock-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/duplicate-filenames-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/event-fact-truth.spec.ts is unclassified for final math normalization lock.
+- tests/unit/event-translation-bridge.spec.ts is unclassified for final math normalization lock.
+- tests/unit/final-release-exit-readiness-packet.spec.ts is unclassified for final math normalization lock.
+- tests/unit/frontend-component-consolidation.spec.ts is unclassified for final math normalization lock.
+- tests/unit/ga4-recovery-truth.spec.ts is unclassified for final math normalization lock.
+- tests/unit/guest-user-identity-transfer.spec.ts is unclassified for final math normalization lock.
+- tests/unit/human-error-notice.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/human-error-surface-wiring.spec.ts is unclassified for final math normalization lock.
+- tests/unit/image-loading-policy.spec.ts is unclassified for final math normalization lock.
+- tests/unit/individual-user-metric-truth.spec.ts is unclassified for final math normalization lock.
+- tests/unit/local-exe-launcher.spec.ts is unclassified for final math normalization lock.
+- tests/unit/manual-sign-in-lookup-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/media-upload-lifecycle.spec.ts is unclassified for final math normalization lock.
+- tests/unit/mobile-ui-scaling-doctrine.spec.ts is unclassified for final math normalization lock.
+- tests/unit/notifications-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/paypal-capture-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/public-beta-release-notes.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/purchase-modal.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/release-notes-integrity.spec.ts is unclassified for final math normalization lock.
+- tests/unit/scheduled-http-client.spec.ts is unclassified for final math normalization lock.
+- tests/unit/security-log-attempt-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/server-ai-drop-covers.spec.ts is unclassified for final math normalization lock.
+- tests/unit/server-drops.spec.ts is unclassified for final math normalization lock.
+- tests/unit/server-unlock-telemetry-emission.spec.ts is unclassified for final math normalization lock.
+- tests/unit/settings-connection-parity.spec.ts is unclassified for final math normalization lock.
+- tests/unit/settings-debug-validator-authority.spec.ts is unclassified for final math normalization lock.
+- tests/unit/settings-route-alias-cleanup.spec.ts is unclassified for final math normalization lock.
+- tests/unit/source-agreement-failure-detail.spec.ts is unclassified for final math normalization lock.
+- tests/unit/speed-security-hardening.spec.ts is unclassified for final math normalization lock.
+- tests/unit/support-policy-surface-cleanup.spec.ts is unclassified for final math normalization lock.
+- tests/unit/support-threads-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/synthetic-creators-view-as.spec.ts is unclassified for final math normalization lock.
+- tests/unit/task-observability.spec.ts is unclassified for final math normalization lock.
+- tests/unit/tasks-feedback-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/tasks-materialize-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/telemetry.spec.ts is unclassified for final math normalization lock.
+- tests/unit/use-chat-unread-status.spec.tsx is unclassified for final math normalization lock.
+- tests/unit/user-index-materializer-consumer.spec.ts is unclassified for final math normalization lock.
+- tests/unit/user-index-materializer-core.spec.ts is unclassified for final math normalization lock.
+- tests/unit/user-index-materializer-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/user-index-materializer-schedule.spec.ts is unclassified for final math normalization lock.
+- tests/unit/user-index-normalizer.spec.ts is unclassified for final math normalization lock.
+- tests/unit/user-profile-api-contract.spec.ts is unclassified for final math normalization lock.
+- tests/unit/user-register-route.spec.ts is unclassified for final math normalization lock.
+- tests/unit/utils/source-validator-contract.ts is unclassified for final math normalization lock.
+- tests/unit/wallet-packages-route-repair.spec.ts is unclassified for final math normalization lock.

@@ -1,7 +1,7 @@
 {
   "reportKey": "identity-handoff-4xx-policy",
-  "generatedAtUtc": "2026-05-29T03:07:24.150Z",
-  "currentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+  "generatedAtUtc": "2026-07-14T05:12:25.550Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",
@@ -10,13 +10,13 @@
   "activeGlobalVsUserMismatchCount": 0,
   "classifiedNonBlockingMismatchCount": 3,
   "expectedNoUserMappingCount": 3,
-  "missingIdentityLinkCount": 1,
+  "missingIdentityLinkCount": 0,
   "unsafeUnknownMismatchCount": 0,
   "duplicateSuppressionCount": 0,
   "unknownLegacyIdentityCount": 0,
   "analyticAlgorithmsAudited": 5,
   "identity4xxClassesCovered": 14,
-  "liveEvidenceStatus": "verified",
+  "liveEvidenceStatus": "actionable_gap",
   "panelsAffected": [
     "guest_to_user_handoff",
     "user_management",
@@ -26,7 +26,9 @@
   "memoryEntriesAdded": 5,
   "scoreBefore": 76.61,
   "scoreAfter": 76.61,
-  "remainingGaps": [],
+  "remainingGaps": [
+    "global_without_user_mapping"
+  ],
   "nextExactSteps": [
     "Keep user-level panel proof separate from global activity proof.",
     "Use identity-handoff 4xx classes for stale session, malformed handoff, role drift, and duplicate link paths.",

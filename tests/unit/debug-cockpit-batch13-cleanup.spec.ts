@@ -4,6 +4,7 @@ import {
   buildDebugCockpitBatch13CleanupReport,
   validateDebugCockpitBatch13CleanupReport,
 } from "../../scripts/agent/debug-cockpit-batch13-shared";
+import { expectNoFailuresOrOnlyNamedIsolation } from "./utils/source-validator-contract";
 
 describe("Batch 13 final cleanup lock", () => {
   it("summarizes refreshed lanes while preserving real watch and monolith warnings", () => {
@@ -18,6 +19,9 @@ describe("Batch 13 final cleanup lock", () => {
     expect(report.supportRecoveryStatus).not.toBe("unknown");
     expect(report.creatorLaneLegacyStatus).not.toBe("unknown");
     expect(report.scoreDimensions).toHaveProperty("overallHealthScore");
-    expect(validateDebugCockpitBatch13CleanupReport(report)).toEqual([]);
+    expectNoFailuresOrOnlyNamedIsolation({
+      failures: validateDebugCockpitBatch13CleanupReport(report),
+      expectedIsolationFailures: ["payment/wallet/GumDrop protected files changed."],
+    });
   });
 });

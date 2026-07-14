@@ -196,7 +196,7 @@ export function DailyTasksModule() {
         }
         : currentProfile
     ));
-  }, [localTaskState, nowMs, setUserProfile, userProfile?.dailyTasksState?.lastDeadlineReminderAt, userProfile?.dailyTasksState?.lastProgressAt, userProfile?.dailyTasksState?.lastResetMs, userProfile?.dailyTasksState?.retiredTaskIds, userProfile?.dailyTasksState?.completedTaskHistory]);
+  }, [localTaskState, nowMs, setUserProfile, userProfile?.dailyTasksState?.lastDeadlineReminderAt, userProfile?.dailyTasksState?.lastProgressAt, userProfile?.dailyTasksState?.lastResetMs, userProfile?.dailyTasksState?.retiredTaskIds, userProfile?.dailyTasksState?.completedTaskHistory, userProfile?.dailyTasksState?.windowState]);
 
   const rotateTasks = useCallback(async () => {
     setRotating(true);
@@ -662,7 +662,7 @@ export function DailyTasksModule() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="mt-4 rounded-full border border-amber-300/30 bg-amber-300/15 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-300/20"
+            className="mt-4 min-h-11 rounded-full border border-amber-300/30 bg-amber-300/15 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-300/20"
           >
             Reload tasks
           </button>
@@ -821,9 +821,9 @@ export function DailyTasksModule() {
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           {isExpanded ? (
-                            <ChevronUp className="h-4 w-4 text-gray-400" />
+                            <ChevronUp aria-hidden="true" className="h-4 w-4 text-gray-400" />
                           ) : (
-                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                            <ChevronDown aria-hidden="true" className="h-4 w-4 text-gray-400" />
                           )}
                         </div>
                       </div>
@@ -878,7 +878,7 @@ export function DailyTasksModule() {
                           onClick={() => void handleTaskAction(task)}
                           disabled={isBusy}
                           className={cn(
-                            "inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold transition-opacity disabled:opacity-60",
+                            "inline-flex min-h-11 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold transition-opacity disabled:opacity-60",
                             task.actionType === "open_wallet"
                               ? "border-brand-purple bg-brand-purple text-white"
                               : "border-white/10 bg-white/5 text-white hover:bg-white/10",

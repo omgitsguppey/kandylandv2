@@ -26,6 +26,7 @@ const loaderSpinnerFiles = [
     "src/components/CreatorDiscoveryRail.tsx",
     "src/components/Creators/CreatorBookingsManager.tsx",
     "src/components/Creators/CreatorBroadcastManager.tsx",
+    "src/components/Creators/CreatorDashboardSettingsHub.tsx",
     "src/components/Creators/CreatorFanPassManager.tsx",
     "src/components/Creators/CreatorRequestsManager.tsx",
     "src/components/Dashboard/DailyCheckIn.tsx",
@@ -62,6 +63,10 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("aria-pressed={selected}");
         expect(source).toContain("selected={isBundleSelected}");
         expect(source).toContain("<HumanErrorNotice");
+        expect(source).toContain("col-span-3 grid min-h-11 w-full cursor-pointer");
+        expect(source).not.toContain("role=\"button\"");
+        expect(source).toContain("flex h-11 w-11 flex-col");
+        expect(source).toContain("flex h-11 w-11 items-center");
     });
 
     it("drop card preview and countdown controls expose accessible names without live timer spam", () => {
@@ -81,6 +86,55 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("aria-current={activeIndex === idx ? \"true\" : undefined}");
         expect(source).toContain("aria-label=\"Scroll thumbnails left\"");
         expect(source).toContain("aria-label=\"Scroll thumbnails right\"");
+    });
+
+    it("chat composer keeps every platform branch at accessible target sizes", () => {
+        const source = read("src/components/Chat/ChatExperience.tsx");
+
+        expect(source).toContain("max-h-[18px] overflow-hidden truncate");
+        expect(source).toContain("flex min-h-12 max-h-12 min-w-0 items-center gap-2");
+        expect(source).toContain("inline-flex h-11 w-11 items-center justify-center");
+        expect(source).toContain('aria-label="Back to chat list"');
+        expect(source).toContain('aria-label="Remove attachment"');
+        expect(source).toContain('aria-label="Close new message picker"');
+        expect(source.match(/inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg/gu)?.length).toBeGreaterThanOrEqual(3);
+        expect(source.match(/inline-flex h-11 w-11(?: shrink-0)? items-center justify-center/gu)?.length).toBeGreaterThanOrEqual(4);
+        expect(source).toContain("inline-flex h-12 w-12 shrink-0 self-center items-center justify-center");
+        expect(source).not.toContain("inline-flex h-9 w-9 items-center justify-center");
+        expect(source).not.toContain("inline-flex h-8 w-8 shrink-0 items-center justify-center");
+        expect(source).not.toContain('isIosPwaChatShell ? "h-9 max-h-9"');
+        expect(source).not.toContain('? "inline-flex h-8 w-8 items-center justify-center');
+        expect(source).not.toContain('? "inline-flex h-9 w-9 shrink-0 self-center');
+    });
+
+    it("profile and shared error actions keep 44px targets", () => {
+        const profile = read("src/components/Navigation/ProfileDropdown.tsx");
+        const humanError = read("src/components/errors/HumanErrorNotice.tsx");
+
+        expect(profile).toContain("inline-flex h-11 w-11 shrink-0 items-center justify-center");
+        expect(profile).toContain("flex min-h-11 items-center gap-3");
+        expect(profile).toContain("flex min-h-11 w-full items-center");
+        expect(profile).toContain('aria-label="Profile navigation"');
+        expect(profile).toContain('aria-label="Help and policies"');
+        expect(profile).toContain('role="menu"');
+        expect(profile).toContain('role="menuitem"');
+        expect(profile).toContain("handleMenuNavigation");
+        expect(profile).toContain('"ArrowDown", "ArrowUp", "Home", "End"');
+        expect(profile).toContain('event.key !== "Escape"');
+        expect(profile).toContain("triggerRef.current?.focus()");
+        expect(humanError).toContain("min-h-11 rounded-full");
+        expect(humanError).not.toContain("min-h-10 rounded-full");
+    });
+
+    it("keeps every privacy choice at the shared touch-target baseline", () => {
+        const cookieBanner = read("src/components/CookieBanner.tsx");
+
+        expect(cookieBanner).toContain("Manage settings");
+        expect(cookieBanner).toContain("Decline optional");
+        expect(cookieBanner).toContain("Minimal analytics");
+        expect(cookieBanner).toContain("Accept all");
+        expect(cookieBanner).not.toContain("min-h-10 flex-1");
+        expect(cookieBanner.match(/min-h-11/g)?.length).toBeGreaterThanOrEqual(7);
     });
 
     it("admin tabs, dropdowns, and filters expose state attributes", () => {
@@ -120,6 +174,40 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("aria-expanded={expanded}");
         expect(source).toContain("<ChevronUp className=\"h-4 w-4 shrink-0 text-gray-400\" aria-hidden=\"true\" />");
         expect(source).toContain("<ChevronDown className=\"h-4 w-4 shrink-0 text-gray-400\" aria-hidden=\"true\" />");
+    });
+
+    it("disclosure and directional controls own state while decorative chevrons stay hidden", () => {
+        const createDrop = read("src/components/Admin/CreateDropModal.tsx");
+        const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+        const combinedDecorativeSources = [
+            "src/components/Admin/AdminDashboardModule.tsx",
+            "src/components/Creators/CreatorAgreementFullText.tsx",
+            "src/components/Creators/CreatorExperiencesPanel.tsx",
+            "src/components/Dashboard/DailyTasksModule.tsx",
+            "src/components/Dashboard/RecentActivityFeed.tsx",
+            "src/components/Navigation/NotificationBell.tsx",
+            "src/components/StickyFilterBar.tsx",
+        ].map(read).join("\n");
+
+        expect(createDrop).toContain("aria-expanded={open}");
+        expect(createDrop).toContain("aria-expanded={uploadsOpen}");
+        expect(settingsHub.match(/aria-busy=\{savingSection ===/gu)).toHaveLength(5);
+        expect(settingsHub.match(/disabled=\{isReadOnlyProjection \|\| savingSection !== null\}/gu)).toHaveLength(5);
+        expect(combinedDecorativeSources.match(/aria-hidden="true"/gu)?.length).toBeGreaterThanOrEqual(15);
+        expect(read("src/components/Creators/CreatorExperiencesPanel.tsx")).toContain("flex h-11 w-11 items-center justify-center");
+        const notificationBell = read("src/components/Navigation/NotificationBell.tsx");
+        expect(notificationBell.match(/inline-flex min-h-11 items-center/gu)?.length).toBeGreaterThanOrEqual(5);
+        expect(notificationBell).toContain("relative flex h-11 w-11 items-center justify-center");
+        expect(notificationBell).not.toMatch(/className="inline-flex (?:h-6|h-8|min-h-7|min-h-8) items-center/gu);
+        expect(read("src/components/Admin/AdminDashboardModule.tsx")).toContain("inline-flex h-11 w-11 items-center justify-center");
+        expect(read("src/components/Dashboard/RecentActivityFeed.tsx").match(/inline-flex min-h-11 items-center gap-2/gu)).toHaveLength(3);
+        const stickyFilterBar = read("src/components/StickyFilterBar.tsx");
+        expect(stickyFilterBar).toContain("h-11 w-full rounded-[1rem]");
+        expect(stickyFilterBar).toContain("inline-flex h-11 shrink-0 items-center");
+        expect(stickyFilterBar).toContain("inline-flex h-11 w-11 shrink-0 items-center justify-center");
+        const dailyTasks = read("src/components/Dashboard/DailyTasksModule.tsx");
+        expect(dailyTasks).toContain("inline-flex min-h-11 items-center gap-2 rounded-full");
+        expect(dailyTasks).toContain("className=\"mt-4 min-h-11 rounded-full");
     });
 
     it("loading spinners are hidden from assistive technology when visible text owns status", () => {

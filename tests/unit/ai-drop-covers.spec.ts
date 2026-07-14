@@ -28,10 +28,10 @@ describe("ai drop cover shared contract", () => {
         });
 
         expect(prompt).toContain("Midnight Cherry Crush");
-        expect(prompt).toContain("Render Kandy Lux as the smaller creator-name treatment above the main title and keep it intact.");
-        expect(prompt).toContain("Render the main title \"Midnight Cherry Crush\" clearly and legibly in the cover.");
+        expect(prompt).toContain("Top brand text: Kandy Lux.");
+        expect(prompt).toContain("Main title: Midnight Cherry Crush.");
         expect(prompt).not.toContain("Do not render any readable text");
-        expect(prompt).toContain("Return a complete 1:1 square cover composition.");
+        expect(prompt).toContain("Keep strict edit-style layout consistency.");
     });
 
     it("adds the reference-image style instruction when cover references are active", () => {
@@ -42,10 +42,10 @@ describe("ai drop cover shared contract", () => {
             referenceGuided: true,
         });
 
-        expect(prompt).toContain("Use the provided reference images as layout anchors only");
-        expect(prompt).toContain("ignore every reference flavor, ingredient, candy, chocolate, fruit, drink, garnish, prop, background object, and palette");
-        expect(prompt).toContain("Match the reference layout closely; do not borrow the reference flavor");
-        expect(prompt).toContain("Render the main title \"Strawberry Shortcake\" clearly and legibly in the cover.");
+        expect(prompt).toContain("selected reference (reference_guided)");
+        expect(prompt).toContain("Keep all category drift out of the result");
+        expect(prompt).toContain("Keep strict edit-style layout consistency.");
+        expect(prompt).toContain("Main title: Strawberry Shortcake.");
     });
 
     it("uses the Gemini 2.5 Flash Image cost basis for the default model", () => {
@@ -70,12 +70,13 @@ describe("ai drop cover shared contract", () => {
     it("migrates the old Imagen defaults to Gemini 2.5 Flash Image", () => {
         expect(normalizeAdminAiDropCoverModel("imagen-3.0-fast-generate-001")).toBe("gemini-2.5-flash-image");
         expect(normalizeAdminAiDropCoverModel("imagen-4.0-fast-generate-001")).toBe("gemini-2.5-flash-image");
-        expect(normalizeAdminAiDropCoverModel("gemini-3-pro-image-preview")).toBe("gemini-3-pro-image-preview");
+        expect(normalizeAdminAiDropCoverModel("gemini-3-pro-image-preview")).toBe("gemini-3-pro-image");
     });
 
     it("migrates the legacy default location to the global endpoint for the migrated default model", () => {
         expect(normalizeAdminAiDropCoverLocation("us-central1", "imagen-3.0-fast-generate-001")).toBe("global");
         expect(normalizeAdminAiDropCoverLocation("us-central1", "imagen-4.0-fast-generate-001")).toBe("global");
+        expect(normalizeAdminAiDropCoverLocation("us-central1", "gemini-3-pro-image-preview")).toBe("global");
         expect(normalizeAdminAiDropCoverLocation("us-central1", ADMIN_AI_DROP_COVER_PREMIUM_MODEL)).toBe("us-central1");
     });
 
@@ -84,7 +85,7 @@ describe("ai drop cover shared contract", () => {
         expect(normalizeAdminAiDropCoverLocation("", ADMIN_AI_DROP_COVER_MODEL, "reference_guided")).toBe(ADMIN_AI_DROP_COVER_DEFAULT_LOCATION);
         expect(estimateAdminAiDropCoverCostUsd(ADMIN_AI_DROP_COVER_PREMIUM_MODEL, 1)).toBe(0.134);
         expect(getAdminAiDropCoverMaxReferenceInputs(ADMIN_AI_DROP_COVER_MODEL)).toBe(ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT);
-        expect(getAdminAiDropCoverMaxReferenceInputs(ADMIN_AI_DROP_COVER_PREMIUM_MODEL)).toBe(ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT);
+        expect(getAdminAiDropCoverMaxReferenceInputs(ADMIN_AI_DROP_COVER_PREMIUM_MODEL)).toBe(14);
     });
 
     it("builds a consistency recipe from the drop title instead of relying on rendered model text", () => {
@@ -138,7 +139,7 @@ describe("ai drop cover shared contract", () => {
 
         expect(ranked[0]?.id).toBe("template");
         expect(ranked[1]?.id).toBe("liked-blueberry");
-        expect(ranked[1]?.selectionReasons).toContain("same creator layout context");
+        expect(ranked[1]?.selectionReasons).toContain("creator_style_reference");
         expect(ranked.map((asset) => asset.id)).not.toContain("disliked-layout");
     });
 });

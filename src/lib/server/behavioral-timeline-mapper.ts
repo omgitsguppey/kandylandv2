@@ -51,11 +51,20 @@ export function mapRuntimeFactToBehavioralTimelineFact(input: {
 
   return {
     factId: input.runtimeFact.eventId,
+    idempotencyKey: input.runtimeFact.eventId,
     actorType,
-    actorUserId: input.runtimeFact.actor.actorUserId || undefined,
-    anonymousVisitorId: input.runtimeFact.actor.anonymousVisitorId || undefined,
-    sessionId: input.runtimeFact.actor.sessionId || undefined,
-    identityLinkId: input.identityLinkId,
+    ...(input.runtimeFact.actor.actorUserId
+      ? { actorUserId: input.runtimeFact.actor.actorUserId }
+      : {}),
+    ...(input.runtimeFact.actor.anonymousVisitorId
+      ? { anonymousVisitorId: input.runtimeFact.actor.anonymousVisitorId }
+      : {}),
+    ...(input.runtimeFact.actor.sessionId
+      ? { sessionId: input.runtimeFact.actor.sessionId }
+      : {}),
+    ...(input.identityLinkId || input.runtimeFact.actor.identityLinkId
+      ? { identityLinkId: input.identityLinkId || input.runtimeFact.actor.identityLinkId }
+      : {}),
     normalizedAction: input.runtimeFact.normalizedAction,
     eventName: input.runtimeFact.canonicalEventName,
     timestampMs: input.runtimeFact.timestampMs,
@@ -63,18 +72,36 @@ export function mapRuntimeFactToBehavioralTimelineFact(input: {
     sourceComponent: input.runtimeFact.source_component || "runtime_ingest",
     surface: resolveSurface(input.runtimeFact.route || ""),
     target: {
-      userId: input.runtimeFact.target.targetUserId || undefined,
-      creatorId: input.runtimeFact.target.targetCreatorId || undefined,
-      dropId: input.runtimeFact.target.targetDropId || undefined,
-      fileId: input.runtimeFact.target.targetFileId || undefined,
-      transactionId: input.runtimeFact.target.transactionId || undefined,
-      threadId: input.runtimeFact.target.targetThreadId || undefined,
+      ...(input.runtimeFact.target.targetUserId
+        ? { userId: input.runtimeFact.target.targetUserId }
+        : {}),
+      ...(input.runtimeFact.target.targetCreatorId
+        ? { creatorId: input.runtimeFact.target.targetCreatorId }
+        : {}),
+      ...(input.runtimeFact.target.targetDropId
+        ? { dropId: input.runtimeFact.target.targetDropId }
+        : {}),
+      ...(input.runtimeFact.target.targetFileId
+        ? { fileId: input.runtimeFact.target.targetFileId }
+        : {}),
+      ...(input.runtimeFact.target.transactionId
+        ? { transactionId: input.runtimeFact.target.transactionId }
+        : {}),
+      ...(input.runtimeFact.target.targetThreadId
+        ? { threadId: input.runtimeFact.target.targetThreadId }
+        : {}),
     },
     sourceTruth,
     sourceReliability: sourceReliabilityFromTruth(sourceTruth),
     consentState: input.consentState,
+    includeInGlobalEvents: input.runtimeFact.includeInGlobalEvents,
+    includeInPersonMetrics: input.runtimeFact.includeInUserBehavior,
+    adminExcludedCount: input.runtimeFact.adminExcludedCount,
+    systemExcludedCount: input.runtimeFact.systemExcludedCount,
     metricEligible: input.runtimeFact.metricEligible,
-    metricExclusionReason: input.runtimeFact.metricExclusionReason || undefined,
+    ...(input.runtimeFact.metricExclusionReason
+      ? { metricExclusionReason: input.runtimeFact.metricExclusionReason }
+      : {}),
     confidenceInputs: {
       schemaComplete: Boolean(
         input.runtimeFact.eventId

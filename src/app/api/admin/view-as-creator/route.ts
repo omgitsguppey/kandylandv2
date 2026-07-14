@@ -4,6 +4,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -26,6 +27,8 @@ import {
   parseAdminViewAsState,
 } from "@/lib/admin/synthetic-creators-view-as";
 import type { CreatorOnboardingHistoryEventType } from "@/lib/creator-onboarding";
+
+const ADMIN_VIEW_AS_CREATOR_BODY_LIMIT_BYTES = 64_000;
 
 function readString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -64,7 +67,11 @@ async function POST_handler(request: NextRequest) {
       return NextResponse.json({ error: "Admin view-as is unavailable." }, { status: 500 });
     }
 
-    const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+    const body = await readBoundedJsonBody<Record<string, unknown>>(request, {
+      maxBytes: ADMIN_VIEW_AS_CREATOR_BODY_LIMIT_BYTES,
+      routeName: "admin/view-as-creator",
+      allowEmpty: false,
+    });
     const action = normalizeAction(body.action);
     const targetUserId = readString(body.targetUserId);
     const reason = readString(body.reason);
@@ -213,6 +220,14 @@ async function POST_handler(request: NextRequest) {
       debug: debugFields,
     });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        retryable: false,
+      }, { status: error.status });
+    }
     return handleApiError(error, "Admin.ViewAsCreator.POST");
   }
 }

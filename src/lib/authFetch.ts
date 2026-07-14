@@ -1,4 +1,4 @@
-import { auth } from "@/lib/firebase";
+import { app, auth, firebaseClientConfigured } from "@/lib/firebase";
 import { recordClientBreadcrumb, recordClientDiagnostic } from "@/lib/client-diagnostics";
 import {
     buildAdminViewAsHeaders,
@@ -6,6 +6,72 @@ import {
     readAdminViewAsStateFromStorage,
 } from "@/lib/admin/synthetic-creators-view-as";
 import { resolveSameOriginRelativePath } from "@/lib/client-safe-url";
+
+export type AppCheckClientReadiness = {
+    enabled: boolean;
+    reason: "ready" | "off" | "browser_unavailable" | "firebase_unavailable" | "site_key_missing";
+};
+
+let appCheckInstancePromise: Promise<import("firebase/app-check").AppCheck | null> | null = null;
+let appCheckFailureReported = false;
+
+export function resolveAppCheckClientReadiness(input: {
+    mode?: string | null;
+    siteKey?: string | null;
+    browserAvailable?: boolean;
+    firebaseConfigured?: boolean;
+}): AppCheckClientReadiness {
+    if (input.mode?.trim().toLowerCase() !== "token") {
+        return { enabled: false, reason: "off" };
+    }
+    if (input.browserAvailable !== true) {
+        return { enabled: false, reason: "browser_unavailable" };
+    }
+    if (input.firebaseConfigured !== true) {
+        return { enabled: false, reason: "firebase_unavailable" };
+    }
+    if (!input.siteKey?.trim()) {
+        return { enabled: false, reason: "site_key_missing" };
+    }
+    return { enabled: true, reason: "ready" };
+}
+
+async function getCustomBackendAppCheckToken(): Promise<string | null> {
+    const siteKey = process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_RECAPTCHA_SITE_ID?.trim() ?? "";
+    const readiness = resolveAppCheckClientReadiness({
+        mode: process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_CLIENT_MODE,
+        siteKey,
+        browserAvailable: typeof window !== "undefined",
+        firebaseConfigured: firebaseClientConfigured,
+    });
+    if (!readiness.enabled) {
+        return null;
+    }
+
+    try {
+        const appCheckSdk = await import("firebase/app-check");
+        appCheckInstancePromise ??= Promise.resolve(appCheckSdk.initializeAppCheck(app, {
+            provider: new appCheckSdk.ReCaptchaV3Provider(siteKey),
+            isTokenAutoRefreshEnabled: false,
+        }));
+        const appCheckInstance = await appCheckInstancePromise;
+        if (!appCheckInstance) {
+            return null;
+        }
+
+        const tokenResult = await appCheckSdk.getToken(appCheckInstance, false);
+        appCheckFailureReported = false;
+        return tokenResult.token?.trim() || null;
+    } catch (error) {
+        if (!appCheckFailureReported) {
+            appCheckFailureReported = true;
+            recordClientDiagnostic("firebase", "App Check client token unavailable; request continuing in source-ready fail-open mode", {
+                errorName: error instanceof Error ? error.name : "unknown_error",
+            }, "warn");
+        }
+        return null;
+    }
+}
 
 function resolveSafeAuthFetchUrl(url: string) {
     if (typeof window === "undefined") {
@@ -90,6 +156,11 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
             reason: blockedViewAsRequest.reason,
         }, "warn");
         throw new Error(`${blockedViewAsRequest.reason} Return to admin to continue.`);
+    }
+
+    const appCheckToken = await getCustomBackendAppCheckToken();
+    if (appCheckToken) {
+        headers.set("X-Firebase-AppCheck", appCheckToken);
     }
 
     try {

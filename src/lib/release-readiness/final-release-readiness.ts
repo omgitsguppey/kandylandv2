@@ -4,6 +4,11 @@ import { join } from "node:path";
 
 import { classifyGeneratedArtifactFromGit } from "../agent-score/generated-artifact-version-policy";
 import {
+  getPublicReleaseNotesVisibleNotes,
+  isPublicBetaBadgeNoteFresh,
+  type PublicReleaseNote,
+} from "../release-notes/release-version-contract";
+import {
   buildLiveEvidenceGateReplacementReport,
 } from "./live-evidence-resolver";
 import type { LiveEvidenceGateReplacementReport } from "./live-evidence-gate-contract";
@@ -40,6 +45,13 @@ export type ArtifactFreshnessStatus =
   | "formal_missing"
   | "in_flight"
   | "not_required";
+
+export type ReleaseNotesAnchorStatus =
+  | "current_head"
+  | "ancestor_of_current_head"
+  | "not_ancestor"
+  | "unverifiable"
+  | "missing";
 
 export type OpenPrClassification =
   | "dependency_pr_to_merge"
@@ -169,6 +181,8 @@ export type ReleaseReadinessContext = {
   publicBetaScore: Record<string, unknown>;
   currentBetaExitStatus: Record<string, unknown>;
   releaseNotes: Record<string, unknown>;
+  releaseNotesChangelog: string;
+  releaseNotesAnchorStatus: ReleaseNotesAnchorStatus;
   releaseEvidenceArtifacts: Record<string, Record<string, unknown>>;
   artifacts: ArtifactStatus[];
   openPrs: ClassifiedOpenPr[];
@@ -321,6 +335,7 @@ export type ReleaseNotesIntegrityReport = {
   exposesSensitiveInternals: boolean;
   changelogMentionsLatestHardening: boolean;
   releaseNotesStaleToCurrentHead: boolean;
+  releaseNotesAnchorStatus: ReleaseNotesAnchorStatus;
   validationFailures: string[];
 };
 
@@ -453,6 +468,11 @@ function readJson(root: string, relativePath: string): Record<string, unknown> {
   }
 }
 
+function readText(root: string, relativePath: string) {
+  const fullPath = join(root, relativePath);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
 function stringValue(value: unknown, fallback = "") {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
 }
@@ -483,6 +503,24 @@ function shell(cwd: string, command: string, args: readonly string[]) {
 
 export function getCurrentGitHead(root: string) {
   return shell(root, "git", ["rev-parse", "HEAD"]);
+}
+
+function classifyReleaseNotesAnchor(root: string, currentHead: string, lastCommitSha: string): ReleaseNotesAnchorStatus {
+  if (!currentHead || !lastCommitSha) return "missing";
+  if (currentHead === lastCommitSha) return "current_head";
+  const verifiedAnchor = shell(root, "git", ["rev-parse", "--verify", `${lastCommitSha}^{commit}`]);
+  const verifiedHead = shell(root, "git", ["rev-parse", "--verify", `${currentHead}^{commit}`]);
+  if (!verifiedAnchor || !verifiedHead) return "unverifiable";
+
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", lastCommitSha, currentHead], {
+      cwd: root,
+      stdio: "ignore",
+    });
+    return "ancestor_of_current_head";
+  } catch {
+    return "not_ancestor";
+  }
 }
 
 export function readOpenPullRequests(root: string): OpenPrInput[] {
@@ -688,6 +726,8 @@ export function buildReleaseReadinessContext(root: string, input: Omit<Partial<R
   const publicBetaScore = input.publicBetaScore ?? readJson(root, "agent/state/public-beta-score.generated.json");
   const currentBetaExitStatus = input.currentBetaExitStatus ?? readJson(root, "agent/state/current-beta-exit-status.generated.json");
   const releaseNotes = input.releaseNotes ?? readJson(root, "public/kandydrops-release-notes.json");
+  const releaseNotesAnchorStatus = input.releaseNotesAnchorStatus
+    ?? classifyReleaseNotesAnchor(root, currentHead, stringValue(releaseNotes.lastCommitSha));
   const scoreDimensions = input.scoreDimensions ?? scoreDimensionsFrom(publicBetaScore);
   const openPrs = (input.openPrs ?? readOpenPullRequests(root)).map(classifyOpenPr);
   const dirtyFiles = (input.dirtyFiles ?? currentDirtyFiles(root).map((path) => ({ path, classification: classifyReleaseDirtyFile(path) })));
@@ -704,6 +744,8 @@ export function buildReleaseReadinessContext(root: string, input: Omit<Partial<R
     publicBetaScore,
     currentBetaExitStatus,
     releaseNotes,
+    releaseNotesChangelog: input.releaseNotesChangelog ?? readText(root, "CHANGELOG.md"),
+    releaseNotesAnchorStatus,
     releaseEvidenceArtifacts: input.releaseEvidenceArtifacts ?? {
       currentHeadReleaseReconciliation: readJson(root, "agent/state/current-head-release-reconciliation.generated.json"),
       releaseNotesIntegrity: readJson(root, "agent/state/release-notes-integrity.generated.json"),
@@ -723,6 +765,13 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
   const artifactByPath = new Map(context.artifacts.map((artifact) => [artifact.artifactPath, artifact]));
   const from = (path: string) => artifactByPath.get(path);
   const liveEvidence = buildLiveEvidenceGateReplacementReport(context);
+  const releaseNotesIntegrity = buildReleaseNotesIntegrityReport(context);
+  const releaseNotesPassed = releaseNotesIntegrity.validationFailures.length === 0;
+  const releaseNotesEvidenceStatus: EvidenceStatus = releaseNotesPassed
+    ? "formal_passed"
+    : releaseNotesIntegrity.publicReleaseJsonValid && releaseNotesIntegrity.releaseNotesStaleToCurrentHead
+      ? "stale"
+      : "formal_missing";
   const sourceMissingLiveEvidenceCount = liveEvidence.sourceMissingLiveEvidence.length;
   return [
     {
@@ -827,12 +876,14 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
     },
     {
       category: "release notes",
-      status: "formal_passed",
+      status: releaseNotesEvidenceStatus,
       artifactPath: "public/kandydrops-release-notes.json",
       owner: "release notes",
-      blocksBetaExit: false,
+      blocksBetaExit: !releaseNotesPassed,
       blocksScoreOnly: false,
-      nextExactAction: "Keep public copy free of false beta-exit or provider-proof claims.",
+      nextExactAction: releaseNotesPassed
+        ? "Keep public copy free of false beta-exit or provider-proof claims."
+        : "Accept and publish current-head release notes only when this work is approved as a public Beta release bundle.",
       whatItDoesNotProve: "Release notes do not prove runtime health.",
     },
     {
@@ -1358,8 +1409,38 @@ export function validateReleaseRollbackIncidentReadinessReport(report: ReleaseRo
 export function buildReleaseNotesIntegrityReport(context: ReleaseReadinessContext): ReleaseNotesIntegrityReport {
   const serialized = JSON.stringify(context.releaseNotes);
   const claimsBetaExit = /beta exit ready|betaExitReady"?\s*:\s*true|formally ready/iu.test(serialized);
-  const claimsProviderRuntimeProof = /provider-backed site activity evidence passed|deployed route evidence passed/iu.test(serialized);
+  const claimsProviderRuntimeProof = /provider-backed site activity evidence passed|deployed route evidence passed|\b(?:provider|runtime)\s+smoke\s+(?:pass|passed|verified)\b/iu.test(serialized);
   const exposesSensitiveInternals = /access token|fcm token|raw email|private media url|provider order id/iu.test(serialized);
+  const notes = (arrayValue(context.releaseNotes.notes)
+    .filter((entry): entry is Record<string, unknown> => (
+      Boolean(entry)
+      && typeof entry === "object"
+      && !Array.isArray(entry)
+      && typeof (entry as Record<string, unknown>).title === "string"
+      && typeof (entry as Record<string, unknown>).summary === "string"
+      && Array.isArray((entry as Record<string, unknown>).bullets)
+    ))) as unknown as PublicReleaseNote[];
+  const latestVisible = getPublicReleaseNotesVisibleNotes(notes, 1)[0];
+  const currentVersion = stringValue(context.releaseNotes.currentVersion);
+  const currentCounter = numberValue(context.releaseNotes.betaReleaseCounter, -1);
+  const lastCommitSha = stringValue(context.releaseNotes.lastCommitSha);
+  const latestCommitSha = latestVisible ? stringValue(latestVisible.commitSha || latestVisible.sourceCommit) : "";
+  const latestMatchesDocument = Boolean(latestVisible)
+    && latestVisible.version === currentVersion
+    && latestVisible.betaReleaseCounter === currentCounter
+    && lastCommitSha.length > 0
+    && latestCommitSha === lastCommitSha;
+  const generatedAtMs = Date.parse(context.generatedAtUtc);
+  const latestIsFresh = Boolean(latestVisible)
+    && Number.isFinite(generatedAtMs)
+    && isPublicBetaBadgeNoteFresh(latestVisible, generatedAtMs);
+  const expectedChangelogLines = latestVisible
+    ? [latestVisible.title, ...latestVisible.bullets].filter((line) => typeof line === "string" && line.trim().length > 0)
+    : [];
+  const changelogMentionsLatestHardening = latestMatchesDocument
+    && context.releaseNotesChangelog.includes(`## ${currentVersion} -`)
+    && expectedChangelogLines.length > 0
+    && expectedChangelogLines.every((line) => context.releaseNotesChangelog.includes(`- ${line}`));
   const report: ReleaseNotesIntegrityReport = {
     reportKey: "release-notes-integrity",
     generatedAtUtc: context.generatedAtUtc,
@@ -1369,8 +1450,11 @@ export function buildReleaseNotesIntegrityReport(context: ReleaseReadinessContex
     claimsBetaExit,
     claimsProviderRuntimeProof,
     exposesSensitiveInternals,
-    changelogMentionsLatestHardening: true,
-    releaseNotesStaleToCurrentHead: false,
+    changelogMentionsLatestHardening,
+    releaseNotesStaleToCurrentHead: !latestMatchesDocument
+      || !latestIsFresh
+      || !["current_head", "ancestor_of_current_head"].includes(context.releaseNotesAnchorStatus),
+    releaseNotesAnchorStatus: context.releaseNotesAnchorStatus,
     validationFailures: [],
   };
   report.validationFailures = validateReleaseNotesIntegrityReport(report);
@@ -1383,6 +1467,9 @@ export function validateReleaseNotesIntegrityReport(report: ReleaseNotesIntegrit
   if (report.exposesSensitiveInternals) failures.push("public notes expose sensitive internals.");
   if (!report.changelogMentionsLatestHardening) failures.push("changelog missing latest hardening.");
   if (report.releaseNotesStaleToCurrentHead) failures.push("release notes stale to currentHead.");
+  if (!["current_head", "ancestor_of_current_head"].includes(report.releaseNotesAnchorStatus)) {
+    failures.push(`release notes anchor is ${report.releaseNotesAnchorStatus}; it does not establish currentHead ancestry.`);
+  }
   if (!report.publicReleaseJsonValid) failures.push("public release JSON invalid.");
   if (report.claimsProviderRuntimeProof) failures.push("release notes mention provider/runtime proof when not formally passed.");
   return Array.from(new Set(failures));
@@ -1494,6 +1581,16 @@ export function validateFinalReleaseExitReadinessPacketReport(report: FinalRelea
   if (!report.liveEvidenceGateReplacement) failures.push("live evidence gate replacement missing.");
   if (report.remainingManualItems.some((item) => /manual.*smoke|production.*smoke/iu.test(item))) failures.push("broad manual smoke remains instead of split typed site activity evidence.");
   if (report.remainingManualItems.some((item) => /\b(ui|visual|browser)\b/iu.test(item))) failures.push("UI reproduction must not remain a manual beta-exit item; use source coverage with optional reproduction only.");
+  const releaseNotesLedger = report.formalEvidenceLedger.find((entry) => entry.category === "release notes");
+  if (report.releaseNotesIntegrity.status === "pass" && releaseNotesLedger?.status !== "formal_passed") {
+    failures.push("release notes formal ledger disagrees with passing integrity status.");
+  }
+  if (
+    report.releaseNotesIntegrity.status !== "pass"
+    && (!releaseNotesLedger || releaseNotesLedger.status === "formal_passed" || !releaseNotesLedger.blocksBetaExit)
+  ) {
+    failures.push("release notes formal ledger disagrees with blocked integrity status.");
+  }
   if (report.releaseNotesIntegrity.status !== "pass") failures.push("release notes stale.");
   if (report.costRiskStatus.score < 80 && !report.costRiskStatus.nextExactAction) failures.push("cost risk below80 lacks exact reason/action.");
   if (report.evidenceCompletenessStatus.score < 80 && !report.evidenceCompletenessStatus.nextExactAction) failures.push("evidence completeness below80 lacks exact reason/action.");

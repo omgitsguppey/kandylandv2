@@ -190,6 +190,7 @@ describe("POST /api/user/register", () => {
 
         const request = new NextRequest("http://localhost/api/user/register", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 signupIntent: "creator",
                 username: "creatorone",
@@ -262,6 +263,7 @@ describe("POST /api/user/register", () => {
 
         const request = new NextRequest("http://localhost/api/user/register", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 signupIntent: "creator",
                 displayName: "Existing Creator",
@@ -290,6 +292,7 @@ describe("POST /api/user/register", () => {
 
         const request = new NextRequest("http://localhost/api/user/register", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 username: "CreatorOne",
                 displayName: "Creator One",
@@ -302,7 +305,9 @@ describe("POST /api/user/register", () => {
         expect(response.status).toBe(409);
         expect(payload).toEqual({
             error: "Username is already taken.",
+            errorCode: "username_taken",
             authErrorCode: "auth/username-already-in-use",
+            retryable: false,
         });
         expect(mockState.documents.has("users/creator_1")).toBe(false);
     });
@@ -315,6 +320,7 @@ describe("POST /api/user/register", () => {
 
         const request = new NextRequest("http://localhost/api/user/register", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 username: "Creator One",
                 displayName: "Creator One",

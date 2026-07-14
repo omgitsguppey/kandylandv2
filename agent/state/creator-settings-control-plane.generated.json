@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T07:56:20.304Z",
+  "generatedAtUtc": "2026-07-14T16:06:07.532Z",
   "reportKey": "creator-settings-control-plane",
-  "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "settingsContractCreated": true,
     "fanPassPricingControlPresent": true,
@@ -12,8 +12,8 @@
     "priceValidationPresent": true,
     "settingsUpdateTelemetryPresent": true,
     "mobileSettingsSectionsCompact": true,
-    "protectedNavChatUntouched": true,
-    "p0Count": 0,
+    "protectedNavChatUntouched": false,
+    "p0Count": 1,
     "p1Count": 0,
     "p2Count": 0
   },
@@ -80,7 +80,7 @@
     },
     {
       "id": "protected_nav_chat",
-      "status": "verified",
+      "status": "missing",
       "severity": "p0",
       "file": "git diff --name-only",
       "summary": "Top nav, bottom nav, and chat files are untouched."
@@ -112,6 +112,6 @@
     "No open PRs were present at start for creator settings cleanup."
   ],
   "nextFixOrder": [
-    "Run manual mobile UI evidence for Creator Settings before beta visual signoff."
+    "protected_nav_chat"
   ]
 }

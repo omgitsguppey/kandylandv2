@@ -1,11 +1,11 @@
 # Backend Route Inventory
 
-Generated: 2026-05-27T03:56:29.619Z
-Current head: 360b1047
+Generated: 2026-07-14T16:07:17.295Z
+Current head: dc4dad82c
 
 ## Summary
 
-- Routes/functions audited: 218
+- Routes/functions audited: 222
 - Missing owner: 0
 - Missing cost class: 0
 - Unsafe unknowns: 0

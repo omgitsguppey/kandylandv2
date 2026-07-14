@@ -24,6 +24,7 @@ const userDetailPage = read("src/app/admin/user/[userId]/page.tsx");
 const overviewRoute = read("src/app/api/admin/overview/route.ts");
 const usersRoute = read("src/app/api/admin/users/route.ts");
 const userDetailRoute = read("src/app/api/admin/user/[userId]/route.ts");
+const individualMetricTruthContract = read("src/lib/identity-truth/individual-user-metric-truth.ts");
 const historicalEngagementHelper = read("src/lib/server/admin-analytics-historical-engagement.ts");
 const returnCadenceHelper = read("src/lib/admin-analytics-return-cadence.ts");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
@@ -113,6 +114,23 @@ assert(
 );
 assert(usersRoute.includes("buildUserBehaviorRollup"), "User Management route must build per-user behavior rollups.", failures);
 assert(userDetailRoute.includes("buildUserBehaviorRollup"), "User detail route must build per-user behavior rollups.", failures);
+assert(
+  individualMetricTruthContract.includes("buildIndividualUserMetricSourceTruth"),
+  "Canonical individual-user metric truth must classify Admin User source, bridge, materializer, and proven-zero states.",
+  failures,
+);
+assert(
+  userDetailRoute.includes("buildIndividualUserMetricSourceTruth")
+    && userDetailRoute.includes("identityLineageIndexes")
+    && userDetailRoute.includes("userTrackingIndexes"),
+  "User detail route must read bounded canonical identity-lineage and user-index evidence before exposing individual metrics.",
+  failures,
+);
+assert(userDetailPage.includes("data-individual-user-metric-state"), "User detail must expose the individual metric hydration state.", failures);
+assert(userDetailPage.includes("data-individual-user-identity-bridge"), "User detail must expose identity bridge state.", failures);
+assert(userDetailPage.includes("data-individual-user-materializer"), "User detail must expose user materializer state.", failures);
+assert(userDetailPage.includes("individualMetricValuesDisplayable"), "User detail must gate metric values on observed or proven-zero evidence.", failures);
+assert(userDetailPage.includes("individual behavior is unavailable, not zero"), "User detail empty behavior state must not render missing evidence as zero.", failures);
 assert(usersRoute.includes("identifiedAnalyticsEnabled"), "User Management route must thread privacy consent into behavior scoring.", failures);
 assert(userDetailRoute.includes("identifiedAnalyticsEnabled"), "User detail route must thread privacy consent into behavior scoring.", failures);
 assert(usersPage.includes("behaviorRollup"), "User Management must render the per-user behavior rollup.", failures);
@@ -216,7 +234,6 @@ assert(analyticsTypes.includes("export type RegionDemandPanelState"), "Admin ana
 assert(analyticsTypes.includes("adminInternalCount"), "Region demand state must separate internal/admin counts from raw counts.", failures);
 assert(audienceTab.includes("data-regions-source-truth"), "Regions panel must expose source-truth debug attrs.", failures);
 assert(audienceTab.includes("data-regions-filter-mode"), "Regions panel must expose filter-mode debug attrs.", failures);
-assert(audienceTab.includes("Raw geography with internal/admin traffic separated from external demand."), "Regions panel must not label raw geography as pure demand.", failures);
 assert(audienceTab.includes("Internal/admin:"), "Regions panel must render internal/admin excluded counts.", failures);
 assert(audienceTab.includes("Unknown location"), "Regions panel must bucket unknown geography as data quality, not demand.", failures);
 

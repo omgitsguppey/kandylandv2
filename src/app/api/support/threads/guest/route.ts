@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STRICT } from "@/lib/server/rate-limit";
 import { createSupportThread } from "@/lib/server/support-threads";
 import { SUPPORT_THREAD_CATEGORIES } from "@/lib/support-readiness";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+
+const GUEST_SUPPORT_BODY_LIMIT_BYTES = 64_000;
 
 const guestSupportSchema = z.object({
     email: z.string().trim().email().max(240),
@@ -31,7 +34,10 @@ async function POST_handler(request: NextRequest) {
             auth: "none",
         });
 
-        const body = guestSupportSchema.parse(await request.json());
+        const body = guestSupportSchema.parse(await readBoundedJsonBody<unknown>(request, {
+            maxBytes: GUEST_SUPPORT_BODY_LIMIT_BYTES,
+            routeName: "support/threads/guest",
+        }));
 
         // Use a stable guest user ID derived from email for thread ownership
         const guestUserId = `guest:${body.email.toLowerCase()}`;
@@ -52,6 +58,14 @@ async function POST_handler(request: NextRequest) {
             threadId: thread?.thread?.id ?? null,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "support/threads/guest");
     }
 }

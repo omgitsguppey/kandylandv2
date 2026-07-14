@@ -12,6 +12,7 @@ export const INITIAL_PUBLIC_VERSION = "1.0.0";
 export const PUBLIC_RELEASE_NOTES_VISIBLE_COUNT = 5;
 export const PUBLIC_RELEASE_NOTES_MAX_COUNT = 25;
 export const PUBLIC_RELEASE_NOTES_PAGE_SIZE = 5;
+export const PUBLIC_BETA_BADGE_FRESHNESS_MS = 24 * 60 * 60 * 1000;
 export const PUBLIC_RELEASE_NOTES_MAJOR_LOCK = 1;
 export const PUBLIC_RELEASE_VERSION_SHAPE = "BETA_ODOMETER";
 export const CURRENT_BETA_RELEASE_COUNTER = 615;
@@ -178,6 +179,16 @@ export function getPublicReleaseNotesVisibleNotes(
   }
 
   return visible;
+}
+
+export function getPublicBetaBadgeNoteTimestamp(note: PublicReleaseNote) {
+  const timestamp = Date.parse(note.updatedAtUtc || note.generatedAtUtc || note.committedAtUtc);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function isPublicBetaBadgeNoteFresh(note: PublicReleaseNote, nowMs = Date.now()) {
+  const timestamp = getPublicBetaBadgeNoteTimestamp(note);
+  return timestamp !== null && (nowMs - timestamp) <= PUBLIC_BETA_BADGE_FRESHNESS_MS;
 }
 
 export function paginatePublicReleaseNotes(

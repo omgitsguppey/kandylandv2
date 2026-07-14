@@ -19,7 +19,12 @@ vi.mock("@/lib/server/storage-assets", () => ({
     sanitizeStorageFileName: (value: string) => value,
 }));
 
-import { buildGeminiGenerateContentRequestBody } from "@/lib/server/ai-drop-covers";
+import {
+    ADMIN_AI_DROP_COVER_PROVIDER_CALL_BUDGET_PER_REQUEST,
+    ADMIN_AI_DROP_COVER_PROVIDER_TIMEOUT_MS,
+    buildGeminiGenerateContentRequestBody,
+    withAdminAiDropCoverProviderTimeout,
+} from "@/lib/server/ai-drop-covers";
 
 describe("server ai drop cover request assembly", () => {
     it("includes the prompt, reference style guidance, and inline reference images in the Gemini request body", () => {
@@ -59,5 +64,17 @@ describe("server ai drop cover request assembly", () => {
             },
         });
         expect(body.generationConfig.imageConfig.aspectRatio).toBe("1:1");
+        expect(body.generationConfig.candidateCount).toBe(ADMIN_AI_DROP_COVER_PROVIDER_CALL_BUDGET_PER_REQUEST);
+    });
+
+    it("maps an aborted provider request to the typed timeout message within the configured cap", async () => {
+        await expect(withAdminAiDropCoverProviderTimeout(
+            (signal) => new Promise((_, reject) => {
+                signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+            }),
+            5,
+        )).rejects.toThrow("Vertex image request timed out after 5ms.");
+
+        expect(ADMIN_AI_DROP_COVER_PROVIDER_TIMEOUT_MS).toBe(45_000);
     });
 });

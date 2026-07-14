@@ -9,7 +9,7 @@ const contract = read("src/lib/commerce/unlock-watch-parity-contract.ts");
 const test = read("tests/unit/server-unlock-telemetry-emission.spec.ts");
 const report = read("agent/state/server-unlock-telemetry-emission.generated.json");
 
-expect(contract.includes('CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unwrapped"'), "canonical server unlock event missing.");
+expect(contract.includes('CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unlocked"'), "canonical server unlock event missing.");
 expect(contract.includes("buildServerUnlockTelemetryEvent"), "server unlock telemetry builder missing.");
 expect(contract.includes("idempotency_key: eventId"), "unlock event lacks idempotency key.");
 expect(contract.includes("transaction_id") && contract.includes("drop_id") && contract.includes("user_id"), "unlock event lacks transaction/drop/user linkage.");

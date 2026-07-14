@@ -72,10 +72,12 @@ describe("creator drop manager mobile refinement", () => {
     const modal = read("src/components/Admin/CreateDropModal.tsx");
     const library = read("src/app/dashboard/library/LibraryClient.tsx");
     const dropdown = read("src/components/Navigation/ProfileDropdown.tsx");
+    const routing = read("src/lib/creator-profile-routing.ts");
 
     expect(modal).toContain("Create Drop");
     expect(modal).toContain("Auto queue when expired");
     expect(library).toContain("My KandyDrops");
-    expect(dropdown).toContain('href="/dashboard/library"');
+    expect(routing).toContain('USER_LIBRARY_ROUTE = "/dashboard/library"');
+    expect(dropdown).toContain("href={USER_LIBRARY_ROUTE}");
   });
 });

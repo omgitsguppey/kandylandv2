@@ -129,6 +129,10 @@ vi.mock("@/lib/server/rate-limit", () => ({
     STRICT: {},
 }));
 
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
+}));
+
 vi.mock("@/lib/server/user-runtime", () => ({
     touchUserRuntime: mockState.touchUserRuntime,
 }));
@@ -264,5 +268,32 @@ describe("POST /api/user/complete-onboarding", () => {
         });
         expect(mockState.handleApiError).not.toHaveBeenCalled();
         expect(mockState.touchUserRuntime).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects oversized onboarding completion before reward, analytics, or runtime writes", async () => {
+        const request = new NextRequest("http://localhost/api/user/complete-onboarding", {
+            method: "POST",
+            body: JSON.stringify({ padding: "x".repeat(40_000) }),
+            headers: {
+                "content-type": "application/json",
+                "content-length": "1",
+            },
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+        expect(mockState.operations).toHaveLength(0);
+        expect(mockState.buildCompletedGumdropTransaction).not.toHaveBeenCalled();
+        expect(mockState.buildOnboardingAnalyticsEventFact).not.toHaveBeenCalled();
+        expect(mockState.touchUserRuntime).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
 });

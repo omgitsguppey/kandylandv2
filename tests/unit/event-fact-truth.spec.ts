@@ -91,8 +91,8 @@ describe("behavioral event facts", () => {
     }
   });
 
-  it("normalizes unlock success aliases into the canonical drop_unlocked action", () => {
-    for (const eventName of ["unlock_drop_success", "drop_unwrapped", "drop_unlocked", "entitlement_granted"]) {
+  it("normalizes entitlement aliases without treating payload reveal as unlock", () => {
+    for (const eventName of ["unlock_drop_success", "drop_unlocked", "entitlement_granted"]) {
       const result = normalizeBehavioralEventFactWithDiagnostics({
         eventId: `${eventName}-1`,
         eventName,
@@ -113,6 +113,25 @@ describe("behavioral event facts", () => {
       expect(result.fact?.normalizedAction).toBe("drop_unlocked");
       expect(result.fact?.entityId).toBe("drop-1");
     }
+
+    const unwrapped = normalizeBehavioralEventFactWithDiagnostics({
+      eventId: "drop_unwrapped-1",
+      eventName: "drop_unwrapped",
+      params: {
+        source_component: "media_viewer",
+        route: "/dashboard/viewer",
+        drop_id: "drop-1",
+        entitlement_id: "drop-entitlement:user-1:drop-1",
+      },
+      timestamp: 1000,
+      userId: "user-1",
+      sessionId: "session-1",
+      source: "server",
+    });
+
+    expect(unwrapped.diagnostic).toBeNull();
+    expect(unwrapped.fact?.normalizedAction).toBe("drop_unwrapped");
+    expect(unwrapped.fact?.entityId).toBe("drop-1");
   });
 
   it("dedupes repeat file views inside the configured window", () => {

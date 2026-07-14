@@ -10,6 +10,8 @@ import { safeRunReport, type AnalyticsReportResponse } from "../admin-analytics-
 
 export type AdminAnalyticsDataClient = BetaAnalyticsDataClient;
 export type AdminAnalyticsReportRequestConfig = Parameters<BetaAnalyticsDataClient["runReport"]>[0];
+export const adminAnalyticsGa4ReportTimeoutMs = 10_000;
+export const adminAnalyticsGa4MaxExpectedReportsPerRefresh = 7;
 export type AdminAnalyticsGa4State = {
   status: "ga4_config_missing" | "ga4_client_unused" | "ga4_evidence_only";
   truthState: "unavailable" | "deferred" | "partial";
@@ -73,6 +75,7 @@ export function runVendorReportWhenAllowed(input: {
   requestConfig: AdminAnalyticsReportRequestConfig;
   label: string;
   issues: string[];
+  reportBudgetSlot: number;
 }) {
   const propertyId = typeof input.requestConfig?.property === "string"
     ? input.requestConfig.property.replace(/^properties\//u, "")
@@ -85,7 +88,20 @@ export function runVendorReportWhenAllowed(input: {
     return Promise.resolve(buildSkippedVendorReport(input.label, input.issues));
   }
 
-  return safeRunReport(input.analyticsClient, input.requestConfig);
+  if (
+    !Number.isInteger(input.reportBudgetSlot)
+    || input.reportBudgetSlot < 1
+    || input.reportBudgetSlot > adminAnalyticsGa4MaxExpectedReportsPerRefresh
+  ) {
+    input.issues.push(
+      `Skipped ${input.label} GA report because the ${adminAnalyticsGa4MaxExpectedReportsPerRefresh}-report refresh budget was exhausted.`,
+    );
+    return Promise.resolve(buildSkippedVendorReport(input.label, input.issues));
+  }
+
+  return safeRunReport(input.analyticsClient, input.requestConfig, {
+    timeoutMs: adminAnalyticsGa4ReportTimeoutMs,
+  });
 }
 
 export function getAdminAnalyticsPropertyId() {

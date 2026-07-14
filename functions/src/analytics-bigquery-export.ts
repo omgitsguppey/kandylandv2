@@ -327,7 +327,7 @@ async function exportBigQueryRawEventsBatch(input: {
     await dataset.table(TABLE_ID).insert(rows)
   }
 
-  const lastDoc = snapshot.docs.at(-1)
+  const lastDoc = snapshot.docs[snapshot.docs.length - 1]
   const lastDocData = lastDoc?.data() as AnalyticsEventFact | undefined
   return {
     exportedRows: rows.length,

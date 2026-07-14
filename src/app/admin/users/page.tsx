@@ -924,7 +924,7 @@ export default function UserManagementPage() {
             {viewMode === 'users' && (
                 <>
                     <div
-                        className="grid grid-cols-2 gap-2 min-[390px]:grid-cols-3 md:gap-2.5 xl:grid-cols-5"
+                        className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 md:gap-2.5 xl:grid-cols-5"
                         data-admin-users-stats-layout="compact-grid"
                         data-admin-users-truth-source={summary?.truthSnapshot?.sourceTruth ?? "unavailable"}
                         data-admin-users-truth-freshness={summary?.truthSnapshot?.sourceFreshness ?? "unavailable"}

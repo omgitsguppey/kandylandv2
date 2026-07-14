@@ -11,6 +11,9 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+
+const DROP_IMPRESSION_BODY_LIMIT_BYTES = 16_384;
 
 const bodySchema = z.object({
   dropId: z.string().trim().min(1).max(128),
@@ -49,7 +52,11 @@ async function POST_handler(request: NextRequest) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 });
     }
 
-    const { dropId, pagePath, surface, sessionId } = bodySchema.parse(await request.json());
+    const rawBody = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: DROP_IMPRESSION_BODY_LIMIT_BYTES,
+      routeName: "drops/impression",
+    });
+    const { dropId, pagePath, surface, sessionId } = bodySchema.parse(rawBody);
     const nowMs = Date.now();
     const dayKey = buildDayKey(nowMs);
     const normalizedPagePath = pagePath || "/drops";
@@ -100,6 +107,14 @@ async function POST_handler(request: NextRequest) {
 
     return NextResponse.json({ success: true, duplicate });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        error: error.message,
+        errorCode: error.code,
+        retryable: false,
+      }, { status: error.status });
+    }
     recordRouteWarning("drops/impression", "Failed to record drop impression", error);
     return NextResponse.json({ success: false, error: "Failed to record impression" }, { status: 500 });
   }

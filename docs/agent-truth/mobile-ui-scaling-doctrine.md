@@ -56,41 +56,41 @@ Required helpers:
 
 ## Validator Report
 
-Generated: 2026-05-20T00:35:04.126Z
-Current code version: 11097e4a39af135396c4ad6795dc2c875ce12215
+Generated: 2026-07-14T16:10:32.922Z
+Current code version: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
 
 - Doctrine created: yes
 - Shared mobile scale contract: yes
 - Density helpers: yes
 - Skeleton policy: yes
 - Hydration policy: yes
-- Protected nav/chat untouched: yes
+- Protected nav/chat untouched: no
 - Hardcoded scan examples: 80
 
 ## Hardcoded Scan Examples
 
 - src/app/(legal)/privacy/page.tsx:47:              <h1 className="mt-2 text-3xl font-black text-white md:text-4xl">How KandyDrops handles your data</h1>
 - src/app/(legal)/terms/page.tsx:25:                <h1 className="text-4xl font-bold text-white mb-8">Terms of Service</h1>
-- src/app/admin/ai/page.tsx:41:        <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8" data-ai-dashboard-density="compact-v2">
-- src/app/admin/analytics/page.tsx:114:          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 text-red-400">
-- src/app/admin/content/page.tsx:263:                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
-- src/app/admin/content/page.tsx:267:                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
-- src/app/admin/debug/components/DebugTabInfrastructure.tsx:218:                    <div className="py-8 text-center text-sm italic text-white/40">
-- src/app/admin/drops/page.tsx:1133:                        <div className="glass-panel w-full max-w-md rounded-3xl border border-white/10 p-5">
-- src/app/admin/layout.tsx:58:      <div className="min-h-screen flex items-center justify-center">
-- src/app/admin/roster/page.tsx:1007:        <main className="min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6" data-roster-mode="decision_queue" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
-- src/app/admin/user/[userId]/page.tsx:598:        return <div className="p-8 text-center text-red-500">Access Restricted</div>;
-- src/app/admin/user/[userId]/page.tsx:603:            <div className="p-8 text-center text-gray-300">
-- src/app/admin/user/[userId]/page.tsx:684:                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-- src/app/admin/user/[userId]/page.tsx:745:                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-- src/app/admin/user/[userId]/page.tsx:752:                            <p className="py-8 text-center text-sm text-gray-500">No behavior logged yet.</p>
-- src/app/admin/user/[userId]/page.tsx:802:            <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-- src/app/admin/user/[userId]/page.tsx:1003:            <details className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-- src/app/admin/user/[userId]/page.tsx:1114:                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-- src/app/admin/user/[userId]/page.tsx:1149:            <details className="glass-panel rounded-3xl border border-white/5 p-6">
-- src/app/admin/user/[userId]/page.tsx:1258:                <div className="glass-panel rounded-3xl border border-white/5 p-6">
-- src/app/admin/user/[userId]/page.tsx:1291:                <details className="glass-panel rounded-3xl border border-white/5 p-6">
-- src/app/admin/users/page.tsx:1002:                                            <td colSpan={8} className="p-8 text-center">
-- src/app/admin/users/page.tsx:1008:                                            <td colSpan={8} className="p-8 text-center text-gray-500">
-- src/app/admin/users/page.tsx:1170:                            <div className="p-8 text-center glass-panel rounded-2xl"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>
-- src/app/admin/users/page.tsx:1172:                            <div className="p-8 text-center text-gray-500 glass-panel rounded-2xl">No users found.</div>
+- src/app/admin/ai/page.tsx:52:        <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8" data-ai-dashboard-density="compact-v2">
+- src/app/admin/analytics/page.tsx:618:          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 text-red-400">
+- src/app/admin/debug/components/DebugTabInfrastructure.tsx:245:                    <div className="py-8 text-center text-sm italic text-white/40">
+- src/app/admin/layout.tsx:60:      <div className="min-h-screen flex items-center justify-center">
+- src/app/admin/roster/page.tsx:1070:        <main className="min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6" data-roster-mode="decision_queue" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
+- src/app/admin/user/[userId]/page.tsx:765:        return <div className="p-8 text-center text-red-500">Access Restricted</div>;
+- src/app/admin/user/[userId]/page.tsx:770:            <div className="p-8 text-center text-gray-300">
+- src/app/admin/user/[userId]/page.tsx:860:                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+- src/app/admin/user/[userId]/page.tsx:934:                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+- src/app/admin/user/[userId]/page.tsx:941:                            <p className="py-8 text-center text-sm text-gray-500">
+- src/app/admin/user/[userId]/page.tsx:995:            <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+- src/app/admin/user/[userId]/page.tsx:1196:            <details className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+- src/app/admin/user/[userId]/page.tsx:1307:                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+- src/app/admin/user/[userId]/page.tsx:1342:            <details className="glass-panel rounded-3xl border border-white/5 p-6">
+- src/app/admin/user/[userId]/page.tsx:1451:                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+- src/app/admin/user/[userId]/page.tsx:1484:                <details className="glass-panel rounded-3xl border border-white/5 p-6">
+- src/app/admin/users/page.tsx:1172:                                            <td colSpan={8} className="p-8 text-center">
+- src/app/admin/users/page.tsx:1178:                                            <td colSpan={8} className="p-8 text-center text-gray-500">
+- src/app/admin/users/page.tsx:1360:                            <div className="p-8 text-center glass-panel rounded-2xl"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>
+- src/app/admin/users/page.tsx:1362:                            <div className="p-8 text-center text-gray-500 glass-panel rounded-2xl">No users found.</div>
+- src/app/admin/users/page.tsx:1569:                        <div className="rounded-[1.75rem] border border-white/5 bg-black/20 p-8 text-center sm:p-12">
+- src/app/admin/users/page.tsx:1574:                        <div className="glass-panel rounded-[1.75rem] border border-white/5 p-8 text-center sm:rounded-3xl sm:p-12">
+- src/app/admin/users/page.tsx:1581:                                <div key={item.id} className="glass-panel space-y-4 overflow-hidden rounded-[1.75rem] border border-white/5 p-4 transition-colors hover:border-white/10 sm:rounded-3xl sm:p-6">

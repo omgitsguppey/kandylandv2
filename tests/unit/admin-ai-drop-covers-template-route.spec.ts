@@ -108,6 +108,67 @@ describe("POST/DELETE /api/admin/ai/drop-covers/template", () => {
         expect(mockState.uploadAdminAiDropCoverTemplate).toHaveBeenCalledTimes(1);
     });
 
+    it("accepts a documented 10 MiB template with bounded multipart overhead", async () => {
+        const formData = new FormData();
+        formData.append("file", new File([
+            new Uint8Array(10 * 1024 * 1024),
+        ], "max-size-template.png", { type: "image/png" }));
+
+        const response = await POST(new NextRequest("http://localhost/api/admin/ai/drop-covers/template", {
+            method: "POST",
+            body: formData,
+        }));
+
+        expect(response.status).toBe(201);
+        expect(mockState.guardApiRequest).toHaveBeenCalledWith(expect.any(NextRequest), expect.objectContaining({
+            maxBodyBytes: (10 * 1024 * 1024) + (64 * 1024),
+        }));
+        expect(mockState.uploadAdminAiDropCoverTemplate).toHaveBeenCalledWith(expect.objectContaining({
+            bytes: expect.objectContaining({ length: 10 * 1024 * 1024 }),
+        }));
+    });
+
+    it("rejects an absent-length oversized multipart stream before AI or storage work", async () => {
+        const formData = new FormData();
+        formData.append("file", new File([
+            new Uint8Array((10 * 1024 * 1024) + (64 * 1024)),
+        ], "oversized-template.png", { type: "image/png" }));
+
+        const request = new NextRequest("http://localhost/api/admin/ai/drop-covers/template", {
+            method: "POST",
+            body: formData,
+        });
+        expect(request.headers.get("content-length")).toBeNull();
+
+        const response = await POST(request);
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.uploadAdminAiDropCoverTemplate).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("returns a typed 400 for malformed multipart before AI or storage work", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/admin/ai/drop-covers/template", {
+            method: "POST",
+            headers: { "content-type": "multipart/form-data; boundary=broken" },
+            body: "not-a-valid-multipart-body",
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            errorCode: "invalid_multipart_body",
+            retryable: false,
+        });
+        expect(mockState.uploadAdminAiDropCoverTemplate).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
     it("removes the current template through the canonical helper", async () => {
         const response = await DELETE(new NextRequest("http://localhost/api/admin/ai/drop-covers/template", {
             method: "DELETE",

@@ -158,11 +158,11 @@ export function buildAdminAnalyticsRegionDemandModel(input: {
     fallbackFreshnessState: state.freshnessState,
   });
 
-  const visibleCopy = [
+  const visibleCopy = Array.from(new Set([
     `Counts use ${state.countUnit} for the selected range.`,
     "Adjusted demand excludes proven admin-surface traffic only.",
     ...state.warnings,
-  ];
+  ]));
 
   return {
     ...state,

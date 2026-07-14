@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+
+const ADMIN_ORCHESTRATION_REPAIRS_BODY_LIMIT_BYTES = 64_000;
 
 const repairActionSchema = z.object({
     proposalId: z.string().trim().min(1),
@@ -29,7 +32,12 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { proposalId, action } = repairActionSchema.parse(await request.json());
+        const rawBody = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: ADMIN_ORCHESTRATION_REPAIRS_BODY_LIMIT_BYTES,
+            routeName: "admin/orchestration/repairs",
+            allowEmpty: false,
+        });
+        const { proposalId, action } = repairActionSchema.parse(rawBody);
         const proposalRef = adminDb.collection(ORCHESTRATION_COLLECTIONS.repairProposals).doc(proposalId);
         // bounded document read: repair actions target one explicit proposal id.
         const proposalSnap = await proposalRef.get();
@@ -101,6 +109,14 @@ async function POST_handler(request: NextRequest) {
             repairActionId: actionRef.id,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         if (error instanceof z.ZodError) {
             return NextResponse.json({ error: "Invalid repair request" }, { status: 400 });
         }

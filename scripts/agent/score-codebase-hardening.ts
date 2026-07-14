@@ -24,6 +24,7 @@ import {
   type CodebaseHardeningRouteCostClassification,
   type CodebaseHardeningSeverity,
 } from "../../src/lib/codebase-hardening-contract";
+import { hasBoundedFirestoreGetEvidence } from "./score-speed-security-hardening";
 
 type SourceFile = {
   filePath: string;
@@ -135,6 +136,47 @@ function detectRouteMethods(source: string) {
 
 function hasMutationMethod(methods: string[]) {
   return methods.some((method) => ["POST", "PUT", "PATCH", "DELETE"].includes(method));
+}
+
+const CANONICAL_SOURCE_COMPONENT_PAYLOAD_BUILDERS = [
+  "buildChatMediaUploadPayload",
+  "buildChatTelemetryPayload",
+  "buildCreatorProfileLinkTelemetryPayload",
+  "buildCreatorRelationshipTelemetryPayload",
+  "buildDailyTaskLifecycleEventPayload",
+] as const;
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function findLatestVariableInitializer(source: string, variableName: string, beforeIndex: number) {
+  const prefix = source.slice(0, beforeIndex);
+  const declarationPattern = new RegExp(`\\b(?:const|let|var)\\s+${escapeRegExp(variableName)}\\s*=`, "gu");
+  let latest: RegExpExecArray | null = null;
+  for (const match of prefix.matchAll(declarationPattern)) latest = match;
+  if (!latest || latest.index === undefined) return "";
+  const initializer = prefix.slice(latest.index + latest[0].length);
+  const statementEnd = initializer.indexOf(";");
+  return statementEnd >= 0 ? initializer.slice(0, statementEnd) : initializer;
+}
+
+export function hasCanonicalTelemetrySourceComponentEvidence(source: string, call: string, callIndex: number) {
+  if (call.includes("source_component")) return true;
+  if (CANONICAL_SOURCE_COMPONENT_PAYLOAD_BUILDERS.some((builder) => call.includes(`${builder}(`))) return true;
+
+  const payloadIdentifier = call.match(/,\s*([A-Za-z_$][\w$]*)\s*\)\s*$/u)?.[1];
+  if (!payloadIdentifier) return false;
+  const initializer = findLatestVariableInitializer(source, payloadIdentifier, callIndex);
+  return initializer.includes("source_component")
+    || CANONICAL_SOURCE_COMPONENT_PAYLOAD_BUILDERS.some((builder) => initializer.includes(`${builder}(`));
+}
+
+export function findProductFacingCoinsVocabularyIndex(source: string) {
+  const stringLiteral = /["'`][^"'`\r\n]*\bCoins\b[^"'`\r\n]*["'`]/gu.exec(source);
+  const jsxText = />\s*[^<\r\n]*\bCoins\b[^<\r\n]*</gu.exec(source);
+  const indexes = [stringLiteral?.index, jsxText?.index].filter((value): value is number => typeof value === "number");
+  return indexes.length > 0 ? Math.min(...indexes) : undefined;
 }
 
 function pushFinding(findings: CodebaseHardeningFindingInput[], finding: CodebaseHardeningFindingInput) {
@@ -262,11 +304,7 @@ function scanApiRateLimitAndCloudCost(root: string, findings: CodebaseHardeningF
 
     const firestoreGetMatches = Array.from(source.matchAll(/\.get\(\)/gu));
     const unboundedGetMatches = firestoreGetMatches.filter((match) => {
-      const prefix = source.slice(Math.max(0, (match.index ?? 0) - 320), match.index);
-      const immediatePrefix = source.slice(Math.max(0, (match.index ?? 0) - 120), match.index).replace(/\s+/gu, " ");
-      const directDocumentRead = /(?:\.\s*doc\([^)]*\)|\b\w+(?:DocRef|Ref))\s*$/u.test(immediatePrefix);
-      if (directDocumentRead) return false;
-      return !/\.limit\(|\.count\(\)|\.aggregate\(|bounded|ALLOW_UNBOUNDED|getDoc\(/u.test(prefix);
+      return !hasBoundedFirestoreGetEvidence(source, match.index ?? 0);
     });
     if (unboundedGetMatches.length > 0) {
       const first = unboundedGetMatches[0];
@@ -553,10 +591,7 @@ function scanTelemetryPrivacyDebug(root: string, findings: CodebaseHardeningFind
     let firstMissingIndex: number | undefined;
     for (const match of file.source.matchAll(/trackEvent\(\s*["'`]([^"'`]+)["'`][\s\S]{0,700}?\)/gu)) {
       const call = match[0];
-      const usesCanonicalPayloadBuilder =
-        (call.includes("buildChatTelemetryPayload(") && file.source.includes("source_component: sourceComponent"))
-        || (call.includes("buildCreatorProfileLinkTelemetryPayload(") && file.source.includes("source_component:"));
-      if (!call.includes("source_component") && !usesCanonicalPayloadBuilder) {
+      if (!hasCanonicalTelemetrySourceComponentEvidence(file.source, call, match.index ?? 0)) {
         missingSourceComponentEvents.push(match[1]);
         firstMissingIndex ??= match.index;
       }
@@ -771,12 +806,13 @@ function scanLegacyOrphans(root: string, findings: CodebaseHardeningFindingInput
   }
   for (const filePath of walkFiles(root, "src")) {
     const source = readRequired(root, filePath);
-    if (/\bCoins\b/u.test(source)) {
+    const coinsVocabularyIndex = findProductFacingCoinsVocabularyIndex(source);
+    if (coinsVocabularyIndex !== undefined) {
       pushFinding(findings, {
         domain: "legacyOrphanCleanup",
         severity: "moderate",
         filePath,
-        line: lineOf(source, "Coins"),
+        line: lineOfIndex(source, coinsVocabularyIndex),
         title: "Stale economy vocabulary remains in source",
         evidence: ["Approved economy term is GumDrops; Coins is forbidden vocabulary."],
         expectedRule: "User/admin economy copy and labels use GumDrops.",

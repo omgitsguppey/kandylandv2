@@ -28,7 +28,14 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { isStandalone } from "@/lib/browser-utils";
-import { resolveChatAttachmentKind } from "@/lib/chat-attachments";
+import {
+    isChatAttachmentFinalizedReceipt,
+    resolveChatAttachmentKind,
+    resolveChatAttachmentRetryAction,
+    resolveChatAttachmentRetryDisposition,
+    shouldClearChatPendingOperation,
+    type ChatAttachmentRetryDisposition,
+} from "@/lib/chat-attachments";
 import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import {
     buildChatPaidGdGateState,
@@ -50,10 +57,20 @@ import {
 } from "@/lib/chat-send-realtime";
 import {
     buildChatThreadRouteSyncTarget,
+    resolveChatRequestedThreadActorTransition,
 } from "@/lib/chat-realtime";
 import {
+    buildChatActorThreadKey,
     buildChatSendErrorMessage,
     buildChatSendWarningMessage,
+    canReuseChatPendingSend,
+    isChatSendThreadCurrent,
+    isChatSendSuccessReceipt,
+    resolveChatComposerRecoveryUpdate,
+    resolveChatComposerRecovery,
+    selectChatComposerFileRecoveryEvictions,
+    selectChatComposerRecoveryEvictions,
+    stripChatComposerRecoveryFile,
     type ChatSendWarning,
 } from "@/lib/chat-send-feedback";
 import {
@@ -62,8 +79,17 @@ import {
     explainCreatorProfileRouteMissing,
 } from "@/lib/creator-profile-routing";
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
+import {
+    clearDurableClientIdempotencyKey,
+    generateSecureClientId,
+    isDefinitiveClientRejectionStatus,
+    resolveDurableClientIdempotencyKey,
+    resolvePendingClientIdempotencyKey,
+    type DurablePendingClientIdempotencyKey,
+} from "@/lib/client-random";
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { formatCompactGd } from "@/lib/gumdrop-formatting";
+import { isConfiguredFirebaseStorageMediaUrl, resolveFirebaseStorageMediaLocation } from "@/lib/media-hosts";
 import { fingerprintStoragePath, type MediaUploadLifecycleEventName, type MediaUploadStatus } from "@/lib/media/media-upload-contract";
 import { buildMediaUploadTrackEventPayload } from "@/lib/media/media-upload-telemetry";
 import { trackEvent } from "@/lib/telemetry";
@@ -103,6 +129,9 @@ import {
     USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET,
     USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_CONTROL_BOTTOM_OFFSET,
+    USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET,
+    USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_IOS_PWA_BOTTOM_OFFSET,
+    USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING,
     USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT,
 } from "@/lib/user-mobile-shell";
@@ -112,9 +141,9 @@ const CHAT_COMPOSER_CLEAN_PADDING_PX = 72;
 const CHAT_COMPOSER_SUMMARY_PADDING_PX = 92;
 const CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME = "max-h-[min(28vh,10rem)] overflow-y-auto overscroll-y-contain";
 const CHAT_TRANSCRIPT_BOTTOM_GAP_PX = 14;
-const CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET = `calc(${USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET} + 0.5rem)`;
-const CHAT_NEW_MESSAGE_MODAL_IOS_BOTTOM_OFFSET = "calc(var(--kd-ios-pwa-bottom-nav-height, 56px) + var(--kd-ios-pwa-safe-bottom, env(safe-area-inset-bottom)) + 0.625rem)";
-const CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING = "calc(1rem + env(safe-area-inset-bottom))";
+const CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET = USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET;
+const CHAT_NEW_MESSAGE_MODAL_IOS_BOTTOM_OFFSET = USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_IOS_PWA_BOTTOM_OFFSET;
+const CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING = USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING;
 const CHAT_MEDIA_PREVIEW_STYLE = {
     maxWidth: "min(78vw, 28rem)",
     maxHeight: "32dvh",
@@ -158,12 +187,18 @@ type ThreadDetailResponse = {
 type ChatSendResponse = {
     error?: string;
     errorCode?: string;
+    retryable?: boolean;
     warnings?: ChatSendWarning[];
 } & Partial<ChatInsufficientFundsPayload> & Partial<ChatSendRealtimePayload>;
 
 type ChatAttachmentPrepareResponse = {
+    success?: boolean;
     uploadId?: string;
     correlationId?: string;
+    idempotencyKey?: string | null;
+    status?: string;
+    retryable?: boolean;
+    error?: string;
     storagePath: string;
     storagePathFingerprint?: string;
     fileName: string;
@@ -176,8 +211,13 @@ type ChatAttachmentPrepareResponse = {
 };
 
 type ChatAttachmentCompleteResponse = {
+    success?: boolean;
     uploadId?: string;
     correlationId?: string;
+    idempotencyKey?: string;
+    status?: string;
+    retryable?: boolean;
+    error?: string;
     assetUrl: string;
     assetUrlPolicy?: string;
     assetName: string;
@@ -195,6 +235,47 @@ type UploadedChatAttachment = {
     assetName: string;
     assetMimeType: string;
     storagePath: string;
+    operationKey: string;
+};
+
+type PendingChatAttachmentOperation = {
+    phase: "prepared" | "uploaded";
+    uploadId: string;
+    correlationId: string;
+    storagePath: string;
+    fileName: string;
+    mimeType: string;
+};
+
+type ChatComposerRecoveryState = {
+    text: string;
+    messageKind: ChatMessageKind;
+    file: File | null;
+    errorMessage: string | null;
+};
+
+type PendingChatSend = {
+    userId: string;
+    threadId: string;
+    idempotency: DurablePendingClientIdempotencyKey;
+    payloadFingerprint: string;
+    uploadedAttachment: UploadedChatAttachment | null;
+    attachmentOperation: PendingChatAttachmentOperation | null;
+    composerRecovery: ChatComposerRecoveryState;
+};
+
+type ChatAttachmentCancelResponse = {
+    success?: boolean;
+    status?: string;
+    error?: string;
+    errorCode?: string;
+    retryable?: boolean;
+};
+
+type ChatAttachmentCancelResult = {
+    state: "canceled" | "already_committed" | "unconfirmed";
+    responseStatus: number | null;
+    body: ChatAttachmentCancelResponse | null;
 };
 
 type ChatTelemetryPayloadInput = {
@@ -209,6 +290,16 @@ type ChatTelemetryPayloadInput = {
     hasAttachment?: boolean;
     errorCode?: string | null;
     errorMessage?: string | null;
+};
+
+type ChatBlockedTelemetryInput = {
+    userId?: string | null;
+    thread: ChatThreadRecord;
+    messageKind: ChatMessageKind;
+    errorCode: string;
+    requiredPriceGd?: number | null;
+    purchasedBalanceGd?: number | null;
+    paidGdShortfall?: number | null;
 };
 
 type ChatClientDiagnosticCode =
@@ -229,6 +320,7 @@ type ChatClientDiagnosticCode =
     | "attachment_complete_non_json"
     | "attachment_complete_failed"
     | "chat_send_non_json"
+    | "chat_send_invalid_receipt"
     | "chat_send_failed";
 
 class ChatClientSafeError extends Error {
@@ -241,8 +333,46 @@ class ChatClientSafeError extends Error {
     }
 }
 
+class ChatAttachmentLifecycleError extends ChatClientSafeError {
+    disposition: ChatAttachmentRetryDisposition;
+    serverErrorCode: string | null;
+
+    constructor(input: {
+        code: ChatClientDiagnosticCode;
+        message: string;
+        disposition: ChatAttachmentRetryDisposition;
+        serverErrorCode?: string | null;
+    }) {
+        super(input.code, input.message);
+        this.name = "ChatAttachmentLifecycleError";
+        this.disposition = input.disposition;
+        this.serverErrorCode = input.serverErrorCode ?? null;
+    }
+}
+
 function buildChatSafeError(code: ChatClientDiagnosticCode, message: string) {
     return new ChatClientSafeError(code, message);
+}
+
+function buildChatAttachmentLifecycleError(input: {
+    code: ChatClientDiagnosticCode;
+    message: string;
+    disposition: ChatAttachmentRetryDisposition;
+    serverErrorCode?: string | null;
+}) {
+    return new ChatAttachmentLifecycleError(input);
+}
+
+function readChatAttachmentRetryDisposition(error: unknown) {
+    return error instanceof ChatAttachmentLifecycleError
+        ? error.disposition
+        : null;
+}
+
+function readChatAttachmentFailureCode(error: unknown, fallback: ChatClientDiagnosticCode) {
+    return error instanceof ChatAttachmentLifecycleError && error.serverErrorCode
+        ? error.serverErrorCode
+        : readChatDiagnosticCode(error, fallback);
 }
 
 function readChatDiagnosticCode(error: unknown, fallback: ChatClientDiagnosticCode) {
@@ -254,21 +384,23 @@ function readChatDiagnosticCode(error: unknown, fallback: ChatClientDiagnosticCo
 }
 
 function buildChatMessageIdempotencyKey(threadId: string) {
-    let random = globalThis.crypto?.randomUUID?.() ?? "";
-    if (!random && globalThis.crypto?.getRandomValues) {
-        const buffer = new Uint32Array(2);
-        globalThis.crypto.getRandomValues(buffer);
-        random = Array.from(buffer).map((value) => value.toString(36)).join("-");
-    }
-    if (!random) {
-        random = `${Date.now()}`;
-    }
-
-    return `creator-private-chat:${threadId}:${random}`;
+    return `creator-private-chat:${threadId}:${generateSecureClientId()}`;
 }
 
-function buildChatAttachmentUploadCorrelationId(threadId: string) {
-    return buildChatMessageIdempotencyKey(threadId).replace("creator-private-chat", "creator-private-chat-upload");
+function buildChatComposerFingerprint(input: {
+    threadId: string;
+    text: string;
+    messageKind: ChatMessageKind;
+    file: File | null;
+}) {
+    return JSON.stringify([
+        input.threadId,
+        input.text,
+        input.messageKind,
+        input.file
+            ? [input.file.name, input.file.type, input.file.size, input.file.lastModified]
+            : null,
+    ]);
 }
 
 function readChatDisplayMode() {
@@ -498,6 +630,33 @@ function deferChatMessageSendFailedTelemetry(input: ChatTelemetryPayloadInput) {
 function deferChatMessageSentTelemetry(input: ChatTelemetryPayloadInput) {
     scheduleChatPostPaintTask(() => {
         trackEvent("chat_message_sent", buildChatTelemetryPayload(input));
+    });
+}
+
+function deferChatMessageBlockedTelemetry(input: ChatBlockedTelemetryInput) {
+    scheduleChatPostPaintTask(() => {
+        const sharedPayload = {
+            route: "/dashboard/chat",
+            creator_id: input.thread.creatorId,
+            thread_id: input.thread.id,
+            message_kind: input.messageKind,
+            error_code: input.errorCode,
+            required_price_gd: input.requiredPriceGd,
+            purchased_balance_gd: input.purchasedBalanceGd,
+            paid_gd_shortfall: input.paidGdShortfall,
+        };
+        trackEvent("chat_send_blocked", {
+            ...sharedPayload,
+            source_component: "chat_thread_composer",
+            debug_lane: "Chat gating/moderation",
+        });
+        trackEvent("chat_message_blocked", {
+            ...sharedPayload,
+            source_component: "chat_thread_composer",
+            user_id: input.userId ?? undefined,
+            target_creator_id: input.thread.creatorId,
+            debug_lane: "Chat telemetry/admin truth",
+        });
     });
 }
 
@@ -733,12 +892,19 @@ function resolveChatPaidGdPurchaseTarget(gate: ChatPaidGdGateState | null, fallb
     return Math.max(100, preferredAmount || 100);
 }
 
-function isImageAttachment(mimeType?: string, assetUrl?: string) {
-    return Boolean(mimeType?.startsWith("image/") || assetUrl?.match(/\.(png|jpg|jpeg|gif|webp)$/i));
-}
+function resolveSafeChatAttachment(message: ThreadDetailResponse["messages"][number]) {
+    const assetUrl = message.assetUrl?.trim();
+    const kind = resolveChatAttachmentKind(message.assetMimeType);
+    if (!assetUrl || !kind || !isConfiguredFirebaseStorageMediaUrl(assetUrl)) {
+        return null;
+    }
 
-function isVideoAttachment(mimeType?: string, assetUrl?: string) {
-    return Boolean(mimeType?.startsWith("video/") || assetUrl?.match(/\.(mp4|webm|mov)$/i));
+    const storageLocation = resolveFirebaseStorageMediaLocation(assetUrl);
+    const senderId = message.senderRole === "creator" ? message.creatorId : message.userId;
+    const expectedStoragePrefix = `creator/messages/${senderId}/${message.threadId}/`;
+    return storageLocation?.objectPath.startsWith(expectedStoragePrefix)
+        ? { kind, url: assetUrl }
+        : null;
 }
 
 function buildChatIceBreakers(creatorFirstName: string) {
@@ -832,7 +998,7 @@ function ChatPaidGdGuidanceCard({
                     </p>
                 </div>
                 {mode === "reactive" && onClose ? (
-                    <button type="button" onClick={onClose} className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#cdbdff]">
+                    <button type="button" onClick={onClose} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-[10px] font-semibold uppercase tracking-[0.14em] text-[#cdbdff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/70">
                         Close
                     </button>
                 ) : null}
@@ -855,6 +1021,7 @@ export function ChatExperience() {
     const isCompactViewport = useCompactViewport();
     const { user, userProfile } = useAuth();
     const { openPurchaseModal } = useUI();
+    const chatUserId = user?.uid ?? null;
 
     const creatorId = searchParams.get("creator")?.trim() || "";
     const requestedThreadId = searchParams.get("thread")?.trim() || "";
@@ -881,6 +1048,10 @@ export function ChatExperience() {
     const [insufficientFunds, setInsufficientFunds] = useState<ChatInsufficientFundsPayload | null>(null);
     const [sendErrorMessage, setSendErrorMessage] = useState<string | null>(null);
     const [sendWarningMessage, setSendWarningMessage] = useState<string | null>(null);
+    const [chatStateOwnerUserId, setChatStateOwnerUserId] = useState<string | null>(chatUserId);
+    const pendingChatSendsRef = useRef(new Map<string, PendingChatSend>());
+    const composerRecoveryByThreadRef = useRef(new Map<string, ChatComposerRecoveryState>());
+    const activeChatSendKeysRef = useRef(new Set<string>());
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
     const typingControllerStateRef = useRef(createChatTypingControllerState());
@@ -897,12 +1068,20 @@ export function ChatExperience() {
     const compactThreadListLayoutReportKeyRef = useRef<string | null>(null);
     const chatThreadComposerLayoutReportKeyRef = useRef<string | null>(null);
     const attachmentMenuRef = useRef<HTMLDivElement | null>(null);
+    const composerFileRef = useRef<File | null>(composerFile);
     const imageInputRef = useRef<HTMLInputElement | null>(null);
     const videoInputRef = useRef<HTMLInputElement | null>(null);
     const composePickerRef = useRef<HTMLDivElement | null>(null);
     const threadEditMenuRef = useRef<HTMLDivElement | null>(null);
     const threadSearchInputRef = useRef<HTMLInputElement | null>(null);
     const selectedThreadIdRef = useRef<string | null>(selectedThreadId);
+    const selectedThreadGenerationRef = useRef(0);
+    const chatUserIdentityRef = useRef<string | null>(chatUserId);
+    const blockedRequestedThreadIdRef = useRef<string | null>(null);
+    if (chatUserIdentityRef.current !== chatUserId) {
+        chatUserIdentityRef.current = chatUserId;
+        selectedThreadGenerationRef.current += 1;
+    }
     const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
     const threadDetailRequestIdRef = useRef(0);
     const threadsLoadRequestIdRef = useRef(0);
@@ -913,6 +1092,109 @@ export function ChatExperience() {
     const paidGdGateViewedKeyRef = useRef<string | null>(null);
     const autoResolvedThreadKeyRef = useRef<string | null>(null);
     const chatSurfaceViewedKeyRef = useRef<string | null>(null);
+
+    const selectChatThread = useCallback((nextThreadId: string | null) => {
+        if (selectedThreadIdRef.current === nextThreadId) {
+            return;
+        }
+
+        selectedThreadIdRef.current = nextThreadId;
+        selectedThreadGenerationRef.current += 1;
+        selectedDetailThreadRef.current = null;
+        setSelectedThreadId(nextThreadId);
+        setSelectedDetail(null);
+        setAttachmentMenuOpen(false);
+        const activeSendKey = chatUserIdentityRef.current && nextThreadId
+            ? buildChatActorThreadKey(chatUserIdentityRef.current, nextThreadId)
+            : null;
+        const recoveredComposer = resolveChatComposerRecovery({
+            activeKey: activeSendKey,
+            pendingByKey: pendingChatSendsRef.current,
+            recoveryByKey: composerRecoveryByThreadRef.current,
+        });
+        setComposerText(recoveredComposer?.text ?? "");
+        setComposerKind(recoveredComposer?.messageKind ?? "text");
+        setComposerFile(recoveredComposer?.file ?? null);
+        composerFileRef.current = recoveredComposer?.file ?? null;
+        setSendingMessage(Boolean(activeSendKey && activeChatSendKeysRef.current.has(activeSendKey)));
+        setInsufficientFunds(null);
+        setSendErrorMessage(recoveredComposer?.errorMessage ?? null);
+        setSendWarningMessage(null);
+    }, []);
+
+    const updateCurrentComposerRecovery = useCallback((patch: Partial<ChatComposerRecoveryState>) => {
+        const currentUserId = chatUserIdentityRef.current;
+        const currentThreadId = selectedThreadIdRef.current;
+        if (!currentUserId || !currentThreadId) {
+            return;
+        }
+        const activeSendKey = buildChatActorThreadKey(currentUserId, currentThreadId);
+        const pendingSend = pendingChatSendsRef.current.get(activeSendKey);
+        const mappedRecovery = composerRecoveryByThreadRef.current.get(activeSendKey);
+        const resolvedUpdate = resolveChatComposerRecoveryUpdate({
+            mappedRecovery,
+            pendingRecovery: pendingSend?.composerRecovery,
+            patch,
+        });
+        if (!resolvedUpdate) {
+            return;
+        }
+        if (pendingSend && resolvedUpdate.shouldUpdatePending) {
+            pendingSend.composerRecovery = resolvedUpdate.recovery;
+        }
+        composerRecoveryByThreadRef.current.delete(activeSendKey);
+        composerRecoveryByThreadRef.current.set(activeSendKey, resolvedUpdate.recovery);
+    }, []);
+
+    useEffect(() => {
+        if (chatStateOwnerUserId === chatUserId) {
+            return;
+        }
+
+        const hadAuthenticatedOwner = chatStateOwnerUserId !== null;
+        const requestedThreadTransition = resolveChatRequestedThreadActorTransition({
+            previousOwnerUserId: chatStateOwnerUserId,
+            nextUserId: chatUserId,
+            requestedThreadId,
+            blockedRequestedThreadId: blockedRequestedThreadIdRef.current,
+        });
+        blockedRequestedThreadIdRef.current = requestedThreadTransition.blockedRequestedThreadId;
+        const retainedInitialThreadId = requestedThreadTransition.retainedRequestedThreadId;
+        selectedThreadIdRef.current = retainedInitialThreadId;
+        selectedDetailThreadRef.current = null;
+        threadDetailRequestIdRef.current += 1;
+        threadsLoadRequestIdRef.current += 1;
+        pendingChatSendsRef.current.clear();
+        composerRecoveryByThreadRef.current.clear();
+        composerFileRef.current = null;
+        markReadRef.current = null;
+        setThreads([]);
+        setSelectedThreadId(retainedInitialThreadId);
+        setSelectedDetail(null);
+        setThreadsLoading(Boolean(chatUserId));
+        setThreadLoading(false);
+        setThreadSearch("");
+        setFollowedCreators([]);
+        setRecommendedCreators([]);
+        setComposePickerOpen(false);
+        setThreadEditMenuOpen(false);
+        setThreadSelectionMode(false);
+        setSelectedThreadIds([]);
+        setEditingThreads(false);
+        setComposerText("");
+        setComposerKind("text");
+        setComposerFile(null);
+        setAttachmentMenuOpen(false);
+        setSendingMessage(false);
+        setPresence(null);
+        setInsufficientFunds(null);
+        setSendErrorMessage(null);
+        setSendWarningMessage(null);
+        setChatStateOwnerUserId(chatUserId);
+        if (hadAuthenticatedOwner) {
+            router.replace("/dashboard/chat", { scroll: false });
+        }
+    }, [chatStateOwnerUserId, chatUserId, requestedThreadId, router]);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -1139,13 +1421,20 @@ export function ChatExperience() {
     }, [composePickerOpen, isCompactViewport]);
 
     useEffect(() => {
-        selectedThreadIdRef.current = selectedThreadId;
+        if (selectedThreadIdRef.current !== selectedThreadId) {
+            selectedThreadIdRef.current = selectedThreadId;
+            selectedThreadGenerationRef.current += 1;
+        }
     }, [selectedThreadId]);
 
 
     useEffect(() => {
         selectedDetailThreadRef.current = selectedDetail?.thread ?? null;
     }, [selectedDetail?.thread]);
+
+    useEffect(() => {
+        composerFileRef.current = composerFile;
+    }, [composerFile]);
 
     useEffect(() => {
         if (!isCompactViewport || !selectedThreadId) {
@@ -1489,10 +1778,11 @@ export function ChatExperience() {
 
 
     const loadThreads = useCallback(async (options?: LoadThreadsOptions) => {
-        if (!user) {
+        if (!user || chatStateOwnerUserId !== user.uid) {
             return;
         }
 
+        const requestUserId = user.uid;
         const background = options?.background ?? false;
         const quiet = options?.quiet ?? background;
         const requestId = threadsLoadRequestIdRef.current + 1;
@@ -1514,7 +1804,10 @@ export function ChatExperience() {
             if (!response.ok) {
                 throw buildChatSafeError("chat_threads_load_failed", "Chat threads could not be loaded right now.");
             }
-            if (threadsLoadRequestIdRef.current !== requestId) {
+            if (
+                threadsLoadRequestIdRef.current !== requestId
+                || chatUserIdentityRef.current !== requestUserId
+            ) {
                 return;
             }
 
@@ -1545,19 +1838,11 @@ export function ChatExperience() {
                     });
                 }
             }
-            startTransition(() => {
-                setSelectedThreadId((current) => {
-                    if (current) {
-                        return current;
-                    }
-
-                    if (body.selectedThreadId) {
-                        return body.selectedThreadId;
-                    }
-
-                    return isCompactViewport ? null : nextThreads[0]?.id || null;
-                });
-            });
+            if (!selectedThreadIdRef.current) {
+                const nextThreadId = body.selectedThreadId
+                    ?? (isCompactViewport ? null : nextThreads[0]?.id || null);
+                startTransition(() => selectChatThread(nextThreadId));
+            }
         } catch (error) {
             reportClientIssue({
                 channel: "runtime",
@@ -1569,21 +1854,26 @@ export function ChatExperience() {
                 },
                 consoleLabel: "[Chat] thread list load failed",
             });
-            if (!quiet) {
+            if (!quiet && chatUserIdentityRef.current === requestUserId) {
                 toast.error("Chat threads could not be loaded right now.");
             }
         } finally {
-            if (!background) {
+            if (
+                !background
+                && threadsLoadRequestIdRef.current === requestId
+                && chatUserIdentityRef.current === requestUserId
+            ) {
                 setThreadsLoading(false);
             }
         }
-    }, [creatorId, isCompactViewport, isIosPwaChatShell, user]);
+    }, [chatStateOwnerUserId, creatorId, isCompactViewport, isIosPwaChatShell, selectChatThread, user]);
 
     const loadFollowedCreators = useCallback(async () => {
-        if (!user) {
+        if (!user || chatStateOwnerUserId !== user.uid) {
             return;
         }
 
+        const requestUserId = user.uid;
         try {
             const response = await authFetch("/api/creator/relationships");
             const rawText = await response.text().catch(() => "");
@@ -1597,8 +1887,10 @@ export function ChatExperience() {
                 throw buildChatSafeError("followed_creators_load_failed", "Failed to load followed creators.");
             }
 
-            setFollowedCreators(Array.isArray(body.followedCreators) ? body.followedCreators : []);
-            setRecommendedCreators(Array.isArray(body.recommendedCreators) ? body.recommendedCreators : []);
+            if (chatUserIdentityRef.current === requestUserId) {
+                setFollowedCreators(Array.isArray(body.followedCreators) ? body.followedCreators : []);
+                setRecommendedCreators(Array.isArray(body.recommendedCreators) ? body.recommendedCreators : []);
+            }
         } catch (error) {
             reportClientIssue({
                 channel: "runtime",
@@ -1607,16 +1899,19 @@ export function ChatExperience() {
                 error,
                 consoleLabel: "[Chat] followed creators load failed",
             });
-            setFollowedCreators([]);
-            setRecommendedCreators([]);
+            if (chatUserIdentityRef.current === requestUserId) {
+                setFollowedCreators([]);
+                setRecommendedCreators([]);
+            }
         }
-    }, [user]);
+    }, [chatStateOwnerUserId, user]);
 
     const loadThreadDetail = useCallback(async (threadId: string, options?: LoadThreadDetailOptions) => {
-        if (!user) {
+        if (!user || chatStateOwnerUserId !== user.uid) {
             return;
         }
 
+        const requestUserId = user.uid;
         const background = options?.background ?? false;
         const quiet = options?.quiet ?? background;
         const requestId = threadDetailRequestIdRef.current + 1;
@@ -1646,7 +1941,11 @@ export function ChatExperience() {
             if (!response.ok) {
                 throw buildChatSafeError("chat_thread_detail_load_failed", "This chat thread could not be loaded right now.");
             }
-            if (threadDetailRequestIdRef.current !== requestId || selectedThreadIdRef.current !== threadId) {
+            if (
+                threadDetailRequestIdRef.current !== requestId
+                || selectedThreadIdRef.current !== threadId
+                || chatUserIdentityRef.current !== requestUserId
+            ) {
                 return;
             }
             setSelectedDetail(body);
@@ -1661,32 +1960,51 @@ export function ChatExperience() {
                 },
                 consoleLabel: "[Chat] thread detail load failed",
             });
-            if (!keepCurrentDetailVisible && selectedThreadIdRef.current === threadId) {
+            if (
+                !keepCurrentDetailVisible
+                && selectedThreadIdRef.current === threadId
+                && chatUserIdentityRef.current === requestUserId
+            ) {
                 setSelectedDetail(null);
             }
-            if (!quiet) {
+            if (!quiet && chatUserIdentityRef.current === requestUserId) {
                 toast.error("This chat thread could not be loaded right now.");
             }
         } finally {
-            if (!background) {
+            if (
+                !background
+                && threadDetailRequestIdRef.current === requestId
+                && chatUserIdentityRef.current === requestUserId
+            ) {
                 setThreadLoading(false);
             }
         }
-    }, [user]);
+    }, [chatStateOwnerUserId, user]);
 
     useEffect(() => {
         void loadThreads();
     }, [loadThreads]);
 
     useEffect(() => {
-        if (!requestedThreadId || requestedThreadId === selectedThreadIdRef.current) {
+        if (!requestedThreadId) {
+            if (chatStateOwnerUserId === chatUserId) {
+                blockedRequestedThreadIdRef.current = null;
+            }
+            return;
+        }
+        if (
+            chatStateOwnerUserId !== chatUserId
+            || blockedRequestedThreadIdRef.current === requestedThreadId
+            || requestedThreadId === selectedThreadIdRef.current
+        ) {
             return;
         }
 
+        blockedRequestedThreadIdRef.current = null;
         startTransition(() => {
-            setSelectedThreadId(requestedThreadId);
+            selectChatThread(requestedThreadId);
         });
-    }, [requestedThreadId]);
+    }, [chatStateOwnerUserId, chatUserId, requestedThreadId, selectChatThread]);
 
     useEffect(() => {
         void loadFollowedCreators();
@@ -1874,6 +2192,10 @@ export function ChatExperience() {
     }, [threadEditMenuOpen]);
 
     useEffect(() => {
+        if (chatStateOwnerUserId !== chatUserId) {
+            return;
+        }
+
         const nextHref = buildChatThreadRouteSyncTarget({
             creatorId,
             currentSearch: searchParamsString,
@@ -1884,7 +2206,7 @@ export function ChatExperience() {
         }
 
         router.replace(nextHref, { scroll: false });
-    }, [creatorId, router, searchParamsString, selectedThreadId]);
+    }, [chatStateOwnerUserId, chatUserId, creatorId, router, searchParamsString, selectedThreadId]);
 
     useEffect(() => {
         setSelectedThreadIds((current) => current.filter((threadId) => visibleThreadIdSet.has(threadId)));
@@ -2116,7 +2438,7 @@ export function ChatExperience() {
                 consoleLabel: "[Chat] read receipt update failed",
             });
         });
-    }, [selectedDetail, selectedThreadId]);
+    }, [selectedDetail, selectedThreadId, user?.uid]);
 
     const openThreadComposer = useCallback((nextCreatorId: string) => {
         trackEvent("chat_new_message_sheet_creator_selected", {
@@ -2134,16 +2456,15 @@ export function ChatExperience() {
             target_creator_id: nextCreatorId,
         });
         setComposePickerOpen(false);
-        setSelectedThreadId(null);
-        setSelectedDetail(null);
+        selectChatThread(null);
         router.replace(`/dashboard/chat?creator=${encodeURIComponent(nextCreatorId)}`, { scroll: false });
-    }, [isIosPwaChatShell, router, user?.uid]);
+    }, [isIosPwaChatShell, router, selectChatThread, user?.uid]);
 
     const returnToThreadList = useCallback(() => {
-        setSelectedThreadId(null);
+        selectChatThread(null);
         setComposePickerOpen(false);
         router.replace("/dashboard/chat", { scroll: false });
-    }, [router]);
+    }, [router, selectChatThread]);
 
     const enterThreadSelectionMode = useCallback(() => {
         setThreadEditMenuOpen(false);
@@ -2227,13 +2548,14 @@ export function ChatExperience() {
 
     const handleIceBreakerInsert = useCallback((text: string) => {
         setComposerText(text);
+        updateCurrentComposerRecovery({ text });
         trackEvent("chat_icebreaker_inserted", {
             source_component: "chat_thread_empty_state",
             route: "/dashboard/chat",
             creator_id: selectedThread?.creatorId ?? null,
             platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
         });
-    }, [isIosPwaChatShell, selectedThread?.creatorId]);
+    }, [isIosPwaChatShell, selectedThread?.creatorId, updateCurrentComposerRecovery]);
 
     const handleThreadSearchFocus = useCallback(() => {
         deferChatListSearchFocusedTelemetry({
@@ -2248,13 +2570,13 @@ export function ChatExperience() {
             return;
         }
 
-        setSelectedThreadId(thread.id);
+        selectChatThread(thread.id);
         deferChatThreadOpenedTelemetry({
             sourceComponent: "chat_thread_list_item",
             userId: user?.uid,
             thread,
         });
-    }, [threadSelectionMode, toggleThreadSelection, user?.uid]);
+    }, [selectChatThread, threadSelectionMode, toggleThreadSelection, user?.uid]);
 
     const handleMarkThreadsRead = useCallback(async () => {
         const targetIds = selectedThreadIds.length > 0
@@ -2333,6 +2655,7 @@ export function ChatExperience() {
         const counterpartPresenceRef = ref(rtdb, buildChatPresenceMemberPath(selectedThreadId, selectedThread.counterpartId));
         let cancelled = false;
         let heartbeatTimer: number | null = null;
+        const typingControllerState = typingControllerStateRef.current;
 
         const syncPresence = (typing: boolean, reason: ChatTypingIntentReason) => set(ownPresenceRef, buildChatPresencePayload({
             typing,
@@ -2380,8 +2703,19 @@ export function ChatExperience() {
             }
         });
         void syncPresence(false, "clear");
+        const handlePresenceVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                void syncPresence(typingControllerState.currentTyping, "input");
+                return;
+            }
+
+            void syncPresence(false, "clear");
+        };
+        document.addEventListener("visibilitychange", handlePresenceVisibilityChange);
         heartbeatTimer = window.setInterval(() => {
-            void syncPresence(typingControllerStateRef.current.currentTyping, "input");
+            if (document.visibilityState === "visible") {
+                void syncPresence(typingControllerState.currentTyping, "input");
+            }
         }, CHAT_PRESENCE_CONTRACT.presence.heartbeatMs);
 
         const unsubscribe = onValue(counterpartPresenceRef, (snapshot) => {
@@ -2402,13 +2736,14 @@ export function ChatExperience() {
 
         return () => {
             cancelled = true;
+            document.removeEventListener("visibilitychange", handlePresenceVisibilityChange);
             if (heartbeatTimer) {
                 window.clearInterval(heartbeatTimer);
             }
             if (typingResetTimerRef.current) {
                 window.clearTimeout(typingResetTimerRef.current);
             }
-            typingControllerStateRef.current.currentTyping = false;
+            typingControllerState.currentTyping = false;
             void syncPresence(false, "unmount");
             deferChatPresenceTelemetry({
                 eventName: "chat_presence_disconnected",
@@ -2473,6 +2808,7 @@ export function ChatExperience() {
 
     const handleComposerTextChange = useCallback((value: string) => {
         setComposerText(value);
+        updateCurrentComposerRecovery({ text: value });
         const hasText = value.trim().length > 0;
         pushTypingState(hasText, hasText ? "input" : "clear");
 
@@ -2483,21 +2819,29 @@ export function ChatExperience() {
         typingResetTimerRef.current = window.setTimeout(() => {
             pushTypingState(false, "timeout");
         }, CHAT_PRESENCE_CONTRACT.typing.stopTimeoutMs);
-    }, [pushTypingState]);
+    }, [pushTypingState, updateCurrentComposerRecovery]);
 
     const handleSelectFile = useCallback((file: File | null) => {
         setAttachmentMenuOpen(false);
         if (!file) {
+            composerFileRef.current = null;
             setComposerFile(null);
             setComposerKind("text");
+            updateCurrentComposerRecovery({ file: null, messageKind: "text" });
             return;
         }
 
         const attachmentKind = resolveChatAttachmentKind(file.type);
         if (!attachmentKind) {
+            composerFileRef.current = null;
             setComposerFile(null);
             setComposerKind("text");
             setSendErrorMessage("Only image and video files can be attached in chat.");
+            updateCurrentComposerRecovery({
+                file: null,
+                messageKind: "text",
+                errorMessage: "Only image and video files can be attached in chat.",
+            });
             trackEvent("media_upload_blocked_type", buildChatMediaUploadPayload({
                 eventName: "media_upload_blocked_type",
                 uploadId: `blocked_type:${Date.now()}`,
@@ -2561,6 +2905,7 @@ export function ChatExperience() {
                 debug_lane: "Chat gating/moderation",
             });
             setSendErrorMessage(message);
+            updateCurrentComposerRecovery({ errorMessage: message });
             if (!chatFanPassActive && selectedThreadCreatorProfileHref) {
                 toast.error(message, {
                     action: {
@@ -2585,9 +2930,11 @@ export function ChatExperience() {
             });
         }
 
+        composerFileRef.current = file;
         setComposerFile(file);
         setComposerKind(attachmentKind);
-    }, [chatFanPassActive, isIosPwaChatShell, router, selectedThreadCreatorProfileHref, selectedThreadId, user?.uid]);
+        updateCurrentComposerRecovery({ file, messageKind: attachmentKind });
+    }, [chatFanPassActive, isIosPwaChatShell, router, selectedThreadCreatorProfileHref, selectedThreadId, updateCurrentComposerRecovery, user?.uid]);
 
     const openImagePicker = useCallback(() => {
         setAttachmentMenuOpen(false);
@@ -2599,342 +2946,565 @@ export function ChatExperience() {
         videoInputRef.current?.click();
     }, []);
 
-    const discardUploadedAttachment = useCallback(async (storagePath: string) => {
-        if (!user || !selectedThreadId || !storagePath) {
-            return true;
+    const discardUploadedAttachment = useCallback(async (input: {
+        userId: string;
+        threadId: string;
+        storagePath: string;
+        operationKey: string;
+    }): Promise<ChatAttachmentCancelResult> => {
+        if (
+            !input.storagePath
+            || !input.operationKey
+            || chatUserIdentityRef.current !== input.userId
+        ) {
+            return { state: "unconfirmed", responseStatus: null, body: null };
         }
 
         try {
             const response = await authFetch("/api/chat/attachments/cancel", {
                 method: "POST",
                 body: JSON.stringify({
-                    threadId: selectedThreadId,
-                    storagePath,
+                    threadId: input.threadId,
+                    storagePath: input.storagePath,
+                    idempotencyKey: input.operationKey,
                 }),
             });
             const rawText = await response.text().catch(() => "");
-            let body: { error?: string };
+            let body: ChatAttachmentCancelResponse;
             try {
-                body = JSON.parse(rawText) as { error?: string };
-            } catch {
-                throw buildChatSafeError("attachment_cleanup_non_json", "Failed to clean up chat attachment.");
-            }
-            if (!response.ok) {
-                throw buildChatSafeError("attachment_cleanup_failed", "Failed to clean up chat attachment.");
+                body = JSON.parse(rawText) as ChatAttachmentCancelResponse;
+            } catch (error) {
+                reportStorageIssue("chat attachment cleanup", error, {
+                    errorCode: "attachment_cleanup_non_json",
+                    storagePathFingerprint: fingerprintStoragePath(input.storagePath),
+                    threadId: input.threadId,
+                });
+                return { state: "unconfirmed", responseStatus: response.status, body: null };
             }
 
-            return true;
+            if (response.ok && body.success === true && body.status === "canceled") {
+                return { state: "canceled", responseStatus: response.status, body };
+            }
+            if (body.errorCode === "attachment_already_attached") {
+                return { state: "already_committed", responseStatus: response.status, body };
+            }
+
+            reportStorageIssue("chat attachment cleanup", buildChatSafeError(
+                "attachment_cleanup_failed",
+                body.error || "Failed to clean up chat attachment.",
+            ), {
+                errorCode: body.errorCode ?? "attachment_cleanup_failed",
+                storagePathFingerprint: fingerprintStoragePath(input.storagePath),
+                threadId: input.threadId,
+            });
+            return { state: "unconfirmed", responseStatus: response.status, body };
         } catch (error) {
             reportStorageIssue("chat attachment cleanup", error, {
-                storagePathFingerprint: fingerprintStoragePath(storagePath),
-                threadId: selectedThreadId,
+                storagePathFingerprint: fingerprintStoragePath(input.storagePath),
+                threadId: input.threadId,
             });
-            return false;
+            return { state: "unconfirmed", responseStatus: null, body: null };
         }
-    }, [selectedThreadId, user]);
+    }, []);
 
-    const uploadAttachment = useCallback(async (): Promise<UploadedChatAttachment | null> => {
-        if (!composerFile || !user || !selectedThreadId) {
+    const pruneComposerRecoveries = useCallback(() => {
+        const compactRecoveryEvictionKeys = selectChatComposerRecoveryEvictions({
+            recoveryKeys: composerRecoveryByThreadRef.current.keys(),
+            activeKeys: activeChatSendKeysRef.current,
+        });
+        const heavyRecoveryKeys = new Set<string>();
+        for (const [recoveryKey, recovery] of composerRecoveryByThreadRef.current) {
+            if (recovery.file) {
+                heavyRecoveryKeys.add(recoveryKey);
+            }
+        }
+        for (const [recoveryKey, pendingSend] of pendingChatSendsRef.current) {
+            if (pendingSend.composerRecovery.file || pendingSend.uploadedAttachment || pendingSend.attachmentOperation) {
+                heavyRecoveryKeys.add(recoveryKey);
+            }
+        }
+        const fileRecoveryEvictionKeys = selectChatComposerFileRecoveryEvictions({
+            recoveryKeys: heavyRecoveryKeys,
+            activeKeys: activeChatSendKeysRef.current,
+        });
+        const recoveryKeysToRelease = new Set([
+            ...fileRecoveryEvictionKeys,
+            ...compactRecoveryEvictionKeys,
+        ]);
+
+        for (const evictionKey of recoveryKeysToRelease) {
+            const mappedRecovery = composerRecoveryByThreadRef.current.get(evictionKey);
+            const pendingSend = pendingChatSendsRef.current.get(evictionKey);
+            if (mappedRecovery?.file) {
+                const compactRecovery = stripChatComposerRecoveryFile(mappedRecovery);
+                composerRecoveryByThreadRef.current.set(evictionKey, compactRecovery);
+                if (pendingSend?.composerRecovery === mappedRecovery) {
+                    pendingSend.composerRecovery = compactRecovery;
+                }
+            }
+            if (pendingSend?.composerRecovery.file) {
+                pendingSend.composerRecovery = stripChatComposerRecoveryFile(pendingSend.composerRecovery);
+            }
+            if (compactRecoveryEvictionKeys.includes(evictionKey)) {
+                composerRecoveryByThreadRef.current.delete(evictionKey);
+            }
+            if (!pendingSend || activeChatSendKeysRef.current.has(evictionKey)) {
+                continue;
+            }
+            const storagePath = pendingSend.uploadedAttachment?.storagePath
+                ?? pendingSend.attachmentOperation?.storagePath
+                ?? null;
+            if (!storagePath) {
+                clearDurableClientIdempotencyKey(pendingSend.idempotency);
+                if (pendingChatSendsRef.current.get(evictionKey) === pendingSend) {
+                    pendingChatSendsRef.current.delete(evictionKey);
+                }
+                continue;
+            }
+
+            void discardUploadedAttachment({
+                userId: pendingSend.userId,
+                threadId: pendingSend.threadId,
+                storagePath,
+                operationKey: pendingSend.uploadedAttachment?.operationKey
+                    ?? pendingSend.idempotency.key,
+            }).then((cleanupResult) => {
+                if (
+                    cleanupResult.state !== "unconfirmed"
+                    && !activeChatSendKeysRef.current.has(evictionKey)
+                    && pendingChatSendsRef.current.get(evictionKey) === pendingSend
+                ) {
+                    clearDurableClientIdempotencyKey(pendingSend.idempotency);
+                    pendingChatSendsRef.current.delete(evictionKey);
+                }
+            });
+        }
+    }, [discardUploadedAttachment]);
+
+    const rememberComposerRecovery = useCallback((activeSendKey: string, recovery: ChatComposerRecoveryState) => {
+        composerRecoveryByThreadRef.current.delete(activeSendKey);
+        composerRecoveryByThreadRef.current.set(activeSendKey, recovery);
+        pruneComposerRecoveries();
+    }, [pruneComposerRecoveries]);
+
+    const uploadAttachment = useCallback(async (input: {
+        operationKey: string;
+        userId: string;
+        threadId: string;
+        file: File | null;
+        pendingSend: PendingChatSend;
+    }): Promise<UploadedChatAttachment | null> => {
+        const { file, operationKey, pendingSend, threadId, userId } = input;
+        if (!file) {
             return null;
         }
 
-        const attachmentKind = resolveChatAttachmentKind(composerFile.type);
+        const attachmentKind = resolveChatAttachmentKind(file.type);
         if (!attachmentKind) {
             throw buildChatSafeError("unsupported_attachment_type", "Only image and video files can be attached in chat.");
         }
 
-        let preparedStoragePath: string | null = null;
-        let uploadId = buildChatAttachmentUploadCorrelationId(selectedThreadId);
-        const correlationId = uploadId;
+        let attachmentOperation = pendingSend.attachmentOperation;
+        let preparedStoragePath = attachmentOperation?.storagePath ?? null;
+        let uploadId = attachmentOperation?.uploadId ?? operationKey;
+        let correlationId = attachmentOperation?.correlationId ?? operationKey;
         const uploadStartedAt = Date.now();
         const maxBytes = chatFanPassActive ? CHAT_MEDIA_LIMIT_BYTES_FAN_PASS : CHAT_MEDIA_LIMIT_BYTES_DEFAULT;
-        let uploadPhase: "prepare" | "storage" | "complete" = "prepare";
-        let lifecycleFailureTracked = false;
+        let uploadPhase: "prepare" | "storage" | "complete" = attachmentOperation
+            ? attachmentOperation.phase === "uploaded" ? "complete" : "storage"
+            : "prepare";
+
+        const cancelPreparedOperation = async (failureReason: string) => {
+            if (!attachmentOperation) {
+                return { state: "unconfirmed", responseStatus: null, body: null } satisfies ChatAttachmentCancelResult;
+            }
+            const cancelResult = await discardUploadedAttachment({
+                userId,
+                threadId,
+                storagePath: attachmentOperation.storagePath,
+                operationKey,
+            });
+            if (cancelResult.state === "canceled") {
+                trackEvent("media_upload_cancelled", buildChatMediaUploadPayload({
+                    eventName: "media_upload_cancelled",
+                    uploadId: attachmentOperation.uploadId,
+                    correlationId: attachmentOperation.correlationId,
+                    userId,
+                    threadId,
+                    mediaKind: attachmentKind,
+                    mimeType: attachmentOperation.mimeType,
+                    sizeBytes: file.size,
+                    maxBytes,
+                    storagePath: attachmentOperation.storagePath,
+                    status: "cancelled",
+                    failureReason,
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+                pendingSend.attachmentOperation = null;
+                attachmentOperation = null;
+            }
+            return cancelResult;
+        };
+
         try {
             trackEvent("chat_attachment_upload_started", {
                 source_component: "chat_thread_composer",
                 route: "/dashboard/chat",
-                user_id: user.uid,
-                thread_id: selectedThreadId,
+                user_id: userId,
+                thread_id: threadId,
                 message_kind: attachmentKind,
-                file_size_bytes: composerFile.size,
-                mime_type: composerFile.type || "application/octet-stream",
+                file_size_bytes: file.size,
+                mime_type: file.type || "application/octet-stream",
             });
-            trackEvent("media_upload_prepare_started", buildChatMediaUploadPayload({
-                eventName: "media_upload_prepare_started",
-                uploadId,
-                correlationId,
-                userId: user.uid,
-                threadId: selectedThreadId,
-                mediaKind: attachmentKind,
-                mimeType: composerFile.type || "application/octet-stream",
-                sizeBytes: composerFile.size,
-                maxBytes,
-                status: "prepare_started",
-                durationMs: 0,
-            }));
-            const prepareResponse = await authFetch("/api/chat/attachments/prepare", {
-                method: "POST",
-                body: JSON.stringify({
-                    threadId: selectedThreadId,
-                    fileName: composerFile.name,
-                    mimeType: composerFile.type || "application/octet-stream",
-                    sizeBytes: composerFile.size,
-                    idempotencyKey: correlationId,
-                }),
-            });
-            let prepareBody = {} as { error?: string } & Partial<ChatAttachmentPrepareResponse>;
-            const prepareRawText = await prepareResponse.text().catch(() => "");
-            try {
-                prepareBody = JSON.parse(prepareRawText) as typeof prepareBody;
-            } catch {
-                throw buildChatSafeError("attachment_prepare_non_json", "We couldn't send your message. Try again shortly.");
-            }
-            if (!prepareResponse.ok || !prepareBody.storagePath) {
-                const typedMessage = buildChatSendErrorMessage({
-                    error: prepareBody.error,
-                    errorCode: prepareBody.errorCode,
-                });
-                trackEvent("media_upload_prepare_failed", buildChatMediaUploadPayload({
-                    eventName: "media_upload_prepare_failed",
+
+            if (!attachmentOperation) {
+                trackEvent("media_upload_prepare_started", buildChatMediaUploadPayload({
+                    eventName: "media_upload_prepare_started",
                     uploadId,
                     correlationId,
-                    userId: user.uid,
-                    threadId: selectedThreadId,
+                    userId,
+                    threadId,
                     mediaKind: attachmentKind,
-                    mimeType: composerFile.type || "application/octet-stream",
-                    sizeBytes: composerFile.size,
-                    maxBytes: prepareBody.maxBytes ?? maxBytes,
-                    status: "failed",
-                    failureReason: prepareBody.errorCode ?? "prepare_failed",
+                    mimeType: file.type || "application/octet-stream",
+                    sizeBytes: file.size,
+                    maxBytes,
+                    status: "prepare_started",
+                    durationMs: 0,
+                }));
+                let prepareResponse: Response;
+                try {
+                    prepareResponse = await authFetch("/api/chat/attachments/prepare", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            threadId,
+                            fileName: file.name,
+                            mimeType: file.type || "application/octet-stream",
+                            sizeBytes: file.size,
+                            idempotencyKey: operationKey,
+                        }),
+                    });
+                } catch {
+                    throw buildChatAttachmentLifecycleError({
+                        code: "attachment_prepare_failed",
+                        message: "We couldn't send your message. Try again shortly.",
+                        disposition: "retry_same_operation",
+                    });
+                }
+
+                const prepareRawText = await prepareResponse.text().catch(() => "");
+                let prepareBody: Partial<ChatAttachmentPrepareResponse>;
+                try {
+                    prepareBody = JSON.parse(prepareRawText) as Partial<ChatAttachmentPrepareResponse>;
+                } catch {
+                    throw buildChatAttachmentLifecycleError({
+                        code: "attachment_prepare_non_json",
+                        message: "We couldn't send your message. Try again shortly.",
+                        disposition: resolveChatAttachmentRetryDisposition({
+                            phase: "prepare",
+                            responseStatus: prepareResponse.status,
+                            responseParsed: false,
+                        }),
+                    });
+                }
+                if (!prepareResponse.ok || !prepareBody.storagePath) {
+                    throw buildChatAttachmentLifecycleError({
+                        code: "attachment_prepare_failed",
+                        message: buildChatSendErrorMessage(prepareBody),
+                        disposition: resolveChatAttachmentRetryDisposition({
+                            phase: "prepare",
+                            responseStatus: prepareResponse.status,
+                            responseParsed: true,
+                            detail: prepareBody,
+                        }),
+                        serverErrorCode: prepareBody.errorCode,
+                    });
+                }
+
+                attachmentOperation = {
+                    phase: "prepared",
+                    uploadId: prepareBody.uploadId ?? operationKey,
+                    correlationId: prepareBody.correlationId ?? operationKey,
+                    storagePath: prepareBody.storagePath,
+                    fileName: prepareBody.fileName || file.name,
+                    mimeType: prepareBody.mimeType || file.type || "application/octet-stream",
+                };
+                pendingSend.attachmentOperation = attachmentOperation;
+                preparedStoragePath = attachmentOperation.storagePath;
+                uploadId = attachmentOperation.uploadId;
+                correlationId = attachmentOperation.correlationId;
+                trackEvent("media_upload_prepare_completed", buildChatMediaUploadPayload({
+                    eventName: "media_upload_prepare_completed",
+                    uploadId,
+                    correlationId,
+                    userId,
+                    threadId,
+                    mediaKind: attachmentKind,
+                    mimeType: attachmentOperation.mimeType,
+                    sizeBytes: file.size,
+                    maxBytes,
+                    storagePath: attachmentOperation.storagePath,
+                    status: "prepared",
                     durationMs: Date.now() - uploadStartedAt,
                 }));
-                lifecycleFailureTracked = true;
-                throw buildChatSafeError("attachment_prepare_failed", typedMessage);
             }
-            preparedStoragePath = prepareBody.storagePath;
-            uploadId = prepareBody.uploadId ?? uploadId;
-            trackEvent("media_upload_prepare_completed", buildChatMediaUploadPayload({
-                eventName: "media_upload_prepare_completed",
-                uploadId,
-                correlationId: prepareBody.correlationId ?? correlationId,
-                userId: user.uid,
-                threadId: selectedThreadId,
-                mediaKind: attachmentKind,
-                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
-                sizeBytes: composerFile.size,
-                maxBytes,
-                storagePath: prepareBody.storagePath,
-                status: "prepared",
-                durationMs: Date.now() - uploadStartedAt,
-            }));
 
-            const target = storageRef(storage, prepareBody.storagePath);
-            uploadPhase = "storage";
-            trackEvent("media_storage_upload_started", buildChatMediaUploadPayload({
-                eventName: "media_storage_upload_started",
-                uploadId,
-                correlationId: prepareBody.correlationId ?? correlationId,
-                userId: user.uid,
-                threadId: selectedThreadId,
-                mediaKind: attachmentKind,
-                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
-                sizeBytes: composerFile.size,
-                maxBytes,
-                storagePath: prepareBody.storagePath,
-                status: "storage_started",
-                durationMs: Date.now() - uploadStartedAt,
-            }));
-            await uploadBytes(target, composerFile, {
-                contentType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
-            });
-            trackEvent("media_storage_upload_completed", buildChatMediaUploadPayload({
-                eventName: "media_storage_upload_completed",
-                uploadId,
-                correlationId: prepareBody.correlationId ?? correlationId,
-                userId: user.uid,
-                threadId: selectedThreadId,
-                mediaKind: attachmentKind,
-                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
-                sizeBytes: composerFile.size,
-                maxBytes,
-                storagePath: prepareBody.storagePath,
-                status: "storage_completed",
-                durationMs: Date.now() - uploadStartedAt,
-            }));
+            if (attachmentOperation.phase === "prepared") {
+                uploadPhase = "storage";
+                trackEvent("media_storage_upload_started", buildChatMediaUploadPayload({
+                    eventName: "media_storage_upload_started",
+                    uploadId: attachmentOperation.uploadId,
+                    correlationId: attachmentOperation.correlationId,
+                    userId,
+                    threadId,
+                    mediaKind: attachmentKind,
+                    mimeType: attachmentOperation.mimeType,
+                    sizeBytes: file.size,
+                    maxBytes,
+                    storagePath: attachmentOperation.storagePath,
+                    status: "storage_started",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+                try {
+                    await uploadBytes(storageRef(storage, attachmentOperation.storagePath), file, {
+                        contentType: attachmentOperation.mimeType,
+                    });
+                } catch {
+                    const cancelResult = await cancelPreparedOperation("cleanup_after_storage_failure");
+                    const retryAction = resolveChatAttachmentRetryAction({
+                        disposition: "cancel_then_rotate",
+                        cancelState: cancelResult.state,
+                    });
+                    throw buildChatAttachmentLifecycleError({
+                        code: "storage_upload_failed",
+                        message: "We couldn't send your message. Try again shortly.",
+                        disposition: retryAction.outcome === "rotate"
+                            ? "rotate_operation"
+                            : retryAction.outcome === "committed"
+                                ? "already_committed"
+                                : "retry_same_operation",
+                        serverErrorCode: "storage_upload_failed",
+                    });
+                }
+                trackEvent("media_storage_upload_completed", buildChatMediaUploadPayload({
+                    eventName: "media_storage_upload_completed",
+                    uploadId: attachmentOperation.uploadId,
+                    correlationId: attachmentOperation.correlationId,
+                    userId,
+                    threadId,
+                    mediaKind: attachmentKind,
+                    mimeType: attachmentOperation.mimeType,
+                    sizeBytes: file.size,
+                    maxBytes,
+                    storagePath: attachmentOperation.storagePath,
+                    status: "storage_completed",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+                attachmentOperation = { ...attachmentOperation, phase: "uploaded" };
+                pendingSend.attachmentOperation = attachmentOperation;
+            }
 
             uploadPhase = "complete";
+            preparedStoragePath = attachmentOperation.storagePath;
+            uploadId = attachmentOperation.uploadId;
+            correlationId = attachmentOperation.correlationId;
             trackEvent("media_upload_complete_started", buildChatMediaUploadPayload({
                 eventName: "media_upload_complete_started",
                 uploadId,
-                correlationId: prepareBody.correlationId ?? correlationId,
-                userId: user.uid,
-                threadId: selectedThreadId,
+                correlationId,
+                userId,
+                threadId,
                 mediaKind: attachmentKind,
-                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
-                sizeBytes: composerFile.size,
+                mimeType: attachmentOperation.mimeType,
+                sizeBytes: file.size,
                 maxBytes,
-                storagePath: prepareBody.storagePath,
+                storagePath: attachmentOperation.storagePath,
                 status: "complete_started",
                 durationMs: Date.now() - uploadStartedAt,
             }));
-            const completeResponse = await authFetch("/api/chat/attachments/complete", {
-                method: "POST",
-                body: JSON.stringify({
-                    threadId: selectedThreadId,
-                    storagePath: prepareBody.storagePath,
-                    fileName: prepareBody.fileName || composerFile.name,
-                    mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
-                    uploadId,
-                    correlationId: prepareBody.correlationId ?? correlationId,
-                    idempotencyKey: correlationId,
-                }),
-            });
-            let completeBody = {} as { error?: string } & Partial<ChatAttachmentCompleteResponse>;
-            const completeRawText = await completeResponse.text().catch(() => "");
+            let completeResponse: Response;
             try {
-                completeBody = JSON.parse(completeRawText) as typeof completeBody;
-            } catch {
-                throw buildChatSafeError("attachment_complete_non_json", "We couldn't send your message. Try again shortly.");
-            }
-            if (!completeResponse.ok || !completeBody.assetUrl) {
-                const typedMessage = buildChatSendErrorMessage({
-                    error: completeBody.error,
-                    errorCode: completeBody.errorCode,
+                completeResponse = await authFetch("/api/chat/attachments/complete", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        threadId,
+                        storagePath: attachmentOperation.storagePath,
+                        fileName: attachmentOperation.fileName,
+                        mimeType: attachmentOperation.mimeType,
+                        uploadId,
+                        correlationId,
+                        idempotencyKey: operationKey,
+                    }),
                 });
-                trackEvent("media_upload_complete_failed", buildChatMediaUploadPayload({
-                    eventName: "media_upload_complete_failed",
-                    uploadId,
-                    correlationId: completeBody.correlationId ?? prepareBody.correlationId ?? correlationId,
-                    userId: user.uid,
-                    threadId: selectedThreadId,
-                    mediaKind: attachmentKind,
-                    mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
-                    sizeBytes: composerFile.size,
-                    maxBytes: completeBody.maxBytes ?? maxBytes,
-                    storagePath: prepareBody.storagePath,
-                    status: "failed",
-                    failureReason: completeBody.errorCode ?? "complete_failed",
-                    durationMs: Date.now() - uploadStartedAt,
-                }));
-                lifecycleFailureTracked = true;
-                throw buildChatSafeError("attachment_complete_failed", typedMessage);
+            } catch {
+                throw buildChatAttachmentLifecycleError({
+                    code: "attachment_complete_failed",
+                    message: "We couldn't send your message. Try again shortly.",
+                    disposition: "retry_same_operation",
+                });
             }
+
+            const completeRawText = await completeResponse.text().catch(() => "");
+            let completeBody: Partial<ChatAttachmentCompleteResponse>;
+            try {
+                completeBody = JSON.parse(completeRawText) as Partial<ChatAttachmentCompleteResponse>;
+            } catch {
+                throw buildChatAttachmentLifecycleError({
+                    code: "attachment_complete_non_json",
+                    message: "We couldn't send your message. Try again shortly.",
+                    disposition: resolveChatAttachmentRetryDisposition({
+                        phase: "complete",
+                        responseStatus: completeResponse.status,
+                        responseParsed: false,
+                    }),
+                });
+            }
+            if (!completeResponse.ok || !isChatAttachmentFinalizedReceipt(completeBody, {
+                operationKey,
+                uploadId: attachmentOperation.uploadId,
+                correlationId: attachmentOperation.correlationId,
+                storagePath: attachmentOperation.storagePath,
+            })) {
+                const disposition = resolveChatAttachmentRetryDisposition({
+                    phase: "complete",
+                    responseStatus: completeResponse.status,
+                    responseParsed: true,
+                    detail: completeBody,
+                });
+                let cancelState: ChatAttachmentCancelResult["state"] | null = null;
+                if (disposition === "cancel_then_rotate") {
+                    const cancelResult = await cancelPreparedOperation("cleanup_after_complete_rejection");
+                    cancelState = cancelResult.state;
+                }
+                const retryAction = resolveChatAttachmentRetryAction({ disposition, cancelState });
+                const resolvedDisposition: ChatAttachmentRetryDisposition = retryAction.outcome === "rotate"
+                    ? "rotate_operation"
+                    : retryAction.outcome === "committed"
+                        ? "already_committed"
+                        : "retry_same_operation";
+                if (!retryAction.retainOperation) {
+                    pendingSend.attachmentOperation = null;
+                    attachmentOperation = null;
+                }
+                throw buildChatAttachmentLifecycleError({
+                    code: "attachment_complete_failed",
+                    message: buildChatSendErrorMessage(completeBody),
+                    disposition: resolvedDisposition,
+                    serverErrorCode: completeBody.errorCode,
+                });
+            }
+
             trackEvent("media_upload_complete_completed", buildChatMediaUploadPayload({
                 eventName: "media_upload_complete_completed",
                 uploadId: completeBody.uploadId ?? uploadId,
-                correlationId: completeBody.correlationId ?? prepareBody.correlationId ?? correlationId,
-                userId: user.uid,
-                threadId: selectedThreadId,
+                correlationId: completeBody.correlationId ?? correlationId,
+                userId,
+                threadId,
                 mediaKind: attachmentKind,
-                mimeType: completeBody.assetMimeType || prepareBody.mimeType || composerFile.type || "application/octet-stream",
-                sizeBytes: completeBody.sizeBytes ?? composerFile.size,
+                mimeType: completeBody.assetMimeType || attachmentOperation.mimeType,
+                sizeBytes: completeBody.sizeBytes ?? file.size,
                 maxBytes,
-                storagePath: completeBody.storagePath || prepareBody.storagePath,
+                storagePath: completeBody.storagePath || attachmentOperation.storagePath,
                 status: "completed",
                 durationMs: Date.now() - uploadStartedAt,
             }));
+            pendingSend.attachmentOperation = null;
 
             return {
                 assetUrl: completeBody.assetUrl,
-                assetName: completeBody.assetName || composerFile.name,
-                assetMimeType: completeBody.assetMimeType || composerFile.type || "application/octet-stream",
-                storagePath: completeBody.storagePath || prepareBody.storagePath,
+                assetName: completeBody.assetName || file.name,
+                assetMimeType: completeBody.assetMimeType || file.type || "application/octet-stream",
+                storagePath: completeBody.storagePath || attachmentOperation.storagePath,
+                operationKey,
             };
         } catch (error) {
-            if (!lifecycleFailureTracked && uploadPhase === "prepare" && !preparedStoragePath) {
+            const failureReason = readChatAttachmentFailureCode(error, uploadPhase === "prepare"
+                ? "attachment_prepare_failed"
+                : uploadPhase === "storage"
+                    ? "storage_upload_failed"
+                    : "attachment_complete_failed");
+            if (uploadPhase === "prepare") {
                 trackEvent("media_upload_prepare_failed", buildChatMediaUploadPayload({
                     eventName: "media_upload_prepare_failed",
                     uploadId,
                     correlationId,
-                    userId: user.uid,
-                    threadId: selectedThreadId,
+                    userId,
+                    threadId,
                     mediaKind: attachmentKind,
-                    mimeType: composerFile.type || "application/octet-stream",
-                    sizeBytes: composerFile.size,
+                    mimeType: file.type || "application/octet-stream",
+                    sizeBytes: file.size,
                     maxBytes,
                     status: "failed",
-                    failureReason: readChatDiagnosticCode(error, "attachment_prepare_failed"),
+                    failureReason,
                     durationMs: Date.now() - uploadStartedAt,
                 }));
-            }
-            if (!lifecycleFailureTracked && uploadPhase === "storage" && preparedStoragePath) {
+            } else if (uploadPhase === "storage") {
                 trackEvent("media_storage_upload_failed", buildChatMediaUploadPayload({
                     eventName: "media_storage_upload_failed",
                     uploadId,
                     correlationId,
-                    userId: user.uid,
-                    threadId: selectedThreadId,
+                    userId,
+                    threadId,
                     mediaKind: attachmentKind,
-                    mimeType: composerFile.type || "application/octet-stream",
-                    sizeBytes: composerFile.size,
+                    mimeType: file.type || "application/octet-stream",
+                    sizeBytes: file.size,
                     maxBytes,
                     storagePath: preparedStoragePath,
                     status: "failed",
-                    failureReason: readChatDiagnosticCode(error, "storage_upload_failed"),
+                    failureReason,
                     durationMs: Date.now() - uploadStartedAt,
                 }));
-            }
-            if (!lifecycleFailureTracked && uploadPhase === "complete" && preparedStoragePath) {
+            } else {
                 trackEvent("media_upload_complete_failed", buildChatMediaUploadPayload({
                     eventName: "media_upload_complete_failed",
                     uploadId,
                     correlationId,
-                    userId: user.uid,
-                    threadId: selectedThreadId,
+                    userId,
+                    threadId,
                     mediaKind: attachmentKind,
-                    mimeType: composerFile.type || "application/octet-stream",
-                    sizeBytes: composerFile.size,
+                    mimeType: file.type || "application/octet-stream",
+                    sizeBytes: file.size,
                     maxBytes,
                     storagePath: preparedStoragePath,
                     status: "failed",
-                    failureReason: readChatDiagnosticCode(error, "attachment_complete_failed"),
-                    durationMs: Date.now() - uploadStartedAt,
-                }));
-            }
-            if (preparedStoragePath) {
-                await discardUploadedAttachment(preparedStoragePath);
-                trackEvent("media_upload_cancelled", buildChatMediaUploadPayload({
-                    eventName: "media_upload_cancelled",
-                    uploadId,
-                    correlationId,
-                    userId: user.uid,
-                    threadId: selectedThreadId,
-                    mediaKind: attachmentKind,
-                    mimeType: composerFile.type || "application/octet-stream",
-                    sizeBytes: composerFile.size,
-                    maxBytes,
-                    storagePath: preparedStoragePath,
-                    status: "cancelled",
-                    failureReason: "cleanup_after_failed_upload",
+                    failureReason,
                     durationMs: Date.now() - uploadStartedAt,
                 }));
             }
             reportStorageIssue("chat attachment upload", error, {
-                fileName: composerFile.name,
-                mimeType: composerFile.type,
-                threadId: selectedThreadId,
+                fileName: file.name,
+                mimeType: file.type,
+                threadId,
                 storagePathFingerprint: fingerprintStoragePath(preparedStoragePath),
             });
             trackEvent("chat_attachment_upload_failed", {
                 source_component: "chat_thread_composer",
                 route: "/dashboard/chat",
-                user_id: user.uid,
-                thread_id: selectedThreadId,
+                user_id: userId,
+                thread_id: threadId,
                 message_kind: attachmentKind,
-                file_size_bytes: composerFile.size,
-                mime_type: composerFile.type || "application/octet-stream",
-                error_code: readChatDiagnosticCode(error, "storage_upload_failed"),
+                file_size_bytes: file.size,
+                mime_type: file.type || "application/octet-stream",
+                error_code: failureReason,
                 debug_lane: "Chat telemetry/admin truth",
             });
             throw error;
         }
-    }, [chatFanPassActive, composerFile, discardUploadedAttachment, selectedThreadId, user]);
+    }, [chatFanPassActive, discardUploadedAttachment]);
 
     const handleSendMessage = useCallback(async () => {
-        if (!selectedThreadId || !selectedThread) {
+        if (!user || !selectedThreadId || !selectedThread || selectedThreadIdRef.current !== selectedThreadId) {
             return;
         }
+
+        const sendThreadId = selectedThreadId;
+        const sendUserId = user.uid;
+        const activeSendKey = buildChatActorThreadKey(sendUserId, sendThreadId);
+        const isSendContextCurrent = () => isChatSendThreadCurrent({
+            currentActorId: chatUserIdentityRef.current,
+            currentThreadId: selectedThreadIdRef.current,
+            sendActorId: sendUserId,
+            sendThreadId,
+        });
 
         if (proactivePaidGdGateVisible) {
             setInsufficientFunds({
@@ -2946,32 +3516,23 @@ export function ChatExperience() {
                 subscriberFreeChatApplies: proactivePaidGdGate?.subscriberFreeChatApplies ?? false,
                 messageKind: composerKind,
             });
-            trackEvent("chat_send_blocked", {
-                source_component: "chat_thread_composer",
-                route: "/dashboard/chat",
-                creator_id: selectedThread.creatorId,
-                thread_id: selectedThread.id,
-                message_kind: composerKind,
-                error_code: "insufficient_paid_gumdrops",
-                required_price_gd: proactivePaidGdGate?.requiredMinPaidGd ?? 1,
-                purchased_balance_gd: proactivePaidGdGate?.purchasedBalanceGd ?? 0,
-                paid_gd_shortfall: proactivePaidGdGate?.paidGdShortfall ?? 1,
-                debug_lane: "Chat gating/moderation",
+            deferChatMessageBlockedTelemetry({
+                userId: user?.uid,
+                thread: selectedThread,
+                messageKind: composerKind,
+                errorCode: "insufficient_paid_gumdrops",
+                requiredPriceGd: proactivePaidGdGate?.requiredMinPaidGd ?? 1,
+                purchasedBalanceGd: proactivePaidGdGate?.purchasedBalanceGd ?? 0,
+                paidGdShortfall: proactivePaidGdGate?.paidGdShortfall ?? 1,
             });
-            trackEvent("chat_message_blocked", {
-                source_component: "chat_thread_composer",
-                route: "/dashboard/chat",
-                user_id: user?.uid ?? undefined,
-                creator_id: selectedThread.creatorId,
-                target_creator_id: selectedThread.creatorId,
-                thread_id: selectedThread.id,
-                message_kind: composerKind,
-                error_code: "insufficient_paid_gumdrops",
-                required_price_gd: proactivePaidGdGate?.requiredMinPaidGd ?? 1,
-                purchased_balance_gd: proactivePaidGdGate?.purchasedBalanceGd ?? 0,
-                paid_gd_shortfall: proactivePaidGdGate?.paidGdShortfall ?? 1,
-                debug_lane: "Chat telemetry/admin truth",
-            });
+            return;
+        }
+
+        if (composerKind !== "text" && !composerFile) {
+            const message = buildChatSendErrorMessage({ errorCode: "invalid_attachment" });
+            setSendErrorMessage(message);
+            updateCurrentComposerRecovery({ errorMessage: message });
+            toast.error(message);
             return;
         }
 
@@ -2980,16 +3541,195 @@ export function ChatExperience() {
             return;
         }
 
-        setSendingMessage(true);
-        setInsufficientFunds(null);
-        setSendErrorMessage(null);
-        setSendWarningMessage(null);
-
         const currentComposerText = composerText.trim();
         const currentComposerFile = composerFile;
         const currentComposerKind = composerKind;
-        const idempotencyKey = buildChatMessageIdempotencyKey(selectedThreadId);
-        let uploadedAttachment: UploadedChatAttachment | null = null;
+        const payloadFingerprint = buildChatComposerFingerprint({
+            threadId: sendThreadId,
+            text: currentComposerText,
+            messageKind: currentComposerKind,
+            file: currentComposerFile,
+        });
+        if (activeChatSendKeysRef.current.has(activeSendKey)) {
+            return;
+        }
+        activeChatSendKeysRef.current.add(activeSendKey);
+        if (isSendContextCurrent()) {
+            setSendingMessage(true);
+        }
+        const previousPending = pendingChatSendsRef.current.get(activeSendKey) ?? null;
+        const matchingPreviousPending = previousPending && canReuseChatPendingSend({
+            pendingFingerprint: previousPending.payloadFingerprint,
+            currentFingerprint: payloadFingerprint,
+            pendingFile: previousPending.composerRecovery.file,
+            currentFile: currentComposerFile,
+        })
+            ? previousPending
+            : null;
+        const unmatchedAttachmentStoragePath = !matchingPreviousPending
+            ? previousPending?.uploadedAttachment?.storagePath
+                ?? previousPending?.attachmentOperation?.storagePath
+                ?? null
+            : null;
+        if (previousPending && unmatchedAttachmentStoragePath) {
+            const cleanupResult = await discardUploadedAttachment({
+                userId: sendUserId,
+                threadId: sendThreadId,
+                storagePath: unmatchedAttachmentStoragePath,
+                operationKey: previousPending.uploadedAttachment?.operationKey
+                    ?? previousPending.idempotency.key,
+            });
+            if (cleanupResult.state === "unconfirmed") {
+                const message = "We couldn't send your message. Try again shortly.";
+                activeChatSendKeysRef.current.delete(activeSendKey);
+                rememberComposerRecovery(activeSendKey, {
+                    text: currentComposerText,
+                    messageKind: currentComposerKind,
+                    file: currentComposerFile,
+                    errorMessage: message,
+                });
+                if (isSendContextCurrent()) {
+                    setSendingMessage(false);
+                    setSendErrorMessage(message);
+                    toast.error(message);
+                }
+                deferChatDiagnosticReport({
+                    channel: "storage",
+                    severity: "warn",
+                    message: "Chat attachment replacement cleanup could not be confirmed",
+                    detail: {
+                        threadId: sendThreadId,
+                        storagePathFingerprint: fingerprintStoragePath(unmatchedAttachmentStoragePath),
+                    },
+                    consoleLabel: "[Chat] attachment replacement cleanup unconfirmed",
+                });
+                return;
+            }
+            clearDurableClientIdempotencyKey(previousPending.idempotency);
+            if (pendingChatSendsRef.current.get(activeSendKey) === previousPending) {
+                pendingChatSendsRef.current.delete(activeSendKey);
+            }
+            if (cleanupResult.state === "already_committed" && isSendContextCurrent()) {
+                void loadThreadDetail(sendThreadId, { background: true, quiet: true });
+            }
+        }
+
+        let idempotencyKey: string;
+        let activePendingSend: PendingChatSend;
+        try {
+            const resolvedIdempotency = currentComposerFile
+                ? (() => {
+                    const resolved = resolvePendingClientIdempotencyKey({
+                        pending: matchingPreviousPending?.idempotency,
+                        fingerprint: payloadFingerprint,
+                        createKey: () => buildChatMessageIdempotencyKey(sendThreadId),
+                    });
+                    return {
+                        ...resolved.pending,
+                        storageKey: null,
+                    } satisfies DurablePendingClientIdempotencyKey;
+                })()
+                : (await resolveDurableClientIdempotencyKey({
+                    pending: matchingPreviousPending?.idempotency,
+                    scope: {
+                        userId: user.uid,
+                        targetId: sendThreadId,
+                        action: "chat-text-send",
+                    },
+                    payloadFingerprint,
+                    createKey: () => buildChatMessageIdempotencyKey(sendThreadId),
+                })).pending;
+            idempotencyKey = resolvedIdempotency.key;
+            activePendingSend = {
+                userId: sendUserId,
+                threadId: sendThreadId,
+                idempotency: resolvedIdempotency,
+                payloadFingerprint,
+                uploadedAttachment: matchingPreviousPending?.uploadedAttachment ?? null,
+                attachmentOperation: matchingPreviousPending?.attachmentOperation ?? null,
+                composerRecovery: {
+                    text: currentComposerText,
+                    messageKind: currentComposerKind,
+                    file: currentComposerFile,
+                    errorMessage: null,
+                },
+            };
+            pendingChatSendsRef.current.set(activeSendKey, activePendingSend);
+            rememberComposerRecovery(activeSendKey, activePendingSend.composerRecovery);
+        } catch (error) {
+            activeChatSendKeysRef.current.delete(activeSendKey);
+            if (selectedThreadIdRef.current === sendThreadId && chatUserIdentityRef.current === sendUserId) {
+                setSendingMessage(false);
+            }
+            const message = "We couldn't send your message. Try again shortly.";
+            rememberComposerRecovery(activeSendKey, {
+                text: currentComposerText,
+                messageKind: currentComposerKind,
+                file: currentComposerFile,
+                errorMessage: message,
+            });
+            deferChatMessageSendFailedTelemetry({
+                sourceComponent: "chat_thread_composer",
+                userId: user?.uid,
+                thread: selectedThread,
+                messageKind: currentComposerKind,
+                hasAttachment: Boolean(currentComposerFile),
+                errorCode: "secure_random_unavailable",
+                errorMessage: message,
+            });
+            if (isSendContextCurrent()) {
+                setSendErrorMessage(message);
+            }
+            deferChatDiagnosticReport({
+                channel: "ui",
+                severity: "warn",
+                message: "Chat secure message identifier unavailable",
+                error,
+                detail: {
+                    threadId: sendThreadId,
+                    messageKind: currentComposerKind,
+                    hasAttachment: Boolean(currentComposerFile),
+                },
+                consoleLabel: "[Chat] secure message identifier unavailable",
+            });
+            if (isSendContextCurrent()) {
+                toast.error(message);
+            }
+            return;
+        }
+
+        if (isSendContextCurrent()) {
+            setInsufficientFunds(null);
+            setSendErrorMessage(null);
+            setSendWarningMessage(null);
+        }
+
+        let uploadedAttachment = activePendingSend.uploadedAttachment;
+        let sendResponseStatus: number | null = null;
+        let sendResponseProblem: ChatSendResponse | null = null;
+        const clearActivePendingSend = () => {
+            clearDurableClientIdempotencyKey(activePendingSend.idempotency);
+            if (pendingChatSendsRef.current.get(activeSendKey) === activePendingSend) {
+                pendingChatSendsRef.current.delete(activeSendKey);
+            }
+        };
+        const reconcileAlreadyCommittedAttachment = () => {
+            clearActivePendingSend();
+            composerRecoveryByThreadRef.current.delete(activeSendKey);
+            if (!isSendContextCurrent()) {
+                return;
+            }
+            setComposerText((current) => current.trim() === currentComposerText ? "" : current);
+            if (composerFileRef.current === currentComposerFile) {
+                composerFileRef.current = null;
+                setComposerFile(null);
+                setComposerKind("text");
+            }
+            setInsufficientFunds(null);
+            setSendErrorMessage(null);
+            setSendWarningMessage("Message was already sent. Chat has been refreshed.");
+            void loadThreadDetail(sendThreadId, { background: true, quiet: true });
+        };
 
         deferChatMessageSendAttemptedTelemetry({
             sourceComponent: "chat_thread_composer",
@@ -3001,14 +3741,14 @@ export function ChatExperience() {
         });
 
         const optimisticId = `optimistic-${Date.now()}`;
-        if (!currentComposerFile) {
-            setSelectedDetail((current) => current ? {
+        if (!currentComposerFile && isSendContextCurrent()) {
+            setSelectedDetail((current) => current?.thread.id === sendThreadId ? {
                 ...current,
                 messages: [
                     ...current.messages,
                     {
                         id: optimisticId,
-                        threadId: selectedThreadId,
+                        threadId: sendThreadId,
                         creatorId: selectedThread.creatorId,
                         userId: selectedThread.userId,
                         senderRole: selectedThread.viewerRole,
@@ -3025,7 +3765,7 @@ export function ChatExperience() {
             deferChatRealtimeTelemetry({
                 eventName: "chat_message_optimistic_rendered",
                 userId: user?.uid,
-                threadId: selectedThreadId,
+                threadId: sendThreadId,
                 messageId: optimisticId,
                 listenerScope: "selected_thread_messages_only",
                 propagationState: "optimistic_rendered",
@@ -3034,14 +3774,26 @@ export function ChatExperience() {
         }
 
         try {
-            uploadedAttachment = await uploadAttachment();
-            const response = await authFetch(`/api/chat/threads/${encodeURIComponent(selectedThreadId)}/messages`, {
+            if (!uploadedAttachment) {
+                uploadedAttachment = await uploadAttachment({
+                    operationKey: idempotencyKey,
+                    userId: sendUserId,
+                    threadId: sendThreadId,
+                    file: currentComposerFile,
+                    pendingSend: activePendingSend,
+                });
+                if (pendingChatSendsRef.current.get(activeSendKey) === activePendingSend) {
+                    activePendingSend.uploadedAttachment = uploadedAttachment;
+                }
+            }
+            const sentMessageKind = uploadedAttachment
+                ? (resolveChatAttachmentKind(uploadedAttachment.assetMimeType) || currentComposerKind)
+                : currentComposerKind;
+            const response = await authFetch(`/api/chat/threads/${encodeURIComponent(sendThreadId)}/messages`, {
                 method: "POST",
                 body: JSON.stringify({
                     text: currentComposerText,
-                    messageKind: uploadedAttachment
-                        ? (resolveChatAttachmentKind(uploadedAttachment.assetMimeType) || currentComposerKind)
-                        : currentComposerKind,
+                    messageKind: sentMessageKind,
                     idempotencyKey,
                     ...(uploadedAttachment ? {
                         assetUrl: uploadedAttachment.assetUrl,
@@ -3050,6 +3802,7 @@ export function ChatExperience() {
                     } : {}),
                 }),
             });
+            sendResponseStatus = response.status;
             let body = {} as ChatSendResponse;
             const rawResponse = await response.text().catch(() => "");
             try {
@@ -3057,11 +3810,28 @@ export function ChatExperience() {
             } catch {
                 throw buildChatSafeError("chat_send_non_json", "We couldn't send your message. Try again shortly.");
             }
+            sendResponseProblem = body;
 
             if (!response.ok) {
                 if (body.errorCode === "insufficient_paid_gumdrops") {
-                    if (!currentComposerFile) {
-                        setSelectedDetail((current) => current ? {
+                    let cleanupResult: ChatAttachmentCancelResult | null = null;
+                    if (uploadedAttachment?.storagePath) {
+                        cleanupResult = await discardUploadedAttachment({
+                            userId: sendUserId,
+                            threadId: sendThreadId,
+                            storagePath: uploadedAttachment.storagePath,
+                            operationKey: uploadedAttachment.operationKey,
+                        });
+                    }
+                    if (!uploadedAttachment || cleanupResult?.state === "canceled") {
+                        clearActivePendingSend();
+                    }
+                    if (cleanupResult?.state === "already_committed") {
+                        reconcileAlreadyCommittedAttachment();
+                        return;
+                    }
+                    if (!currentComposerFile && isSendContextCurrent()) {
+                        setSelectedDetail((current) => current?.thread.id === sendThreadId ? {
                             ...current,
                             messages: current.messages.filter((msg) => msg.id !== optimisticId),
                         } : current);
@@ -3076,51 +3846,79 @@ export function ChatExperience() {
                         errorCode: body.errorCode,
                         errorMessage: buildChatSendErrorMessage({ errorCode: body.errorCode }),
                     });
-                    trackEvent("chat_send_blocked", {
-                        source_component: "chat_thread_composer",
-                        route: "/dashboard/chat",
-                        creator_id: selectedThread.creatorId,
-                        thread_id: selectedThread.id,
-                        message_kind: currentComposerKind,
-                        error_code: body.errorCode,
-                        required_price_gd: body.requiredPriceGd,
-                        purchased_balance_gd: body.purchasedBalanceGd,
-                        paid_gd_shortfall: body.paidGdShortfall,
-                        debug_lane: "Chat gating/moderation",
+                    deferChatMessageBlockedTelemetry({
+                        userId: user?.uid,
+                        thread: selectedThread,
+                        messageKind: currentComposerKind,
+                        errorCode: body.errorCode,
+                        requiredPriceGd: body.requiredPriceGd,
+                        purchasedBalanceGd: body.purchasedBalanceGd,
+                        paidGdShortfall: body.paidGdShortfall,
                     });
-                    trackEvent("chat_message_blocked", {
-                        source_component: "chat_thread_composer",
-                        route: "/dashboard/chat",
-                        user_id: user?.uid ?? undefined,
-                        creator_id: selectedThread.creatorId,
-                        target_creator_id: selectedThread.creatorId,
-                        thread_id: selectedThread.id,
-                        message_kind: currentComposerKind,
-                        error_code: body.errorCode,
-                        required_price_gd: body.requiredPriceGd,
-                        purchased_balance_gd: body.purchasedBalanceGd,
-                        paid_gd_shortfall: body.paidGdShortfall,
-                        debug_lane: "Chat telemetry/admin truth",
-                    });
-                    setInsufficientFunds(body as ChatInsufficientFundsPayload);
+                    if (isSendContextCurrent()) {
+                        setInsufficientFunds(body as ChatInsufficientFundsPayload);
+                    }
+                    if (uploadedAttachment && cleanupResult?.state !== "canceled") {
+                        deferChatDiagnosticReport({
+                            channel: "storage",
+                            severity: "warn",
+                            message: "Blocked Chat attachment cleanup failed",
+                            detail: {
+                                threadId: sendThreadId,
+                                storagePathFingerprint: fingerprintStoragePath(uploadedAttachment?.storagePath),
+                            },
+                            consoleLabel: "[Chat] blocked attachment cleanup failed",
+                        });
+                    }
+                    const blockedMessage = buildChatSendErrorMessage({ errorCode: body.errorCode });
+                    activePendingSend.composerRecovery = {
+                        text: currentComposerText,
+                        messageKind: currentComposerKind,
+                        file: currentComposerFile,
+                        errorMessage: blockedMessage,
+                    };
+                    rememberComposerRecovery(activeSendKey, activePendingSend.composerRecovery);
                     return;
                 }
 
                 throw buildChatSafeError("chat_send_failed", buildChatSendErrorMessage(body));
             }
+            if (!isChatSendSuccessReceipt(body, {
+                threadId: sendThreadId,
+                viewerRole: selectedThread.viewerRole,
+                messageKind: sentMessageKind,
+                text: currentComposerText,
+                assetUrl: uploadedAttachment?.assetUrl,
+                assetName: uploadedAttachment?.assetName,
+                assetMimeType: uploadedAttachment?.assetMimeType,
+            })) {
+                throw buildChatSafeError("chat_send_invalid_receipt", "We couldn't confirm your message was sent. Try again shortly.");
+            }
+
+            clearActivePendingSend();
+            composerRecoveryByThreadRef.current.delete(activeSendKey);
+
+            if (!currentComposerFile && isSendContextCurrent()) {
+                setComposerText((current) => current.trim() === currentComposerText ? "" : current);
+            }
 
             deferChatRealtimeTelemetry({
                 eventName: "chat_message_api_accepted",
                 userId: user?.uid,
-                threadId: selectedThreadId,
+                threadId: sendThreadId,
                 messageId: body.message?.id ?? optimisticId,
                 listenerScope: "selected_thread_messages_only",
                 propagationState: "send_api_accepted",
                 sourceComponent: "chat_thread_composer",
             });
 
-            if (currentComposerFile) {
-                setComposerText("");
+            if (
+                currentComposerFile
+                && isSendContextCurrent()
+                && composerFileRef.current === currentComposerFile
+            ) {
+                composerFileRef.current = null;
+                setComposerText((current) => current.trim() === currentComposerText ? "" : current);
                 setComposerFile(null);
                 setComposerKind("text");
                 pushTypingState(false, "send");
@@ -3128,20 +3926,26 @@ export function ChatExperience() {
             if (body.message && body.thread) {
                 const persistedMessage = body.message;
                 const persistedThread = body.thread;
-                setSelectedDetail((current) => reconcileChatSendSuccess(current, {
-                    thread: persistedThread,
-                    message: persistedMessage,
-                    pricing: body.pricing,
-                    optimisticMessageId: currentComposerFile ? null : optimisticId,
-                }));
-                setThreads((current) => mergeThreads(
-                    current.map((thread) => thread.id === persistedThread.id ? persistedThread : thread),
-                    persistedThread,
-                ));
+                if (isSendContextCurrent()) {
+                    setSelectedDetail((current) => current?.thread.id === sendThreadId
+                        ? reconcileChatSendSuccess(current, {
+                            thread: persistedThread,
+                            message: persistedMessage,
+                            pricing: body.pricing,
+                            optimisticMessageId: currentComposerFile ? null : optimisticId,
+                        })
+                        : current);
+                }
+                if (chatUserIdentityRef.current === sendUserId) {
+                    setThreads((current) => mergeThreads(
+                        current.map((thread) => thread.id === persistedThread.id ? persistedThread : thread),
+                        persistedThread,
+                    ));
+                }
                 deferChatRealtimeTelemetry({
                     eventName: "chat_message_reconciled",
                     userId: user?.uid,
-                    threadId: selectedThreadId,
+                    threadId: sendThreadId,
                     messageId: persistedMessage.id,
                     listenerScope: "selected_thread_messages_only",
                     propagationState: "reconciled",
@@ -3152,7 +3956,7 @@ export function ChatExperience() {
                 sourceComponent: "chat_thread_composer",
                 userId: user?.uid,
                 thread: body.thread ?? selectedThread,
-                threadId: selectedThreadId,
+                threadId: sendThreadId,
                 creatorId: selectedThread.creatorId,
                 idempotencyKey,
                 messageId: body.message?.id ?? null,
@@ -3160,24 +3964,74 @@ export function ChatExperience() {
                 hasAttachment: Boolean(currentComposerFile),
             });
             const warningMessage = buildChatSendWarningMessage(body.warnings);
-            if (warningMessage) {
+            if (warningMessage && isSendContextCurrent()) {
                 setSendWarningMessage(warningMessage);
             }
         } catch (error) {
-            let cleanupFailed = false;
-            if (uploadedAttachment?.storagePath) {
-                cleanupFailed = !(await discardUploadedAttachment(uploadedAttachment.storagePath));
+            const attachmentDisposition = readChatAttachmentRetryDisposition(error);
+            if (attachmentDisposition === "already_committed") {
+                reconcileAlreadyCommittedAttachment();
+                deferChatRealtimeTelemetry({
+                    eventName: "chat_message_reconciled",
+                    userId: user?.uid,
+                    threadId: sendThreadId,
+                    messageId: optimisticId,
+                    listenerScope: "selected_thread_messages_only",
+                    propagationState: "reconciled",
+                    sourceComponent: "chat_thread_composer",
+                });
+                return;
             }
-            if (!currentComposerFile) {
-                setSelectedDetail((current) => current ? {
+
+            const definitiveServerFailure = isDefinitiveClientRejectionStatus(sendResponseStatus, sendResponseProblem);
+            let cleanupResult: ChatAttachmentCancelResult | null = null;
+            if (definitiveServerFailure && uploadedAttachment?.storagePath) {
+                cleanupResult = await discardUploadedAttachment({
+                    userId: sendUserId,
+                    threadId: sendThreadId,
+                    storagePath: uploadedAttachment.storagePath,
+                    operationKey: uploadedAttachment.operationKey,
+                });
+                if (cleanupResult.state === "already_committed") {
+                    reconcileAlreadyCommittedAttachment();
+                    return;
+                }
+            }
+            const definitiveFailure = shouldClearChatPendingOperation({
+                serverErrorCode: sendResponseProblem?.errorCode,
+                attachmentDisposition,
+                cleanupState: cleanupResult?.state,
+                definitiveServerFailure,
+                hasUploadedAttachment: Boolean(uploadedAttachment),
+            });
+            if (definitiveFailure) {
+                clearActivePendingSend();
+            }
+            const cleanupFailed = Boolean(
+                definitiveServerFailure
+                && uploadedAttachment
+                && cleanupResult?.state === "unconfirmed",
+            );
+            if (!currentComposerFile && isSendContextCurrent()) {
+                setSelectedDetail((current) => current?.thread.id === sendThreadId ? {
                     ...current,
                     messages: current.messages.filter((msg) => msg.id !== optimisticId),
                 } : current);
-                setComposerText(currentComposerText);
+                setComposerText((current) => current.trim().length === 0 ? currentComposerText : current);
             }
+            const safeErrorMessage = error instanceof ChatClientSafeError
+                ? error.message
+                : "We couldn't send your message. Try again shortly.";
             const message = cleanupFailed
                 ? "We couldn't send your message. The uploaded attachment could not be cleaned up automatically, and this was logged."
-                : "We couldn't send your message. Try again shortly.";
+                : safeErrorMessage;
+            activePendingSend.composerRecovery = {
+                text: currentComposerText,
+                messageKind: currentComposerKind,
+                file: currentComposerFile,
+                errorMessage: message,
+            };
+            rememberComposerRecovery(activeSendKey, activePendingSend.composerRecovery);
             deferChatMessageSendFailedTelemetry({
                 sourceComponent: "chat_thread_composer",
                 userId: user?.uid,
@@ -3190,32 +4044,42 @@ export function ChatExperience() {
             deferChatRealtimeTelemetry({
                 eventName: "chat_message_reconcile_failed",
                 userId: user?.uid,
-                threadId: selectedThreadId,
+                threadId: sendThreadId,
                 messageId: optimisticId,
                 listenerScope: "selected_thread_messages_only",
                 propagationState: "failed",
                 sourceComponent: "chat_thread_composer",
                 errorMessage: message,
             });
-            setSendErrorMessage(message);
+            if (isSendContextCurrent()) {
+                setSendErrorMessage(message);
+            }
             deferChatDiagnosticReport({
                 channel: "ui",
                 severity: "warn",
                 message: "Chat message send failed",
                 error,
                 detail: {
-                    threadId: selectedThreadId,
+                    threadId: sendThreadId,
                     messageKind: currentComposerKind,
                     hasAttachment: Boolean(currentComposerFile),
                     attachmentCleanupFailed: cleanupFailed,
+                    attachmentRetryDisposition: attachmentDisposition,
+                    retryWillReuseIdempotencyKey: pendingChatSendsRef.current.get(activeSendKey) === activePendingSend,
                 },
                 consoleLabel: "[Chat] send message failed",
             });
-            toast.error(message);
+            if (isSendContextCurrent()) {
+                toast.error(message);
+            }
         } finally {
-            setSendingMessage(false);
+            activeChatSendKeysRef.current.delete(activeSendKey);
+            pruneComposerRecoveries();
+            if (selectedThreadIdRef.current === sendThreadId && chatUserIdentityRef.current === sendUserId) {
+                setSendingMessage(false);
+            }
         }
-    }, [composerFile, composerKind, composerText, discardUploadedAttachment, proactivePaidGdGate, proactivePaidGdGateVisible, pushTypingState, selectedThread, selectedThreadId, uploadAttachment, user?.uid]);
+    }, [composerFile, composerKind, composerText, discardUploadedAttachment, loadThreadDetail, proactivePaidGdGate, proactivePaidGdGateVisible, pruneComposerRecoveries, pushTypingState, rememberComposerRecovery, selectedThread, selectedThreadId, updateCurrentComposerRecovery, uploadAttachment, user]);
 
     const handleComposerKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -3410,7 +4274,7 @@ export function ChatExperience() {
         };
     }, [latestMessageSnapshot, scrollMessageListToBottom, selectedThreadId]);
 
-    if (!user || !userProfile) {
+    if (!user || !userProfile || chatStateOwnerUserId !== user.uid) {
         return null;
     }
 
@@ -3807,7 +4671,7 @@ export function ChatExperience() {
                                             <button
                                                 type="button"
                                                 onClick={returnToThreadList}
-                                                className="absolute left-0 inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#161618] text-white transition hover:bg-[#202024]"
+                                                className="absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#161618] text-white transition hover:bg-[#202024]"
                                                 aria-label="Back to chat list"
                                             >
                                                 <ArrowLeft className="h-[18px] w-[18px]" />
@@ -3870,7 +4734,8 @@ export function ChatExperience() {
                                         const isOptimistic = message.id.startsWith("optimistic-");
                                         const showTimelineMarker = shouldRenderTimelineMarker(message, previousMessage);
                                         const showStatus = isOutgoing && (isLatestOutgoing || isOptimistic);
-                                        const isAttachmentOnlyMessage = Boolean(message.assetUrl && !message.text?.trim());
+                                        const safeAttachment = resolveSafeChatAttachment(message);
+                                        const isAttachmentOnlyMessage = Boolean(safeAttachment && !message.text?.trim());
                                         const readState = isOptimistic
                                             ? "Sending..."
                                             : isLatestOutgoing && selectedThread.counterpartReadAt >= message.createdAt
@@ -3892,7 +4757,7 @@ export function ChatExperience() {
                                                             "min-w-0",
                                                             isAttachmentOnlyMessage
                                                                 ? "w-fit max-w-[78vw] sm:max-w-[28rem]"
-                                                                : message.assetUrl
+                                                                : safeAttachment
                                                                     ? "max-w-[65%]"
                                                                     : "max-w-[84%] sm:max-w-[72%]",
                                                         )}
@@ -3907,29 +4772,24 @@ export function ChatExperience() {
                                                             isOptimistic ? "opacity-75" : "",
                                                         )}>
                                                             {message.text ? <p className="whitespace-pre-wrap break-words">{message.text}</p> : null}
-                                                            {message.assetUrl ? (
+                                                            {safeAttachment ? (
                                                                 <div className={cn(message.text ? "mt-3" : "")}>
                                                                     <div className={cn(
                                                                         "w-fit max-w-full overflow-hidden rounded-[1.15rem]",
                                                                         isOutgoing ? "bg-[#5b2fdd]" : "bg-[#1a1a1d]",
                                                                     )} style={CHAT_MEDIA_PREVIEW_STYLE}>
-                                                                        {isImageAttachment(message.assetMimeType, message.assetUrl) ? (
+                                                                        {safeAttachment.kind === "image" ? (
                                                                             // eslint-disable-next-line @next/next/no-img-element
-                                                                            <img src={message.assetUrl} alt="" className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="image" />
-                                                                        ) : isVideoAttachment(message.assetMimeType, message.assetUrl) ? (
-                                                                            <video src={message.assetUrl} controls className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="video" />
+                                                                            <img src={safeAttachment.url} alt={message.assetName || "Chat image attachment"} className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="image" />
                                                                         ) : (
-                                                                            <a
-                                                                                href={message.assetUrl}
-                                                                                target="_blank"
-                                                                                rel="noreferrer"
-                                                                                className="block px-4 py-3 text-sm font-medium text-white underline"
-                                                                            >
-                                                                                Open attachment
-                                                                            </a>
+                                                                            <video src={safeAttachment.url} controls aria-label={message.assetName || "Chat video attachment"} className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="video" />
                                                                         )}
                                                                     </div>
                                                                 </div>
+                                                            ) : message.assetUrl ? (
+                                                                <p className={cn(message.text ? "mt-3" : "", "rounded-xl bg-black/20 px-3 py-2 text-sm text-white/75")}>
+                                                                    Attachment unavailable.
+                                                                </p>
                                                             ) : null}
                                                         </div>
                                                         {showStatus ? (
@@ -3982,8 +4842,11 @@ export function ChatExperience() {
                                                         </div>
                                                         <button
                                                             type="button"
-                                                            onClick={() => setSendErrorMessage(null)}
-                                                            className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-200"
+                                                            onClick={() => {
+                                                                setSendErrorMessage(null);
+                                                                updateCurrentComposerRecovery({ errorMessage: null });
+                                                            }}
+                                                            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-xs font-semibold uppercase tracking-[0.14em] text-rose-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70"
                                                         >
                                                             Close
                                                         </button>
@@ -4000,7 +4863,7 @@ export function ChatExperience() {
                                                         <button
                                                             type="button"
                                                             onClick={() => setSendWarningMessage(null)}
-                                                            className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200"
+                                                            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-xs font-semibold uppercase tracking-[0.14em] text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/70"
                                                         >
                                                             Close
                                                         </button>
@@ -4038,10 +4901,12 @@ export function ChatExperience() {
                                                     <button
                                                         type="button"
                                                         onClick={() => {
+                                                            composerFileRef.current = null;
                                                             setComposerFile(null);
                                                             setComposerKind("text");
+                                                            updateCurrentComposerRecovery({ file: null, messageKind: "text" });
                                                         }}
-                                                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
+                                                        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
                                                         aria-label="Remove attachment"
                                                     >
                                                         <X className="h-4 w-4" />
@@ -4049,20 +4914,18 @@ export function ChatExperience() {
                                                 </div>
                                             ) : null}
                                             {composerSummary ? (
-                                                <div className="truncate text-[13px] leading-[18px] text-[#7f8087]">{composerSummary}</div>
+                                                <div className="max-h-[18px] overflow-hidden truncate text-[13px] leading-[18px] text-[#7f8087]">{composerSummary}</div>
                                             ) : null}
                                         </div>
                                     ) : null}
-                                    <div ref={chatThreadComposerControlRef} className={cn("flex min-w-0 items-center gap-2", isIosPwaChatShell ? "h-9 max-h-9" : "h-12 max-h-12")}>
+                                    <div ref={chatThreadComposerControlRef} className="flex min-h-12 max-h-12 min-w-0 items-center gap-2">
                                         <div ref={attachmentMenuRef} className="relative shrink-0">
                                             <button
                                                 type="button"
                                                 onClick={() => setAttachmentMenuOpen((current) => !current)}
                                                 disabled={composerBlockedByPaidGdGate}
                                                 className={cn(
-                                                    isIosPwaChatShell
-                                                        ? "inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
-                                                        : "inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]",
+                                                    "inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]",
                                                     composerBlockedByPaidGdGate ? "cursor-not-allowed opacity-45 hover:bg-[#141417]" : "",
                                                 )}
                                                 aria-label="Add attachment"
@@ -4122,7 +4985,7 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className={cn("flex min-w-0 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] ring-1 ring-white/8", isIosPwaChatShell ? "h-9 max-h-9 py-0.5 pl-3 pr-0.5" : "h-12 max-h-12 py-1 pl-4 pr-1")}>
+                                        <div className={cn("flex min-h-12 max-h-12 min-w-0 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] ring-1 ring-white/8", isIosPwaChatShell ? "py-0.5 pl-3 pr-0.5" : "py-1 pl-4 pr-1")}>
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
@@ -4141,9 +5004,7 @@ export function ChatExperience() {
                                                 onClick={() => void handleSendMessage()}
                                                 disabled={sendingMessage || composerBlockedByPaidGdGate}
                                                 className={cn(
-                                                    isIosPwaChatShell
-                                                        ? "inline-flex h-9 w-9 shrink-0 self-center items-center justify-center rounded-full transition"
-                                                        : "inline-flex h-12 w-12 shrink-0 self-center items-center justify-center rounded-full transition",
+                                                    "inline-flex h-12 w-12 shrink-0 self-center items-center justify-center rounded-full transition",
                                                     sendingMessage || composerBlockedByPaidGdGate
                                                         ? "cursor-not-allowed bg-brand-purple/50 text-white/80"
                                                         : "bg-brand-purple text-white hover:bg-[#8457ff]",
@@ -4203,7 +5064,7 @@ export function ChatExperience() {
                                 <button
                                     type="button"
                                     onClick={() => setComposePickerOpen(false)}
-                                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
+                                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
                                     aria-label="Close new message picker"
                                 >
                                     <X className="h-4 w-4" />

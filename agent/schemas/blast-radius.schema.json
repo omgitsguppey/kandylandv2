@@ -1,10 +1,38 @@
 {
   "type": "object",
-  "required": ["generatedAt", "truthOrder", "source", "entries"],
+  "required": ["generatedAt", "generatedAtUtc", "truthOrder", "source", "reportCompleteness", "totalFindingCount", "emittedFindingCount", "omittedFindingCount", "capStrategy", "sourceFileDiscovery", "gitStatus", "toolingDegraded", "currentHeadSource", "freshness", "baselineStatus", "owner", "safetyClass", "costClass", "rollback", "cleanupPolicy", "sourceTruthRole", "entries", "counts"],
   "properties": {
     "generatedAt": { "type": "string" },
+    "generatedAtUtc": { "type": "string" },
     "truthOrder": { "type": "array", "items": { "type": "string" } },
     "source": { "type": "array", "items": { "type": "string" } },
-    "entries": { "type": "array", "items": { "type": "object" } }
+    "reportCompleteness": { "type": "string", "enum": ["complete", "sampled", "capped", "degraded", "partial"] },
+    "totalFindingCount": { "type": "integer" },
+    "emittedFindingCount": { "type": "integer" },
+    "omittedFindingCount": { "type": "integer" },
+    "capStrategy": { "type": "string" },
+    "sourceFileDiscovery": { "type": "string", "enum": ["git", "repo_inventory", "filesystem"] },
+    "gitStatus": { "type": "string", "enum": ["available", "missing", "error"] },
+    "toolingDegraded": { "type": "boolean" },
+    "currentHeadSource": { "type": "string" },
+    "freshness": { "type": "string" },
+    "baselineStatus": { "type": "string" },
+    "owner": { "type": "string" },
+    "safetyClass": { "type": "string" },
+    "costClass": { "type": "string" },
+    "rollback": { "type": "string" },
+    "cleanupPolicy": { "type": "string" },
+    "sourceTruthRole": { "type": "string" },
+    "entries": { "type": "array", "items": { "type": "object" } },
+    "counts": {
+      "type": "object",
+      "required": ["total", "emitted", "omitted", "byScoreBand"],
+      "properties": {
+        "total": { "type": "integer" },
+        "emitted": { "type": "integer" },
+        "omitted": { "type": "integer" },
+        "byScoreBand": { "type": "object" }
+      }
+    }
   }
 }

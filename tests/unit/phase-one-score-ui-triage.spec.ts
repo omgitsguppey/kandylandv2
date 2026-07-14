@@ -25,7 +25,6 @@ describe("phase one score UI triage", () => {
       "provider-smoke-evidence-not-ingested",
       "runtime-smoke-evidence-not-ingested",
       "admin-truth-sample-evidence-not-ingested",
-      "targeted-behavior-evidence-hardcoded-false",
     ]));
     expect(REPORT.scoreIngestionFindings.every((finding) =>
       typeof finding.evidenceFileExists === "boolean"
@@ -40,7 +39,7 @@ describe("phase one score UI triage", () => {
 
     expect(providerFinding?.scoreTrustsItCorrectly).toBe(false);
     expect(REPORT.scoreMathFindings.map((finding) => finding.findingKey)).toEqual(expect.arrayContaining([
-      "score-stuck-at-source-safety-only",
+      "stale-report-cap-has-no-independent-refresh-lane",
       "evidence-gates-are-mostly-boolean",
     ]));
   });
@@ -54,7 +53,7 @@ describe("phase one score UI triage", () => {
   it("captures watch-time truth defects without changing watch math", () => {
     expect(REPORT.watchTimeFindings.map((finding) => finding.findingKey)).toEqual(expect.arrayContaining([
       "watch-time-contract-canonical-but-needs-ui-lock",
-      "admin-user-metrics-test-expects-legacy-watch-seconds-as-watch-time",
+      "admin-user-metrics-feeds-legacy-watch-seconds-into-diagnostics",
     ]));
   });
 
@@ -63,18 +62,17 @@ describe("phase one score UI triage", () => {
     expect(REPORT.adminDashboardFindings.every((finding) => finding.severity === "P2")).toBe(true);
   });
 
-  it("flags Creator Dashboard fake-live source risk", () => {
-    const creatorFinding = REPORT.creatorDashboardFindings.find((finding) =>
-      finding.findingKey === "creator-dashboard-stats-can-render-live-without-source-samples");
-
-    expect(creatorFinding?.severity).toBe("P0");
-    expect(creatorFinding?.recommendedFix).toContain("source/sample metadata");
+  it("retires the Creator Dashboard fake-live finding after source metadata lands", () => {
+    expect(REPORT.creatorDashboardFindings).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ findingKey: "creator-dashboard-stats-can-render-live-without-source-samples" }),
+    ]));
+    expect(REPORT.summary.creatorDashboardIssues).toBe(0);
+    expect(REPORT.recommendedFixOrder.map((step) => step.stepKey)).not.toContain("creator-dashboard-source-sample-contract");
   });
 
   it("provides a ranked next fix plan", () => {
     expect(REPORT.recommendedFixOrder.map((step) => step.stepKey)).toEqual([
       "score-evidence-ingestion",
-      "creator-dashboard-source-sample-contract",
       "admin-debug-beta-score-connection",
       "watch-time-contract-lock",
       "admin-dashboard-scope-followup",

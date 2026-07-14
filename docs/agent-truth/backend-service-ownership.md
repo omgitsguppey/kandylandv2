@@ -1,7 +1,7 @@
 # Backend Service Ownership
 
-Generated: 2026-05-27T03:56:29.605Z
-Current head: 360b1047
+Generated: 2026-07-14T16:07:20.012Z
+Current head: dc4dad82c
 
 ## Canonical Services
 

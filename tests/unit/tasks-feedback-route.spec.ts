@@ -121,4 +121,28 @@ describe("POST /api/tasks/feedback", () => {
             severity: "high",
         }));
     });
+
+    it("rejects oversized feedback before storage, task receipts, or telemetry", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/tasks/feedback", {
+            method: "POST",
+            body: JSON.stringify({ message: "x".repeat(40_000) }),
+            headers: {
+                "content-type": "application/json",
+                "content-length": "1",
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminDb.collection).not.toHaveBeenCalled();
+        expect(mockState.set).not.toHaveBeenCalled();
+        expect(mockState.recordCanonicalTaskEvent).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
 });

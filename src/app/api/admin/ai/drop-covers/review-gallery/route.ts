@@ -11,6 +11,7 @@ import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-lim
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -68,10 +69,14 @@ async function PUT_handler(request: NextRequest) {
             scopeToCaller: true,
         });
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             jobId?: unknown;
             reusable?: unknown;
-        };
+        }>(request, {
+            maxBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
+            routeName: "admin/ai/drop-covers/review-gallery:PUT",
+            allowEmpty: false,
+        });
         const jobId = typeof body.jobId === "string" ? body.jobId.trim() : "";
         if (!jobId) {
             return finalize(startedAt, "admin/ai/drop-covers/review-gallery:PUT", NextResponse.json({ error: "Missing generation job id" }, { status: 400 }));
@@ -90,6 +95,15 @@ async function PUT_handler(request: NextRequest) {
             }),
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/review-gallery:PUT", NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                message: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
             return finalize(startedAt, "admin/ai/drop-covers/review-gallery:PUT", NextResponse.json(aiError.body, { status: aiError.status }), error);

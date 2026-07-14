@@ -10,6 +10,11 @@ import {
   normalizeSyntheticCreatorType,
   parseAdminViewAsState,
 } from "@/lib/admin/synthetic-creators-view-as";
+import {
+  calculateLegacyDebtScore,
+  getLegacyOverdueMultiplier,
+  getLegacyRegistryItem,
+} from "@/lib/legacy/legacy-registry";
 
 describe("synthetic creators and admin view-as helpers", () => {
   it("creates synthetic creator markers with required audit fields", () => {
@@ -125,5 +130,41 @@ describe("synthetic creators and admin view-as helpers", () => {
       metricExclusionReason: "admin_projection",
       sourceTruth: "local_projection",
     });
+  });
+
+  it("retires unsafe projection semantics without blocking legitimate user behavior eligibility", () => {
+    const item = getLegacyRegistryItem("synthetic-view-as-local-projection");
+
+    expect(item).toMatchObject({
+      status: "blocked",
+      phaseOutStage: "removed",
+      ownerSurface: "admin_creator_projection",
+    });
+    expect(item?.blockedReferences).toContain('sourceTruth: "live_projection"');
+    expect(item?.blockedReferences).toContain('performedAs: "creator"');
+    expect(item?.blockedReferences).not.toContain("includeInUserBehavior: true");
+    expect(getLegacyOverdueMultiplier(item!, new Date("2026-08-01T00:00:00.000Z"))).toBe(1);
+    expect(calculateLegacyDebtScore([item!], new Date("2026-08-01T00:00:00.000Z"))).toBe(0);
+  });
+
+  it("keeps retired legacy semantics blocked while active fallback debt remains explicit", () => {
+    const retiredIds = [
+      "drops-query-modal-flow",
+      "old-moderation-screenshot-certainty",
+      "old-wallet-total-only-balance-chip",
+      "old-green-bonus-chips",
+      "notification-opened-read-score-split",
+      "admin-support-realtime-queue",
+    ];
+
+    for (const id of retiredIds) {
+      const item = getLegacyRegistryItem(id);
+      expect(item?.phaseOutStage).toBe("removed");
+      expect(item?.blockedReferences.length).toBeGreaterThan(0);
+      expect(calculateLegacyDebtScore([item!], new Date("2026-08-01T00:00:00.000Z"))).toBe(0);
+    }
+
+    expect(getLegacyRegistryItem("drop-preview-modal-fallback")?.phaseOutStage).toBe("unused");
+    expect(getLegacyRegistryItem("admin-users-realtime-route")?.phaseOutStage).toBe("guarded");
   });
 });

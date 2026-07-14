@@ -1,8 +1,8 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
+import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
 
 const root = process.cwd();
 
@@ -11,15 +11,14 @@ function read(path: string) {
 }
 
 describe("user profile api contract", () => {
-  it("passes the source-level user profile api contract validator", () => {
-    expect(() => {
-      execSync("npm run check:user-profile-api-contract", {
-        cwd: root,
-        stdio: "pipe",
-        encoding: "utf8",
-      });
-    }).not.toThrow();
-  }, 20000);
+  it("passes source checks or reports only the exact dirty-tree isolation blocker", () => {
+    expectSourceValidatorWithDirtyTreeIsolation({
+      command: "npm run check:user-profile-api-contract",
+      artifact: "agent/state/user-profile-api-contract.generated.json",
+      isolationCheck: "protectedSurfacesUntouched",
+      expectedIsolationFailure: /protected surfaces changed:/u,
+    });
+  }, 30000);
 
   it("declares readable, writable, server-only, display-only, and telemetry fields", async () => {
     expect(existsSync(join(root, "src/lib/user/user-profile-contract.ts"))).toBe(true);

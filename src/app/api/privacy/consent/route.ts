@@ -6,6 +6,9 @@ import { ANALYTICS_CONSENT_COOKIE } from "@/lib/privacy-consent";
 import { CONSENT_DECISION_VALUES, CONSENT_MODE_VALUES, CONSENT_TRACKING_VERSION } from "@/lib/privacy/consent-tracking-contract";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+
+const PRIVACY_CONSENT_BODY_LIMIT_BYTES = 16_384;
 
 const ConsentSchema = z.object({
     anonymousAnalyticsEnabled: z.boolean(),
@@ -23,7 +26,11 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
         });
 
-        const payload = ConsentSchema.parse(await request.json());
+        const rawBody = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: PRIVACY_CONSENT_BODY_LIMIT_BYTES,
+            routeName: "privacy/consent",
+        });
+        const payload = ConsentSchema.parse(rawBody);
         const response = NextResponse.json({ success: true });
 
         response.cookies.set({
@@ -38,6 +45,13 @@ async function POST_handler(request: NextRequest) {
 
         return response;
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         if (error instanceof z.ZodError) {
             return NextResponse.json({ error: "Invalid consent payload" }, { status: 400 });
         }

@@ -45,5 +45,9 @@ env:
     value: G-V8PWC2L31H
   - variable: GA_API_SECRET
     secret: GA_API_SECRET
+  - variable: USER_INDEX_MATERIALIZER_MODE
+    value: "off"
+  - variable: CRON_SECRET
+    secret: CRON_SECRET
   - variable: NAVIGATION_COOKIE_SECRET
     secret: NAVIGATION_COOKIE_SECRET

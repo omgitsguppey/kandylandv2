@@ -60,6 +60,7 @@ vi.mock("@/lib/server/auth", () => ({
 
 vi.mock("@/lib/server/rate-limit", () => ({
     STANDARD: {},
+    STRICT: {},
 }));
 
 vi.mock("@/lib/server/support-threads", () => ({
@@ -80,6 +81,18 @@ vi.mock("@/lib/server/analytics", () => ({
 
 import { GET as getThreads, POST as postThread } from "@/app/api/support/threads/route";
 import { GET as getThread, PATCH as patchThread, POST as postReply } from "@/app/api/support/threads/[threadId]/route";
+import { POST as postGuestThread } from "@/app/api/support/threads/guest/route";
+
+function buildOversizedSupportRequest(url: string, method: "POST" | "PATCH" = "POST") {
+    return new NextRequest(url, {
+        method,
+        body: JSON.stringify({ padding: "x".repeat(70_000) }),
+        headers: {
+            "content-type": "application/json",
+            "content-length": "1",
+        },
+    });
+}
 
 describe("support thread routes", () => {
     beforeEach(() => {
@@ -153,6 +166,103 @@ describe("support thread routes", () => {
             category: "creator_application",
             source_truth: "server",
         }), "user_1");
+    });
+
+    it("rejects oversized authenticated thread creation before profile reads, writes, or telemetry", async () => {
+        const response = await postThread(buildOversizedSupportRequest("http://localhost/api/support/threads"));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminDb.collection).not.toHaveBeenCalled();
+        expect(mockState.createSupportThread).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("rejects oversized guest intake before thread creation", async () => {
+        const response = await postGuestThread(buildOversizedSupportRequest("http://localhost/api/support/threads/guest"));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.createSupportThread).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("preserves valid guest support intake", async () => {
+        mockState.createSupportThread.mockResolvedValue({
+            thread: { id: "guest_thread_1" },
+            messages: [],
+        });
+
+        const response = await postGuestThread(new NextRequest("http://localhost/api/support/threads/guest", {
+            method: "POST",
+            body: JSON.stringify({
+                email: "guest@example.com",
+                displayName: "Guest User",
+                subject: "I need account help",
+                category: "account",
+                message: "I cannot access my existing account.",
+                sourcePath: "/login",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body).toEqual({ success: true, threadId: "guest_thread_1" });
+        expect(mockState.createSupportThread).toHaveBeenCalledWith(expect.objectContaining({
+            userId: "guest:guest@example.com",
+            userEmail: "guest@example.com",
+            userDisplayName: "Guest User",
+            sourcePath: "/login",
+        }));
+    });
+
+    it("rejects oversized replies before thread reads, message writes, or telemetry", async () => {
+        const response = await postReply(
+            buildOversizedSupportRequest("http://localhost/api/support/threads/thread_1"),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.getSupportThreadForUser).not.toHaveBeenCalled();
+        expect(mockState.addSupportMessage).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("rejects oversized status changes before thread reads or writes", async () => {
+        const response = await patchThread(
+            buildOversizedSupportRequest("http://localhost/api/support/threads/thread_1", "PATCH"),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.getSupportThreadForUser).not.toHaveBeenCalled();
+        expect(mockState.updateSupportThreadStatus).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
 
     it("returns thread detail and allows replies and resolution", async () => {

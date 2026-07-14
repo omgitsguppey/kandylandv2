@@ -29,6 +29,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildAdminInvalidRequestResponse } from "@/lib/server/admin-route-errors";
 
 const ADMIN_CREATOR_FAN_EXPERIENCE_BODY_LIMIT_BYTES = 64_000;
 const ADMIN_CREATOR_FAN_EXPERIENCE_TELEMETRY_CONCURRENCY = 4;
@@ -185,7 +186,7 @@ async function POST_handler(request: NextRequest) {
     });
     const parsed = parseCreatorFanExperienceSettingsCommand(body);
     if (!parsed.ok) {
-      return NextResponse.json({ error: parsed.error }, { status: 400 });
+      return buildAdminInvalidRequestResponse(parsed.error);
     }
 
     const command = parsed.command;
@@ -223,7 +224,10 @@ async function POST_handler(request: NextRequest) {
     });
 
     if (!validation.ok) {
-      return NextResponse.json({ error: validation.errors[0] || "Fan experience settings are invalid." }, { status: 400 });
+      return buildAdminInvalidRequestResponse(
+        validation.errors[0] || "Fan experience settings are invalid.",
+        { validationErrors: validation.errors },
+      );
     }
 
     const debugPatch = buildCreatorFanExperienceDebugPatch({

@@ -50,6 +50,12 @@ describe("wallet packages route repair", () => {
     expect(response.headers.get("Cache-Control")).toContain("s-maxage=900");
   });
 
+  it("does not force a dynamic route for the static public package catalog", async () => {
+    const route = await import("@/app/api/wallet/packages/route");
+
+    expect("dynamic" in route).toBe(false);
+  });
+
   it("maps expected guard failures to typed non-retryable client errors", async () => {
     mockState.guardApiRequest.mockResolvedValueOnce(null as never);
 

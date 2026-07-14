@@ -52,7 +52,7 @@ requireIncludes(unlockRoute, "buildServerUnlockTelemetryEvent", "Drop unlock rou
 requireIncludes(unlockRoute, 'trackServerEvent("entitlement_granted"', "Drop unlock entitlement route");
 requireIncludes(unlockRoute, 'entitlement_id: result.entitlementId', "Drop unlock route entitlement id telemetry");
 requireIncludes(unlockRoute, 'transaction_id: result.transactionId', "Drop unlock route transaction id telemetry");
-requireIncludes(unlockRoute, "idempotency_key: serverUnlockTelemetry.idempotencyKey", "Drop unlock route idempotency telemetry");
+requireIncludes(unlockRoute, "...serverUnlockTelemetry.params", "Drop unlock route idempotency telemetry");
 requireIncludes(unlockRoute, 'source_component: "drops_unlock_route"', "Drop unlock route source component telemetry");
 requireIncludes(unlockRoute, 'route: "/api/drops/unlock"', "Drop unlock route route telemetry");
 requireIncludes(unlockRoute, 'sourceTruth: "server_unlock_route"', "Drop unlock route server truth");
@@ -78,11 +78,10 @@ requireIncludes(telemetryCatalog, 'entitlementId: "entitlement_id"', "Telemetry 
 
 requireIncludes(identifiedIngestRoute, "resolveTrackedTelemetryEvent(rawEvent.eventName)", "Identified ingest unlock canonical resolver");
 requireIncludes(identifiedIngestRoute, "canonicalEventName", "Identified ingest canonical event name");
-requireIncludes(identifiedIngestRoute, "sourceTruth: runtimeFactResult.fact.sourceTruth", "Identified ingest unlock server truth");
+requireIncludes(identifiedIngestRoute, "sourceTruth: ingestRuntimeFact.sourceTruth", "Identified ingest unlock server truth");
 
 requireIncludes(adminHistoricalRoute, 'const telemetryUnlockCount = Math.max(', "Admin historical unlock telemetry aggregation");
-requireIncludes(adminHistoricalRoute, 'canonicalEventCounts.drop_unwrapped || 0', "Admin historical unlock parity must read canonical unlock facts");
-requireIncludes(adminHistoricalRoute, 'canonicalEventCounts.entitlement_granted || 0', "Admin historical unlock parity must read entitlement facts");
+requireIncludes(adminHistoricalRoute, 'maxCanonicalEventCount(canonicalEventCounts, "drop_unlocked")', "Admin historical unlock parity must read the canonical unlock family");
 requireIncludes(adminHistoricalRoute, "topDropConversionState", "Admin historical Top Drop Conversion source state");
 requireIncludes(adminHistoricalRoute, 'numeratorLabel: "unwraps"', "Admin historical Top Drop Conversion display numerator");
 requireIncludes(adminAnalyticsCommerceTab, "Drops with enough views to evaluate unwrap conversion.", "Admin analytics Top Drop Conversion panel");

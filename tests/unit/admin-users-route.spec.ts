@@ -196,7 +196,7 @@ vi.mock("@/lib/server/route-runtime-health", async (importOriginal) => {
     };
 });
 
-import { PUT } from "@/app/api/admin/users/route";
+import { POST, PUT } from "@/app/api/admin/users/route";
 
 function seedCreatorApplicant(input: {
     userId: string;
@@ -387,6 +387,7 @@ describe("PUT /api/admin/users", () => {
 
         expect(response.status).toBe(400);
         expect(payload).toMatchObject({
+            code: "invalid_admin_request",
             error: "Creator role cannot be activated until intro acknowledgment, ID verification, and agreement signatures are complete.",
         });
         expect(mockState.documents.get("users/creator_direct_block")).toMatchObject({
@@ -396,6 +397,24 @@ describe("PUT /api/admin/users", () => {
             channel: "creator_onboarding",
             message: "Creator role activation blocked by onboarding prerequisites",
         }));
+    });
+
+    it.each([
+        ["PUT", PUT],
+        ["POST", POST],
+    ])("returns a typed 400 when %s receives JSON null", async (method, handler) => {
+        const response = await handler(new NextRequest("http://localhost/api/admin/users", {
+            method,
+            body: "null",
+        }));
+        const payload = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(payload).toMatchObject({
+            code: "invalid_admin_request",
+            error: "Request body must be a JSON object",
+        });
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
 
     it("blocks non-owner admins from granting admin access", async () => {
@@ -630,5 +649,30 @@ describe("PUT /api/admin/users", () => {
             approvalStatus: "creator_needs_changes",
             adminNotes: "Need a clearer legal packet acknowledgment before approval.",
         });
+    });
+
+    it("rejects oversized updates before any user or onboarding mutation", async () => {
+        const request = new NextRequest("http://localhost/api/admin/users", {
+            method: "PUT",
+            body: JSON.stringify({
+                userId: "oversized_target",
+                updates: {
+                    status: "active",
+                    padding: "x".repeat(64_000),
+                },
+            }),
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            code: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.documents.has("users/oversized_target")).toBe(false);
+        expect(mockState.documents.has("creator_onboarding/oversized_target")).toBe(false);
     });
 });

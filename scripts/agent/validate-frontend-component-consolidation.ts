@@ -5,6 +5,8 @@ import {
   buildFrontendComponentConsolidationReport,
   buildFrontendGutConsolidationReport,
   buildFrontendSurfaceInventoryReport,
+  classifyFrontendConsolidationDirtyFile,
+  compactFrontendConsolidationDirtyClassifications,
   validateFrontendComponentConsolidationReport,
   validateFrontendSurfaceInventoryReport,
 } from "@/lib/frontend-hardening/frontend-surface-inventory";
@@ -40,29 +42,10 @@ function changedFiles() {
   return listWorkingTreeFiles();
 }
 
-function classifyDirtyFile(path: string) {
-  if (path === "AGENTS.md" || path === "REPO_MEMORY_LEDGER.md" || path === "agent/index/known-pitfalls.json") return "memory_update_expected";
-  if (path === "package.json" || path === "package-lock.json") return "real_source_change_needs_review";
-  if (path.startsWith("agent/context/")) return "generated_context_noise_leave_unstaged";
-  if (path.startsWith("agent/index/")) return "generated_index_noise_leave_unstaged";
-  if (path === "src/components/Support/SupportInbox.tsx") return "hydration_race_logic_to_fix";
-  if (path === "src/lib/analytics/event-translation-bridge.ts" || path === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
-  if (path.startsWith("src/lib/frontend-hardening/")) return "real_source_change_needs_review";
-  if (path.startsWith("scripts/agent/validate-frontend-") || path === "scripts/agent/validate-client-state-ownership.ts" || path === "scripts/agent/validate-hydration-race-cleanup.ts" || path === "scripts/agent/validate-codex-frontend-memory-writeback.ts") return "real_source_change_needs_review";
-  if (path === "scripts/agent/build-agent-indexes.ts" || path === "scripts/agent/validate-freshness-window-repair.ts" || path === "scripts/repo-inventory.ts") return "tooling_change_needs_separate_review";
-  if (path.startsWith("tests/unit/frontend-") || path === "tests/unit/client-state-ownership.spec.ts" || path === "tests/unit/hydration-race-cleanup.spec.ts" || path === "tests/unit/codex-frontend-memory-writeback.spec.ts") return "real_source_change_needs_review";
-  if (path.startsWith("agent/state/frontend-") || path === "agent/state/client-state-ownership.generated.json" || path === "agent/state/hydration-race-cleanup.generated.json" || path === "agent/state/codex-frontend-memory-writeback.generated.json") return "current_generated_artifact_to_commit";
-  if (path.startsWith("docs/agent-truth/frontend-") || path === "docs/agent-truth/client-state-ownership.md" || path === "docs/agent-truth/hydration-race-cleanup.md" || path === "docs/agent-truth/codex-frontend-memory-writeback.md") return "current_generated_artifact_to_commit";
-  if (path === "agent/state/event-translation-bridge.generated.json" || path === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
-  if (path === "docs/agent-truth/event-translation-bridge.md" || path === "docs/agent-truth/person-metrics-hydration.md") return "current_generated_artifact_to_commit";
-  if (path === "agent/state/public-beta-score.generated.json" || path === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
-  if (path.startsWith("agent/state/") && path.endsWith(".generated.json")) return "generated_report_noise_leave_unstaged";
-  if (path.startsWith("docs/agent-truth/") && path.endsWith(".md")) return "generated_report_doc_noise_leave_unstaged";
-  if (path === "CHANGELOG.md" || path === "public/kandydrops-release-notes.json" || path.startsWith("src/lib/release-notes/")) return "release_artifact_expected";
-  return "unsafe_unknown";
-}
-
-function renderDoc(report: ReturnType<typeof buildFrontendComponentConsolidationReport>, classifications: Record<string, string>) {
+function renderDoc(
+  report: ReturnType<typeof buildFrontendComponentConsolidationReport>,
+  dirtyFiles: ReturnType<typeof compactFrontendConsolidationDirtyClassifications>,
+) {
   return [
     "# Frontend Component Consolidation",
     "",
@@ -83,7 +66,14 @@ function renderDoc(report: ReturnType<typeof buildFrontendComponentConsolidation
     "",
     "## Dirty File Classification",
     "",
-    ...(Object.keys(classifications).length ? Object.entries(classifications).map(([file, classification]) => `- ${file}: ${classification}`) : ["- none"]),
+    `- Total dirty files classified: ${dirtyFiles.total}`,
+    `- Detailed entries retained: ${dirtyFiles.retained}`,
+    `- Detailed entries omitted after summary: ${dirtyFiles.omitted}`,
+    ...Object.entries(dirtyFiles.summary).map(([classification, count]) => `- ${classification}: ${count}`),
+    "",
+    "### Retained Detail",
+    "",
+    ...(Object.keys(dirtyFiles.classifications).length ? Object.entries(dirtyFiles.classifications).map(([file, classification]) => `- ${file}: ${classification}`) : ["- none"]),
     "",
   ].join("\n");
 }
@@ -99,14 +89,15 @@ const validations = [
   ...validateFrontendComponentConsolidationReport(report).failures,
   ...validateFrontendSurfaceInventoryReport(inventory).failures,
 ];
-const classifications = Object.fromEntries(changedFiles().map((file) => [file, classifyDirtyFile(file)]));
+const classifications = Object.fromEntries(changedFiles().map((file) => [file, classifyFrontendConsolidationDirtyFile(file)]));
+const compactClassifications = compactFrontendConsolidationDirtyClassifications(classifications);
 
 const toolingFailures = toolchain.gitStatus !== "available"
   ? [`git_required: frontend component consolidation cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`]
   : [];
-write("agent/state/frontend-component-consolidation.generated.json", JSON.stringify({ ...report, gitStatus: toolchain.gitStatus, currentHeadSource: toolchain.currentHeadSource, toolingDegraded: toolchain.toolingDegraded, degradationReason: toolchain.degradationReason, dirtyFileClassification: classifications, validationFailures: [...validations, ...toolingFailures] }, null, 2));
-write("docs/agent-truth/frontend-component-consolidation.md", renderDoc(report, classifications));
-write("agent/state/frontend-gut-consolidation.generated.json", JSON.stringify({ ...gut, dirtyFileClassification: classifications }, null, 2));
+write("agent/state/frontend-component-consolidation.generated.json", JSON.stringify({ ...report, gitStatus: toolchain.gitStatus, currentHeadSource: toolchain.currentHeadSource, toolingDegraded: toolchain.toolingDegraded, degradationReason: toolchain.degradationReason, dirtyFileCount: compactClassifications.total, dirtyFileClassificationSummary: compactClassifications.summary, dirtyFileClassificationOmitted: compactClassifications.omitted, dirtyFileClassification: compactClassifications.classifications, validationFailures: [...validations, ...toolingFailures] }, null, 2));
+write("docs/agent-truth/frontend-component-consolidation.md", renderDoc(report, compactClassifications));
+write("agent/state/frontend-gut-consolidation.generated.json", JSON.stringify({ ...gut, dirtyFileCount: compactClassifications.total, dirtyFileClassificationSummary: compactClassifications.summary, dirtyFileClassificationOmitted: compactClassifications.omitted, dirtyFileClassification: compactClassifications.classifications }, null, 2));
 write("docs/agent-truth/frontend-gut-consolidation.md", [
   "# Frontend Gut Consolidation",
   "",

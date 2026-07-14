@@ -2,7 +2,7 @@ import { buildAgentIndexes } from "./build-agent-indexes";
 import { buildTaskContext } from "./build-task-context";
 import { syncAgentSqlMirror } from "./sync-sql";
 import { fileExists, readJsonFile, toAbsoluteRepoPath, validateWithSchema } from "./shared";
-import type { RepoInventoryEntry } from "./classify-repo-files";
+import { buildRepoInventory, type RepoInventoryEntry } from "./classify-repo-files";
 import type { SqlMirrorSyncEnvironment } from "./sync-sql";
 
 function assert(condition: unknown, message: string) {
@@ -45,7 +45,14 @@ export function checkAgentContext() {
     syncAgentSqlMirror();
   }
 
-  const inventory = readJsonFile<{ items: RepoInventoryEntry[] }>("agent/index/repo-inventory.json");
+  const inventory = readJsonFile<{
+    items: RepoInventoryEntry[];
+    counts: { total: number; emitted: number; omitted: number };
+    totalFindingCount: number;
+    emittedFindingCount: number;
+    omittedFindingCount: number;
+  }>("agent/index/repo-inventory.json");
+  const fullInventory = buildRepoInventory();
   const helpers = readJsonFile<{ entries: Array<{ stable_id: string; path: string }> }>("agent/index/canonical-helpers.json");
   const workflow = readJsonFile<{ files: Array<{ stable_id: string; path: string }> }>("agent/index/workflow-guidance.json");
   const governance = readJsonFile<{ files: Array<{ stable_id: string; path: string }> }>("agent/index/governance-truth.json");
@@ -61,12 +68,14 @@ export function checkAgentContext() {
   validateSchema("task-context", "agent/state/task-context.generated.json", taskContext);
 
   validateStableIds(inventory.items, "repo-inventory");
+  validateStableIds(fullInventory, "repo-inventory-live");
   validateStableIds(helpers.entries, "canonical-helpers");
   validateStableIds(workflow.files, "workflow-guidance");
   validateStableIds(governance.files, "governance-truth");
   validateStableIds(pitfalls.pitfalls, "known-pitfalls");
 
   validateExistingPaths(inventory.items.map((entry) => entry.path), "repo-inventory");
+  validateExistingPaths(fullInventory.map((entry) => entry.path), "repo-inventory-live");
   validateExistingPaths(helpers.entries.map((entry) => entry.path), "canonical-helpers");
   validateExistingPaths(workflow.files.map((entry) => entry.path), "workflow-guidance");
   validateExistingPaths(governance.files.map((entry) => entry.path), "governance-truth");
@@ -74,6 +83,13 @@ export function checkAgentContext() {
   for (const pitfall of pitfalls.pitfalls) {
     validateExistingPaths(pitfall.related_helpers, `known-pitfalls:${pitfall.stable_id}`);
   }
+
+  assert(inventory.counts.total === fullInventory.length, "Repo inventory total count must match the live source-derived inventory.");
+  assert(inventory.counts.emitted === inventory.items.length, "Repo inventory emitted count must match the bounded item sample.");
+  assert(inventory.counts.omitted === fullInventory.length - inventory.items.length, "Repo inventory omitted count must match the live inventory remainder.");
+  assert(inventory.totalFindingCount === inventory.counts.total, "Repo inventory completeness total must match aggregate counts.");
+  assert(inventory.emittedFindingCount === inventory.counts.emitted, "Repo inventory completeness emitted count must match aggregate counts.");
+  assert(inventory.omittedFindingCount === inventory.counts.omitted, "Repo inventory completeness omitted count must match aggregate counts.");
 
   assert(fileExists("agent/prompts/task-prompt.short.md"), "Missing task-prompt.short.md");
   assert(fileExists("agent/prompts/task-prompt.standard.md"), "Missing task-prompt.standard.md");

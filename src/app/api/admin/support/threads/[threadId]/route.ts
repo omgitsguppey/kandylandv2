@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { AuthError, handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
@@ -9,6 +10,8 @@ import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { addSupportMessage, getSupportThreadForAdmin, updateSupportThreadStatus } from "@/lib/server/support-threads";
 import { normalizeSupportThreadStatus } from "@/lib/support-readiness";
+
+const ADMIN_SUPPORT_THREAD_BODY_LIMIT_BYTES = 64_000;
 
 const adminReplySchema = z.object({
     message: z.string().trim().min(1).max(2_000),
@@ -138,7 +141,12 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
             throw new AuthError("Support thread not found", 404);
         }
 
-        const { message } = adminReplySchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof adminReplySchema>>(request, {
+            maxBytes: ADMIN_SUPPORT_THREAD_BODY_LIMIT_BYTES,
+            routeName: "admin/support/thread",
+            allowEmpty: false,
+        });
+        const { message } = adminReplySchema.parse(body);
         await addSupportMessage({
             threadId,
             senderRole: "admin",
@@ -160,6 +168,14 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
             }),
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:POST", startedAt, NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:POST", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }
@@ -186,7 +202,12 @@ async function PATCH_handler(request: NextRequest, context: RouteContext) {
             throw new AuthError("Support thread not found", 404);
         }
 
-        const { status } = adminStatusSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof adminStatusSchema>>(request, {
+            maxBytes: ADMIN_SUPPORT_THREAD_BODY_LIMIT_BYTES,
+            routeName: "admin/support/thread",
+            allowEmpty: false,
+        });
+        const { status } = adminStatusSchema.parse(body);
         await updateSupportThreadStatus(threadId, normalizeSupportThreadStatus(status));
         const refreshed = await getSupportThreadForAdmin(threadId, { markRead: false });
 
@@ -202,6 +223,14 @@ async function PATCH_handler(request: NextRequest, context: RouteContext) {
             }),
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:PATCH", startedAt, NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:PATCH", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }

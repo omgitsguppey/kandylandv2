@@ -1,6 +1,6 @@
-import { buildAgentIndexes } from "./build-agent-indexes";
+import { buildAgentIndexes, buildVerificationCommandEntries } from "./build-agent-indexes";
 import { buildCompactAgentContext } from "./build-compact-agent-context";
-import type { RepoInventoryEntry } from "./classify-repo-files";
+import { buildRepoInventory, type RepoInventoryEntry } from "./classify-repo-files";
 import { buildLocalImportGraph } from "./summarize-dependency-graph";
 import { compact, createMetadata, readJsonFile, toStableId, tokenize, validateWithSchema, writeJsonFile, writeTextFile } from "./shared";
 import { selectVerificationPlan } from "./verification-selector";
@@ -613,12 +613,12 @@ export function buildTaskContext() {
   const taskTokens = tokenize(task).concat(fileHints.flatMap((entry) => tokenize(entry)));
   const signalTokens = taskTokens.filter((token) => !NOISE_TOKENS.has(token));
   const taskSignals = buildTaskSignals(mode, signalTokens, task);
-  const repoInventory = readJsonFile<{ items: RepoInventoryEntry[] }>("agent/index/repo-inventory.json").items;
+  const repoInventory = buildRepoInventory();
   const helperEntries = readJsonFile<{ entries: Array<{ path: string; family: string; purpose: string }> }>("agent/index/canonical-helpers.json").entries;
   const recentPasses = readJsonFile<{ passes: Array<{ title: string; touchedSurfaces: string[] }> }>("agent/index/recent-passes.json").passes;
   const pitfalls = readJsonFile<{ pitfalls: Array<{ stable_id: string; title: string; affected_surfaces: string[]; description: string; severity: string }> }>("agent/index/known-pitfalls.json").pitfalls;
   const governanceTruth = readJsonFile<{ files: Array<{ path: string; consultMode: string }> }>("agent/index/governance-truth.json").files;
-  const verificationCommands = readJsonFile<{ commands: Array<{ command: string; scopeType: string; requiredWhen: string[] }> }>("agent/index/verification-commands.json").commands;
+  const verificationCommands = buildVerificationCommandEntries();
   const dependencySummary = readJsonFile<{ highInboundFiles: Array<{ path: string }> }>("agent/index/dependency-graph.summary.json");
   const uiCoverage = readJsonFile<{ surfaces: Array<{ route_or_component: string; audience: string[]; hydration_mode: string; criticality: string; runtime_dependencies: string[]; coverage_notes: string[] }> }>("agent/index/ui-surface-coverage.json").surfaces;
   const graph = buildLocalImportGraph();

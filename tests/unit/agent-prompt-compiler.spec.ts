@@ -1,8 +1,35 @@
 import { describe, expect, it } from "vitest";
 
 import { buildIssueSpecMarkdown } from "../../scripts/agent/fast-start";
+import { extractRepoPaths } from "../../scripts/agent/shared";
 
 describe("agent prompt compiler", () => {
+  it("extracts paths only from complete inline-code spans", () => {
+    const value = [
+      "Keep `source_component` and visible economy copy that says Coins,",
+      "while recognizing payload builders/local variables and excluding the Lucide `Coins` icon.",
+      "Reuse `src/lib/telemetry.ts`.",
+    ].join(" ");
+
+    expect(extractRepoPaths(value)).toEqual(["src/lib/telemetry.ts"]);
+  });
+
+  it("normalizes, sorts, and deduplicates repository paths", () => {
+    const value = [
+      "Use ` tests/unit/agent-prompt-compiler.spec.ts ` and `scripts\\agent\\shared.ts`.",
+      "Reuse `scripts/agent/shared.ts` and ignore `https://example.com/docs/path`.",
+      "Reject `/api/health`, `0/100`, `admin/analytics/refresh`, and `npm run check -- tests/unit/example.spec.ts`.",
+      "Keep `/control-tower/00-START-HERE.md` and `src/lib/identity-truth/*`.",
+    ].join(" ");
+
+    expect(extractRepoPaths(value)).toEqual([
+      "control-tower/00-START-HERE.md",
+      "scripts/agent/shared.ts",
+      "src/lib/identity-truth/*",
+      "tests/unit/agent-prompt-compiler.spec.ts",
+    ]);
+  });
+
   it("renders a compact issue-style prompt with safety, context, and verification lanes", () => {
     const markdown = buildIssueSpecMarkdown({
       task: "Normalize payment-adjacent PurchaseModal error copy without touching provider callbacks or wallet math.",

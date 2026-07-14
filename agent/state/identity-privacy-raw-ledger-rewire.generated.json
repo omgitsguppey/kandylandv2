@@ -1,13 +1,13 @@
 {
-  "generatedAtUtc": "2026-05-14T01:19:23.361Z",
+  "generatedAtUtc": "2026-07-14T06:45:10.958Z",
   "reportKey": "identity-privacy-raw-ledger-rewire",
-  "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "sourceInventoryReport": {
     "path": "agent/state/analytics-rewire-phase-one.generated.json",
-    "generatedAtUtc": "2026-05-14T01:18:08.752Z",
-    "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
+    "generatedAtUtc": "2026-07-14T06:45:00.375Z",
+    "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
     "laneCount": 25,
-    "issueCount": 9,
+    "issueCount": 8,
     "orphanCandidateCount": 15
   },
   "phasesCovered": [
@@ -48,12 +48,12 @@
         "src/lib/client-session.ts"
       ],
       "consumerFiles": [
+        "docs/agent-truth/account-settings-delete-flow.md",
+        "docs/agent-truth/activity-verification-engine.md",
         "docs/agent-truth/admin-analytics-audience-snapshot.md",
+        "docs/agent-truth/admin-analytics-debug-cost-reduction.md",
         "docs/agent-truth/admin-analytics-guest-bounce-quality.md",
-        "docs/agent-truth/admin-analytics-launch-final.md",
-        "docs/agent-truth/admin-analytics-live-interaction-stream.md",
-        "docs/agent-truth/admin-analytics-live-pulse.md",
-        "docs/agent-truth/admin-analytics-overview.md"
+        "docs/agent-truth/admin-analytics-launch-final.md"
       ],
       "recommendedOwner": "identity graph",
       "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
@@ -76,11 +76,11 @@
       ],
       "consumerFiles": [
         "docs/agent-truth/analytics-actor-taxonomy.md",
+        "docs/agent-truth/analytics-identity-transfer-inventory.md",
+        "docs/agent-truth/analytics-ingest-firestore-closure.md",
         "docs/agent-truth/analytics-truth-layer-v2.md",
         "docs/agent-truth/behavioral-experiments.md",
-        "docs/agent-truth/creator-experiences-copy.md",
-        "docs/agent-truth/creator-identity-markers.md",
-        "docs/agent-truth/creator-intake-flow.md"
+        "docs/agent-truth/behavioral-tracking-semantics-closure.md"
       ],
       "recommendedOwner": "identity graph",
       "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
@@ -104,11 +104,11 @@
       ],
       "consumerFiles": [
         "docs/agent-truth/admin-analytics-daily-task-pipeline.md",
-        "docs/agent-truth/admin-analytics-live-pulse.md",
+        "docs/agent-truth/admin-analytics-realtime-hot-cache.md",
         "docs/agent-truth/analytics-actor-taxonomy.md",
-        "docs/agent-truth/analytics-legacy-recovery.md",
-        "docs/agent-truth/analytics-source-hierarchy.md",
-        "docs/agent-truth/analytics-truth-layer-v2.md"
+        "docs/agent-truth/analytics-identity-transfer-inventory.md",
+        "docs/agent-truth/analytics-ingest-firestore-closure.md",
+        "docs/agent-truth/analytics-legacy-recovery.md"
       ],
       "recommendedOwner": "identity graph",
       "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
@@ -130,12 +130,12 @@
         "src/lib/server/analytics-identity-linking.ts"
       ],
       "consumerFiles": [
+        "docs/agent-truth/account-settings-delete-flow.md",
         "docs/agent-truth/admin-activity.md",
         "docs/agent-truth/admin-analytics-daily-task-pipeline.md",
+        "docs/agent-truth/admin-browser-surface-smoke.md",
         "docs/agent-truth/admin-creator-account-controls.md",
-        "docs/agent-truth/admin-debug-control-tower.md",
-        "docs/agent-truth/admin-recent-transactions.md",
-        "docs/agent-truth/admin-roster-decision-queue.md"
+        "docs/agent-truth/admin-debug-control-tower.md"
       ],
       "recommendedOwner": "identity graph",
       "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
@@ -157,11 +157,11 @@
       ],
       "consumerFiles": [
         "docs/agent-truth/accessibility-tap-targets.md",
+        "docs/agent-truth/account-settings-delete-flow.md",
+        "docs/agent-truth/activity-verification-engine.md",
         "docs/agent-truth/admin-activity.md",
-        "docs/agent-truth/admin-analytics-launch-final.md",
-        "docs/agent-truth/admin-analytics-live-interaction-stream.md",
-        "docs/agent-truth/admin-analytics-live-pulse.md",
-        "docs/agent-truth/admin-cms-drop-workflow.md"
+        "docs/agent-truth/admin-analytics-debug-cost-reduction.md",
+        "docs/agent-truth/admin-analytics-launch-final.md"
       ],
       "recommendedOwner": "identity graph",
       "recommendedAction": "Keep creator operations separate from fan behavior unless the module explicitly labels a creator/fan comparison."
@@ -188,11 +188,11 @@
       ],
       "consumerFiles": [
         "docs/agent-truth/accessibility-tap-targets.md",
+        "docs/agent-truth/account-settings-delete-flow.md",
+        "docs/agent-truth/activity-verification-engine.md",
         "docs/agent-truth/admin-activity.md",
         "docs/agent-truth/admin-ai-control-tower.md",
-        "docs/agent-truth/admin-analytics-audience-snapshot.md",
-        "docs/agent-truth/admin-analytics-auth-outcome-split.md",
-        "docs/agent-truth/admin-analytics-commerce-snapshot.md"
+        "docs/agent-truth/admin-analytics-audience-snapshot.md"
       ],
       "recommendedOwner": "admin/debug actor separation",
       "recommendedAction": "Exclude from ordinary user/guest behavior by default and expose excluded lane counts in Debug."
@@ -243,12 +243,12 @@
         "src/lib/analytics/analytics-event-contract.ts"
       ],
       "consumerFiles": [
+        "docs/agent-truth/activity-verification-engine.md",
         "docs/agent-truth/admin-activity.md",
         "docs/agent-truth/admin-analytics-audience-snapshot.md",
         "docs/agent-truth/admin-analytics-guest-bounce-quality.md",
         "docs/agent-truth/admin-analytics-live-interaction-stream.md",
-        "docs/agent-truth/admin-creator-account-controls.md",
-        "docs/agent-truth/admin-data-validation.md"
+        "docs/agent-truth/admin-creator-account-controls.md"
       ],
       "recommendedOwner": "identity graph",
       "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."

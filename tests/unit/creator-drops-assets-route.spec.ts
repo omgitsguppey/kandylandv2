@@ -148,6 +148,7 @@ describe("POST /api/creator/drops/assets", () => {
     expect(response.status).toBe(201);
     expect(mockState.guardApiRequest).toHaveBeenCalledWith(expect.any(NextRequest), expect.objectContaining({
       auth: "user",
+      maxBodyBytes: 262_209_536,
       requireTrustedOrigin: true,
       routeName: "creator/drops/assets",
     }));
@@ -176,7 +177,43 @@ describe("POST /api/creator/drops/assets", () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body).toMatchObject({ error: "Unsupported drop asset type" });
+    expect(body).toMatchObject({
+      error: "Unsupported drop asset type",
+      code: "invalid_creator_request",
+    });
+    expect(mockState.files.size).toBe(0);
+  });
+
+  it("returns a typed 413 before multipart parsing or storage mutation", async () => {
+    mockState.guardApiRequest.mockRejectedValueOnce(Object.assign(new Error("Payload too large"), { status: 413 }));
+
+    const response = await POST(uploadRequest(new File(["asset"], "preview.png", { type: "image/png" })));
+    const body = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(body).toMatchObject({
+      success: false,
+      errorCode: "payload_too_large",
+      retryable: false,
+    });
+    expect(mockState.files.size).toBe(0);
+  });
+
+  it("returns a typed 400 for malformed multipart data without storage mutation", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/creator/drops/assets", {
+      method: "POST",
+      headers: { "content-type": "multipart/form-data; boundary=broken" },
+      body: "not-a-valid-multipart-body",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      success: false,
+      errorCode: "invalid_multipart_body",
+      code: "invalid_creator_request",
+      retryable: false,
+    });
     expect(mockState.files.size).toBe(0);
   });
 });

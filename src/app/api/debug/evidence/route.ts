@@ -7,10 +7,13 @@ import {
   type DebugEvidenceSeverity,
   type DebugEvidenceSource,
 } from "@/lib/debug-evidence-contract";
-import { AuthError, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordDebugEvidence } from "@/lib/server/debug-evidence-store";
+
+const DEBUG_EVIDENCE_BODY_LIMIT_BYTES = 32 * 1024;
 
 const sourceSchema = z.enum([
   "client",
@@ -70,7 +73,11 @@ export async function POST(request: NextRequest) {
       scopeToCaller: false,
     });
 
-    const parsed = evidenceSchema.parse(await request.json());
+    const rawBody = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: DEBUG_EVIDENCE_BODY_LIMIT_BYTES,
+      routeName: "debug/evidence",
+    });
+    const parsed = evidenceSchema.parse(rawBody);
     const fingerprint = await recordDebugEvidence({
       ...parsed,
       source: parsed.source as DebugEvidenceSource,
@@ -85,8 +92,13 @@ export async function POST(request: NextRequest) {
       buckets: DEBUG_EVIDENCE_BUCKETS,
     });
   } catch (error) {
-    if (error instanceof SyntaxError) {
-      return handleApiError(new AuthError("Invalid debug evidence payload", 400), "debug/evidence");
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        error: error.message,
+        errorCode: error.code,
+        retryable: false,
+      }, { status: error.status });
     }
     return handleApiError(error, "debug/evidence");
   }

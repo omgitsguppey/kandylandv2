@@ -1,6 +1,6 @@
 # Creator Broadcast Timeline Prep
 
-Generated: 2026-05-21T00:17:06.067Z
+Generated: 2026-07-14T06:34:57.992Z
 
 ## Summary
 
@@ -9,7 +9,7 @@ Generated: 2026-05-21T00:17:06.067Z
 - Notification idempotency present: true
 - Timeline contract created: true
 - Public profile timeline source ready: true
-- P0/P1/P2: 0/0/0
+- P0/P1/P2: 0/1/0
 
 ## Fixes Applied
 

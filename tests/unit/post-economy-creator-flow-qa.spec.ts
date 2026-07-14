@@ -30,6 +30,7 @@ describe("post-economy creator flow QA guardrails", () => {
         expect(panel).toContain("gumDropsPurchasedBalance");
         expect(panel).toContain("const balance = typeof user?.gumDropsPurchasedBalance");
         expect(guidance).toContain("Creator experiences use paid GumDrops only");
+        expect(guidance).toContain("Free GumDrops are only for unwrapping Drops");
         expect(panelTest).toContain("reward balance from making paid creator CTAs available");
         expect(panelTest).toContain("gumDropsRewardBalance: 50_000");
         expect(panelTest).toContain("gumDropsPurchasedBalance: 0");

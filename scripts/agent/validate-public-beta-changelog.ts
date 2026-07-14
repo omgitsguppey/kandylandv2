@@ -5,9 +5,11 @@ import { join } from "node:path";
 import {
   CURRENT_BETA_RELEASE_COUNTER,
   CURRENT_BETA_RELEASE_VERSION,
+  getPublicBetaBadgeNoteTimestamp,
   PUBLIC_RELEASE_CHANNEL,
   PUBLIC_RELEASE_NOTES_VISIBLE_COUNT,
   getPublicReleaseNotesVisibleNotes,
+  isPublicBetaBadgeNoteFresh,
   type PublicReleaseNotesDocument,
 } from "../../src/lib/release-notes/release-version-contract";
 import { formatBetaOdometerVersion ,
@@ -22,7 +24,6 @@ import {
 
 const root = process.cwd();
 const failures: string[] = [];
-const PHASE_ONE_BADGE_FRESHNESS_MS = 24 * 60 * 60 * 1000;
 const SAFE_INTERNAL_COPY = /\b(Bug fixes and general improvements|Bug fixes and performance improvements|Improved internal beta reliability)\b/iu;
 const FORBIDDEN_UNPROVEN_EVIDENCE_CLAIM = /\b(smoke|provider|production|screenshot|real-device|manual qa)\b.{0,32}\b(pass|passed|verified|complete|completed|green)\b/iu;
 
@@ -142,10 +143,10 @@ if (document) {
 
   const latestVisible = visibleNotes[0];
   if (latestVisible) {
-    const latestTimestamp = Date.parse(latestVisible.updatedAtUtc || latestVisible.generatedAtUtc || latestVisible.committedAtUtc);
-    if (!Number.isFinite(latestTimestamp)) {
+    const latestTimestamp = getPublicBetaBadgeNoteTimestamp(latestVisible);
+    if (latestTimestamp === null) {
       failures.push("latest visible Beta note must include a valid UTC timestamp.");
-    } else if ((Date.now() - latestTimestamp) > PHASE_ONE_BADGE_FRESHNESS_MS) {
+    } else if (!isPublicBetaBadgeNoteFresh(latestVisible)) {
       failures.push("latest visible Beta note is stale for the Phase 1 badge freshness rule.");
     }
 

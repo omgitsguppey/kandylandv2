@@ -34,7 +34,11 @@ import {
   mapKnownAdminDomainError,
   type AdminRouteErrorCode,
 } from "@/lib/server/admin-route-errors";
-import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+import {
+  isBoundedJsonBodyError,
+  readBoundedFormDataBody,
+  readBoundedJsonBody,
+} from "@/lib/server/bounded-json-body";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { MEDIA_PROXY } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -129,10 +133,16 @@ function readRequestIp(request: NextRequest) {
   return request.headers.get("x-real-ip")?.trim() || undefined;
 }
 
-function buildJsonResponse(status: number, error: string, code: AdminRouteErrorCode = "invalid_admin_request") {
+function buildJsonResponse(
+  status: number,
+  error: string,
+  code: AdminRouteErrorCode = "invalid_admin_request",
+  options: { retryable?: boolean } = {},
+) {
   return NextResponse.json({
     ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
     ...buildAdminErrorPayload({ status, code, message: error }),
+    ...(typeof options.retryable === "boolean" ? { retryable: options.retryable } : {}),
   }, { status });
 }
 
@@ -277,12 +287,10 @@ async function readBody(request: NextRequest, actorUid: string, nowMs: number) {
   const contentType = request.headers.get("content-type") || "";
 
   if (contentType.includes("multipart/form-data")) {
-    const contentLength = Number(request.headers.get("content-length") || 0);
-    if (Number.isFinite(contentLength) && contentLength > CREATOR_AGREEMENT_FORM_BODY_LIMIT_BYTES) {
-      throw new Error("Agreement upload body is too large.");
-    }
-
-    const form = await request.formData();
+    const form = await readBoundedFormDataBody(request, {
+      maxBytes: CREATOR_AGREEMENT_FORM_BODY_LIMIT_BYTES,
+      routeName: "admin/creator-agreements",
+    });
     const action = readOptionalString(form.get("action"));
     const file = form.get("agreementFile");
     const agreementVersion = readOptionalString(form.get("agreementVersion"));
@@ -591,6 +599,7 @@ async function POST_handler(request: NextRequest) {
         error.status,
         error.message,
         error.code === "payload_too_large" ? "payload_too_large" : "invalid_admin_request",
+        { retryable: false },
       );
     }
     if (isKnownAdminDomainError(error)) {

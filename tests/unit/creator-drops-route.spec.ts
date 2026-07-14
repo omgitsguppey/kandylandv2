@@ -98,6 +98,7 @@ describe("POST /api/creator/drops", () => {
 
     expect(response.status).toBe(422);
     expect(body).toMatchObject({
+      code: "invalid_creator_request",
       errorClass: "invalid_creator_drop_payload",
       retryable: false,
       recoveryAction: expect.stringContaining("Review required fields"),
@@ -120,6 +121,7 @@ describe("POST /api/creator/drops", () => {
 
     expect(response.status).toBe(422);
     expect(body).toMatchObject({
+      code: "invalid_creator_request",
       errorClass: "media_required",
       retryable: false,
       details: expect.arrayContaining([
@@ -128,5 +130,39 @@ describe("POST /api/creator/drops", () => {
     });
     expect(mockState.addDrop).not.toHaveBeenCalled();
     expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+  });
+
+  it("rejects malformed JSON with a typed non-retryable response", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/creator/drops", {
+      method: "POST",
+      body: "{bad",
+      headers: { "content-type": "application/json" },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      code: "invalid_json",
+      errorCode: "invalid_creator_request",
+      retryable: false,
+    });
+    expect(mockState.addDrop).not.toHaveBeenCalled();
+  });
+
+  it("rejects a raw oversized body even without Content-Length", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/creator/drops", {
+      method: "POST",
+      body: JSON.stringify({ dropData: { padding: "x".repeat(80_001) } }),
+      headers: { "content-type": "application/json" },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(body).toMatchObject({
+      code: "payload_too_large",
+      errorCode: "invalid_creator_request",
+      retryable: false,
+    });
+    expect(mockState.addDrop).not.toHaveBeenCalled();
   });
 });

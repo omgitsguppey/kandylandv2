@@ -36,10 +36,20 @@ type CoverSemanticBriefInput = {
 
 function parseTitlePrefix(title: string) {
   const trimmed = title.trim();
+  const separatorIndex = trimmed.indexOf("|");
+  if (separatorIndex >= 0) {
+    return {
+      creatorBrandFromTitle: trimmed.slice(0, separatorIndex).trim() || null,
+      flavorTitle: trimmed.slice(separatorIndex + 1).trim(),
+      hasExplicitSeparator: true,
+    };
+  }
+
   const possessiveMatch = trimmed.match(/^([^|]+?['’]s)\s+(.+)$/u);
   return {
     creatorBrandFromTitle: possessiveMatch ? possessiveMatch[1].trim() : null,
     flavorTitle: possessiveMatch ? possessiveMatch[2].trim() : trimmed,
+    hasExplicitSeparator: false,
   };
 }
 
@@ -59,6 +69,9 @@ function resolveCreatorSource(input: CoverSemanticBriefInput, creatorBrandFromTi
 export function buildCoverSemanticBrief(input: CoverSemanticBriefInput): CoverSemanticBrief {
   const title = input.title.trim();
   const titleParts = parseTitlePrefix(title);
+  const flavorTitle = titleParts.hasExplicitSeparator
+    ? titleParts.flavorTitle
+    : titleParts.flavorTitle || title;
   const resolvedBrand = resolveCreatorBrand({
     titlePrefixBrand: titleParts.creatorBrandFromTitle,
     creatorBrandName: input.creatorBrandName,
@@ -66,16 +79,16 @@ export function buildCoverSemanticBrief(input: CoverSemanticBriefInput): CoverSe
     creatorDisplayName: input.creatorDisplayName || input.creatorSelectedName,
     creatorProfileFallback: input.creatorSelectedName,
   });
-  const resolved = resolveCoverSemanticOntologyEntry(titleParts.flavorTitle);
+  const resolved = resolveCoverSemanticOntologyEntry(flavorTitle);
   const requiredTokens = Array.from(new Set([
     ...resolved.entry.requiredTokens,
-    ...tokenizeSemanticText(titleParts.flavorTitle).slice(0, 4),
+    ...tokenizeSemanticText(flavorTitle).slice(0, 4),
   ]));
 
   return {
     title,
     creatorBrand: resolvedBrand,
-    flavorTitle: titleParts.flavorTitle || title,
+    flavorTitle,
     semanticCategory: resolved.entry.semanticCategory,
     heroObject: resolved.entry.heroObject,
     requiredTokens,

@@ -18,11 +18,23 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import {
+    clearDurableClientIdempotencyKey,
+    generateSecureClientId,
+    isDefinitiveClientRejectionStatus,
+    resolveDurableClientIdempotencyKey,
+    type DurablePendingClientIdempotencyKey,
+} from "@/lib/client-random";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
-import { getCreatorBookingProblemCopy, getCreatorRequestProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
+import {
+    getCreatorBookingProblemCopy,
+    getCreatorRequestProblemCopy,
+    getCreatorSubscriptionOutcomeCopy,
+    getCreatorSubscriptionProblemCopy,
+} from "@/lib/problem-state-copy";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import {
     buildCreatorRelationshipTelemetryPayload,
@@ -37,6 +49,7 @@ import { Drop, UserProfile } from "@/types/db";
 import { CreatorPaidGdGuidanceCard, type CreatorPaidGdGuidanceReason } from "@/components/Creators/CreatorPaidGdGuidanceCard";
 
 type CreatorExperienceView = "subscriptions" | "messages" | "requests" | "bookings";
+type CreatorPaidAction = "subscription" | "request" | "booking";
 type ExperienceModuleKey = "relationship" | "subscriptions" | "messages" | "bookings" | "broadcasts";
 type MonetizationGuidanceState = {
     reason: CreatorPaidGdGuidanceReason;
@@ -61,17 +74,8 @@ const DEFAULT_MODULE_STATE: Record<ExperienceModuleKey, UiContinuityModuleState>
     broadcasts: { key: "broadcasts", label: "broadcasts", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
 };
 
-function buildCreatorExperienceClientIdempotencyKey(action: string, creatorId: string) {
-    let random = globalThis.crypto?.randomUUID?.() ?? "";
-    if (!random && globalThis.crypto?.getRandomValues) {
-        const buffer = new Uint32Array(2);
-        globalThis.crypto.getRandomValues(buffer);
-        random = Array.from(buffer).map((value) => value.toString(36)).join("-");
-    }
-    if (!random) {
-        random = `${Date.now()}`;
-    }
-    return `creator-experience:${action}:${creatorId}:${random}`;
+function buildCreatorExperienceClientIdempotencyKey() {
+    return `creator-experience:${generateSecureClientId()}`;
 }
 
 export default function CreatorProfileClient() {
@@ -81,6 +85,7 @@ export default function CreatorProfileClient() {
     const { openAuthModal, openPurchaseModal } = useUI();
     const username = params.username as string;
     const profileRoute = useMemo(() => buildCreatorPublicHref({ username }) ?? "/creators", [username]);
+    const creatorRouteIdentity = `${username}:${currentUser?.uid ?? "guest"}`;
 
     const [activeTab, setActiveTab] = useState<"drops" | "experiences">("drops");
     const [creator, setCreator] = useState<(UserProfile & { followerCount?: number }) | null>(null);
@@ -106,9 +111,58 @@ export default function CreatorProfileClient() {
     const [creatingBooking, setCreatingBooking] = useState(false);
     const [moduleState, setModuleState] = useState<Record<ExperienceModuleKey, UiContinuityModuleState>>(DEFAULT_MODULE_STATE);
     const [monetizationGuidance, setMonetizationGuidance] = useState<MonetizationGuidanceState | null>(null);
+    const [viewerStateOwnerIdentity, setViewerStateOwnerIdentity] = useState(creatorRouteIdentity);
     const creatorFirstName = useMemo(() => readFirstName(creator?.displayName), [creator?.displayName]);
     const lastTrackedBroadcastKeyRef = useRef<string>("");
     const profileOpenTelemetryKeyRef = useRef<string>("");
+    const pendingPaidActionRef = useRef<Record<string, DurablePendingClientIdempotencyKey>>({});
+    const creatorRouteGenerationRef = useRef({ identity: creatorRouteIdentity, generation: 0 });
+    if (creatorRouteGenerationRef.current.identity !== creatorRouteIdentity) {
+        creatorRouteGenerationRef.current = {
+            identity: creatorRouteIdentity,
+            generation: creatorRouteGenerationRef.current.generation + 1,
+        };
+    }
+    const buildPaidActionSlot = (slot: CreatorPaidAction, action: string, userId: string, creatorId: string) => (
+        `${userId}:${creatorId}:${slot}:${action}`
+    );
+    const resolvePaidActionIdempotencyKey = async (
+        slot: CreatorPaidAction,
+        fingerprint: string,
+        action: string,
+        userId: string,
+        creatorId: string,
+    ) => {
+        const scopedSlot = buildPaidActionSlot(slot, action, userId, creatorId);
+        const resolved = await resolveDurableClientIdempotencyKey({
+            pending: pendingPaidActionRef.current[scopedSlot],
+            scope: {
+                userId,
+                targetId: creatorId,
+                action: `creator-${slot}-${action}`,
+            },
+            payloadFingerprint: fingerprint,
+            createKey: buildCreatorExperienceClientIdempotencyKey,
+        });
+        pendingPaidActionRef.current[scopedSlot] = resolved.pending;
+        return resolved.pending;
+    };
+    const clearPaidActionIdempotencyKey = (
+        slot: CreatorPaidAction,
+        action: string,
+        userId: string,
+        creatorId: string,
+        pending: DurablePendingClientIdempotencyKey,
+    ) => {
+        const scopedSlot = buildPaidActionSlot(slot, action, userId, creatorId);
+        clearDurableClientIdempotencyKey(pending);
+        if (pendingPaidActionRef.current[scopedSlot] === pending) {
+            delete pendingPaidActionRef.current[scopedSlot];
+        }
+    };
+    const isCurrentCreatorRouteGeneration = (generation: number) => (
+        creatorRouteGenerationRef.current.generation === generation
+    );
     const handleCreatorDropPreview = useCallback((drop: Drop) => {
         router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=creator_profile_drop_grid`);
     }, [router]);
@@ -117,14 +171,42 @@ export default function CreatorProfileClient() {
     }, [router]);
 
     useEffect(() => {
+        setLoading(Boolean(username));
+        setCreator(null);
+        setDrops([]);
+        setTimelineItems([]);
+        setActiveTab("drops");
+        setFollowing(false);
+        setNotificationsEnabled(false);
+        setSubscriptionActive(false);
+        setSelectedExperience(null);
+        setMessages([]);
+        setRequestCategoryId("");
+        setRequestDetails("");
+        setBookings([]);
+        setBroadcasts([]);
+        setBookingStartAt("");
+        setBookingDurationMinutes(CREATOR_BOOKING_MIN_MINUTES);
+        setBookingServiceType("phone");
+        setFollowLoading(false);
+        setRelationshipLoading(false);
+        setSubscribeLoading(false);
+        setCreatingRequest(false);
+        setCreatingBooking(false);
+        setMonetizationGuidance(null);
+        setModuleState(DEFAULT_MODULE_STATE);
+        setViewerStateOwnerIdentity(creatorRouteIdentity);
+
         if (!username) {
             return;
         }
 
+        const controller = new AbortController();
+
         async function fetchData() {
             try {
                 const response = await fetch(`/api/creators/${encodeURIComponent(username)}`, {
-                    cache: "no-store",
+                    signal: controller.signal,
                 });
                 const result = await response.json() as {
                     success?: boolean;
@@ -137,8 +219,11 @@ export default function CreatorProfileClient() {
                     };
                 };
 
+                if (controller.signal.aborted) {
+                    return;
+                }
+
                 if (!response.ok || !result.success || !result.creator) {
-                    setLoading(false);
                     return;
                 }
 
@@ -146,6 +231,10 @@ export default function CreatorProfileClient() {
                 setDrops(result.drops || []);
                 setTimelineItems(Array.isArray(result.timeline?.items) ? result.timeline.items : []);
             } catch (error) {
+                if (controller.signal.aborted) {
+                    return;
+                }
+
                 reportClientIssue({
                     channel: "network",
                     message: "Creator profile fetch failed",
@@ -157,12 +246,18 @@ export default function CreatorProfileClient() {
                 });
                 toast.error("Failed to load profile.");
             } finally {
-                setLoading(false);
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
             }
         }
 
         void fetchData();
-    }, [username]);
+
+        return () => {
+            controller.abort();
+        };
+    }, [creatorRouteIdentity, username]);
 
     useEffect(() => {
         if (!creator) {
@@ -343,7 +438,8 @@ export default function CreatorProfileClient() {
         }
 
         const latestBroadcastId = typeof broadcasts[0]?.id === "string" ? broadcasts[0].id : "unknown";
-        const broadcastKey = `${creator.uid}:${latestBroadcastId}:${broadcasts.length}`;
+        const viewerActorId = currentUser?.uid ?? "guest";
+        const broadcastKey = `${viewerActorId}:${creator.uid}:${latestBroadcastId}:${broadcasts.length}`;
         if (lastTrackedBroadcastKeyRef.current === broadcastKey) {
             return;
         }
@@ -354,10 +450,12 @@ export default function CreatorProfileClient() {
             creator_username: creator.username || username,
             broadcast_count: broadcasts.length,
             latest_broadcast_id: latestBroadcastId,
+            viewer_actor_type: currentUser ? "user" : "guest",
+            viewer_actor_uid: currentUser?.uid ?? "",
             page_path: profileRoute,
             source_component: "creator_profile_page",
         });
-    }, [activeTab, broadcasts, creator, profileRoute, username]);
+    }, [activeTab, broadcasts, creator, currentUser, profileRoute, username]);
 
     const creatorPublicState = useMemo(
         () => resolveCreatorPublicExperienceState(creator?.creatorSettings, drops.length),
@@ -419,12 +517,17 @@ export default function CreatorProfileClient() {
         }
     }, [activeTab, availableExperienceViews, hasExperiences, selectedExperience]);
 
-    const refreshCreatorBroadcasts = async (creatorId: string) => {
+    const refreshCreatorBroadcasts = async (creatorId: string, isCurrent: () => boolean = () => true) => {
         try {
             const response = await authFetch(`/api/creator/broadcasts?creatorId=${encodeURIComponent(creatorId)}`);
             const result = await response.json() as { broadcasts?: Array<Record<string, unknown>> };
-            setBroadcasts(Array.isArray(result.broadcasts) ? result.broadcasts : []);
+            if (isCurrent()) {
+                setBroadcasts(Array.isArray(result.broadcasts) ? result.broadcasts : []);
+            }
         } catch (error) {
+            if (!isCurrent()) {
+                return;
+            }
             reportClientIssue({
                 channel: "notifications",
                 severity: "warn",
@@ -493,8 +596,13 @@ export default function CreatorProfileClient() {
             toast.error("You cannot follow yourself!");
             return;
         }
+        if (followLoading) {
+            return;
+        }
 
         const action = following ? "unfollow" : "follow";
+        const actionRouteGeneration = creatorRouteGenerationRef.current.generation;
+        const isCurrentAction = () => isCurrentCreatorRouteGeneration(actionRouteGeneration);
         setFollowLoading(true);
         trackEvent(action === "follow" ? "creator_follow_attempted" : "creator_unfollow_attempted", buildCreatorRelationshipTelemetryPayload({
             eventName: action === "follow" ? "creator_follow_attempted" : "creator_unfollow_attempted",
@@ -531,6 +639,9 @@ export default function CreatorProfileClient() {
             if (!response.ok) {
                 throw result;
             }
+            if (!isCurrentAction()) {
+                return;
+            }
 
             const nextFollowing = result.relationship?.following === true;
             setFollowing(nextFollowing);
@@ -563,7 +674,10 @@ export default function CreatorProfileClient() {
             });
 
             if (nextFollowing) {
-                await refreshCreatorBroadcasts(creator.uid);
+                await refreshCreatorBroadcasts(creator.uid, isCurrentAction);
+                if (!isCurrentAction()) {
+                    return;
+                }
                 trackEvent("creator_followed", {
                     creator_id: creator.uid,
                     target_creator_id: creator.uid,
@@ -624,6 +738,9 @@ export default function CreatorProfileClient() {
             toast.success(nextFollowing ? `Following ${creator.displayName}!` : `Unfollowed ${creator.displayName}`);
             dispatchActivitySync();
         } catch (error: any) {
+            if (!isCurrentAction()) {
+                return;
+            }
             trackEvent("creator_follow_failed", buildCreatorRelationshipTelemetryPayload({
                 eventName: "creator_follow_failed",
                 viewerUserId: currentUser.uid,
@@ -652,7 +769,9 @@ export default function CreatorProfileClient() {
             });
             toast.error("Could not update following right now.");
         } finally {
-            setFollowLoading(false);
+            if (isCurrentAction()) {
+                setFollowLoading(false);
+            }
         }
     };
 
@@ -666,6 +785,8 @@ export default function CreatorProfileClient() {
             return;
         }
 
+        const actionRouteGeneration = creatorRouteGenerationRef.current.generation;
+        const isCurrentAction = () => isCurrentCreatorRouteGeneration(actionRouteGeneration);
         setRelationshipLoading(true);
 
         try {
@@ -684,6 +805,9 @@ export default function CreatorProfileClient() {
             };
             if (!response.ok) {
                 throw result;
+            }
+            if (!isCurrentAction()) {
+                return;
             }
 
             const nextNotificationsEnabled = result.relationship?.notificationsEnabled === true;
@@ -709,6 +833,9 @@ export default function CreatorProfileClient() {
                 source_component: "creator_profile_page",
             });
         } catch (error: any) {
+            if (!isCurrentAction()) {
+                return;
+            }
             reportClientIssue({
                 channel: action.includes("notification") ? "notifications" : "ui",
                 message: "Creator relationship action failed",
@@ -721,7 +848,9 @@ export default function CreatorProfileClient() {
             });
             toast.error("Could not update creator alerts right now.");
         } finally {
-            setRelationshipLoading(false);
+            if (isCurrentAction()) {
+                setRelationshipLoading(false);
+            }
         }
     };
 
@@ -732,29 +861,62 @@ export default function CreatorProfileClient() {
         }
 
         const action = subscriptionActive ? "cancel" : "subscribe";
+        const idempotencyFingerprint = JSON.stringify([creator.uid, action]);
+        const idempotencyAction = subscriptionActive ? "fan-pass-cancel" : "fan-pass-start";
+        const actionRouteGeneration = creatorRouteGenerationRef.current.generation;
+        const isCurrentAction = () => isCurrentCreatorRouteGeneration(actionRouteGeneration);
+        let responseStatus: number | null = null;
+        let pendingIdempotency: DurablePendingClientIdempotencyKey | null = null;
         setSubscribeLoading(true);
         try {
+            pendingIdempotency = await resolvePaidActionIdempotencyKey(
+                "subscription",
+                idempotencyFingerprint,
+                idempotencyAction,
+                currentUser.uid,
+                creator.uid,
+            );
+            const idempotencyKey = pendingIdempotency.key;
+            if (!isCurrentAction()) {
+                return;
+            }
             const response = await authFetch("/api/creator/subscriptions", {
                 method: "POST",
                 body: JSON.stringify({
                     creatorId: creator.uid,
                     action,
-                    idempotencyKey: buildCreatorExperienceClientIdempotencyKey(
-                        subscriptionActive ? "fan-pass-cancel" : "fan-pass-start",
-                        creator.uid,
-                    ),
+                    idempotencyKey,
                 }),
             });
+            responseStatus = response.status;
             const result = await response.json() as {
                 action?: "subscribe" | "cancel";
+                requestedAction?: "subscribe" | "cancel";
                 code?: string;
                 error?: string;
                 message?: string;
                 shortfallGd?: number;
                 priceGd?: number;
                 paidBalanceGd?: number;
+                preserveIdempotencyKey?: boolean;
+                subscriptionStatus?: string;
+                accessGranted?: boolean;
+                historicalReceipt?: boolean;
+                duplicatePrevented?: boolean;
             };
             if (!response.ok) {
+                if (isDefinitiveClientRejectionStatus(response.status, result)) {
+                    clearPaidActionIdempotencyKey(
+                        "subscription",
+                        idempotencyAction,
+                        currentUser.uid,
+                        creator.uid,
+                        pendingIdempotency,
+                    );
+                }
+                if (!isCurrentAction()) {
+                    return;
+                }
                 const message = getCreatorSubscriptionProblemCopy(result);
                 if (result.code === "insufficient_paid_gumdrops") {
                     const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
@@ -788,16 +950,45 @@ export default function CreatorProfileClient() {
                 return;
             }
 
-            const nextActive = result.action === "subscribe";
+            clearPaidActionIdempotencyKey(
+                "subscription",
+                idempotencyAction,
+                currentUser.uid,
+                creator.uid,
+                pendingIdempotency,
+            );
+            if (!isCurrentAction()) {
+                return;
+            }
+            const outcome = getCreatorSubscriptionOutcomeCopy(result);
+            const nextActive = outcome.active;
             setSubscriptionActive(nextActive);
             setMonetizationGuidance(null);
             if (nextActive) {
-                await refreshCreatorBroadcasts(creator.uid);
+                await refreshCreatorBroadcasts(creator.uid, isCurrentAction);
             } else if (!following) {
                 setBroadcasts([]);
             }
-            toast.success(nextActive ? "Subscription started." : "Subscription canceled.");
+            if (isCurrentAction()) {
+                if (outcome.tone === "info") {
+                    toast.info(outcome.message);
+                } else {
+                    toast.success(outcome.message);
+                }
+            }
         } catch (error: any) {
+            if (pendingIdempotency && isDefinitiveClientRejectionStatus(responseStatus)) {
+                clearPaidActionIdempotencyKey(
+                    "subscription",
+                    idempotencyAction,
+                    currentUser.uid,
+                    creator.uid,
+                    pendingIdempotency,
+                );
+            }
+            if (!isCurrentAction()) {
+                return;
+            }
             reportClientIssue({
                 channel: "payments",
                 message: "Creator subscription action failed",
@@ -812,7 +1003,9 @@ export default function CreatorProfileClient() {
             });
             toast.error(getCreatorSubscriptionProblemCopy(error));
         } finally {
-            setSubscribeLoading(false);
+            if (isCurrentAction()) {
+                setSubscribeLoading(false);
+            }
         }
     };
 
@@ -827,19 +1020,50 @@ export default function CreatorProfileClient() {
             return;
         }
 
+        const normalizedDetails = requestDetails.trim();
+        const idempotencyFingerprint = JSON.stringify([creator.uid, requestCategoryId, normalizedDetails]);
+        const idempotencyAction = "custom-request";
+        const actionRouteGeneration = creatorRouteGenerationRef.current.generation;
+        const isCurrentAction = () => isCurrentCreatorRouteGeneration(actionRouteGeneration);
+        let responseStatus: number | null = null;
+        let pendingIdempotency: DurablePendingClientIdempotencyKey | null = null;
         setCreatingRequest(true);
         try {
+            pendingIdempotency = await resolvePaidActionIdempotencyKey(
+                "request",
+                idempotencyFingerprint,
+                idempotencyAction,
+                currentUser.uid,
+                creator.uid,
+            );
+            const idempotencyKey = pendingIdempotency.key;
+            if (!isCurrentAction()) {
+                return;
+            }
             const response = await authFetch("/api/creator/requests", {
                 method: "POST",
                 body: JSON.stringify({
                     creatorId: creator.uid,
                     categoryId: requestCategoryId,
-                    details: requestDetails.trim(),
-                    idempotencyKey: buildCreatorExperienceClientIdempotencyKey("custom-request", creator.uid),
+                    details: normalizedDetails,
+                    idempotencyKey,
                 }),
             });
+            responseStatus = response.status;
             const result = await response.json();
             if (!response.ok) {
+                if (isDefinitiveClientRejectionStatus(response.status, result)) {
+                    clearPaidActionIdempotencyKey(
+                        "request",
+                        idempotencyAction,
+                        currentUser.uid,
+                        creator.uid,
+                        pendingIdempotency,
+                    );
+                }
+                if (!isCurrentAction()) {
+                    return;
+                }
                 const message = getCreatorRequestProblemCopy(result);
                 if (result.code === "insufficient_paid_gumdrops") {
                     const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
@@ -857,10 +1081,32 @@ export default function CreatorProfileClient() {
                 throw new Error(message);
             }
 
+            clearPaidActionIdempotencyKey(
+                "request",
+                idempotencyAction,
+                currentUser.uid,
+                creator.uid,
+                pendingIdempotency,
+            );
+            if (!isCurrentAction()) {
+                return;
+            }
             setRequestDetails("");
             setMonetizationGuidance(null);
             toast.success("Custom request submitted.");
         } catch (error: any) {
+            if (pendingIdempotency && isDefinitiveClientRejectionStatus(responseStatus)) {
+                clearPaidActionIdempotencyKey(
+                    "request",
+                    idempotencyAction,
+                    currentUser.uid,
+                    creator.uid,
+                    pendingIdempotency,
+                );
+            }
+            if (!isCurrentAction()) {
+                return;
+            }
             reportClientIssue({
                 channel: "payments",
                 message: "Creator custom request failed",
@@ -873,7 +1119,9 @@ export default function CreatorProfileClient() {
             });
             toast.error(getCreatorRequestProblemCopy(error));
         } finally {
-            setCreatingRequest(false);
+            if (isCurrentAction()) {
+                setCreatingRequest(false);
+            }
         }
     };
 
@@ -889,8 +1137,30 @@ export default function CreatorProfileClient() {
         }
 
         const startAt = new Date(bookingStartAt).getTime();
+        const idempotencyFingerprint = JSON.stringify([
+            creator.uid,
+            bookingServiceType,
+            startAt,
+            bookingDurationMinutes,
+        ]);
+        const idempotencyAction = "live-time";
+        const actionRouteGeneration = creatorRouteGenerationRef.current.generation;
+        const isCurrentAction = () => isCurrentCreatorRouteGeneration(actionRouteGeneration);
+        let responseStatus: number | null = null;
+        let pendingIdempotency: DurablePendingClientIdempotencyKey | null = null;
         setCreatingBooking(true);
         try {
+            pendingIdempotency = await resolvePaidActionIdempotencyKey(
+                "booking",
+                idempotencyFingerprint,
+                idempotencyAction,
+                currentUser.uid,
+                creator.uid,
+            );
+            const idempotencyKey = pendingIdempotency.key;
+            if (!isCurrentAction()) {
+                return;
+            }
             const response = await authFetch("/api/creator/bookings", {
                 method: "POST",
                 body: JSON.stringify({
@@ -898,9 +1168,10 @@ export default function CreatorProfileClient() {
                     serviceType: bookingServiceType,
                     startAt,
                     durationMinutes: bookingDurationMinutes,
-                    idempotencyKey: buildCreatorExperienceClientIdempotencyKey("live-time", creator.uid),
+                    idempotencyKey,
                 }),
             });
+            responseStatus = response.status;
             const result = await response.json() as {
                 code?: string;
                 error?: string;
@@ -908,8 +1179,21 @@ export default function CreatorProfileClient() {
                 shortfallGd?: number;
                 priceGd?: number;
                 requiredPaidGd?: number;
+                preserveIdempotencyKey?: boolean;
             };
             if (!response.ok) {
+                if (isDefinitiveClientRejectionStatus(response.status, result)) {
+                    clearPaidActionIdempotencyKey(
+                        "booking",
+                        idempotencyAction,
+                        currentUser.uid,
+                        creator.uid,
+                        pendingIdempotency,
+                    );
+                }
+                if (!isCurrentAction()) {
+                    return;
+                }
                 const message = getCreatorBookingProblemCopy(result);
                 if (result.code === "insufficient_paid_gumdrops") {
                     const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
@@ -945,12 +1229,53 @@ export default function CreatorProfileClient() {
                 return;
             }
 
-            const refreshResponse = await authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creator.uid)}`);
-            const refreshResult = await refreshResponse.json() as { bookings?: Array<Record<string, unknown>> };
-            setBookings(Array.isArray(refreshResult.bookings) ? refreshResult.bookings : []);
+            clearPaidActionIdempotencyKey(
+                "booking",
+                idempotencyAction,
+                currentUser.uid,
+                creator.uid,
+                pendingIdempotency,
+            );
+            if (!isCurrentAction()) {
+                return;
+            }
             setMonetizationGuidance(null);
             toast.success("Creator booking confirmed.");
+            try {
+                const refreshResponse = await authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creator.uid)}`);
+                const refreshResult = await refreshResponse.json() as { bookings?: Array<Record<string, unknown>> };
+                if (refreshResponse.ok && isCurrentAction()) {
+                    setBookings(Array.isArray(refreshResult.bookings) ? refreshResult.bookings : []);
+                }
+            } catch (refreshError) {
+                if (!isCurrentAction()) {
+                    return;
+                }
+                reportClientIssue({
+                    channel: "network",
+                    severity: "warn",
+                    message: "Creator bookings refresh failed after a confirmed booking",
+                    error: refreshError,
+                    detail: {
+                        creatorId: creator.uid,
+                        route: "/api/creator/bookings",
+                    },
+                    consoleLabel: "[CreatorProfile] confirmed booking refresh failed",
+                });
+            }
         } catch (error: any) {
+            if (pendingIdempotency && isDefinitiveClientRejectionStatus(responseStatus)) {
+                clearPaidActionIdempotencyKey(
+                    "booking",
+                    idempotencyAction,
+                    currentUser.uid,
+                    creator.uid,
+                    pendingIdempotency,
+                );
+            }
+            if (!isCurrentAction()) {
+                return;
+            }
             reportClientIssue({
                 channel: "payments",
                 message: "Creator booking failed",
@@ -967,11 +1292,13 @@ export default function CreatorProfileClient() {
             });
             toast.error(getCreatorBookingProblemCopy(error));
         } finally {
-            setCreatingBooking(false);
+            if (isCurrentAction()) {
+                setCreatingBooking(false);
+            }
         }
     };
 
-    if (loading) {
+    if (loading || viewerStateOwnerIdentity !== creatorRouteIdentity) {
         return (
             <div className="flex min-h-[50vh] items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />

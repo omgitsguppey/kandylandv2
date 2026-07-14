@@ -26,6 +26,7 @@ const mockState = vi.hoisted(() => {
             lastWhereField = field;
             return { type: "where", field, operator, value };
         }),
+        limit: vi.fn((value: number) => ({ type: "limit", value })),
         query: vi.fn((...parts: unknown[]) => ({ type: "query", parts })),
         onSnapshot: vi.fn((_query: unknown, next: typeof snapshotListener, error: typeof snapshotErrorListener) => {
             snapshotListener = next;
@@ -87,6 +88,7 @@ const mockState = vi.hoisted(() => {
             });
             this.collection.mockClear();
             this.where.mockClear();
+            this.limit.mockClear();
             this.query.mockClear();
             this.onSnapshot.mockClear();
         },
@@ -109,6 +111,7 @@ vi.mock("@/lib/authFetch", () => ({
 
 vi.mock("firebase/firestore", () => ({
     collection: mockState.collection,
+    limit: mockState.limit,
     onSnapshot: mockState.onSnapshot,
     query: mockState.query,
     where: mockState.where,
@@ -146,6 +149,7 @@ describe("useChatUnreadStatus", () => {
         const hook = renderHook(() => useChatUnreadStatus());
 
         expect(mockState.getLastWhereField()).toBe("creatorId");
+        expect(mockState.limit).toHaveBeenCalledWith(100);
 
         act(() => {
             mockState.emitSnapshot([{

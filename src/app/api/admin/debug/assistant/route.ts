@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { AI_DEBUG_ASSISTANT_MODEL } from "@/lib/ai-debug-assistant";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminOrchestrationSnapshot } from "@/lib/server/admin-orchestration";
 import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
@@ -28,6 +29,7 @@ const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const ASSISTANT_USER_SAMPLE_LIMIT = 1_000;
 const ASSISTANT_DAILY_SAMPLE_LIMIT = 370;
 const ASSISTANT_ROLLUP_SAMPLE_LIMIT = 500;
+const ADMIN_DEBUG_ASSISTANT_BODY_LIMIT_BYTES = 64_000;
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -227,10 +229,14 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             enabled?: unknown;
             model?: unknown;
-        };
+        }>(request, {
+            maxBytes: ADMIN_DEBUG_ASSISTANT_BODY_LIMIT_BYTES,
+            routeName: "admin/debug/assistant",
+            allowEmpty: false,
+        });
         const updates: {
             enabled?: boolean;
             model?: string;
@@ -260,6 +266,14 @@ async function PUT_handler(request: NextRequest) {
             settings,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "admin/debug/assistant");
     }
 }

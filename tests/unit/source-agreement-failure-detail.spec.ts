@@ -188,7 +188,7 @@ describe("source agreement failure detail", () => {
       expect.objectContaining({
         consumer: "admin_analytics_source_health",
         allowedDisplayState: "chart_promotion_blocked",
-        nextAction: expect.stringContaining("charts waiting for proof"),
+        nextAction: expect.stringContaining("charts waiting for source evidence"),
       }),
       expect.objectContaining({
         consumer: "debug_data_validation",

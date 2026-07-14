@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-21T19:08:22.451Z",
-  "currentHead": "f63333d84d97b09105e670261a0e93922cbc8a68",
+  "generatedAtUtc": "2026-07-14T07:08:19.406Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "status": "manual_only_safe",
   "previousStatus": "unknown",
   "liveSyncCommand": "npm run agent:sync-sql",

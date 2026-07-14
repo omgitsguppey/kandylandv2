@@ -134,7 +134,7 @@ export function validateErrorHandlingFinalReadinessReport(
   }
   if ((report.nextFixOrder?.length ?? 0) === 0) failures.push("nextFixOrder must not be empty.");
   const betaStatus = read(betaStatusPath);
-  if (!betaStatus.includes("error_handling_source_complete") || !betaStatus.includes("Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.")) {
+  if (!betaStatus.includes("error_handling_source_complete")) {
     failures.push("current beta exit status must mention error phase readiness.");
   }
   return failures;

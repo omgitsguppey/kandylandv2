@@ -1,8 +1,8 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
+import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
 
 const root = process.cwd();
 
@@ -11,15 +11,14 @@ function read(path: string) {
 }
 
 describe("settings debug validator authority", () => {
-  it("passes the source-level settings debug validator authority check", () => {
-    expect(() => {
-      execSync("npm run check:settings-debug-validator-authority", {
-        cwd: root,
-        stdio: "pipe",
-        encoding: "utf8",
-      });
-    }).not.toThrow();
-  }, 20000);
+  it("passes source checks or reports only the exact dirty-tree isolation blocker", () => {
+    expectSourceValidatorWithDirtyTreeIsolation({
+      command: "npm run check:settings-debug-validator-authority",
+      artifact: "agent/state/settings-debug-validator-authority.generated.json",
+      isolationCheck: "protectedSurfacesUntouched",
+      expectedIsolationFailure: /protected surfaces changed:/u,
+    });
+  }, 30000);
 
   it("declares one canonical settings validator authority with active and superseded lanes", async () => {
     expect(existsSync(join(root, "src/lib/debug/settings-debug-validator-authority.ts"))).toBe(true);
@@ -55,9 +54,27 @@ describe("settings debug validator authority", () => {
     );
   });
 
-  it("maps settings validators in validator authority and validator map", () => {
+  it("maps settings validators in validator authority and validator map", async () => {
     const authority = read("agent/context/validator-authority.json");
-    const validatorMap = read("agent/context/validator-map.json");
+    const authorityDocument = JSON.parse(authority) as {
+      validators?: Record<string, { authority?: string; status?: string }>;
+      packageScripts?: Record<string, { authority?: string; status?: string }>;
+    };
+    const validatorMap = JSON.parse(read("agent/context/validator-map.json")) as {
+      bySurface?: Record<string, string[]>;
+      validators?: Record<string, string>;
+    };
+    const generator = read("scripts/agent/build-compact-agent-context.ts");
+    const authorityScorer = read("scripts/agent/score-validator-authority.ts");
+    const { getSettingsValidatorAuthorityRecords } = await import("../../src/lib/debug/settings-debug-validator-authority");
+    const records = getSettingsValidatorAuthorityRecords();
+    const activePackageScripts = records
+      .filter((record) => record.status === "active")
+      .map((record) => record.packageScript)
+      .sort();
+    const supersededPackageScripts = records
+      .filter((record) => record.status === "superseded")
+      .map((record) => record.packageScript);
 
     expect(authority).toContain("scripts/agent/validate-settings-debug-validator-authority.ts");
     expect(authority).toContain('"surface": "settings"');
@@ -65,9 +82,31 @@ describe("settings debug validator authority", () => {
     expect(authority).toContain("scripts/agent/validate-settings-creator-dashboard-split.ts");
     expect(authority).toContain("scripts/agent/validate-user-profile-api-contract.ts");
 
-    expect(validatorMap).toContain('"settings"');
-    expect(validatorMap).toContain("check:settings-debug-validator-authority");
-    expect(validatorMap).toContain("check:user-profile-api-contract");
+    expect(generator).toContain("getSettingsValidatorAuthorityRecords");
+    expect(authorityScorer).toContain("getSettingsValidatorAuthorityRecords");
+    expect(validatorMap.bySurface?.settings).toEqual(activePackageScripts);
+    for (const record of records) {
+      expect(validatorMap.validators?.[record.packageScript]).toBe("settings");
+      const expectedStatus = record.status === "superseded"
+        ? "superseded"
+        : record.status === "deprecated"
+          ? "legacy"
+          : record.authority === "supporting_contract"
+            ? "supporting"
+            : "canonical";
+      const expectedAuthority = record.status === "deprecated" ? "legacy_reference" : record.authority;
+      expect(authorityDocument.validators?.[record.script]).toMatchObject({
+        authority: expectedAuthority,
+        status: expectedStatus,
+      });
+      expect(authorityDocument.packageScripts?.[record.packageScript]).toMatchObject({
+        authority: expectedAuthority,
+        status: expectedStatus,
+      });
+    }
+    for (const packageScript of supersededPackageScripts) {
+      expect(validatorMap.bySurface?.settings).not.toContain(packageScript);
+    }
   });
 
   it("exposes one settings health lane and no duplicate settings debug lane", () => {

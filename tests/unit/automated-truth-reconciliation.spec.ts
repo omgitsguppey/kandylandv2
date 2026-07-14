@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildAutomatedTruthReconciliationReport, validateAutomatedTruthReconciliationReport } from "@/lib/release-readiness/automated-truth-reconciliation";
+import { expectNoFailuresOrOnlyNamedIsolation } from "./utils/source-validator-contract";
 
 describe("automated truth reconciliation", () => {
   it("summarizes honest blockers without clearing formal gates", () => {
@@ -12,6 +13,9 @@ describe("automated truth reconciliation", () => {
       "deployed route evidence",
       "redacted admin source sample",
     ]));
-    expect(validateAutomatedTruthReconciliationReport(report)).toEqual([]);
+    expectNoFailuresOrOnlyNamedIsolation({
+      failures: validateAutomatedTruthReconciliationReport(report),
+      expectedIsolationFailures: ["dirty files unclassified."],
+    });
   }, 120000);
 });

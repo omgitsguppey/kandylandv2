@@ -1,7 +1,7 @@
 {
   "score": 100,
   "status": "clean",
-  "generatedAt": "2026-06-11T22:35:31.374Z",
+  "generatedAt": "2026-07-14T10:05:38.139Z",
   "repoRoot": "C:\\Users\\uylus\\Documents\\KandyDrops_Final",
   "findings": [],
   "criticalCount": 0,
@@ -52,8 +52,8 @@
       "budgetGuardRequired": true,
       "maxExpectedCallsPerUserPerMinute": 12,
       "maxExpectedAiTokensPerCall": 4000,
-      "maxExpectedStorageBytesPerCall": 8000000,
-      "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+      "maxExpectedStorageBytesPerCall": 10485760,
+      "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
     },
     {
       "routePattern": "/api/admin/debug/assistant/**",
@@ -112,6 +112,20 @@
       "maxExpectedFirestoreReadsPerCall": 80,
       "maxExpectedFirestoreWritesPerCall": 4,
       "notes": "Admin support inbox reads/replies across nested support messages and must preserve admin auth and user privacy."
+    },
+    {
+      "routePattern": "/api/admin-ui-test-session",
+      "methods": [
+        "GET"
+      ],
+      "costClass": "free_read",
+      "ratePolicy": "none; disabled unless local admin UI fixture flag is enabled",
+      "cachePolicy": "no_store",
+      "authRequired": "none",
+      "trustedOriginRequired": false,
+      "budgetGuardRequired": false,
+      "maxExpectedCallsPerUserPerMinute": 6,
+      "notes": "Local admin UI test bootstrap only. It sets an ephemeral fixture cookie when explicitly enabled and must not touch Firestore, providers, billing, or production admin truth."
     },
     {
       "routePattern": "/api/admin/content",
@@ -207,6 +221,22 @@
       "maxExpectedCallsPerUserPerMinute": 30,
       "maxExpectedFirestoreWritesPerCall": 4,
       "notes": "Telemetry ingest must preserve consent/session enrichment and avoid unbounded write fanout."
+    },
+    {
+      "routePattern": "/api/internal/analytics/materialize-user-index",
+      "methods": [
+        "POST"
+      ],
+      "costClass": "firestore_transaction",
+      "ratePolicy": "CRON",
+      "cachePolicy": "no_store",
+      "authRequired": "none",
+      "trustedOriginRequired": false,
+      "budgetGuardRequired": true,
+      "maxExpectedCallsPerUserPerMinute": 12,
+      "maxExpectedFirestoreReadsPerCall": 2000,
+      "maxExpectedFirestoreWritesPerCall": 50,
+      "notes": "Service-to-service CRON bearer authentication is the trusted-origin exemption. The v3 analytics materializer consumes at most 5 leased requests and 200 facts per subject; 50-record lineage query caps keep the conservative source bound below 2,000 reads and 50 writes per call, with a 30-second runtime cap, retry backoff, and deterministic receipts."
     },
     {
       "routePattern": "/api/auth/**",
@@ -329,8 +359,8 @@
       "trustedOriginRequired": true,
       "budgetGuardRequired": true,
       "maxExpectedCallsPerUserPerMinute": 20,
-      "maxExpectedStorageBytesPerCall": 20000000,
-      "notes": "Creator asset upload/download surface; must stay creator/user-scoped and rate limited."
+      "maxExpectedStorageBytesPerCall": 262144000,
+      "notes": "Creator Drop asset upload/download surface; the canonical product and global-cost limit is 250 MiB per file, and access must stay creator/user-scoped and rate limited."
     },
     {
       "routePattern": "/api/creator/onboarding/agreement-document",
@@ -798,6 +828,30 @@
   ],
   "routes": [
     {
+      "filePath": "src/app/api/admin-ui-test-session/route.ts",
+      "routePath": "/api/admin-ui-test-session",
+      "methods": [],
+      "contract": {
+        "routePattern": "/api/admin-ui-test-session",
+        "methods": [
+          "GET"
+        ],
+        "costClass": "free_read",
+        "ratePolicy": "none; disabled unless local admin UI fixture flag is enabled",
+        "cachePolicy": "no_store",
+        "authRequired": "none",
+        "trustedOriginRequired": false,
+        "budgetGuardRequired": false,
+        "maxExpectedCallsPerUserPerMinute": 6,
+        "notes": "Local admin UI test bootstrap only. It sets an ephemeral fixture cookie when explicitly enabled and must not touch Firestore, providers, billing, or production admin truth."
+      },
+      "hasGuard": false,
+      "hasTrustedOrigin": false,
+      "hasRateGuard": false,
+      "authMode": "unknown",
+      "cachePolicyEvidence": []
+    },
+    {
       "filePath": "src/app/api/admin/ai/drop-covers/feedback/route.ts",
       "routePath": "/api/admin/ai/drop-covers/feedback",
       "methods": [
@@ -820,8 +874,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -856,8 +910,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -893,8 +947,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -932,8 +986,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -969,8 +1023,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -1006,8 +1060,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -1043,8 +1097,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -1079,8 +1133,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -1113,8 +1167,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -1147,8 +1201,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -1182,8 +1236,8 @@
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 12,
         "maxExpectedAiTokensPerCall": 4000,
-        "maxExpectedStorageBytesPerCall": 8000000,
-        "notes": "Admin-only Vertex/Gemini surface. Requires feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
+        "maxExpectedStorageBytesPerCall": 10485760,
+        "notes": "Admin-only Vertex/Gemini surface. Uploaded template/reference images retain the canonical 10 MiB file cap; paid generation requires a feature toggle, model allowlist, bounded inputs/outputs, cost estimate, and telemetry/debug evidence."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -3312,8 +3366,8 @@
         "trustedOriginRequired": true,
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 20,
-        "maxExpectedStorageBytesPerCall": 20000000,
-        "notes": "Creator asset upload/download surface; must stay creator/user-scoped and rate limited."
+        "maxExpectedStorageBytesPerCall": 262144000,
+        "notes": "Creator Drop asset upload/download surface; the canonical product and global-cost limit is 250 MiB per file, and access must stay creator/user-scoped and rate limited."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -4208,6 +4262,37 @@
       ]
     },
     {
+      "filePath": "src/app/api/internal/analytics/materialize-user-index/route.ts",
+      "routePath": "/api/internal/analytics/materialize-user-index",
+      "methods": [
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/internal/analytics/materialize-user-index",
+        "methods": [
+          "POST"
+        ],
+        "costClass": "firestore_transaction",
+        "ratePolicy": "CRON",
+        "cachePolicy": "no_store",
+        "authRequired": "none",
+        "trustedOriginRequired": false,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 12,
+        "maxExpectedFirestoreReadsPerCall": 2000,
+        "maxExpectedFirestoreWritesPerCall": 50,
+        "notes": "Service-to-service CRON bearer authentication is the trusted-origin exemption. The v3 analytics materializer consumes at most 5 leased requests and 200 facts per subject; 50-record lineage query caps keep the conservative source bound below 2,000 reads and 50 writes per call, with a 30-second runtime cap, retry backoff, and deterministic receipts."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": false,
+      "hasRateGuard": true,
+      "authMode": "none",
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
+    },
+    {
       "filePath": "src/app/api/notifications/push-token/route.ts",
       "routePath": "/api/notifications/push-token",
       "methods": [
@@ -5078,18 +5163,6 @@
   ],
   "suspectedCostSurfaces": [
     {
-      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
-      "line": 10,
-      "excerpt": "} from \"firebase/firestore\";",
-      "kind": "firestore-client"
-    },
-    {
-      "filePath": "src/app/admin/debug/components/DebugControlTowerCards.tsx",
-      "line": 50,
-      "excerpt": "subtitle: \"GumDrops economy truth, PayPal-adjacent health, Google cost, Cloud Run, SQL/Data Connect, BigQuery, Storage, and rate-limit risk.\",",
-      "kind": "data-connect"
-    },
-    {
       "filePath": "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
       "line": 12,
       "excerpt": "} from \"firebase/firestore\";",
@@ -5127,13 +5200,13 @@
     },
     {
       "filePath": "src/app/api/admin/content/route.ts",
-      "line": 12,
+      "line": 18,
       "excerpt": "import { adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/admin/content/route.ts",
-      "line": 12,
+      "line": 18,
       "excerpt": "import { adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
@@ -5169,7 +5242,7 @@
     },
     {
       "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 8,
+      "line": 9,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5199,7 +5272,7 @@
     },
     {
       "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "line": 5,
+      "line": 6,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5277,7 +5350,7 @@
     },
     {
       "filePath": "src/app/api/auth/manual-sign-in-lookup/route.ts",
-      "line": 5,
+      "line": 6,
       "excerpt": "import { adminAuth, adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5295,31 +5368,31 @@
     },
     {
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 8,
+      "line": 9,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 8,
+      "line": 9,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
     {
       "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 13,
+      "line": 14,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 13,
+      "line": 14,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
     {
       "filePath": "src/app/api/chat/attachments/prepare/route.ts",
-      "line": 12,
+      "line": 13,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5331,7 +5404,7 @@
     },
     {
       "filePath": "src/app/api/chat/threads/[threadId]/messages/route.ts",
-      "line": 6,
+      "line": 7,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5367,13 +5440,13 @@
     },
     {
       "filePath": "src/app/api/creator/drops/assets/route.ts",
-      "line": 7,
+      "line": 12,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/creator/drops/assets/route.ts",
-      "line": 7,
+      "line": 12,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
@@ -5385,7 +5458,7 @@
     },
     {
       "filePath": "src/app/api/creator/messages/route.ts",
-      "line": 13,
+      "line": 14,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5403,13 +5476,13 @@
     },
     {
       "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 16,
+      "line": 17,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 35,
+      "line": 36,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5542,7 +5615,7 @@
     {
       "filePath": "src/app/api/paypal/capture/route.ts",
       "line": 3,
-      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
@@ -5715,7 +5788,7 @@
     },
     {
       "filePath": "src/context/AuthContext.tsx",
-      "line": 658,
+      "line": 716,
       "excerpt": "const { doc, onSnapshot } = await import(\"firebase/firestore\");",
       "kind": "firestore-client"
     },
@@ -5745,13 +5818,13 @@
     },
     {
       "filePath": "src/hooks/useNotifications.ts",
-      "line": 130,
+      "line": 140,
       "excerpt": "import(\"firebase/firestore\"),",
       "kind": "firestore-client"
     },
     {
       "filePath": "src/lib/admin-debug-control-tower.ts",
-      "line": 267,
+      "line": 276,
       "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"data-connect-mirror-status.generated.json\", command: \"npm run check:data-connect-mirror-status\" },",
       "kind": "data-connect"
     },
@@ -5769,7 +5842,7 @@
     },
     {
       "filePath": "src/lib/agent-score/core.ts",
-      "line": 489,
+      "line": 655,
       "excerpt": "detail: \"Cloud SQL cost inventory was not supplied.\",",
       "kind": "cloud-sql"
     },
@@ -5805,7 +5878,7 @@
     },
     {
       "filePath": "src/lib/analytics/legacy-history-reconciler.ts",
-      "line": 506,
+      "line": 510,
       "excerpt": "action: \"No SQL or Data Connect calls are used for legacy history recovery.\",",
       "kind": "data-connect"
     },
@@ -5861,6 +5934,18 @@
       "filePath": "src/lib/config-hardening/config-env-contract.ts",
       "line": 154,
       "excerpt": "doesNotProve: \"The env contract proves variable registration and redaction boundaries only. It does not prove credentials are present, valid, deployed, or accepted by Firebase, PayPal, Google, GA4, BigQuery, Vertex, Cloud SQL, or other providers.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "src/lib/config-hardening/devops/auth-surface-contract.ts",
+      "line": 72,
+      "excerpt": "{ id: \"cloud_sql_data_connect\", label: \"Cloud SQL / Data Connect\", tool: \"gcloud\" },",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/config-hardening/devops/auth-surface-contract.ts",
+      "line": 72,
+      "excerpt": "{ id: \"cloud_sql_data_connect\", label: \"Cloud SQL / Data Connect\", tool: \"gcloud\" },",
       "kind": "cloud-sql"
     },
     {
@@ -5930,18 +6015,6 @@
       "kind": "cloud-sql"
     },
     {
-      "filePath": "src/lib/devops/auth-surface-contract.ts",
-      "line": 72,
-      "excerpt": "{ id: \"cloud_sql_data_connect\", label: \"Cloud SQL / Data Connect\", tool: \"gcloud\" },",
-      "kind": "data-connect"
-    },
-    {
-      "filePath": "src/lib/devops/auth-surface-contract.ts",
-      "line": 72,
-      "excerpt": "{ id: \"cloud_sql_data_connect\", label: \"Cloud SQL / Data Connect\", tool: \"gcloud\" },",
-      "kind": "cloud-sql"
-    },
-    {
       "filePath": "src/lib/errors/bug-report-contract.ts",
       "line": 1,
       "excerpt": "import type { FieldValue } from \"firebase-admin/firestore\";",
@@ -5991,13 +6064,13 @@
     },
     {
       "filePath": "src/lib/release-readiness/final-release-readiness.ts",
-      "line": 826,
+      "line": 867,
       "excerpt": "nextExactAction: \"Complete external billing review for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx lanes.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "src/lib/release-readiness/final-release-readiness.ts",
-      "line": 826,
+      "line": 867,
       "excerpt": "nextExactAction: \"Complete external billing review for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx lanes.\",",
       "kind": "cloud-sql"
     },
@@ -6344,6 +6417,12 @@
       "kind": "firebase-admin"
     },
     {
+      "filePath": "src/lib/server/paypal-order-state.ts",
+      "line": 4,
+      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
+      "kind": "firebase-admin"
+    },
+    {
       "filePath": "src/lib/server/platform-economy-mutations.ts",
       "line": 3,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
@@ -6399,7 +6478,7 @@
     },
     {
       "filePath": "src/lib/server/user-index-materializer.ts",
-      "line": 3,
+      "line": 12,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -6412,7 +6491,7 @@
     {
       "filePath": "src/lib/server/user-index-writer.ts",
       "line": 3,
-      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
+      "excerpt": "import { FieldValue, Timestamp } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
@@ -6555,19 +6634,19 @@
     },
     {
       "filePath": "scripts/agent/build-agent-indexes.ts",
-      "line": 147,
+      "line": 160,
       "excerpt": "combined.includes(\"RTDB\") || combined.includes(\"Data Connect\") ? { stable_id: toStableId(\"pitfall\", \"sidecar_truth_confusion\"), title: \"sidecar_truth_confusion\", description: \"Fallback, RTDB, or Data Connect sidecars can be mistaken for canonical serving truth when they are not current in-repo readers.\", symptom_pattern: \"Sidecar/export layers are treated as if they are the main product-serving analytics source.\", affected_surfaces: [\"src/lib/server/admin-analytics-shared.ts\", \"src/app/api/telemetry/track/route.ts\", \"functions/src/**\"], prevention_rule: \"Do not represent fallback or derived data as stronger truth than source truth.\", detection_hint: \"Check whether the candidate storage layer has a verified in-repo reader before treating it as canonical.\", related_commands: [\"npm run check:analytics-semantics\"], related_helpers: [\"src/lib/telemetry.ts\"], severity: \"high\", broad_work_relevance: true } : null,",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/build-compact-agent-context.ts",
-      "line": 269,
+      "line": 270,
       "excerpt": "rules: [\"Google cost-bearing surfaces must be declared before use.\", \"Data Connect remains an agent-context mirror unless explicitly promoted.\", \"Provider jobs and deploy commands are documentation-only unless a human promotes them.\"],",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/build-compact-agent-context.ts",
-      "line": 270,
+      "line": 271,
       "excerpt": "blockedPatterns: [\"undocumented Cloud SQL runtime path\", \"BigQuery mutates runtime balances\", \"gcloud deploy from audit lane\"],",
       "kind": "cloud-sql"
     },
@@ -6585,13 +6664,13 @@
     },
     {
       "filePath": "scripts/agent/debug-cockpit-batch26-dependency-shared.ts",
-      "line": 127,
+      "line": 200,
       "excerpt": "for (const required of [\"GA4 / Measurement ID\", \"FCM/push/VAPID\", \"PayPal\", \"PostHog\", \"Vertex AI/Gemini\", \"Firebase Auth\", \"Firestore\", \"BigQuery\", \"Cloud SQL/Data Connect\"]) {",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/debug-cockpit-batch26-dependency-shared.ts",
-      "line": 127,
+      "line": 200,
       "excerpt": "for (const required of [\"GA4 / Measurement ID\", \"FCM/push/VAPID\", \"PayPal\", \"PostHog\", \"Vertex AI/Gemini\", \"Firebase Auth\", \"Firestore\", \"BigQuery\", \"Cloud SQL/Data Connect\"]) {",
       "kind": "cloud-sql"
     },
@@ -6633,31 +6712,31 @@
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 325,
+      "line": 363,
       "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\"),",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 301,
+      "line": 339,
       "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside the approved agent mirror\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 303,
+      "line": 341,
       "excerpt": "expectedRule: \"Data Connect/Cloud SQL is allowed only for agent-context mirror paths unless a route contract explicitly approves runtime usage.\",",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 293,
+      "line": 331,
       "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 293,
+      "line": 331,
       "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "mysql"
     },
@@ -6741,37 +6820,37 @@
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 994,
+      "line": 1160,
       "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\") ?? lineOf(source, \"BetaAnalyticsDataClient\") ?? lineOf(source, \"GoogleAuth\"),",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 589,
-      "excerpt": "if (/adminStorage|storage\\.bucket|bucket\\(/u.test(source) && !/entitlement|unlocked|owner|participant|MEDIA_PROXY|media_proxy|requireAdmin/u.test(source)) {",
+      "line": 738,
+      "excerpt": "if (/adminStorage|storage\\.bucket|bucket\\(/u.test(source)",
       "kind": "admin-storage"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 938,
+      "line": 1104,
       "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside approved agent mirror\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 939,
+      "line": 1105,
       "excerpt": "evidence: [\"Firebase Data Connect/Cloud SQL is allowed only for agent-context mirror infrastructure unless explicitly contracted.\"],",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 931,
+      "line": 1097,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 931,
+      "line": 1097,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "mysql"
     },
@@ -6783,25 +6862,25 @@
     },
     {
       "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
-      "line": 180,
+      "line": 201,
       "excerpt": "\"AGENTS.md/doctrine: Data Connect / Cloud SQL mirror targets kandydrops-db.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
-      "line": 140,
+      "line": 141,
       "excerpt": "const cloudSqlDetected = detected(sources.cloudSqlSearch ?? \"\", /Cloud SQL|cloudsql|postgres|mysql|prisma|knex|sequelize|DATABASE_URL|dataconnect|kandydrops-db/iu);",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
-      "line": 140,
+      "line": 141,
       "excerpt": "const cloudSqlDetected = detected(sources.cloudSqlSearch ?? \"\", /Cloud SQL|cloudsql|postgres|mysql|prisma|knex|sequelize|DATABASE_URL|dataconnect|kandydrops-db/iu);",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
-      "line": 140,
+      "line": 141,
       "excerpt": "const cloudSqlDetected = detected(sources.cloudSqlSearch ?? \"\", /Cloud SQL|cloudsql|postgres|mysql|prisma|knex|sequelize|DATABASE_URL|dataconnect|kandydrops-db/iu);",
       "kind": "mysql"
     },
@@ -6819,7 +6898,7 @@
     },
     {
       "filePath": "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
-      "line": 71,
+      "line": 74,
       "excerpt": "- Cloud SQL status: ${report.summary.cloudSqlStatus}",
       "kind": "cloud-sql"
     },
@@ -6837,7 +6916,7 @@
     },
     {
       "filePath": "scripts/agent/validate-beta-evidence-gap-map.ts",
-      "line": 203,
+      "line": 204,
       "excerpt": "nextAction: \"Attach owner-reviewed cost evidence for external Cloud SQL, Gemini/Cloud Assist, and hosted-runner lanes.\",",
       "kind": "cloud-sql"
     },
@@ -7011,25 +7090,25 @@
     },
     {
       "filePath": "scripts/agent/validate-final-cost-audit-lock.ts",
-      "line": 153,
+      "line": 158,
       "excerpt": "{ item: 23, title: \"Data Connect / Cloud SQL mirror exists as agent context\", category: \"Cloud SQL/Data Connect\", status: \"fixed\" },",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-final-cost-audit-lock.ts",
-      "line": 153,
+      "line": 158,
       "excerpt": "{ item: 23, title: \"Data Connect / Cloud SQL mirror exists as agent context\", category: \"Cloud SQL/Data Connect\", status: \"fixed\" },",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/validate-final-math-normalization-lock.ts",
-      "line": 476,
+      "line": 478,
       "excerpt": "\"Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx cost lanes retain external review requirements where no billing artifact exists.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-final-math-normalization-lock.ts",
-      "line": 476,
+      "line": 478,
       "excerpt": "\"Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx cost lanes retain external review requirements where no billing artifact exists.\",",
       "kind": "cloud-sql"
     },
@@ -7089,13 +7168,13 @@
     },
     {
       "filePath": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-      "line": 258,
+      "line": 342,
       "excerpt": "nextAction: \"Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-      "line": 258,
+      "line": 342,
       "excerpt": "nextAction: \"Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.\",",
       "kind": "cloud-sql"
     },
@@ -7119,31 +7198,31 @@
     },
     {
       "filePath": "scripts/agent/validate-recommendation-ranker.ts",
-      "line": 104,
+      "line": 121,
       "excerpt": "!requireIncludes(trainScript, \"@google-cloud/vertexai\")",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/validate-runtime-watch-time-v2.ts",
-      "line": 136,
+      "line": 137,
       "excerpt": "evidence: \"Runtime watch v2 model and tracker do not import or call SQL/Data Connect.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-runtime-watch-time-v2.ts",
-      "line": 218,
+      "line": 224,
       "excerpt": "- Cloud SQL status: ${report.summary.cloudSqlStatus}",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/validate-score-80-cost-readiness.ts",
-      "line": 338,
+      "line": 447,
       "excerpt": "\"Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing externally before claiming provider savings.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-score-80-cost-readiness.ts",
-      "line": 311,
+      "line": 420,
       "excerpt": "detail: cloudGuardsCurrent ? \"Current Cloud SQL/Gemini guard report is available.\" : \"Cloud SQL/Gemini guard report is missing or stale.\",",
       "kind": "cloud-sql"
     },
@@ -7209,15 +7288,9 @@
     },
     {
       "filePath": "scripts/analytics/validate-canonical-import-export.ts",
-      "line": 109,
+      "line": 202,
       "excerpt": "requireIncludes(dataconnectAgentContext, \"never as runtime product truth\", \"Data Connect agent-context schema\");",
       "kind": "data-connect"
-    },
-    {
-      "filePath": "scripts/backfill-analytics-parity.ts",
-      "line": 3,
-      "excerpt": "import * as admin from \"firebase-admin\";",
-      "kind": "firebase-admin"
     },
     {
       "filePath": "scripts/check-client-firestore-connectivity.ts",

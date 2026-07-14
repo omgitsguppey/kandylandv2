@@ -20,6 +20,7 @@ import {
     type CreatorReviewQueueBucket,
 } from "@/lib/creator-onboarding";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { CREATOR_MASTER_SERVICE_AGREEMENT_VERSION, DEFAULT_CREATOR_TEMPLATE_ID, DEFAULT_CREATOR_TEMPLATE_LABEL } from "@/lib/creator-contract";
 import {
     buildCreatorOnboardingHistoryEntry,
@@ -86,6 +87,7 @@ type RosterEntry = {
 const ADMIN_ROSTER_USER_LIMIT = 500;
 const ADMIN_ROSTER_CREATOR_OPS_LIMIT = 250;
 const ADMIN_ROSTER_QUEUE_LIMIT = 200;
+const ADMIN_ROSTER_BODY_LIMIT_BYTES = 64_000;
 
 function emptyAdminRosterQuerySnapshot() {
     return { docs: [], size: 0 } as unknown as FirebaseFirestore.QuerySnapshot;
@@ -817,7 +819,11 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database or auth not available" }, { status: 500 });
         }
 
-        const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+        const body = await readBoundedJsonBody<Record<string, unknown>>(request, {
+            maxBytes: ADMIN_ROSTER_BODY_LIMIT_BYTES,
+            routeName: "admin/roster",
+            allowEmpty: false,
+        });
         const displayName = readString(body.displayName);
         const email = readString(body.email).toLowerCase();
         const preferredUsername = readString(body.handle);
@@ -1088,6 +1094,14 @@ async function POST_handler(request: NextRequest) {
             syntheticCreatorType: syntheticMarker?.syntheticCreatorType,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "Admin.Roster.POST");
     }
 }

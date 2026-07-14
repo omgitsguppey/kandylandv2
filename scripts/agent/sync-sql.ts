@@ -62,7 +62,16 @@ function hashValue(value: unknown) {
   return createHash("sha1").update(JSON.stringify(value)).digest("hex").slice(0, 12);
 }
 
-function inferRows(fileName: string, payload: Record<string, unknown>) {
+export function inferRows(fileName: string, payload: Record<string, unknown>) {
+  if (typeof payload.totalFindingCount === "number" && Number.isFinite(payload.totalFindingCount)) {
+    return payload.totalFindingCount;
+  }
+
+  const counts = payload.counts;
+  if (counts && typeof counts === "object" && typeof (counts as Record<string, unknown>).total === "number") {
+    return (counts as Record<string, number>).total;
+  }
+
   const candidates = ["items", "entries", "commands", "files", "pitfalls", "passes", "domains", "lanes", "highInboundFiles", "blastRadiusSurfaces", "routeHelperAdjacencyHints", "broadChangeDangerMarkers"];
   const primaryKey = candidates.find((key) => Array.isArray(payload[key]));
   if (primaryKey) {

@@ -1042,6 +1042,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 method: "GET",
                 title: "Admin User [userId] Creator Onboarding Id Document runtime",
                 slowThresholdMs: 1200,
+            },
+    "internal/analytics/materialize-user-index:POST": {
+                routeName: "internal/analytics/materialize-user-index",
+                method: "POST",
+                title: "User index materializer runtime",
+                slowThresholdMs: 45000,
             }
 } as const;
 

@@ -45,6 +45,7 @@ vi.mock("@/lib/server/support-threads", () => ({
     getSupportThreadForAdmin: mockState.getSupportThreadForAdmin,
     addSupportMessage: mockState.addSupportMessage,
     updateSupportThreadStatus: mockState.updateSupportThreadStatus,
+    isSupportThreadsMissingIndexError: () => false,
 }));
 vi.mock("@/lib/server/route-runtime-health", async (importOriginal) => {
     const actual = await importOriginal<typeof import("@/lib/server/route-runtime-health")>();
@@ -169,6 +170,66 @@ describe("admin support thread routes", () => {
 
         expect(statusBody.thread.status).toBe("resolved");
         expect(mockState.updateSupportThreadStatus).toHaveBeenCalledWith("thread_1", "resolved");
+    });
+
+    it("rejects oversized reply and status payloads before support mutation", async () => {
+        mockState.getSupportThreadForAdmin.mockResolvedValue({
+            thread: {
+                id: "thread_1",
+                status: "waiting_on_support",
+                category: "technical",
+                channel: "in_app",
+                subject: "Upload issue",
+                createdAt: 1,
+                lastMessageAt: 2,
+                userId: "user_1",
+                userEmail: "user@example.com",
+                userDisplayName: "User",
+                userHandle: "user",
+                messageCount: 1,
+            },
+            messages: [],
+        });
+
+        const oversizedReply = JSON.stringify({
+            message: "Thanks, looking now.",
+            padding: "x".repeat(64_000),
+        });
+        const legacyReplyResponse = await postAdminReply(
+            new NextRequest("http://localhost/api/admin/support/threads/thread_1", {
+                method: "POST",
+                body: oversizedReply,
+            }),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        const messageReplyResponse = await postAdminMessageReply(
+            new NextRequest("http://localhost/api/admin/support/threads/thread_1/messages", {
+                method: "POST",
+                body: oversizedReply,
+            }),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        const statusResponse = await patchAdminThread(
+            new NextRequest("http://localhost/api/admin/support/threads/thread_1", {
+                method: "PATCH",
+                body: JSON.stringify({
+                    status: "resolved",
+                    padding: "x".repeat(64_000),
+                }),
+            }),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+
+        for (const response of [legacyReplyResponse, messageReplyResponse, statusResponse]) {
+            expect(response.status).toBe(413);
+            await expect(response.json()).resolves.toMatchObject({
+                success: false,
+                code: "payload_too_large",
+                retryable: false,
+            });
+        }
+        expect(mockState.addSupportMessage).not.toHaveBeenCalled();
+        expect(mockState.updateSupportThreadStatus).not.toHaveBeenCalled();
     });
 
     it("non-admin cannot call admin support routes", async () => {

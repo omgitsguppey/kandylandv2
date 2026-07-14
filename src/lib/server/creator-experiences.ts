@@ -172,6 +172,57 @@ export function buildCreatorExperienceRecordIds(input: {
     };
 }
 
+export const CREATOR_EXPERIENCE_OPERATION_COLLECTION = "operation_idempotency";
+
+export function buildChatAttachmentOperationIdentity(input: {
+    userId: string;
+    creatorId: string;
+    callerUid: string;
+    threadId: string;
+    clientKey: unknown;
+    storagePath: string;
+}) {
+    const idempotencyKey = buildCreatorExperienceIdempotencyKey({
+        action: "private_chat",
+        userId: input.userId,
+        creatorId: input.creatorId,
+        clientKey: input.clientKey,
+    });
+    const recordIds = buildCreatorExperienceRecordIds({
+        action: "private_chat",
+        idempotencyKey,
+    });
+
+    return {
+        action: "private_chat" as const,
+        operationType: "chat_attachment" as const,
+        operationId: recordIds.creatorExperienceRecordId,
+        messageId: recordIds.creatorExperienceRecordId,
+        idempotencyKey,
+        userId: input.userId,
+        creatorId: input.creatorId,
+        callerUid: input.callerUid,
+        threadId: input.threadId,
+        storagePathHash: hashCreatorExperienceValue(input.storagePath),
+    };
+}
+
+export type ChatAttachmentOperationIdentity = ReturnType<typeof buildChatAttachmentOperationIdentity>;
+
+export function matchesChatAttachmentOperationIdentity(
+    value: Record<string, unknown> | undefined,
+    identity: ChatAttachmentOperationIdentity,
+) {
+    return value?.action === identity.action
+        && value.operationType === identity.operationType
+        && value.idempotencyKey === identity.idempotencyKey
+        && value.userId === identity.userId
+        && value.creatorId === identity.creatorId
+        && value.callerUid === identity.callerUid
+        && value.threadId === identity.threadId
+        && value.storagePathHash === identity.storagePathHash;
+}
+
 export function buildCreatorExperienceTransactionDebug(input: {
     userTransactionId: string;
     creatorAccrualId: string;

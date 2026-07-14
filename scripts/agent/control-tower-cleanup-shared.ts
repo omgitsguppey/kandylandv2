@@ -35,6 +35,7 @@ type ScoreDimensions = {
 };
 
 const ROOT = process.cwd();
+const PUBLIC_BETA_SCORE_PATH = "agent/state/public-beta-score.generated.json";
 
 function gitHead() {
   try {
@@ -72,6 +73,10 @@ function stringValue(value: unknown, fallback = "") {
 
 function numberValue(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function finiteNumberOrNull(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function arrayValue(value: unknown) {
@@ -217,7 +222,8 @@ export function buildControlTowerOperatorQueueCleanupReport(input: {
 
 export function buildControlTowerCanonicalSourceReport(input: { currentHead?: string } = {}) {
   const currentHead = input.currentHead ?? gitHead();
-  const publicBetaScore = readJson("agent/state/public-beta-score.generated.json");
+  const publicBetaScore = readJson(PUBLIC_BETA_SCORE_PATH);
+  const latestDebugCockpitLock = readJson("agent/state/debug-cockpit-batch6-cleanup.generated.json");
   const score80PathLock = readJson("agent/state/score-80-path-lock.generated.json");
   return {
     generatedAtUtc: new Date().toISOString(),
@@ -225,16 +231,16 @@ export function buildControlTowerCanonicalSourceReport(input: { currentHead?: st
     ...resolveControlTowerCanonicalSource({
       currentHead,
       publicBetaScore: {
-        path: "agent/state/public-beta-score.generated.json",
-        currentHead: stringValue(publicBetaScore.currentHead, currentHead),
-        generatedAtUtc: generatedAt(publicBetaScore),
-        overallScore: numberValue(publicBetaScore.overallScore, 79),
-        evidenceScore: numberValue(publicBetaScore.evidenceScore, 65.7),
+        path: PUBLIC_BETA_SCORE_PATH,
+        currentHead: stringValue(publicBetaScore.currentHead) || null,
+        generatedAtUtc: generatedAt(publicBetaScore) || null,
+        overallScore: finiteNumberOrNull(publicBetaScore.overallScore),
+        evidenceScore: finiteNumberOrNull(publicBetaScore.evidenceScore),
       },
       latestDebugCockpitLock: {
         path: "agent/state/debug-cockpit-batch6-cleanup.generated.json",
-        currentHead: stringValue(readJson("agent/state/debug-cockpit-batch6-cleanup.generated.json").currentHead, currentHead),
-        generatedAtUtc: generatedAt(readJson("agent/state/debug-cockpit-batch6-cleanup.generated.json")),
+        currentHead: stringValue(latestDebugCockpitLock.currentHead) || null,
+        generatedAtUtc: generatedAt(latestDebugCockpitLock) || null,
       },
       legacyScoreLocks: [{
         path: "agent/state/score-80-path-lock.generated.json",
@@ -243,7 +249,7 @@ export function buildControlTowerCanonicalSourceReport(input: { currentHead?: st
         status: "superseded",
       }],
     }),
-    replacementArtifact: "agent/state/public-beta-score.generated.json",
+    replacementArtifact: PUBLIC_BETA_SCORE_PATH,
   };
 }
 
@@ -298,7 +304,7 @@ export function buildControlTowerFormalGateDisplayReport(input: { currentHead?: 
 
 export function buildDebugCockpitBatch7ControlTowerCleanupReport(input: { currentHead?: string } = {}) {
   const currentHead = input.currentHead ?? gitHead();
-  const score = readJson("agent/state/public-beta-score.generated.json");
+  const score = readJson(PUBLIC_BETA_SCORE_PATH);
   const scoreDimensions = scoreDimensionsFrom(score);
   const canonicalSource = buildControlTowerCanonicalSourceReport({ currentHead });
   const reportFreshness = buildControlTowerReportFreshnessCleanupReport({ currentHead });
@@ -322,7 +328,14 @@ export function buildDebugCockpitBatch7ControlTowerCleanupReport(input: { curren
     reportKey: "debug-cockpit-batch7-control-tower-cleanup",
     currentHead,
     canonicalScoreBefore: { score: 79, status: "stale evidence", source: "stale control tower display" },
-    canonicalScoreAfter: { score: numberValue(score.overallScore, 79), status: stringValue(score.readinessStatus, "Stale evidence"), source: canonicalSource.canonicalScoreSource },
+    canonicalScoreAfter: {
+      artifactPresent: existsSync(join(ROOT, PUBLIC_BETA_SCORE_PATH)),
+      artifactHead: canonicalSource.artifactHead,
+      headMatchesCurrent: canonicalSource.headMatchesMain,
+      score: finiteNumberOrNull(score.overallScore),
+      status: stringValue(score.readinessStatus) || null,
+      source: canonicalSource.canonicalScoreSource,
+    },
     evidenceScoreBefore: 65.7,
     evidenceScoreAfter: numberValue(score.evidenceScore, 65.7),
     requiredReportsBefore: reportFreshness.requiredReportsBefore,
@@ -403,7 +416,10 @@ export function validateControlTowerOperatorQueueCleanupReport(report: ReturnTyp
 
 export function validateDebugCockpitBatch7ControlTowerCleanupReport(report: ReturnType<typeof buildDebugCockpitBatch7ControlTowerCleanupReport>) {
   const failures: string[] = [];
-  if (report.canonicalScoreAfter.score <= report.canonicalScoreBefore.score) failures.push("Control Tower shows stale score when current score artifact exists.");
+  if (!report.canonicalScoreAfter.artifactPresent) failures.push("canonical public beta score artifact is missing.");
+  if (report.canonicalScoreAfter.source !== PUBLIC_BETA_SCORE_PATH) failures.push("Control Tower canonical score does not read the public beta score artifact.");
+  if (typeof report.canonicalScoreAfter.score !== "number" || !Number.isFinite(report.canonicalScoreAfter.score)) failures.push("canonical public beta score is missing or invalid.");
+  if (!report.canonicalScoreAfter.status) failures.push("canonical public beta readiness status is missing.");
   if (report.staleReportsBefore < 6) failures.push("6 stale reports remain unclassified.");
   if (!report.retiredReports.includes("agent/state/score-80-path-lock.generated.json")) failures.push("score-80-path-lock remains active if superseded.");
   if (report.scoreImpactQueueAfter.some((artifact) => /runtime_provider_smoke|debug_runtime_evidence|admin_truth/iu.test(artifact))) failures.push("typed evidence gates appear as source bugs.");

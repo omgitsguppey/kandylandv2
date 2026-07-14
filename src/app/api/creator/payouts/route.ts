@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
@@ -13,6 +14,7 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const CREATOR_PAYOUTS_READ_LIMIT = 500;
 const CREATOR_ACCRUALS_READ_LIMIT = 2_000;
+const CREATOR_PAYOUT_BODY_LIMIT_BYTES = 16_384;
 
 const createPayoutSchema = z.object({
     requestedGd: z.number().int().min(100),
@@ -98,7 +100,11 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Payouts are restricted for this creator." }, { status: 403 });
         }
 
-        const { requestedGd } = createPayoutSchema.parse(await request.json());
+        const rawBody = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: CREATOR_PAYOUT_BODY_LIMIT_BYTES,
+            routeName: "creator/payouts",
+        });
+        const { requestedGd } = createPayoutSchema.parse(rawBody);
         const accrualSnap = await adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals)
             .where("creatorId", "==", caller.uid)
             .limit(CREATOR_ACCRUALS_READ_LIMIT)
@@ -132,6 +138,14 @@ async function POST_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, id: payoutRef.id });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "Creator.Payouts.POST");
     }
 }
@@ -155,7 +169,11 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Admin access required" }, { status: 403 });
         }
 
-        const { payoutRequestId, action, reviewNote } = reviewPayoutSchema.parse(await request.json());
+        const rawBody = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: CREATOR_PAYOUT_BODY_LIMIT_BYTES,
+            routeName: "creator/payouts",
+        });
+        const { payoutRequestId, action, reviewNote } = reviewPayoutSchema.parse(rawBody);
         const payoutRef = adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).doc(payoutRequestId);
         const payoutSnap = await payoutRef.get();
         if (!payoutSnap.exists) {
@@ -179,6 +197,14 @@ async function PUT_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, status: nextStatus });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "Creator.Payouts.PUT");
     }
 }

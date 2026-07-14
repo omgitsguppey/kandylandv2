@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { LAUNCH_ANALYTICS_FIRST_DAY_KEY } from "@/lib/analytics/source-agreement-detail";
+
 import {
   buildFinalMathNormalizationLockReport,
   classifyFinalMathNormalizationDirtyFile,
@@ -52,7 +54,7 @@ describe("final math normalization lock", () => {
       },
       legacyRecoverySummary: {
         dryRunOnly: true,
-        startDate: "2026-03-01",
+        startDate: LAUNCH_ANALYTICS_FIRST_DAY_KEY,
         exactPromotionsBlocked: true,
       },
     });

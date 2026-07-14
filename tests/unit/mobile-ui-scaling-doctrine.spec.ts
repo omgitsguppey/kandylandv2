@@ -57,8 +57,8 @@ describe("mobile UI scaling doctrine", () => {
 
     expect(result.ok).toBe(false);
     expect(result.failures).toEqual(expect.arrayContaining([
-      "mobile className must not use p-8 desktop padding",
-      "mobile className must not use text-4xl display type",
+      "mobile className must not use p-8 desktop-scale padding",
+      "mobile className must not use text-4xl display type outside a true hero",
       "mobile className must not use raw h-screen shell math",
       "mobile nested scroll requires an approved list/table/debug policy",
       "mobile skeletons must reserve roughly final layout size",

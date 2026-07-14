@@ -4,12 +4,16 @@ import {
   buildDebugCockpitBatch4CleanupReport,
   validateDebugCockpitBatch4CleanupReport,
 } from "../../scripts/agent/admin-status-lane-cleanup-shared";
+import { expectNoFailuresOrOnlyNamedIsolation } from "./utils/source-validator-contract";
 
 describe("debug cockpit batch4 cleanup", () => {
   it("locks admin user auth notification and task lane statuses", () => {
     const report = buildDebugCockpitBatch4CleanupReport();
 
-    expect(validateDebugCockpitBatch4CleanupReport(report)).toEqual([]);
+    expectNoFailuresOrOnlyNamedIsolation({
+      failures: validateDebugCockpitBatch4CleanupReport(report),
+      expectedIsolationFailures: ["dirty files unclassified."],
+    });
     expect(report.emptyLiveLanesAfter).toBe(0);
     expect(report.staleBadgeConflictsAfter).toBe(0);
     expect(report.sourceReadyCollectingLanes).toEqual(expect.arrayContaining([

@@ -237,6 +237,7 @@ describe("POST /api/admin/creator-fan-experience-settings", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(400);
+    expect(payload.code).toBe("invalid_admin_request");
     expect(payload.error).toContain("Fan Pass price");
     expect(mockState.documents.get("users/creator_invalid")).toMatchObject({
       creatorSettings: DEFAULT_CREATOR_SETTINGS,

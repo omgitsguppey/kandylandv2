@@ -8,6 +8,12 @@ import {
     uploadAdminAiDropCoverReferenceAsset,
 } from "@/lib/server/ai-drop-covers";
 import { handleApiError } from "@/lib/server/auth";
+import {
+    isBoundedJsonBodyError,
+    isRequestBodyTooLargeError,
+    readBoundedFormDataBody,
+    readBoundedJsonBody,
+} from "@/lib/server/bounded-json-body";
 import type { RouteRuntimeHealthKey } from "@/lib/route-runtime-health";
 import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -19,6 +25,8 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const MAX_REFERENCE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_REFERENCE_MULTIPART_OVERHEAD_BYTES = 64 * 1024;
+const MAX_REFERENCE_BODY_BYTES = MAX_REFERENCE_SIZE_BYTES + MAX_REFERENCE_MULTIPART_OVERHEAD_BYTES;
 const MAX_ADMIN_AI_JSON_BODY_BYTES = 128_000;
 
 function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
@@ -70,10 +78,13 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
-            maxBodyBytes: MAX_REFERENCE_SIZE_BYTES,
+            maxBodyBytes: MAX_REFERENCE_BODY_BYTES,
         });
 
-        const formData = await request.formData();
+        const formData = await readBoundedFormDataBody(request, {
+            maxBytes: MAX_REFERENCE_BODY_BYTES,
+            routeName: "admin/ai/drop-covers/references",
+        });
         const file = formData.get("file");
         if (!(file instanceof File)) {
             return finalize(startedAt, "admin/ai/drop-covers/references:POST", NextResponse.json({ error: "Missing reference file" }, { status: 400 }));
@@ -105,6 +116,20 @@ async function POST_handler(request: NextRequest) {
             },
         }));
     } catch (error) {
+        if (isRequestBodyTooLargeError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/references:POST", NextResponse.json({
+                error: "Reference upload is too large",
+                errorCode: "payload_too_large",
+                retryable: false,
+            }, { status: 413 }), error);
+        }
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/references:POST", NextResponse.json({
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
             return finalize(startedAt, "admin/ai/drop-covers/references:POST", NextResponse.json(aiError.body, { status: aiError.status }), error);
@@ -125,12 +150,16 @@ async function PUT_handler(request: NextRequest) {
             maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             id?: unknown;
             primary?: unknown;
             pinned?: unknown;
             active?: unknown;
-        };
+        }>(request, {
+            maxBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
+            routeName: "admin/ai/drop-covers/references:PUT",
+            allowedContentTypes: ["application/json"],
+        });
         const id = typeof body.id === "string" ? body.id.trim() : "";
         if (!id) {
             return finalize(startedAt, "admin/ai/drop-covers/references:PUT", NextResponse.json({ error: "Missing reference id" }, { status: 400 }));
@@ -153,6 +182,20 @@ async function PUT_handler(request: NextRequest) {
             asset,
         }));
     } catch (error) {
+        if (isRequestBodyTooLargeError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/references:PUT", NextResponse.json({
+                error: "Reference request is too large",
+                errorCode: "payload_too_large",
+                retryable: false,
+            }, { status: 413 }), error);
+        }
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/references:PUT", NextResponse.json({
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
             return finalize(startedAt, "admin/ai/drop-covers/references:PUT", NextResponse.json(aiError.body, { status: aiError.status }), error);
@@ -173,9 +216,14 @@ async function DELETE_handler(request: NextRequest) {
             maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
-        const body = await request.json().catch(() => ({})) as {
+        const body = await readBoundedJsonBody<{
             id?: unknown;
-        };
+        }>(request, {
+            maxBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
+            routeName: "admin/ai/drop-covers/references:DELETE",
+            allowEmpty: true,
+            allowedContentTypes: ["application/json"],
+        });
         const id = typeof body.id === "string" ? body.id.trim() : "";
         if (!id) {
             return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", NextResponse.json({ error: "Missing reference id" }, { status: 400 }));
@@ -192,6 +240,20 @@ async function DELETE_handler(request: NextRequest) {
 
         return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", NextResponse.json({ success: true }));
     } catch (error) {
+        if (isRequestBodyTooLargeError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", NextResponse.json({
+                error: "Reference request is too large",
+                errorCode: "payload_too_large",
+                retryable: false,
+            }, { status: 413 }), error);
+        }
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", NextResponse.json({
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
             return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", NextResponse.json(aiError.body, { status: aiError.status }), error);

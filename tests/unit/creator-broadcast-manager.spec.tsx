@@ -154,9 +154,9 @@ describe("CreatorBroadcastManager", () => {
     render(<CreatorBroadcastManager creatorId="creator_1" creatorName="Jessica" />);
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText("Message your fans")).toBeTruthy();
+      expect(screen.getByPlaceholderText("Message your followers")).toBeTruthy();
     });
-    fireEvent.change(screen.getByPlaceholderText("Message your fans"), {
+    fireEvent.change(screen.getByPlaceholderText("Message your followers"), {
       target: { value: "New post is live" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Create broadcast" }));

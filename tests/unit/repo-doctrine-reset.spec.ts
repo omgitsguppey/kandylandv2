@@ -43,7 +43,7 @@ describe("repo doctrine reset", () => {
 
     expect(doctrine).toContain("Release-note-only commits are manual recovery only");
     expect(releaseNotes).toContain("Release-note-only recovery commits must include `[skip release-notes]`");
-    expect(releaseNotes).toMatch(/skipped Public Beta Release Notes workflow is not a failure/i);
+    expect(releaseNotes).toMatch(/skipped Public Beta Release Notes Cloud Build lane is not a failure/i);
   });
 
   it("contains full-loop, metric cadence, and no-additive measurement rules", () => {
@@ -79,6 +79,6 @@ describe("repo doctrine reset", () => {
     const scoreDoc = read("docs/agent-truth/public-beta-score.md");
 
     expect(doctrine).toContain("Operator-reported PayPal is tracked, not formal provider smoke");
-    expect(scoreDoc).toContain("Operator-reported PayPal is tracked, not passing");
+    expect(scoreDoc).toContain("Operator-reported PayPal is tracked as context, not passing evidence");
   });
 });

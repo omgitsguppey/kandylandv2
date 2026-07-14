@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { getSettingsValidatorAuthorityRecords } from "../../src/lib/debug/settings-debug-validator-authority";
 import { LEGACY_REGISTRY } from "../../src/lib/legacy/legacy-registry";
 import {
   createMetadata,
@@ -450,6 +451,15 @@ function buildSurfaceContracts(cards: DoctrineCard[]) {
 function isValidatorScript(scriptName: string) {
   return scriptName.startsWith("check:") || scriptName.startsWith("score:") || scriptName.startsWith("validate:");
 }
+const SETTINGS_VALIDATOR_AUTHORITY_RECORDS = getSettingsValidatorAuthorityRecords();
+const SETTINGS_VALIDATOR_PACKAGE_SCRIPTS = new Set(
+  SETTINGS_VALIDATOR_AUTHORITY_RECORDS.map((record) => record.packageScript),
+);
+const ACTIVE_SETTINGS_VALIDATOR_PACKAGE_SCRIPTS = new Set(
+  SETTINGS_VALIDATOR_AUTHORITY_RECORDS
+    .filter((record) => record.status === "active")
+    .map((record) => record.packageScript),
+);
 const KEYWORD_SURFACE_RULES: Array<{ surface: CompactSurface; keywords: string[]; reason: string }> = [
   { surface: "google-cost", keywords: ["google-cost", "cloud-cost", "bigquery", "cloudrun", "sql"], reason: "Google cost or cloud guardrail keyword." },
   { surface: "legacy-phaseout", keywords: ["legacy", "orphan"], reason: "Legacy or orphaned logic keyword." },
@@ -472,6 +482,9 @@ const KEYWORD_SURFACE_RULES: Array<{ surface: CompactSurface; keywords: string[]
   { surface: "repo-governance", keywords: ["inventory", "architecture", "continuity", "generated-artifacts", "dependency", "cycles", "versions", "outdated", "deps"], reason: "Repo governance or inventory keyword." },
 ];
 function inferValidatorSurface(scriptName: string, command: string) {
+  if (SETTINGS_VALIDATOR_PACKAGE_SCRIPTS.has(scriptName)) {
+    return { surface: "settings" as const, confidence: "high", reason: "Declared by canonical settings validator authority contract." };
+  }
   const direct = SURFACE_DEFINITIONS.find((definition) => definition.requiredValidators.includes(scriptName));
   if (direct) {
     return { surface: direct.surface, confidence: "high", reason: "Listed as a required validator for the surface." };
@@ -505,6 +518,9 @@ function buildValidatorMap() {
       ] as const;
     });
   const bySurface = validators.reduce<Record<string, string[]>>((accumulator, [scriptName, value]) => {
+    if (value.surface === "settings" && !ACTIVE_SETTINGS_VALIDATOR_PACKAGE_SCRIPTS.has(scriptName)) {
+      return accumulator;
+    }
     accumulator[value.surface] ??= [];
     accumulator[value.surface].push(scriptName);
     return accumulator;

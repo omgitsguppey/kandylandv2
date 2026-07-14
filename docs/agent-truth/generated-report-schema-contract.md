@@ -1,8 +1,8 @@
 # Generated Report Schema Contract
 
-Generated: 2026-06-09T04:11:42.862Z
-Generated reports audited: 640
-Typed report contracts: 505
+Generated: 2026-07-14T14:56:35.386Z
+Generated reports audited: 618
+Typed report contracts: 507
 Oversized type-schema artifacts: 0
 
 ## Base Fields

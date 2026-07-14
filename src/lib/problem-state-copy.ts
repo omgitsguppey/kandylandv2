@@ -273,8 +273,8 @@ export function getCreatorBookingProblemCopy(reason?: unknown) {
   if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
     const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
     return shortfallGd > 0
-      ? `You need ${shortfallGd} more paid GD to book this.`
-      : "You need more paid GD to book this.";
+      ? `Open Wallet to add ${shortfallGd} more paid GD, then book this again.`
+      : "Open Wallet to add more paid GD, then book this again.";
   }
 
   if (code === "creator_unavailable") {
@@ -305,12 +305,16 @@ export function getCreatorSubscriptionProblemCopy(reason?: unknown) {
   if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
     const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
     return shortfallGd > 0
-      ? `You need ${shortfallGd} more paid GD to start this Fan Pass.`
-      : "You need more paid GD to start this Fan Pass.";
+      ? `Open Wallet to add ${shortfallGd} more paid GD, then start this Fan Pass again.`
+      : "Open Wallet to add more paid GD, then start this Fan Pass again.";
   }
 
   if (code === "subscriptions_unavailable" || normalized.includes("subscriptions are unavailable")) {
     return "Fan Pass is not available for this creator right now.";
+  }
+
+  if (code === "materializer_missing") {
+    return "Your Fan Pass payment is recorded, but access is still syncing. Try again; you will not be charged twice.";
   }
 
   if (code === "creator_unavailable") {
@@ -330,6 +334,43 @@ export function getCreatorSubscriptionProblemCopy(reason?: unknown) {
   }
 
   return "Fan Pass could not be updated. Try again or report the issue.";
+}
+
+export function getCreatorSubscriptionOutcomeCopy(result: {
+  action?: "subscribe" | "cancel";
+  requestedAction?: "subscribe" | "cancel";
+  code?: string;
+  subscriptionStatus?: string;
+  accessGranted?: boolean;
+  historicalReceipt?: boolean;
+  duplicatePrevented?: boolean;
+}) {
+  const active = result.accessGranted
+    ?? (result.subscriptionStatus ? result.subscriptionStatus === "active" : result.action === "subscribe");
+
+  if (result.code === "historical_receipt" || result.historicalReceipt) {
+    return {
+      active,
+      tone: "info" as const,
+      message: active
+        ? "This Fan Pass payment was already recorded, and the Fan Pass is active."
+        : "An earlier Fan Pass payment is already recorded. This Fan Pass is canceled; start it again to reactivate.",
+    };
+  }
+
+  if (result.code === "already_active" || active && result.duplicatePrevented) {
+    return { active: true, tone: "info" as const, message: "Fan Pass is already active." };
+  }
+
+  if (result.requestedAction === "cancel" && result.duplicatePrevented) {
+    return { active: false, tone: "info" as const, message: "Fan Pass is already canceled." };
+  }
+
+  return {
+    active,
+    tone: "success" as const,
+    message: active ? "Fan Pass started." : "Fan Pass canceled.",
+  };
 }
 
 export function getCreatorRequestProblemCopy(reason?: unknown) {

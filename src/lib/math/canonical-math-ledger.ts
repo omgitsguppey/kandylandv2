@@ -117,8 +117,8 @@ export const FORMULA_COMPARISON_ARTIFACTS: FormulaComparisonArtifact[] = [
   {
     formulaOwnerId: "beta_score",
     currentFormula: "Weighted public beta health dimensions from src/lib/agent-score/weights.ts.",
-    canonicalFormula: "sourceHealth 25%, runtimeHealth 20%, evidenceCompleteness 20%, freshness 15%, costRisk 10%, regressionRisk 10%.",
-    delta: "No formula change; this ledger freezes the implemented score weights and known weighted calculation.",
+    canonicalFormula: "sourceHealth 18%, runtimeHealth 30%, evidenceCompleteness 25%, freshness 10%, costRisk 7%, regressionRisk 10%.",
+    delta: "Synchronizes the ledger to the implemented site-activity-weighted score dimensions.",
     accuracyBenefit: "Prevents later score drift from undocumented weight changes.",
     userVisibleProductImpact: "Beta readiness reporting stays explainable and reproducible.",
     migrationRisk: "low",
@@ -147,7 +147,7 @@ export const FORMULA_COMPARISON_ARTIFACTS: FormulaComparisonArtifact[] = [
   {
     formulaOwnerId: "person_metrics",
     currentFormula: "Person metrics hydration computed missingHydration but reported debugLane.gaps and scoreImpact gapCount as 0.",
-    canonicalFormula: "debugLane.gaps and scoreImpactByDimension use missingHydration.length unless future-only exclusion is explicitly classified before exclusion.",
+    canonicalFormula: "debugLane.gaps and scoreImpactByDimension count unique metric IDs across missingHydration and blocking userParityGaps.",
     delta: "Fixes fake zero gap count to real missing hydration gap count.",
     accuracyBenefit: "Evidence completeness reflects actual missing metric source/bridge gaps.",
     userVisibleProductImpact: "Admin/debug readiness stops showing quiet healthy gap math when hydration is incomplete.",

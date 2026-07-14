@@ -1,6 +1,12 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative, sep } from "node:path";
 
+import {
+  findGeneratedReportRuntimeRead,
+  isGeneratedReportRuntimeEvidenceReaderPath,
+  isGeneratedReportRuntimeSourcePath,
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
+
 type OrphanedLogicSeverity = "info" | "minor" | "moderate" | "major" | "critical";
 type OrphanedLogicCategory =
   | "duplicate_normalizer"
@@ -986,11 +992,10 @@ function scanInlineBusinessLogic(findings: OrphanedLogicFinding[], sourceFiles: 
 }
 
 function scanGeneratedReportConsumption(findings: OrphanedLogicFinding[], sourceFiles: SourceFile[]) {
-  const runtimeFiles = sourceFiles.filter((file) => file.path.startsWith("src/") || file.path.startsWith("functions/src/"));
+  const runtimeFiles = sourceFiles.filter((file) => isGeneratedReportRuntimeSourcePath(file.path));
   for (const file of runtimeFiles) {
-    const match = /["'](?:\.\.\/)*agent\/(?:state|index|context)\/[^"']+(?:\.generated)?\.json["']/u.exec(file.source)
-      ?? /readJson(?:File)?\([^)]*agent\/(?:state|index|context)\//u.exec(file.source);
-    if (!match) continue;
+    const match = findGeneratedReportRuntimeRead(file.source);
+    if (!match || isGeneratedReportRuntimeEvidenceReaderPath(file.path)) continue;
     addFinding(findings, {
       severity: file.path.startsWith("src/app/api/") || file.path.startsWith("functions/src/") ? "major" : "moderate",
       category: "stale_generated_report_consumed",
@@ -1104,6 +1109,7 @@ function scanDeadImports(findings: OrphanedLogicFinding[]) {
 function collectFindings() {
   const findings: OrphanedLogicFinding[] = [];
   const sourceFilePaths = walkFiles("src", new Set([".ts", ".tsx", ".js", ".jsx"]));
+  const functionsRuntimeFilePaths = walkFiles("functions/src", new Set([".ts", ".tsx", ".js", ".jsx"]));
   const scriptFilePaths = walkFiles("scripts", new Set([".ts", ".tsx", ".js", ".jsx"]));
   const docFilePaths = [
     ...walkFiles("docs", new Set([".md"])),
@@ -1119,6 +1125,7 @@ function collectFindings() {
   }
 
   const sourceFiles = readSourceFiles(sourceFilePaths);
+  const runtimeReportSourceFiles = readSourceFiles([...sourceFilePaths, ...functionsRuntimeFilePaths]);
   const allScanFiles = readSourceFiles([...sourceFilePaths, ...scriptFilePaths, ...docFilePaths]);
   const docFiles = readSourceFiles(docFilePaths);
 
@@ -1139,13 +1146,13 @@ function collectFindings() {
   scanDuplicatePermissionRoleResolvers(findings, sourceFiles);
   scanDuplicateTelemetryEmitters(findings, sourceFiles);
   scanInlineBusinessLogic(findings, sourceFiles);
-  scanGeneratedReportConsumption(findings, sourceFiles);
+  scanGeneratedReportConsumption(findings, runtimeReportSourceFiles);
   scanDisconnectedMovedReferences(findings, allScanFiles);
   scanDeadImports(findings);
 
   return {
     findings,
-    scannedFileCount: new Set([...sourceFilePaths, ...scriptFilePaths, ...docFilePaths]).size,
+    scannedFileCount: new Set([...sourceFilePaths, ...functionsRuntimeFilePaths, ...scriptFilePaths, ...docFilePaths]).size,
   };
 }
 

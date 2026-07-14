@@ -15,6 +15,7 @@ function main() {
   const telemetry = readText("src/lib/telemetry.ts");
   const contract = readText("src/lib/analytics/analytics-event-contract.ts");
   const ingest = readText("src/app/api/analytics/ingest-identified/route.ts");
+  const runtimeFactNormalizer = readText("src/lib/runtime-facts/normalize-runtime-fact.ts");
   const authModal = readText("src/components/Auth/AuthModal.tsx");
 
   assert(authContext.includes('emitIdentityLinkContinuity(currentUser.uid, "session_restore")'), "session restore does not emit identity_linked from AuthContext.");
@@ -30,7 +31,16 @@ function main() {
   assert(telemetry.includes('privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited"'), "identity link telemetry does not preserve privacy-limited exclusion.");
 
   assert(contract.includes('IDENTITY_LINKED_EVENT_NAME = "identity_linked"'), "analytics contract is missing identity_linked.");
-  assert(ingest.includes('canonicalEventName === "identity_linked"') && ingest.includes('sourceTruth: canonicalEventName === "identity_linked"'), "identified ingest does not preserve canonical identity-link source truth.");
+  assert(
+    runtimeFactNormalizer.includes('canonicalEventName === "identity_linked"')
+      && runtimeFactNormalizer.includes('return "canonical" as const'),
+    "runtime-fact normalization does not preserve canonical identity-link source truth.",
+  );
+  assert(
+    ingest.includes("sourceTruth: ingestRuntimeFact.sourceTruth")
+      && ingest.includes("sourceTruth: parityFact.sourceTruth"),
+    "identified ingest does not persist normalized identity-link source truth.",
+  );
   assert(ingest.includes('metricExclusionReason') && ingest.includes('metricEligible'), "identified ingest does not persist metric eligibility for identity links.");
 
   assert(!authModal.includes("trackIdentityLinked("), "AuthModal should not emit identity_linked directly; continuity must stay in AuthContext.");

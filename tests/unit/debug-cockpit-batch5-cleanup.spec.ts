@@ -4,12 +4,16 @@ import {
   buildDebugCockpitBatch5CleanupReport,
   validateDebugCockpitBatch5CleanupReport,
 } from "../../scripts/agent/chat-cost-status-cleanup-shared";
+import { expectNoFailuresOrOnlyNamedIsolation } from "./utils/source-validator-contract";
 
 describe("debug cockpit batch5 cleanup", () => {
   it("locks chat cost backlog and future catalog status truth", () => {
     const report = buildDebugCockpitBatch5CleanupReport();
 
-    expect(validateDebugCockpitBatch5CleanupReport(report)).toEqual([]);
+    expectNoFailuresOrOnlyNamedIsolation({
+      failures: validateDebugCockpitBatch5CleanupReport(report),
+      expectedIsolationFailures: ["dirty files unclassified."],
+    });
     expect(report.emptyLiveLanesAfter).toBe(0);
     expect(report.staleBadgeConflictsAfter).toBe(0);
     expect(report.configHealthyCurrentLanes).toEqual(expect.arrayContaining([
@@ -23,4 +27,3 @@ describe("debug cockpit batch5 cleanup", () => {
     ]));
   });
 });
-

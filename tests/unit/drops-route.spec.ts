@@ -111,7 +111,7 @@ describe("GET /api/drops", () => {
             nextCursor: "200|drop-a",
         });
         expect(response.headers.get("ETag")).toBe('W/"drops-feed"');
-        expect(response.headers.get("Cache-Control")).toBe("private, max-age=0, must-revalidate");
+        expect(response.headers.get("Cache-Control")).toBe("public, max-age=0, s-maxage=60, stale-while-revalidate=300");
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
 
@@ -128,7 +128,7 @@ describe("GET /api/drops", () => {
         expect(response.status).toBe(304);
         expect(mockState.buildNotModifiedResponse).toHaveBeenCalledWith(
             'W/"drops-feed"',
-            "private, max-age=0, must-revalidate",
+            "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
         );
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });

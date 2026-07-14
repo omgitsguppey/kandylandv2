@@ -155,6 +155,10 @@ vi.mock("@/lib/server/creator-onboarding-alerts", () => ({
     sendCreatorOnboardingAdminNotification: mockState.sendCreatorOnboardingAdminNotification,
 }));
 
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
+}));
+
 import { POST } from "@/app/api/creator/onboarding/id-submission/route";
 
 describe("POST /api/creator/onboarding/id-submission", () => {
@@ -371,5 +375,72 @@ describe("POST /api/creator/onboarding/id-submission", () => {
             channel: "creator_onboarding",
             message: "Creator ID submission failed",
         }));
+    });
+
+    it("returns a typed 413 before multipart parsing, storage, or failure telemetry", async () => {
+        mockState.guardApiRequest.mockRejectedValueOnce(Object.assign(new Error("Payload too large"), { status: 413 }));
+        const formData = new FormData();
+        formData.set("file", new File([new Uint8Array([1, 2, 3])], "government-id.png", { type: "image/png" }));
+        const request = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
+            method: "POST",
+            body: formData,
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.fileApi.save).not.toHaveBeenCalled();
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
+    });
+
+    it("returns a typed 400 for malformed multipart data without storage mutation", async () => {
+        const request = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
+            method: "POST",
+            headers: { "content-type": "multipart/form-data; boundary=broken" },
+            body: "not-a-valid-multipart-body",
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "invalid_multipart_body",
+            code: "invalid_creator_request",
+            retryable: false,
+        });
+        expect(mockState.fileApi.save).not.toHaveBeenCalled();
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+    });
+
+    it("returns invalid_creator_request when the multipart payload has no ID file", async () => {
+        const formData = new FormData();
+        formData.set("slot", "front");
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
+            method: "POST",
+            body: formData,
+        }));
+        const payload = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(payload).toMatchObject({
+            errorCode: "missing_upload_file",
+            code: "invalid_creator_request",
+            retryable: false,
+        });
+        expect(mockState.fileApi.save).not.toHaveBeenCalled();
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
     });
 });

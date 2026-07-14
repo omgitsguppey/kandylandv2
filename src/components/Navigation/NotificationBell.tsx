@@ -371,7 +371,7 @@ function NotificationItem({
                   void handleMarkAsRead();
                 }}
                 disabled={isPending || isRead}
-                className="inline-flex h-6 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 text-[9px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10 disabled:cursor-default disabled:opacity-70"
+                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 text-[9px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10 disabled:cursor-default disabled:opacity-70"
                 title="Mark as read"
               >
                 <Check className="h-3 w-3" />
@@ -389,7 +389,7 @@ function NotificationItem({
                   void openNotification();
                 }}
                 disabled={isPending}
-                className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1 text-[10px] font-bold text-black transition-opacity hover:opacity-90 disabled:opacity-75"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1 text-[10px] font-bold text-black transition-opacity hover:opacity-90 disabled:opacity-75"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 {getNotificationActionLabel(note)}
@@ -401,9 +401,9 @@ function NotificationItem({
                 type="button"
                 aria-expanded={isExpanded}
                 onClick={handleToggleExpanded}
-                className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/10"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/10"
               >
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
+                <ChevronDown aria-hidden="true" className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
                 {isExpanded ? "Less" : "Details"}
               </button>
             ) : null}
@@ -494,7 +494,7 @@ export function NotificationBell() {
         data-onboarding-target="notification-bell"
         aria-label="Notifications"
         title="View notifications"
-        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-gray-300 transition-colors hover:bg-black/40 hover:text-white"
+        className="relative flex h-11 w-11 items-center justify-center rounded-full bg-black/20 text-gray-300 transition-colors hover:bg-black/40 hover:text-white"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 ? (
@@ -530,7 +530,7 @@ export function NotificationBell() {
                   void handleMarkAllAsRead();
                 }}
                 disabled={isClearingAll}
-                className="inline-flex h-8 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
+                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
               >
                 <Sparkles className="h-3 w-3" />
                 Clear all
@@ -575,7 +575,7 @@ export function NotificationBell() {
               <button
                 type="button"
                 onClick={() => dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true)}
-                className="mt-4 inline-flex min-h-8 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
+                className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
               >
                 {notificationProblem.actionLabel}
               </button>

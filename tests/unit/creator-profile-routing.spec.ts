@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -9,6 +12,12 @@ import {
     canLinkToCreatorPublicProfile,
     explainCreatorProfileRouteMissing,
 } from "@/lib/creator-profile-routing";
+
+const root = process.cwd();
+
+function read(relativePath: string) {
+    return readFileSync(join(root, relativePath), "utf8");
+}
 
 describe("creator-profile-routing", () => {
     it("builds public creator hrefs from canonical username slugs", () => {
@@ -53,5 +62,17 @@ describe("creator-profile-routing", () => {
             routeSource: "chat_header",
             creatorProfileHref: "/creators/zaylani",
         });
+    });
+
+    it("follows broadcast notification routing through its delegated canonical owner", () => {
+        const route = read("src/app/api/creator/broadcasts/route.ts");
+        const notifications = read("src/lib/notifications/creator-broadcast-notifications.ts");
+        const validator = read("scripts/agent/validate-creator-profile-routing.ts");
+
+        expect(route).toContain("@/lib/notifications/creator-broadcast-notifications");
+        expect(route).toContain("enqueueCreatorBroadcastNotifications");
+        expect(notifications).toContain("buildCreatorPublicHref");
+        expect(validator).toContain("Broadcast notification owner");
+        expect(validator).toContain("broadcastNotifications");
     });
 });

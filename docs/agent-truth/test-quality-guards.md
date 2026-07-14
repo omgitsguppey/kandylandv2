@@ -1,10 +1,10 @@
 # Test Quality Guards
 
 Generated: 2026-05-27T00:00:00.000Z
-Current head: 4e8d5c7617760fe87af7663e2ff9bd7e965fa16e
-Files audited: 1736
+Current head: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
+Files audited: 1812
 Focused tests found: 0
-Skipped tests found: 4
+Skipped tests found: 6
 Unsafe unknowns: 0
 
 ## Guardrails

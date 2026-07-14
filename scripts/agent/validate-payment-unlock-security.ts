@@ -51,6 +51,7 @@ const economics = readRequired("src/lib/gumdrop-economics.ts");
 const ledger = readRequired("src/lib/gumdrop-ledger.ts");
 const unlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const contentRoute = readRequired("src/app/api/drops/content/route.ts");
+const mediaAccessResolver = readRequired("src/lib/media/media-access-resolver.ts");
 const adminBalance = readRequired("src/app/api/admin/balance/route.ts");
 const requestGuard = readRequired("src/lib/server/request-guard.ts");
 const requestOrigin = readRequired("src/lib/server/request-origin.ts");
@@ -132,11 +133,16 @@ for (const expected of [
   "auth: \"user\"",
   "ownsDrop",
   "hasUnlockedDrop",
-  "You do not own this content",
+  "buildMediaAccessDeniedResponse(accessDecision)",
   "Cache-Control\", \"private, no-store\"",
 ]) {
   requireIncludes(contentRoute, expected, "Secure drop content route");
 }
+requireIncludes(
+  mediaAccessResolver,
+  'purchase_required: "This media requires an unlock before viewing."',
+  "Canonical media access denial copy",
+);
 
 for (const expected of [
   "auth: \"admin\"",

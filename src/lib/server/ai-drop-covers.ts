@@ -64,6 +64,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
 import {
     ensureFirebaseDownloadUrl,
     type StorageObjectMetadata,
@@ -80,6 +81,9 @@ const RETAINED_AI_REFERENCE_CANDIDATE_LIMIT = 12;
 const HOUSE_REFERENCE_LIBRARY_LIMIT = 14;
 const PROMPT_POLICY_HISTORY_LIMIT = 20;
 const REVIEW_GALLERY_LIMIT = 24;
+export const ADMIN_AI_DROP_COVER_PROVIDER_TIMEOUT_MS = 45_000;
+export const ADMIN_AI_DROP_COVER_PROVIDER_CALL_BUDGET_PER_REQUEST = 1;
+const ADMIN_AI_DROP_COVER_MODEL_HEALTH_CONCURRENCY = 2;
 const TEMPLATE_REFERENCE_STYLE_DESCRIPTION = "KandyDrops premium candy-poster cover art with a centered dessert hero, a smaller creator-name treatment at the top, a bold main flavor title, and a distinct lower CTA ribbon with clearly separated colors.";
 
 type AdminAiDropCoverRuntime = {
@@ -879,7 +883,7 @@ export function buildGeminiGenerateContentRequestBody(input: Pick<GenerateImageI
         },
         generationConfig: {
             responseModalities: ["TEXT", "IMAGE"],
-            candidateCount: 1,
+            candidateCount: ADMIN_AI_DROP_COVER_PROVIDER_CALL_BUDGET_PER_REQUEST,
             imageConfig: {
                 aspectRatio: input.aspectRatio,
             },
@@ -896,17 +900,16 @@ function buildVertexPublisherGenerateContentEndpoint(runtime: AdminAiDropCoverRu
 }
 
 async function generateGeminiImage(input: GenerateImageInput): Promise<GenerateVertexImageResult> {
-    const response = await fetch(
-        buildVertexPublisherGenerateContentEndpoint(input.runtime),
-        {
+    const response = await withAdminAiDropCoverProviderTimeout(async (signal) => {
+        const result = await fetch(buildVertexPublisherGenerateContentEndpoint(input.runtime), {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${input.accessToken}`,
                 "Content-Type": "application/json; charset=utf-8",
             },
             body: JSON.stringify(buildGeminiGenerateContentRequestBody(input)),
-        },
-    ).then(async (result) => {
+            signal,
+        });
         const json = await result.json().catch(() => null) as GeminiGenerateContentResponse | null;
         if (!result.ok) {
             throw new Error(json?.error?.message || `Vertex image generation failed with status ${result.status}`);
@@ -933,31 +936,21 @@ async function generateVertexImage(input: GenerateImageInput): Promise<GenerateV
     return generateGeminiImage(input);
 }
 
-async function generateGeminiText(runtime: AdminAiDropCoverRuntime, accessToken: string, prompt: string) {
-    const response = await fetch(
-        buildVertexPublisherGenerateContentEndpoint(runtime),
-        {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json; charset=utf-8",
-            },
-            body: JSON.stringify({
-                contents: {
-                    role: "USER",
-                    parts: [{ text: prompt }],
-                },
-            }),
-        },
-    ).then(async (result) => {
-        const json = await result.json().catch(() => null) as GeminiGenerateContentResponse | null;
-        if (!result.ok) {
-            throw new Error(json?.error?.message || `Vertex text generation failed with status ${result.status}`);
-        }
-        return json;
-    });
+export async function withAdminAiDropCoverProviderTimeout<T>(
+    operation: (signal: AbortSignal) => Promise<T>,
+    timeoutMs = ADMIN_AI_DROP_COVER_PROVIDER_TIMEOUT_MS,
+) {
+    const boundedTimeoutMs = Math.max(1, Math.min(timeoutMs, ADMIN_AI_DROP_COVER_PROVIDER_TIMEOUT_MS));
+    const timeoutSignal = AbortSignal.timeout(boundedTimeoutMs);
 
-    return response?.candidates?.[0]?.content?.parts?.find((part) => typeof part.text === "string" && part.text.trim().length > 0)?.text?.trim() || "";
+    try {
+        return await operation(timeoutSignal);
+    } catch (error) {
+        if (timeoutSignal.aborted) {
+            throw new Error(`Vertex image request timed out after ${boundedTimeoutMs}ms.`);
+        }
+        throw error;
+    }
 }
 
 function updatePromptPolicyPerformance(
@@ -1939,7 +1932,7 @@ async function buildModelHealthEntries(input: {
 }) {
     const options = getAdminAiDropCoverSelectableModelOptions();
 
-    return await Promise.all(options.map(async (option) => {
+    return mapWithConcurrency(options, ADMIN_AI_DROP_COVER_MODEL_HEALTH_CONCURRENCY, async (option) => {
         const runtime = await getAdminAiDropCoverRuntimeStatus(option.id, input.settings);
         const modelJobs = input.recentJobs.filter((job) => job.model === option.id);
         const modelDiagnostics = input.diagnostics.filter((entry) => entry.model === option.id);
@@ -1998,7 +1991,7 @@ async function buildModelHealthEntries(input: {
             supportsReferenceLibrary: option.supportsReferenceLibrary,
             supportsPromptOptimization: option.supportsPromptOptimization,
         } satisfies AdminAiDropCoverModelHealth;
-    }));
+    });
 }
 
 function buildPreflightChecks(input: {

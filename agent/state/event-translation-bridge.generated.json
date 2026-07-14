@@ -1,8 +1,8 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-07-03T05:56:07.138Z",
-  "currentHead": "d7176cce1dfdf36c613f3cca14608b310f7dc2b9",
-  "status": "pass",
+  "generatedAtUtc": "2026-07-14T05:48:35.281Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "status": "fail",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeActivityUsed": false,
@@ -5447,14 +5447,1460 @@
   "gaps": [],
   "dirtyFiles": [
     {
+      "path": ".env.example",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "FULL_SCALE_CODEBASE_AUDIT.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "README.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "REPO_MEMORY_LEDGER.md",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/state/4xx-cost-guardrails.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/admin-truth-replacement.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-ingest-firestore-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/backend-route-inventory.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/backend-service-ownership.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-composer-modal-lift.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-presence-typing.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/codebase-hardening.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/config-env-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/config-infra-gut-consolidation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/config-infra-memory-writeback.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/consent-tracking-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/content-protection-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cookie-banner-settings-sync.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cost-4xx-reduction.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-drop-4xx-policy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-drop-submit-repair.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-drop-workflow-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-landing-dashboard-mobile.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-profile-mobile-timeline.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-surface-routing.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/dependency-toolchain-policy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/device-layout-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/device-ui-dry-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/drop-watch-unlock-math.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-catalog-telemetry-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/evidence-freshness-index.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-release-exit-readiness-packet.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/frontend-component-consolidation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/frontend-gut-consolidation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/generated-report-authority.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/global-cost-surfaces.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/google-cost-bleed.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/guest-user-analytics-cutover.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/identity-chain-contract.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/identity-handoff-4xx-policy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/identity-tracking-memory-writeback.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/individual-user-metric-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/legacy-phaseout.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/media-upload-lifecycle.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/notification-permission-lifecycle.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/orphaned-logic-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/private-media-access.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/release-notes-integrity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/release-rollback-incident-readiness.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/security-header-route-config.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/security-rules-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-debug-validator-authority.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/sitewide-image-optimization-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/sitewide-image-optimization.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/speed-security-hardening.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/support-policy-surface-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/telemetry-parity-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/unlock-transaction-source-metadata.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-tracking-index-cutover.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/wallet-packages-route-repair.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "apphosting.yaml",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-ingest-firestore-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/backend-route-inventory.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/backend-service-ownership.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-composer-modal-lift.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-presence-typing.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/config-env-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/config-infra-gut-consolidation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/config-infra-memory-writeback.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/consent-tracking-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-4xx-reduction.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-4xx-policy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-submit-repair.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-workflow-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-profile-mobile-timeline.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/deeptracker-telemetry-volume-reduction.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/dependency-toolchain-policy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/drop-watch-unlock-math.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/evidence-freshness-index.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/frontend-component-consolidation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/frontend-gut-consolidation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/guest-user-analytics-cutover.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/identity-chain-contract.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/identity-handoff-4xx-policy.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/identity-tracking-memory-writeback.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/individual-user-metric-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/legacy-phaseout.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/media-upload-lifecycle.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/notification-permission-lifecycle.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/private-media-access.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/release-notes-integrity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/release-rollback-incident-readiness.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/security-rules-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/settings-debug-validator-authority.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/sitewide-image-optimization-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/support-policy-surface-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/unlock-transaction-source-metadata.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-tracking-indexes.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "firestore.indexes.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "functions/package-lock.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "functions/src/analytics-bigquery-export.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "functions/src/index.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "functions/src/scheduled-http-client.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "functions/src/user-index-materializer-schedule.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "functions/tsconfig.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/score-codebase-hardening.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/score-guest-user-analytics-cutover.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/score-legacy-phaseout.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/score-speed-security-hardening.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/score-user-tracking-indexes.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-accessibility-tap-targets.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-admin-user-behavior-truth.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-chat-composer-modal-lift.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-chat-paid-gumdrops-guidance.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-content-media-pipeline.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-cookie-banner-settings-sync.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-creator-profile-mobile-timeline.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-creator-profile-routing.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-deeptracker-telemetry-volume-reduction.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-event-catalog-telemetry.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-event-fact-truth.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-frontend-component-consolidation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-guest-user-analytics-cutover.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-identity-link-continuity.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-ios-pwa-chat-refinements.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-legacy-phaseout.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-media-upload-lifecycle.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-payment-unlock-security.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-changelog.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-purchase-telemetry-truth.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-server-unlock-telemetry-emission.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-unlock-telemetry-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-user-chat-shell-routing.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/local-exe/KandyDropsLauncher.cs",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/local-exe/build-local-exes.ps1",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/admin/content/page.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/admin/user/[userId]/page.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/admin/users/page.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-covers/feedback/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-covers/generate/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-covers/references/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-covers/review-gallery/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-covers/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-covers/template/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-descriptions/feedback/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ai/drop-descriptions/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/content/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/creator-account-controls/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/creator-agreements/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/creator-fan-experience-settings/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/creators/[userId]/action/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/debug/assistant/fix/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/debug/assistant/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/drops/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/economy/offers/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/economy/packages/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/economy/promos/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/orchestration/repairs/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/queue/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/queue/toggle/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/roster/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/support/threads/[threadId]/messages/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/support/threads/[threadId]/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/tasks/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/ui/preferences/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/user/[userId]/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/users/[userId]/username/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/users/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/admin/view-as-creator/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/analytics/identity-link/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/analytics/ingest-identified/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/analytics/ingest/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/auth/manual-sign-in-lookup/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/chat/attachments/cancel/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/chat/attachments/complete/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/chat/attachments/prepare/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/chat/threads/[threadId]/messages/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/drops/assets/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/drops/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/messages/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/onboarding/application/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/onboarding/contract-signature/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/onboarding/id-submission/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/onboarding/intro/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/payouts/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/creator/relationships/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/creator/settings/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/debug/evidence/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/drops/duplicate-filenames/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/drops/feedback/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/drops/impression/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/drops/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/drops/track/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/drops/unlock/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/internal/analytics/materialize-user-index/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/notifications/push-token/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/notifications/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/paypal/capture/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/paypal/create/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/privacy/consent/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/security/log-attempt/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/settings/landing/upload/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/support/threads/[threadId]/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/support/threads/guest/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/support/threads/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/tasks/feedback/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/tasks/materialize/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/user/complete-onboarding/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/wallet/packages/route.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/dashboard/viewer/components/MediaViewer.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/components/Analytics/DeepTracker.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/CookieBanner.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/components/DropPreviewModal.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/components/Drops/LockedDropPreviewView.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/components/Navigation/ProfileDropdown.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/components/PurchaseModal.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/components/errors/HumanErrorNotice.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/admin-analytics-region-demand.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/identity-link-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/analytics/ingest-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/analytics/materialization-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/authFetch.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/behavioral/behavioral-timeline-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/frontend-hardening/frontend-surface-inventory.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/identity-truth/individual-user-metric-truth.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/image-loading-policy.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/legacy/legacy-registry.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-readiness/final-release-readiness.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/route-runtime-health.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/runtime-facts/normalize-runtime-fact.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/runtime-facts/runtime-fact-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-data.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-shared.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/admin-analytics/ga4-evidence.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/ai-drop-covers.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/analytics-governance.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/api-cost-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/behavioral-timeline-mapper.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/behavioral-timeline-writer.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/bounded-json-body.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/global-cost-surface-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/paypal-order-state.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/paypal.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/route-cache-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/security-hardening-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/user-index-materializer.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/server/user-index-writer.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/telemetry.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/user-indexes/user-index-normalizer.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/user-indexes/user-tracking-index-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/user-mobile-shell.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/accessibility-tap-targets.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-analytics-data.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-analytics-region-demand.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-analytics-shared.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-auth-bounded-body-routes.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-content-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-core-bounded-body-routes.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-creator-action-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-creator-agreements-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-creator-fan-experience-settings-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-debug-assistant-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-roster-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-support-threads-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-user-username-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-users-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/admin-view-as-creator-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/analytics-cost-runtime-inventory.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/analytics-ingest-identified-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/analytics-ingest-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/auth-fetch-app-check.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/behavioral-timeline-projection.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/bounded-json-body.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/chat-attachments-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/chat-composer-modal-lift.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/chat-thread-messages-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/complete-onboarding-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/content-protection-truth.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/cookie-banner-settings-sync.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-contract-signature-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-debug-drop-bounded-body-routes.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-drops-assets-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-drops-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-id-submission-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-messages-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-onboarding-application-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-onboarding-intro-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-profile-mobile-timeline.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-profile-routing.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-relationships-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-settings-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/critical-user-bounded-body-routes.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/deeptracker-telemetry-volume-reduction.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/drops-feedback-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/drops-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/drops-unlock-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/duplicate-filenames-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/event-fact-truth.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/event-translation-bridge.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/final-release-exit-readiness-packet.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/frontend-component-consolidation.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/ga4-recovery-truth.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/guest-user-identity-transfer.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/human-error-notice.spec.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/human-error-surface-wiring.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/image-loading-policy.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/individual-user-metric-truth.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/local-exe-launcher.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/manual-sign-in-lookup-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/media-upload-lifecycle.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/notifications-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/paypal-capture-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/person-metrics-hydration.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/public-beta-release-notes.spec.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/purchase-modal.spec.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/release-notes-integrity.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/scheduled-http-client.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/security-log-attempt-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/server-ai-drop-covers.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/server-unlock-telemetry-emission.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/speed-security-hardening.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/support-threads-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/synthetic-creators-view-as.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/tasks-feedback-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/tasks-materialize-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/telemetry.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/user-index-materializer-consumer.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/user-index-materializer-core.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/user-index-materializer-route.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/user-index-materializer-schedule.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/user-index-normalizer.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/wallet-packages-route-repair.spec.ts",
+      "classification": "unsafe_unknown"
     }
   ],
-  "validationFailures": [],
+  "validationFailures": [
+    "dirty files are unclassified."
+  ],
   "activeOldLogic": []
 }

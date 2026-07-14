@@ -7,6 +7,11 @@ import {
     uploadAdminAiDropCoverTemplate,
 } from "@/lib/server/ai-drop-covers";
 import { handleApiError } from "@/lib/server/auth";
+import {
+    isBoundedJsonBodyError,
+    isRequestBodyTooLargeError,
+    readBoundedFormDataBody,
+} from "@/lib/server/bounded-json-body";
 import { ADMIN_AI_CONTROL } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -16,6 +21,8 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const MAX_TEMPLATE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_TEMPLATE_MULTIPART_OVERHEAD_BYTES = 64 * 1024;
+const MAX_TEMPLATE_BODY_BYTES = MAX_TEMPLATE_SIZE_BYTES + MAX_TEMPLATE_MULTIPART_OVERHEAD_BYTES;
 
 function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
     void recordRouteRuntimeSample({
@@ -36,10 +43,13 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
-            maxBodyBytes: MAX_TEMPLATE_SIZE_BYTES,
+            maxBodyBytes: MAX_TEMPLATE_BODY_BYTES,
         });
 
-        const formData = await request.formData();
+        const formData = await readBoundedFormDataBody(request, {
+            maxBytes: MAX_TEMPLATE_BODY_BYTES,
+            routeName: "admin/ai/drop-covers/template",
+        });
         const file = formData.get("file");
         if (!(file instanceof File)) {
             return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json({ error: "Missing template file" }, { status: 400 }));
@@ -72,6 +82,20 @@ async function POST_handler(request: NextRequest) {
             },
         }));
     } catch (error) {
+        if (isRequestBodyTooLargeError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json({
+                error: "Template upload is too large",
+                errorCode: "payload_too_large",
+                retryable: false,
+            }, { status: 413 }), error);
+        }
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json({
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
             return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json(aiError.body, { status: aiError.status }), error);

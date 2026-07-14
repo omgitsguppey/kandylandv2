@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T01:46:36.540Z",
+  "generatedAt": "2026-07-14T09:54:10.450Z",
   "status": "pass",
   "score": 100,
   "checks": [
@@ -36,22 +36,57 @@
     {
       "id": "materializer_caps",
       "pass": true,
-      "detail": "Materializer has caps and dry-run."
+      "detail": "Consumer is bounded by the canonical request, fact, and runtime caps."
     },
     {
-      "id": "guest_ingest_calls_materializer",
+      "id": "atomic_projection_owner",
       "pass": true,
-      "detail": "Guest ingest triggers index materialization."
+      "detail": "Timeline facts and outbox requests share one canonical transaction owner."
     },
     {
-      "id": "identified_ingest_calls_materializer",
+      "id": "guest_ingest_enqueues_projection",
       "pass": true,
-      "detail": "Identified ingest triggers index materialization."
+      "detail": "Guest ingest persists the atomic projection without running the materializer in-request."
+    },
+    {
+      "id": "identified_ingest_enqueues_projection",
+      "pass": true,
+      "detail": "Identified ingest persists the atomic projection without running the materializer in-request."
+    },
+    {
+      "id": "internal_consumer_route",
+      "pass": true,
+      "detail": "The registered internal consumer route is bounded and service-authenticated."
+    },
+    {
+      "id": "scheduled_consumer_registered",
+      "pass": true,
+      "detail": "The scheduled HTTP consumer is exact-path/host allowlisted, serialized, and off by default."
+    },
+    {
+      "id": "safe_environment_defaults",
+      "pass": true,
+      "detail": "Environment examples stay value-free, while App Hosting keeps the materializer off and requires explicit endpoint/host configuration before dispatch."
+    },
+    {
+      "id": "firestore_query_indexes",
+      "pass": true,
+      "detail": "Bounded subject-window queries have source-owned Firestore index declarations."
+    },
+    {
+      "id": "materialization_registry_updated",
+      "pass": true,
+      "detail": "The existing materialization registry names the v3 worker and its serving outputs."
+    },
+    {
+      "id": "ephemeral_retention_metadata",
+      "pass": true,
+      "detail": "Ephemeral requests, shadow publications, and window receipts carry source-owned expiration metadata; deployed TTL enforcement remains external evidence."
     },
     {
       "id": "governance_collections_updated",
       "pass": true,
-      "detail": "Analytics governance contains new index collections."
+      "detail": "Analytics governance contains canonical index and materializer collections."
     },
     {
       "id": "legacy_paths_blocked",

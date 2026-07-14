@@ -89,8 +89,8 @@ function hasAny(source: string, needles: string[]) {
   return needles.some((needle) => source.includes(needle));
 }
 
-function creatorFacingFollowersCopyExists(source: string) {
-  return /all followers|Tell followers|Broadcast sent to followers|for followers|blast to all followers/iu.test(source);
+function creatorFacingLegacyAudienceCopyExists(source: string) {
+  return /all_fans|Audience:\s*Fans|Message your fans|all followers|Tell followers|for followers|blast to all followers/iu.test(source);
 }
 
 export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolidationReport {
@@ -110,9 +110,10 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
   const profileCreatorTools = read("src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx");
   const profileState = read("src/app/dashboard/profile/hooks/useProfileState.tsx");
   const consolidationDoc = read("docs/agent-truth/creator-nav-role-consolidation.md");
+  const creatorSurfaceRoutingDoc = read("docs/agent-truth/creator-surface-routing.md");
   const docs = [
     consolidationDoc,
-    read("docs/agent-truth/creator-surface-routing.md"),
+    creatorSurfaceRoutingDoc,
     read("docs/agent-truth/creator-dashboard-role-boundary.md"),
     read("docs/agent-truth/creator-fan-pass-crm-broadcast.md"),
     read("docs/agent-truth/creator-dashboard-overview-stats.md"),
@@ -137,7 +138,11 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     "| `/dashboard/settings`, `/dashboard/profile`, `/profile/settings`, `/account` | Account Settings redirects |",
   ]);
   const staleDoctrineRemoved = !/Creator Settings is the same as Account Settings|creator dashboard includes user dashboard below it|public discovery visibility is creator dashboard content count truth/iu.test(docs)
-    && !/raw user IDs are acceptable normal subscriber CRM labels/iu.test(docs);
+    && !/raw user IDs are acceptable normal subscriber CRM labels/iu.test(docs)
+    && !consolidationDoc.includes('data-broadcast-audience="all_fans"')
+    && !consolidationDoc.includes("Creator-facing broadcast copy uses Fans or Fan Pass, not followers")
+    && !creatorSurfaceRoutingDoc.includes('data-broadcast-audience="all_fans"')
+    && !creatorSurfaceRoutingDoc.includes("user-facing copy says Fans, not followers");
   const duplicateNavConstantsRemoved = includesAll(nav, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "USER_SETTINGS_ROUTE"])
     && !/href="\/settings"/u.test(`${sidebar}\n${dropdown}`)
     && !/label="Settings"|title="Settings"|aria-label="Open settings"/u.test(`${sidebar}\n${dropdown}`);
@@ -166,9 +171,19 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     && includesAll(subscriptionsRoute, ["fanUsername", "fanDisplayName", "fanIdentitySource"])
     && !creatorUi.includes("subscription.userId || subscription.id")
     && !fanPassManager.includes("shortUserId(subscriber.userId)");
-  const broadcastAudienceExplicit = includesAll(`${workspace}\n${workspaceModules}\n${broadcastManager}`, ['data-broadcast-audience="all_fans"', "Audience: Fans"])
-    && includesAll(broadcastsRoute, ["CREATOR_BROADCAST_SUPPORTED_AUDIENCE", "supportedAudience", "all_fans"]);
-  const oldFollowersCopyRemoved = !creatorFacingFollowersCopyExists(creatorUi);
+  const broadcastAudienceExplicit = includesAll(`${workspace}\n${workspaceModules}\n${broadcastManager}`, [
+    'data-broadcast-audience="followers"',
+    'data-broadcast-copy-audited="true"',
+    "Audience: Followers",
+    "Message your followers...",
+    "data-broadcast-capability-source",
+  ]) && includesAll(broadcastsRoute, [
+    "resolveCreatorBroadcastAudience",
+    "supportedAudiences",
+    "unsupported_broadcast_audience",
+    "followers",
+  ]);
+  const oldFollowersCopyRemoved = !creatorFacingLegacyAudienceCopyExists(creatorUi);
   const oldMetricGridRemoved = creatorSurface.includes('data-creator-overview-module="compact_v1"')
     && creatorSurface.includes('data-creator-dashboard-overview-density="mobile_compact"')
     && !creatorSurface.includes('data-creator-landing-metric-card="compact_v2"');
@@ -190,8 +205,8 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
   ];
   const crmFindings = [
     blockedUnless(fanPassCrmUsesReadableIdentity, "crm-readable-identity", "p1", "src/components/Creators/FanPassSubscriberRow.tsx", "Fan Pass CRM uses hydrated readable fan identity and hides raw ids."),
-    blockedUnless(broadcastAudienceExplicit, "broadcast-audience-explicit", "p1", "src/components/Creators/CreatorBroadcastManager.tsx", "Broadcast UI and route expose explicit Fans audience."),
-    blockedUnless(oldFollowersCopyRemoved, "followers-copy-removed", "p1", "src/app/dashboard/profile", "Creator-facing broadcast copy says Fans instead of followers."),
+    blockedUnless(broadcastAudienceExplicit, "broadcast-audience-explicit", "p1", "src/components/Creators/CreatorBroadcastManager.tsx", "Broadcast UI and route expose the explicit supported Followers audience."),
+    blockedUnless(oldFollowersCopyRemoved, "followers-copy-removed", "p1", "src/app/dashboard/profile", "Creator-facing broadcast copy excludes legacy all_fans and misleading broad-audience language."),
     blockedUnless(oldMetricGridRemoved, "old-metric-grid-removed", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator Dashboard uses one compact overview module."),
   ];
   const backendFindings = [
@@ -229,7 +244,7 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     fixesApplied: [
       "Consolidated account menu settings links on USER_SETTINGS_ROUTE.",
       "Marked the creator landing route with data-dashboard-surface=\"creator_dashboard\".",
-      "Removed remaining creator-facing followers copy from profile creator broadcast tools.",
+      "Aligned creator broadcast copy and markers to the supported Followers audience.",
       "Locked route, nav, CRM, broadcast, and dashboard boundary doctrine into a single consolidation report.",
     ],
     prCleanupActions: [],
@@ -254,7 +269,7 @@ export function validateCreatorNavRoleConsolidationReport(report: CreatorNavRole
   if (!report.summary.normalUserDashboardPreserved) failures.push("normal user dashboard modules are not preserved");
   if (!report.summary.fanPassCrmUsesReadableIdentity) failures.push("Fan Pass CRM readable identity is not consolidated");
   if (!report.summary.broadcastAudienceExplicit) failures.push("broadcast audience marker is missing");
-  if (!report.summary.oldFollowersCopyRemoved) failures.push("old followers copy remains in creator-facing UI");
+  if (!report.summary.oldFollowersCopyRemoved) failures.push("legacy or misleading broadcast audience copy remains in creator-facing UI");
   if (!report.summary.oldMetricGridRemoved) failures.push("old standalone creator metric grid remains");
   if (report.summary.p0Count > 0 || report.summary.p1Count > 0) failures.push("P0/P1 creator nav role consolidation blockers remain");
   if ((report.nextFixOrder?.length ?? 0) === 0) failures.push("nextFixOrder must not be empty");

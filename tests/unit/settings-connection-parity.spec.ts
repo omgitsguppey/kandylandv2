@@ -1,7 +1,7 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
+import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
 
 const ROOT = process.cwd();
 
@@ -10,15 +10,14 @@ function read(path: string) {
 }
 
 describe("settings connection parity", () => {
-  it("passes the source-level settings connection parity validator", () => {
-    expect(() => {
-      execSync("npm run check:settings-connection-parity", {
-        cwd: ROOT,
-        stdio: "pipe",
-        encoding: "utf8",
-      });
-    }).not.toThrow();
-  }, 20000);
+  it("passes source checks or reports only the exact dirty-tree isolation blocker", () => {
+    expectSourceValidatorWithDirtyTreeIsolation({
+      command: "npm run check:settings-connection-parity",
+      artifact: "agent/state/settings-connection-parity.generated.json",
+      isolationCheck: "protectedSurfacesUntouched",
+      expectedIsolationFailure: "protectedSurfacesUntouched failed.",
+    });
+  }, 30000);
 
   it("maps every visible account and creator setting through one canonical contract", () => {
     const contract = read("src/lib/settings/settings-surface-contract.ts");

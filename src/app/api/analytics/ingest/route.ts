@@ -22,9 +22,11 @@ import {
     ANALYTICS_INGEST_COST_POLICY,
     ANALYTICS_INGEST_EVENT_TYPES,
     ANALYTICS_INGEST_FIRESTORE_COLLECTIONS,
+    ANALYTICS_CLIENT_ID_PATTERN,
     buildAnalyticsIngestDedupeKey,
     classifyAnalyticsIngestFailure,
     getAnalyticsIngestContract,
+    resolveCanonicalGuestAnonymousVisitorId,
     type AnalyticsIngestFailureReason,
 } from "@/lib/analytics/ingest-contract";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -40,23 +42,25 @@ import {
 } from "@/lib/analytics/event-envelope-builder";
 import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
-import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
+import { writeBehavioralTimelineProjection } from "@/lib/server/behavioral-timeline-writer";
 import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
 import { buildBehavioralEventFactRollup } from "@/lib/server/event-fact-rollup";
+import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 import {
     RUNTIME_FACT_CONTRACT_VERSION,
     type RuntimeFact,
     type RuntimeFactDiagnostic,
 } from "@/lib/runtime-facts/runtime-fact-contract";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
 const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 const MAX_ANALYTICS_BODY_BYTES = ANALYTICS_INGEST_COST_POLICY.maxBodyBytes;
+const MAX_ANALYTICS_EVENTS_PER_PAYLOAD = 200;
 const ANALYTICS_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 90;
 const ANALYTICS_GUEST_BATCH_TTL_MS = 1000 * 60 * 60 * 24 * 180;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
-const CLIENT_ANALYTICS_ID_PATTERN = /^(?:sess|subject)_[A-Za-z0-9_-]{4,150}$/u;
 const ANALYTICS_INGEST_WARNING_CAP_PER_HOUR = ANALYTICS_INGEST_COST_POLICY.diagnosticsCapPerHour;
 const ANALYTICS_INGEST_FAILURE_CAP_PER_HOUR = 1;
 const analyticsIngestWarningCounts = new Map<string, { hourKey: string; count: number }>();
@@ -105,27 +109,15 @@ const TelemetryEventSchema = z.object({
 
 const PayloadSchema = z.object({
     anonymousVisitorId: z.string().max(160).optional(),
-    sessionId: z.string().min(8).max(160).regex(CLIENT_ANALYTICS_ID_PATTERN).optional(),
+    sessionId: z.string().min(8).max(160).regex(ANALYTICS_CLIENT_ID_PATTERN).optional(),
     batchId: z.string().regex(ANALYTICS_BATCH_ID_PATTERN).optional(),
     consentMode: z.enum(CONSENT_MODE_VALUES).default("full_behavioral"),
     actorKind: z.enum(ACTOR_KINDS).default("guest"),
     identityState: z.enum(IDENTITY_STATES).default("guest_full_behavioral"),
     identityConfidence: z.enum(IDENTITY_CONFIDENCE_VALUES).default("weak"),
     unavailableGuestReason: z.string().max(120).nullable().optional(),
-    events: z.array(TelemetryEventSchema).max(200), // Cap events to 200 per payload
+    events: z.array(TelemetryEventSchema).max(MAX_ANALYTICS_EVENTS_PER_PAYLOAD),
 });
-
-export function resolveCanonicalGuestAnonymousVisitorId(input: {
-    clientAnonymousVisitorId?: string | null;
-    sessionKey: string;
-}) {
-    const candidate = input.clientAnonymousVisitorId?.trim();
-    if (candidate && CLIENT_ANALYTICS_ID_PATTERN.test(candidate)) {
-        return candidate;
-    }
-
-    return input.sessionKey;
-}
 
 function getOrCreateSessionKey(request: NextRequest) {
     const existing = request.cookies.get(SESSION_COOKIE_NAME)?.value?.trim();
@@ -230,59 +222,87 @@ async function reportAnalyticsIngestFailure(error: unknown) {
     ]);
 }
 
-function queueUserTrackingMaterialization(input: {
-    anonymousVisitorId: string;
-    batchId: string;
-    nowMs: number;
-}) {
-    // materializeUserTrackingIndexes stays out of the priority-live request path.
-    return {
-        queued: true,
-        queueMode: "deferred_non_priority" as const,
-        materializer: "analytics_guest_batches_daily",
-        anonymousVisitorId: input.anonymousVisitorId,
-        batchId: input.batchId,
-        requestedAtMs: input.nowMs,
-    };
-}
-
-async function writeGuestBehavioralTimelineFacts(input: {
-    runtimeFacts: RuntimeFact[];
-    batchId: string;
-    anonymousVisitorId: string;
-    nowMs: number;
+function buildGuestBehavioralTimelineFacts(input: {
+    runtimeFacts: readonly RuntimeFact[];
     globalPrivacyControl: boolean;
 }) {
-    const eligibleFacts = input.runtimeFacts
+    return input.runtimeFacts
         .filter((fact) => fact.metricEligible || fact.metricExclusionReason.includes("privacy"))
         .map((runtimeFact) => mapRuntimeFactToBehavioralTimelineFact({
             runtimeFact,
             consentState: input.globalPrivacyControl ? "partial" : "granted",
         }));
-    let writeResult: { written: number; skipped: number; reason: string };
-    try {
-        writeResult = await writeBehavioralTimelineFacts(eligibleFacts);
-    } catch (error) {
-        await reportAnalyticsIngestFailure(error);
-        writeResult = {
-            written: 0,
-            skipped: eligibleFacts.length,
-            reason: "timeline_write_failed",
-        };
-    }
+}
+
+function readStoredGuestTimelineFacts(input: {
+    value: unknown;
+    batchId: string;
+    anonymousVisitorId: string;
+}) {
+    if (!Array.isArray(input.value)) return [];
+    return input.value.filter((candidate): candidate is BehavioralTimelineFact => {
+        if (!candidate || typeof candidate !== "object") return false;
+        const fact = candidate as Partial<BehavioralTimelineFact>;
+        return typeof fact.factId === "string"
+            && fact.factId.startsWith(`${input.batchId}:`)
+            && fact.actorType === "guest"
+            && fact.anonymousVisitorId === input.anonymousVisitorId
+            && typeof fact.eventName === "string"
+            && typeof fact.normalizedAction === "string"
+            && typeof fact.timestampMs === "number"
+            && Number.isFinite(fact.timestampMs)
+            && Boolean(fact.target && typeof fact.target === "object")
+            && Boolean(fact.confidenceInputs && typeof fact.confidenceInputs === "object");
+    }).slice(0, MAX_ANALYTICS_EVENTS_PER_PAYLOAD);
+}
+
+async function writeGuestBehavioralTimelineProjection(input: {
+    facts: BehavioralTimelineFact[];
+    runtimeFactCount: number;
+    batchId: string;
+    anonymousVisitorId: string;
+    nowMs: number;
+}) {
+    const projection = await writeBehavioralTimelineProjection({
+        facts: input.facts,
+        anonymousVisitorIds: [input.anonymousVisitorId],
+        requestedAtMs: input.nowMs,
+        sourceWindowEndMs: input.nowMs,
+        sourceWindowStartMs: input.nowMs - (1000 * 60 * 60 * 24 * 14),
+        maxFacts: 500,
+    });
 
     return {
-        queued: false,
-        queueMode: "written_bounded" as const,
-        materializer: "behavioral_timeline_facts",
-        batchId: input.batchId,
-        anonymousVisitorId: input.anonymousVisitorId,
-        runtimeFactCount: input.runtimeFacts.length,
-        eligibleFactCount: eligibleFacts.length,
-        written: writeResult.written,
-        skipped: writeResult.skipped,
-        reason: writeResult.reason,
-        requestedAtMs: input.nowMs,
+        behavioralTimelineFacts: {
+            status: projection.reason === "no_facts"
+                ? "empty" as const
+                : projection.skipped > 0
+                    ? "partial" as const
+                    : "complete" as const,
+            queued: false,
+            queueMode: "written_with_outbox" as const,
+            materializer: "behavioral_timeline_facts",
+            batchId: input.batchId,
+            anonymousVisitorId: input.anonymousVisitorId,
+            runtimeFactCount: input.runtimeFactCount,
+            eligibleFactCount: input.facts.length,
+            written: projection.written,
+            skipped: projection.skipped,
+            reason: projection.reason,
+            requestedAtMs: input.nowMs,
+        },
+        userTrackingMaterialization: {
+            queued: projection.materializer.status === "queued",
+            queueMode: projection.materializer.status,
+            materializer: "user_index_materializer_requests_v3",
+            batchId: input.batchId,
+            requestedAtMs: input.nowMs,
+            requestsBuilt: projection.materializer.requestsBuilt,
+            requestsEnqueued: projection.materializer.requestsEnqueued,
+            requestsCoalesced: projection.materializer.requestsCoalesced,
+            guestsQueued: projection.materializer.guestsQueued,
+            issueCodes: projection.materializer.issueCodes,
+        },
     };
 }
 
@@ -298,29 +318,31 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
         });
 
-        const contentLength = Number(request.headers.get("content-length") || 0);
-        if (Number.isFinite(contentLength) && contentLength > MAX_ANALYTICS_BODY_BYTES) {
-            return buildAnalyticsIngestFailureResponse("payload_too_large");
-        }
-
         let rawPayload: unknown;
         try {
-            rawPayload = await request.json();
+            rawPayload = await readBoundedJsonBody<unknown>(request, {
+                maxBytes: MAX_ANALYTICS_BODY_BYTES,
+                routeName: "analytics/ingest",
+                allowedContentTypes: ["application/json"],
+            });
         } catch (parseError) {
-            const classification = classifyAnalyticsIngestFailure("invalid_json");
+            const reason = isBoundedJsonBodyError(parseError) && parseError.code === "payload_too_large"
+                ? "payload_too_large"
+                : "invalid_json";
+            const classification = classifyAnalyticsIngestFailure(reason);
             if (classification.diagnosticsAllowed && shouldRecordAnalyticsIngestDiagnostic({
                 map: analyticsIngestWarningCounts,
-                fingerprint: "invalid_json",
+                fingerprint: reason,
                 cap: ANALYTICS_INGEST_WARNING_CAP_PER_HOUR,
             })) {
                 recordRouteWarning(
                     "Analytics.Ingest",
                     "Telemetry ingestion JSON parse failed",
                     parseError,
-                    { channel: "analytics", detail: { reason: "invalid_json" } },
+                    { channel: "analytics", detail: { reason } },
                 );
             }
-            return buildAnalyticsIngestFailureResponse("invalid_json");
+            return buildAnalyticsIngestFailureResponse(reason);
         }
         const parsed = PayloadSchema.safeParse(rawPayload);
 
@@ -443,6 +465,10 @@ async function POST_handler(request: NextRequest) {
         const runtimeDiagnostics = runtimeFactResults
             .map((result) => result.diagnostic)
             .filter((diagnostic): diagnostic is RuntimeFactDiagnostic => Boolean(diagnostic));
+        const proposedTimelineFacts = buildGuestBehavioralTimelineFacts({
+            runtimeFacts,
+            globalPrivacyControl,
+        });
         const behavioralEventResults = acceptedSanitizedEvents.map((event, index) => normalizeBehavioralEventFactWithDiagnostics({
             eventId: `${batchId}:${index}`,
             eventName: resolveGuestEnvelopeEventName(event),
@@ -489,7 +515,14 @@ async function POST_handler(request: NextRequest) {
             const existingBatchSnapshot = await transaction.get(guestBatchRef);
 
             if (existingBatchSnapshot.exists) {
-                return { deduped: true };
+                return {
+                    deduped: true,
+                    timelineFacts: readStoredGuestTimelineFacts({
+                        value: existingBatchSnapshot.data()?.behavioralTimelineProjectionFacts,
+                        batchId,
+                        anonymousVisitorId: canonicalAnonymousVisitorId,
+                    }),
+                };
             }
 
             const sessionArrayUpdates = {
@@ -558,6 +591,8 @@ async function POST_handler(request: NextRequest) {
                 quarantinedEventEnvelopes: quarantinedEventEnvelopes.slice(0, 50),
                 runtimeFactVersion: runtimeFacts.length > 0 ? RUNTIME_FACT_CONTRACT_VERSION : "",
                 runtimeFacts: runtimeFacts.slice(0, 50),
+                behavioralTimelineProjectionFacts: proposedTimelineFacts,
+                behavioralTimelineProjectionFactCount: proposedTimelineFacts.length,
                 normalizedActions: runtimeFacts.map((fact) => fact.normalizedAction).filter(Boolean).slice(0, 50),
                 normalizedActionCount: runtimeFacts.length,
                 unknownRuntimeEvents: runtimeDiagnostics.slice(0, 20),
@@ -570,7 +605,15 @@ async function POST_handler(request: NextRequest) {
                 createdAt: FieldValue.serverTimestamp(),
             });
 
-            return { deduped: false };
+            return { deduped: false, timelineFacts: proposedTimelineFacts };
+        });
+
+        const projection = await writeGuestBehavioralTimelineProjection({
+            facts: transactionResult.timelineFacts,
+            runtimeFactCount: runtimeFacts.length,
+            batchId,
+            anonymousVisitorId: canonicalAnonymousVisitorId,
+            nowMs,
         });
 
         if (transactionResult.deduped) {
@@ -586,21 +629,10 @@ async function POST_handler(request: NextRequest) {
                 retryable: false,
                 dedupeKey,
                 destinations: ingestDestinations,
+                behavioralTimelineFacts: projection.behavioralTimelineFacts,
+                userTrackingMaterialization: projection.userTrackingMaterialization,
             });
         }
-
-        const behavioralTimelineFacts = await writeGuestBehavioralTimelineFacts({
-            runtimeFacts,
-            batchId,
-            anonymousVisitorId: canonicalAnonymousVisitorId,
-            nowMs,
-            globalPrivacyControl,
-        });
-        const userTrackingMaterialization = queueUserTrackingMaterialization({
-            anonymousVisitorId: canonicalAnonymousVisitorId,
-            batchId,
-            nowMs,
-        });
 
         const response = NextResponse.json({
             success: true,
@@ -613,8 +645,8 @@ async function POST_handler(request: NextRequest) {
             dedupeKey,
             destinations: ingestDestinations,
             firestoreCollections: ANALYTICS_INGEST_FIRESTORE_COLLECTIONS,
-            behavioralTimelineFacts,
-            userTrackingMaterialization,
+            behavioralTimelineFacts: projection.behavioralTimelineFacts,
+            userTrackingMaterialization: projection.userTrackingMaterialization,
             eventEnvelope: {
                 pipeline: "canonical_event_envelope",
                 quarantinedEvents: quarantinedEventEnvelopes.length,

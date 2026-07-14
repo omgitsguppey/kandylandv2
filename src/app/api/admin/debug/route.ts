@@ -2528,6 +2528,13 @@ function buildRolloutRegistryPanelState(input: {
         };
     });
 
+    const rolloutItemById = new Map<string, RolloutRegistryItem>();
+    for (const item of rolloutItems) {
+        if (!rolloutItemById.has(item.id)) {
+            rolloutItemById.set(item.id, item);
+        }
+    }
+
     const actorRows: RolloutActorEvaluationRow[] = input.rolloutSamples.map((sample) => {
         const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
         const roleRaw = toOptionalString(sample.role);
@@ -2538,7 +2545,7 @@ function buildRolloutRegistryPanelState(input: {
         const actorSource: RolloutActorEvaluationRow["actorSource"] = "representative_fixture";
         const actorId = null;
         const evaluations = assignments.map((assignment) => {
-                const match = rolloutItems.find((item) => item.id === toOptionalString(assignment.id));
+                const match = rolloutItemById.get(toOptionalString(assignment.id) || "");
                 const reasonRaw = toOptionalString(assignment.reason);
                 const assignedVariant = toOptionalString(assignment.variant) || "unknown";
                 const defaultVariant = toOptionalString(assignment.defaultVariant) || match?.defaultVariant || "unknown";
@@ -3983,6 +3990,12 @@ export async function GET(request: NextRequest) {
             listAnalyticsTruthRepairs(20),
             listAdminMetricSnapshotDebugMetadata({ limit: 120 }),
         ]);
+        const latestAdminMetricSnapshotByModuleKey = new Map<string, (typeof adminMetricSnapshots)[number]>();
+        for (const snapshot of adminMetricSnapshots) {
+            if (typeof snapshot.moduleKey === "string" && !latestAdminMetricSnapshotByModuleKey.has(snapshot.moduleKey)) {
+                latestAdminMetricSnapshotByModuleKey.set(snapshot.moduleKey, snapshot);
+            }
+        }
         const analyticsTruthDropIds = Array.from(new Set(
             (analyticsTruthDrops as Array<Record<string, unknown>>)
                 .map((entry) => toOptionalString(entry.dropId))
@@ -6218,7 +6231,7 @@ export async function GET(request: NextRequest) {
                     unknownActorNeverPromotedToAuthenticatedUser: true,
                 },
                 modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
-                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
+                    const latestSnapshot = latestAdminMetricSnapshotByModuleKey.get(entry.moduleKey) ?? null;
                     return {
                         moduleKey: entry.moduleKey,
                         label: entry.label,

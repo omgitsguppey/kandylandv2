@@ -54,10 +54,11 @@ describe("consent tracking contract", () => {
     expect(getConsentTelemetryReason("semantic_page_viewed", "unknown")).toBe("blocked_until_consent_decision");
   });
 
-  it("allows minimal analytics without full behavioral or external analytics", () => {
+  it("allows bounded minimal liveness without full behavioral or external analytics", () => {
     expect(canTrackEvent("page_viewed", "minimal_analytics")).toBe(true);
-    expect(canTrackEvent("semantic_page_viewed", "minimal_analytics")).toBe(false);
-    expect(canTrackEvent("drop_card_impression", "minimal_analytics")).toBe(false);
+    expect(canTrackEvent("semantic_page_viewed", "minimal_analytics")).toBe(true);
+    expect(canTrackEvent("drop_card_impression", "minimal_analytics")).toBe(true);
+    expect(canTrackEvent("semantic_target_clicked", "minimal_analytics")).toBe(false);
     expect(canUseBehavioralSignals("minimal_analytics")).toBe(false);
     expect(canUseExternalAnalytics("minimal_analytics")).toBe(false);
   });

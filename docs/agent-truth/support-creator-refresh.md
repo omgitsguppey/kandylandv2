@@ -4,9 +4,9 @@ Generated source-only artifact. No production reads, provider calls, deployed ru
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T19:37:50.205Z",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
-  "supportPolicyStatus": "pass_current",
+  "generatedAtUtc": "2026-07-14T07:08:25.469Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "supportPolicyStatus": "review",
   "supportRecoveryStatus": "review_current",
   "creatorLaneStatus": "review_current",
   "creatorLaneLegacyStatus": "current_review",

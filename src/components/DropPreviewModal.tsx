@@ -394,7 +394,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       preload={imagePolicy.preload}
                       fetchPriority={imagePolicy.fetchPriority}
                       quality={imagePolicy.quality}
-                      sizes="(max-width: 768px) 95vw, 640px"
+                      sizes="(max-width: 840px) 95vw, 640px"
                       className="object-cover object-center opacity-90"
                       {...getImagePolicyDataAttributes(imagePolicy)}
                     />

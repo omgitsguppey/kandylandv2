@@ -138,7 +138,12 @@ const mockState = vi.hoisted(() => {
             };
         }),
         spendCreatorExperienceGumdrops: vi.fn(() => ({ ok: true, next: { total: 700, purchased: 700, reward: 0 }, purchasedSpent: 300, rewardSpent: 0, ledgerSource: "purchased" })),
-        buildCompletedGumdropTransaction: vi.fn(() => ({ verifiedServerSide: true })),
+        buildCompletedGumdropTransaction: vi.fn((input: Record<string, any>) => ({
+            ...input,
+            ...input.extra,
+            status: "completed",
+            verifiedServerSide: true,
+        })),
         trackServerEvent: vi.fn(() => Promise.resolve()),
         adminDb: {
             collection(name: string) {
@@ -390,6 +395,67 @@ describe("creator requests route transaction truth", () => {
         expect(duplicateBody.duplicatePrevented).toBe(true);
         expect(mockState.spendCreatorExperienceGumdrops).toHaveBeenCalledTimes(1);
         expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(1);
+    });
+
+    it("replays a committed request after mutable creator settings and paid balance change", async () => {
+        const payload = {
+            creatorId: "creator_1",
+            categoryId: "photo",
+            details: "A response-lost request",
+            idempotencyKey: "request-key-lost-response",
+        };
+
+        const firstResponse = await POST(new NextRequest("http://localhost/api/creator/requests", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }));
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+        });
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            status: "suspended",
+            creatorSettings: { customRequestsEnabled: false, requestCategories: [] },
+            creatorRestrictions: { customRequestsRestricted: true },
+        });
+
+        const replayResponse = await POST(new NextRequest("http://localhost/api/creator/requests", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }));
+        const replayBody = await replayResponse.json();
+
+        expect(firstResponse.status).toBe(200);
+        expect(replayResponse.status).toBe(200);
+        expect(replayBody.duplicatePrevented).toBe(true);
+        expect(mockState.spendCreatorExperienceGumdrops).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects a different request payload that reuses a committed client key", async () => {
+        const firstPayload = {
+            creatorId: "creator_1",
+            categoryId: "photo",
+            details: "The original committed request",
+            idempotencyKey: "request-key-conflict",
+        };
+        await POST(new NextRequest("http://localhost/api/creator/requests", {
+            method: "POST",
+            body: JSON.stringify(firstPayload),
+        }));
+
+        const conflictResponse = await POST(new NextRequest("http://localhost/api/creator/requests", {
+            method: "POST",
+            body: JSON.stringify({ ...firstPayload, details: "A different request with the same key" }),
+        }));
+        const conflictBody = await conflictResponse.json();
+
+        expect(conflictResponse.status).toBe(409);
+        expect(conflictBody.code).toBe("idempotency_conflict");
+        expect(conflictBody.preserveIdempotencyKey).toBe(true);
+        expect(mockState.spendCreatorExperienceGumdrops).toHaveBeenCalledTimes(1);
     });
 
     it("rejects insufficient balance without writing paid records", async () => {

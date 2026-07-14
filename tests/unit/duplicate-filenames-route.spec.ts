@@ -32,10 +32,16 @@ const mockState = vi.hoisted(() => {
                     where(field: string, operator: string, value: unknown) {
                         whereCalls.push({ field, operator, value });
                         return {
+                            limit() {
+                                return this;
+                            },
                             async get() {
                                 return buildSnapshot(drops.filter((doc) => doc.data.creatorId === value));
                             },
                         };
+                    },
+                    limit() {
+                        return this;
                     },
                     async get() {
                         return buildSnapshot(drops);
@@ -166,5 +172,52 @@ describe("POST /api/drops/duplicate-filenames", () => {
         expect(response.status).toBe(200);
         expect(mockState.whereCalls).toEqual([]);
         expect(payload.duplicates).toHaveLength(2);
+    });
+
+    it("rejects oversized JSON before querying Drops", async () => {
+        mockState.guardApiRequest.mockResolvedValue({
+            uid: "creator_1",
+            email: "creator@example.com",
+            isAdmin: false,
+        });
+        const request = new NextRequest("http://localhost/api/drops/duplicate-filenames", {
+            method: "POST",
+            headers: { "content-length": "64001" },
+            body: "{}",
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.whereCalls).toEqual([]);
+    });
+
+    it("classifies malformed JSON before querying Drops", async () => {
+        mockState.guardApiRequest.mockResolvedValue({
+            uid: "creator_1",
+            email: "creator@example.com",
+            isAdmin: false,
+        });
+        const request = new NextRequest("http://localhost/api/drops/duplicate-filenames", {
+            method: "POST",
+            body: "{not-json",
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "invalid_json",
+            retryable: false,
+        });
+        expect(mockState.whereCalls).toEqual([]);
     });
 });

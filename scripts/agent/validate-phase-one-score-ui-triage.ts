@@ -558,6 +558,28 @@ export function buildPhaseOneScoreUiTriageReport(options?: {
   const watchTimeFindings = buildWatchTimeFindings(root);
   const adminDashboardFindings = buildAdminDashboardFindings(root);
   const creatorDashboardFindings = buildCreatorDashboardFindings(root);
+  const creatorDashboardNeedsSourceSampleContract = creatorDashboardFindings.some(
+    (finding) => finding.findingKey === "creator-dashboard-stats-can-render-live-without-source-samples",
+  );
+  const creatorDashboardFixSteps: PhaseOneScoreUiTriageReport["recommendedFixOrder"] = creatorDashboardNeedsSourceSampleContract
+    ? [{
+      stepKey: "creator-dashboard-source-sample-contract",
+      severity: "P0",
+      title: "Add creator dashboard source/sample metadata before showing stats as live",
+      targetFiles: [
+        "src/app/api/creator/settings/route.ts",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "tests/unit/creator-settings-route.spec.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+      ],
+      validators: [
+        "npm run check:settings-creator-dashboard-split",
+        "npx vitest run tests/unit/creator-settings-route.spec.ts tests/unit/creator-dashboard-settings.spec.tsx",
+        "npm run typecheck",
+      ],
+      rationale: "This is the clearest UI truth risk: stats can be live without source sample proof.",
+    }]
+    : [];
   const allGroups = [
     scoreIngestionFindings,
     scoreMathFindings,
@@ -608,23 +630,7 @@ export function buildPhaseOneScoreUiTriageReport(options?: {
         ],
         rationale: "This explains why the score remains 25/100 after formal tracking artifacts were added.",
       },
-      {
-        stepKey: "creator-dashboard-source-sample-contract",
-        severity: "P0",
-        title: "Add creator dashboard source/sample metadata before showing stats as live",
-        targetFiles: [
-          "src/app/api/creator/settings/route.ts",
-          "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-          "tests/unit/creator-settings-route.spec.ts",
-          "tests/unit/creator-dashboard-settings.spec.tsx",
-        ],
-        validators: [
-          "npm run check:settings-creator-dashboard-split",
-          "npx vitest run tests/unit/creator-settings-route.spec.ts tests/unit/creator-dashboard-settings.spec.tsx",
-          "npm run typecheck",
-        ],
-        rationale: "This is the clearest UI truth risk: stats can be live without source sample proof.",
-      },
+      ...creatorDashboardFixSteps,
       {
         stepKey: "admin-debug-beta-score-connection",
         severity: "P1",
@@ -763,9 +769,6 @@ export function validatePhaseOneScoreUiTriageReport(report: PhaseOneScoreUiTriag
   }
   if (!report.recommendedFixOrder.some((step) => step.stepKey === "score-evidence-ingestion")) {
     failures.push("recommendedFixOrder must include score-evidence-ingestion.");
-  }
-  if (!report.creatorDashboardFindings.some((finding) => finding.findingKey === "creator-dashboard-stats-can-render-live-without-source-samples")) {
-    failures.push("creator dashboard fake-live risk must be represented.");
   }
   if (!report.nextPromptRecommendation.includes("Phase 1 Score Evidence Ingestion Fix")) {
     failures.push("nextPromptRecommendation must include the exact next score evidence ingestion prompt.");

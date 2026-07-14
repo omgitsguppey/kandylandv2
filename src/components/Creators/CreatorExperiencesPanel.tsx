@@ -165,7 +165,7 @@ export function CreatorExperiencesPanel({
         rawSettings: settings,
         settingsConfigured: true,
     }), [creatorId, settings]);
-    const availabilityWindows = settings.availabilityWindows || [];
+    const availabilityWindows = useMemo(() => settings.availabilityWindows || [], [settings.availabilityWindows]);
     const fanPassPriceGd = pricing.fanPass.priceGd || CREATOR_SUBSCRIPTION_MIN_GD;
     const bookingRatePerMinute = pricing.booking?.ratePerMinuteGd ?? 0;
     const bookingCost = pricing.booking?.priceGd ?? 0;
@@ -503,11 +503,11 @@ export function CreatorExperiencesPanel({
             {/* Subscriptions Module */}
             {selectedExperience === "subscriptions" && settings.subscriptionsEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-brand-purple/20 bg-gradient-to-b from-brand-purple/10 to-transparent p-4 sm:p-5">
-                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
-                    <div className="ml-10 flex flex-col gap-1.5">
+                    <div className="ml-12 flex flex-col gap-1.5">
                         <h2 className="text-xl font-black text-white">Fan Pass</h2>
                         <p className="text-sm font-medium text-brand-purple-light/80">Stay closer when new access opens.</p>
                         <p className="text-xs leading-5 text-zinc-400">Paid GumDrops only. Reward GD do not count toward Fan Pass.</p>
@@ -568,11 +568,11 @@ export function CreatorExperiencesPanel({
             {/* Messaging Module */}
             {selectedExperience === "messages" && settings.messagingEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/40 p-4 sm:p-5">
-                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
-                    <div className="mb-4 ml-10 flex flex-col gap-1.5">
+                    <div className="mb-4 ml-12 flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-black text-white">Private Chat</h2>
                             {monetizationSettings.subscriberFreeChatEnabled && subscriptionActive && (
@@ -627,7 +627,7 @@ export function CreatorExperiencesPanel({
                                 }}
                                 className="ml-2 flex min-h-11 shrink-0 items-center gap-1 rounded-full bg-white/10 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-white/20"
                             >
-                                Open private chat <ChevronRight className="h-3 w-3" />
+                                Open private chat <ChevronRight aria-hidden="true" className="h-3 w-3" />
                             </button>
                         </div>
                     ) : (
@@ -650,11 +650,11 @@ export function CreatorExperiencesPanel({
             {/* Custom Requests Module */}
             {selectedExperience === "requests" && settings.customRequestsEnabled && requestCategories.length > 0 && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/40 p-4 sm:p-5">
-                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
-                    <div className="mb-4 ml-10 flex flex-col gap-1.5">
+                    <div className="mb-4 ml-12 flex flex-col gap-1.5">
                         <h2 className="text-xl font-black text-white">Custom Request</h2>
                         <p className="text-sm font-medium text-zinc-400">Ask for something specific, then let the creator decide what fits.</p>
                         <p className="text-xs leading-5 text-zinc-500">If something is unavailable, you&apos;ll see a clear message and can try again.</p>
@@ -715,11 +715,11 @@ export function CreatorExperiencesPanel({
             {/* Bookings Module */}
             {selectedExperience === "bookings" && settings.bookingsEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/40 p-4 sm:p-5">
-                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
+                    <button aria-label="Go back" onClick={() => selectExperience(null)} className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-zinc-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                     </button>
                     
-                    <div className="mb-4 ml-10 flex flex-col gap-1.5">
+                    <div className="mb-4 ml-12 flex flex-col gap-1.5">
                         <h2 className="text-xl font-black text-white">Live Time</h2>
                         <p className="text-sm font-medium text-zinc-400">Reserve real time before the window closes.</p>
                         <p className="text-xs leading-5 text-zinc-500">If a slot is blocked, you&apos;ll see a clear message and can pick another time.</p>

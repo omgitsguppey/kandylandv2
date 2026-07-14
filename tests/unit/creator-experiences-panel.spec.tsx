@@ -131,6 +131,27 @@ describe("CreatorExperiencesPanel", () => {
         expect(renderLane("bookings")).toContain("Available slots");
     });
 
+    it("keeps labelled controls free of duplicate decorative chevron announcements", () => {
+        const renderLane = (selectedExperience: CreatorExperienceView) => {
+            const wrapper = document.createElement("div");
+            wrapper.innerHTML = renderToStaticMarkup(
+                <CreatorExperiencesPanel {...baseProps} selectedExperience={selectedExperience} />,
+            );
+            return wrapper;
+        };
+
+        (["subscriptions", "messages", "requests", "bookings"] as CreatorExperienceView[]).forEach((lane) => {
+            const wrapper = renderLane(lane);
+            const backButton = wrapper.querySelector('button[aria-label="Go back"]');
+            expect(backButton?.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+        });
+
+        const messages = renderLane("messages");
+        const privateChatButton = Array.from(messages.querySelectorAll("button"))
+            .find((button) => button.textContent?.includes("Open private chat"));
+        expect(privateChatButton?.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+    });
+
     it("renders generated booking slots instead of arbitrary datetime input", () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date("2026-05-15T10:00:00Z"));
@@ -367,7 +388,8 @@ describe("CreatorExperiencesPanel", () => {
         );
 
         expect(paidGdGuardrail).toBe("Creator experiences use paid GumDrops only");
-        expect(markup).toContain("Creator experiences use paid GumDrops, not reward balance.");
+        expect(markup).toContain("Creator experiences use paid GumDrops only.");
+        expect(markup).toContain("Free GumDrops are only for unwrapping Drops.");
         expect(markup).toContain("Paid GD 0 / Need");
         expect(markup).toContain("Open Wallet");
         expect(markup).not.toContain("Send Request");

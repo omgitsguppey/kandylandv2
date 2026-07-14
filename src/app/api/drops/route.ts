@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/server/auth";
-import { buildNotModifiedResponse, buildWeakEtag, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatchesEtag } from "@/lib/http-cache";
+import { buildNotModifiedResponse, buildWeakEtag, requestMatchesEtag } from "@/lib/http-cache";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { getDrops } from "@/lib/server/drops";
 import { isDropActiveNow } from "@/lib/drop-status";
@@ -9,11 +9,10 @@ import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { Drop } from "@/types/db";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
-export const dynamic = "force-dynamic";
-
 const DEFAULT_DROPS_LIMIT = 12;
 const DROPS_FEED_ROUTE_NAME = "drops";
 const DROPS_LIST_ERROR_CONTEXT = "Drops.List";
+const DROPS_FEED_CACHE_CONTROL = "public, max-age=0, s-maxage=60, stale-while-revalidate=300";
 
 function compareDropFeedOrder(left: Drop, right: Drop) {
     if (left.validFrom !== right.validFrom) {
@@ -107,7 +106,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (requestMatchesEtag(request, etag)) {
-            return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
+            return finalize(buildNotModifiedResponse(etag, DROPS_FEED_CACHE_CONTROL));
         }
 
         return finalize(NextResponse.json({
@@ -116,7 +115,7 @@ export async function GET(request: NextRequest) {
         }, {
             headers: {
                 ETag: etag,
-                "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,
+                "Cache-Control": DROPS_FEED_CACHE_CONTROL,
             },
         }));
     } catch (error) {

@@ -25,6 +25,7 @@ import {
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { trackServerEvent } from "@/lib/server/analytics";
 import {
     CREATOR_ONBOARDING_COLLECTION,
@@ -43,8 +44,20 @@ import {
     buildActorMarker,
 } from "@/lib/identity-truth/identity/actor-markers";
 
+const CREATOR_CONTRACT_SIGNATURE_BODY_LIMIT_BYTES = 16_384;
+
 function buildErrorResponse(status: number, message: string) {
-    return NextResponse.json({ error: message }, { status });
+    const expectedCode = status === 401
+        ? "unauthorized"
+        : status >= 400 && status < 500
+            ? "invalid_creator_request"
+            : null;
+    return NextResponse.json({
+        success: false,
+        error: message,
+        message,
+        ...(expectedCode ? { code: expectedCode, retryable: false } : {}),
+    }, { status });
 }
 
 class ContractSignaturePreconditionError extends Error {
@@ -112,10 +125,13 @@ async function POST_handler(request: NextRequest) {
             return buildErrorResponse(500, "Database not available");
         }
 
-        const body = await request.json().catch(() => ({})) as {
+        const body = await readBoundedJsonBody<{
             signatureName?: unknown;
             acknowledgementValues?: unknown;
-        };
+        }>(request, {
+            maxBytes: CREATOR_CONTRACT_SIGNATURE_BODY_LIMIT_BYTES,
+            routeName: "creator/onboarding/contract-signature",
+        });
         const signatureName = readString(body.signatureName);
         if (signatureName.length < 2) {
             return buildErrorResponse(400, "Enter your legal name before signing.");
@@ -386,6 +402,15 @@ async function POST_handler(request: NextRequest) {
             creatorApplication: result.creatorApplication,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
+
         if (error instanceof ContractSignaturePreconditionError) {
             return buildErrorResponse(error.status, error.message);
         }

@@ -1,7 +1,7 @@
 {
   "reportKey": "creator-drop-submit-repair",
-  "generatedAtUtc": "2026-05-27T07:20:23.784Z",
-  "currentHead": "4ea7fddfa516daeedc01b8e06d7d2437e2acf404",
+  "generatedAtUtc": "2026-07-14T03:21:24.460Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "status": "pass",
   "submitFlowStatus": "fixed",
   "adminApprovalStatus": "fixed",
@@ -21,11 +21,11 @@
   "liveEvidenceStatus": "connected",
   "analyticsPanelHydrationStatus": "event_registered_for_hydration_explanation",
   "memoryEntriesAdded": 5,
-  "netAdditions": 610,
-  "netDeletions": 155,
+  "netAdditions": 187,
+  "netDeletions": 259,
   "scoreBefore": 76.61,
   "scoreAfter": 76.61,
-  "netAdditionsJustification": "This focused repair adds canonical contracts, validators, tests, and compact generated evidence to prevent creator workflow regressions.",
+  "netAdditionsJustification": "",
   "findings": [
     {
       "id": "workflow-states-covered",
@@ -102,11 +102,11 @@
     "liveEvidenceStatus": "connected",
     "analyticsPanelHydrationStatus": "event_registered_for_hydration_explanation",
     "memoryEntriesAdded": 5,
-    "netAdditions": 610,
-    "netDeletions": 155,
+    "netAdditions": 187,
+    "netDeletions": 259,
     "scoreBefore": 76.61,
     "scoreAfter": 76.61,
-    "netAdditionsJustification": "This focused repair adds canonical contracts, validators, tests, and compact generated evidence to prevent creator workflow regressions."
+    "netAdditionsJustification": ""
   },
   "validationFailures": [],
   "remainingGaps": [

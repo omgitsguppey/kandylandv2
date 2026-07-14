@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { buildEvidenceFreshnessIndex } from "../../scripts/agent/validate-evidence-freshness-index";
 
@@ -6,7 +6,14 @@ describe("evidence freshness index", () => {
   let report: ReturnType<typeof buildEvidenceFreshnessIndex>;
 
   beforeAll(() => {
-    report = buildEvidenceFreshnessIndex();
+    const nowMs = Date.now();
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(nowMs + (48 * 60 * 60 * 1000));
+      report = buildEvidenceFreshnessIndex();
+    } finally {
+      vi.useRealTimers();
+    }
   }, 30_000);
 
   it("classifies stale consumed blockers with actionable next steps", () => {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/server/firebase-admin';
 import { handleApiError } from '@/lib/server/auth';
+import { isBoundedJsonBodyError, readBoundedJsonBody } from '@/lib/server/bounded-json-body';
 import { STANDARD } from '@/lib/server/rate-limit';
 import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
@@ -9,6 +10,8 @@ import { guardApiRequest } from '@/lib/server/request-guard';
 import { BUG_REPORT_ISSUE_TYPES } from '@/lib/bug-reporting';
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { trackServerEvent } from '@/lib/server/analytics';
+
+const TASK_FEEDBACK_BODY_LIMIT_BYTES = 32_768;
 
 const feedbackSchema = z.object({
     message: z.string().trim().max(2000).optional(),
@@ -76,7 +79,10 @@ async function POST_handler(req: NextRequest) {
         const uid = caller?.uid ?? "";
         const email = caller?.email;
 
-        const body = await req.json();
+        const body = await readBoundedJsonBody<unknown>(req, {
+            maxBytes: TASK_FEEDBACK_BODY_LIMIT_BYTES,
+            routeName: "tasks/feedback",
+        });
         const {
             message,
             summary,
@@ -143,7 +149,15 @@ async function POST_handler(req: NextRequest) {
 
         return NextResponse.json({ success: true });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "tasks/feedback");
     }
 }

@@ -8,6 +8,37 @@ type ChatRouteSyncInput = {
     selectedThreadId?: string | null;
 };
 
+type ChatRequestedThreadActorTransitionInput = {
+    previousOwnerUserId?: string | null;
+    nextUserId?: string | null;
+    requestedThreadId?: string | null;
+    blockedRequestedThreadId?: string | null;
+};
+
+export function resolveChatRequestedThreadActorTransition({
+    previousOwnerUserId,
+    nextUserId,
+    requestedThreadId,
+    blockedRequestedThreadId,
+}: ChatRequestedThreadActorTransitionInput) {
+    const requested = requestedThreadId?.trim() || null;
+    const ownerChanged = (previousOwnerUserId || null) !== (nextUserId || null);
+    const hadAuthenticatedOwner = Boolean(previousOwnerUserId);
+    const nextBlockedRequestedThreadId = ownerChanged && hadAuthenticatedOwner && requested
+        ? requested
+        : blockedRequestedThreadId || null;
+    const requestedThreadBelongsToPreviousActor = Boolean(
+        requested && nextBlockedRequestedThreadId === requested,
+    );
+
+    return {
+        blockedRequestedThreadId: nextBlockedRequestedThreadId,
+        retainedRequestedThreadId: hadAuthenticatedOwner || requestedThreadBelongsToPreviousActor
+            ? null
+            : requested,
+    } as const;
+}
+
 
 
 

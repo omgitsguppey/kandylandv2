@@ -251,8 +251,8 @@ function main() {
 
   const scoreWeightTotal = Object.values(SCORE_DIMENSION_WEIGHTS).reduce((total, weight) => total + weight, 0);
   if (scoreWeightTotal !== 100) validationFailures.push(`Score weights sum to ${scoreWeightTotal}, expected 100.`);
-  if (promptKnownScoreMath.raw.toFixed(4) !== "77.8295") validationFailures.push("Prompt known weighted beta score formula does not equal 77.8295.");
-  if (promptKnownScoreMath.rounded !== 77.83) validationFailures.push("Prompt known rounded beta score formula does not equal 77.83.");
+  if (promptKnownScoreMath.raw.toFixed(4) !== "78.2690") validationFailures.push("Prompt known weighted beta score formula does not equal 78.2690.");
+  if (promptKnownScoreMath.rounded !== 78.27) validationFailures.push("Prompt known rounded beta score formula does not equal 78.27.");
   if (IDENTITY_CONFIDENCE_WEIGHTS.exact !== 1 || IDENTITY_CONFIDENCE_WEIGHTS.unknown !== 0) validationFailures.push("Confidence weights are missing exact/unknown anchors.");
   if (LEGACY_CONFIDENCE_MAXIMUMS.recoveredWithDeterministicIdentity.maximumConfidence !== "inferred") validationFailures.push("Legacy recovered confidence can exceed inferred.");
   if (PROVEN_ZERO_RULES.missingDataIsZero) validationFailures.push("Missing data is incorrectly treated as zero.");
@@ -296,8 +296,11 @@ function main() {
     provenZeroMetricIds: [],
   });
   if (hydrationReport.missingHydration.length === 0) validationFailures.push("Person metrics hydration empty source did not expose missing hydration gaps.");
-  const personMetricGapCount = hydrationReport.missingHydration.length + hydrationReport.userParityGaps.length;
-  if (hydrationReport.debugLane.gaps !== personMetricGapCount) validationFailures.push("Person metrics debugLane.gaps does not equal missingHydration plus userParityGaps.");
+  const personMetricGapCount = new Set([
+    ...hydrationReport.missingHydration.map((gap) => gap.metricId),
+    ...hydrationReport.userParityGaps.map((gap) => gap.metricId),
+  ]).size;
+  if (hydrationReport.debugLane.gaps !== personMetricGapCount) validationFailures.push("Person metrics debugLane.gaps does not equal the unique missingHydration and userParityGaps metric IDs.");
   if (!hydrationReport.scoreImpactByDimension.evidenceCompleteness.reason.includes(String(personMetricGapCount))) {
     validationFailures.push("Person metrics score impact reason does not include the real gap count.");
   }

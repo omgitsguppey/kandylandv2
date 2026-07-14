@@ -92,6 +92,7 @@ vi.mock("@/lib/server/rate-limit", () => ({
 
 vi.mock("@/lib/server/route-diagnostics", () => ({
     recordRouteWarning: mockState.recordRouteWarning,
+    getErrorMessage: (error: unknown) => error instanceof Error ? error.message : String(error),
 }));
 
 import { POST } from "@/app/api/auth/manual-sign-in-lookup/route";
@@ -208,5 +209,29 @@ describe("POST /api/auth/manual-sign-in-lookup", () => {
             identifierType: "username",
             authErrorCode: "auth/invalid-credential",
         });
+    });
+
+    it("rejects oversized lookup input before provider or user lookup", async () => {
+        const request = new NextRequest("http://localhost/api/auth/manual-sign-in-lookup", {
+            method: "POST",
+            body: JSON.stringify({
+                identifier: "fan@example.com",
+                padding: "x".repeat(32_768),
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            code: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminAuth.getUserByEmail).not.toHaveBeenCalled();
     });
 });

@@ -1,7 +1,7 @@
 {
   "reportKey": "private-media-access",
-  "generatedAtUtc": "2026-06-11T14:14:38.270Z",
-  "currentHead": "0e3eb2e227500dfa2ad529f2c294740c22745f74",
+  "generatedAtUtc": "2026-07-14T16:05:50.609Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "status": "pass",
   "accessReasons": [
     "public_allowed",
@@ -67,6 +67,22 @@
   },
   "dirtyFiles": [
     {
+      "path": ".env.example",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/doctrine-cards.jsonl",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/doctrine-conflicts.generated.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/doctrine-registry.json",
+      "classification": "unsafe_unknown"
+    },
+    {
       "path": "agent/context/doctrine.cards.jsonl",
       "classification": "unsafe_unknown"
     },
@@ -88,6 +104,10 @@
     },
     {
       "path": "agent/context/task-pack.generated.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/validator-authority.json",
       "classification": "unsafe_unknown"
     },
     {
@@ -119,42 +139,6 @@
       "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/index/recent-passes.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/retrieval-index.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/runtime-observability.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/surface-map.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/ui-surface-coverage.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/verification-commands.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/workflow-guidance.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/admin-cms-workflow-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/private-media-access.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
@@ -163,8 +147,24 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-private-media-access.ts",
-      "classification": "validator_artifact_expected"
+      "path": "FULL_SCALE_CODEBASE_AUDIT.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "README.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "REPO_MEMORY_LEDGER.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/api/chat/attachments/complete/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/creator/drops/assets/route.ts",
+      "classification": "real_source_change_needs_review"
     }
   ],
   "validationFailures": []

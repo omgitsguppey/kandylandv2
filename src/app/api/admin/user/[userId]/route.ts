@@ -66,6 +66,10 @@ import {
 } from "@/lib/server/behavioral-intelligence";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { USER_INDEX_COLLECTIONS } from "@/lib/user-indexes/user-tracking-index-contract";
+import { buildIndividualUserMetricSourceTruth } from "@/lib/identity-truth/individual-user-metric-truth";
+import { resolveUserIndexMaterializerSourceFingerprint } from "@/lib/server/user-index-materializer";
+import { summarizeAnalyticsIdentityLineageOwnerVersions } from "@/lib/analytics/identity-link-contract";
 
 const ADMIN_USER_SESSION_FACT_LIMIT = 500;
 const ADMIN_USER_WATCH_SESSION_LIMIT = 500;
@@ -122,7 +126,22 @@ async function GET_handler(
 
         const userRef = adminDb.collection("users").doc(userId);
         const creatorOnboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
-        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, watchSessionsSnap, userDailySnapshot, securityEventsSnap, supportThreadSnap, feedbackSnap, creatorOnboardingSnap, creatorOnboardingHistorySnap] = await Promise.all([
+        const [
+            userSnap,
+            transactionsSnap,
+            analyticsRollupSnap,
+            analyticsFactsSnap,
+            sessionFactsSnap,
+            watchSessionsSnap,
+            userDailySnapshot,
+            securityEventsSnap,
+            supportThreadSnap,
+            feedbackSnap,
+            creatorOnboardingSnap,
+            creatorOnboardingHistorySnap,
+            identityLineageSnap,
+            userTrackingIndexSnap,
+        ] = await Promise.all([
             userRef.get(),
             adminDb.collection("transactions")
                 .where("userId", "==", userId)
@@ -167,6 +186,13 @@ async function GET_handler(
                 .collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION)
                 .orderBy("timestamp", "desc")
                 .limit(historyLimit)
+                .get(),
+            adminDb.collection(USER_INDEX_COLLECTIONS.identityLineageIndexes)
+                .where("userId", "==", userId)
+                .limit(20)
+                .get(),
+            adminDb.collection(USER_INDEX_COLLECTIONS.userTrackingIndexes)
+                .doc(userId)
                 .get(),
         ]);
 
@@ -698,6 +724,53 @@ async function GET_handler(
             lastSeenAt: Math.max(readNumber(analyticsRollup.lastSeenAt), readNumber(analyticsRollup.lastSeenAtMs), directLastSeenAt, sessionFactLastSeenAt, dailyLastSeenAt),
             lastPurchaseAt: normalizedLastPurchaseAt,
         };
+        const userTrackingIndex = userTrackingIndexSnap.exists
+            ? userTrackingIndexSnap.data() as Record<string, unknown>
+            : null;
+        const userTrackingActionCounts = userTrackingIndex?.actionCounts
+            && typeof userTrackingIndex.actionCounts === "object"
+            ? userTrackingIndex.actionCounts as Record<string, unknown>
+            : {};
+        const userTrackingMaterializer = userTrackingIndex?.materializer
+            && typeof userTrackingIndex.materializer === "object"
+            ? userTrackingIndex.materializer as Record<string, unknown>
+            : null;
+        const directUserSourceCount = [
+            analyticsRollupSnap.exists,
+            analyticsFactsSnap.docs.length > 0,
+            sessionFactsSnap.docs.length > 0,
+            watchSessionsSnap.docs.length > 0,
+            userDailySnapshot.docs.length > 0,
+            transactionsSnap.docs.length > 0,
+        ].filter(Boolean).length;
+        const displayedUserCount = Math.max(
+            metricSnapshot.eventCount,
+            metricSnapshot.sessionCount,
+            metricSnapshot.viewCount,
+            metricSnapshot.bounceCount,
+            metricSnapshot.authSuccessCount,
+            metricSnapshot.onboardingCompletionCount,
+            metricSnapshot.watchSecondsTotal,
+            metricSnapshot.unwrapCount,
+            metricSnapshot.purchaseCount,
+        );
+        const identityLineageOwnerSummary = summarizeAnalyticsIdentityLineageOwnerVersions(
+            identityLineageSnap.docs.map((document) => document.data()?.ownerKeyVersion),
+        );
+        const individualMetricTruth = buildIndividualUserMetricSourceTruth({
+            directUserSourceCount,
+            displayedUserCount,
+            identityLinkCount: identityLineageOwnerSummary.currentCount,
+            identityLineageRejectedCount: identityLineageOwnerSummary.rejectedCount,
+            identityLineageOwnerState: identityLineageOwnerSummary.state,
+            materializerDocumentPresent: userTrackingIndexSnap.exists,
+            materializedUserCount: readNumber(userTrackingActionCounts.total),
+            sourceWindowStartMs: readNumber(userTrackingIndex?.sourceWindowStartMs),
+            sourceWindowEndMs: readNumber(userTrackingIndex?.sourceWindowEndMs),
+            materializerMetadata: userTrackingMaterializer,
+            currentSourceFingerprint: resolveUserIndexMaterializerSourceFingerprint(),
+            evaluatedAtMs: Date.now(),
+        });
         const metricIntegrity = buildAdminUserMetricIntegrity({
             hasRollup: analyticsRollupSnap.exists,
             hasDaily: userDaily.length > 0,
@@ -817,6 +890,7 @@ async function GET_handler(
             metricIntegrityFailures: metricIntegrity.failures,
             metricFreshnessMs: metricIntegrity.freshnessMs,
             recoveredFromFacts: metricIntegrity.recoveredFromFacts,
+            individualMetricTruth,
             engagementScore: engagement.score,
             engagement,
             valueScore: value.valueScore,

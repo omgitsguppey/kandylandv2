@@ -52,7 +52,10 @@ function trackedFiles() {
 }
 
 function findActiveOldLogic() {
-  const oldLogicPattern = /source_ready_waiting_for_activity|stale_metric_bridge|orphaned activity|materializer missing as healthy|unknown activity accepted/iu;
+  // `source_ready_waiting_for_activity` is a current bounded-source state used by
+  // the liveness and release-evidence contracts. It must not be treated as a
+  // deprecated helper merely because a fixture or canonical resolver names it.
+  const oldLogicPattern = /stale_metric_bridge|orphaned activity|materializer missing as healthy|unknown activity accepted/iu;
   return trackedFiles().filter((path) => {
     if (!existsSync(join(ROOT, path))) return false;
     if (path === "scripts/agent/validate-event-translation-bridge.ts") return false;

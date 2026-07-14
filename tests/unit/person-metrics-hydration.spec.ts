@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
 import {
+  classifyPersonMetricsHydrationDirtyFile,
   explainMissingMetricHydration,
   hydrateConfidenceByMetric,
   hydrateGlobalMetrics,
@@ -41,6 +42,13 @@ function envelope(input: Partial<CanonicalEventEnvelope> & Pick<CanonicalEventEn
 }
 
 describe("person metrics hydration", () => {
+  it("classifies the complete chat attachment lifecycle as reviewable source", () => {
+    for (const action of ["prepare", "complete", "cancel"]) {
+      expect(classifyPersonMetricsHydrationDirtyFile(`src/app/api/chat/attachments/${action}/route.ts`))
+        .toBe("real_source_change_needs_review");
+    }
+  });
+
   it("hydrates exact signed-in events into global and user metrics", () => {
     const report = hydratePersonMetrics({
       envelopes: [
@@ -122,6 +130,7 @@ describe("person metrics hydration", () => {
           actorKind: "signed_in_user",
           identityState: "logged_in_unlinked",
           identityConfidence: "exact",
+          consentMode: "full_behavioral",
           userRef: { kind: "user", id: "user_1" },
           includeInUserBehavior: false,
         }),

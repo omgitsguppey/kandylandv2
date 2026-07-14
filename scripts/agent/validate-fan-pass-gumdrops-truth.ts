@@ -78,7 +78,7 @@ if (duplicateIndex === -1 || spendIndex === -1 || duplicateIndex > spendIndex) {
 
 requireIncludes(problemCopy, "getCreatorSubscriptionProblemCopy", "Fan Pass problem copy helper");
 [
-  "You need ${shortfallGd} more paid GD to start this Fan Pass.",
+  "Open Wallet to add ${shortfallGd} more paid GD, then start this Fan Pass again.",
   "Fan Pass is not available for this creator right now.",
   "This creator is unavailable right now.",
   "We could not find this creator.",

@@ -33,6 +33,7 @@ const viewAs = readRequired("src/components/Admin/AdminCreatorViewAsControls.tsx
 const discovery = readRequired("src/components/CreatorDiscoveryRail.tsx");
 const experiences = readRequired("src/components/Creators/CreatorExperiencesPanel.tsx");
 const broadcasts = readRequired("src/app/api/creator/broadcasts/route.ts");
+const broadcastNotifications = readRequired("src/lib/notifications/creator-broadcast-notifications.ts");
 const renewals = readRequired("src/app/api/cron/process-creator-subscriptions/route.ts");
 const accountControls = readRequired("src/lib/admin/creator-account-controls.ts");
 const notFound = readRequired("src/components/ui/NotFoundSurface.tsx");
@@ -62,12 +63,15 @@ for (const [label, source] of [
   ["Admin view-as controls", viewAs],
   ["Creator discovery rail", discovery],
   ["Creator experiences panel", experiences],
-  ["Broadcast notifications", broadcasts],
+  ["Broadcast notification owner", broadcastNotifications],
   ["Subscription renewal notifications", renewals],
   ["Admin account-control public profile path", accountControls],
 ] as const) {
   requireIncludes(source, "buildCreatorPublicHref", `${label} canonical public href`);
 }
+
+requireIncludes(broadcasts, "@/lib/notifications/creator-broadcast-notifications", "Broadcast route notification owner import");
+requireIncludes(broadcasts, "enqueueCreatorBroadcastNotifications", "Broadcast route notification owner delegation");
 
 requireIncludes(chat, "routeSource: \"chat_header\"", "Chat header profile telemetry");
 requireIncludes(chat, "creator_profile_link_clicked", "Chat header profile click telemetry");
@@ -85,7 +89,8 @@ for (const [label, source] of [
   ["Admin view-as controls", viewAs],
   ["Creator discovery rail", discovery],
   ["Creator experiences panel", experiences],
-  ["Broadcast notifications", broadcasts],
+  ["Broadcast route", broadcasts],
+  ["Broadcast notification owner", broadcastNotifications],
   ["Subscription renewal notifications", renewals],
   ["Admin account-control public profile path", accountControls],
 ] as const) {

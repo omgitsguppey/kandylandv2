@@ -19,9 +19,23 @@ import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { buildBrowserNotificationTag, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
 import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
 const NOTIFICATION_MUTATION_ID_LIMIT = 100;
+const NOTIFICATIONS_BODY_LIMIT_BYTES = 32_768;
+
+function buildNotificationBodyErrorResponse(error: unknown) {
+  if (!isBoundedJsonBodyError(error)) {
+    return null;
+  }
+
+  return NextResponse.json({
+    error: error.message,
+    errorCode: error.code,
+    retryable: false,
+  }, { status: error.status });
+}
 
 function buildNotificationsEtag(
   notifications: Array<{
@@ -141,7 +155,11 @@ export async function POST(request: NextRequest) {
       return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
     }
 
-    const payload = normalizeNotificationCreatePayload(await request.json());
+    const rawBody = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: NOTIFICATIONS_BODY_LIMIT_BYTES,
+      routeName: "notifications",
+    });
+    const payload = normalizeNotificationCreatePayload(rawBody);
 
     if (!payload) {
       return finalize(NextResponse.json({ error: "Invalid notification payload" }, { status: 400 }));
@@ -260,6 +278,10 @@ export async function POST(request: NextRequest) {
 
     return finalize(NextResponse.json({ success: true, duplicate: false }));
   } catch (error) {
+    const bodyErrorResponse = buildNotificationBodyErrorResponse(error);
+    if (bodyErrorResponse) {
+      return finalize(bodyErrorResponse, error);
+    }
     return finalize(handleApiError(error, "Notifications.POST"), error);
   }
 }
@@ -285,10 +307,13 @@ export async function PUT(request: NextRequest) {
       scopeToCaller: true,
     });
 
-    const payload = await request.json() as {
+    const payload = await readBoundedJsonBody<{
       notificationId?: unknown;
       notificationIds?: unknown;
-    };
+    }>(request, {
+      maxBytes: NOTIFICATIONS_BODY_LIMIT_BYTES,
+      routeName: "notifications",
+    });
     const requestedIds = [
       ...(typeof payload.notificationId === "string" ? [payload.notificationId.trim()] : []),
       ...(Array.isArray(payload.notificationIds)
@@ -370,6 +395,10 @@ export async function PUT(request: NextRequest) {
       notificationIds: successfulIds,
     }));
   } catch (error) {
+    const bodyErrorResponse = buildNotificationBodyErrorResponse(error);
+    if (bodyErrorResponse) {
+      return finalize(bodyErrorResponse, error);
+    }
     return finalize(handleApiError(error, "Notifications.PUT"), error);
   }
 }

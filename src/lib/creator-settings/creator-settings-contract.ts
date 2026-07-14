@@ -226,6 +226,15 @@ function sectionForField(field: string): CreatorSettingsSectionId | null {
     return null;
 }
 
+export function pickCreatorSettingsControlPlaneSection(
+    settings: CreatorSettingsControlPlane,
+    section: CreatorSettingsSectionId,
+) {
+    return Object.fromEntries(
+        Object.entries(settings).filter(([field]) => sectionForField(field) === section),
+    ) as Partial<CreatorSettingsControlPlane>;
+}
+
 function updateRequestCategories(input: Record<string, unknown>, fallback: CreatorSettings) {
     const categories = normalizeCreatorRequestCategories(fallback.requestCategories);
     const enabledIds = Array.isArray(input.allowedRequestTypes)

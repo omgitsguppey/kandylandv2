@@ -8,6 +8,7 @@ import { CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
 import { MEDIA_UPLOAD_ORPHAN_AFTER_MS, fingerprintStoragePath } from "@/lib/media/media-upload-contract";
 import { resolveServerChatMediaLimitPolicy } from "@/lib/server/chat-media-limit-policy";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
@@ -25,10 +26,14 @@ const prepareAttachmentSchema = z.object({
 });
 
 const CLIENT_IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{1,180}$/u;
+const CHAT_JSON_BODY_LIMIT_BYTES = 64_000;
 
 function sanitizeFileName(fileName: string) {
     const normalized = fileName
+        .normalize("NFC")
+        .replace(/[\u0000-\u001F\u007F-\u009F\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/gu, "")
         .replace(/[\\/:*?"<>|]+/g, "-")
+        .replace(/\.{2,}/g, ".")
         .replace(/\s+/g, " ")
         .trim();
     return normalized.length > 0 ? normalized : "attachment";
@@ -71,12 +76,17 @@ export async function POST(request: NextRequest) {
 
         let rawBody: unknown;
         try {
-            rawBody = await request.json();
-        } catch {
+            rawBody = await readBoundedJsonBody<unknown>(request, {
+                maxBytes: CHAT_JSON_BODY_LIMIT_BYTES,
+                routeName: "chat/attachments/prepare",
+            });
+        } catch (error) {
+            const payloadTooLarge = isBoundedJsonBodyError(error) && error.code === "payload_too_large";
             return finalize(NextResponse.json({
-                error: "Malformed request body.",
-                errorCode: "malformed_body",
-            }, { status: 400 }));
+                error: payloadTooLarge ? "Request payload is too large." : "Malformed request body.",
+                errorCode: payloadTooLarge ? "payload_too_large" : "malformed_body",
+                retryable: false,
+            }, { status: payloadTooLarge ? 413 : 400 }));
         }
         const parsedPayload = prepareAttachmentSchema.safeParse(rawBody);
         if (!parsedPayload.success) {

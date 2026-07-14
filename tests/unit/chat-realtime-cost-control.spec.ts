@@ -10,6 +10,7 @@ import {
   buildChatRealtimeDebugLane,
   validateChatRealtimeSource,
 } from "@/lib/chat/chat-realtime-contract";
+import { resolveChatRequestedThreadActorTransition } from "@/lib/chat-realtime";
 import {
   CHAT_REALTIME_TELEMETRY_EVENTS,
   buildChatRealtimeTelemetryPayload,
@@ -105,6 +106,62 @@ describe("chat realtime cost control", () => {
     expect(validation.detachOnUnmount).toBe(true);
     expect(validation.detachOnThreadSwitch).toBe(true);
     expect(validation.hasRealtimeErrorDebugVisibility).toBe(true);
+  });
+
+  it("isolates drafts, loads, sends, and reconciliation by thread and signed-in actor", () => {
+    const source = readFileSync("src/components/Chat/ChatExperience.tsx", "utf8");
+
+    expect(source).toContain("const activeSendKey = buildChatActorThreadKey(sendUserId, sendThreadId)");
+    expect(source).toContain("activeChatSendKeysRef.current.has(activeSendKey)");
+    expect(source).toContain("chatStateOwnerUserId !== user.uid");
+    expect(source).toContain("chatUserIdentityRef.current !== requestUserId");
+    expect(source).toContain("chatUserIdentityRef.current === sendUserId");
+    expect(source).toContain("setComposerText(\"\")");
+    expect(source).toContain("setComposerFile(null)");
+    expect(source).toContain("activeChatSendKeysRef.current.delete(activeSendKey)");
+    expect(source).toContain("resolveChatRequestedThreadActorTransition");
+    expect(source).toContain("blockedRequestedThreadIdRef.current = requestedThreadTransition.blockedRequestedThreadId");
+    expect(source).toContain("blockedRequestedThreadIdRef.current === requestedThreadId");
+    expect(source).toContain("chatStateOwnerUserId !== chatUserId");
+    expect(source).toContain("if (!user || !userProfile || chatStateOwnerUserId !== user.uid)");
+  });
+
+  it("retains an initial deep-link but discards it across authenticated actor changes", () => {
+    expect(resolveChatRequestedThreadActorTransition({
+      previousOwnerUserId: null,
+      nextUserId: "viewer_b",
+      requestedThreadId: "thread_from_login_link",
+      blockedRequestedThreadId: null,
+    })).toEqual({
+      blockedRequestedThreadId: null,
+      retainedRequestedThreadId: "thread_from_login_link",
+    });
+
+    const signedOut = resolveChatRequestedThreadActorTransition({
+      previousOwnerUserId: "viewer_a",
+      nextUserId: null,
+      requestedThreadId: "viewer_a_thread",
+      blockedRequestedThreadId: null,
+    });
+    expect(signedOut).toEqual({
+      blockedRequestedThreadId: "viewer_a_thread",
+      retainedRequestedThreadId: null,
+    });
+    expect(resolveChatRequestedThreadActorTransition({
+      previousOwnerUserId: null,
+      nextUserId: "viewer_b",
+      requestedThreadId: "viewer_a_thread",
+      blockedRequestedThreadId: signedOut.blockedRequestedThreadId,
+    })).toEqual({
+      blockedRequestedThreadId: "viewer_a_thread",
+      retainedRequestedThreadId: null,
+    });
+    expect(resolveChatRequestedThreadActorTransition({
+      previousOwnerUserId: "viewer_a",
+      nextUserId: "viewer_b",
+      requestedThreadId: "viewer_a_thread",
+      blockedRequestedThreadId: null,
+    }).retainedRequestedThreadId).toBeNull();
   });
 
   it("builds a report with score impact and fails unbounded listener regressions", () => {

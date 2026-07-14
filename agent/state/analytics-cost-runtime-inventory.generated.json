@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T08:23:36.774Z",
+  "generatedAtUtc": "2026-07-14T04:40:54.415Z",
   "reportKey": "analytics-cost-runtime-inventory",
-  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "cloudRunCostFindings": 2,
     "cloudSqlDetected": true,
@@ -10,38 +10,38 @@
     "bigQueryExportFindings": 1,
     "geminiCloudAssistDetected": true,
     "geminiCloudAssistFindings": 1,
-    "nonPriorityAnalyticsCadenceFindings": 2,
+    "nonPriorityAnalyticsCadenceFindings": 1,
     "retry4xxFindings": 2,
     "guestTrackingFindings": 1,
     "userTrackingFindings": 1,
     "watchTimeFindings": 2,
     "p0Count": 0,
-    "p1Count": 7,
-    "p2Count": 6
+    "p1Count": 3,
+    "p2Count": 10
   },
   "cloudRunFindings": [
     {
       "id": "analytics-ingest-cloud-run-request-work",
-      "severity": "P1",
-      "status": "repo_detected_external_billing_observed_operator_context",
+      "severity": "P2",
+      "status": "source_bounded_outbox_external_runtime_evidence_required",
       "detectionState": "repo_detected",
       "evidence": [
         "src/app/api/analytics/ingest/route.ts: force-dynamic analytics ingest route.",
-        "src/app/api/analytics/ingest/route.ts: materializeUserTrackingIndexes runs after guest ingest.",
+        "Guest ingest stores bounded timeline facts and hands user-index projection to the durable outbox/materializer lane; no direct materializeUserTrackingIndexes call remains.",
         "operator_context: billing screenshot showed Cloud Run/App Hosting/Functions costs; not used as source truth."
       ],
-      "nextAction": "Review guest ingest request-path work, cache boundaries, and whether index materialization should move out of the hot request path."
+      "nextAction": "Collect scheduler, shadow-window, and billing evidence before claiming deployed cost or runtime improvement."
     },
     {
       "id": "guest-analytics-flush-cadence",
-      "severity": "P1",
-      "status": "repo_detected_non_priority_2_5s_flush",
+      "severity": "P2",
+      "status": "source_bounded_event_triggered_15s_batch",
       "detectionState": "repo_detected",
       "evidence": [
-        "src/components/Analytics/DeepTracker.tsx: GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 2_500.",
-        "src/components/Analytics/DeepTracker.tsx: page_view, visibility, pagehide, online, and interval can flush."
+        "DeepTracker schedules one 15-second non-priority batch only after an eligible event; it has no recurring setInterval loop.",
+        "Page view, priority, visibility, pagehide, cleanup, and online lifecycle paths retain explicit flush behavior."
       ],
-      "nextAction": "Classify priority vs non-priority analytics cadence and consider longer debounce/batch windows in a behavior-change pass."
+      "nextAction": "Keep runtime request-volume and billing evidence external until measured; retain the source batch budget."
     }
   ],
   "cloudSqlFindings": [
@@ -90,14 +90,14 @@
   "retry4xxFindings": [
     {
       "id": "analytics-ingest-503-retryable",
-      "severity": "P1",
-      "status": "repo_detected_retryable_route_failure",
+      "severity": "P2",
+      "status": "source_classifies_permanent_4xx_and_transient_retry",
       "detectionState": "repo_detected",
       "evidence": [
         "src/app/api/analytics/ingest/route.ts returns { success: false, retryable: true } with status 503 on catch.",
-        "src/components/Analytics/DeepTracker.tsx persists failed queue and can flush again by interval/visibility/online."
+        "The telemetry transport advances permanently rejected 4xx batches and retains only retryable/network failures for a later event or lifecycle flush."
       ],
-      "nextAction": "Classify which analytics failures are retryable and make 4xx/validation failures calm, non-retried, and cheap."
+      "nextAction": "Verify deployed response classifications through bounded runtime evidence; do not infer provider/runtime behavior from source."
     },
     {
       "id": "expected-product-4xx-inventory",
@@ -113,14 +113,14 @@
   "analyticsCadenceFindings": [
     {
       "id": "deeptracker-non-priority-cadence",
-      "severity": "P1",
-      "status": "repo_detected_high_cadence_guest_flush",
+      "severity": "P2",
+      "status": "source_bounded_event_triggered_guest_batch",
       "detectionState": "repo_detected",
       "evidence": [
-        "DeepTracker flush interval is 2.5s while visible.",
-        "Guest queue caps exist, but non-priority analytics cadence is still a Cloud Run/App Hosting cost review target."
+        "DeepTracker uses a one-shot 15-second delay triggered by queued non-priority work and clears it on cleanup.",
+        "Guest queue caps remain source-visible; Cloud Run/App Hosting cost outcome still requires external evidence."
       ],
-      "nextAction": "Move non-priority cadence to a lower-frequency batch policy after source-owner review."
+      "nextAction": "Monitor deployed request volume before changing the source-owned 15-second batch budget."
     },
     {
       "id": "admin-analytics-cold-sources",
@@ -183,8 +183,8 @@
     }
   ],
   "nextFixOrder": [
-    "Separate non-priority analytics cadence from product-critical telemetry and propose a lower-frequency batch policy.",
-    "Classify analytics/client retry failures so 4xx validation paths are calm, cheap, and non-retried.",
+    "Keep the event-triggered non-priority batch and permanent/transient retry classification covered by focused source tests.",
+    "Collect deployed scheduler, request-volume, and billing evidence without treating source readiness as runtime proof.",
     "Owner-review Cloud SQL/Data Connect billing and BigQuery/Gemini provider cost lanes before source changes.",
     "Wire runtime watch-time v2 to media playback only after cost/idempotency route review."
   ]

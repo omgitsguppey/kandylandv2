@@ -112,6 +112,46 @@ export interface MediaUploadDebugLane {
   privacy: "storage_paths_fingerprinted";
 }
 
+export type StorageObjectVersion = {
+  generation: string | number;
+  metageneration: string | number;
+};
+
+function isStorageObjectVersionValue(value: unknown): value is string | number {
+  if (typeof value === "number") {
+    return Number.isSafeInteger(value) && value > 0;
+  }
+  return typeof value === "string" && /^[1-9]\d*$/u.test(value);
+}
+
+export function readStorageObjectVersion(metadata: {
+  generation?: unknown;
+  metageneration?: unknown;
+}): StorageObjectVersion | null {
+  if (
+    !isStorageObjectVersionValue(metadata.generation)
+    || !isStorageObjectVersionValue(metadata.metageneration)
+  ) {
+    return null;
+  }
+  return {
+    generation: metadata.generation,
+    metageneration: metadata.metageneration,
+  };
+}
+
+export function isStoragePreconditionFailure(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const record = error as { code?: unknown; status?: unknown; statusCode?: unknown };
+  return [record.code, record.status, record.statusCode].some((value) => Number(value) === 412);
+}
+
+export function isStorageNotFoundFailure(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const record = error as { code?: unknown; status?: unknown; statusCode?: unknown };
+  return [record.code, record.status, record.statusCode].some((value) => Number(value) === 404);
+}
+
 function cleanText(value: unknown, fallback = "") {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
 }

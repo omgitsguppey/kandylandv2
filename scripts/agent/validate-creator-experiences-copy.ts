@@ -26,6 +26,7 @@ function requireExcludes(source: string, needle: string, label: string) {
 }
 
 const panel = read("src/components/Creators/CreatorExperiencesPanel.tsx");
+const paidGdGuidance = read("src/components/Creators/CreatorPaidGdGuidanceCard.tsx");
 const profileClient = read("src/app/creators/[username]/CreatorProfileClient.tsx");
 const creatorExperiences = read("src/lib/creator-experiences.ts");
 const telemetryCatalog = read("src/lib/telemetry-catalog.ts");
@@ -46,6 +47,9 @@ const packageJson = read("package.json");
   "Send Request",
   "Book Live Time",
   "Get more GumDrops",
+  "No private thread yet. Start with a simple message.",
+  "Pick a time",
+  "Add Gum Drops",
 ].forEach((needle) => requireExcludes(panel, needle, "CreatorExperiencesPanel old copy"));
 
 [
@@ -54,17 +58,20 @@ const packageJson = read("package.json");
   "Subscriber chat perks when enabled",
   "Preferred booking offers when available",
   "Send a private message without getting lost in comments.",
-  "No private thread yet. Start with a simple message.",
+  "No private thread yet. Follow {creatorGuidanceName} and start with a simple message.",
   "Ask for something specific, then let the creator decide what fits.",
   "Describe what you want, the vibe, and any details the creator should know.",
   "Reserve real time before the window closes.",
-  "Pick a time",
+  "Available slots",
   "Start Fan Pass",
   "Open private chat",
   "Send custom request",
   "Book live time",
-  "Add Gum Drops",
 ].forEach((needle) => requireIncludes(panel, needle, "CreatorExperiencesPanel approved copy"));
+
+requireIncludes(panel, "CreatorPaidGdGuidanceCard", "CreatorExperiencesPanel paid-GD guidance owner");
+requireIncludes(paidGdGuidance, "Open Wallet", "CreatorPaidGdGuidanceCard approved wallet CTA");
+requireIncludes(paidGdGuidance, 'Add {deficit > 0 ? formatCompactGd(deficit) : "more"} GD', "CreatorPaidGdGuidanceCard approved deficit copy");
 
 [
   "rounded-[1.4rem]",

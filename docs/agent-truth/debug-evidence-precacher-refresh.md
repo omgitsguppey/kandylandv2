@@ -1,11 +1,11 @@
 # Debug Evidence Precatcher Refresh
 
-Generated: 2026-06-21T19:17:52.690Z
+Generated: 2026-07-14T07:02:42.019Z
 
 ```json
 {
-  "generatedAtUtc": "2026-06-21T19:17:52.641Z",
-  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+  "generatedAtUtc": "2026-07-14T07:02:41.789Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "debugEvidenceAgeBefore": 443.4,
   "debugEvidenceAgeAfter": 0,
   "precatcherAgeBefore": 443.4,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T05:22:10.321Z",
+  "generatedAt": "2026-07-14T14:58:57.637Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -38,17 +38,17 @@
   ],
   "allowedFiles": [
     "scripts/agent/build-agent-indexes.ts",
+    "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "scripts/agent/shared.ts",
+    "scripts/agent/sync-sql.ts",
+    "scripts/agent/verification-selector.ts",
     "scripts/agent/build-task-context.ts",
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/collect-signal-source-graph.ts",
     "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/extract-workflow.ts",
-    "scripts/agent/run-evals.ts",
-    "scripts/agent/summarize-dependency-graph.ts",
     "src/lib/gumdrop-economics.ts",
     "src/lib/gumdrop-ledger.ts",
     "src/lib/server/paypal.ts"
@@ -63,26 +63,26 @@
   "doctrineContextPack": {
     "hot": [
       "scripts/agent/build-agent-indexes.ts",
+      "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
       "scripts/agent/shared.ts",
-      "scripts/agent/build-task-context.ts",
-      "scripts/agent/build-ui-surface-coverage.ts",
-      "scripts/agent/check-agent-context.ts"
+      "scripts/agent/sync-sql.ts",
+      "scripts/agent/verification-selector.ts"
     ],
     "warm": [
+      "scripts/agent/build-task-context.ts",
+      "scripts/agent/build-ui-surface-coverage.ts",
+      "scripts/agent/check-agent-context.ts",
       "scripts/agent/classify-repo-files.ts",
-      "scripts/agent/extract-canonical-helpers.ts",
-      "scripts/agent/extract-governance.ts",
-      "scripts/agent/extract-runtime-observability.ts",
-      "scripts/agent/extract-workflow.ts"
+      "scripts/agent/collect-signal-source-graph.ts"
     ],
     "cold": [
       "FULL_SCALE_CODEBASE_AUDIT.md",
       "REPO_MEMORY_LEDGER.md",
       "EVERY_FILE_FUNCTION_CHECKLIST.md",
-      "agent/state/repo-doctrine-reset.generated.json",
-      "docs/agent-truth/current-operator-doctrine.md",
-      "npx vitest run tests/unit/repo-doctrine-reset.spec.ts",
-      "scripts/agent/validate-repo-doctrine-reset.ts"
+      ".Jules/**",
+      ".jules/**",
+      "agent/context/validator-authority.json",
+      "agent/prompts/"
     ]
   },
   "likelyDuplicateLogicSearches": [
@@ -118,58 +118,59 @@
   "scopeWhy": "Touches repo-tooling, governance, or multiple broad-signoff surfaces.",
   "likelySurfaceCategory": "repo_scripts",
   "likelySurfaces": [
-    "repo_scripts"
+    "repo_scripts",
+    "shared_runtime"
   ],
   "hotContextFiles": [
     "scripts/agent/build-agent-indexes.ts",
+    "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "scripts/agent/shared.ts",
-    "scripts/agent/build-task-context.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
-    "scripts/agent/check-agent-context.ts"
+    "scripts/agent/sync-sql.ts",
+    "scripts/agent/verification-selector.ts"
   ],
   "warmContextFiles": [
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
+    "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
-    "scripts/agent/extract-canonical-helpers.ts",
-    "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/extract-workflow.ts"
+    "scripts/agent/collect-signal-source-graph.ts"
   ],
   "coldContextFiles": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "REPO_MEMORY_LEDGER.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md",
-    "agent/state/repo-doctrine-reset.generated.json",
-    "docs/agent-truth/current-operator-doctrine.md",
-    "npx vitest run tests/unit/repo-doctrine-reset.spec.ts",
-    "scripts/agent/validate-repo-doctrine-reset.ts"
+    ".Jules/**",
+    ".jules/**",
+    "agent/context/validator-authority.json",
+    "agent/prompts/"
   ],
   "likelyTouchedFiles": [
     "scripts/agent/build-agent-indexes.ts",
+    "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "scripts/agent/shared.ts",
+    "scripts/agent/sync-sql.ts",
+    "scripts/agent/verification-selector.ts",
     "scripts/agent/build-task-context.ts",
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/collect-signal-source-graph.ts",
     "scripts/agent/extract-canonical-helpers.ts",
-    "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/extract-workflow.ts",
-    "scripts/agent/run-evals.ts",
-    "scripts/agent/summarize-dependency-graph.ts"
+    "scripts/agent/extract-governance.ts"
   ],
   "likelyAdjacentFiles": [
-    "scripts/agent/sync-sql.ts",
-    "scripts/agent/build-compact-agent-context.ts",
-    "scripts/agent/build-telemetry-event-manifest.ts",
-    "scripts/agent/build-ui-runtime-audit.ts",
-    "scripts/agent/check-ui-surface-coverage.ts",
-    "scripts/agent/collect-signal-source-graph.ts",
-    "scripts/agent/collect-signal-telemetry-graph.ts",
-    "scripts/agent/fast-start.ts",
+    "scripts/agent/extract-runtime-observability.ts",
+    "scripts/agent/extract-workflow.ts",
+    "scripts/agent/summarize-dependency-graph.ts",
+    "scripts/agent/run-evals.ts",
+    "tests/unit/repo-inventory-stable-id.spec.ts",
     "scripts/agent/rank-signal-problems.ts",
-    "scripts/agent/rank-signal-telemetry-disconnects.ts",
-    "scripts/agent/scan-codebase-junk.ts",
-    "scripts/agent/score-4xx-cost-guardrails.ts"
+    "scripts/agent/score-orphaned-logic.ts",
+    "scripts/agent/validate-evidence-freshness-index.ts",
+    "scripts/agent/validate-generated-artifact-size-policy.ts",
+    "scripts/agent/validate-generated-report-authority.ts",
+    "scripts/agent/validate-generated-report-schema-contract.ts",
+    "scripts/agent/validate-phase-one-lock.ts"
   ],
   "likelyAdjacentHelpers": [
     "src/lib/gumdrop-economics.ts",
@@ -189,6 +190,7 @@
   ],
   "relevantKnownPitfalls": [
     "diagnostics_serialization_crash",
+    "consumed_response_stream_fallback",
     "generated_artifact_cleanup_miss",
     "sidecar_truth_confusion",
     "legacy_queue_adapter_usage",
@@ -199,6 +201,7 @@
     "npm run check:agent-context",
     "npm run check:continuity",
     "npm run trace:adjacent -- <path>",
+    "npm run test:contracts",
     "npm run check:architecture",
     "npm run check:inventory"
   ],
@@ -206,9 +209,9 @@
   "fastVerificationCommands": [
     "npm run typecheck",
     "npm run agent:test -- scripts/agent/build-agent-indexes.ts",
+    "npm run agent:test -- src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "npm run agent:test -- scripts/agent/shared.ts",
-    "npm run agent:test -- scripts/agent/build-task-context.ts",
-    "npm run agent:test -- scripts/agent/build-ui-surface-coverage.ts",
+    "npm run agent:test -- scripts/agent/sync-sql.ts",
     "npm run check:agent-context"
   ],
   "signoffVerificationCommands": [
@@ -237,20 +240,12 @@
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
     "Mode resolved as audit.",
-    "Ranking considered 4906 repo files and 20 canonical helper entries.",
+    "Ranking considered 4914 repo files and 20 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
   "do_not_read_unless_needed": [],
   "excludedContext": [
-    {
-      "path": "agent/state/repo-doctrine-reset.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
     {
       "path": "REPO_MEMORY_LEDGER.md",
       "why_not_selected": "evidence_only"
@@ -282,34 +277,60 @@
     {
       "path": "agent/state/bug-report-reward-flow.generated.json",
       "why_not_selected": "generated_penalty"
+    },
+    {
+      "path": "agent/state/bug-report-truth-source-cleanup.generated.json",
+      "why_not_selected": "generated_penalty"
+    },
+    {
+      "path": "agent/state/bug-report-truth-terminal-state.generated.json",
+      "why_not_selected": "generated_penalty"
     }
   ],
   "do_not_touch_without_broad_signoff": [
     "scripts/agent/build-agent-indexes.ts",
+    "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "scripts/agent/shared.ts",
+    "scripts/agent/sync-sql.ts",
+    "scripts/agent/verification-selector.ts",
     "scripts/agent/build-task-context.ts",
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/collect-signal-source-graph.ts",
     "scripts/agent/extract-canonical-helpers.ts",
-    "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/extract-workflow.ts",
-    "scripts/agent/run-evals.ts",
-    "scripts/agent/summarize-dependency-graph.ts"
+    "scripts/agent/extract-governance.ts"
   ],
   "rankingEvidence": [
     {
       "stable_id": "file__scripts__agent__build-agent-indexes-ts",
       "path": "scripts/agent/build-agent-indexes.ts",
-      "score": 146,
-      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, verification_lane_match",
+      "score": 160,
+      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, verification_lane_match",
       "weighted_components": [
         "explicit_file_hint",
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
+        "recent_pass_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__agent-governance__generated-reports__generated-report-contract-ts",
+      "path": "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
+      "score": 148,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "recent_pass_match",
+        "pitfall_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
@@ -317,16 +338,49 @@
     {
       "stable_id": "file__scripts__agent__shared-ts",
       "path": "scripts/agent/shared.ts",
-      "score": 128,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match, high_inbound_bonus",
+      "score": 142,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match, high_inbound_bonus",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
         "adjacency_match",
+        "recent_pass_match",
         "verification_lane_match",
         "high_inbound_bonus"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__sync-sql-ts",
+      "path": "scripts/agent/sync-sql.ts",
+      "score": 136,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "recent_pass_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__verification-selector-ts",
+      "path": "scripts/agent/verification-selector.ts",
+      "score": 136,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "recent_pass_match",
+        "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
@@ -391,6 +445,21 @@
       "freshness_state": "fresh"
     },
     {
+      "stable_id": "file__scripts__agent__collect-signal-source-graph-ts",
+      "path": "scripts/agent/collect-signal-source-graph.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
       "stable_id": "file__scripts__agent__extract-canonical-helpers-ts",
       "path": "scripts/agent/extract-canonical-helpers.ts",
       "score": 122,
@@ -408,66 +477,6 @@
     {
       "stable_id": "file__scripts__agent__extract-governance-ts",
       "path": "scripts/agent/extract-governance.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__extract-runtime-observability-ts",
-      "path": "scripts/agent/extract-runtime-observability.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__extract-workflow-ts",
-      "path": "scripts/agent/extract-workflow.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__run-evals-ts",
-      "path": "scripts/agent/run-evals.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__summarize-dependency-graph-ts",
-      "path": "scripts/agent/summarize-dependency-graph.ts",
       "score": 122,
       "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [
@@ -512,8 +521,8 @@
       "criticality": "high",
       "hydration_mode": "static",
       "coverage_notes": [
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
-        "No direct runtime dependency imports detected.",
         "Mapped to app_routes."
       ]
     },
@@ -522,6 +531,7 @@
       "criticality": "high",
       "hydration_mode": "static",
       "coverage_notes": [
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -531,6 +541,7 @@
       "criticality": "high",
       "hydration_mode": "auth_hydrated",
       "coverage_notes": [
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -540,6 +551,7 @@
       "criticality": "high",
       "hydration_mode": "auth_hydrated",
       "coverage_notes": [
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
@@ -549,6 +561,7 @@
       "criticality": "high",
       "hydration_mode": "auth_hydrated",
       "coverage_notes": [
+        "Admin surface source readiness is owned by route and selector coverage; authenticated browser smoke is optional reproduction only.",
         "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]

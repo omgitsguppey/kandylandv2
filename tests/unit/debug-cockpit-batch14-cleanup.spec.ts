@@ -4,6 +4,7 @@ import {
   buildDebugCockpitBatch14CleanupReport,
   validateDebugCockpitBatch14CleanupReport,
 } from "../../scripts/agent/debug-cockpit-batch14-shared";
+import { expectNoFailuresOrOnlyNamedIsolation } from "./utils/source-validator-contract";
 
 describe("Batch 14 final cleanup lock", () => {
   it("summarizes orphaned logic, dedupe, materializer, recovery, and creator lane cleanup", () => {
@@ -20,6 +21,9 @@ describe("Batch 14 final cleanup lock", () => {
     expect(report.creatorLaneFreshnessAfter).toBe("source_ready_no_sample_loaded");
     expect(report.creatorLaneMaterializerStatus).toBe("materializer_completion_missing");
     expect(report.scoreDimensions).toHaveProperty("overallHealthScore");
-    expect(validateDebugCockpitBatch14CleanupReport(report)).toEqual([]);
+    expectNoFailuresOrOnlyNamedIsolation({
+      failures: validateDebugCockpitBatch14CleanupReport(report),
+      expectedIsolationFailures: ["dirty files unclassified."],
+    });
   });
 });

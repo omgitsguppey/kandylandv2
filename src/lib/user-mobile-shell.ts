@@ -9,6 +9,7 @@ export const USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT = `calc(env(safe-area-inset-to
 export const USER_MOBILE_CHAT_CONTROL_GAP = "0.875rem";
 export const USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT = USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT;
 export const USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET = `var(--user-mobile-chat-bottom-reserved-height, ${USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT})`;
+export const USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET = `calc(${USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET} + 0.5rem)`;
 export const USER_MOBILE_CHAT_CONTROL_BOTTOM_OFFSET = USER_MOBILE_CHAT_CONTROL_GAP;
 export const USER_MOBILE_CHAT_VIEWPORT_HEIGHT = "var(--chat-visual-viewport-height, 100dvh)";
 export const USER_MOBILE_CHAT_ANDROID_PWA_VISUAL_HEIGHT = "var(--kd-android-pwa-visual-height, var(--chat-visual-viewport-height, 100dvh))";
@@ -27,6 +28,10 @@ export const USER_MOBILE_CHAT_IOS_PWA_CHAT_BOTTOM_GAP = "var(--kd-ios-pwa-chat-b
 export const USER_MOBILE_CHAT_IOS_PWA_SHELL_LIFT = "var(--kd-ios-pwa-shell-lift, 0px)";
 export const USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT =
     `calc(${USER_MOBILE_CHAT_IOS_PWA_BOTTOM_NAV_HEIGHT} + ${USER_MOBILE_CHAT_IOS_PWA_SAFE_BOTTOM} + ${USER_MOBILE_CHAT_IOS_PWA_CHAT_BOTTOM_GAP})`;
+export const USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_IOS_PWA_BOTTOM_OFFSET =
+    `calc(var(--kd-ios-pwa-bottom-nav-height, 56px) + ${USER_MOBILE_CHAT_IOS_PWA_SAFE_BOTTOM} + 0.625rem)`;
+export const USER_MOBILE_CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING =
+    `calc(1rem + ${USER_MOBILE_CHAT_IOS_PWA_SAFE_BOTTOM})`;
 export const USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT =
     `calc(${USER_MOBILE_CHAT_IOS_PWA_VISUAL_HEIGHT} - var(--root-shell-top-spacing, ${USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT}) - ${USER_MOBILE_CHAT_IOS_PWA_SHELL_LIFT})`;
 export const CHAT_LIST_CONTROL_HEIGHT = "3.25rem";

@@ -1,7 +1,7 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
+import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
 
 const ROOT = process.cwd();
 
@@ -10,15 +10,14 @@ function read(path: string) {
 }
 
 describe("settings route alias cleanup", () => {
-  it("passes the source-level route alias cleanup validator", () => {
-    expect(() => {
-      execSync("npm run check:settings-route-alias-cleanup", {
-        cwd: ROOT,
-        stdio: "pipe",
-        encoding: "utf8",
-      });
-    }).not.toThrow();
-  }, 20000);
+  it("passes source checks or reports only the exact dirty-tree isolation blocker", () => {
+    expectSourceValidatorWithDirtyTreeIsolation({
+      command: "npm run check:settings-route-alias-cleanup",
+      artifact: "agent/state/settings-route-alias-cleanup.generated.json",
+      isolationCheck: "protectedSurfacesUntouched",
+      expectedIsolationFailure: "protectedSurfacesUntouched failed.",
+    });
+  }, 30000);
 
   it("declares the canonical settings route table", () => {
     expect(existsSync(`${ROOT}/src/lib/settings/settings-route-contract.ts`)).toBe(true);

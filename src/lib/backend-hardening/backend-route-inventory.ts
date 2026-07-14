@@ -142,7 +142,12 @@ export function classifyOwnerSystem(routePath: string): BackendOwnerSystem {
   if (text.includes("media") || text.includes("attachment") || text.includes("storage")) return "media";
   if (text.includes("search") || text.includes("discover")) return "search";
   if (text.includes("support") || text.includes("bug-report") || text.includes("delete") || text.includes("data-export")) return "support";
-  if (text.includes("analytics") || text.includes("behavior")) return "analytics";
+  if (
+    text.includes("analytics")
+    || text.includes("behavior")
+    || text.includes("user-index-materializer")
+    || text === "functions:scheduled-http-client"
+  ) return "analytics";
   if (text.includes("debug") || text.includes("diagnostic") || text.includes("evidence") || text.includes("health")) return "debug";
   if (text.includes("cost") || text.includes("budget")) return "cost";
   if (text.includes("auth") || text.includes("session") || text.includes("register") || text.includes("profile") || text.includes("user")) return "auth";

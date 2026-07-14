@@ -1,8 +1,8 @@
 # Drop Watch Unlock Math
 
-Generated: 2026-05-26T10:09:49.464Z
-Current head: bc44577799249d76f1be41c6f1b94ba533d260f1
-Status: pass
+Generated: 2026-07-14T03:42:10.433Z
+Current head: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
+Status: fail
 
 ## Contract
 
@@ -21,52 +21,76 @@ Status: pass
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
+- FULL_SCALE_CODEBASE_AUDIT.md: unsafe_unknown
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/drop-watch-time-accuracy.generated.json: stale_generated_artifact_to_regenerate
+- agent/index/ui-surface-coverage.json: unsafe_unknown
+- agent/state/codebase-hardening.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-4xx-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-manager-mobile-refinement.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-submit-repair.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-workflow-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/device-layout-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/device-ui-dry-audit.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/drop-watch-unlock-math.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/drop-watch-time-accuracy.md: stale_generated_artifact_to_regenerate
+- agent/state/event-catalog-telemetry-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/evidence-freshness-index.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/final-release-exit-readiness-packet.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/frontend-component-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/frontend-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/guest-user-analytics-cutover.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/release-rollback-incident-readiness.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/speed-security-hardening.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/unlock-transaction-source-metadata.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-drop-4xx-policy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-drop-submit-repair.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-drop-workflow-contract.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/drop-watch-unlock-math.md: current_generated_artifact_to_commit
-- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-drop-watch-time-accuracy.ts: validator_artifact_expected
-- scripts/agent/validate-drop-watch-unlock-math.ts: validator_artifact_expected
+- docs/agent-truth/evidence-freshness-index.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/final-release-exit-readiness-packet.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/frontend-component-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/frontend-gut-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/release-rollback-incident-readiness.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/unlock-transaction-source-metadata.md: stale_generated_artifact_to_regenerate
+- scripts/agent/score-codebase-hardening.ts: unsafe_unknown
+- scripts/agent/score-speed-security-hardening.ts: unsafe_unknown
+- scripts/agent/validate-admin-user-behavior-truth.ts: unsafe_unknown
+- scripts/agent/validate-event-fact-truth.ts: unsafe_unknown
+- scripts/agent/validate-guest-user-analytics-cutover.ts: unsafe_unknown
+- scripts/agent/validate-server-unlock-telemetry-emission.ts: unsafe_unknown
 - scripts/agent/validate-unlock-telemetry-truth.ts: validator_artifact_expected
+- scripts/local-exe/KandyDropsLauncher.cs: unsafe_unknown
+- scripts/local-exe/build-local-exes.ps1: unsafe_unknown
+- src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx: unsafe_unknown
+- src/app/admin/user/[userId]/page.tsx: unsafe_unknown
+- src/app/api/admin/creator-account-controls/route.ts: unsafe_unknown
+- src/app/api/analytics/ingest-identified/route.ts: unsafe_unknown
+- src/app/api/analytics/ingest/route.ts: unsafe_unknown
 - src/app/api/drops/unlock/route.ts: unlock_route_event_separation_expected
-- src/app/api/viewer/watch-session/route.ts: watch_session_route_guard_expected
-- src/lib/analytics/drop-watch-time-engine.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/behavioral/event-fact-contract.ts: real_source_change_needs_review
-- src/lib/behavioral/event-fact-normalizer.ts: real_source_change_needs_review
+- src/app/api/paypal/capture/route.ts: unsafe_unknown
+- src/app/api/paypal/create/route.ts: unsafe_unknown
+- src/components/Analytics/DeepTracker.tsx: unsafe_unknown
+- src/components/Drops/LockedDropPreviewView.tsx: unsafe_unknown
+- src/lib/admin-analytics-region-demand.ts: unsafe_unknown
+- src/lib/analytics/ingest-contract.ts: unsafe_unknown
 - src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
-- src/lib/commerce/unlock-watch-parity-contract.ts: real_source_change_needs_review
-- src/lib/math/drop-watch-unlock-math.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/drop-watch-time-accuracy.spec.ts: test_artifact_expected
-- tests/unit/drop-watch-unlock-math.spec.ts: test_artifact_expected
-- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
+- src/lib/server/paypal.ts: unsafe_unknown
+- src/lib/telemetry.ts: unsafe_unknown
+- tests/unit/admin-analytics-region-demand.spec.ts: unsafe_unknown
+- tests/unit/analytics-ingest-identified-route.spec.ts: unsafe_unknown
+- tests/unit/analytics-ingest-route.spec.ts: unsafe_unknown
+- tests/unit/content-protection-truth.spec.ts: unsafe_unknown
+- tests/unit/drops-unlock-route.spec.ts: unsafe_unknown
+- tests/unit/event-fact-truth.spec.ts: unsafe_unknown
+- tests/unit/local-exe-launcher.spec.ts: unsafe_unknown
+- tests/unit/paypal-capture-route.spec.ts: unsafe_unknown
+- tests/unit/server-unlock-telemetry-emission.spec.ts: unsafe_unknown
+- tests/unit/speed-security-hardening.spec.ts: unsafe_unknown
+- tests/unit/telemetry.spec.ts: unsafe_unknown
 
 ## Open PR Classification
 
-- #302 Improve onboarding friction visibility and technical rescue signals: onboarding_telemetry_external_review_required
-- #301 Reduce doctrine drift and banned-pattern reintroduction: doctrine_governance_external_review_required
-- #300 Reduce monolith file risk and clarify responsibility boundaries: architecture_refactor_external_review_required
-- #299 chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates: dependency_update_external_review_required
-- #298 chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1: dependency_update_external_review_required
-- #297 chore(deps): bump knip from 5.88.1 to 6.14.2: dependency_update_external_review_required
-- #296 chore(deps): bump syncpack from 14.3.0 to 15.3.1: dependency_update_external_review_required
-- #295 chore(deps): bump puppeteer from 24.40.0 to 25.0.4: dependency_update_external_review_required
-- #294 chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates: dependency_update_external_review_required
-- #293 Sentinel: [High] Fix insecure Math.random() usage for ID generation: security_patch_external_review_required
-- #292 Bolt: Replace array `.find()` with Map lookup in debug route: performance_patch_external_review_required
-- #291 Palette: Add accessible loading states to Creator Experiences Panel buttons: accessibility_patch_external_review_required
+- none
 
 ## Validation Failures
 
-- none
+- dirty files are unclassified.

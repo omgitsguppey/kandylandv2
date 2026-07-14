@@ -7,18 +7,24 @@ const mockState = vi.hoisted(() => ({
   authFetch: vi.fn(),
   submitBugReport: vi.fn(),
   trackEvent: vi.fn(),
+  authUser: { uid: "creator_1", displayName: "Jessica" },
   userProfile: {
     uid: "creator_1",
     role: "creator",
     username: "jessica",
     displayName: "Jessica",
   },
-  viewAsState: null as null | { adminViewingAsUserId: string; adminViewingAsDisplayName?: string },
+  viewAsState: null as null | {
+    adminViewingAsUserId: string;
+    adminViewingAsDisplayName?: string;
+    viewAsActorUid?: string;
+    simulationStartedAt?: number;
+  },
 }));
 
 vi.mock("@/context/AuthContext", () => ({
   useAuth: () => ({
-    user: { uid: "creator_1", displayName: "Jessica" },
+    user: mockState.authUser,
   }),
   useUserProfile: () => ({
     userProfile: mockState.userProfile,
@@ -187,6 +193,7 @@ describe("CreatorDashboardSettingsHub", () => {
     mockState.submitBugReport.mockReset();
     mockState.trackEvent.mockReset();
     mockState.viewAsState = null;
+    mockState.authUser = { uid: "creator_1", displayName: "Jessica" };
     mockState.userProfile = {
       uid: "creator_1",
       role: "creator",
@@ -247,6 +254,10 @@ describe("CreatorDashboardSettingsHub", () => {
     expect(container.textContent).not.toContain("Internal server error");
     expect(container.querySelector("[data-human-error-key=\"dashboard_source_unavailable\"]")).toBeTruthy();
     expect(container.querySelector("[data-human-error-surface=\"creator_dashboard\"]")).toBeTruthy();
+    expect(container.querySelector("[data-creator-settings-source-state=\"unavailable\"]")).toBeTruthy();
+    expect(container.querySelector("[data-creator-section-key]")).toBeNull();
+    expect(container.querySelector("[data-creator-active-manager]")).toBeNull();
+    expect(container.textContent).not.toContain("Creator Settings need setup");
     expect(screen.getByRole("button", { name: /send bug/i })).toBeTruthy();
   });
 
@@ -374,46 +385,52 @@ describe("CreatorDashboardSettingsHub", () => {
   });
 
   it("renders compact creator settings control-plane sections and saves creator-safe settings", async () => {
+    const initialResponse = {
+      ok: true,
+      json: async () => ({
+        success: true,
+        creatorSettings: {
+          broadcastsEnabled: true,
+          subscriptionsEnabled: true,
+          messagingEnabled: true,
+          customRequestsEnabled: true,
+          bookingsEnabled: true,
+          availabilityWindows: [{ day: "mon" }],
+          subscriptionPriceGd: 500,
+        },
+        settings: buildControlPlane(),
+        settingsCompletion: buildCompletion(),
+        missingSetupItems: [],
+        creatorRestrictions: {},
+        stats: {
+          earningsGd: 1234,
+          pendingCashoutGd: 250,
+          followerCount: 17,
+          profileViewsCount: 88,
+          liveDropsCount: 4,
+          activeSubscribers: 3,
+          openRequests: 2,
+          bookedCalls: 1,
+        },
+        statsEvidence: buildStatsEvidence(),
+      }),
+    };
+    type SaveResponse = {
+      ok: boolean;
+      json: () => Promise<{
+        success: boolean;
+        settings: ReturnType<typeof buildControlPlane>;
+        settingsCompletion: ReturnType<typeof buildCompletion>;
+        missingSetupItems: string[];
+      }>;
+    };
+    let resolveSaveResponse!: (value: SaveResponse) => void;
+    const saveResponse = new Promise<SaveResponse>((resolve) => {
+      resolveSaveResponse = resolve;
+    });
     mockState.authFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          creatorSettings: {
-            broadcastsEnabled: true,
-            subscriptionsEnabled: true,
-            messagingEnabled: true,
-            customRequestsEnabled: true,
-            bookingsEnabled: true,
-            availabilityWindows: [{ day: "mon" }],
-            subscriptionPriceGd: 500,
-          },
-          settings: buildControlPlane(),
-          settingsCompletion: buildCompletion(),
-          missingSetupItems: [],
-          creatorRestrictions: {},
-          stats: {
-            earningsGd: 1234,
-            pendingCashoutGd: 250,
-            followerCount: 17,
-            profileViewsCount: 88,
-            liveDropsCount: 4,
-            activeSubscribers: 3,
-            openRequests: 2,
-            bookedCalls: 1,
-          },
-          statsEvidence: buildStatsEvidence(),
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          settings: buildControlPlane({ fanPassPriceGd: 750 }),
-          settingsCompletion: buildCompletion(),
-          missingSetupItems: [],
-        }),
-      });
+      .mockResolvedValueOnce(initialResponse)
+      .mockReturnValueOnce(saveResponse);
 
     const { container } = render(<CreatorDashboardSettingsHub />);
 
@@ -429,17 +446,288 @@ describe("CreatorDashboardSettingsHub", () => {
     fireEvent.change(screen.getByLabelText("Fan Pass price GD"), { target: { value: "750" } });
     fireEvent.click(screen.getByRole("button", { name: /save fan pass/i }));
 
+    const busyButton = screen.getByRole("button", { name: /saving/i });
+    expect(busyButton).toHaveAttribute("aria-busy", "true");
+    expect(busyButton.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    const profileSaveButton = screen.getByRole("button", { name: /save profile/i });
+    expect(profileSaveButton).toBeDisabled();
+    fireEvent.click(profileSaveButton);
+    expect(mockState.authFetch).toHaveBeenCalledTimes(2);
+    fireEvent.change(screen.getByLabelText("Welcome text"), { target: { value: "Typed while saving" } });
+
+    resolveSaveResponse({
+      ok: true,
+      json: async () => ({
+        success: true,
+        settings: buildControlPlane({ fanPassPriceGd: 750 }),
+        settingsCompletion: buildCompletion(),
+        missingSetupItems: [],
+      }),
+    });
+
     await waitFor(() => {
       expect(mockState.authFetch).toHaveBeenLastCalledWith("/api/creator/settings", expect.objectContaining({
         method: "PUT",
       }));
+      expect(screen.getByRole("button", { name: /save fan pass/i })).toHaveAttribute("aria-busy", "false");
     });
+    expect(screen.getByLabelText("Welcome text")).toHaveValue("Typed while saving");
     const savePayload = JSON.parse(mockState.authFetch.mock.calls[1][1].body);
     expect(savePayload.settings).toMatchObject({
       fanPassPriceGd: 750,
       fanPassEnabled: true,
     });
     expect(container.textContent).not.toMatch(/publicDiscovery|rotationEligibility|approve drop/i);
+  });
+
+  it("saves only the selected settings section and preserves other unsaved edits", async () => {
+    const initialBody = {
+      success: true,
+      creatorSettings: {
+        broadcastsEnabled: true,
+        subscriptionsEnabled: true,
+        messagingEnabled: true,
+        customRequestsEnabled: true,
+        bookingsEnabled: true,
+        availabilityWindows: [{ day: "mon" }],
+        subscriptionPriceGd: 500,
+      },
+      settings: buildControlPlane(),
+      settingsCompletion: buildCompletion(),
+      creatorRestrictions: {},
+      stats: {
+        earningsGd: 1234,
+        pendingCashoutGd: 250,
+        followerCount: 17,
+        profileViewsCount: 88,
+        liveDropsCount: 4,
+        activeSubscribers: 3,
+        openRequests: 2,
+        bookedCalls: 1,
+      },
+      statsEvidence: buildStatsEvidence(),
+    };
+    mockState.authFetch
+      .mockResolvedValueOnce({ ok: true, json: async () => initialBody })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          settings: buildControlPlane({ profileDisplayName: "Updated profile", fanPassPriceGd: 500 }),
+          settingsCompletion: buildCompletion(),
+        }),
+      });
+
+    render(<CreatorDashboardSettingsHub />);
+    await waitFor(() => {
+      expect(screen.getByLabelText("Display name")).toHaveValue("Jessica");
+    });
+    fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Updated profile" } });
+    fireEvent.change(screen.getByLabelText("Fan Pass price GD"), { target: { value: "750" } });
+    fireEvent.click(screen.getByRole("button", { name: /save profile/i }));
+
+    await waitFor(() => {
+      expect(mockState.authFetch).toHaveBeenCalledTimes(2);
+    });
+    const savePayload = JSON.parse(mockState.authFetch.mock.calls[1][1].body);
+    expect(savePayload.settings).toEqual({
+      profileDisplayName: "Updated profile",
+      bio: "Creator bio",
+      profilePhotoURL: "",
+    });
+    expect(savePayload.settings).not.toHaveProperty("fanPassEnabled");
+    expect(savePayload.settings).not.toHaveProperty("fanPassPriceGd");
+    await waitFor(() => {
+      expect(screen.getByLabelText("Fan Pass price GD")).toHaveValue(750);
+    });
+  });
+
+  it("keeps stale save results and finally blocks from crossing creator generations", async () => {
+    type SettingsResponse = {
+      ok: boolean;
+      json: () => Promise<Record<string, unknown>>;
+    };
+    const responseBody = (displayName: string) => ({
+      success: true,
+      creatorSettings: {
+        broadcastsEnabled: true,
+        subscriptionsEnabled: true,
+        messagingEnabled: true,
+        customRequestsEnabled: true,
+        bookingsEnabled: true,
+        availabilityWindows: [{ day: "mon" }],
+        subscriptionPriceGd: 500,
+      },
+      settings: buildControlPlane({ profileDisplayName: displayName }),
+      settingsCompletion: buildCompletion(),
+      missingSetupItems: [],
+      creatorRestrictions: {},
+      stats: {
+        earningsGd: 1234,
+        pendingCashoutGd: 250,
+        followerCount: 17,
+        profileViewsCount: 88,
+        liveDropsCount: 4,
+        activeSubscribers: 3,
+        openRequests: 2,
+        bookedCalls: 1,
+      },
+      statsEvidence: buildStatsEvidence(),
+    });
+    let resolveFirstSave!: (value: SettingsResponse) => void;
+    let resolveSecondSave!: (value: SettingsResponse) => void;
+    const firstSave = new Promise<SettingsResponse>((resolve) => {
+      resolveFirstSave = resolve;
+    });
+    const secondSave = new Promise<SettingsResponse>((resolve) => {
+      resolveSecondSave = resolve;
+    });
+    let saveCount = 0;
+    mockState.authFetch.mockImplementation((url: string, init?: { method?: string }) => {
+      if (init?.method === "PUT") {
+        saveCount += 1;
+        return saveCount === 1 ? firstSave : secondSave;
+      }
+      const displayName = mockState.userProfile.uid === "creator_2" ? "Creator Two" : "Creator One";
+      return Promise.resolve({
+        ok: true,
+        json: async () => responseBody(displayName),
+      });
+    });
+
+    const { container, rerender } = render(<CreatorDashboardSettingsHub />);
+    await waitFor(() => {
+      expect(screen.getByLabelText("Display name")).toHaveValue("Creator One");
+    });
+    fireEvent.click(screen.getByText("Requests"));
+    expect(screen.getByTestId("requests-manager")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /save profile/i }));
+    expect(screen.getByRole("button", { name: /saving/i })).toHaveAttribute("aria-busy", "true");
+
+    mockState.authUser = { uid: "creator_2", displayName: "Creator Two" };
+    mockState.userProfile = {
+      uid: "creator_2",
+      role: "creator",
+      username: "creator-two",
+      displayName: "Creator Two",
+    };
+    rerender(<CreatorDashboardSettingsHub />);
+    expect(screen.queryByLabelText("Display name")).toBeNull();
+    expect(screen.queryByTestId("requests-manager")).toBeNull();
+    expect(container.textContent).not.toContain("Creator One");
+    expect(container.querySelector("[data-mobile-skeleton=\"creator-settings-route\"]")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByLabelText("Display name")).toHaveValue("Creator Two");
+      expect(screen.getByRole("button", { name: /save profile/i })).toHaveAttribute("aria-busy", "false");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /save profile/i }));
+    expect(screen.getByRole("button", { name: /saving/i })).toHaveAttribute("aria-busy", "true");
+    resolveFirstSave({
+      ok: true,
+      json: async () => responseBody("Stale Creator One"),
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(screen.getByLabelText("Display name")).toHaveValue("Creator Two");
+    expect(screen.getByRole("button", { name: /saving/i })).toHaveAttribute("aria-busy", "true");
+
+    resolveSecondSave({
+      ok: true,
+      json: async () => responseBody("Creator Two"),
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /save profile/i })).toHaveAttribute("aria-busy", "false");
+    });
+    expect(screen.getByLabelText("Display name")).toHaveValue("Creator Two");
+  });
+
+  it("hides the prior creator while an admin projection switches targets", async () => {
+    type SettingsResponse = {
+      ok: boolean;
+      json: () => Promise<Record<string, unknown>>;
+    };
+    const responseBody = (displayName: string, earningsGd: number) => ({
+      success: true,
+      creatorSettings: {
+        broadcastsEnabled: true,
+        subscriptionsEnabled: true,
+        messagingEnabled: true,
+        customRequestsEnabled: true,
+        bookingsEnabled: true,
+        availabilityWindows: [{ day: "mon" }],
+        subscriptionPriceGd: 500,
+      },
+      settings: buildControlPlane({ profileDisplayName: displayName }),
+      settingsCompletion: buildCompletion(),
+      creatorRestrictions: {},
+      stats: {
+        earningsGd,
+        pendingCashoutGd: 0,
+        followerCount: 17,
+        profileViewsCount: 88,
+        liveDropsCount: 4,
+        activeSubscribers: 3,
+        openRequests: 2,
+        bookedCalls: 1,
+      },
+      statsEvidence: buildStatsEvidence(),
+      projection: { readOnly: true },
+    });
+    let resolveSecondTarget!: (value: SettingsResponse) => void;
+    const secondTarget = new Promise<SettingsResponse>((resolve) => {
+      resolveSecondTarget = resolve;
+    });
+    mockState.authUser = { uid: "admin_1", displayName: "Admin" };
+    mockState.userProfile = {
+      uid: "admin_1",
+      role: "admin",
+      username: "admin",
+      displayName: "Admin",
+    };
+    mockState.viewAsState = {
+      adminViewingAsUserId: "creator_1",
+      adminViewingAsDisplayName: "Creator One",
+      viewAsActorUid: "admin_1",
+      simulationStartedAt: 1,
+    };
+    mockState.authFetch.mockImplementation((url: string) => (
+      url.includes("creatorId=creator_2")
+        ? secondTarget
+        : Promise.resolve({ ok: true, json: async () => responseBody("Creator One", 1111) })
+    ));
+
+    const { container, rerender } = render(<CreatorDashboardSettingsHub />);
+    await waitFor(() => {
+      expect(screen.getByLabelText("Display name")).toHaveValue("Creator One");
+      expect(container.textContent).toContain("1,111 GD earned");
+    });
+    fireEvent.click(screen.getByText("Requests"));
+    expect(screen.getByTestId("requests-manager")).toBeTruthy();
+
+    mockState.viewAsState = {
+      adminViewingAsUserId: "creator_2",
+      adminViewingAsDisplayName: "Creator Two",
+      viewAsActorUid: "admin_1",
+      simulationStartedAt: 2,
+    };
+    rerender(<CreatorDashboardSettingsHub />);
+    expect(screen.queryByLabelText("Display name")).toBeNull();
+    expect(screen.queryByTestId("requests-manager")).toBeNull();
+    expect(container.textContent).not.toContain("Creator One");
+    expect(container.textContent).not.toContain("1,111 GD earned");
+    expect(container.querySelector("[data-mobile-skeleton=\"creator-settings-route\"]")).toBeTruthy();
+
+    resolveSecondTarget({
+      ok: true,
+      json: async () => responseBody("Creator Two", 2222),
+    });
+    await waitFor(() => {
+      expect(screen.getByLabelText("Display name")).toHaveValue("Creator Two");
+      expect(container.textContent).toContain("2,222 GD earned");
+    });
+    expect(screen.queryByTestId("requests-manager")).toBeNull();
   });
 
   it("connects the requests manager when custom requests are enabled", async () => {

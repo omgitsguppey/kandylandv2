@@ -49,6 +49,7 @@ function main() {
   const deepTracker = readRequired("src/components/Analytics/DeepTracker.tsx");
   const clientSession = readRequired("src/lib/client-session.ts");
   const guestIngest = readRequired("src/app/api/analytics/ingest/route.ts");
+  const ingestContract = readRequired("src/lib/analytics/ingest-contract.ts");
   const identifiedIngest = readRequired("src/app/api/analytics/ingest-identified/route.ts");
   const realtimeRoute = readRequired("src/app/api/admin/analytics/realtime/route.ts");
   const realtimeSummary = readRequired("functions/src/analytics-realtime-summary.ts");
@@ -84,17 +85,32 @@ function main() {
 
   for (const expected of [
     "resolveCanonicalGuestAnonymousVisitorId",
-    "CLIENT_ANALYTICS_ID_PATTERN.test(candidate)",
-    "return input.sessionKey",
     "serverSessionKey: sessionKey",
     "anonymousVisitorId: canonicalAnonymousVisitorId",
     "clientSessionId: sessionId || null",
     "buildAnalyticsIngestDedupeKey({ sessionKey, batchId })",
     "transaction.get(guestBatchRef)",
-    "return { deduped: true }",
-    "materializeUserTrackingIndexes",
+    "deduped: true,",
+    "writeBehavioralTimelineProjection",
+    "behavioralTimelineProjectionFacts",
+    'queueMode: "written_with_outbox"',
+    'materializer: "user_index_materializer_requests_v3"',
+    "requestsEnqueued",
   ]) {
     assertIncludes(guestIngest, expected, "Guest ingest identity/dedupe lock");
+  }
+  assertNotIncludes(guestIngest, "describeGuestUserTrackingMaterialization", "Guest ingest retired missing-materializer adapter lock");
+  assertNotIncludes(guestIngest, 'explicitState: "materializer_missing"', "Guest ingest stale missing-materializer state lock");
+  assertNotIncludes(guestIngest, "deferred_non_priority", "Guest ingest fake deferred-materializer lock");
+  assertNotIncludes(guestIngest, "analytics_guest_batches_daily", "Guest ingest nonexistent consumer lock");
+
+  for (const expected of [
+    "export const ANALYTICS_CLIENT_ID_PATTERN",
+    "ANALYTICS_CLIENT_ID_PATTERN.test(candidate)",
+    "export function resolveCanonicalGuestAnonymousVisitorId",
+    "return input.sessionKey",
+  ]) {
+    assertIncludes(ingestContract, expected, "Shared guest ingest identity contract");
   }
 
   assertIncludes(identifiedIngest, "identity_linked", "Identified ingest identity-link lock");
@@ -115,7 +131,7 @@ function main() {
     "guestSnapshotSourceLabel",
     "guestSnapshotReason",
     "Guest unavailable",
-    "Guest snapshot stale",
+    "Guest snapshot refresh due",
     "Guest samples unavailable",
   ]) {
     assertIncludes(livePulse + operationsTab + adminAnalyticsPage, expected, "Admin guest truth display lock");
@@ -128,6 +144,7 @@ function main() {
     "omits anonymousVisitorId when identity persistence is denied",
     "prefers a valid client anonymous visitor id",
     "preserving the server session key",
+    "queues the canonical user-index materializer",
     "ignores malformed guest semantic payloads",
     "materialized guest snapshot instead of GA estimates",
     "missing guest snapshot evidence as a live zero",

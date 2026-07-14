@@ -13,12 +13,15 @@ describe("analytics cost hot path reduction", () => {
   it("keeps BigQuery export out of per-event claim transactions and uses watermark batching", () => {
     const source = readRepoFile("functions/src/analytics-bigquery-export.ts");
 
-    expect(source).toContain("shouldAttemptBigQueryExportClaim");
+    expect(source).toContain("scheduledBigQueryRawEventsExport");
+    expect(source).toContain("claimBigQueryExportWindow");
     expect(source).toContain("buildBigQueryExportWatermarkWindow");
     expect(source).toContain("exportBigQueryRawEventsBatch");
     expect(source).toContain("FieldPath.documentId()");
     expect(source).toContain("startAfter(input.windowStartMs, input.watermarkEventId)");
     expect(source).not.toMatch(/const claimedExportWindow\s*=\s*await claimBigQueryExportWindow/u);
+    expect(source).not.toContain("onDocumentCreated");
+    expect(source).not.toContain("shouldAttemptBigQueryExportClaim");
     expect(source).toMatch(/maximumBytesBilledRequiredForQueries:\s*true/u);
     expect(source).toMatch(/partitionFilterRequired:\s*true/u);
   });
@@ -26,16 +29,18 @@ describe("analytics cost hot path reduction", () => {
   it("does not run user tracking materialization in analytics ingest hot path", () => {
     const source = readRepoFile("src/app/api/analytics/ingest/route.ts");
 
-    expect(source).toContain("queueUserTrackingMaterialization");
+    expect(source).toContain("writeGuestBehavioralTimelineProjection");
+    expect(source).toContain('materializer: "user_index_materializer_requests_v3"');
     expect(source).not.toMatch(/await materializeUserTrackingIndexes\(/u);
   });
 
   it("returns calm non-retryable responses for permanent ingest validation failures", () => {
     const source = readRepoFile("src/app/api/analytics/ingest/route.ts");
+    const contract = readRepoFile("src/lib/analytics/ingest-contract.ts");
 
     expect(source).toContain("invalid_analytics_payload");
-    expect(source).toContain("retryable: false");
-    expect(source).toMatch(/status:\s*422/u);
+    expect(source).toContain("buildAnalyticsIngestFailureResponse(reason)");
+    expect(contract).toMatch(/invalid_analytics_payload:\s*\{[\s\S]*?httpStatus:\s*422,[\s\S]*?retryable:\s*false/u);
   });
 
   it("moves non-critical realtime summary off one-minute cadence", () => {
@@ -57,9 +62,10 @@ describe("analytics cost hot path reduction", () => {
 
   it("reduces admin debug initial load with a cost guard marker", () => {
     const source = readRepoFile("src/app/api/admin/debug/route.ts");
+    const truthState = readRepoFile("src/lib/server/admin-debug/truth-state.ts");
 
     expect(source).toContain("ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD");
-    expect(source).toContain("debug_cost_reduced_initial_summary");
+    expect(truthState).toContain('ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD = "debug_cost_reduced_initial_summary"');
   });
 
   it("does not scan the full queue heartbeat collection by default", () => {

@@ -12,18 +12,11 @@ export const AGENT_PROMPTS_DIR = path.join(AGENT_DIR, "prompts");
 
 export const INTERNAL_DIRECTORIES = ["src", "functions/src", "scripts", "tests"] as const;
 export const FILE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"] as const;
-const FALLBACK_DISCOVERY_ROOTS = [
-  "src",
-  "functions/src",
-  "shared",
-  "scripts",
-  "tests",
-  "agent/index",
-  "agent/context",
-  "agent/state",
-  "docs/agent-truth",
-] as const;
+const FALLBACK_DISCOVERY_ROOTS = ["."] as const;
 const FALLBACK_EXCLUDED_PARTS = [
+  ".git",
+  ".firebase",
+  ".vercel",
   "node_modules",
   ".next",
   "coverage",
@@ -125,7 +118,19 @@ function repoInventoryFiles() {
   const inventoryPath = "agent/index/repo-inventory.json";
   if (!fileExists(inventoryPath)) return [];
   try {
-    const parsed = readJsonFile<{ items?: Array<{ path?: unknown }> }>(inventoryPath);
+    const parsed = readJsonFile<{
+      reportCompleteness?: unknown;
+      totalFindingCount?: unknown;
+      omittedFindingCount?: unknown;
+      items?: Array<{ path?: unknown }>;
+    }>(inventoryPath);
+    if (typeof parsed.reportCompleteness === "string") {
+      const completeInventory = parsed.reportCompleteness === "complete"
+        && parsed.omittedFindingCount === 0
+        && typeof parsed.totalFindingCount === "number"
+        && parsed.totalFindingCount === (parsed.items ?? []).length;
+      if (!completeInventory) return [];
+    }
     return (parsed.items ?? [])
       .map((item) => typeof item.path === "string" ? normalizeRepoPath(item.path) : "")
       .filter((repoPath) => repoPath && !shouldSkipFallbackPath(repoPath) && fileExists(repoPath))
@@ -414,11 +419,26 @@ export function stableSortBy<T>(values: T[], ranker: (value: T) => string | numb
 }
 
 export function extractRepoPaths(value: string) {
+  const inlineCodeSpans = Array.from(
+    value.matchAll(/`([^`\r\n]+)`/gu),
+    (match) => match[1].trim(),
+  );
+
   return unique(
-    Array.from(
-      value.matchAll(/`([^`\n]+(?:\/[^`\n]+)+[^`\n]*)`/g),
-      (match) => match[1].replace(/\\/g, "/"),
-    ).filter((candidate) => !candidate.startsWith("http")),
+    inlineCodeSpans
+      .filter((candidate) => /[\\/]/u.test(candidate))
+      .filter((candidate) => !candidate.toLowerCase().startsWith("http"))
+      .map((candidate) => normalizeRepoPath(candidate).replace(/^\/+/, ""))
+      .filter((candidate) => {
+        if (!candidate || /\s/u.test(candidate)) return false;
+        const [rootSegment] = candidate.split("/");
+        return Boolean(rootSegment)
+          && rootSegment !== "."
+          && rootSegment !== ".."
+          && rootSegment !== ".git"
+          && !FALLBACK_EXCLUDED_PARTS.some((excluded) => excluded === rootSegment)
+          && fileExists(rootSegment);
+      }),
   ).sort();
 }
 

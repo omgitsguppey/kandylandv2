@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-05-19T22:12:26.239Z",
+  "generatedAt": "2026-07-14T05:39:22.728Z",
   "status": "pass",
   "score": 100,
   "checks": [
     {
       "id": "guest_ingest_timeline",
       "pass": true,
-      "detail": "Guest ingest writes timeline facts."
+      "detail": "Guest ingest atomically writes timeline facts and user-index outbox requests."
     },
     {
       "id": "identified_ingest_timeline",
       "pass": true,
-      "detail": "Identified ingest writes timeline facts."
+      "detail": "Identified ingest atomically writes timeline facts and user-index outbox requests."
     },
     {
       "id": "identity_linked_emission",

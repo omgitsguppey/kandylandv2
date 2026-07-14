@@ -105,6 +105,10 @@ vi.mock("@/lib/server/server-diagnostics", () => ({
     recordServerDiagnostic: mockState.recordServerDiagnostic,
 }));
 
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
+}));
+
 import { POST } from "@/app/api/creator/onboarding/contract-signature/route";
 
 const AGREEMENT_ACKNOWLEDGEMENTS = {
@@ -278,6 +282,8 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
 
         expect(response.status).toBe(400);
         expect(payload).toMatchObject({
+            code: "invalid_creator_request",
+            retryable: false,
             error: "Review and accept every agreement acknowledgement before signing.",
         });
     });
@@ -358,5 +364,25 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
         expect(payload).toMatchObject({
             error: "Identity verification must be accepted before contract signing can continue.",
         });
+    });
+
+    it("rejects oversized JSON before agreement mutation or telemetry", async () => {
+        const request = new NextRequest("http://localhost/api/creator/onboarding/contract-signature", {
+            method: "POST",
+            headers: { "content-length": "16385" },
+            body: "{}",
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
     });
 });

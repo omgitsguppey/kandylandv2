@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-27T07:13:27.943Z",
+  "generatedAtUtc": "2026-07-14T06:34:55.502Z",
   "reportKey": "creator-drop-management-approval",
-  "currentHead": "4ea7fddfa516daeedc01b8e06d7d2437e2acf404",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "existingAdminDropPipelineReused": true,
     "sharedDropFormContractCreated": true,

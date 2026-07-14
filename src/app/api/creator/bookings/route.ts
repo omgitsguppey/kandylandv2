@@ -43,6 +43,7 @@ type CreatorBookingProblemCode =
     | "slot_unavailable"
     | "slot_already_booked"
     | "insufficient_paid_gumdrops"
+    | "idempotency_conflict"
     | "invalid_booking_request"
     | "unauthorized";
 
@@ -102,6 +103,7 @@ function buildBookingProblemResponse(problem: CreatorBookingProblem) {
         priceGd: toOptionalNumber(problem.context.priceGd),
         paidBalanceGd: toOptionalNumber(problem.context.paidBalanceGd),
         shortfallGd: toOptionalNumber(problem.context.shortfallGd),
+        preserveIdempotencyKey: problem.code === "idempotency_conflict",
     }, { status: problem.status });
 }
 
@@ -112,6 +114,38 @@ function buildBoundedBookingBodyResponse(error: { status: 400 | 413; code: strin
         error: error.message,
         message: error.message,
     }, { status: error.status });
+}
+
+function matchesCommittedBookingReplay(input: {
+    bookingData: Record<string, unknown>;
+    transactionData: Record<string, unknown>;
+    bookingId: string;
+    transactionId: string;
+    userId: string;
+    creatorId: string;
+    serviceType: "phone" | "video";
+    startAt: number;
+    durationMinutes: number;
+    idempotencyKey: string;
+}) {
+    const expectedTransactionType = input.serviceType === "video"
+        ? "creator_booking_video"
+        : "creator_booking_phone";
+    return input.bookingData.userId === input.userId
+        && input.bookingData.creatorId === input.creatorId
+        && input.bookingData.serviceType === input.serviceType
+        && input.bookingData.startAt === input.startAt
+        && input.bookingData.durationMinutes === input.durationMinutes
+        && input.bookingData.idempotencyKey === input.idempotencyKey
+        && input.bookingData.userTransactionId === input.transactionId
+        && input.transactionData.verifiedServerSide === true
+        && input.transactionData.status === "completed"
+        && input.transactionData.type === expectedTransactionType
+        && input.transactionData.userId === input.userId
+        && input.transactionData.creatorId === input.creatorId
+        && input.transactionData.idempotencyKey === input.idempotencyKey
+        && input.transactionData.userTransactionId === input.transactionId
+        && input.transactionData.creatorExperienceRecordId === input.bookingId;
 }
 
 function isAuthUnauthorized(error: unknown) {
@@ -278,12 +312,63 @@ async function POST_handler(request: NextRequest) {
         const transactionRef = adminDb.collection("transactions").doc(recordIds.userTransactionId);
 
         const result = await adminDb.runTransaction(async (transaction) => {
-            const [creatorSnap, userSnap, subscriptionSnap, bookingSnap, transactionSnap] = await Promise.all([
+            const [bookingSnap, transactionSnap] = await Promise.all([
+                transaction.get(bookingRef),
+                transaction.get(transactionRef),
+            ]);
+
+            if (bookingSnap.exists || transactionSnap.exists) {
+                const bookingData = bookingSnap.data() as Record<string, unknown> | undefined;
+                const transactionData = transactionSnap.data() as Record<string, unknown> | undefined;
+                if (
+                    !bookingSnap.exists
+                    || !transactionSnap.exists
+                    || !bookingData
+                    || !transactionData
+                    || !matchesCommittedBookingReplay({
+                        bookingData,
+                        transactionData,
+                        bookingId: bookingRef.id,
+                        transactionId: transactionRef.id,
+                        userId: caller.uid,
+                        creatorId,
+                        serviceType,
+                        startAt,
+                        durationMinutes,
+                        idempotencyKey,
+                    })
+                ) {
+                    throw new CreatorBookingProblem(
+                        409,
+                        "idempotency_conflict",
+                        "This booking key is already associated with a different or incomplete booking.",
+                        bookingContext,
+                    );
+                }
+
+                const existingPrice = typeof bookingData.priceGd === "number" ? bookingData.priceGd : 0;
+                const existingAccrualId = typeof bookingData.creatorAccrualId === "string"
+                    ? bookingData.creatorAccrualId
+                    : ledgerRef.id;
+                return {
+                    priceGd: existingPrice,
+                    creatorAccrualId: existingAccrualId,
+                    duplicatePrevented: true,
+                    debug: buildCreatorExperienceTransactionDebug({
+                        userTransactionId: transactionRef.id,
+                        creatorAccrualId: existingAccrualId,
+                        creatorExperienceRecordId: bookingRef.id,
+                        priceGd: existingPrice,
+                        idempotencyKey,
+                        duplicatePrevented: true,
+                    }),
+                };
+            }
+
+            const [creatorSnap, userSnap, subscriptionSnap] = await Promise.all([
                 transaction.get(creatorRef),
                 transaction.get(userRef),
                 transaction.get(adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(`${caller.uid}__${creatorId}`)),
-                transaction.get(bookingRef),
-                transaction.get(transactionRef),
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
@@ -353,27 +438,6 @@ async function POST_handler(request: NextRequest) {
             const slotKey = buildBookingSlotKey({ creatorId, serviceType, startAt, durationMinutes });
             const priceGd = bookingPricing.priceGd;
             const balance = readPaidSourceBalanceForRestrictedSpend(userData).balance;
-            if (bookingSnap.exists || transactionSnap.exists) {
-                const bookingData = bookingSnap.data() as Record<string, unknown> | undefined;
-                const existingPrice = typeof bookingData?.priceGd === "number" ? bookingData.priceGd : priceGd;
-                const existingAccrualId = typeof bookingData?.creatorAccrualId === "string" ? bookingData.creatorAccrualId : ledgerRef.id;
-
-                return {
-                    priceGd: existingPrice,
-                    creatorAccrualId: existingAccrualId,
-                    duplicatePrevented: true,
-                    debug: buildCreatorExperienceTransactionDebug({
-                        userTransactionId: transactionRef.id,
-                        creatorAccrualId: existingAccrualId,
-                        creatorExperienceRecordId: bookingRef.id,
-                        priceGd: existingPrice,
-                        idempotencyKey,
-                        duplicatePrevented: true,
-                        sourceAwareBalanceBefore: balance,
-                        sourceAwareBalanceAfter: balance,
-                    }),
-                };
-            }
 
             const existingBookingsSnap = await transaction.get(
                 adminDb.collection(CREATOR_COLLECTIONS.bookings)

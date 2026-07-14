@@ -6,8 +6,13 @@ import { buildWorkflowGuidance } from "./extract-workflow";
 import { buildUiSurfaceCoverage } from "./build-ui-surface-coverage";
 import { buildDependencyGraphSummary } from "./summarize-dependency-graph";
 import { compact, createMetadata, fileExists, getPackageScripts, readRepoToolchainState, readText, toStableId, validateWithSchema, writeJsonFile } from "./shared";
+import {
+  buildGeneratedReportCleanupMetadata,
+  buildGeneratedReportCompleteness,
+  type GeneratedReportCapStrategy,
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
 
-type CommandEntry = {
+export type CommandEntry = {
   stable_id: string;
   command: string;
   scopeType: string;
@@ -23,6 +28,16 @@ type CommandEntry = {
   verifies_continuity: boolean;
 };
 
+const REPO_INVENTORY_SAMPLE_LIMIT = 12;
+const VERIFICATION_COMMAND_SAMPLE_LIMIT = 12;
+const BLAST_RADIUS_SAMPLE_LIMIT = 20;
+const RETRIEVAL_GROUP_SAMPLE_LIMITS = {
+  file: 4,
+  helper: 4,
+  pitfall: 2,
+  recent_pass: 2,
+} as const;
+
 function compactToolchainState() {
   const toolchain = readRepoToolchainState();
   return {
@@ -33,6 +48,58 @@ function compactToolchainState() {
     toolingDegraded: toolchain.toolingDegraded,
     degradationReason: toolchain.degradationReason,
     dirtyFileCount: Array.isArray(toolchain.workingTreeStatus) ? toolchain.workingTreeStatus.length : null,
+  };
+}
+
+type CompactToolchainState = ReturnType<typeof compactToolchainState>;
+
+function countBy<T>(values: T[], keyFor: (value: T) => string) {
+  return values.reduce<Record<string, number>>((counts, value) => {
+    const key = keyFor(value);
+    counts[key] = (counts[key] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function buildCompactIndexMetadata(input: {
+  sources: string[];
+  toolchain: CompactToolchainState;
+  total: number;
+  emitted: number;
+  capStrategy: Exclude<GeneratedReportCapStrategy, "none">;
+  capReason: string;
+}) {
+  const metadata = createMetadata(input.sources);
+  const isCapped = input.emitted < input.total;
+  return {
+    ...metadata,
+    ...buildGeneratedReportCompleteness({
+      totalFindingCount: input.total,
+      emittedFindingCount: input.emitted,
+      capLimit: isCapped ? input.emitted : null,
+      capStrategy: isCapped ? input.capStrategy : "none",
+      capReason: isCapped ? input.capReason : null,
+      rankingInputCompleteness: "complete",
+    }),
+    sourceFileDiscovery: input.toolchain.sourceFileDiscovery,
+    gitStatus: input.toolchain.gitStatus,
+    toolingDegraded: input.toolchain.toolingDegraded,
+    degradationReason: input.toolchain.degradationReason,
+    currentHead: input.toolchain.currentHead,
+    currentHeadSource: input.toolchain.currentHeadSource,
+    generatedAtUtc: metadata.generatedAt,
+    sourceCommit: input.toolchain.currentHead,
+    freshness: input.toolchain.toolingDegraded ? "degraded" : "fresh",
+    baselineStatus: input.toolchain.gitStatus === "available" && input.toolchain.currentHead ? "current" : "unknown",
+    ...buildGeneratedReportCleanupMetadata({
+      owner: "scripts/agent/build-agent-indexes.ts",
+      safetyClass: "source_safe",
+      costClass: "local_free",
+      rollback: "Revert the index builder/schema/consumer change and regenerate the existing agent indexes.",
+      cleanupPolicy: "regenerate",
+      cleanupCommand: "npm run agent:index",
+      sourceTruthRole: "generated_snapshot",
+    }),
   };
 }
 
@@ -99,7 +166,7 @@ function scopeType(commandName: string, command: string) {
   return "repo";
 }
 
-function buildVerificationCommands() {
+export function buildVerificationCommandEntries() {
   const rootScripts = getPackageScripts("package.json");
   const functionScripts = getPackageScripts("functions/package.json");
   const rootEntries = Object.entries(rootScripts).map(([commandName, command]) => {
@@ -111,24 +178,49 @@ function buildVerificationCommands() {
     { stable_id: toStableId("command", "git_status_short"), command: "git status --short", scopeType: "repo", root_or_functions: "root", requiredWhen: ["Mandatory startup for every edit and broad work pass."], optionalWhen: [], cleanupExpected: [], broadSignoffWeight: 5, verifies_runtime: false, verifies_ui: false, verifies_rules: false, verifies_inventory: false, verifies_continuity: false },
     { stable_id: toStableId("command", "trace_adjacent"), command: "npm run trace:adjacent -- <path>", scopeType: "repo_tooling", root_or_functions: "root", requiredWhen: ["Broad work and high-risk touched files."], optionalWhen: [], cleanupExpected: [], broadSignoffWeight: 6, verifies_runtime: false, verifies_ui: false, verifies_rules: false, verifies_inventory: false, verifies_continuity: false },
   ];
-  return { ...createMetadata(["package.json", "functions/package.json"]), commands: [...rootEntries, ...functionsEntries, ...manualEntries] };
+  return [...rootEntries, ...functionsEntries, ...manualEntries];
+}
+
+function buildVerificationCommands(commands: CommandEntry[], toolchain: CompactToolchainState) {
+  const emittedCommands = [...commands]
+    .sort((left, right) => right.broadSignoffWeight - left.broadSignoffWeight || left.command.localeCompare(right.command))
+    .slice(0, VERIFICATION_COMMAND_SAMPLE_LIMIT);
+  return {
+    ...buildCompactIndexMetadata({
+      sources: ["package.json", "functions/package.json"],
+      toolchain,
+      total: commands.length,
+      emitted: emittedCommands.length,
+      capStrategy: "top_risk",
+      capReason: "The complete command catalog is derived from package manifests; the tracked index retains only the highest-signoff-weight examples.",
+    }),
+    commands: emittedCommands,
+    counts: {
+      total: commands.length,
+      emitted: emittedCommands.length,
+      omitted: Math.max(0, commands.length - emittedCommands.length),
+      byScopeType: countBy(commands, (entry) => entry.scopeType),
+      byRoot: countBy(commands, (entry) => entry.root_or_functions),
+    },
+  };
 }
 
 function buildPackageManagerTruth() {
   const rootLockfiles = compact([fileExists("package-lock.json") ? "package-lock.json" : null, fileExists("pnpm-lock.yaml") ? "pnpm-lock.yaml" : null]);
   const functionsLockfiles = compact([fileExists("functions/package-lock.json") ? "functions/package-lock.json" : null, fileExists("functions/pnpm-lock.yaml") ? "functions/pnpm-lock.yaml" : null]);
+  const functionsPnpmWorkspace = fileExists("functions/pnpm-workspace.yaml") ? "functions/pnpm-workspace.yaml" : null;
   const ledgerText = readText("REPO_MEMORY_LEDGER.md");
   const staleLedgerMentionsRootPnpm = ledgerText.includes("Root currently carries `package.json`, `package-lock.json`, and `pnpm-lock.yaml`") && !fileExists("pnpm-lock.yaml");
   const functionsDualLockDrift = functionsLockfiles.includes("functions/package-lock.json") && functionsLockfiles.includes("functions/pnpm-lock.yaml");
   return {
-    ...createMetadata(["package.json", "functions/package.json", "package-lock.json", "functions/package-lock.json", "functions/pnpm-lock.yaml"]),
+    ...createMetadata(compact(["package.json", "functions/package.json", "package-lock.json", "functions/package-lock.json", "functions/pnpm-lock.yaml", functionsPnpmWorkspace])),
     toolchain: compactToolchainState(),
     stable_id: toStableId("pkgtruth", "root-functions"),
     root: { manifest: "package.json", packageManagerField: null, expectedManagers: rootLockfiles.includes("pnpm-lock.yaml") ? ["npm", "pnpm"] : ["npm"], requiredLockfiles: rootLockfiles, verificationCommands: ["npm run check", "npm run check:inventory", "npm run check:architecture"], packageChangesTriggerAgentBuild: true, packageChangesTriggerSqlSync: true },
-    functions: { manifest: "functions/package.json", packageManagerField: null, expectedManagers: functionsLockfiles.includes("functions/pnpm-lock.yaml") ? ["npm", "pnpm"] : ["npm"], requiredLockfiles: functionsLockfiles, verificationCommands: ["npm --prefix functions run check"], nodeEngine: "22", packageChangesTriggerAgentBuild: true, packageChangesTriggerSqlSync: true },
-    syncInvariants: compact([rootLockfiles.includes("package-lock.json") ? "Root npm dependency changes must keep package-lock.json in sync." : null, rootLockfiles.includes("pnpm-lock.yaml") ? "Root pnpm dependency changes must keep pnpm-lock.yaml in sync." : null, functionsLockfiles.includes("functions/package-lock.json") ? "Functions npm dependency changes must keep functions/package-lock.json in sync." : null, functionsLockfiles.includes("functions/pnpm-lock.yaml") ? "Functions pnpm dependency changes must keep functions/pnpm-lock.yaml in sync." : null]),
+    functions: { manifest: "functions/package.json", packageManagerField: null, expectedManagers: functionsLockfiles.includes("functions/pnpm-lock.yaml") ? ["npm", "pnpm"] : ["npm"], requiredLockfiles: functionsLockfiles, pnpmWorkspaceConfig: functionsPnpmWorkspace, verificationCommands: ["npm --prefix functions run check"], nodeEngine: "22", packageChangesTriggerAgentBuild: true, packageChangesTriggerSqlSync: true },
+    syncInvariants: compact([rootLockfiles.includes("package-lock.json") ? "Root npm dependency changes must keep package-lock.json in sync." : null, rootLockfiles.includes("pnpm-lock.yaml") ? "Root pnpm dependency changes must keep pnpm-lock.yaml in sync." : null, functionsLockfiles.includes("functions/package-lock.json") ? "Functions npm dependency changes must keep functions/package-lock.json in sync." : null, functionsLockfiles.includes("functions/pnpm-lock.yaml") ? "Functions pnpm dependency changes must keep functions/pnpm-lock.yaml in sync." : null, functionsPnpmWorkspace ? "Functions pnpm override policy is owned by functions/pnpm-workspace.yaml and must stay aligned with functions/package.json." : null]),
     dependencyWindowBlockers: compact([functionsDualLockDrift ? "Functions has both package-lock.json and pnpm-lock.yaml; treat any drift as a manual dependency-window task, not an agent tooling patch." : null]),
-    knownFailureModes: compact([rootLockfiles.includes("pnpm-lock.yaml") ? "Root lockfile drift can fail frozen-lockfile deployment/install paths." : null, functionsLockfiles.includes("functions/pnpm-lock.yaml") ? "Functions dual-lockfile drift can break functions verification or deployment parity." : null, staleLedgerMentionsRootPnpm ? "Governance text references a root pnpm lockfile that is not tracked; rely on manifests and tracked lockfiles instead." : null]),
+    knownFailureModes: compact([rootLockfiles.includes("pnpm-lock.yaml") ? "Root lockfile drift can fail frozen-lockfile deployment/install paths." : null, functionsLockfiles.includes("functions/pnpm-lock.yaml") ? "Functions dual-lockfile drift can break functions verification or deployment parity." : null, functionsPnpmWorkspace ? "Functions pnpm installs that bypass functions/pnpm-workspace.yaml can silently miss the repository's pnpm override policy." : null, staleLedgerMentionsRootPnpm ? "Governance text references a root pnpm lockfile that is not tracked; rely on manifests and tracked lockfiles instead." : null]),
   };
 }
 
@@ -144,6 +236,19 @@ function buildKnownPitfalls() {
     combined.includes("response.json()") && combined.includes("response.text()") ? { stable_id: toStableId("pitfall", "consumed_response_stream_fallback"), title: "consumed_response_stream_fallback", description: "Calling response.json() before response.text() consumes the stream and hides fallback diagnostics.", symptom_pattern: "Fallback parse branches receive empty text after the first parse attempt.", affected_surfaces: ["src/components/**", "src/lib/**"], prevention_rule: "Read response.text() first, then parse JSON from the captured text if needed.", detection_hint: "Search for response.json() fallback patterns followed by response.text().", related_commands: ["npm run test:contracts"], related_helpers: [], severity: "medium", broad_work_relevance: false } : null,
     fileExists("scripts/check-generated-artifacts.ts") ? { stable_id: toStableId("pitfall", "generated_artifact_cleanup_miss"), title: "generated_artifact_cleanup_miss", description: "Verification runs can leave build, audit, or emulator outputs behind and pollute continuity signoff.", symptom_pattern: "Continuity fails or dirty-tree noise appears after otherwise passing verification.", affected_surfaces: ["scripts/check-generated-artifacts.ts", ".next", "playwright-report", "test-results", "lighthouse-results"], prevention_rule: "Clean generated artifacts before final signoff.", detection_hint: "Run the generated-artifact check before completion.", related_commands: ["npm run check:continuity"], related_helpers: ["scripts/check-generated-artifacts.ts"], severity: "medium", broad_work_relevance: true } : null,
     rootPnpmMissing && ledgerText.includes("Root currently carries `package.json`, `package-lock.json`, and `pnpm-lock.yaml`") ? { stable_id: toStableId("pitfall", "stale_governance_note_vs_tracked_manifest"), title: "stale_governance_note_vs_tracked_manifest", description: "Governance prose can drift from the tracked repo state and must not outrank manifests or lockfiles.", symptom_pattern: "Documentation references lockfiles or toolchain state that no longer exists in the repo.", affected_surfaces: ["REPO_MEMORY_LEDGER.md", "package.json"], prevention_rule: "Generate package-manager truth from tracked manifests/lockfiles and update ledgers when they drift.", detection_hint: "Compare governance claims against git-tracked manifests and lockfiles before relying on prose.", related_commands: ["npm run check:agent-intelligence"], related_helpers: [], severity: "medium", broad_work_relevance: true } : null,
+    ledgerText.includes("inspect the entire workflow chain") ? {
+      stable_id: toStableId("pitfall", "creator_drop_workflow_chain_fix"),
+      title: "creator_drop_workflow_chain_fix",
+      description: "Creator drop bugs can look like a broken button while the real failure is in form validation, route permissions, stored status, admin queue review, public visibility, telemetry, debug, or 4xx handling.",
+      symptom_pattern: "A creator submits a drop and sees silent failure, hidden pending state, generic request failure, missing admin queue entry, or a user-visible unapproved submission.",
+      affected_surfaces: ["src/components/Creators/CreatorDropManager.tsx", "src/components/Admin/CreateDropModal.tsx", "src/app/api/creator/drops/route.ts", "src/app/api/admin/drops/route.ts", "src/app/admin/drops/page.tsx", "src/lib/creator/drops/**", "src/lib/creator/features/**"],
+      prevention_rule: "When a creator feature is reported broken, inspect the entire workflow chain from creator UI to backend action, permission check, stored status, admin queue, approval decision, user visibility, telemetry, debug, and 4xx handling. Do not fix only the visible button. Creator-submitted drops must remain creator-visible but user-hidden until admin approval. Do not allow creator submissions to enter user-facing rotation without approval. Every creator workflow must expose creator-facing status and admin-facing status. Creator feature 4xx errors need user-readable recovery states. Reuse and consolidate instead of adding parallel creator systems.",
+      detection_hint: "Run check:creator-drop-workflow-contract, check:creator-drop-submit-repair, check:creator-drop-admin-approval-parity, check:creator-drop-4xx-policy, check:creator-feature-parity-map, check:creator-drop-live-evidence, and check:creator-drop-memory-writeback.",
+      related_commands: ["npm run check:creator-drop-workflow-contract", "npm run check:creator-drop-submit-repair", "npm run check:creator-drop-admin-approval-parity", "npm run check:creator-drop-4xx-policy", "npm run check:creator-feature-parity-map", "npm run check:creator-drop-live-evidence", "npm run check:creator-drop-memory-writeback"],
+      related_helpers: ["src/lib/creator/drops/creator-drop-workflow-contract.ts", "src/lib/creator/drops/creator-drop-4xx-policy.ts", "src/lib/creator/features/creator-feature-parity-map.ts"],
+      severity: "high",
+      broad_work_relevance: true,
+    } : null,
     combined.includes("RTDB") || combined.includes("Data Connect") ? { stable_id: toStableId("pitfall", "sidecar_truth_confusion"), title: "sidecar_truth_confusion", description: "Fallback, RTDB, or Data Connect sidecars can be mistaken for canonical serving truth when they are not current in-repo readers.", symptom_pattern: "Sidecar/export layers are treated as if they are the main product-serving analytics source.", affected_surfaces: ["src/lib/server/admin-analytics-shared.ts", "src/app/api/telemetry/track/route.ts", "functions/src/**"], prevention_rule: "Do not represent fallback or derived data as stronger truth than source truth.", detection_hint: "Check whether the candidate storage layer has a verified in-repo reader before treating it as canonical.", related_commands: ["npm run check:analytics-semantics"], related_helpers: ["src/lib/telemetry.ts"], severity: "high", broad_work_relevance: true } : null,
     combined.includes("stale") && combined.includes("unseen") ? { stable_id: toStableId("pitfall", "route_runtime_stale_vs_unseen_confusion"), title: "route_runtime_stale_vs_unseen_confusion", description: "Stale route samples and never-observed route samples have different meanings and should not be collapsed together.", symptom_pattern: "Debug summaries overstate failures because stale, unseen, and healthy states are not separated.", affected_surfaces: ["src/lib/route-runtime-health.ts", "src/lib/server/admin-panel-system-logs.ts"], prevention_rule: "Use shared route-runtime freshness and coverage helpers.", detection_hint: "Check route-runtime summaries for ad hoc last-result logic instead of shared helpers.", related_commands: ["npm run test:contracts"], related_helpers: ["src/lib/route-runtime-health.ts"], severity: "medium", broad_work_relevance: false } : null,
     fileExists("functions/src/queue-runtime.ts") ? { stable_id: toStableId("pitfall", "legacy_queue_adapter_usage"), title: "legacy_queue_adapter_usage", description: "Next App Route cron endpoints are now compatibility adapters only and should not remain the active queue scheduler lane.", symptom_pattern: "Legacy adapter warnings accumulate even though Firebase scheduler is supposed to be canonical.", affected_surfaces: ["src/app/api/cron/process-queue/route.ts", "src/app/api/cron/notify-active-drops/route.ts", "functions/src/queue-runtime.ts"], prevention_rule: "Use Firebase Functions scheduler as the canonical queue runtime and treat route cron endpoints as manual adapters only.", detection_hint: "Run scheduler freshness and warning-budget checks; any legacy adapter warning is blocking.", related_commands: ["npm run check:scheduler:freshness", "npm run check:warnings"], related_helpers: ["functions/src/queue-runtime.ts", "src/lib/server/queue-runtime.ts"], severity: "high", broad_work_relevance: true } : null,
@@ -190,73 +295,131 @@ function buildRecentPasses() {
   };
 }
 
-function buildRepoInventoryIndex() {
-  const items = buildRepoInventory();
-  const toolchain = compactToolchainState();
+function repoInventoryPriority(entry: ReturnType<typeof buildRepoInventory>[number]) {
+  return Number(entry.runtime_critical) * 8
+    + Number(entry.likely_shared_helper) * 4
+    + Number(entry.likely_broad_signoff_relevant) * 2
+    + Number(entry.dataconnect_related);
+}
+
+function buildRepoInventoryIndex(items: ReturnType<typeof buildRepoInventory>, toolchain: CompactToolchainState) {
+  const emittedItems = [...items]
+    .sort((left, right) => repoInventoryPriority(right) - repoInventoryPriority(left) || left.path.localeCompare(right.path))
+    .slice(0, REPO_INVENTORY_SAMPLE_LIMIT);
   return {
-    ...createMetadata([toolchain.sourceFileDiscovery === "git" ? "git ls-files --cached --others --exclude-standard" : `${toolchain.sourceFileDiscovery} fallback`, "scripts/repo-inventory.ts"]),
-    gitStatus: toolchain.gitStatus,
-    sourceFileDiscovery: toolchain.sourceFileDiscovery,
-    currentHead: toolchain.currentHead,
-    currentHeadSource: toolchain.currentHeadSource,
-    toolingDegraded: toolchain.toolingDegraded,
-    degradationReason: toolchain.degradationReason,
+    ...buildCompactIndexMetadata({
+      sources: [toolchain.sourceFileDiscovery === "git" ? "git ls-files --cached --others --exclude-standard" : `${toolchain.sourceFileDiscovery} fallback`, "scripts/repo-inventory.ts"],
+      toolchain,
+      total: items.length,
+      emitted: emittedItems.length,
+      capStrategy: "top_risk",
+      capReason: "The complete inventory is derived live from source discovery; the tracked index retains bounded high-risk examples and complete aggregate counts.",
+    }),
     dirtyFileCount: toolchain.dirtyFileCount,
-    items,
-    counts: { total: items.length, byDomain: groupInventoryByDomain(items), byPrefix: countPathPrefixes(items) },
+    items: emittedItems,
+    counts: {
+      total: items.length,
+      emitted: emittedItems.length,
+      omitted: Math.max(0, items.length - emittedItems.length),
+      byDomain: groupInventoryByDomain(items),
+      byPrefix: countPathPrefixes(items),
+    },
   };
 }
 
-function buildBlastRadius() {
-  const inventory = buildRepoInventory();
-  const dependencySummary = buildDependencyGraphSummary();
+function buildBlastRadius(
+  inventory: ReturnType<typeof buildRepoInventory>,
+  dependencySummary: ReturnType<typeof buildDependencyGraphSummary>,
+  toolchain: CompactToolchainState,
+) {
   const inbound = new Map(dependencySummary.highInboundFiles.map((entry) => [entry.path, entry.inboundCount]));
+  const entries = inventory.filter((entry) => entry.runtime_critical || entry.likely_shared_helper || entry.likely_broad_signoff_relevant).map((entry) => {
+    const inboundCount = inbound.get(entry.path) ?? 0;
+    const shared_helper_risk = entry.likely_shared_helper ? 25 : 0;
+    const route_boundary_risk = entry.path.startsWith("src/app/api/") || entry.path.includes("route") ? 20 : 0;
+    const runtime_criticality = entry.runtime_critical ? 25 : 0;
+    const verification_burden = entry.likely_broad_signoff_relevant ? 20 : 10;
+    const deploy_or_lockfile_sensitivity = entry.path.includes("package") || entry.path.includes("lock") || entry.dataconnect_related ? 10 : 0;
+    return {
+      stable_id: toStableId("blast", entry.path),
+      path: entry.path,
+      blast_radius_score: shared_helper_risk + route_boundary_risk + runtime_criticality + verification_burden + deploy_or_lockfile_sensitivity + Math.min(20, inboundCount * 2),
+      shared_helper_risk,
+      route_boundary_risk,
+      runtime_criticality,
+      verification_burden,
+      deploy_or_lockfile_sensitivity,
+      why_score_was_assigned: compact([entry.likely_shared_helper ? "Likely shared helper." : null, entry.runtime_critical ? "Runtime-critical surface." : null, entry.likely_broad_signoff_relevant ? "Broad signoff likely." : null, inboundCount > 0 ? `Inbound dependency count: ${inboundCount}.` : null, entry.dataconnect_related ? "Data Connect related surface." : null]),
+    };
+  }).sort((left, right) => right.blast_radius_score - left.blast_radius_score || left.path.localeCompare(right.path));
+  const emittedEntries = entries.slice(0, BLAST_RADIUS_SAMPLE_LIMIT);
   return {
-    ...createMetadata(["agent/index/repo-inventory.json", "agent/index/dependency-graph.summary.json"]),
-    entries: inventory.filter((entry) => entry.runtime_critical || entry.likely_shared_helper || entry.likely_broad_signoff_relevant).map((entry) => {
-      const inboundCount = inbound.get(entry.path) ?? 0;
-      const shared_helper_risk = entry.likely_shared_helper ? 25 : 0;
-      const route_boundary_risk = entry.path.startsWith("src/app/api/") || entry.path.includes("route") ? 20 : 0;
-      const runtime_criticality = entry.runtime_critical ? 25 : 0;
-      const verification_burden = entry.likely_broad_signoff_relevant ? 20 : 10;
-      const deploy_or_lockfile_sensitivity = entry.path.includes("package") || entry.path.includes("lock") || entry.dataconnect_related ? 10 : 0;
-      return {
-        stable_id: toStableId("blast", entry.path),
-        path: entry.path,
-        blast_radius_score: shared_helper_risk + route_boundary_risk + runtime_criticality + verification_burden + deploy_or_lockfile_sensitivity + Math.min(20, inboundCount * 2),
-        shared_helper_risk,
-        route_boundary_risk,
-        runtime_criticality,
-        verification_burden,
-        deploy_or_lockfile_sensitivity,
-        why_score_was_assigned: compact([entry.likely_shared_helper ? "Likely shared helper." : null, entry.runtime_critical ? "Runtime-critical surface." : null, entry.likely_broad_signoff_relevant ? "Broad signoff likely." : null, inboundCount > 0 ? `Inbound dependency count: ${inboundCount}.` : null, entry.dataconnect_related ? "Data Connect related surface." : null]),
-      };
-    }).sort((left, right) => right.blast_radius_score - left.blast_radius_score || left.path.localeCompare(right.path)),
+    ...buildCompactIndexMetadata({
+      sources: ["agent/index/repo-inventory.json", "agent/index/dependency-graph.summary.json"],
+      toolchain,
+      total: entries.length,
+      emitted: emittedEntries.length,
+      capStrategy: "top_risk",
+      capReason: "All blast-radius scores are computed before capping; the tracked artifact retains only the highest-risk entries.",
+    }),
+    entries: emittedEntries,
+    counts: {
+      total: entries.length,
+      emitted: emittedEntries.length,
+      omitted: Math.max(0, entries.length - emittedEntries.length),
+      byScoreBand: countBy(entries, (entry) => entry.blast_radius_score >= 80 ? "critical" : entry.blast_radius_score >= 60 ? "high" : entry.blast_radius_score >= 40 ? "medium" : "low"),
+    },
   };
 }
 
-function buildRetrievalIndex() {
-  const inventory = buildRepoInventory();
+function buildRetrievalIndex(inventory: ReturnType<typeof buildRepoInventory>, toolchain: CompactToolchainState) {
   const helpers = buildCanonicalHelpers().entries;
   const pitfalls = buildKnownPitfalls().pitfalls;
   const recentPasses = buildRecentPasses().passes;
+  const entries = [
+    ...inventory.map((entry) => ({ stable_id: entry.stable_id, source_type: "file", source_id: entry.stable_id, searchable_terms: [entry.path, entry.file_class, entry.surface_category], surface_tags: [entry.surface_category, entry.file_class], helper_tags: [], risk_tags: compact([entry.runtime_critical ? "runtime_critical" : null, entry.likely_shared_helper ? "shared_helper" : null, entry.likely_broad_signoff_relevant ? "broad_signoff" : null, entry.dataconnect_related ? "dataconnect" : null]), recency: entry.last_modified_or_hash, freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: entry.runtime_critical || entry.likely_shared_helper ? "hot" : entry.governance_artifact || entry.workflow_guidance ? "cold" : "warm", exclusion_tags: compact([entry.evidence_only ? "evidence_only" : null, entry.generated ? "generated" : null]), do_not_use_as_primary_truth: entry.evidence_only || entry.generated })),
+    ...helpers.map((entry) => ({ stable_id: entry.stable_id, source_type: "helper", source_id: entry.stable_id, searchable_terms: [entry.path, entry.family, entry.purpose], surface_tags: [entry.family], helper_tags: [entry.family], risk_tags: [entry.broad_signoff_likely ? "broad_signoff" : "shared_helper"], recency: entry.path, freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: entry.reuseBeforeNew ? "hot" : "warm", exclusion_tags: [], do_not_use_as_primary_truth: false })),
+    ...pitfalls.map((entry) => ({ stable_id: toStableId("retrieval", entry.title), source_type: "pitfall", source_id: entry.stable_id, searchable_terms: [entry.title, entry.description, ...entry.affected_surfaces], surface_tags: entry.affected_surfaces, helper_tags: entry.related_helpers, risk_tags: ["pitfall", entry.severity], recency: "ledger_backed", freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: "warm", exclusion_tags: ["secondary_truth"], do_not_use_as_primary_truth: true })),
+    ...recentPasses.map((entry) => ({ stable_id: toStableId("retrieval", entry.stable_id), source_type: "recent_pass", source_id: entry.stable_id, searchable_terms: [entry.title, ...entry.scopeSummary, ...entry.touchedSurfaces], surface_tags: entry.changeKinds, helper_tags: entry.canonicalHelpersReused, risk_tags: compact([entry.architecture_change ? "architecture" : null, entry.runtime_change ? "runtime" : null, entry.ui_change ? "ui" : null, entry.security_change ? "security" : null]), recency: entry.date, freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: "cold", exclusion_tags: ["secondary_truth"], do_not_use_as_primary_truth: true })),
+  ];
+  const emittedEntries = Object.entries(RETRIEVAL_GROUP_SAMPLE_LIMITS).flatMap(([sourceType, limit]) => entries
+    .filter((entry) => entry.source_type === sourceType)
+    .sort((left, right) => {
+      const tierOrder = { hot: 0, warm: 1, cold: 2 } as const;
+      return tierOrder[left.context_tier as keyof typeof tierOrder] - tierOrder[right.context_tier as keyof typeof tierOrder]
+        || left.stable_id.localeCompare(right.stable_id);
+    })
+    .slice(0, limit));
   return {
-    ...createMetadata(["agent/index/repo-inventory.json", "agent/index/canonical-helpers.json", "agent/index/known-pitfalls.json", "agent/index/recent-passes.json"]),
-    entries: [
-      ...inventory.map((entry) => ({ stable_id: entry.stable_id, source_type: "file", source_id: entry.stable_id, searchable_terms: [entry.path, entry.file_class, entry.surface_category], surface_tags: [entry.surface_category, entry.file_class], helper_tags: [], risk_tags: compact([entry.runtime_critical ? "runtime_critical" : null, entry.likely_shared_helper ? "shared_helper" : null, entry.likely_broad_signoff_relevant ? "broad_signoff" : null, entry.dataconnect_related ? "dataconnect" : null]), recency: entry.last_modified_or_hash, freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: entry.runtime_critical || entry.likely_shared_helper ? "hot" : entry.governance_artifact || entry.workflow_guidance ? "cold" : "warm", exclusion_tags: compact([entry.evidence_only ? "evidence_only" : null, entry.generated ? "generated" : null]), do_not_use_as_primary_truth: entry.evidence_only || entry.generated })),
-      ...helpers.map((entry) => ({ stable_id: entry.stable_id, source_type: "helper", source_id: entry.stable_id, searchable_terms: [entry.path, entry.family, entry.purpose], surface_tags: [entry.family], helper_tags: [entry.family], risk_tags: [entry.broad_signoff_likely ? "broad_signoff" : "shared_helper"], recency: entry.path, freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: entry.reuseBeforeNew ? "hot" : "warm", exclusion_tags: [], do_not_use_as_primary_truth: false })),
-      ...pitfalls.map((entry) => ({ stable_id: toStableId("retrieval", entry.title), source_type: "pitfall", source_id: entry.stable_id, searchable_terms: [entry.title, entry.description, ...entry.affected_surfaces], surface_tags: entry.affected_surfaces, helper_tags: entry.related_helpers, risk_tags: ["pitfall", entry.severity], recency: "ledger_backed", freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: "warm", exclusion_tags: ["secondary_truth"], do_not_use_as_primary_truth: true })),
-      ...recentPasses.map((entry) => ({ stable_id: toStableId("retrieval", entry.stable_id), source_type: "recent_pass", source_id: entry.stable_id, searchable_terms: [entry.title, ...entry.scopeSummary, ...entry.touchedSurfaces], surface_tags: entry.changeKinds, helper_tags: entry.canonicalHelpersReused, risk_tags: compact([entry.architecture_change ? "architecture" : null, entry.runtime_change ? "runtime" : null, entry.ui_change ? "ui" : null, entry.security_change ? "security" : null]), recency: entry.date, freshness: { local: "fresh", sql_mirror: "unknown" }, context_tier: "cold", exclusion_tags: ["secondary_truth"], do_not_use_as_primary_truth: true })),
-    ],
+    ...buildCompactIndexMetadata({
+      sources: ["agent/index/repo-inventory.json", "agent/index/canonical-helpers.json", "agent/index/known-pitfalls.json", "agent/index/recent-passes.json"],
+      toolchain,
+      total: entries.length,
+      emitted: emittedEntries.length,
+      capStrategy: "grouped_examples",
+      capReason: "Retrieval candidates are derived live by active consumers; the tracked artifact retains bounded examples from each source type plus complete aggregate counts.",
+    }),
+    entries: emittedEntries,
+    counts: {
+      total: entries.length,
+      emitted: emittedEntries.length,
+      omitted: Math.max(0, entries.length - emittedEntries.length),
+      bySourceType: countBy(entries, (entry) => entry.source_type),
+      byContextTier: countBy(entries, (entry) => entry.context_tier),
+    },
   };
 }
 
 function buildIndexArtifacts() {
+  const inventory = buildRepoInventory();
+  const verificationCommands = buildVerificationCommandEntries();
+  const dependencySummary = buildDependencyGraphSummary();
+  const toolchain = compactToolchainState();
   return {
-    "repo-inventory.json": buildRepoInventoryIndex(),
+    "repo-inventory.json": buildRepoInventoryIndex(inventory, toolchain),
     "surface-map.json": buildSurfaceMap(),
     "canonical-helpers.json": { ...createMetadata(["src/lib/**", "src/lib/server/**", "functions/src/**"]), ...buildCanonicalHelpers() },
-    "verification-commands.json": buildVerificationCommands(),
+    "verification-commands.json": buildVerificationCommands(verificationCommands, toolchain),
     "package-manager-truth.json": buildPackageManagerTruth(),
     "workflow-guidance.json": buildWorkflowGuidance(),
     "governance-truth.json": buildGovernanceTruth(),
@@ -264,9 +427,9 @@ function buildIndexArtifacts() {
     "recent-passes.json": buildRecentPasses(),
     "runtime-observability.json": buildRuntimeObservability(),
     "ui-surface-coverage.json": buildUiSurfaceCoverage(),
-    "dependency-graph.summary.json": buildDependencyGraphSummary(),
-    "blast-radius.json": buildBlastRadius(),
-    "retrieval-index.json": buildRetrievalIndex(),
+    "dependency-graph.summary.json": dependencySummary,
+    "blast-radius.json": buildBlastRadius(inventory, dependencySummary, toolchain),
+    "retrieval-index.json": buildRetrievalIndex(inventory, toolchain),
   } as const;
 }
 

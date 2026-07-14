@@ -7,7 +7,6 @@ import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildHumanApiErrorResponse } from "@/lib/errors/api-error-response";
 import { resolveHumanErrorFromCode } from "@/lib/errors/resolve-human-error";
 
-export const dynamic = "force-dynamic";
 const WALLET_PACKAGES_CACHE_CONTROL = "public, max-age=300, s-maxage=900, stale-while-revalidate=3600";
 
 async function GET_handler(request: NextRequest) {

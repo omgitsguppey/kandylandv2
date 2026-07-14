@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockState = vi.hoisted(() => {
   const writes: Array<{ path: string; data: Record<string, unknown>; options?: unknown }> = [];
   const existingPaths = new Set<string>();
+  const existingDataByPath = new Map<string, Record<string, unknown>>();
   const batch = {
     set: vi.fn((ref: { path: string }, data: Record<string, unknown>, options?: unknown) => {
       writes.push({ path: ref.path, data, options });
@@ -17,6 +18,7 @@ const mockState = vi.hoisted(() => {
   return {
     writes,
     existingPaths,
+    existingDataByPath,
     batch,
     guardApiRequest: vi.fn(async () => ({ uid: "user_123" })),
     recordRouteWarning: vi.fn(),
@@ -36,6 +38,7 @@ const mockState = vi.hoisted(() => {
     reset() {
       writes.length = 0;
       existingPaths.clear();
+      existingDataByPath.clear();
       batch.set.mockClear();
       batch.create.mockClear();
       batch.commit.mockClear();
@@ -71,7 +74,10 @@ vi.mock("@/lib/server/firebase-admin", () => ({
           const path = `${name}/${id}`;
           return {
             path,
-            get: vi.fn(async () => ({ exists: mockState.existingPaths.has(path) })),
+            get: vi.fn(async () => ({
+              exists: mockState.existingPaths.has(path),
+              data: () => mockState.existingDataByPath.get(path),
+            })),
           };
         },
       };
@@ -125,7 +131,25 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 }));
 
 vi.mock("@/lib/server/behavioral-timeline-writer", () => ({
-  writeBehavioralTimelineFacts: mockState.writeBehavioralTimelineFacts,
+  writeBehavioralTimelineProjection: vi.fn(async (input: { facts: unknown[] }) => {
+    const timeline = await mockState.writeBehavioralTimelineFacts(input.facts);
+    const materializer = await mockState.materializeUserTrackingIndexes();
+    return {
+      written: timeline.written,
+      skipped: timeline.skipped,
+      reason: input.facts.length > 0 ? "ok" : "no_facts",
+      materializer: {
+        mode: "shadow",
+        status: "queued",
+        requestsBuilt: 1,
+        requestsEnqueued: 1,
+        requestsCoalesced: 0,
+        usersQueued: materializer.usersProcessed > 0 ? 1 : 0,
+        guestsQueued: materializer.guestsProcessed,
+        issueCodes: materializer.issueCodes,
+      },
+    };
+  }),
 }));
 
 vi.mock("@/lib/server/analytics-identity-linking", () => ({
@@ -518,7 +542,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     });
   });
 
-  it("treats server drop unlock facts as server truth", async () => {
+  it("keeps server payload-reveal facts separate from entitlement unlock truth", async () => {
     const response = await POST(buildRequest({
       events: [{
         eventId: "evt_drop_unwrapped",
@@ -544,7 +568,7 @@ describe("POST /api/analytics/ingest-identified", () => {
       dropId: "drop_123",
       transactionId: "txn_unlock_123",
       sourceTruth: "server",
-      normalizedActionName: "drop_unlocked",
+      normalizedActionName: "drop_unwrapped",
       metricEligible: true,
     });
   });
@@ -768,7 +792,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     expect(mockState.batch.commit).not.toHaveBeenCalled();
   });
 
-  it("does not turn deferred materializer failures into retryable server errors", async () => {
+  it("returns retryable 503 when the atomic timeline/outbox projection fails", async () => {
     mockState.materializeUserTrackingIndexes.mockRejectedValueOnce(new Error("materializer unavailable"));
 
     const response = await POST(buildRequest({
@@ -785,19 +809,56 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(payload).toMatchObject({
-      success: true,
-      processed: 1,
-      routeStatus: "active_supported_route",
-      materializerStatus: "deferred_failed_non_blocking",
-      retryable: false,
-    });
+    expect(response.status).toBe(503);
+    expect(payload).toMatchObject({ success: false, retryable: true });
     expect(mockState.batch.commit).toHaveBeenCalledTimes(1);
     expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
       channel: "analytics",
       severity: "warn",
-      message: "Identified analytics deferred materializer failed",
+      message: "Identified analytics timeline/outbox projection failed",
     }));
+
+    const eventPath = "analytics_event_facts/evt_materializer_failure";
+    const durableEventWrite = mockState.writes.find((write) => write.path === eventPath);
+    expect(durableEventWrite?.data).toMatchObject({
+      sourceIdentity: { userId: "user_123" },
+      behavioralTimelineProjectionFact: {
+        factId: "evt_materializer_failure",
+        idempotencyKey: "evt_materializer_failure",
+        actorUserId: "user_123",
+      },
+    });
+    mockState.existingPaths.add(eventPath);
+    mockState.existingDataByPath.set(eventPath, durableEventWrite!.data);
+
+    const retryResponse = await POST(buildRequest({
+      events: [{
+        eventId: "evt_materializer_failure",
+        eventTimestampMs: 1767225600000,
+        eventName: "creator_followed",
+        eventParams: {
+          page_path: "/creators/kandy",
+          session_id: "session_123",
+          creator_id: "creator_456",
+        },
+      }],
+    }));
+    const retryPayload = await retryResponse.json();
+
+    expect(retryResponse.status).toBe(200);
+    expect(retryPayload).toMatchObject({
+      success: true,
+      processed: 0,
+      dedupedExisting: 1,
+      timelineFactsWritten: 1,
+      timelineStatus: "written_with_outbox",
+    });
+    expect(mockState.batch.commit).toHaveBeenCalledTimes(1);
+    expect(mockState.writeBehavioralTimelineFacts).toHaveBeenLastCalledWith([
+      expect.objectContaining({
+        factId: "evt_materializer_failure",
+        actorUserId: "user_123",
+      }),
+    ]);
   });
 });

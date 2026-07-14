@@ -5,10 +5,11 @@ import { ROOT, getPackageScripts, readJsonFile, walkDirectoryFiles } from "./sha
 
 export const VALIDATOR_AUTHORITY_PATH = "agent/context/validator-authority.json";
 
-export type ValidatorAuthorityStatus = "canonical" | "supporting" | "legacy" | "blocked";
+export type ValidatorAuthorityStatus = "canonical" | "supporting" | "superseded" | "legacy" | "blocked";
 export type ValidatorAuthorityLevel =
   | "canonical_contract"
   | "supporting_contract"
+  | "superseded_contract"
   | "supporting_score"
   | "legacy_reference"
   | "blocked_reference";

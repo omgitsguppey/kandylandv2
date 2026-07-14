@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { AuthError, handleApiError } from "@/lib/server/auth";
+import {
+    isBoundedJsonBodyError,
+    isRequestBodyTooLargeError,
+    readBoundedFormDataBody,
+    readBoundedJsonBody,
+} from "@/lib/server/bounded-json-body";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import {
     ADMIN_CONTENT_ROUTE_EVIDENCE,
@@ -20,6 +26,8 @@ import { buildNotFoundBody } from "@/lib/server/not-found";
 const DROPS_CONTENT_PREFIX = "drops/";
 const MAX_ADMIN_CONTENT_LIST_FILES = 100;
 const MAX_ADMIN_DROP_ASSET_BYTES = 250 * 1024 * 1024;
+const MAX_ADMIN_CONTENT_MULTIPART_OVERHEAD_BYTES = 64 * 1024;
+const ADMIN_CONTENT_BODY_LIMIT_BYTES = MAX_ADMIN_DROP_ASSET_BYTES + MAX_ADMIN_CONTENT_MULTIPART_OVERHEAD_BYTES;
 const ALLOWED_ADMIN_DROP_ASSET_TYPES = new Set([
     "application/pdf",
     "application/zip",
@@ -30,6 +38,9 @@ const ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE = "admin_storage_content_manager";
 type AdminContentUploadErrorCode =
     | "unauthorized"
     | "forbidden"
+    | "invalid_json"
+    | "invalid_multipart_body"
+    | "payload_too_large"
     | "invalid_file"
     | "file_too_large"
     | "invalid_content_type"
@@ -51,8 +62,10 @@ function buildAdminContentUploadErrorResponse(
 ) {
     return NextResponse.json({
         ...ADMIN_CONTENT_ROUTE_EVIDENCE,
+        success: false,
         error,
         errorCode,
+        retryable: false,
         uploadGuarded: true,
         sourceSurface: ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE,
     }, { status });
@@ -172,15 +185,19 @@ async function POST_handler(request: NextRequest) {
             rateLimit: ADMIN_STORAGE_UPLOAD,
             requireTrustedOrigin: true,
             auth: "admin",
+            maxBodyBytes: ADMIN_CONTENT_BODY_LIMIT_BYTES,
         });
 
-        const formData = await request.formData();
+        const formData = await readBoundedFormDataBody(request, {
+            maxBytes: ADMIN_CONTENT_BODY_LIMIT_BYTES,
+            routeName: "admin/content/upload",
+        });
         const file = formData.get("file");
         if (!(file instanceof File)) {
             return buildAdminContentUploadErrorResponse(400, "invalid_file", "Missing upload file");
         }
         if (file.size > MAX_ADMIN_DROP_ASSET_BYTES) {
-            return buildAdminContentUploadErrorResponse(400, "file_too_large", "File exceeds upload limit");
+            return buildAdminContentUploadErrorResponse(413, "file_too_large", "File exceeds upload limit");
         }
         const contentType = file.type || "application/octet-stream";
         if (
@@ -268,6 +285,12 @@ async function POST_handler(request: NextRequest) {
             },
         }, { status: 201 });
     } catch (error) {
+        if (isRequestBodyTooLargeError(error)) {
+            return buildAdminContentUploadErrorResponse(413, "payload_too_large", "Request payload is too large.");
+        }
+        if (isBoundedJsonBodyError(error)) {
+            return buildAdminContentUploadErrorResponse(400, "invalid_multipart_body", error.message);
+        }
         if (error instanceof AuthError) {
             if (error.status === 401) {
                 return buildAdminContentUploadErrorResponse(401, "unauthorized", "Unauthorized");
@@ -275,9 +298,6 @@ async function POST_handler(request: NextRequest) {
             if (error.status === 403) {
                 return buildAdminContentUploadErrorResponse(403, "forbidden", "Admin access required");
             }
-        }
-        if (error instanceof Error && /Failed to parse body as FormData/i.test(error.message)) {
-            return buildAdminContentUploadErrorResponse(400, "invalid_file", "Invalid upload payload");
         }
         recordRouteWarning("admin/content", "Admin content upload failed", error, {
             channel: "admin",
@@ -310,7 +330,11 @@ async function DELETE_handler(request: NextRequest) {
             auth: "admin",
         });
 
-        const { fileId, fullPath } = await request.json() as { fileId?: string; fullPath?: string };
+        const { fileId, fullPath } = await readBoundedJsonBody<{ fileId?: string; fullPath?: string }>(request, {
+            maxBytes: ADMIN_CONTENT_BODY_LIMIT_BYTES,
+            routeName: "admin/content",
+            allowEmpty: false,
+        });
         const decodedPath = typeof fileId === "string" ? decodeAdminContentFileId(fileId, isSafeDropsContentPath) : null;
         const targetPath = decodedPath ?? fullPath;
         if (typeof targetPath !== "string" || !isSafeDropsContentPath(targetPath)) {
@@ -336,6 +360,9 @@ async function DELETE_handler(request: NextRequest) {
             success: true,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildAdminContentUploadErrorResponse(error.status, error.code, error.message);
+        }
         return handleApiError(error, "Admin.Content.DELETE");
     }
 }

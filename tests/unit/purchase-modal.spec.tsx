@@ -43,4 +43,13 @@ describe("PurchaseModal compact paid-GD labels", () => {
         expect(source).not.toMatch(/description:\s*(?:err|error|order|result|body)\.(?:message|error|userMessage)/u);
         expect(source).not.toMatch(/error_message:\s*(?:err|error|order|result|body)\.(?:message|error|userMessage)/u);
     });
+
+    it("keeps configurable bundle controls separate and mobile-safe", () => {
+        const source = readSource("src/components/PurchaseModal.tsx");
+
+        expect(source).toContain("col-span-3 grid min-h-11 w-full cursor-pointer");
+        expect(source).not.toContain('role="button"');
+        expect(source).toContain("flex h-11 w-11 flex-col items-center");
+        expect(source).toContain("flex h-11 w-11 items-center");
+    });
 });

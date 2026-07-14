@@ -49,19 +49,6 @@ import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const CREATOR_ACCOUNT_CONTROLS_BODY_LIMIT_BYTES = 16_384;
-export const CREATOR_ACCOUNT_CONTROLS_EXPECTED_SAFE_ERROR_CODES = [
-  "unauthorized",
-  "forbidden",
-  "invalid_admin_request",
-  "payload_too_large",
-  "not_found",
-  "conflict",
-  "role_activation_blocked",
-  "username_taken",
-  "invalid_username",
-  "no_changes_detected",
-] as const;
-
 type UserRole = "user" | "creator" | "admin";
 
 function readString(value: unknown) {

@@ -74,7 +74,7 @@ requireIncludes(problemCopy, "getCreatorBookingProblemCopy", "booking problem co
   "This creator has not opened booking hours yet.",
   "That time was just booked. Pick another slot.",
   "Bookings are not available for this creator right now.",
-  "You need ${shortfallGd} more paid GD to book this.",
+  "Open Wallet to add ${shortfallGd} more paid GD, then book this again.",
   "Booking could not be completed. Try again or report the issue.",
 ].forEach((copy) => {
   requireIncludes(problemCopy, copy, "booking problem copy helper");

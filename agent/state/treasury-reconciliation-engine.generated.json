@@ -1,6 +1,6 @@
 {
   "reportKey": "treasury-reconciliation-engine",
-  "generatedAtUtc": "2026-06-11T22:33:04.281Z",
+  "generatedAtUtc": "2026-07-14T08:13:19.522Z",
   "status": "pass",
   "exports": [
     "reconcileProviderReceiptsToLedger",
@@ -16,5 +16,5 @@
   "paymentRuntimeChanged": false,
   "gumdropMathChanged": false,
   "validationFailures": [],
-  "currentHead": "901fbd46540e591a4e16c16d748030d0b3e7534a"
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa"
 }

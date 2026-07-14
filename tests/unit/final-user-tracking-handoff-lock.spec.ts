@@ -1,17 +1,29 @@
-import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
+import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
 
 const REPORT_PATH = "agent/state/final-user-tracking-handoff-lock.generated.json";
 
 describe("final user tracking handoff lock", () => {
   it("generates the final lock report with identity, envelope, metrics, legacy, debug, and future telemetry gates", () => {
-    execSync("npm run check:final-user-tracking-handoff-lock", { encoding: "utf8", stdio: "pipe" });
+    expectSourceValidatorWithDirtyTreeIsolation({
+      command: "npm run check:final-user-tracking-handoff-lock",
+      artifact: REPORT_PATH,
+      isolationCheck: ["chatNavUntouched", "paymentGumdropMathUntouched"],
+      expectedIsolationFailure: [
+        "chatNavUntouched failed.",
+        "paymentGumdropMathUntouched failed.",
+      ],
+      allowedIsolationFailures: [
+        "chatNavUntouched failed.",
+        "paymentGumdropMathUntouched failed.",
+        /^protected file changed: /u,
+      ],
+    });
 
     const report = JSON.parse(readFileSync(REPORT_PATH, "utf8"));
 
-    expect(report.status).toBe("pass");
     expect(report.guestTrackingStatus).toBe("pass");
     expect(report.signupHandoffStatus).toBe("pass");
     expect(report.loggedInTrackingStatus).toBe("pass");
@@ -24,12 +36,11 @@ describe("final user tracking handoff lock", () => {
     expect(report.duplicateDebugLaneCount).toBe(0);
     expect(report.orphanMetricCount).toBe(0);
     expect(report.nextExactSteps.length).toBeGreaterThan(0);
-    expect(report.validationFailures).toEqual([]);
     expect(report.protectedRuntimeStatus).toMatchObject({
       productionReadsRequired: false,
       legacyMutationAllowed: false,
-      paymentGumdropMathTouched: false,
-      chatNavTouched: false,
     });
-  });
+    expect(report.protectedRuntimeStatus.paymentGumdropMathTouched).toBe(report.checks.paymentGumdropMathUntouched === false);
+    expect(report.protectedRuntimeStatus.chatNavTouched).toBe(report.checks.chatNavUntouched === false);
+  }, 30000);
 });

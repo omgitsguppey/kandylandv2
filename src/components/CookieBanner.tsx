@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -8,11 +8,13 @@ import { getConsentUpgradeEffect, type ConsentDecision, type ConsentMode } from 
 import { trackEvent } from "@/lib/telemetry";
 
 interface BannerViewProps {
-    savingChoice: boolean;
+    pendingDecision: ConsentDecision | null;
     handleConsent: (decision: ConsentDecision) => Promise<void>;
 }
 
-function CompactBannerView({ savingChoice, handleConsent }: BannerViewProps) {
+function CompactBannerView({ pendingDecision, handleConsent }: BannerViewProps) {
+    const savingChoice = pendingDecision !== null;
+
     return (
         <div className="flex flex-col gap-2">
             <div>
@@ -23,10 +25,10 @@ function CompactBannerView({ savingChoice, handleConsent }: BannerViewProps) {
                     Essential storage stays on. Accept all enables behavioral tracking; minimal keeps lightweight product analytics only. You can change this later in Settings.
                 </p>
             </div>
-            <div className="grid grid-cols-1 gap-1.5 min-[340px]:grid-cols-2">
+            <div className="grid grid-cols-1 gap-1.5 min-[360px]:grid-cols-2">
                 <Link
                     href="/settings"
-                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
+                    className="inline-flex min-h-11 items-center justify-center whitespace-normal break-words rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
                     Manage settings
                 </Link>
@@ -34,32 +36,37 @@ function CompactBannerView({ savingChoice, handleConsent }: BannerViewProps) {
                     type="button"
                     onClick={() => void handleConsent("decline_optional")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
+                    aria-busy={pendingDecision === "decline_optional"}
+                    className="inline-flex min-h-11 items-center justify-center whitespace-normal break-words rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
-                    Decline optional
+                    {pendingDecision === "decline_optional" ? "Saving..." : "Decline optional"}
                 </button>
                 <button
                     type="button"
                     onClick={() => void handleConsent("minimal")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl border border-brand-purple/40 bg-brand-purple/15 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
+                    aria-busy={pendingDecision === "minimal"}
+                    className="inline-flex min-h-11 items-center justify-center whitespace-normal break-words rounded-xl border border-brand-purple/40 bg-brand-purple/15 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
-                    Minimal analytics
+                    {pendingDecision === "minimal" ? "Saving..." : "Minimal analytics"}
                 </button>
                 <button
                     type="button"
                     onClick={() => void handleConsent("accept_all")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl bg-brand-purple px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
+                    aria-busy={pendingDecision === "accept_all"}
+                    className="inline-flex min-h-11 items-center justify-center whitespace-normal break-words rounded-xl bg-brand-purple px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
-                    {savingChoice ? "Saving..." : "Accept all"}
+                    {pendingDecision === "accept_all" ? "Saving..." : "Accept all"}
                 </button>
             </div>
         </div>
     );
 }
 
-function DesktopBannerView({ savingChoice, handleConsent }: BannerViewProps) {
+function DesktopBannerView({ pendingDecision, handleConsent }: BannerViewProps) {
+    const savingChoice = pendingDecision !== null;
+
     return (
         <div className="flex flex-col gap-3">
             <div>
@@ -81,25 +88,28 @@ function DesktopBannerView({ savingChoice, handleConsent }: BannerViewProps) {
                     type="button"
                     onClick={() => void handleConsent("decline_optional")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                    aria-busy={pendingDecision === "decline_optional"}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
                 >
-                    Decline optional
+                    {pendingDecision === "decline_optional" ? "Saving..." : "Decline optional"}
                 </button>
                 <button
                     type="button"
                     onClick={() => void handleConsent("minimal")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                    aria-busy={pendingDecision === "minimal"}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
                 >
-                    Minimal analytics
+                    {pendingDecision === "minimal" ? "Saving..." : "Minimal analytics"}
                 </button>
                 <button
                     type="button"
                     onClick={() => void handleConsent("accept_all")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                    aria-busy={pendingDecision === "accept_all"}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
                 >
-                    {savingChoice ? "Saving..." : "Accept all"}
+                    {pendingDecision === "accept_all" ? "Saving..." : "Accept all"}
                 </button>
             </div>
         </div>
@@ -112,7 +122,8 @@ export default function CookieBanner() {
     const [isCompactViewport, setIsCompactViewport] = useState(false);
     const [consentMode, setConsentMode] = useState<ConsentMode>("unknown");
     const [consentError, setConsentError] = useState<string | null>(null);
-    const [savingChoice, setSavingChoice] = useState(false);
+    const [pendingDecision, setPendingDecision] = useState<ConsentDecision | null>(null);
+    const savingChoiceRef = useRef(false);
     const { user, userProfile } = useAuth();
     const { isAuthModalOpen } = useUI();
 
@@ -162,7 +173,9 @@ export default function CookieBanner() {
     if (!showBanner || suppressForFlow) return null;
 
     const handleConsent = async (decision: ConsentDecision) => {
-        setSavingChoice(true);
+        if (savingChoiceRef.current) return;
+        savingChoiceRef.current = true;
+        setPendingDecision(decision);
         setConsentError(null);
         try {
             const snapshot = await saveGuestConsentDecision(decision);
@@ -179,7 +192,8 @@ export default function CookieBanner() {
             const message = error instanceof Error ? error.message : "We could not save that choice right now.";
             setConsentError(message);
         } finally {
-            setSavingChoice(false);
+            savingChoiceRef.current = false;
+            setPendingDecision(null);
         }
     };
 
@@ -196,9 +210,9 @@ export default function CookieBanner() {
             }
         >
             {isCompactViewport ? (
-                <CompactBannerView savingChoice={savingChoice} handleConsent={handleConsent} />
+                <CompactBannerView pendingDecision={pendingDecision} handleConsent={handleConsent} />
             ) : (
-                <DesktopBannerView savingChoice={savingChoice} handleConsent={handleConsent} />
+                <DesktopBannerView pendingDecision={pendingDecision} handleConsent={handleConsent} />
             )}
             {consentError ? (
                 <p className="mt-2 text-[11px] leading-5 text-red-300">{consentError}</p>

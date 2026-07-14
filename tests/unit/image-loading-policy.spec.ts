@@ -1,6 +1,11 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { getImageLoadingPolicy } from "@/lib/image-loading-policy";
+
+const ROOT = process.cwd();
 
 describe("image loading policy", () => {
     it("returns lazy loading for grid, list, and library surfaces", () => {
@@ -57,5 +62,16 @@ describe("image loading policy", () => {
         expect(getImageLoadingPolicy("featured_carousel", { mediaIndex: 1 }).preload).toBe(false);
         expect(getImageLoadingPolicy("home_active_drops").preload).toBe(false);
         expect(getImageLoadingPolicy("dashboard_collection").preload).toBe(false);
+    });
+
+    it("keeps owned-card image failures connected to a rendered fallback", () => {
+        const source = readFileSync(
+            path.join(ROOT, "src/components/Dashboard/OwnedDropGalleryCard.tsx"),
+            "utf8",
+        );
+
+        expect(source).toMatch(/onError\s*=\s*\{[\s\S]{0,160}set(?:ImageError|ErroredImageUrl)\s*\(/u);
+        expect(source).toContain("resolvePublicDropCoverSrc(null)");
+        expect(source).toMatch(/src\s*=\s*\{\s*coverSrc\s*\}/u);
     });
 });

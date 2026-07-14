@@ -5,9 +5,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  CURRENT_BETA_RELEASE_VERSION,
-} from "@/lib/release-notes/release-version-contract";
 import { formatBetaOdometerVersion } from "@/lib/release-notes/beta-odometer-version";
 
 const mockState = vi.hoisted(() => ({
@@ -22,7 +19,7 @@ import { BetaBadge } from "@/components/ReleaseNotes/BetaBadge";
 
 function buildReleaseNotesResponse() {
   return {
-    currentVersion: CURRENT_BETA_RELEASE_VERSION,
+    currentVersion: "1.2.1",
     betaReleaseCounter: 201,
     channel: "beta",
     generatedAt: "2026-05-05T15:00:00.000Z",
@@ -60,6 +57,7 @@ function buildReleaseNotesResponse() {
         title: "Added a Beta badge with app update notes in the top navigation.",
         summary: "Cleaner Beta update notes with clearer summaries and timestamps.",
         userFacingTitle: "Added a Beta badge with app update notes in the top navigation.",
+        surfaceCategory: "Navigation",
         bullets: [
           "Added a Beta badge beside KandyDrops for update notes.",
           "Improved public update history so the latest notes are easier to read.",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:58:27.290Z",
+  "generatedAt": "2026-07-14T16:00:11.708Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,8 +15,18 @@
     "functions/package.json",
     "package-lock.json",
     "functions/package-lock.json",
-    "functions/pnpm-lock.yaml"
+    "functions/pnpm-lock.yaml",
+    "functions/pnpm-workspace.yaml"
   ],
+  "toolchain": {
+    "gitStatus": "available",
+    "sourceFileDiscovery": "git",
+    "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+    "currentHeadSource": "git",
+    "toolingDegraded": false,
+    "degradationReason": null,
+    "dirtyFileCount": 681
+  },
   "stable_id": "pkgtruth__root-functions",
   "root": {
     "manifest": "package.json",
@@ -46,6 +56,7 @@
       "functions/package-lock.json",
       "functions/pnpm-lock.yaml"
     ],
+    "pnpmWorkspaceConfig": "functions/pnpm-workspace.yaml",
     "verificationCommands": [
       "npm --prefix functions run check"
     ],
@@ -56,9 +67,14 @@
   "syncInvariants": [
     "Root npm dependency changes must keep package-lock.json in sync.",
     "Functions npm dependency changes must keep functions/package-lock.json in sync.",
-    "Functions pnpm dependency changes must keep functions/pnpm-lock.yaml in sync."
+    "Functions pnpm dependency changes must keep functions/pnpm-lock.yaml in sync.",
+    "Functions pnpm override policy is owned by functions/pnpm-workspace.yaml and must stay aligned with functions/package.json."
+  ],
+  "dependencyWindowBlockers": [
+    "Functions has both package-lock.json and pnpm-lock.yaml; treat any drift as a manual dependency-window task, not an agent tooling patch."
   ],
   "knownFailureModes": [
-    "Functions dual-lockfile drift can break functions verification or deployment parity."
+    "Functions dual-lockfile drift can break functions verification or deployment parity.",
+    "Functions pnpm installs that bypass functions/pnpm-workspace.yaml can silently miss the repository's pnpm override policy."
   ]
 }

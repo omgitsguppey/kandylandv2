@@ -89,7 +89,7 @@ export default function StickyFilterBar({
                         value={localSearch}
                         onChange={handleSearchChange}
                         onFocus={onSearchFocus}
-                        className="h-10 w-full rounded-[1rem] border border-white/10 bg-white/[0.055] pl-9 pr-3 text-[13px] font-medium text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/55 focus:bg-white/[0.08]"
+                        className="h-11 w-full rounded-[1rem] border border-white/10 bg-white/[0.055] pl-9 pr-3 text-[13px] font-medium text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/55 focus:bg-white/[0.08]"
                     />
                 </label>
 
@@ -113,7 +113,7 @@ export default function StickyFilterBar({
                                     }
                                 }}
                                 className={cn(
-                                    "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-[0.95rem] border px-3 text-[11px] font-bold transition-colors active:scale-[0.98]",
+                                    "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-[0.95rem] border px-3 text-[11px] font-bold transition-colors active:scale-[0.98]",
                                     isSelected
                                         ? "border-brand-purple/45 bg-brand-purple/18 text-white"
                                         : "border-white/8 bg-white/[0.045] text-gray-400 hover:bg-white/[0.075] hover:text-white",
@@ -133,11 +133,11 @@ export default function StickyFilterBar({
                                 triggerHaptic();
                                 setIsExpanded((current) => !current);
                             }}
-                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.95rem] border border-white/8 bg-white/[0.045] text-gray-400 transition-colors hover:bg-white/[0.075] hover:text-white active:scale-[0.98]"
+                            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.95rem] border border-white/8 bg-white/[0.045] text-gray-400 transition-colors hover:bg-white/[0.075] hover:text-white active:scale-[0.98]"
                             aria-label={isExpanded ? "Collapse Drop filters" : "Show all Drop filters"}
                             aria-expanded={isExpanded}
                         >
-                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            {isExpanded ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
                         </button>
                     ) : null}
                 </div>

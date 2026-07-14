@@ -96,6 +96,103 @@ export interface ValidationResult {
   failures: string[];
 }
 
+export interface CompactFrontendDirtyClassifications {
+  classifications: Record<string, string>;
+  summary: Record<string, number>;
+  total: number;
+  retained: number;
+  omitted: number;
+}
+
+export function classifyFrontendConsolidationDirtyFile(inputPath: string) {
+  const path = inputPath.replace(/\\/gu, "/");
+
+  if (path === "AGENTS.md" || path === "REPO_MEMORY_LEDGER.md" || path === "EVERY_FILE_FUNCTION_CHECKLIST.md" || path === "agent/index/known-pitfalls.json") return "memory_update_expected";
+  if (path === "package.json" || path === "package-lock.json" || path === "pnpm-lock.yaml") return "real_source_change_needs_review";
+  if (path.startsWith("agent/context/")) return "generated_context_noise_leave_unstaged";
+  if (path.startsWith("agent/prompts/")) return "generated_context_noise_leave_unstaged";
+  if (path.startsWith("agent/index/")) return "generated_index_noise_leave_unstaged";
+  if (path.startsWith("agent/schemas/") && path.endsWith(".schema.json")) return "tooling_change_needs_separate_review";
+  if (path === "src/components/Support/SupportInbox.tsx") return "hydration_race_logic_to_fix";
+  if (path === "src/lib/analytics/event-translation-bridge.ts" || path === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (path.startsWith("src/lib/frontend-hardening/")) return "real_source_change_needs_review";
+  if (path.startsWith("scripts/agent/validate-frontend-") || path === "scripts/agent/validate-client-state-ownership.ts" || path === "scripts/agent/validate-hydration-race-cleanup.ts" || path === "scripts/agent/validate-codex-frontend-memory-writeback.ts") return "real_source_change_needs_review";
+  if (path === "scripts/agent/build-agent-indexes.ts" || path === "scripts/agent/validate-freshness-window-repair.ts" || path === "scripts/repo-inventory.ts") return "tooling_change_needs_separate_review";
+  if (path.startsWith("tests/unit/frontend-") || path === "tests/unit/client-state-ownership.spec.ts" || path === "tests/unit/hydration-race-cleanup.spec.ts" || path === "tests/unit/codex-frontend-memory-writeback.spec.ts") return "real_source_change_needs_review";
+  if (path.startsWith("agent/state/frontend-") || path === "agent/state/client-state-ownership.generated.json" || path === "agent/state/hydration-race-cleanup.generated.json" || path === "agent/state/codex-frontend-memory-writeback.generated.json") return "current_generated_artifact_to_commit";
+  if (path.startsWith("docs/agent-truth/frontend-") || path === "docs/agent-truth/client-state-ownership.md" || path === "docs/agent-truth/hydration-race-cleanup.md" || path === "docs/agent-truth/codex-frontend-memory-writeback.md") return "current_generated_artifact_to_commit";
+  if (path === "agent/state/event-translation-bridge.generated.json" || path === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (path === "docs/agent-truth/event-translation-bridge.md" || path === "docs/agent-truth/person-metrics-hydration.md") return "current_generated_artifact_to_commit";
+  if (path === "agent/state/public-beta-score.generated.json" || path === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
+  if (path.startsWith("agent/state/") && path.endsWith(".generated.json")) return "generated_report_noise_leave_unstaged";
+  if (path.startsWith("docs/agent-truth/") && path.endsWith(".md")) return "generated_report_doc_noise_leave_unstaged";
+  if (path === "CHANGELOG.md" || path === "public/kandydrops-release-notes.json" || path.startsWith("src/lib/release-notes/")) return "release_artifact_expected";
+
+  if (path.startsWith("src/")) return "real_source_change_needs_review";
+  if (path.startsWith("tests/")) return "test_change_needs_review";
+  if (path.startsWith("scripts/")) return "tooling_change_needs_separate_review";
+  if (path.startsWith("functions/")) return "function_source_change_needs_separate_review";
+  if (path.startsWith("docs/")) return "documentation_change_needs_separate_review";
+  if (path.startsWith("public/")) return "static_asset_change_needs_review";
+  if (path.startsWith(".github/")) return "configuration_change_needs_separate_review";
+  if (path === "README.md" || path === "FULL_SCALE_CODEBASE_AUDIT.md") return "documentation_change_needs_separate_review";
+  if (
+    path === ".env.example"
+    || path === "apphosting.yaml"
+    || path === "firebase.json"
+    || path === "firestore.indexes.json"
+    || path === "firestore.rules"
+    || path === "storage.rules"
+    || path === "tsconfig.json"
+    || /^(?:eslint|next|postcss|tailwind|tsconfig|vitest)\.config\.[cm]?[jt]s$/u.test(path)
+  ) return "configuration_change_needs_separate_review";
+
+  return "unsafe_unknown";
+}
+
+function isFrontendConsolidationProofPath(inputPath: string) {
+  const path = inputPath.replace(/\\/gu, "/");
+  return path === "src/components/Support/SupportInbox.tsx"
+    || path === "src/lib/analytics/event-translation-bridge.ts"
+    || path === "src/lib/analytics/person-metrics-hydration.ts"
+    || path.startsWith("src/lib/frontend-hardening/")
+    || path.startsWith("scripts/agent/validate-frontend-")
+    || path.startsWith("tests/unit/frontend-")
+    || path.startsWith("agent/state/frontend-")
+    || path.startsWith("docs/agent-truth/frontend-");
+}
+
+export function compactFrontendConsolidationDirtyClassifications(
+  classifications: Record<string, string>,
+  maxEntries = 40,
+): CompactFrontendDirtyClassifications {
+  const entries = Object.entries(classifications).sort(([left], [right]) => left.localeCompare(right));
+  const summary = Object.fromEntries(
+    [...entries.reduce<Map<string, number>>((counts, [, classification]) => {
+      counts.set(classification, (counts.get(classification) ?? 0) + 1);
+      return counts;
+    }, new Map())].sort(([left], [right]) => left.localeCompare(right)),
+  );
+  const requiredEntries = entries.filter(([path, classification]) =>
+    classification === "unsafe_unknown" || isFrontendConsolidationProofPath(path));
+  const retainedPaths = new Set(requiredEntries.map(([path]) => path));
+  const boundedMaxEntries = Math.max(0, Math.floor(maxEntries));
+  const remainingSlots = Math.max(0, boundedMaxEntries - requiredEntries.length);
+  const sampledEntries = entries
+    .filter(([path]) => !retainedPaths.has(path))
+    .slice(0, remainingSlots);
+  const retainedEntries = [...requiredEntries, ...sampledEntries]
+    .sort(([left], [right]) => left.localeCompare(right));
+
+  return {
+    classifications: Object.fromEntries(retainedEntries),
+    summary,
+    total: entries.length,
+    retained: retainedEntries.length,
+    omitted: entries.length - retainedEntries.length,
+  };
+}
+
 const FRONTEND_ROOTS = ["src/app", "src/components", "src/hooks", "src/context", "src/lib"];
 const FRONTEND_EXTENSIONS = /\.(tsx|ts)$/u;
 const FORBIDDEN_OVERLAP = [/^src\/app\/api\//u, /^src\/lib\/backend-hardening\//u, /^src\/lib\/admin-analytics\/panel-hydration-/u];
@@ -261,7 +358,11 @@ export function buildComponentBloatFindings(input: { root?: string; limit?: numb
 
 function gitCount(args: string[]) {
   try {
-    return execFileSync("git", args, { cwd: process.cwd(), encoding: "utf8" }).trim();
+    return execFileSync("git", args, {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
   } catch {
     return "";
   }

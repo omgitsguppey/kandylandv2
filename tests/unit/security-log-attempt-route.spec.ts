@@ -44,6 +44,10 @@ vi.mock("@/lib/server/auth", () => ({
   handleApiError: handleApiErrorMock,
 }));
 
+vi.mock("@/lib/server/route-runtime-health", () => ({
+  withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
+}));
+
 vi.mock("@/lib/security-events", () => ({
   describeSecurityEvent: () => ({
     reason: "rip_attempt",
@@ -98,4 +102,24 @@ describe("POST /api/security/log-attempt", () => {
     expect(response.status).toBe(500);
     expect(trackServerEventMock).not.toHaveBeenCalled();
   }, 15_000);
+
+  it("rejects an oversized event before any security or telemetry write", async () => {
+    const request = new NextRequest("http://localhost/api/security/log-attempt", {
+      method: "POST",
+      body: JSON.stringify({ reason: "rip_attempt", detail: "x".repeat(16_384) }),
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+
+    const response = await POST(request);
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({ errorCode: "payload_too_large", retryable: false });
+    expect(collectionMock).not.toHaveBeenCalled();
+    expect(runTransactionMock).not.toHaveBeenCalled();
+    expect(trackServerEventMock).not.toHaveBeenCalled();
+    expect(handleApiErrorMock).not.toHaveBeenCalled();
+  });
 });

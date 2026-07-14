@@ -153,6 +153,14 @@ function validateRegistryShape() {
       warn(`${item.id} is deprecated/remove_by_deadline and lacks removeBy.`);
     }
   }
+
+  const retiredUnsafeProjection = LEGACY_REGISTRY.find((item) => item.id === "synthetic-view-as-local-projection");
+  if (retiredUnsafeProjection?.status !== "blocked" || retiredUnsafeProjection.phaseOutStage !== "removed") {
+    fail("synthetic-view-as-local-projection must remain blocked with its unsafe semantics marked removed.");
+  }
+  if (retiredUnsafeProjection?.blockedReferences.includes("includeInUserBehavior: true")) {
+    fail("synthetic-view-as-local-projection must delegate generic user-behavior eligibility to the canonical Admin projection exclusion owner.");
+  }
 }
 
 function validateReport(report: LegacyPhaseoutReport | null) {
@@ -175,6 +183,13 @@ function validateReport(report: LegacyPhaseoutReport | null) {
   if (!Array.isArray(report.items) || report.items.length !== LEGACY_REGISTRY.length) {
     fail("report.items must include every registry item.");
   }
+  const retiredUnsafeProjection = report.items.find((item) => item.id === "synthetic-view-as-local-projection");
+  if (!retiredUnsafeProjection || retiredUnsafeProjection.debtScore !== 0 || retiredUnsafeProjection.overdueState !== "current") {
+    fail("retired unsafe Admin projection semantics must have zero debt and no overdue state.");
+  }
+  if ((retiredUnsafeProjection?.blockedReferenceCount ?? 0) !== 0) {
+    fail("retired unsafe Admin projection semantics must have no current runtime references.");
+  }
   if (!Array.isArray(report.findings)) {
     fail("report.findings must be an array.");
   } else {
@@ -185,6 +200,12 @@ function validateReport(report: LegacyPhaseoutReport | null) {
   }
   if (!Array.isArray(report.nextActions) || report.nextActions.length === 0) {
     fail("report.nextActions must list phase-out next actions.");
+  } else {
+    for (const item of report.items.filter((entry) => entry.phaseOutStage === "removed")) {
+      if (report.nextActions.some((action) => action.includes(item.id))) {
+        fail(`report.nextActions must not ask operators to phase out removed item ${item.id}.`);
+      }
+    }
   }
   if (report.scoring.formula !== "legacyDebtScore = sum(stagePenalty * riskWeight * overdueMultiplier); blocked but referenced is critical") {
     fail("report.scoring.formula must document the required legacy debt formula.");

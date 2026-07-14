@@ -191,7 +191,29 @@ export function shouldCountPersonMetricEvent(candidate: PersonMetricCandidate): 
     return withExplanation({ ...baseDecision, countGlobally: false, blockedReason: "system_excluded" });
   }
   if (candidate.includeInUserBehavior === false) {
-    return withExplanation({ ...baseDecision, countGlobally: false, blockedReason: "user_behavior_excluded" });
+    if (candidate.consentMode === "full_behavioral") {
+      return withExplanation({ ...baseDecision, countGlobally: false, blockedReason: "user_behavior_excluded" });
+    }
+
+    const decisions = baseDecision.scopeDecisions;
+    const requiredProduct = candidate.metric.consentEligibility.depth === "necessary_product";
+    const aggregateAllowed = candidate.metric.consentEligibility.depth !== "behavioral"
+      && consentAllowsMetric(candidate.metric, candidate.consentMode);
+    const productBlockedReason = decisions.global.reason === "payment_provider_fingerprint_required"
+      ? "payment_provider_fingerprint_required"
+      : decisions.global.reason === "task_reset_window_required"
+        ? "task_reset_window_required"
+        : "none";
+
+    return withExplanation({
+      ...baseDecision,
+      countGlobally: aggregateAllowed && decisions.global.count,
+      countForGuest: requiredProduct && candidate.metric.aggregation.guest.enabled && decisions.guest.count,
+      countForSignedInUser: requiredProduct && candidate.metric.aggregation.signedIn.enabled && decisions.signedIn.count,
+      countForLinkedPerson: requiredProduct && candidate.metric.aggregation.linkedPerson.enabled && decisions.linkedPerson.count,
+      suppressedDuplicateKey: requiredProduct ? suppressDuplicateLinkedAction(candidate).suppressedDuplicateKey : null,
+      blockedReason: requiredProduct ? productBlockedReason : "user_behavior_excluded",
+    });
   }
   if (candidate.legacyUnknown) {
     const global = baseDecision.scopeDecisions.global;

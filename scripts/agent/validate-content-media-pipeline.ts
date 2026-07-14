@@ -35,6 +35,17 @@ function requireAbsent(source: string, forbidden: string, label: string) {
   }
 }
 
+function requireStateDrivenImageFallback(source: string, label: string) {
+  const hasErrorHandler = /onError\s*=\s*\{[\s\S]{0,160}set(?:ImageError|ErroredImageUrl)\s*\(/u.test(source);
+  const hasFallbackState = /(?:imageError|erroredImageUrl)\b/u.test(source);
+  const hasFallbackResolution = source.includes("resolvePublicDropCoverSrc(null)");
+  const fallbackIsRendered = /src\s*=\s*\{\s*coverSrc\s*\}/u.test(source);
+
+  if (!hasErrorHandler || !hasFallbackState || !hasFallbackResolution || !fallbackIsRendered) {
+    failures.push(`${label} must connect an image error handler to state-driven resolvePublicDropCoverSrc(null) output.`);
+  }
+}
+
 function requireArray(value: unknown, label: string, minLength = 1) {
   if (!Array.isArray(value)) {
     failures.push(`${label} must be an array.`);
@@ -160,7 +171,7 @@ requireIncludes(fallbackHelper, "/candy-3d-glass.png", "drop media fallback help
 requireIncludes(dropCardLayout, "resolvePublicDropCoverSrc", "drop card cover fallback");
 requireIncludes(dropCardLayout, "onError={onImageError}", "drop card broken image fallback");
 requireIncludes(ownedCard, "resolvePublicDropCoverSrc", "owned drop cover fallback");
-requireIncludes(ownedCard, "onError={() => setImageError(true)}", "owned drop broken image fallback");
+requireStateDrivenImageFallback(ownedCard, "owned drop broken image fallback");
 requireIncludes(viewerHelpers, "resolvePublicDropCoverSrc", "viewer thumbnail fallback");
 requireIncludes(mediaViewer, "resolvePublicDropCoverSrc", "viewer poster/art fallback");
 requireAbsent(dropCardLayout, "/placeholder.jpg", "drop card cover fallback");

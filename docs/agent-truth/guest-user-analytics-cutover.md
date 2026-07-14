@@ -16,8 +16,8 @@ KandyDrops analytics is first-party first. Guest and identified behavior flow in
 
 ## Runtime Writers
 
-- Guest ingest writes timeline facts: `src/app/api/analytics/ingest/route.ts`
-- Identified ingest writes timeline facts: `src/app/api/analytics/ingest-identified/route.ts`
+- Guest ingest atomically writes timeline facts and deterministic user-index outbox requests: `src/app/api/analytics/ingest/route.ts`
+- Identified ingest atomically writes timeline facts and deterministic user-index outbox requests: `src/app/api/analytics/ingest-identified/route.ts`
 - Identity linking: `src/lib/server/analytics-identity-linking.ts`
 - Rollups: `src/lib/server/guest-user-behavior-rollup.ts`
 
@@ -62,7 +62,7 @@ Missing samples render `unavailable` or `needs_review`, not `0`, `live`, or heal
 
 ### Cost boundaries
 
-Guest analytics lock work must not add client events, backend calls, Firestore listeners, scheduled jobs, BigQuery jobs, provider calls, or materializer frequency. Repeated analytical reads belong in bounded materialized snapshots or cached projections.
+Guest analytics lock work must not add client events, Firestore listeners, BigQuery jobs, provider calls, or unbounded materializer frequency. The registered user-index worker is the one bounded exception: it runs through the existing CRON-authenticated scheduler lane, is off by default, and caps each run at 5 subjects and 200 facts per subject. Repeated analytical reads belong in bounded materialized snapshots or cached projections.
 
 ### Validators
 
@@ -80,3 +80,5 @@ Run these after guest analytics changes:
 ## User Index Read Models
 
 Per-user and per-guest behavioral serving now routes through canonical user tracking indexes. Timeline facts remain the ingest truth, and index materializers provide reusable read models for admin, recommendations, moderation, and user diagnostics.
+
+The source-owned execution chain is timeline fact + deterministic outbox request in one transaction, CRON-authenticated internal consumption, shadow publication, two distinct clean current-source shadow windows, then active publication. Source/config readiness does not prove deployment, secrets, scheduler invocation, shadow-window cleanliness, admin truth, or production data correctness.

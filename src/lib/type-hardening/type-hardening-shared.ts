@@ -34,7 +34,7 @@ export function repoPath(path: string) {
   return join(TYPE_HARDENING_ROOT, path);
 }
 
-export function normalizePath(path: string) {
+function normalizePath(path: string) {
   return path.replace(/\\/gu, "/");
 }
 

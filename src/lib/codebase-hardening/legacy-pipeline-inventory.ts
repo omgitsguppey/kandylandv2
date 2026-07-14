@@ -151,7 +151,7 @@ export const LEGACY_PIPELINE_INVENTORY: LegacyPipelineInventoryItem[] = [
     costImpact: "none",
     accuracyImpact: "high",
     risk: "high",
-    exactNextStep: "Keep debugLane.gaps and score impact tied to missingHydration.length unless a future-only non-score-impacting classification is explicit.",
+    exactNextStep: "Keep debugLane.gaps and score impact tied to unique metric IDs across missing hydration and blocking user-parity gaps.",
   },
   {
     id: "cloud-sql-data-connect-agent-mirror",

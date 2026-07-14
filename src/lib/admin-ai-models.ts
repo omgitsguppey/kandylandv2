@@ -1,5 +1,8 @@
 export const ADMIN_AI_MODEL_PRICE_SOURCE_URL = "https://cloud.google.com/vertex-ai/generative-ai/pricing";
 export const GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL = "gemini-3.1-flash-lite-preview";
+const ADMIN_AI_MODEL_LEGACY_ALIAS_MIGRATIONS = new Map<string, AdminAiModelKey>([
+    ["gemini-3-pro-image-preview", "drop_cover_premium"],
+]);
 
 export type AdminAiModelKey =
     | "drop_cover_standard"
@@ -70,17 +73,17 @@ const ADMIN_AI_MODEL_DEFINITIONS: readonly AdminAiModelDefinition[] = [
     },
     {
         key: "drop_cover_premium",
-        alias: "gemini-3-pro-image-preview",
-        label: "Gemini 3 Pro Image Preview",
-        shortLabel: "3 Pro Preview",
+        alias: "gemini-3-pro-image",
+        label: "Gemini 3 Pro Image",
+        shortLabel: "3 Pro",
         modality: "image",
-        launchStage: "preview",
-        stableAliasSafe: false,
+        launchStage: "ga",
+        stableAliasSafe: true,
         location: "global",
         priceSourceUrl: ADMIN_AI_MODEL_PRICE_SOURCE_URL,
-        priceBasis: "vertex-ai-pricing-gemini-3-pro-image-preview-2026-04-06",
+        priceBasis: "vertex-ai-pricing-gemini-3-pro-image-ga-2026-07-14",
         estimatedRunUsd: 0.134,
-        maxReferenceInputs: 2,
+        maxReferenceInputs: 14,
         supportsReferenceLibrary: true,
         supportsPromptOptimization: true,
     },
@@ -199,7 +202,12 @@ export function getAdminAiModelDefinitionByAlias(alias?: string | null) {
     if (!alias) {
         return null;
     }
-    return ADMIN_AI_MODEL_DEFINITIONS.find((entry) => entry.alias === alias) || null;
+    const trimmedAlias = alias.trim();
+    const migratedKey = ADMIN_AI_MODEL_LEGACY_ALIAS_MIGRATIONS.get(trimmedAlias);
+    if (migratedKey) {
+        return getAdminAiModelDefinitionByKey(migratedKey);
+    }
+    return ADMIN_AI_MODEL_DEFINITIONS.find((entry) => entry.alias === trimmedAlias) || null;
 }
 
 export function getAdminAiModelAlias(key: AdminAiModelKey) {

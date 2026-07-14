@@ -15,17 +15,17 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 ## Allowed Files
 - scripts/agent/build-agent-indexes.ts
+- src/lib/agent-governance/generated-reports/generated-report-contract.ts
 - scripts/agent/shared.ts
+- scripts/agent/sync-sql.ts
+- scripts/agent/verification-selector.ts
 - scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/classify-repo-files.ts
+- scripts/agent/collect-signal-source-graph.ts
 - scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-governance.ts
-- scripts/agent/extract-runtime-observability.ts
-- scripts/agent/extract-workflow.ts
-- scripts/agent/run-evals.ts
-- scripts/agent/summarize-dependency-graph.ts
 - src/lib/gumdrop-economics.ts
 - src/lib/gumdrop-ledger.ts
 
@@ -38,31 +38,31 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 ## Doctrine / Context Pack
 - scripts/agent/build-agent-indexes.ts
+- src/lib/agent-governance/generated-reports/generated-report-contract.ts
 - scripts/agent/shared.ts
+- scripts/agent/sync-sql.ts
+- scripts/agent/verification-selector.ts
 - scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/classify-repo-files.ts
-- scripts/agent/extract-canonical-helpers.ts
-- scripts/agent/extract-governance.ts
-- scripts/agent/extract-runtime-observability.ts
-- scripts/agent/extract-workflow.ts
+- scripts/agent/collect-signal-source-graph.ts
 - FULL_SCALE_CODEBASE_AUDIT.md
 - REPO_MEMORY_LEDGER.md
 - EVERY_FILE_FUNCTION_CHECKLIST.md
-- agent/state/repo-doctrine-reset.generated.json
+- .Jules/**
 
 ## Likely Entrypoints
 - scripts/agent/build-agent-indexes.ts
+- src/lib/agent-governance/generated-reports/generated-report-contract.ts
 - scripts/agent/shared.ts
+- scripts/agent/sync-sql.ts
+- scripts/agent/verification-selector.ts
 - scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/classify-repo-files.ts
-- scripts/agent/extract-canonical-helpers.ts
-- scripts/agent/extract-governance.ts
-- scripts/agent/extract-runtime-observability.ts
-- scripts/agent/extract-workflow.ts
+- scripts/agent/collect-signal-source-graph.ts
 
 ## Canonical Helpers To Reuse
 - src/lib/gumdrop-economics.ts
@@ -71,6 +71,7 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 ## Relevant Pitfalls
 - diagnostics_serialization_crash
+- consumed_response_stream_fallback
 - generated_artifact_cleanup_miss
 - sidecar_truth_confusion
 - legacy_queue_adapter_usage
@@ -87,9 +88,9 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 ## Fast Verification
 - npm run typecheck
 - npm run agent:test -- scripts/agent/build-agent-indexes.ts
+- npm run agent:test -- src/lib/agent-governance/generated-reports/generated-report-contract.ts
 - npm run agent:test -- scripts/agent/shared.ts
-- npm run agent:test -- scripts/agent/build-task-context.ts
-- npm run agent:test -- scripts/agent/build-ui-surface-coverage.ts
+- npm run agent:test -- scripts/agent/sync-sql.ts
 - npm run check:agent-context
 
 ## Signoff Verification

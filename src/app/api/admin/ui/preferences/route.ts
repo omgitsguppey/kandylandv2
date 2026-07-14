@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import type { RouteRuntimeHealthKey } from "@/lib/route-runtime-health";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import {
     getAdminUiPreferences,
     saveAdminUiCollapsedModulePreference,
@@ -13,6 +14,8 @@ import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const ADMIN_UI_PREFERENCES_BODY_LIMIT_BYTES = 64_000;
 
 function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
     void recordRouteRuntimeSample({
@@ -63,10 +66,14 @@ async function PUT_handler(request: NextRequest) {
             return finalize(startedAt, "admin/ui/preferences:PUT", NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             key?: unknown;
             collapsed?: unknown;
-        };
+        }>(request, {
+            maxBytes: ADMIN_UI_PREFERENCES_BODY_LIMIT_BYTES,
+            routeName: "admin/ui/preferences",
+            allowEmpty: false,
+        });
         const key = typeof body.key === "string" ? body.key.trim() : "";
         if (!key) {
             return finalize(startedAt, "admin/ui/preferences:PUT", NextResponse.json({ error: "Missing module key" }, { status: 400 }));
@@ -84,6 +91,14 @@ async function PUT_handler(request: NextRequest) {
             }),
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ui/preferences:PUT", NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         return finalize(startedAt, "admin/ui/preferences:PUT", handleApiError(error, "admin/ui/preferences"), error);
     }
 }

@@ -90,6 +90,7 @@ type RouteSecurityClassification = {
     rateLimitPresent: boolean;
     idempotencyRequired: boolean;
     idempotencyPresent: boolean;
+    bodyConsumed: boolean;
     bodyLimitRequired: boolean;
     bodyLimitPresent: boolean;
     expectedFailureCodes: string[];
@@ -273,29 +274,175 @@ function hasIdempotencyEvidence(source: string) {
   return /idempotenc|transactionId|duplicatePrevented|orderId|captureId|eventId|requestId|lockId|already(?:Unlocked|Active|Processed)/iu.test(source);
 }
 
+export function hasRequestBodyConsumptionEvidence(source: string) {
+  return /\b(?:request|req)(?:\s*\.\s*clone\s*\(\s*\))?\s*\.\s*(?:json|text|formData|arrayBuffer|blob)\s*\(/u.test(source)
+    || /\b(?:request|req)\s*\.\s*body\b/u.test(source)
+    || /\breadBounded(?:JsonBody(?:\s*<[\s\S]{0,240}?>)?|FormDataBody)\s*\(/u.test(source);
+}
+
 export function hasBodyLimitEvidence(source: string) {
-  return /bodyLimit|MAX_[A-Z0-9_]*BYTES|payloadTooLarge|content-length|Content-Length|safeParseJson|parseJsonBody|requestBodyLimit|MAX_PAYLOAD|readBoundedJsonBody|BoundedJsonBodyError|payload_too_large|content-length guard/u.test(source);
+  const boundedParserCall = /\breadBounded(?:JsonBody(?:\s*<[\s\S]{0,240}?>)?|FormDataBody)\s*\(/u.test(source);
+  const requestGuardCap = /\bguardApiRequest\s*\(\s*[^,]+,\s*\{[\s\S]{0,1200}?\bmaxBodyBytes\s*:/u.test(source);
+  const explicitContentLengthGuard = /headers\s*\.\s*get\s*\(\s*["']content-length["']\s*\)/iu.test(source)
+    && /(?:413|payload[_ ]too[_ ]large|\btoo large\b)/iu.test(source)
+    && /(?:>|>=)\s*(?:[A-Z_$][A-Z0-9_$]*|\d[\d_]*)/u.test(source);
+  const explicitDecodedByteGuard = /(?:TextEncoder|byteLength|Buffer\s*\.\s*byteLength)/u.test(source)
+    && /(?:413|payload[_ ]too[_ ]large|\btoo large\b)/iu.test(source)
+    && /(?:>|>=)\s*(?:[A-Z_$][A-Z0-9_$]*|\d[\d_]*)/u.test(source);
+
+  return boundedParserCall || requestGuardCap || explicitContentLengthGuard || explicitDecodedByteGuard;
+}
+
+function hasCanonicalGuardedAuthFailureEvidence(source: string) {
+  const guarded = /\bawait\s+guardApiRequest\s*\(/u.test(source);
+  const handledWithoutWrapping = /\bhandleApiError\s*\(\s*(?:error|routeError)\s*,/u.test(source);
+  return guarded && handledWithoutWrapping;
+}
+
+function hasCanonicalAdminDomainErrorEvidence(source: string, code: string) {
+  const mappedDomainErrors = /\bisKnownAdminDomainError\s*\(/u.test(source)
+    && /\bmapKnownAdminDomainError\s*\(/u.test(source)
+    && /\bbuildAdminErrorResponse\s*\(/u.test(source);
+  if ((code === "unauthorized" || code === "forbidden") && mappedDomainErrors) return true;
+  if (code === "invalid_admin_request") {
+    return /\bbuildAdminInvalidRequestResponse\s*\(/u.test(source)
+      || (mappedDomainErrors && /code\s*:\s*["']invalid_admin_request["']/u.test(source));
+  }
+  return false;
+}
+
+export function hasExpectedFailureCodeEvidence(source: string, code: string) {
+  const literalCode = new RegExp(`["'\\x60]${escapeRegExp(code)}["'\\x60]`, "u");
+  if (literalCode.test(source)) return true;
+  if ((code === "unauthorized" || code === "forbidden") && hasCanonicalGuardedAuthFailureEvidence(source)) return true;
+  return hasCanonicalAdminDomainErrorEvidence(source, code);
 }
 
 export function hasBoundedPromiseAllEvidence(source: string, promiseAllIndex: number) {
   const nearby = source.slice(Math.max(0, promiseAllIndex - 720), Math.min(source.length, promiseAllIndex + 720));
-  return /mapWithConcurrency|bounded worker pool|cost-bound:\s*bounded Promise\.all|fixed-size Promise\.all|Array\.from\(\{\s*length:\s*Math\.min\(limit,\s*items\.length\)/u.test(nearby);
+  if (/mapWithConcurrency|bounded worker pool|cost-bound:\s*bounded Promise\.all|fixed-size Promise\.all/u.test(nearby)) {
+    return true;
+  }
+
+  const arrayFromBound = nearby.match(/Array\.from\(\s*\{\s*length\s*:\s*Math\.min\(\s*([^,()]+)\s*,\s*([^,()]+)\s*\)/u);
+  if (arrayFromBound) {
+    const [left, right] = arrayFromBound.slice(1).map((value) => value.trim());
+    const cap = left.endsWith(".length") ? right : right.endsWith(".length") ? left : null;
+    if (cap && isFixedPositiveBound(source, cap)) {
+      return true;
+    }
+  }
+
+  const promiseCall = source.slice(promiseAllIndex, Math.min(source.length, promiseAllIndex + 240));
+  const mappedCollection = promiseCall.match(/Promise\.all\(\s*([A-Za-z_$][\w$]*)\.map\(/u)?.[1];
+  if (!mappedCollection) return false;
+
+  const prefix = source.slice(0, promiseAllIndex);
+  const slicePattern = new RegExp(
+    `\\bconst\\s+${escapeRegExp(mappedCollection)}\\s*=\\s*[A-Za-z_$][\\w$]*\\.slice\\(\\s*([A-Za-z_$][\\w$]*)\\s*,\\s*\\1\\s*\\+\\s*([A-Za-z_$][\\w$]*|\\d[\\d_]*)\\s*\\)`,
+    "gu",
+  );
+  let boundedSlice: RegExpExecArray | null = null;
+  for (const match of prefix.matchAll(slicePattern)) {
+    boundedSlice = match;
+  }
+
+  return Boolean(boundedSlice && isFixedPositiveBound(source, boundedSlice[2]!));
 }
 
-function hasBoundedFirestoreGetEvidence(source: string, getIndex: number) {
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function isFixedPositiveBound(source: string, token: string) {
+  if (/^\d[\d_]*$/u.test(token)) {
+    return Number(token.replace(/_/gu, "")) > 0;
+  }
+  if (/^[A-Z][A-Z0-9_]*$/u.test(token)) {
+    return true;
+  }
+
+  const declaration = source.match(new RegExp(
+    `\\bconst\\s+${escapeRegExp(token)}(?:\\s*:\\s*number)?\\s*=\\s*(\\d[\\d_]*)\\s*;`,
+    "u",
+  ));
+  return Boolean(declaration && Number(declaration[1]!.replace(/_/gu, "")) > 0);
+}
+
+export function hasBoundedStorageUploadEvidence(source: string) {
+  const guardCall = source.match(/\bguardApiRequest\s*\([\s\S]{0,700}?\}\s*\)/u)?.[0] ?? "";
+  const auth = guardCall.match(/\bauth\s*:\s*["'](admin|user)["']/u)?.[1];
+  const hasByteLimit = /\bfile\s*\.\s*size\s*>\s*(?:MAX_[A-Z0-9_]*BYTES|\d[\d_]*)/u.test(source);
+  const hasSetTypeAllowlist = /\b[A-Z][A-Z0-9_]*CONTENT_TYPES\s*\.\s*has\s*\(\s*file\s*\.\s*type\s*\)/u.test(source);
+  const formatGuardName = source.match(/!\s*([A-Za-z_$][\w$]*Format)\s*\(\s*file\s*\.\s*type\s*\)/u)?.[1];
+  const hasFunctionTypeAllowlist = Boolean(formatGuardName && new RegExp(
+    `\\bfunction\\s+${escapeRegExp(formatGuardName)}\\s*\\([^)]*\\)[\\s\\S]{0,320}?\\.includes\\s*\\(`,
+    "u",
+  ).test(source));
+  const hasTypedStorageWrite = /\.save\s*\([\s\S]{0,500}?\bcontentType\s*:\s*file\s*\.\s*type/u.test(source);
+  const cleanupCount = Array.from(source.matchAll(/\.delete\s*\(\s*\{\s*ignoreNotFound\s*:\s*true\s*\}/gu)).length;
+  const hasCleanup = cleanupCount >= 2 && /\.delete\s*\([\s\S]{0,120}?\.catch\s*\(/u.test(source);
+
+  const privateCallerScopedUpload = auth === "user"
+    && /\bscopeToCaller\s*:\s*true/u.test(guardCall)
+    && /creator-onboarding\/\$\{userId\}\//u.test(source)
+    && /buildStoragePath\s*\(\s*caller\s*\.\s*uid\s*,/u.test(source)
+    && /\bcacheControl\s*:\s*["']private,\s*max-age=0,\s*no-store["']/u.test(source);
+  const allowlistedPublicAdminUpload = auth === "admin"
+    && /\bisAllowed[A-Za-z0-9_$]*Key\s*\(\s*key\s*\)/u.test(source)
+    && /landing\/assets\/\$\{key\}/u.test(source)
+    && /\bcacheControl\s*:\s*["']public,\s*max-age=/u.test(source)
+    && /firebaseStorageDownloadTokens/u.test(source);
+
+  return Boolean(
+    auth
+    && hasByteLimit
+    && (hasSetTypeAllowlist || hasFunctionTypeAllowlist)
+    && hasTypedStorageWrite
+    && hasCleanup
+    && (privateCallerScopedUpload || allowlistedPublicAdminUpload)
+  );
+}
+
+function isFirestoreDocumentReferenceExpression(expression: string) {
+  const normalizedExpression = expression.replace(/\s+/gu, " ").trim();
+  return /(?:\b(?:adminDb|adminFirestore|db|firestore)\b|\.\s*collection\s*\()[\s\S]*\.\s*doc\s*\([\s\S]*\)\s*$/u.test(normalizedExpression)
+    || /\b(?:adminDb|adminFirestore|db|firestore)\s*\.\s*doc\s*\([\s\S]*\)\s*$/u.test(normalizedExpression);
+}
+
+function isAssignedFirestoreDocumentReference(source: string, receiver: string, getIndex: number) {
+  const prefix = source.slice(0, getIndex);
+  const declarationPattern = new RegExp(`\\bconst\\s+${escapeRegExp(receiver)}\\s*=`, "gu");
+  let declaration: RegExpExecArray | null = null;
+
+  for (const match of prefix.matchAll(declarationPattern)) {
+    declaration = match;
+  }
+  if (!declaration || declaration.index === undefined) return false;
+
+  const initializerStart = declaration.index + declaration[0].length;
+  const initializerTail = prefix.slice(initializerStart);
+  const statementEnd = initializerTail.indexOf(";");
+  if (statementEnd < 0) return false;
+
+  return isFirestoreDocumentReferenceExpression(initializerTail.slice(0, statementEnd));
+}
+
+export function hasBoundedFirestoreGetEvidence(source: string, getIndex: number) {
   const prefix = source.slice(Math.max(0, getIndex - 360), getIndex);
   const normalizedPrefix = prefix.replace(/\s+/gu, " ");
-  const directDocRead = /(?:adminDb|adminFirestore|db|firestore)\s*(?:\.\s*collection\([^)]*\)\s*)+\.\s*doc\([^)]*\)\s*$/u.test(prefix)
-    || /(?:adminDb|adminFirestore|db|firestore)\s*\.\s*doc\([^)]*\)\s*$/u.test(prefix);
-  const directDocRefRead = /\b\w+(?:DocRef|Ref)\s*$/u.test(normalizedPrefix);
+  const statementStart = prefix.lastIndexOf(";");
+  const directDocRead = isFirestoreDocumentReferenceExpression(prefix.slice(statementStart + 1));
+  const receiver = normalizedPrefix.match(/\b([A-Za-z_$][\w$]*)\s*$/u)?.[1];
+  const assignedDocRefRead = receiver ? isAssignedFirestoreDocumentReference(source, receiver, getIndex) : false;
   const aggregateCountRead = /\.count\(\)\s*$/u.test(prefix);
   const aggregateRead = normalizedPrefix.includes(".aggregate(");
-  const explicitBoundEvidence = /\.limit\(|limit\(|pageSize|cursor|bounded|ALLOW_UNBOUNDED|hot-cache|snapshot/u.test(prefix)
+  const explicitBoundEvidence = /\.limit\(|limit\(|pageSize|cursor|\bbounded\b|ALLOW_UNBOUNDED|hot-cache|materialized snapshot|snapshot-backed/u.test(prefix)
     || /cost-bound:\s*single Firestore document read/u.test(normalizedPrefix)
     || /cost-bound:\s*Firestore query is limited to \d+ records/u.test(normalizedPrefix)
     || /cost-bound:\s*aggregate count read/u.test(normalizedPrefix);
 
-  return directDocRead || directDocRefRead || aggregateCountRead || aggregateRead || explicitBoundEvidence;
+  return directDocRead || assignedDocRefRead || aggregateCountRead || aggregateRead || explicitBoundEvidence;
 }
 
 function buildFinding(input: SpeedSecurityFindingInput): SpeedSecurityFinding {
@@ -405,9 +552,10 @@ function classifyApiRoutes(root: string, findings: SpeedSecurityFindingInput[]) 
     const guardPresent = source.includes("guardApiRequest");
     const rateLimitPresent = hasRateLimitEvidence(source);
     const idempotencyPresent = hasIdempotencyEvidence(source);
+    const bodyConsumed = hasRequestBodyConsumptionEvidence(source);
     const bodyLimitPresent = hasBodyLimitEvidence(source);
     const trustedOriginRequired = Boolean(securityContract?.trustedOriginRequired && mutation);
-    const bodyLimitRequired = Boolean(securityContract?.bodyLimitBytes);
+    const bodyLimitRequired = Boolean(securityContract?.bodyLimitBytes && mutation && bodyConsumed);
     const idempotencyRequired = Boolean(securityContract?.idempotencyRequired && mutation);
 
     securityClassification.totals.routes += 1;
@@ -439,6 +587,7 @@ function classifyApiRoutes(root: string, findings: SpeedSecurityFindingInput[]) 
       rateLimitPresent,
       idempotencyRequired,
       idempotencyPresent,
+      bodyConsumed,
       bodyLimitRequired,
       bodyLimitPresent,
       expectedFailureCodes: securityContract?.expectedFailureCodes ?? [],
@@ -526,7 +675,7 @@ function classifyApiRoutes(root: string, findings: SpeedSecurityFindingInput[]) 
       });
     }
 
-    if (bodyLimitRequired && !bodyLimitPresent && mutation) {
+    if (bodyLimitRequired && !bodyLimitPresent) {
       pushFinding(findings, {
         domain: "apiRouteSecurityExploitHardening",
         severity: "major",
@@ -546,7 +695,7 @@ function classifyApiRoutes(root: string, findings: SpeedSecurityFindingInput[]) 
     if (source.includes("handleApiError") && /(Internal server error|throw new Error\()/u.test(source)) {
       const requiredCodes = securityContract.expectedFailureCodes.filter((code) =>
         /booking|subscription|payment|support|unauthorized|forbidden|insufficient|invalid/u.test(code));
-      const missingCodes = requiredCodes.filter((code) => !source.includes(code));
+      const missingCodes = requiredCodes.filter((code) => !hasExpectedFailureCodeEvidence(source, code));
       if (missingCodes.length > 0) {
         pushFinding(findings, {
           domain: "apiRouteSecurityExploitHardening",
@@ -586,7 +735,9 @@ function classifyApiRoutes(root: string, findings: SpeedSecurityFindingInput[]) 
       });
     }
 
-    if (/adminStorage|storage\.bucket|bucket\(/u.test(source) && !/entitlement|unlocked|owner|participant|MEDIA_PROXY|media_proxy|requireAdmin/u.test(source)) {
+    if (/adminStorage|storage\.bucket|bucket\(/u.test(source)
+      && !/entitlement|unlocked|owner|participant|MEDIA_PROXY|media_proxy|requireAdmin/u.test(source)
+      && !hasBoundedStorageUploadEvidence(source)) {
       pushFinding(findings, {
         domain: "contentPaymentEconomyProtection",
         severity: routePath.includes("content") || routePath.includes("media") ? "critical" : "major",
@@ -629,7 +780,7 @@ function scanSpeedCachingHydration(root: string, findings: SpeedSecurityFindingI
       });
     }
 
-    if (/setInterval\(/u.test(source) && !/allowed interval|expiration timer|watch tick|visible tick/u.test(source)) {
+    if (/setInterval\(/u.test(source) && !hasApprovedShellIntervalEvidence(filePath, source)) {
       pushFinding(findings, {
         domain: "speedCachingHydration",
         severity: "major",
@@ -709,6 +860,21 @@ function scanSpeedCachingHydration(root: string, findings: SpeedSecurityFindingI
       humanReadableEscalation: "Homepage data freshness must be reviewed before caching changes.",
     });
   }
+}
+
+export function hasApprovedShellIntervalEvidence(filePath: string, source: string) {
+  if (normalizePath(filePath) !== "src/components/Chat/ChatExperience.tsx") {
+    return false;
+  }
+
+  const visibilityLifecycleIsLocal = /const handlePresenceVisibilityChange\s*=\s*\(\)\s*=>\s*\{[\s\S]{0,500}?document\.visibilityState\s*===\s*"visible"[\s\S]{0,700}?document\.addEventListener\("visibilitychange",\s*handlePresenceVisibilityChange\)/u.test(source);
+  const heartbeatIsVisibilityBound = /heartbeatTimer\s*=\s*window\.setInterval\(\(\)\s*=>\s*\{[\s\S]{0,350}?document\.visibilityState\s*===\s*"visible"[\s\S]{0,450}?CHAT_PRESENCE_CONTRACT\.presence\.heartbeatMs/u.test(source);
+
+  return visibilityLifecycleIsLocal
+    && heartbeatIsVisibilityBound
+    && source.includes('document.removeEventListener("visibilitychange", handlePresenceVisibilityChange)')
+    && source.includes("window.clearInterval(heartbeatTimer)")
+    && source.includes("onDisconnect(ownPresenceRef).remove()");
 }
 
 function scanFirebaseRulesAndAppCheck(root: string, findings: SpeedSecurityFindingInput[]) {

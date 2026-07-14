@@ -138,7 +138,7 @@ export function MediaViewer({
                     className="object-cover opacity-30 blur-3xl"
                     {...getImagePolicyDataAttributes(viewerSecondaryImagePolicy)}
                 />
-                <div className="relative z-10 mb-6 h-36 w-36 overflow-hidden rounded-2xl border border-white/10 shadow-2xl sm:h-44 sm:w-44 md:h-56 md:w-56">
+                <div className="relative z-10 mb-6 h-36 w-36 overflow-hidden rounded-2xl border border-white/10 shadow-2xl min-[600px]:h-44 min-[600px]:w-44 min-[840px]:h-56 min-[840px]:w-56">
                     <NextImage
                         src={coverSrc}
                         alt="Art"
@@ -146,7 +146,7 @@ export function MediaViewer({
                         loading={viewerImagePolicy.loading}
                         preload={viewerImagePolicy.preload}
                         fetchPriority={viewerImagePolicy.fetchPriority}
-                        sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 224px"
+                        sizes="(max-width: 600px) 144px, (max-width: 840px) 176px, 224px"
                         quality={viewerImagePolicy.quality}
                         className="object-cover"
                         {...getImagePolicyDataAttributes(viewerImagePolicy)}

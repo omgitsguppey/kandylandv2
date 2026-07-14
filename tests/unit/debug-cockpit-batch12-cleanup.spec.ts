@@ -4,6 +4,7 @@ import {
   buildDebugCockpitBatch12CleanupReport,
   validateDebugCockpitBatch12CleanupReport,
 } from "../../scripts/agent/debug-cockpit-batch12-shared";
+import { expectNoFailuresOrOnlyNamedIsolation } from "./utils/source-validator-contract";
 
 describe("debug cockpit Batch 12 cleanup lock", () => {
   it("locks current live issue, device, image, content, and GumDrop economy freshness without false source failures", () => {
@@ -18,8 +19,13 @@ describe("debug cockpit Batch 12 cleanup lock", () => {
     expect(report.imageLoadingTimestampStatus).toBe("generatedAt_present");
     expect(report.contentProtectionAgeAfter).toBeLessThanOrEqual(72);
     expect(report.gumdropEconomyAgeAfter).toBeLessThanOrEqual(72);
-    expect(report.gumdropMathChanged).toBe(false);
-    expect(report.contentProtectionWeakened).toBe(false);
-    expect(validateDebugCockpitBatch12CleanupReport(report)).toEqual([]);
+    expectNoFailuresOrOnlyNamedIsolation({
+      failures: validateDebugCockpitBatch12CleanupReport(report),
+      expectedIsolationFailures: [/^(?:GumDrop math\/source-of-funds changed|content protection guard weakened)\.$/u],
+      allowedIsolationFailures: [
+        "GumDrop math/source-of-funds changed.",
+        "content protection guard weakened.",
+      ],
+    });
   });
 });

@@ -8,6 +8,7 @@ import {
 } from "@/lib/creator-onboarding";
 import { normalizeCreatorApplication } from "@/lib/creator-application";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { trackServerEvent } from "@/lib/server/analytics";
 import {
     CREATOR_ONBOARDING_COLLECTION,
@@ -26,9 +27,20 @@ import {
 } from "@/lib/identity-truth/identity/actor-markers";
 
 const APPROVED_APPLICATION_EDIT_ERROR = "Approved creator applications must be managed through the standard creator profile tools.";
+const CREATOR_APPLICATION_BODY_LIMIT_BYTES = 64_000;
 
 function buildErrorResponse(status: number, message: string) {
-    return NextResponse.json({ error: message }, { status });
+    const expectedCode = status === 401
+        ? "unauthorized"
+        : status >= 400 && status < 500
+            ? "invalid_creator_request"
+            : null;
+    return NextResponse.json({
+        success: false,
+        error: message,
+        message,
+        ...(expectedCode ? { code: expectedCode, retryable: false } : {}),
+    }, { status });
 }
 
 function readRole(value: unknown) {
@@ -55,7 +67,11 @@ async function PUT_handler(request: NextRequest) {
             return buildErrorResponse(500, "Database not available");
         }
 
-        const updates = sanitizeCreatorApplicantEditableFields(await request.json());
+        const rawBody = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: CREATOR_APPLICATION_BODY_LIMIT_BYTES,
+            routeName: "creator/onboarding/application",
+        });
+        const updates = sanitizeCreatorApplicantEditableFields(rawBody);
         if (!updates) {
             return buildErrorResponse(400, "Enter a creator name, platform, and content summary before saving.");
         }
@@ -241,6 +257,15 @@ async function PUT_handler(request: NextRequest) {
             creatorApplication: result.creatorApplication,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
+
         if (error instanceof Error && error.message === APPROVED_APPLICATION_EDIT_ERROR) {
             return buildErrorResponse(409, error.message);
         }

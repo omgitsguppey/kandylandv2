@@ -54,8 +54,8 @@ describe("cost owner-review source closure", () => {
     expect(lanes.cloudRun.status).toBe("source_guarded_external_review_remaining");
     expect(lanes.cloudSqlDataConnect.status).toBe("source_ready_no_runtime_usage_detected");
     expect(lanes.geminiCloudAssistVertex.status).toBe("source_guarded_external_review_remaining");
-    expect(lanes.route4xx.status).toBe("source_guarded_external_review_remaining");
-    expect(lanes.bigQuery.status).toBe("source_guarded_external_review_remaining");
+    expect(lanes.route4xx.status).toBe("source_ready_retry_storm_guarded");
+    expect(lanes.bigQuery.status).toBe("source_ready_batched_or_cached");
     expect(Object.values(lanes).every((lane) => lane.externalBillingReviewed === false)).toBe(true);
   });
 

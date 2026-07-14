@@ -180,7 +180,7 @@ function buildInventory(inputs: ExistingAlgorithmReportInputs): ExistingAlgorith
   const betaReady = hasAll(betaCore, ["sourceHealthScore", "runtimeHealthScore", "scoreDeltaDrivers"])
     && hasAll(betaEvidence, ["source_ready", "owner_review", "blocksLaunch"]);
   const mobileReady = hasAll(mobile, ["MOBILE_SCALE_THRESHOLDS", "getMobileDensityForSurface", "assertNoDesktopStuffing", "p-6", "text-3xl"]);
-  const telemetryReady = hasAll(telemetryPolicy, ["trackingState === \"enabled\"", "behavior_tracking_disabled", "required_integrity_event"])
+  const telemetryReady = hasAll(telemetryPolicy, ["CLIENT_TRACKING_STATES", "resolveClientTrackingState", "allowedByConsent", "required_integrity_event"])
     && telemetryGraph.includes("TELEMETRY_DEPENDENCY_GRAPH");
   const materializationReady = materialization.includes("MATERIALIZATION_CONTRACT") && bigQuery.includes("BIGQUERY_EXPORT_CONTRACT");
   const pricingReady = pricing.includes("resolveCreatorPricing") && publicCreator.includes("resolveCreatorPricing") && !publicCreator.includes("CREATOR_BOOKING_RATES");
@@ -356,7 +356,7 @@ function duplicateFindings(inputs: ExistingAlgorithmReportInputs): AlgorithmFind
       detail: "Mobile density helper does not encode current desktop-sprawl thresholds.",
     });
   }
-  if (!hasAll(telemetry, ["trackingState === \"enabled\"", "behavior_tracking_disabled", "required_integrity_event"])) {
+  if (!hasAll(telemetry, ["CLIENT_TRACKING_STATES", "resolveClientTrackingState", "allowedByConsent", "required_integrity_event"])) {
     findings.push({
       severity: "p0",
       file: "src/lib/analytics/client-tracking-policy.ts",

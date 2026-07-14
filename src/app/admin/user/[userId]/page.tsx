@@ -57,6 +57,10 @@ import type { UserBehaviorTruthRollup } from "@/lib/behavioral/user-score-contra
 import type { UserEngagementScoreResult } from "@/lib/behavioral/user-engagement-score";
 import type { UserValueScoreResult } from "@/lib/behavioral/user-value-score";
 import { buildAdminUserDetailPageData } from "@/lib/server/admin-page-data-loader";
+import type {
+    IndividualUserMetricSourceTruth,
+    UserMetricHydrationStatus,
+} from "@/lib/identity-truth/individual-user-metric-truth";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -94,6 +98,7 @@ type UserDetailAnalytics = {
     metricSourceLabel?: string;
     metricIntegrityFailures?: string[];
     recoveredFromFacts?: boolean;
+    individualMetricTruth?: IndividualUserMetricSourceTruth;
     engagementScore?: number;
     engagement?: UserEngagementScoreResult;
     valueScore?: number;
@@ -324,6 +329,20 @@ function formatRelativeTimestamp(value: unknown) {
         : "No timestamp";
 }
 
+function formatIndividualMetricState(state: UserMetricHydrationStatus) {
+    const labels: Record<UserMetricHydrationStatus, string> = {
+        hydrated: "Observed",
+        collecting: "Collecting",
+        source_missing: "Source missing",
+        bridge_missing: "Bridge missing",
+        materializer_missing: "Materializer missing",
+        permission_blocked: "Permission blocked",
+        proven_zero: "Proven zero",
+    };
+
+    return labels[state];
+}
+
 function getSupportStateClasses(state: SupportReadinessState) {
     if (state === "waiting_on_support") {
         return "border-amber-400/20 bg-amber-400/10 text-amber-200";
@@ -515,7 +534,13 @@ export default function AdminUserAnalyticsPage() {
         delayed: coerceAdminTruthState(analytics?.commerceTruthLabel) === "stale",
         reviewRequired: Boolean(analytics?.commerceEmptyReason && analytics),
     });
-    const metricSourceAvailable = Boolean(analytics?.metricSourceLabel || analytics);
+    const individualMetricState = analytics?.individualMetricTruth?.state
+        ?? (analytics ? "collecting" : "source_missing");
+    const individualMetricStateLabel = formatIndividualMetricState(individualMetricState);
+    const individualMetricValuesDisplayable = analytics?.individualMetricTruth?.valuesDisplayable === true;
+    const individualMetricProvenZero = analytics?.individualMetricTruth?.provenZero === true;
+    const metricSourceAvailable = Boolean(analytics?.metricSourceLabel || analytics)
+        && individualMetricValuesDisplayable;
     const metricTruthState = resolveAdminTruthState({
         hasUsableValue: metricSourceAvailable && hasUsableAdminTruthValue(
             behaviorRollup?.totalActions,
@@ -530,8 +555,8 @@ export default function AdminUserAnalyticsPage() {
         reviewRequired: Boolean(analytics?.metricIntegrityFailures?.length),
     });
     const behaviorTruthState = resolveAdminTruthState({
-        hasUsableValue: Boolean(behaviorRollup),
-        sourceConfigured: true,
+        hasUsableValue: Boolean(behaviorRollup) && individualMetricValuesDisplayable,
+        sourceConfigured: individualMetricValuesDisplayable,
         valueState: behaviorTruthRollup?.sourceFreshness ?? (behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState),
         reviewRequired: Boolean(behaviorRollup?.issues.some((issue) => !issue.code.startsWith("privacy_limited_")))
             || (
@@ -590,14 +615,19 @@ export default function AdminUserAnalyticsPage() {
         revenueExistsButPurchaseCountMissing: Boolean(commerceSourceAvailable && totalSpentUsd > 0 && !(analytics?.purchaseCount || 0)),
         reviewSummary: analytics?.commerceEmptyReason || undefined,
     });
-    const observedViewCount = behaviorRollup?.views ?? analytics?.viewCount;
-    const positiveWatchTimeObserved = typeof behaviorRollup?.watchTimeMs === "number" && behaviorRollup.watchTimeMs > 0;
+    const observedViewCount = individualMetricValuesDisplayable
+        ? behaviorRollup?.views ?? analytics?.viewCount
+        : undefined;
+    const positiveWatchTimeObserved = individualMetricValuesDisplayable
+        && typeof behaviorRollup?.watchTimeMs === "number"
+        && behaviorRollup.watchTimeMs > 0;
     const metricReviewDecision = buildAdminReviewBadge({
         truthState: metricTruthState,
-        missingRequiredData: !analytics,
+        missingRequiredData: !analytics || !individualMetricValuesDisplayable,
         viewsExistButWatchMissing: Boolean(typeof observedViewCount === "number" && observedViewCount > 0 && !positiveWatchTimeObserved),
         onboardedMissingAuthStats: Boolean((behaviorRollup?.onboardingCompleted || targetUser?.onboardingCompleted) && !(behaviorRollup?.authEvents ?? analytics?.authSuccessCount)),
-        reviewSummary: analytics?.metricIntegrityFailures?.[0],
+        reviewSummary: analytics?.individualMetricTruth?.explanation
+            ?? analytics?.metricIntegrityFailures?.[0],
     });
     const behaviorReviewDecision = buildBehaviorRollupReviewBadge({
         behaviorRollup,
@@ -615,12 +645,16 @@ export default function AdminUserAnalyticsPage() {
     });
 
     const formatBehaviorCountLabel = useCallback((value: number | null | undefined) => {
+        if (!individualMetricValuesDisplayable) {
+            return individualMetricStateLabel;
+        }
+
         if (typeof value !== "number" || !Number.isFinite(value)) {
             return "No source";
         }
 
         return value.toLocaleString();
-    }, []);
+    }, [individualMetricStateLabel, individualMetricValuesDisplayable]);
 
     const formatProfileMetricLabel = useCallback((value: number | null | undefined) => {
         if (isLocalAdminUserDetailFixture || typeof value !== "number" || !Number.isFinite(value)) {
@@ -647,6 +681,10 @@ export default function AdminUserAnalyticsPage() {
             : "source_missing: commerce source is not loaded in this fixture.");
 
     const watchTimeLabel = useMemo(() => {
+        if (!individualMetricValuesDisplayable) {
+            return individualMetricStateLabel;
+        }
+
         if (!behaviorRollup) {
             return "No source";
         }
@@ -666,7 +704,15 @@ export default function AdminUserAnalyticsPage() {
         }
 
         return `${Math.max(1, Math.round(watchSecondsTotal / 60))}m`;
-    }, [behaviorRollup?.watchTimeMs]);
+    }, [behaviorRollup, individualMetricStateLabel, individualMetricValuesDisplayable]);
+
+    const lastSeenAt = behaviorRollup?.lastSeenAt ?? analytics?.lastSeenAt;
+    const lastSeenEmptyLabel = individualMetricProvenZero ? "Proven zero" : "No observed timestamp";
+    const lastSeenLabel = individualMetricValuesDisplayable
+        ? lastSeenAt
+            ? formatDistanceToNow(lastSeenAt, { addSuffix: true })
+            : lastSeenEmptyLabel
+        : individualMetricStateLabel;
 
     const securityReasonOptions = useMemo(() => (
         Array.from(new Map(
@@ -830,7 +876,7 @@ export default function AdminUserAnalyticsPage() {
                             { label: "Value", value: valueExplanation.verdict, tone: "text-brand-purple" },
                             { label: "Auth", value: formatBehaviorCountLabel(behaviorRollup?.authEvents) },
                             { label: "Watch time", value: watchTimeLabel },
-                            { label: "Last seen", value: (behaviorRollup?.lastSeenAt ?? analytics?.lastSeenAt) ? formatDistanceToNow(behaviorRollup?.lastSeenAt ?? analytics!.lastSeenAt, { addSuffix: true }) : "No activity" },
+                            { label: "Last seen", value: lastSeenLabel },
                         ].map((item) => (
                             <div key={item.label} className="rounded-[1.25rem] border border-white/10 bg-black/30 px-3 py-3">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
@@ -844,23 +890,36 @@ export default function AdminUserAnalyticsPage() {
                         {commerceSummaryText}
                         {failedTxCount > 0 ? ` ${failedTxCount} failed transaction${failedTxCount === 1 ? "" : "s"} excluded from purchase yield.` : ""}
                     </div>
-                    <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
+                    <div
+                        className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
+                        data-individual-user-metric-state={individualMetricState}
+                        data-individual-user-metric-source={analytics?.individualMetricTruth?.sourceTruth ?? "source_missing"}
+                        data-individual-user-identity-bridge={analytics?.individualMetricTruth?.identityBridgeState ?? "bridge_missing"}
+                        data-individual-user-materializer={analytics?.individualMetricTruth?.materializerState ?? "materializer_missing"}
+                        data-individual-user-proven-zero={individualMetricProvenZero ? "true" : "false"}
+                    >
                         <AdminReviewBadge decision={metricReviewDecision} className="mr-1 py-0.5" />
-                        <AdminTruthBadge state={metricTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableAdminTruthValue(analytics?.eventCount, analytics?.viewCount, analytics?.watchSecondsTotal)} />{" "}
-                        {analytics?.metricSourceLabel || "No canonical user metrics source found."}
+                        <AdminTruthBadge state={metricTruthState} className="mr-1 py-0.5" hasUsableValue={individualMetricValuesDisplayable} />{" "}
+                        {individualMetricValuesDisplayable
+                            ? analytics?.metricSourceLabel || "Observed individual user source."
+                            : `${individualMetricStateLabel}: ${analytics?.individualMetricTruth?.explanation || "Individual user evidence is unavailable; missing values are not zero."}`}
                         {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
                     </div>
-        <div
-            className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
-            data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
-            data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
-            data-user-behavior-truth-score={behaviorTruthRollup?.sourceTruthScore ?? 0}
-        >
-            <AdminReviewBadge decision={behaviorReviewDecision} className="mr-1 py-0.5" />
-            <AdminTruthBadge state={behaviorTruthState} className="mr-1 py-0.5" hasUsableValue={Boolean(behaviorRollup)} />{" "}
-            {behaviorRollup
-                ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%). Math: ${behaviorRollup.mathCalibration?.activeMode ?? "deterministic"} / ${behaviorRollup.mathCalibration?.verdict ?? "unvalidated"} / truth ${Math.round((behaviorRollup.truthScore ?? 0) * 100)}%.`
-                            : "Behavior rollup unavailable."}
+                    <div
+                        className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
+                        data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
+                        data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
+                        data-user-behavior-truth-score={behaviorTruthRollup?.sourceTruthScore ?? "unavailable"}
+                    >
+                        <AdminReviewBadge decision={behaviorReviewDecision} className="mr-1 py-0.5" />
+                        <AdminTruthBadge
+                            state={behaviorTruthState}
+                            className="mr-1 py-0.5"
+                            hasUsableValue={Boolean(behaviorRollup) && individualMetricValuesDisplayable}
+                        />{" "}
+                        {individualMetricValuesDisplayable && behaviorRollup
+                            ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%). Math: ${behaviorRollup.mathCalibration?.activeMode ?? "deterministic"} / ${behaviorRollup.mathCalibration?.verdict ?? "unvalidated"} / truth ${Math.round((behaviorRollup.truthScore ?? 0) * 100)}%.`
+                            : `${individualMetricStateLabel}: ${analytics?.individualMetricTruth?.explanation || "Behavior rollup unavailable; missing values are not zero."}`}
                         {behaviorAvailabilitySummary ? ` ${behaviorAvailabilitySummary}` : ""}
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>
@@ -879,7 +938,11 @@ export default function AdminUserAnalyticsPage() {
 
                     <div className="custom-scrollbar max-h-[400px] space-y-3 overflow-y-auto pr-2">
                         {actionLedger.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-gray-500">No behavior logged yet.</p>
+                            <p className="py-8 text-center text-sm text-gray-500">
+                                {individualMetricValuesDisplayable
+                                    ? "No behavior logged in the proven source window."
+                                    : `${individualMetricStateLabel}: individual behavior is unavailable, not zero.`}
+                            </p>
                         ) : (
                             actionLedger.map((action) => {
                                 return (
@@ -1004,7 +1067,7 @@ export default function AdminUserAnalyticsPage() {
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         {behavioralTopCreators.slice(0, 6).map((entry) => (
                                             <span key={entry.key} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                                {entry.key} · {entry.score}
+                                                {entry.key} Â· {entry.score}
                                             </span>
                                         ))}
                                     </div>
@@ -1015,12 +1078,12 @@ export default function AdminUserAnalyticsPage() {
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         {behavioralTopCategories.slice(0, 4).map((entry) => (
                                             <span key={`category-${entry.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                                {entry.key} · {entry.score}
+                                                {entry.key} Â· {entry.score}
                                             </span>
                                         ))}
                                         {behavioralTopThemes.slice(0, 4).map((entry) => (
                                             <span key={`theme-${entry.key}`} className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold text-brand-purple">
-                                                {entry.key} · {entry.score}
+                                                {entry.key} Â· {entry.score}
                                             </span>
                                         ))}
                                     </div>
@@ -1059,7 +1122,7 @@ export default function AdminUserAnalyticsPage() {
                                             <div className="flex flex-wrap items-start justify-between gap-3">
                                                 <div>
                                                     <p className="text-sm font-bold text-white">{entry.dropTitle}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropId} Â· {entry.dropCategory || "unknown"}</p>
                                                     <p className="mt-2 text-xs leading-5 text-gray-300">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
@@ -1113,7 +1176,7 @@ export default function AdminUserAnalyticsPage() {
                                             <div className="flex flex-wrap items-center justify-between gap-3">
                                                 <div>
                                                     <p className="text-sm font-semibold text-white">{entry.dropTitle}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropCategory || "unknown"} · fallback recommendation</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropCategory || "unknown"} Â· fallback recommendation</p>
                                                     <p className="mt-2 text-xs leading-5 text-gray-400">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <span className="inline-flex items-center rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">

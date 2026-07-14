@@ -1,7 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+vi.mock("@google-analytics/data", () => ({
+  BetaAnalyticsDataClient: vi.fn(),
+}));
 
 const root = process.cwd();
 
@@ -71,6 +76,27 @@ describe("GA4 recovery truth", () => {
       lastRunAtMs: now - 10 * 60_000,
       nowMs: now,
     })).toBe(true);
+  });
+
+  it("blocks a GA4 report outside the fixed explicit-refresh budget", async () => {
+    const { runVendorReportWhenAllowed } = await import("@/lib/server/admin-analytics/ga4-evidence");
+    const runReport = vi.fn();
+    const issues: string[] = [];
+
+    const result = await runVendorReportWhenAllowed({
+      allowVendorReports: true,
+      analyticsClient: { runReport } as never,
+      requestConfig: { property: "properties/123" } as never,
+      label: "overflow report",
+      issues,
+      reportBudgetSlot: 8,
+    });
+
+    expect(runReport).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ rows: [], fallbackUsed: true, sourceState: "deferred" });
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.stringContaining("7-report refresh budget was exhausted"),
+    ]));
   });
 
   it("gates client GA4 on env and consent", async () => {

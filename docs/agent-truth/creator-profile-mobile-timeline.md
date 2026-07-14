@@ -1,6 +1,6 @@
 # Creator Profile Mobile Timeline
 
-Generated: 2026-06-19T18:02:29.426Z
+Generated: 2026-07-14T16:06:28.411Z
 
 ## Summary
 
@@ -10,8 +10,12 @@ Generated: 2026-06-19T18:02:29.426Z
 - Profile count density compact: true
 - Timeline feed rendered: true
 - Pending/draft content excluded: true
-- Protected nav/chat untouched: true
-- P0/P1/P2: 0/0/1
+- Protected nav/chat untouched: false
+- Separate protected-file changes outside this lane: 2
+- Public Beta release note required: false
+- Matching accepted-release note present: false
+- Release-note requirement satisfied: true
+- P0/P1/P2: 1/0/0
 
 ## Fixes Applied
 

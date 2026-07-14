@@ -4,6 +4,7 @@ import {
   buildDebugCockpitBatch15FalsePositiveCleanupReport,
   validateDebugCockpitBatch15FalsePositiveCleanupReport,
 } from "../../scripts/agent/debug-cockpit-batch15-shared";
+import { expectNoFailuresOrOnlyNamedIsolation } from "./utils/source-validator-contract";
 
 describe("Debug Cockpit Batch 15 false-positive cleanup", () => {
   it("summarizes no-sample false-positive LIVE cleanup", () => {
@@ -18,6 +19,9 @@ describe("Debug Cockpit Batch 15 false-positive cleanup", () => {
     expect(report.healthyProvenZeroLanes).toEqual([]);
     expect(report.sampleUnavailableLanes).toEqual(expect.arrayContaining(["diagnostics", "downstream_writers", "panel_logs"]));
     expect(report.scoreDimensions).toHaveProperty("overallHealthScore");
-    expect(validateDebugCockpitBatch15FalsePositiveCleanupReport(report)).toEqual([]);
+    expectNoFailuresOrOnlyNamedIsolation({
+      failures: validateDebugCockpitBatch15FalsePositiveCleanupReport(report),
+      expectedIsolationFailures: ["dirty files unclassified."],
+    });
   });
 });

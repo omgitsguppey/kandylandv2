@@ -582,7 +582,7 @@ export function AiDropCoverGeneratorPanel({
                             >
                                 <div className="relative aspect-square overflow-hidden bg-black">
                                     {job.imageUrl ? (
-                                        <Image src={job.imageUrl} alt={job.title} fill sizes="(max-width: 768px) 50vw, 240px" className="object-cover" />
+                                        <Image src={job.imageUrl} alt={job.title} fill sizes="(max-width: 840px) 50vw, 240px" className="object-cover" />
                                     ) : (
                                         <div className="flex h-full items-center justify-center text-xs text-gray-500">
                                             {job.status === "failed" ? "Generation failed" : "Rendering..."}

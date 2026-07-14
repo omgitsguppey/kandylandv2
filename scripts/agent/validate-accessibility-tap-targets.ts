@@ -71,6 +71,7 @@ const dropCardParts = readRequired("src/components/DropCardParts.tsx");
 const dropCardLayout = readRequired("src/components/DropCardLayout.tsx");
 const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const humanErrorNotice = readRequired("src/components/errors/HumanErrorNotice.tsx");
 const thumbnailsSlider = readRequired("src/app/dashboard/viewer/components/ThumbnailsSlider.tsx");
 const chatExperience = readRequired("src/components/Chat/ChatExperience.tsx");
 const adminAnalytics = readRequired("src/app/admin/analytics/page.tsx");
@@ -145,7 +146,7 @@ for (const expected of [
 for (const expected of [
   "aria-expanded={isOpen}",
   "aria-haspopup=\"menu\"",
-  "aria-label=\"Open settings\"",
+  "aria-label=\"Open account settings\"",
 ]) {
   requireIncludes(profileDropdown, expected, "Profile dropdown accessibility contract");
 }
@@ -195,12 +196,15 @@ for (const expected of [
   "closeButtonRef.current?.focus()",
   "event.key === \"Escape\"",
   "event.key !== \"Tab\"",
-  "aria-pressed={isSelected}",
-  "aria-pressed={isBundleSelected}",
-  "role=\"alert\"",
+  "aria-pressed={selected}",
+  "selected={isSelected}",
+  "selected={isBundleSelected}",
+  "<HumanErrorNotice",
 ]) {
   requireIncludes(purchaseModal, expected, "Purchase modal accessibility contract");
 }
+requireIncludes(humanErrorNotice, "role=\"alert\"", "Shared human error accessibility contract");
+requireIncludes(humanErrorNotice, "min-h-11", "Shared human error action touch targets");
 
 for (const expected of [
   "aria-label={`Show asset ${idx + 1} of ${assetCount}`}",

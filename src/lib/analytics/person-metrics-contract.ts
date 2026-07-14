@@ -44,6 +44,26 @@ export const PERSON_METRIC_IDS = [
 ] as const;
 
 export type PersonMetricId = (typeof PERSON_METRIC_IDS)[number];
+export type PersonMetricCounts = Record<PersonMetricId, number>;
+
+export function createEmptyPersonMetricCounts(): PersonMetricCounts {
+  return PERSON_METRIC_IDS.reduce<PersonMetricCounts>((counts, metricId) => {
+    counts[metricId] = 0;
+    return counts;
+  }, {} as PersonMetricCounts);
+}
+
+export function normalizePersonMetricCounts(value: unknown): PersonMetricCounts | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const counts = createEmptyPersonMetricCounts();
+  for (const metricId of PERSON_METRIC_IDS) {
+    const count = record[metricId];
+    if (typeof count !== "number" || !Number.isInteger(count) || count < 0) return null;
+    counts[metricId] = count;
+  }
+  return counts;
+}
 export type PersonMetricConsentDepth = "necessary_product" | "minimal_product" | "behavioral";
 export type PersonMetricDebugOwner = "analytics" | "behavioral-intelligence" | "wallet" | "commerce" | "creator" | "notifications" | "viewer-runtime" | "settings" | "support" | "retention" | "auth";
 export type PersonMetricLegacyAction = "normalize_candidate" | "link_candidate" | "archive_only" | "needs_manual_review";

@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-06-20T13:02:03.281Z",
-  "generatedAtUtc": "2026-06-20T13:02:03.281Z",
-  "currentHead": "f68328a541749ef0441906d328b4346b2bc9996c",
-  "sourceCommit": "f68328a541749ef0441906d328b4346b2bc9996c",
+  "generatedAt": "2026-07-14T09:54:03.077Z",
+  "generatedAtUtc": "2026-07-14T09:54:03.077Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "auditKey": "event-catalog-telemetry-launch-audit",
   "catalogVersion": "current",
-  "status": "review",
+  "status": "pass",
   "sourceStatus": "current_static_catalog_validator",
   "productionReads": false,
   "externalProviderCalls": false,
   "summary": {
-    "catalogEventCount": 772,
-    "emittedOrCoveredCount": 772,
+    "catalogEventCount": 770,
+    "emittedOrCoveredCount": 770,
     "unknownEmitterCount": 0,
-    "findingCount": 9,
+    "findingCount": 0,
     "currentSourceClassificationCounts": {
-      "emitted_current": 595,
+      "emitted_current": 593,
       "cataloged_not_observed": 177
     },
     "familyCounts": {
@@ -26,7 +26,7 @@
       "creator": 118,
       "admin": 146,
       "drop": 64,
-      "task": 44,
+      "task": 42,
       "purchase": 28,
       "unlock": 13,
       "system": 16,
@@ -43,7 +43,7 @@
       "creator": 216,
       "admin": 147,
       "runtime": 114,
-      "tasks": 51,
+      "tasks": 49,
       "commerce": 77,
       "viewer": 62,
       "notifications": 60,
@@ -576,24 +576,6 @@
         ],
         "missingFieldsRisk": "high",
         "currentSourceClassification": "cataloged_not_observed"
-      },
-      {
-        "eventName": "feedback_submitted",
-        "family": "task",
-        "category": "tasks",
-        "modules": [
-          "tasks"
-        ],
-        "emittedFromCount": 2,
-        "emittedFromSample": [
-          "src/app/api/drops/feedback/route.ts",
-          "src/components/Dashboard/DailyTasksModule.tsx"
-        ],
-        "auditCoveredBy": [
-          "bug_report_submitted"
-        ],
-        "missingFieldsRisk": "medium",
-        "currentSourceClassification": "emitted_current"
       },
       {
         "eventName": "identity_linked",
@@ -1715,51 +1697,30 @@
         ],
         "missingFieldsRisk": "low",
         "currentSourceClassification": "cataloged_not_observed"
+      },
+      {
+        "eventName": "creator_settings_surface_error_viewed",
+        "family": "creator",
+        "category": "engagement",
+        "modules": [
+          "creator",
+          "engagement"
+        ],
+        "emittedFromCount": 0,
+        "emittedFromSample": [],
+        "auditCoveredBy": [
+          "surface_telemetry_parity"
+        ],
+        "missingFieldsRisk": "low",
+        "currentSourceClassification": "cataloged_not_observed"
       }
     ],
     "catalogedNotObserved": []
   },
-  "findings": [
-    {
-      "severity": "review",
-      "message": "drops_category_selected must require drop_id/dropId."
-    },
-    {
-      "severity": "review",
-      "message": "drops_searched must require drop_id/dropId."
-    },
-    {
-      "severity": "review",
-      "message": "Missing payload contract for purchase_verified."
-    },
-    {
-      "severity": "review",
-      "message": "identified ingest route must include \"explainEventInclusion\"."
-    },
-    {
-      "severity": "review",
-      "message": "identified ingest route must include \"analyticsUserId\"."
-    },
-    {
-      "severity": "review",
-      "message": "identified ingest active-user write must include \"inclusion.includeInUserBehavior &&\"."
-    },
-    {
-      "severity": "review",
-      "message": "DropCard unlock telemetry must include \"transaction_id\"."
-    },
-    {
-      "severity": "review",
-      "message": "DropPreviewModal unlock telemetry must include \"transaction_id\"."
-    },
-    {
-      "severity": "review",
-      "message": "PayPal verified telemetry must include \"purchase_source: \"paypal_capture\"\"."
-    }
-  ],
+  "findings": [],
   "validation": {
     "script": "scripts/agent/validate-event-catalog-telemetry.ts",
     "npmScript": "check:event-catalog-telemetry",
-    "mode": "current_review_artifact"
+    "mode": "pass"
   }
 }

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -13,6 +14,7 @@ const duplicateFilenameSchema = z.object({
 });
 
 const DUPLICATE_FILENAME_DROP_SCAN_LIMIT = 1_000;
+const DUPLICATE_FILENAME_BODY_LIMIT_BYTES = 64_000;
 
 function normalizeFileName(value: string) {
     return value.trim().toLowerCase();
@@ -31,7 +33,11 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { fileNames, excludeDropId } = duplicateFilenameSchema.parse(await request.json());
+        const rawBody = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: DUPLICATE_FILENAME_BODY_LIMIT_BYTES,
+            routeName: "drops/duplicate-filenames",
+        });
+        const { fileNames, excludeDropId } = duplicateFilenameSchema.parse(rawBody);
         const normalizedTargets = Array.from(new Set(fileNames.map(normalizeFileName)));
         const dropsQuery = caller.isAdmin
             ? adminDb.collection("drops")
@@ -69,6 +75,14 @@ async function POST_handler(request: NextRequest) {
             hasDuplicates: matches.length > 0,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status });
+        }
         return handleApiError(error, "Drops.DuplicateFilenames.POST");
     }
 }

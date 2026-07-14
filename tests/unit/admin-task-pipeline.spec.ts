@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildAdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
+import { BUILT_IN_DAILY_TASK_MAP } from "@/lib/tasks/task-catalog";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
 function response(): HistoricalAnalyticsResponse {
@@ -167,6 +168,7 @@ describe("buildAdminTaskPipelineModel", () => {
   });
 
   it("verifies built-in leaderboard reward math and timing coverage", () => {
+    const openDashboardReward = BUILT_IN_DAILY_TASK_MAP.open_dashboard.reward;
     const model = buildAdminTaskPipelineModel({
       selectedRange: "30d",
       response: response(),
@@ -190,7 +192,7 @@ describe("buildAdminTaskPipelineModel", () => {
           started: 8,
           completed: 4,
           failed: 1,
-          rewardTotal: 4 * 48,
+          rewardTotal: 4 * openDashboardReward,
           avgDurationMs: 30_000,
           timedCompletionCount: 3,
           completionRate: 0.4,
@@ -200,8 +202,8 @@ describe("buildAdminTaskPipelineModel", () => {
 
     expect(model.taskLeaderboardRows[0]).toMatchObject({
       rewardVerified: true,
-      rewardTotal: 192,
-      rewardPerCompletion: 48,
+      rewardTotal: 4 * openDashboardReward,
+      rewardPerCompletion: openDashboardReward,
       rewardReconciliationDelta: 0,
       timingCoveragePercent: 0.75,
       startedCompletionRate: 0.5,

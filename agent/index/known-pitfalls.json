@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:58:27.458Z",
+  "generatedAt": "2026-07-14T16:00:12.174Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,79 +16,6 @@
     "scripts/check-generated-artifacts.ts"
   ],
   "pitfalls": [
-    {
-      "stable_id": "pitfall__creator_drop_workflow_chain_fix",
-      "title": "creator_drop_workflow_chain_fix",
-      "description": "Creator drop bugs can look like a broken button while the real failure is in form validation, route permissions, stored status, admin queue review, public visibility, telemetry, debug, or 4xx handling.",
-      "symptom_pattern": "A creator submits a drop and sees silent failure, hidden pending state, generic request failure, missing admin queue entry, or a user-visible unapproved submission.",
-      "affected_surfaces": [
-        "src/components/Creators/CreatorDropManager.tsx",
-        "src/components/Admin/CreateDropModal.tsx",
-        "src/app/api/creator/drops/route.ts",
-        "src/app/api/admin/drops/route.ts",
-        "src/app/admin/drops/page.tsx",
-        "src/lib/creator-drops/**",
-        "src/lib/creator-features/**"
-      ],
-      "prevention_rule": "When a creator feature is reported broken, inspect the entire workflow chain from creator UI to backend action, permission check, stored status, admin queue, approval decision, user visibility, telemetry, debug, and 4xx handling. Do not fix only the visible button. Creator-submitted drops must remain creator-visible but user-hidden until admin approval. Do not allow creator submissions to enter user-facing rotation without approval. Every creator workflow must expose creator-facing status and admin-facing status. Creator feature 4xx errors need user-readable recovery states. Reuse and consolidate instead of adding parallel creator systems.",
-      "detection_hint": "Run check:creator-drop-workflow-contract, check:creator-drop-submit-repair, check:creator-drop-admin-approval-parity, check:creator-drop-4xx-policy, check:creator-feature-parity-map, check:creator-drop-live-evidence, and check:creator-drop-memory-writeback.",
-      "related_commands": [
-        "npm run check:creator-drop-workflow-contract",
-        "npm run check:creator-drop-submit-repair",
-        "npm run check:creator-drop-admin-approval-parity",
-        "npm run check:creator-drop-4xx-policy",
-        "npm run check:creator-feature-parity-map",
-        "npm run check:creator-drop-live-evidence",
-        "npm run check:creator-drop-memory-writeback"
-      ],
-      "related_helpers": [
-        "src/lib/creator-drops/creator-drop-workflow-contract.ts",
-        "src/lib/creator-drops/creator-drop-4xx-policy.ts",
-        "src/lib/creator-features/creator-feature-parity-map.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
-    },
-    {
-      "stable_id": "pitfall__privacy_data_lifecycle_drift",
-      "title": "privacy_data_lifecycle_drift",
-      "description": "Telemetry, behavioral intelligence, admin debug, chat, media, notification, support, export, or delete-account code can drift into one-off privacy and redaction logic.",
-      "symptom_pattern": "A route, component, validator, or generated report collects, stores, exports, deletes, or displays user data without the canonical privacy/data lifecycle policy.",
-      "affected_surfaces": [
-        "src/lib/privacy-data/**",
-        "src/lib/privacy/**",
-        "src/lib/analytics/**",
-        "src/lib/behavioral/**",
-        "src/lib/debug/**",
-        "src/lib/notifications/**",
-        "src/lib/chat**",
-        "src/lib/media/**",
-        "src/app/api/**/support*",
-        "src/app/api/**/export*",
-        "src/app/api/**/delete*"
-      ],
-      "prevention_rule": "Before adding telemetry, analytics, behavioral intelligence, admin debug, chat, media, notification, or journey tracking, check the canonical privacy/data lifecycle policy. Consent denied does not mean track nothing; allowed operational/security/minimal analytics may still be collected, while deep behavioral tracking requires explicit allowed state. Delete account, data export, support/report issue, and admin debug must share the same redaction and retention policy. Behavioral/user journey records must have privacy class, retention class, export eligibility, delete eligibility, and redaction policy. Redacted summaries are default; Raw drilldown requires explicit admin permission and audit reason.",
-      "detection_hint": "Run check:privacy-data-lifecycle-contract, check:consent-interpreter-consolidation, check:data-export-canonicalization, check:delete-account-retention-policy, check:admin-redaction-drilldown-policy, check:support-account-safety-consolidation, and check:privacy-data-memory-writeback.",
-      "related_commands": [
-        "npm run check:privacy-data-lifecycle-contract",
-        "npm run check:consent-interpreter-consolidation",
-        "npm run check:data-export-canonicalization",
-        "npm run check:delete-account-retention-policy",
-        "npm run check:admin-redaction-drilldown-policy",
-        "npm run check:support-account-safety-consolidation",
-        "npm run check:privacy-data-memory-writeback"
-      ],
-      "related_helpers": [
-        "src/lib/privacy-data/privacy-data-lifecycle-contract.ts",
-        "src/lib/privacy-data/consent-interpreter.ts",
-        "src/lib/privacy-data/data-export-contract.ts",
-        "src/lib/privacy-data/delete-account-retention-policy.ts",
-        "src/lib/privacy-data/admin-redaction-drilldown-policy.ts",
-        "src/lib/privacy-data/support-account-safety-contract.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
-    },
     {
       "stable_id": "pitfall__stale_lockfile_drift",
       "title": "stale_lockfile_drift",
@@ -187,6 +114,39 @@
         "scripts/check-generated-artifacts.ts"
       ],
       "severity": "medium",
+      "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__creator_drop_workflow_chain_fix",
+      "title": "creator_drop_workflow_chain_fix",
+      "description": "Creator drop bugs can look like a broken button while the real failure is in form validation, route permissions, stored status, admin queue review, public visibility, telemetry, debug, or 4xx handling.",
+      "symptom_pattern": "A creator submits a drop and sees silent failure, hidden pending state, generic request failure, missing admin queue entry, or a user-visible unapproved submission.",
+      "affected_surfaces": [
+        "src/components/Creators/CreatorDropManager.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/app/api/creator/drops/route.ts",
+        "src/app/api/admin/drops/route.ts",
+        "src/app/admin/drops/page.tsx",
+        "src/lib/creator/drops/**",
+        "src/lib/creator/features/**"
+      ],
+      "prevention_rule": "When a creator feature is reported broken, inspect the entire workflow chain from creator UI to backend action, permission check, stored status, admin queue, approval decision, user visibility, telemetry, debug, and 4xx handling. Do not fix only the visible button. Creator-submitted drops must remain creator-visible but user-hidden until admin approval. Do not allow creator submissions to enter user-facing rotation without approval. Every creator workflow must expose creator-facing status and admin-facing status. Creator feature 4xx errors need user-readable recovery states. Reuse and consolidate instead of adding parallel creator systems.",
+      "detection_hint": "Run check:creator-drop-workflow-contract, check:creator-drop-submit-repair, check:creator-drop-admin-approval-parity, check:creator-drop-4xx-policy, check:creator-feature-parity-map, check:creator-drop-live-evidence, and check:creator-drop-memory-writeback.",
+      "related_commands": [
+        "npm run check:creator-drop-workflow-contract",
+        "npm run check:creator-drop-submit-repair",
+        "npm run check:creator-drop-admin-approval-parity",
+        "npm run check:creator-drop-4xx-policy",
+        "npm run check:creator-feature-parity-map",
+        "npm run check:creator-drop-live-evidence",
+        "npm run check:creator-drop-memory-writeback"
+      ],
+      "related_helpers": [
+        "src/lib/creator/drops/creator-drop-workflow-contract.ts",
+        "src/lib/creator/drops/creator-drop-4xx-policy.ts",
+        "src/lib/creator/features/creator-feature-parity-map.ts"
+      ],
+      "severity": "high",
       "broad_work_relevance": true
     },
     {
@@ -360,34 +320,6 @@
       "broad_work_relevance": true
     },
     {
-      "stable_id": "pitfall__frontend_parallel_state_wrapper_sprawl",
-      "title": "frontend_parallel_state_wrapper_sprawl",
-      "description": "Frontend parity and hydration fixes can add another wrapper or hook even when an existing surface state, telemetry, or role resolver already owns the behavior.",
-      "symptom_pattern": "Components carry repeated loading/error state, direct telemetry payloads, local role checks, or viewport logic that drifts from canonical hooks and contracts.",
-      "affected_surfaces": [
-        "src/app/**",
-        "src/components/**",
-        "src/hooks/**",
-        "src/context/**"
-      ],
-      "prevention_rule": "Route components through canonical hooks/resolvers, keep UI components thin, and end every frontend task by searching duplicate state/hook/telemetry logic.",
-      "detection_hint": "Run check:frontend-component-consolidation and inspect direct trackEvent, localStorage/sessionStorage, innerWidth, and duplicated useState/useEffect clusters.",
-      "related_commands": [
-        "npm run check:frontend-component-consolidation",
-        "npm run check:client-state-ownership",
-        "npm run check:hydration-race-cleanup",
-        "npm run check:frontend-telemetry-consolidation"
-      ],
-      "related_helpers": [
-        "src/lib/frontend-hardening/frontend-surface-inventory.ts",
-        "src/lib/frontend-hardening/client-state-ownership.ts",
-        "src/lib/frontend-hardening/hydration-race-guard.ts",
-        "src/lib/frontend-hardening/frontend-telemetry-usage.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
-    },
-    {
       "stable_id": "pitfall__viewer_watch_capture_continuity_drift",
       "title": "viewer_watch_capture_continuity_drift",
       "description": "Viewer watch sessions can degrade silently when flush outcomes, close-path sync, or replay recovery are not surfaced into continuity checks.",
@@ -409,183 +341,6 @@
       ],
       "severity": "high",
       "broad_work_relevance": false
-    },
-    {
-      "stable_id": "pitfall__config_deployment_readiness_confusion",
-      "title": "config_deployment_readiness_confusion",
-      "description": "Config, deployment, environment, CI, package-script, middleware, Firebase rules, and dependency changes can be mistaken for ordinary source-only cleanup.",
-      "symptom_pattern": "A pass claims readiness after local tests while env contracts, release notes, security/rules validation, PR hygiene, rollback status, current-head score artifacts, or operator evidence remain stale.",
-      "affected_surfaces": [
-        "package.json",
-        ".github/workflows/**",
-        "firebase.json",
-        "firestore.rules",
-        "storage.rules",
-        "next.config.ts",
-        "middleware.ts",
-        ".env.example"
-      ],
-      "prevention_rule": "Do not treat passing source tests as deployment readiness. Do not add package scripts, validators, or generated artifacts without checking for existing scripts that already own the same lane. Every config or deployment change must declare owner, environment, expected command, safety class, cost class, and rollback behavior. Never touch payment runtime, GumDrop math, provider callbacks, Firebase/security rules, middleware, or deployment configs casually. Before editing config, deployment, env, CI, package scripts, middleware, Firebase rules, or dependency tooling, classify the lane and read existing policy. Config and deployment changes are release-risk changes. Dependency PRs are not cleanup. Generated artifacts must be compact by default.",
-      "detection_hint": "Run check:config-env-contract, check:security-rules-inventory, check:package-script-consolidation, check:ci-release-discipline, check:security-header-route-config, check:dependency-toolchain-policy, and check:config-infra-memory-writeback before release closeout.",
-      "related_commands": [
-        "npm run check:config-env-contract",
-        "npm run check:security-rules-inventory",
-        "npm run check:package-script-consolidation",
-        "npm run check:ci-release-discipline",
-        "npm run check:security-header-route-config",
-        "npm run check:dependency-toolchain-policy",
-        "npm run check:config-infra-memory-writeback"
-      ],
-      "related_helpers": [
-        "src/lib/config-hardening/config-env-contract.ts",
-        "src/lib/config-hardening/security-rules-contract.ts",
-        "src/lib/config-hardening/package-script-inventory.ts",
-        "src/lib/config-hardening/ci-release-discipline.ts",
-        "src/lib/config-hardening/security-header-contract.ts",
-        "src/lib/config-hardening/dependency-toolchain-policy.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
-    },
-    {
-      "stable_id": "pitfall__duplicate_type_schema_contract_drift",
-      "title": "duplicate_type_schema_contract_drift",
-      "description": "Shared entities, DTOs, schemas, generated reports, and validator shapes can drift when a pass adds another local interface instead of importing a canonical owner.",
-      "symptom_pattern": "Codex reads one user, creator, wallet, GumDrop, event envelope, debug finding, evidence, or analytics metric shape and writes another incompatible one.",
-      "affected_surfaces": [
-        "src/types/**",
-        "src/lib/**",
-        "scripts/agent/**",
-        "tests/unit/**",
-        "agent/state/*.generated.json"
-      ],
-      "prevention_rule": "Before adding a new interface, DTO, schema, or contract, search for an existing canonical type. Do not create another shape for the same concept unless replacing the old one and updating imports. Every shared domain object must have one canonical owner. User, creator, GumDrop, wallet, entitlement, event envelope, debug finding, release evidence, and analytics metric shapes should not be redefined inside random components, routes, tests, or validators. Generated report schemas must be compact and typed through canonical contracts. Do not create massive generated JSON shapes that drift from source types. If a validator needs a shape, import or derive the canonical type instead of copy-pasting a near-duplicate test-only interface. End every type/schema pass by searching for duplicate interface/type names, local DTOs, stale aliases, and unsafe_unknown schema drift.",
-      "detection_hint": "Run check:type-schema-inventory, check:canonical-type-owner-map, check:schema-validation-ownership, check:generated-report-schema-contract, check:type-schema-memory-writeback, and check:type-schema-gut-consolidation.",
-      "related_commands": [
-        "npm run check:type-schema-inventory",
-        "npm run check:canonical-type-owner-map",
-        "npm run check:schema-validation-ownership",
-        "npm run check:generated-report-schema-contract",
-        "npm run check:type-schema-memory-writeback",
-        "npm run check:type-schema-gut-consolidation"
-      ],
-      "related_helpers": [
-        "src/lib/type-hardening/type-schema-inventory.ts",
-        "src/lib/type-hardening/canonical-type-owner-map.ts",
-        "src/lib/type-hardening/schema-validation-ownership.ts",
-        "src/lib/type-hardening/generated-report-schema-contract.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
-    },
-    {
-      "stable_id": "pitfall__test_fixture_mock_proof_drift",
-      "title": "test_fixture_mock_proof_drift",
-      "description": "Tests, fixtures, mocks, validators, and QA harnesses can become a fake universe when they redefine production DTOs or let source-only mocks satisfy runtime/provider/admin evidence gates.",
-      "symptom_pattern": "A green test passes against stale fixtures, fake DTOs, or mocked behavior that bypasses canonical math, telemetry, role, cost, or source-of-funds rules.",
-      "affected_surfaces": [
-        "tests/**",
-        "scripts/agent/**",
-        "src/lib/testing/**",
-        "agent/state/*.generated.json",
-        "docs/agent-truth/*.md"
-      ],
-      "prevention_rule": "Before adding a test fixture, mock, validator, or QA harness, search for the canonical production contract and import it. Do not create test-only shapes that drift from source truth. A green test is not proof if the test uses stale fixtures, fake DTOs, or mocked behavior that bypasses canonical math, telemetry, role, cost, or source-of-funds rules. Every validator must have an owner lane, a package script, a unit test, and a retirement rule. If a newer lock supersedes a validator, retire or alias the old one instead of keeping both active. Mocks must declare whether they simulate source-only, runtime-like, provider-like, admin-like, or operator-only evidence. Mocks must never be treated as provider/runtime/admin proof. End every test/fixture pass by searching for duplicate fixtures, stale sample JSON, fantasy DTOs, obsolete validators, and generated artifacts larger than needed.",
-      "detection_hint": "Run check:test-fixture-inventory, check:validator-ownership-map, check:test-quality-guards, check:generated-artifact-size-policy, check:qa-harness-consolidation, and check:test-fixture-memory-writeback.",
-      "related_commands": [
-        "npm run check:test-fixture-inventory",
-        "npm run check:validator-ownership-map",
-        "npm run check:test-quality-guards",
-        "npm run check:generated-artifact-size-policy",
-        "npm run check:qa-harness-consolidation",
-        "npm run check:test-fixture-memory-writeback"
-      ],
-      "related_helpers": [
-        "src/lib/testing/canonical-test-factories.ts",
-        "src/lib/testing/mock-evidence-classifier.ts",
-        "src/lib/test-hardening/test-fixture-inventory.ts",
-        "src/lib/test-hardening/validator-ownership-map.ts",
-        "src/lib/test-hardening/test-quality-guards.ts",
-        "src/lib/test-hardening/generated-artifact-size-policy.ts",
-        "src/lib/test-hardening/qa-harness-map.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
-    },
-    {
-      "stable_id": "pitfall__4xx_treasury_retry_finance_drift",
-      "title": "4xx_treasury_retry_finance_drift",
-      "description": "4xx route errors and finance-like wallet/GumDrop/revenue/entitlement/cost logic can drift when client errors are treated as retryable failures or when a new ledger/revenue summary is added outside the canonical Treasury owner map.",
-      "symptom_pattern": "Validation, auth, permission, not-found, conflict, rate-limit, or permanent client errors create retry storms, duplicate diagnostics, or fake P1 runtime issues; finance panels mix provider truth, ledger truth, inferred revenue, and unknown legacy money.",
-      "affected_surfaces": [
-        "src/app/api/**",
-        "src/lib/route-hardening/**",
-        "src/lib/treasury/**",
-        "src/lib/platform-economy.ts",
-        "src/lib/math/gumdrop-ledger-math.ts",
-        "src/lib/math/creator-revenue-entitlement-math.ts",
-        "src/lib/commerce/**",
-        "agent/state/*.generated.json",
-        "docs/agent-truth/*.md"
-      ],
-      "prevention_rule": "Classify 4xx errors before fixing them. Validation, auth, permission, not found, conflict, rate limit, and permanent client errors must not be treated as retryable server failures. Never let 4xx diagnostics create retry storms, duplicate warning writes, or fake P1 runtime issues. Roll up repeated 4xx failures by route, error class, actor class, and hourly fingerprint. Before adding finance, wallet, GumDrop, revenue, transaction, entitlement, or cost logic, check the Treasury owner map. Do not create a new ledger, revenue summary, balance calculation, or source-of-funds rule outside the canonical Treasury structure. Treasury must separate appropriations, obligations, outlays, receipts, balances, entitlements, refunds, adjustments, reconciliation, and audit exceptions. Treasury reports must be compact, redacted, reconcilable, and confidence-labeled. Every finance-like panel or metric must explain whether it is ledger truth, provider truth, operator-confirmed, inferred, pending, reversed, or unknown legacy.",
-      "detection_hint": "Run check:route-4xx-taxonomy, check:route-4xx-mitigation, check:route-4xx-application, check:treasury-structure-contract, check:treasury-consolidation-map, check:treasury-reconciliation-engine, and check:4xx-treasury-gut-consolidation.",
-      "related_commands": [
-        "npm run check:route-4xx-taxonomy",
-        "npm run check:route-4xx-mitigation",
-        "npm run check:route-4xx-application",
-        "npm run check:treasury-structure-contract",
-        "npm run check:treasury-consolidation-map",
-        "npm run check:treasury-reconciliation-engine",
-        "npm run check:4xx-treasury-gut-consolidation"
-      ],
-      "related_helpers": [
-        "src/lib/route-hardening/route-4xx-taxonomy.ts",
-        "src/lib/route-hardening/route-4xx-mitigation.ts",
-        "src/lib/treasury/treasury-structure-contract.ts",
-        "src/lib/treasury/treasury-consolidation-map.ts",
-        "src/lib/treasury/treasury-reconciliation-engine.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
-    },
-    {
-      "stable_id": "pitfall__deep_4xx_stale_client_retry_loop",
-      "title": "deep_4xx_stale_client_retry_loop",
-      "description": "4xx route failures can hide behind route params, stale clients, deleted resources, notification deep links, PWA cache, bots, auth expiry, role drift, and client retry loops rather than obvious status-code literals.",
-      "symptom_pattern": "Users or bots trigger repeated validation/auth/permission/not-found/conflict/rate-limit errors that show generic request failed copy, spam diagnostics, inflate product error scores, or leave stale UI controls visible.",
-      "affected_surfaces": [
-        "src/app/**",
-        "src/components/**",
-        "src/hooks/**",
-        "src/context/**",
-        "src/lib/authFetch.ts",
-        "src/lib/client-error-reporting.ts",
-        "src/lib/route-hardening/**",
-        "agent/state/*.generated.json",
-        "docs/agent-truth/*.md"
-      ],
-      "prevention_rule": "Search for 4xx by route behavior, not just status-code strings. Many 4xx bugs hide behind stale links, missing route params, expired sessions, deleted resources, bots, notification deep links, PWA cache, and retry loops. Every 4xx must have a root-cause class, retry policy, route/feature owner, safe user copy, diagnostic rollup, and cost classification. When fixing 4xx, check both sides: the API route and the client surface/link/deep link that calls it. Do not convert expected 4xx into 500s or hide them. Expected 4xx should be cheap, grouped, non-retryable, and user-readable. A route returning 404 for deleted, expired, private, or unavailable content should include a safe reason class and recovery action, not raw missing-data silence.",
-      "detection_hint": "Run check:route-param-availability-map, check:client-callsite-4xx-map, check:stale-deeplink-route-alias-policy, check:bot-crawler-4xx-policy, check:auth-role-drift-4xx-policy, check:route-4xx-score-cost-impact, and check:deep-4xx-memory-writeback.",
-      "related_commands": [
-        "npm run check:route-param-availability-map",
-        "npm run check:client-callsite-4xx-map",
-        "npm run check:stale-deeplink-route-alias-policy",
-        "npm run check:bot-crawler-4xx-policy",
-        "npm run check:auth-role-drift-4xx-policy",
-        "npm run check:route-4xx-score-cost-impact",
-        "npm run check:deep-4xx-memory-writeback"
-      ],
-      "related_helpers": [
-        "src/lib/route-hardening/route-param-availability-map.ts",
-        "src/lib/route-hardening/client-callsite-4xx-map.ts",
-        "src/lib/route-hardening/stale-deeplink-route-alias-policy.ts",
-        "src/lib/route-hardening/bot-crawler-4xx-policy.ts",
-        "src/lib/route-hardening/auth-role-drift-4xx-policy.ts",
-        "src/lib/route-hardening/route-4xx-score-cost-impact.ts"
-      ],
-      "severity": "high",
-      "broad_work_relevance": true
     }
   ]
 }

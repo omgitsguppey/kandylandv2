@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-05-12T00:56:56.267Z",
+  "generatedAt": "2026-07-14T16:08:36.047Z",
   "registryVersion": "legacy-phaseout-v1",
   "reportPath": "agent/state/legacy-phaseout.generated.json",
   "docsPath": "docs/agent-truth/legacy-phaseout.md",
-  "legacyDebtScore": 131,
-  "healthScore": 10,
+  "legacyDebtScore": 24,
+  "healthScore": 76,
   "status": "warning",
   "registryCount": 9,
   "blockedReferenceCount": 0,
-  "overdueCount": 4,
+  "overdueCount": 2,
   "items": [
     {
       "id": "drop-preview-modal-fallback",
@@ -18,7 +18,7 @@
       ],
       "status": "allowed_fallback",
       "canonicalReplacement": "Full-page locked Drop preview route at /drops/[id]/preview",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "unused",
       "ownerSurface": "locked_drop_preview",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-19",
@@ -39,13 +39,13 @@
         "from \"@/components/DropPreviewModal\"",
         "from '@/components/DropPreviewModal'"
       ],
-      "stagePenalty": 3,
+      "stagePenalty": 1,
       "riskWeight": 2,
-      "overdueMultiplier": 1,
+      "overdueMultiplier": 3,
       "debtScore": 6,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "current"
+      "overdueState": "remove_overdue"
     },
     {
       "id": "drops-query-modal-flow",
@@ -55,7 +55,7 @@
       ],
       "status": "remove_by_deadline",
       "canonicalReplacement": "Redirect or hand off to /drops/[id]/preview only",
-      "phaseOutStage": "redirected",
+      "phaseOutStage": "removed",
       "ownerSurface": "drops_discovery_to_preview",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-19",
@@ -73,30 +73,30 @@
         "`/drops?drop=",
         "setSelectedDrop("
       ],
-      "stagePenalty": 2,
+      "stagePenalty": 0,
       "riskWeight": 4,
       "overdueMultiplier": 1,
-      "debtScore": 8,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
       "overdueState": "current"
     },
     {
       "id": "synthetic-view-as-local-projection",
-      "name": "Synthetic/simulative admin view-as",
+      "name": "Retired unsafe synthetic/simulative admin view-as semantics",
       "paths": [
         "src/lib/admin/synthetic-creators-view-as.ts",
         "src/context/AdminViewAsContext.tsx",
         "src/app/api/admin/view-as-creator/route.ts"
       ],
-      "status": "deprecated",
+      "status": "blocked",
       "canonicalReplacement": "Admin creator projection with actorAdminId, performedAs, local-only source truth, and write-block diagnostics",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "admin_creator_projection",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-26",
       "removeBy": "2026-07-15",
-      "riskIfKept": "Local projection and synthetic creator state can be mistaken for live creator behavior or user engagement.",
+      "riskIfKept": "Unsafe local projection semantics could make Admin QA look like live creator behavior or user engagement.",
       "allowedReferences": [
         "src/lib/admin/synthetic-creators-view-as.ts",
         "src/context/AdminViewAsContext.tsx",
@@ -105,7 +105,7 @@
         "src/lib/analytics/analytics-event-contract.ts",
         "src/lib/behavioral/normalize-event-fact.ts",
         "src/lib/behavioral/event-fact-normalizer.ts",
-        "src/lib/identity/actor-markers.ts",
+        "src/lib/identity-truth/identity/actor-markers.ts",
         "src/lib/server/analytics.ts",
         "scripts/agent/validate-synthetic-creators-view-as.ts",
         "scripts/agent/validate-admin-projection-analytics-exclusion.ts",
@@ -113,13 +113,12 @@
       ],
       "blockedReferences": [
         "sourceTruth: \"live_projection\"",
-        "includeInUserBehavior: true",
         "performedAs: \"creator\""
       ],
-      "stagePenalty": 3,
-      "riskWeight": 3,
+      "stagePenalty": 0,
+      "riskWeight": 5,
       "overdueMultiplier": 1,
-      "debtScore": 9,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
       "overdueState": "current"
@@ -134,7 +133,7 @@
       ],
       "status": "blocked",
       "canonicalReplacement": "Evidence-weighted theft-risk and scrape-risk scoring",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "admin_moderation_real_risk",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-12",
@@ -153,20 +152,19 @@
         "isScreenshotConfirmed",
         "screenshot certainty"
       ],
-      "stagePenalty": 3,
+      "stagePenalty": 0,
       "riskWeight": 5,
-      "overdueMultiplier": 1.5,
-      "debtScore": 22.5,
+      "overdueMultiplier": 1,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "review_overdue"
+      "overdueState": "current"
     },
     {
       "id": "admin-users-realtime-route",
       "name": "Realtime-ish admin/users route",
       "paths": [
-        "src/app/api/admin/users/realtime/route.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts"
+        "src/app/api/admin/users/realtime/route.ts"
       ],
       "status": "remove_by_deadline",
       "canonicalReplacement": "Admin user hot-cache/materialized snapshot route",
@@ -178,7 +176,6 @@
       "riskIfKept": "Unbounded realtime admin reads can bypass hot-cache doctrine and inflate cost or stale-state confusion.",
       "allowedReferences": [
         "src/app/api/admin/users/realtime/route.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
         "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "docs/agent-truth/admin-analytics-hot-cache.md",
@@ -191,11 +188,11 @@
       ],
       "stagePenalty": 3,
       "riskWeight": 4,
-      "overdueMultiplier": 1,
-      "debtScore": 12,
+      "overdueMultiplier": 1.5,
+      "debtScore": 18,
       "referenceCount": 1,
       "blockedReferenceCount": 0,
-      "overdueState": "current"
+      "overdueState": "review_overdue"
     },
     {
       "id": "old-wallet-total-only-balance-chip",
@@ -205,7 +202,7 @@
       ],
       "status": "blocked",
       "canonicalReplacement": "Source-aware split balance chip showing free GD and paid GD",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "wallet_density",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-12",
@@ -222,13 +219,13 @@
         "total-only balance chip",
         "80,962 balance"
       ],
-      "stagePenalty": 3,
+      "stagePenalty": 0,
       "riskWeight": 5,
-      "overdueMultiplier": 1.5,
-      "debtScore": 22.5,
+      "overdueMultiplier": 1,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "review_overdue"
+      "overdueState": "current"
     },
     {
       "id": "old-green-bonus-chips",
@@ -238,7 +235,7 @@
       ],
       "status": "blocked",
       "canonicalReplacement": "Brand-purple bonus chip theme",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "wallet_density",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-12",
@@ -255,13 +252,13 @@
         "wallet-bonus-chip-theme=\"green\"",
         "green bonus chip"
       ],
-      "stagePenalty": 3,
+      "stagePenalty": 0,
       "riskWeight": 5,
-      "overdueMultiplier": 1.5,
-      "debtScore": 22.5,
+      "overdueMultiplier": 1,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "review_overdue"
+      "overdueState": "current"
     },
     {
       "id": "notification-opened-read-score-split",
@@ -275,7 +272,7 @@
       ],
       "status": "blocked",
       "canonicalReplacement": "Canonical behavioral action notification_read; opened/clicked remain UI diagnostics only",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "notification_behavior_truth",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-12",
@@ -300,13 +297,13 @@
         "engagement.notification_opened",
         "includeNotificationOpenedInBehavior: true"
       ],
-      "stagePenalty": 3,
+      "stagePenalty": 0,
       "riskWeight": 5,
-      "overdueMultiplier": 1.5,
-      "debtScore": 22.5,
+      "overdueMultiplier": 1,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "review_overdue"
+      "overdueState": "current"
     },
     {
       "id": "admin-support-realtime-queue",
@@ -317,7 +314,7 @@
       ],
       "status": "allowed_fallback",
       "canonicalReplacement": "Unified support inbox model with admin support route truth and debug evidence",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "support_recovery_flows",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-26",
@@ -336,10 +333,10 @@
         "admin support dashboard reads Firestore directly",
         "support route returns only flat messages"
       ],
-      "stagePenalty": 3,
+      "stagePenalty": 0,
       "riskWeight": 2,
       "overdueMultiplier": 1,
-      "debtScore": 6,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
       "overdueState": "current"
@@ -347,15 +344,10 @@
   ],
   "findings": [],
   "nextActions": [
-    "Review overdue legacy item old-moderation-screenshot-certainty; replacement is Evidence-weighted theft-risk and scrape-risk scoring.",
-    "Review overdue legacy item old-wallet-total-only-balance-chip; replacement is Source-aware split balance chip showing free GD and paid GD.",
-    "Review overdue legacy item old-green-bonus-chips; replacement is Brand-purple bonus chip theme.",
-    "Review overdue legacy item notification-opened-read-score-split; replacement is Canonical behavioral action notification_read; opened/clicked remain UI diagnostics only.",
-    "Phase out old-moderation-screenshot-certainty by 2026-06-05; owner surface admin_moderation_real_risk.",
-    "Phase out old-wallet-total-only-balance-chip by 2026-06-05; owner surface wallet_density.",
-    "Phase out old-green-bonus-chips by 2026-06-05; owner surface wallet_density.",
-    "Phase out notification-opened-read-score-split by 2026-06-05; owner surface notification_behavior_truth.",
-    "Phase out admin-users-realtime-route by 2026-08-01; owner surface admin_user_hot_cache."
+    "Review overdue legacy item drop-preview-modal-fallback; replacement is Full-page locked Drop preview route at /drops/[id]/preview.",
+    "Review overdue legacy item admin-users-realtime-route; replacement is Admin user hot-cache/materialized snapshot route.",
+    "Phase out admin-users-realtime-route by 2026-08-01; owner surface admin_user_hot_cache.",
+    "Phase out drop-preview-modal-fallback by 2026-07-01; owner surface locked_drop_preview."
   ],
   "scoring": {
     "formula": "legacyDebtScore = sum(stagePenalty * riskWeight * overdueMultiplier); blocked but referenced is critical",

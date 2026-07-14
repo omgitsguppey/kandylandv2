@@ -397,6 +397,7 @@ export function normalizeIdentifiedRuntimeFact(input: {
         actorAdminId: runtimeActorAdminId,
         anonymousVisitorId,
         sessionId,
+        identityLinkId,
       },
       target: {
         targetUserId: parityFact.targetUserId,
@@ -416,6 +417,8 @@ export function normalizeIdentifiedRuntimeFact(input: {
       includeInUserBehavior: inclusion.includeInUserBehavior,
       includeInAdminAnalytics: inclusion.includeInAdminAnalytics,
       includeInGlobalEvents: inclusion.includeInGlobalEvents,
+      adminExcludedCount: actorClassification.isAdmin ? 1 : 0,
+      systemExcludedCount: actorClassification.isSystem ? 1 : 0,
       metricEligible,
       metricExclusionReason,
       sourceCollection: "analytics_event_facts",
@@ -498,6 +501,7 @@ export function normalizeAnonymousRuntimeFact(input: {
         actorAdminId: "",
         anonymousVisitorId: input.anonymousVisitorId,
         sessionId: input.sessionId,
+        identityLinkId: "",
       },
       target: {
         targetUserId: "",
@@ -517,6 +521,8 @@ export function normalizeAnonymousRuntimeFact(input: {
       includeInUserBehavior: false,
       includeInAdminAnalytics: true,
       includeInGlobalEvents: true,
+      adminExcludedCount: 0,
+      systemExcludedCount: 0,
       metricEligible,
       metricExclusionReason,
       sourceCollection: "analytics_guest_batches",

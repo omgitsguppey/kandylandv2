@@ -159,8 +159,8 @@ describe("person metrics contract", () => {
     });
   });
 
-  it("honors explicit user-behavior exclusion before global or person counting", () => {
-    const diagnosticCandidate = buildPersonMetricCandidate({
+  it("keeps explicit user-behavior exclusions out of person scopes while preserving eligible aggregate facts", () => {
+    const minimalDiagnosticCandidate = buildPersonMetricCandidate({
       metricId: "wallet_opens",
       eventName: "wallet_opened",
       eventId: "evt_diagnostic_wallet",
@@ -172,8 +172,27 @@ describe("person metrics contract", () => {
       userRef: { kind: "user", id: "user_1" },
       includeInUserBehavior: false,
     });
+    const behavioralDiagnosticCandidate = buildPersonMetricCandidate({
+      metricId: "wallet_opens",
+      eventName: "wallet_opened",
+      eventId: "evt_behavioral_diagnostic_wallet",
+      actorKind: "signed_in_user",
+      identityState: "logged_in_unlinked",
+      identityConfidence: "exact",
+      consentMode: "full_behavioral",
+      sessionId: "sess_behavioral_diagnostic",
+      userRef: { kind: "user", id: "user_1" },
+      includeInUserBehavior: false,
+    });
 
-    expect(shouldCountPersonMetricEvent(diagnosticCandidate)).toMatchObject({
+    expect(shouldCountPersonMetricEvent(minimalDiagnosticCandidate)).toMatchObject({
+      countGlobally: true,
+      countForGuest: false,
+      countForSignedInUser: false,
+      countForLinkedPerson: false,
+      blockedReason: "user_behavior_excluded",
+    });
+    expect(shouldCountPersonMetricEvent(behavioralDiagnosticCandidate)).toMatchObject({
       countGlobally: false,
       countForGuest: false,
       countForSignedInUser: false,

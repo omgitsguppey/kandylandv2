@@ -52,7 +52,11 @@ assert(chatServer.includes("chat_low_paid_gd_reminder_sent"), "Server chat must 
 assert(chatServer.includes("eligibleAgain"), "Server chat reminder logic must use eligibleAgain gating.", failures);
 assert(paypalCaptureRoute.includes("chatPaidGdLowBalanceReminder"), "PayPal capture must reset chatPaidGdLowBalanceReminder on paid refill.", failures);
 assert(paypalCaptureRoute.includes("chat_low_paid_gd_reminder_reset"), "Paid refill must emit chat_low_paid_gd_reminder_reset telemetry.", failures);
-assert(paypalCaptureRoute.includes("sourceAwareBalance.purchased < 100 && nextSourceAwareBalance.purchased >= 100"), "Reminder reset must require paid balance reaching 100+.", failures);
+assert(
+    /sourceAwareBalance\.purchased\s*<\s*100\s*&&\s*nextSourceAwareBalance\.purchased\s*>=\s*100/u.test(paypalCaptureRoute),
+    "Reminder reset must require paid balance reaching 100+.",
+    failures,
+);
 
 assert(chatServer.includes('errorCode: "insufficient_paid_gumdrops"'), "Backend send guard must still enforce insufficient_paid_gumdrops.", failures);
 

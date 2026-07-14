@@ -3,6 +3,7 @@ import {
     ADMIN_AI_MODEL_PRICE_SOURCE_URL,
     getAdminAiModelAlias,
     getAiModelReferenceLimit,
+    normalizeAdminAiModelAlias,
 } from "@/lib/admin-ai-models";
 import { buildCoverSemanticBrief } from "@/lib/ai-cover/cover-semantic-brief";
 import { compileCoverPrompt } from "@/lib/ai-cover/cover-prompt-compiler";
@@ -28,10 +29,14 @@ const LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES = new Set([
     "imagen-4.0-fast-generate-001",
     "imagen-3.0-capability-001",
 ]);
+const LEGACY_ADMIN_AI_DROP_COVER_GLOBAL_LOCATION_ALIASES = new Set([
+    ...LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES,
+    "gemini-3-pro-image-preview",
+]);
 const LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES = new Set(["us-central1"]);
 export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v4";
 export const ADMIN_AI_DROP_COVER_PRICE_BASIS = "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06";
-export const ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS = "vertex-ai-pricing-gemini-3-pro-image-preview-2026-04-06";
+export const ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS = "vertex-ai-pricing-gemini-3-pro-image-ga-2026-07-14";
 export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = ADMIN_AI_MODEL_PRICE_SOURCE_URL;
 export const ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE = "image/png";
 export const ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS = 2_500;
@@ -61,14 +66,15 @@ export const ADMIN_AI_DROP_COVER_MODEL_OPTIONS = [
     },
     {
         id: ADMIN_AI_DROP_COVER_PREMIUM_MODEL,
-        label: "Gemini 3 Pro Image Preview",
-        shortLabel: "3 Pro Preview",
+        label: "Gemini 3 Pro Image",
+        shortLabel: "3 Pro",
         provider: "gemini",
-        launchStage: "preview",
+        launchStage: "ga",
         pricePerGenerationUsd: 0.134,
         priceBasis: ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS,
         location: ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
-        maxReferenceInputs: ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT,
+        maxReferenceInputs: getAiModelReferenceLimit(ADMIN_AI_DROP_COVER_PREMIUM_MODEL, "cover_image_generation")
+            || ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT,
         supportsReferenceLibrary: true,
         supportsPromptOptimization: true,
     },
@@ -604,7 +610,7 @@ export const adminAiDropCoverReferenceAssetSchema = z.object({
 });
 
 export const adminAiDropCoverModelHealthSchema = z.object({
-    id: z.enum(["gemini-2.5-flash-image", "gemini-3-pro-image-preview"]),
+    id: z.enum(["gemini-2.5-flash-image", "gemini-3-pro-image"]),
     label: z.string(),
     shortLabel: z.string(),
     provider: z.literal("gemini"),
@@ -1048,15 +1054,17 @@ export function selectAdminAiDropCoverReferenceAssets(
     });
     const candidates = assets.map((asset) => {
         const primaryLayout = asset.primary === true || asset.pinned === true || asset.source === "template";
-        const feedbackKind: CoverFeedbackKind = asset.feedback === "liked"
-            ? "liked"
+        const negativeReuseDominates = (asset.negativeReuseCount || 0) > 0
+            && (asset.positiveReuseCount || 0) <= (asset.negativeReuseCount || 0);
+        const feedbackKind: CoverFeedbackKind = negativeReuseDominates || asset.feedback === "disliked"
+            ? "disliked"
+            : asset.feedback === "liked" || asset.retentionReason === "liked"
+                ? "liked"
             : asset.accepted === true || asset.retentionReason === "accepted"
                 ? "accepted_as_cover"
-                : asset.feedback === "disliked"
-                    ? "disliked"
-                    : primaryLayout
-                        ? "ignored"
-                        : "generated";
+                : primaryLayout
+                    ? "ignored"
+                    : "generated";
         return {
             id: asset.id,
             title: asset.title || null,
@@ -1145,8 +1153,9 @@ export function normalizeAdminAiDropCoverModel(
         return ADMIN_AI_DROP_COVER_MODEL;
     }
 
-    return isAdminAiDropCoverSelectableModel(normalizedModel)
-        ? normalizedModel
+    const migratedModel = normalizeAdminAiModelAlias(normalizedModel, "drop_cover_standard");
+    return isAdminAiDropCoverSelectableModel(migratedModel)
+        ? migratedModel
         : ADMIN_AI_DROP_COVER_MODEL;
 }
 
@@ -1163,7 +1172,7 @@ export function normalizeAdminAiDropCoverLocation(
         return getAdminAiDropCoverModelOption(normalizedModel)?.location || ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
     }
 
-    if (LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES.has(normalizedLocation) && LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES.has(rawModel)) {
+    if (LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES.has(normalizedLocation) && LEGACY_ADMIN_AI_DROP_COVER_GLOBAL_LOCATION_ALIASES.has(rawModel)) {
         return getAdminAiDropCoverModelOption(normalizedModel)?.location || ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
     }
 

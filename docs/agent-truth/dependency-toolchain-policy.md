@@ -1,6 +1,6 @@
 # Dependency Toolchain Policy
 
-Generated: 2026-05-27T04:37:35.303Z
+Generated: 2026-07-14T16:06:52.586Z
 Policy status: classified
 Provider SDK packages classified: 9
 Framework packages classified: 24

@@ -18,16 +18,10 @@ function tokenizeFlavor(value: string) {
     .filter((token) => token.length >= 2);
 }
 
-function parseCreatorBrandFromTitle(inputTitle: string) {
-  const title = inputTitle.trim();
-  const possessiveMatch = title.match(/^([^|]+?['’]s)\s+(.+)$/u);
-  return possessiveMatch ? possessiveMatch[1].trim() : null;
-}
-
 export function parseCoverTitle(inputTitle: string): ParsedCoverTitle {
   const brief = buildCoverSemanticBrief({ title: inputTitle });
   return {
-    creatorBrandFromTitle: parseCreatorBrandFromTitle(inputTitle),
+    creatorBrandFromTitle: brief.source.creatorBrand === "title_prefix" ? brief.creatorBrand : null,
     flavorTitle: brief.flavorTitle,
     normalizedFlavorTokens: tokenizeFlavor(brief.flavorTitle),
     primaryFlavorCategory: brief.semanticCategory,

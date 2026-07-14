@@ -36,13 +36,13 @@ function main() {
   const checks = [
     {
       id: "guest_ingest_timeline",
-      pass: guestIngest.includes("writeBehavioralTimelineFacts("),
-      detail: "Guest ingest writes timeline facts.",
+      pass: guestIngest.includes("writeBehavioralTimelineProjection("),
+      detail: "Guest ingest atomically writes timeline facts and user-index outbox requests.",
     },
     {
       id: "identified_ingest_timeline",
-      pass: identifiedIngest.includes("writeBehavioralTimelineFacts("),
-      detail: "Identified ingest writes timeline facts.",
+      pass: identifiedIngest.includes("writeBehavioralTimelineProjection("),
+      detail: "Identified ingest atomically writes timeline facts and user-index outbox requests.",
     },
     {
       id: "identity_linked_emission",

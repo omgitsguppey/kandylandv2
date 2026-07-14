@@ -52,7 +52,7 @@ describe("resolveReportDisplay", () => {
       truthState: "failed",
     }));
 
-    expect(display.statusLabel).toBe("Site activity evidence required");
+    expect(display.statusLabel).toBe("Source activity evidence required");
     expect(display.findingLabel).toBe("Source evidence lane");
     expect(display.badgeLabel).toBe("Review");
     expect(display.sourceDetail).toBe("Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves.");
@@ -66,7 +66,7 @@ describe("resolveReportDisplay", () => {
       evidenceGateCount: 4,
     }));
 
-    expect(display.statusLabel).toBe("Site activity evidence required");
+    expect(display.statusLabel).toBe("Source activity evidence required");
     expect(display.findingLabel).toBe("4 source evidence lanes");
     expect(display.badgeLabel).toBe("Review");
   });
@@ -117,7 +117,7 @@ describe("resolveReportDisplay", () => {
       }],
     }));
 
-    expect(display.statusLabel).toBe("Site activity evidence required");
+    expect(display.statusLabel).toBe("Source activity evidence required");
     expect(display.findingLabel).toBe("Source evidence lane");
     expect(display.sourceDetail).toBe("Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves.");
   });

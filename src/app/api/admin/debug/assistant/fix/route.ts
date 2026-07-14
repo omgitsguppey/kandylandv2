@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -19,6 +20,7 @@ const SUPPORTED_FIX_TYPES = new Set([
     "dismiss_diagnostic",
 ]);
 const MANUAL_PATCH_REQUIRED_STATUS = "manual_patch_required";
+const ADMIN_DEBUG_ASSISTANT_FIX_BODY_LIMIT_BYTES = 64_000;
 
 type AdminAiDebugFixPlannerAction = "inspect" | "apply" | "dismiss";
 
@@ -78,13 +80,17 @@ async function POST_handler(request: NextRequest) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             action?: unknown;
             fixType?: unknown;
             diagnosticId?: unknown;
             diagnosticMessage?: unknown;
             diagnosticDetail?: unknown;
-        };
+        }>(request, {
+            maxBytes: ADMIN_DEBUG_ASSISTANT_FIX_BODY_LIMIT_BYTES,
+            routeName: "admin/debug/assistant/fix",
+            allowEmpty: false,
+        });
 
         const action = body.action === "inspect" || body.action === "apply" || body.action === "dismiss"
             ? body.action as AdminAiDebugFixPlannerAction
@@ -199,6 +205,14 @@ async function POST_handler(request: NextRequest) {
             },
         }, { status: 200 }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status }));
+        }
         return finalize(handleApiError(error, "admin/debug/assistant/fix"), error);
     }
 }

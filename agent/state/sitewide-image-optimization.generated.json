@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-24T19:14:41.359Z",
-  "generatedAtUtc": "2026-05-24T19:14:41.359Z",
+  "generatedAt": "2026-07-14T07:02:42.490Z",
+  "generatedAtUtc": "2026-07-14T07:02:42.490Z",
   "score": 100,
   "status": "clean",
   "command": "npm run check:sitewide-image-optimization",

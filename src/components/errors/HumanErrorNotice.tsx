@@ -104,14 +104,21 @@ export function HumanErrorNotice({
 
   const primaryLabel = ACTION_LABELS[notice.primaryAction];
   const secondaryLabel = notice.secondaryAction ? ACTION_LABELS[notice.secondaryAction] : "";
-  const showPrimary = notice.primaryAction !== "none" && primaryLabel.length > 0;
+  const primaryIsBug = notice.primaryAction === "submit_bug";
+  const showPrimary = notice.primaryAction !== "none"
+    && primaryLabel.length > 0
+    && (primaryIsBug ? Boolean(onSubmitBug) : Boolean(onPrimaryAction));
   const showSecondary = Boolean(
-    notice.secondaryAction
+    onSecondaryAction
+      && notice.secondaryAction
       && notice.secondaryAction !== "none"
       && secondaryLabel.length > 0
       && !(notice.secondaryAction === "submit_bug" && notice.bugReportEligible),
   );
-  const primaryIsBug = notice.primaryAction === "submit_bug";
+  const showBugReport = Boolean(
+    onSubmitBug
+      && notice.bugReportEligible,
+  );
   const sendBug = async () => {
     if (!onSubmitBug || bugPending) {
       return;
@@ -156,14 +163,14 @@ export function HumanErrorNotice({
       {bugErrorMessage ? (
         <p className={cn("mt-2 text-red-100", compact ? "text-xs" : "text-sm")}>{bugErrorMessage}</p>
       ) : null}
-      {showPrimary || showSecondary || notice.bugReportEligible ? (
+      {showPrimary || showSecondary || showBugReport ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {showPrimary ? (
             <button
               type="button"
               onClick={() => primaryIsBug ? void sendBug() : onPrimaryAction?.(notice.primaryAction)}
               disabled={primaryIsBug && bugPending}
-              className="min-h-10 rounded-full bg-white px-3 py-2 text-xs font-bold text-black"
+              className="min-h-11 rounded-full bg-white px-3 py-2 text-xs font-bold text-black"
             >
               {primaryIsBug ? (bugPending ? "Sending bug..." : bugReportLabel(notice.rewardEligible)) : primaryLabel}
             </button>
@@ -172,17 +179,17 @@ export function HumanErrorNotice({
             <button
               type="button"
               onClick={() => notice.secondaryAction ? onSecondaryAction?.(notice.secondaryAction) : undefined}
-              className="min-h-10 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white"
+              className="min-h-11 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white"
             >
               {secondaryLabel}
             </button>
           ) : null}
-          {notice.bugReportEligible && !primaryIsBug ? (
+          {showBugReport && !primaryIsBug ? (
             <button
               type="button"
               onClick={() => void sendBug()}
               disabled={bugPending}
-              className="min-h-10 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white"
+              className="min-h-11 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white"
             >
               {bugPending ? "Sending bug..." : bugReportLabel(notice.rewardEligible)}
             </button>

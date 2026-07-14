@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
@@ -10,6 +11,7 @@ import { buildHumanApiErrorResponse } from "@/lib/errors/api-error-response";
 import { resolveHumanErrorFromCode } from "@/lib/errors/resolve-human-error";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
+const ADMIN_USERNAME_BODY_LIMIT_BYTES = 64_000;
 
 async function PATCH_handler(
   request: NextRequest,
@@ -32,7 +34,11 @@ async function PATCH_handler(
       return NextResponse.json({ success: false, error: "User ID is required" }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = await readBoundedJsonBody<{ username?: unknown }>(request, {
+      maxBytes: ADMIN_USERNAME_BODY_LIMIT_BYTES,
+      routeName: "admin/users/username",
+      allowEmpty: false,
+    });
     const newUsername = body.username?.toString().toLowerCase().trim();
 
     if (!newUsername) {
@@ -85,7 +91,15 @@ async function PATCH_handler(
     }
 
     return NextResponse.json({ success: true, username: reservation.normalizedUsername });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        retryable: false,
+      }, { status: error.status });
+    }
     recordRouteWarning("admin/users/username", "Admin username update failed", error);
     return buildHumanApiErrorResponse(resolveHumanErrorFromCode("debug_route_degraded", "admin_debug"), {
       status: 500,

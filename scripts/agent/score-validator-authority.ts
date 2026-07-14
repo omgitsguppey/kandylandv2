@@ -4,6 +4,10 @@ import {
   writeJsonFile,
 } from "./shared";
 import {
+  getSettingsValidatorAuthorityRecords,
+  type SettingsValidatorAuthorityRecord,
+} from "../../src/lib/debug/settings-debug-validator-authority";
+import {
   VALIDATOR_AUTHORITY_PATH,
   listStandaloneValidatorFiles,
   listValidatorPackageScripts,
@@ -25,6 +29,14 @@ const BLOCKED_VALIDATORS = new Set<string>([
 const LEGACY_VALIDATORS = new Set<string>([
   "scripts/check-admin-parity.ts",
 ]);
+
+const SETTINGS_VALIDATOR_AUTHORITY_RECORDS = getSettingsValidatorAuthorityRecords();
+const SETTINGS_VALIDATOR_AUTHORITY_BY_FILE = new Map(
+  SETTINGS_VALIDATOR_AUTHORITY_RECORDS.map((record) => [record.script, record]),
+);
+const SETTINGS_VALIDATOR_AUTHORITY_BY_PACKAGE_SCRIPT = new Map(
+  SETTINGS_VALIDATOR_AUTHORITY_RECORDS.map((record) => [record.packageScript, record]),
+);
 
 const SURFACE_DEFAULT_CONTRACTS: Record<string, string[]> = {
   "admin-debug": [
@@ -118,6 +130,11 @@ const SURFACE_DEFAULT_CONTRACTS: Record<string, string[]> = {
     "src/app/api/notifications/route.ts",
     "src/lib/notification-contracts.ts",
   ],
+  settings: [
+    "src/lib/debug/settings-debug-validator-authority.ts",
+    "src/lib/settings/settings-surface-contract.ts",
+    "src/lib/settings/client-preferences-contract.ts",
+  ],
   "generated-report-authority": [
     "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "agent/state/generated-report-authority.generated.json",
@@ -166,9 +183,21 @@ function inferStatus(filePath: string): ValidatorAuthorityStatus {
   return "canonical";
 }
 
+function resolveSettingsValidatorStatus(record: SettingsValidatorAuthorityRecord): ValidatorAuthorityStatus {
+  if (record.status === "superseded") return "superseded";
+  if (record.status === "deprecated") return "legacy";
+  return record.authority === "supporting_contract" ? "supporting" : "canonical";
+}
+
+function resolveSettingsValidatorAuthority(record: SettingsValidatorAuthorityRecord): ValidatorAuthorityLevel {
+  if (record.status === "deprecated") return "legacy_reference";
+  return record.authority;
+}
+
 function inferAuthority(filePath: string, status: ValidatorAuthorityStatus): ValidatorAuthorityLevel {
   if (status === "blocked") return "blocked_reference";
   if (status === "legacy") return "legacy_reference";
+  if (status === "superseded") return "superseded_contract";
   if (filePath.includes("/score-")) return "supporting_score";
   if (status === "supporting") return "supporting_contract";
   return "canonical_contract";
@@ -216,6 +245,9 @@ function buildReason(status: ValidatorAuthorityStatus, surface: string, filePath
   if (status === "legacy") {
     return `${filePath} is retained for historical comparison only and must not drive default affected audits.`;
   }
+  if (status === "superseded") {
+    return `${filePath} is retained as a superseded compatibility contract and must not drive default affected audits.`;
+  }
   if (status === "supporting") {
     return `${filePath} supports canonical ${surface} contracts but does not define source truth by itself.`;
   }
@@ -251,14 +283,15 @@ function buildValidatorEntries(
   for (const filePath of allFiles) {
     const scripts = unique(fileToScripts.get(filePath) ?? []);
     const surface = inferSurface(scripts[0] ?? "", filePath, validatorMap);
-    const status = inferStatus(filePath);
+    const settingsRecord = SETTINGS_VALIDATOR_AUTHORITY_BY_FILE.get(filePath);
+    const status = settingsRecord ? resolveSettingsValidatorStatus(settingsRecord) : inferStatus(filePath);
     validators[filePath] = {
       surface,
-      authority: inferAuthority(filePath, status),
+      authority: settingsRecord ? resolveSettingsValidatorAuthority(settingsRecord) : inferAuthority(filePath, status),
       status,
       canonicalContracts: inferContracts(surface, filePath),
       packageScripts: scripts.sort((left, right) => left.localeCompare(right)),
-      reason: buildReason(status, surface, filePath),
+      reason: settingsRecord?.reason ?? buildReason(status, surface, filePath),
     };
   }
 
@@ -271,37 +304,48 @@ function buildPackageScriptEntry(
   validators: Record<string, ValidatorAuthorityValidatorEntry>,
   validatorMap: ReturnType<typeof readValidatorMap>,
 ): ValidatorAuthorityPackageScriptEntry {
+  const settingsRecord = SETTINGS_VALIDATOR_AUTHORITY_BY_PACKAGE_SCRIPT.get(scriptName);
   const statuses = validatorFiles.map((filePath) => validators[filePath]?.status ?? "supporting");
-  const status: ValidatorAuthorityStatus = statuses.includes("blocked")
-    ? "blocked"
-    : statuses.includes("legacy")
-      ? (statuses.every((value) => value === "legacy") ? "legacy" : "supporting")
-      : statuses.includes("canonical")
-        ? "canonical"
-        : "supporting";
+  const status: ValidatorAuthorityStatus = settingsRecord
+    ? resolveSettingsValidatorStatus(settingsRecord)
+    : statuses.includes("blocked")
+      ? "blocked"
+      : statuses.includes("legacy")
+        ? (statuses.every((value) => value === "legacy") ? "legacy" : "supporting")
+        : statuses.includes("superseded")
+          ? (statuses.every((value) => value === "superseded") ? "superseded" : "supporting")
+          : statuses.includes("canonical")
+            ? "canonical"
+            : "supporting";
   const surface = inferSurface(scriptName, validatorFiles[0] ?? scriptName, validatorMap);
-  const authority: ValidatorAuthorityLevel = status === "blocked"
-    ? "blocked_reference"
-    : status === "legacy"
-      ? "legacy_reference"
-      : scriptName.startsWith("score:")
-        ? "supporting_score"
-        : status === "canonical"
-          ? "canonical_contract"
-          : "supporting_contract";
+  const authority: ValidatorAuthorityLevel = settingsRecord
+    ? resolveSettingsValidatorAuthority(settingsRecord)
+    : status === "blocked"
+      ? "blocked_reference"
+      : status === "legacy"
+        ? "legacy_reference"
+        : status === "superseded"
+          ? "superseded_contract"
+          : scriptName.startsWith("score:")
+            ? "supporting_score"
+            : status === "canonical"
+              ? "canonical_contract"
+              : "supporting_contract";
   const canonicalContracts = unique(
     validatorFiles.flatMap((filePath) => validators[filePath]?.canonicalContracts ?? []),
   ).sort((left, right) => left.localeCompare(right));
   const legacyReference = scriptName.startsWith("legacy:");
 
-  let reason = `${scriptName} aggregates ${surface} validator evidence.`;
-  if (status === "blocked") {
+  let reason = settingsRecord?.reason ?? `${scriptName} aggregates ${surface} validator evidence.`;
+  if (!settingsRecord && status === "blocked") {
     reason = `${scriptName} is a blocked legacy reference and must never run as a default truth gate.`;
-  } else if (status === "legacy") {
+  } else if (!settingsRecord && status === "legacy") {
     reason = `${scriptName} is a legacy reference and must stay out of default affected audits.`;
-  } else if (status === "supporting") {
+  } else if (!settingsRecord && status === "superseded") {
+    reason = `${scriptName} is a superseded compatibility check and must stay out of default affected audits.`;
+  } else if (!settingsRecord && status === "supporting") {
     reason = `${scriptName} is supporting evidence for canonical ${surface} contracts.`;
-  } else if (scriptName.startsWith("score:")) {
+  } else if (!settingsRecord && scriptName.startsWith("score:")) {
     reason = `${scriptName} scores ${surface} evidence but does not replace the canonical validator lane.`;
   }
 
@@ -333,6 +377,7 @@ function main() {
     byStatus: {
       canonical: Object.values(validators).filter((entry) => entry.status === "canonical").length,
       supporting: Object.values(validators).filter((entry) => entry.status === "supporting").length,
+      superseded: Object.values(validators).filter((entry) => entry.status === "superseded").length,
       legacy: Object.values(validators).filter((entry) => entry.status === "legacy").length,
       blocked: Object.values(validators).filter((entry) => entry.status === "blocked").length,
     },
@@ -341,7 +386,7 @@ function main() {
   const document: ValidatorAuthorityDocument = {
     version: 2,
     updatedAt: nowIso(),
-    defaultAffectedAuditBlockedStatuses: ["legacy", "blocked"],
+    defaultAffectedAuditBlockedStatuses: ["superseded", "legacy", "blocked"],
     validators,
     packageScripts: packageScriptEntries,
     summary,

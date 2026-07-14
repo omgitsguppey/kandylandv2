@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { AuthError, handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { FieldValue } from "firebase-admin/firestore";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
@@ -21,6 +22,7 @@ const feedbackSchema = z.object({
 });
 
 const VIEWER_FEEDBACK_REWARD = 10;
+const DROP_FEEDBACK_BODY_LIMIT_BYTES = 16_384;
 
 async function POST_handler(request: NextRequest) {
   try {
@@ -31,7 +33,11 @@ async function POST_handler(request: NextRequest) {
       requireTrustedOrigin: true,
     });
     
-    const { dropId, positive } = feedbackSchema.parse(await request.json());
+    const rawBody = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: DROP_FEEDBACK_BODY_LIMIT_BYTES,
+      routeName: "drops/feedback",
+    });
+    const { dropId, positive } = feedbackSchema.parse(rawBody);
     const userId = caller?.uid ?? "";
     
     if (!adminDb) {
@@ -154,7 +160,15 @@ async function POST_handler(request: NextRequest) {
       purchasedBalance: result.purchasedBalance,
       rewardBalance: result.rewardBalance,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        error: error.message,
+        errorCode: error.code,
+        retryable: false,
+      }, { status: error.status });
+    }
     return handleApiError(error, "Drops.Feedback");
   }
 }

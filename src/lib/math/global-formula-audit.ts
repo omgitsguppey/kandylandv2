@@ -61,7 +61,7 @@ export type GlobalFormulaAuditReport = {
     costSavingsCanReduceAccuracy: false;
   };
   personMetricHydrationGapMath: {
-    computedGapSource: "missingHydration.length";
+    computedGapSource: "uniqueMetricIds(missingHydration,userParityGaps)";
     debugLaneUsesActualGapCount: boolean;
     scoreImpactUsesActualGapCount: boolean;
     fakeZeroPatternBlocked: boolean;
@@ -75,7 +75,7 @@ export const GLOBAL_FORMULA_AUDIT_ENTRIES: GlobalFormulaAuditEntry[] = [
     area: "beta_score",
     formulaOwner: "src/lib/math/canonical-math-ledger.ts",
     currentFormula: "Weighted dimensions from src/lib/agent-score/weights.ts.",
-    canonicalFormula: "sourceHealth 25, runtimeHealth 20, evidenceCompleteness 20, freshness 15, costRisk 10, regressionRisk 10.",
+    canonicalFormula: "sourceHealth 18, runtimeHealth 30, evidenceCompleteness 25, freshness 10, costRisk 7, regressionRisk 10.",
     classification: "canonical",
     accuracyExplanation: "Freezing the weights prevents score drift and keeps the public beta calculation reproducible.",
     filesReviewed: ["src/lib/agent-score/core.ts", "src/lib/agent-score/weights.ts", "src/lib/math/canonical-math-ledger.ts"],
@@ -102,7 +102,7 @@ export const GLOBAL_FORMULA_AUDIT_ENTRIES: GlobalFormulaAuditEntry[] = [
     area: "person_metrics",
     formulaOwner: "src/lib/analytics/person-metrics-hydration.ts",
     currentFormula: "missingHydration is computed from low confidence metric statuses.",
-    canonicalFormula: "debugLane.gaps and scoreImpactByDimension use missingHydration.length.",
+    canonicalFormula: "debugLane.gaps and scoreImpactByDimension count unique metric IDs across missingHydration and blocking userParityGaps.",
     classification: "normalized",
     accuracyExplanation: "Real gap counts stop missing source or bridge work from being hidden as zero.",
     filesReviewed: ["src/lib/analytics/person-metrics-hydration.ts"],
@@ -186,7 +186,7 @@ export function auditGlobalFormulas(input?: { generatedAtUtc?: string; entries?:
       costSavingsCanReduceAccuracy: false,
     },
     personMetricHydrationGapMath: {
-      computedGapSource: "missingHydration.length",
+      computedGapSource: "uniqueMetricIds(missingHydration,userParityGaps)",
       debugLaneUsesActualGapCount: true,
       scoreImpactUsesActualGapCount: true,
       fakeZeroPatternBlocked: true,

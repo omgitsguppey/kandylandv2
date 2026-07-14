@@ -12,6 +12,21 @@ const mockState = vi.hoisted(() => {
         recordAnalyticsPipelineFailure: vi.fn(async () => undefined),
         requestAllowsAnonymousAnalytics: vi.fn((_request?: unknown, _eventName?: string) => true),
         resolveRequestConsentMode: vi.fn(() => "full_behavioral"),
+        writeBehavioralTimelineProjection: vi.fn(async (input: { facts: unknown[] }) => ({
+            written: Math.min(input.facts.length, 120),
+            skipped: Math.max(0, input.facts.length - 120),
+            reason: input.facts.length > 120 ? "batch_capped" : input.facts.length > 0 ? "ok" : "no_facts",
+            materializer: {
+                mode: "shadow",
+                status: "queued",
+                requestsBuilt: 1,
+                requestsEnqueued: 1,
+                requestsCoalesced: 0,
+                usersQueued: 0,
+                guestsQueued: 1,
+                issueCodes: [],
+            },
+        })),
         transactionSet,
         transactionCreate,
         adminDb: {
@@ -24,7 +39,6 @@ const mockState = vi.hoisted(() => {
                 create: transactionCreate,
             })),
         },
-        materializeUserTrackingIndexes: vi.fn(async () => undefined),
     };
 });
 
@@ -111,15 +125,19 @@ vi.mock("@/lib/runtime-facts/normalize-runtime-fact", () => ({
 }));
 
 vi.mock("@/lib/server/behavioral-timeline-mapper", () => ({
-    mapRuntimeFactToBehavioralTimelineFact: vi.fn((input: { runtimeFact: unknown }) => input.runtimeFact),
+    mapRuntimeFactToBehavioralTimelineFact: vi.fn((input: { runtimeFact: Record<string, unknown> }) => ({
+        ...input.runtimeFact,
+        factId: input.runtimeFact.eventId,
+        actorType: "guest",
+        eventName: "semantic_page_viewed",
+        timestampMs: 1,
+        target: {},
+        confidenceInputs: {},
+    })),
 }));
 
 vi.mock("@/lib/server/behavioral-timeline-writer", () => ({
-    writeBehavioralTimelineFacts: vi.fn(async () => ({ written: 1, skipped: 0, reason: "written" })),
-}));
-
-vi.mock("@/lib/server/user-index-materializer", () => ({
-    materializeUserTrackingIndexes: mockState.materializeUserTrackingIndexes,
+    writeBehavioralTimelineProjection: mockState.writeBehavioralTimelineProjection,
 }));
 
 vi.mock("@/lib/server/analytics-governance", () => ({
@@ -134,7 +152,8 @@ vi.mock("@/lib/server/analytics-governance", () => ({
     },
 }));
 
-import { POST, resolveCanonicalGuestAnonymousVisitorId } from "@/app/api/analytics/ingest/route";
+import { POST } from "@/app/api/analytics/ingest/route";
+import { resolveCanonicalGuestAnonymousVisitorId } from "@/lib/analytics/ingest-contract";
 
 describe("POST /api/analytics/ingest", () => {
     beforeEach(() => {
@@ -143,11 +162,11 @@ describe("POST /api/analytics/ingest", () => {
         mockState.recordAnalyticsPipelineFailure.mockReset();
         mockState.requestAllowsAnonymousAnalytics.mockReset();
         mockState.resolveRequestConsentMode.mockReset();
+        mockState.writeBehavioralTimelineProjection.mockClear();
         mockState.transactionSet.mockReset();
         mockState.transactionCreate.mockReset();
         mockState.adminDb.collection.mockClear();
         mockState.adminDb.runTransaction.mockClear();
-        mockState.materializeUserTrackingIndexes.mockReset();
         mockState.recordServerDiagnostic.mockResolvedValue(undefined);
         mockState.recordAnalyticsPipelineFailure.mockResolvedValue(undefined);
         mockState.requestAllowsAnonymousAnalytics.mockReturnValue(true);
@@ -157,7 +176,6 @@ describe("POST /api/analytics/ingest", () => {
             set: mockState.transactionSet,
             create: mockState.transactionCreate,
         }));
-        mockState.materializeUserTrackingIndexes.mockResolvedValue(undefined);
     });
 
     it("reports ingest failures through structured diagnostics and preserves the 503 response", async () => {
@@ -219,12 +237,63 @@ describe("POST /api/analytics/ingest", () => {
         });
     });
 
+    it.each([
+        ["absent", undefined],
+        ["dishonest", "8"],
+    ])("rejects an oversized raw body with %s Content-Length before analytics writes", async (_label, contentLength) => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+        const headers: Record<string, string> = { "content-type": "application/json" };
+        if (contentLength) headers["content-length"] = contentLength;
+        const request = new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ padding: "x".repeat(70 * 1024), events: [] }),
+        });
+        expect(request.headers.get("content-length")).toBe(contentLength ?? null);
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toEqual({
+            success: false,
+            status: "rejected",
+            ignored: true,
+            reason: "payload_too_large",
+            retryable: false,
+            permanent: true,
+        });
+        expect(mockState.transactionCreate).not.toHaveBeenCalled();
+        expect(mockState.writeBehavioralTimelineProjection).not.toHaveBeenCalled();
+    });
+
+    it("preserves the invalid JSON response before analytics writes", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+        const response = await POST(new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: "{",
+        }));
+
+        expect(response.status).toBe(400);
+        await expect(response.json()).resolves.toEqual({
+            success: false,
+            status: "rejected",
+            ignored: true,
+            reason: "invalid_json",
+            retryable: false,
+            permanent: true,
+        });
+        expect(mockState.writeBehavioralTimelineProjection).not.toHaveBeenCalled();
+    });
+
     it("skips metric ingestion when consent denies anonymous analytics", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: null });
         mockState.requestAllowsAnonymousAnalytics.mockReturnValue(false);
 
         const request = new NextRequest("http://localhost/api/analytics/ingest", {
             method: "POST",
+            headers: { "content-type": "application/json" },
             body: JSON.stringify({
                 events: [{ type: "page_view", timestamp: Date.now(), path: "/" }],
             }),
@@ -353,7 +422,7 @@ describe("POST /api/analytics/ingest", () => {
         })).toBe("anon_server-cookie-id");
     });
 
-    it("uses the client anonymous visitor id for canonical facts while preserving the server session key for storage", async () => {
+    it("uses canonical guest identity while preserving the server session key and queues the canonical user-index materializer", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: null });
 
         const request = new NextRequest("http://localhost/api/analytics/ingest", {
@@ -396,10 +465,113 @@ describe("POST /api/analytics/ingest", () => {
         );
         expect(payload.userTrackingMaterialization).toEqual(expect.objectContaining({
             queued: true,
-            queueMode: "deferred_non_priority",
-            materializer: "analytics_guest_batches_daily",
-            anonymousVisitorId: "subject_existing-client",
+            queueMode: "queued",
+            materializer: "user_index_materializer_requests_v3",
             batchId: "batch_existing-session_123456",
+            requestsBuilt: 1,
+            requestsEnqueued: 1,
+            guestsQueued: 1,
+        }));
+        expect(mockState.writeBehavioralTimelineProjection).toHaveBeenCalledWith(expect.objectContaining({
+            anonymousVisitorIds: ["subject_existing-client"],
+        }));
+    });
+
+    it("retains all accepted projection facts and reports the writer's bounded partial result", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+        const events = Array.from({ length: 200 }, (_, index) => ({
+            type: "page_view" as const,
+            timestamp: index + 1,
+            path: `/page-${index}`,
+        }));
+
+        const response = await POST(new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers: {
+                cookie: "kandydrops_sid=anon_server-cookie-id",
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                anonymousVisitorId: "subject_projection-retention",
+                sessionId: "sess_projection-retention",
+                batchId: "batch_projection-retention_123456",
+                events,
+            }),
+        }));
+        const payload = await response.json();
+        const createdBatch = mockState.transactionCreate.mock.calls[0]?.[1] as Record<string, unknown>;
+
+        expect(response.status).toBe(200);
+        expect(createdBatch.behavioralTimelineProjectionFactCount).toBe(200);
+        expect(createdBatch.behavioralTimelineProjectionFacts).toHaveLength(200);
+        expect(mockState.writeBehavioralTimelineProjection).toHaveBeenCalledWith(expect.objectContaining({
+            facts: expect.arrayContaining([
+                expect.objectContaining({ factId: "batch_projection-retention_123456:0" }),
+                expect.objectContaining({ factId: "batch_projection-retention_123456:199" }),
+            ]),
+        }));
+        expect(payload.behavioralTimelineFacts).toMatchObject({
+            status: "partial",
+            eligibleFactCount: 200,
+            written: 120,
+            skipped: 80,
+            reason: "batch_capped",
+        });
+    });
+
+    it("retries a deduped batch from every retained fact with the same partial counts", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+        const batchId = "batch_projection-retry_123456";
+        const anonymousVisitorId = "subject_projection-retry";
+        const storedFacts = Array.from({ length: 200 }, (_, index) => ({
+            factId: `${batchId}:${index}`,
+            actorType: "guest",
+            anonymousVisitorId,
+            eventName: "semantic_page_viewed",
+            normalizedAction: "page_viewed",
+            timestampMs: index + 1,
+            target: {},
+            confidenceInputs: {},
+        }));
+        mockState.adminDb.runTransaction.mockImplementationOnce(async (callback: (transaction: unknown) => Promise<unknown>) => callback({
+            get: vi.fn(async () => ({
+                exists: true,
+                data: () => ({ behavioralTimelineProjectionFacts: storedFacts }),
+            })),
+            set: mockState.transactionSet,
+            create: mockState.transactionCreate,
+        }));
+
+        const response = await POST(new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers: {
+                cookie: "kandydrops_sid=anon_server-cookie-id",
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                anonymousVisitorId,
+                sessionId: "sess_projection-retry",
+                batchId,
+                events: [{ type: "page_view", timestamp: 1, path: "/" }],
+            }),
+        }));
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            deduped: true,
+            processed: 0,
+            behavioralTimelineFacts: {
+                status: "partial",
+                eligibleFactCount: 200,
+                written: 120,
+                skipped: 80,
+                reason: "batch_capped",
+            },
+        });
+        expect(mockState.transactionCreate).not.toHaveBeenCalled();
+        expect(mockState.writeBehavioralTimelineProjection).toHaveBeenCalledWith(expect.objectContaining({
+            facts: storedFacts,
         }));
     });
 
@@ -434,6 +606,5 @@ describe("POST /api/analytics/ingest", () => {
             permanent: true,
         });
         expect(mockState.transactionCreate).not.toHaveBeenCalled();
-        expect(mockState.materializeUserTrackingIndexes).not.toHaveBeenCalled();
     });
 });

@@ -72,7 +72,8 @@ requireIncludes(gumdropLedger, "verifiedServerSide === false", "Gumdrop ledger s
 
 requireIncludes(identifiedIngestRoute, "resolveTrackedTelemetryEvent(rawEvent.eventName)", "Identified ingest canonical purchase truth");
 requireIncludes(identifiedIngestRoute, "normalizeIdentifiedRuntimeFact", "Identified ingest client purchase support truth");
-requireIncludes(identifiedIngestRoute, "sourceTruth: runtimeFactResult.fact.sourceTruth", "Identified ingest explicit source truth");
+requireIncludes(identifiedIngestRoute, "const ingestRuntimeFact = runtimeFactResult.fact", "Identified ingest canonical runtime fact alias");
+requireIncludes(identifiedIngestRoute, "sourceTruth: ingestRuntimeFact.sourceTruth", "Identified ingest explicit source truth");
 
 requireIncludes(serverAnalytics, 'canonicalEventName === "server_purchase_verified" ? "canonical"', "Server analytics canonical purchase truth");
 requireIncludes(serverAnalytics, 'readStringParam(enrichedParams, "transaction_id", "transactionId"', "Server analytics transaction id persistence");

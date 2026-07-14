@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T04:00:55.471Z",
+  "generatedAt": "2026-07-14T14:58:35.058Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -22,7 +22,7 @@
         "src/components/DropPreviewModal.tsx"
       ],
       "status": "allowed_fallback",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "unused",
       "ownerSurface": "locked_drop_preview",
       "canonicalReplacement": "Full-page locked Drop preview route at /drops/[id]/preview",
       "reviewBy": "2026-05-19",
@@ -51,7 +51,7 @@
         "src/app/drops/DropsClient.tsx"
       ],
       "status": "remove_by_deadline",
-      "phaseOutStage": "redirected",
+      "phaseOutStage": "removed",
       "ownerSurface": "drops_discovery_to_preview",
       "canonicalReplacement": "Redirect or hand off to /drops/[id]/preview only",
       "reviewBy": "2026-05-19",
@@ -72,19 +72,19 @@
     },
     {
       "id": "synthetic-view-as-local-projection",
-      "name": "Synthetic/simulative admin view-as",
+      "name": "Retired unsafe synthetic/simulative admin view-as semantics",
       "paths": [
         "src/lib/admin/synthetic-creators-view-as.ts",
         "src/context/AdminViewAsContext.tsx",
         "src/app/api/admin/view-as-creator/route.ts"
       ],
-      "status": "deprecated",
-      "phaseOutStage": "guarded",
+      "status": "blocked",
+      "phaseOutStage": "removed",
       "ownerSurface": "admin_creator_projection",
       "canonicalReplacement": "Admin creator projection with actorAdminId, performedAs, local-only source truth, and write-block diagnostics",
       "reviewBy": "2026-05-26",
       "removeBy": "2026-07-15",
-      "riskIfKept": "Local projection and synthetic creator state can be mistaken for live creator behavior or user engagement.",
+      "riskIfKept": "Unsafe local projection semantics could make Admin QA look like live creator behavior or user engagement.",
       "allowedReferences": [
         "src/lib/admin/synthetic-creators-view-as.ts",
         "src/context/AdminViewAsContext.tsx",
@@ -93,7 +93,7 @@
         "src/lib/analytics/analytics-event-contract.ts",
         "src/lib/behavioral/normalize-event-fact.ts",
         "src/lib/behavioral/event-fact-normalizer.ts",
-        "src/lib/identity/actor-markers.ts",
+        "src/lib/identity-truth/identity/actor-markers.ts",
         "src/lib/server/analytics.ts",
         "scripts/agent/validate-synthetic-creators-view-as.ts",
         "scripts/agent/validate-admin-projection-analytics-exclusion.ts",
@@ -101,7 +101,6 @@
       ],
       "blockedReferences": [
         "sourceTruth: \"live_projection\"",
-        "includeInUserBehavior: true",
         "performedAs: \"creator\""
       ]
     },
@@ -114,7 +113,7 @@
         "src/lib/moderation/scrape-risk-score.ts"
       ],
       "status": "blocked",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "admin_moderation_real_risk",
       "canonicalReplacement": "Evidence-weighted theft-risk and scrape-risk scoring",
       "reviewBy": "2026-05-12",
@@ -138,8 +137,7 @@
       "id": "admin-users-realtime-route",
       "name": "Realtime-ish admin/users route",
       "paths": [
-        "src/app/api/admin/users/realtime/route.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts"
+        "src/app/api/admin/users/realtime/route.ts"
       ],
       "status": "remove_by_deadline",
       "phaseOutStage": "guarded",
@@ -150,7 +148,6 @@
       "riskIfKept": "Unbounded realtime admin reads can bypass hot-cache doctrine and inflate cost or stale-state confusion.",
       "allowedReferences": [
         "src/app/api/admin/users/realtime/route.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
         "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "docs/agent-truth/admin-analytics-hot-cache.md",
@@ -169,7 +166,7 @@
         "src/components/PurchaseModal.tsx"
       ],
       "status": "blocked",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "wallet_density",
       "canonicalReplacement": "Source-aware split balance chip showing free GD and paid GD",
       "reviewBy": "2026-05-12",
@@ -194,7 +191,7 @@
         "src/components/PurchaseModal.tsx"
       ],
       "status": "blocked",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "wallet_density",
       "canonicalReplacement": "Brand-purple bonus chip theme",
       "reviewBy": "2026-05-12",
@@ -223,7 +220,7 @@
         "src/lib/tasks/task-catalog.ts"
       ],
       "status": "blocked",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "notification_behavior_truth",
       "canonicalReplacement": "Canonical behavioral action notification_read; opened/clicked remain UI diagnostics only",
       "reviewBy": "2026-05-12",
@@ -257,7 +254,7 @@
         "src/hooks/useAdminSupportRealtime.ts"
       ],
       "status": "allowed_fallback",
-      "phaseOutStage": "guarded",
+      "phaseOutStage": "removed",
       "ownerSurface": "support_recovery_flows",
       "canonicalReplacement": "Unified support inbox model with admin support route truth and debug evidence",
       "reviewBy": "2026-05-26",
@@ -280,8 +277,8 @@
   ],
   "summary": {
     "total": 9,
-    "blocked": 4,
-    "deprecated": 1,
+    "blocked": 5,
+    "deprecated": 0,
     "removeByDeadline": 2
   }
 }

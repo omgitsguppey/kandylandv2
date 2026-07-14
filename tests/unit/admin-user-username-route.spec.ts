@@ -181,4 +181,28 @@ describe("PATCH /api/admin/users/[userId]/username", () => {
             resource: "user",
         });
     });
+
+    it("rejects an oversized username request before reading or reserving the account", async () => {
+        const request = new NextRequest("http://localhost/api/admin/users/user_1/username", {
+            method: "PATCH",
+            body: JSON.stringify({
+                username: "new_name",
+                padding: "x".repeat(64_000),
+            }),
+        });
+
+        const response = await PATCH(request, {
+            params: Promise.resolve({ userId: "user_1" }),
+        });
+        const payload = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(payload).toMatchObject({
+            success: false,
+            code: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.getDoc).not.toHaveBeenCalled();
+        expect(mockState.reserveUsernameForUser).not.toHaveBeenCalled();
+    });
 });

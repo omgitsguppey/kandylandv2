@@ -5,44 +5,38 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 
 ## Summary
 
-- Generated: `2026-06-21T04:15:01.421Z`
-- Current head: `456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34`
-- Status: `pass`
+- Generated: `2026-07-14T10:39:11.338Z`
+- Current head: `dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa`
+- Status: `fail`
 
 ## Report
 
 ```json
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-06-21T04:15:01.421Z",
-  "currentHead": "456b9eb57f7ca4ebbb33d7baaa1b23fd24dd4b34",
-  "scoreBefore": 86.83,
-  "scoreAfter": 86.83,
+  "generatedAtUtc": "2026-07-14T10:39:11.338Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "scoreBefore": 83.38,
+  "scoreAfter": 83.38,
   "scoreDimensions": {
-    "sourceHealth": 97.2,
-    "runtimeHealth": 83.74,
-    "evidenceCompleteness": 92,
-    "freshness": 91.88,
-    "costRisk": 42,
+    "sourceHealth": 95.5,
+    "runtimeHealth": 70.22,
+    "evidenceCompleteness": 80,
+    "freshness": 92.5,
+    "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 86.83
+    "overallHealthScore": 83.38
   },
   "betaExitReady": false,
-  "launchGateStatus": "owner_review",
+  "launchGateStatus": "source_ready",
   "launchBlockers": [
-    "Provider-backed site activity + deployed route evidence: Source evidence required",
-    "Admin source sample evidence: Source evidence required"
+    "Provider-backed source activity evidence: Source evidence required"
   ],
   "blockerClassifications": [
     {
-      "blocker": "Provider-backed site activity + deployed route evidence: Source evidence required",
+      "blocker": "Provider-backed source activity evidence: Source evidence required",
       "classification": "split_live_runtime_and_external_provider_required",
       "nextExactAction": "Attach deployed route evidence where available and provider-backed site activity evidence for provider flows."
-    },
-    {
-      "blocker": "Admin source sample evidence: Source evidence required",
-      "classification": "live_admin_truth_or_redacted_sample_required",
-      "nextExactAction": "Attach a redacted admin source sample or classify the source as source_missing."
     }
   ],
   "formalEvidenceLedger": [
@@ -50,8 +44,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "category": "source safety",
       "status": "formal_passed",
       "artifactPath": "agent/state/mega-legacy-pipeline-hardening.generated.json",
-      "currentHead": "01b28a9022edc27123c71b8f8b5c8e86ee691829",
-      "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+      "currentHead": "3190fc8fc4da226c996cc8589d6ec4ed2977700c",
+      "generatedAtUtc": "2026-07-03T07:11:01.901Z",
       "owner": "Codex/source validators",
       "blocksBetaExit": false,
       "blocksScoreOnly": false,
@@ -102,8 +96,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "category": "debug/runtime evidence",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
-      "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-      "generatedAtUtc": "2026-06-19T14:34:02.017Z",
+      "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+      "generatedAtUtc": "2026-06-21T19:16:51.544Z",
       "owner": "debug/runtime evidence owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -114,8 +108,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "category": "algorithmic non-UI evidence",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/final-math-normalization-lock.generated.json",
-      "currentHead": "eb93068b",
-      "generatedAtUtc": "2026-05-27T05:21:28.560Z",
+      "currentHead": "dc4dad82c",
+      "generatedAtUtc": "2026-07-14T06:34:49.281Z",
       "owner": "math/source validators",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -126,8 +120,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "category": "evidence bridge",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
-      "currentHead": "42be9be767fc81370662e9a84f6673b1284d203e",
-      "generatedAtUtc": "2026-06-20T17:41:56.663Z",
+      "currentHead": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
+      "generatedAtUtc": "2026-07-03T08:12:04.070Z",
       "owner": "evidence bridge owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -136,22 +130,22 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     },
     {
       "category": "cost review",
-      "status": "external_review_required",
+      "status": "source_confidence_only",
       "artifactPath": "agent/state/cost-risk-exit-pass.generated.json",
       "owner": "operator/billing owner",
-      "blocksBetaExit": true,
+      "blocksBetaExit": false,
       "blocksScoreOnly": false,
       "nextExactAction": "Complete external billing review for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx lanes.",
       "whatItDoesNotProve": "Source cost guards do not prove provider billing state."
     },
     {
       "category": "release notes",
-      "status": "formal_passed",
+      "status": "stale",
       "artifactPath": "public/kandydrops-release-notes.json",
       "owner": "release notes",
-      "blocksBetaExit": false,
+      "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Keep public copy free of false beta-exit or provider-proof claims.",
+      "nextExactAction": "Accept and publish current-head release notes only when this work is approved as a public Beta release bundle.",
       "whatItDoesNotProve": "Release notes do not prove runtime health."
     },
     {
@@ -179,7 +173,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "status": "external_review_required",
       "artifactPath": "operator billing review note",
       "owner": "operator/billing owner",
-      "blocksBetaExit": true,
+      "blocksBetaExit": false,
       "blocksScoreOnly": false,
       "nextExactAction": "Attach an external billing review note; do not treat source guards as billing proof.",
       "whatItDoesNotProve": "Cost source contracts do not prove actual provider spend."
@@ -212,7 +206,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "missingKillSwitches": 3
   },
   "releaseNotesIntegrity": {
-    "status": "pass",
+    "status": "warning",
     "currentVersion": "1.6.15"
   },
   "liveEvidenceGateReplacement": {
@@ -228,17 +222,17 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "externalBillingGateCount": 1
   },
   "costRiskStatus": {
-    "score": 42,
-    "status": "below80_external_review_required",
-    "nextExactAction": "Complete external billing review; source guards alone cannot lift costRisk above owner review."
+    "score": 92.5,
+    "status": "meets_source_target",
+    "nextExactAction": "Keep source cost guards current."
   },
   "evidenceCompletenessStatus": {
-    "score": 92,
+    "score": 80,
     "status": "meets_source_target",
     "nextExactAction": "Keep typed evidence blockers explicit even if source score is above 80."
   },
   "freshnessStatus": {
-    "score": 91.88,
+    "score": 92.5,
     "status": "meets_source_target",
     "nextExactAction": "Keep current-head artifacts fresh after this commit."
   },
@@ -251,12 +245,11 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "deployed route evidence",
     "provider-backed site activity evidence",
     "redacted admin source sample",
-    "cost review",
-    "PR integrity",
-    "external billing review"
+    "release notes",
+    "PR integrity"
   ],
   "remainingCostReview": [
-    "external billing review"
+    "external billing review still required for proof separation"
   ],
   "remainingOpenPrs": [
     {
@@ -562,17 +555,19 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "Review/cherry-pick/defer/close all open PRs.",
     "Keep deterministic UI source coverage current; use optional visual reproduction only for source-reported UI issues."
   ],
-  "validationFailures": [],
-  "status": "pass",
+  "validationFailures": [
+    "release notes stale."
+  ],
+  "status": "fail",
   "evidenceClass": "source_snapshot",
-  "canClearSourceGate": true,
+  "canClearSourceGate": false,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "doesNotProve": [
     "Does not prove deployed runtime behavior.",
-    "Does not prove provider smoke success.",
-    "Does not prove current admin truth samples.",
+    "Does not prove provider-backed site activity.",
+    "Does not prove current admin source activity samples.",
     "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
   ]
 }
@@ -580,8 +575,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a typed evidence artifact for that category.
+This source-generated packet does not prove deployed runtime, provider-backed site activity, billing, admin source activity, or optional visual reproduction unless the report explicitly includes a matching typed evidence artifact for that category.
 
 ## Validation
 
-- Pass.
+- FAIL: release notes stale.

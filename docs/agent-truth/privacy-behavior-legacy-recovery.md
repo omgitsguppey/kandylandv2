@@ -1,6 +1,6 @@
 # Privacy Behavior Legacy Recovery
 
-Generated: 2026-05-24T19:30:37.255Z
+Generated: 2026-07-14T07:07:51.306Z
 
 This is a dry-run recovery contract for legacy and orphaned privacy/behavior records from March 1, 2026 onward. It does not read production data, run live backfill, mutate records, or promote unknown legacy consent into full behavioral tracking.
 
@@ -34,4 +34,4 @@ This is a dry-run recovery contract for legacy and orphaned privacy/behavior rec
 
 ## Validation
 
-- Pass.
+- FAIL: protected chat/nav/payment files changed: agent/state/gumdrop-economy-accuracy.generated.json, agent/state/gumdrop-economy-score.generated.json, agent/state/wallet-packages-route-repair.generated.json, scripts/agent/validate-chat-paid-gumdrops-guidance.ts, scripts/agent/validate-payment-unlock-security.ts, src/app/api/chat/attachments/cancel/route.ts, src/app/api/chat/attachments/complete/route.ts, src/app/api/chat/attachments/prepare/route.ts, src/app/api/chat/threads/[threadId]/messages/route.ts, src/app/api/paypal/capture/route.ts, src/app/api/paypal/create/route.ts, src/app/api/wallet/packages/route.ts, src/components/Chat/ChatExperience.tsx, src/components/Navigation/ProfileDropdown.tsx, src/lib/server/paypal.ts, tests/unit/paypal-capture-route.spec.ts, tests/unit/wallet-packages-route-repair.spec.ts

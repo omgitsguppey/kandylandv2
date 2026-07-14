@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T00:17:06.067Z",
+  "generatedAtUtc": "2026-07-14T06:34:57.992Z",
   "reportKey": "creator-broadcast-timeline-prep",
-  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "settingsControlPlanePresent": true,
     "telemetryClosurePresent": true,
@@ -19,9 +19,9 @@
     "mobilePreviewHookPresent": true,
     "telemetryPresent": true,
     "packageScriptPresent": true,
-    "protectedNavChatUntouched": true,
+    "protectedNavChatUntouched": false,
     "p0Count": 0,
-    "p1Count": 0,
+    "p1Count": 1,
     "p2Count": 0
   },
   "dependencyFindings": [
@@ -44,7 +44,7 @@
     {
       "id": "broadcast-contract",
       "severity": "p1",
-      "file": "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "file": "src/lib/creator/broadcasts/broadcast-contract.ts",
       "summary": "Creator broadcast source contract defines audience/status/timeline/source truth.",
       "status": "pass"
     },
@@ -58,7 +58,7 @@
     {
       "id": "audience",
       "severity": "p1",
-      "file": "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "file": "src/lib/creator/broadcasts/broadcast-contract.ts",
       "summary": "Broadcast audiences use followers/subscribers terminology instead of legacy all_fans.",
       "status": "pass"
     }
@@ -97,21 +97,21 @@
     {
       "id": "timeline-contract",
       "severity": "p1",
-      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "file": "src/lib/creator/profile/timeline-contract.ts",
       "summary": "Creator profile timeline contract exists for drops and broadcasts.",
       "status": "pass"
     },
     {
       "id": "timeline-filtering",
       "severity": "p1",
-      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "file": "src/lib/creator/profile/timeline-contract.ts",
       "summary": "Timeline excludes draft broadcasts and non-active/pending drops.",
       "status": "pass"
     },
     {
       "id": "timeline-state",
       "severity": "p1",
-      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "file": "src/lib/creator/profile/timeline-contract.ts",
       "summary": "Timeline exposes source/empty/disabled states instead of treating missing data as zero.",
       "status": "pass"
     },

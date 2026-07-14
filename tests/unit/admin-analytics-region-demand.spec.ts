@@ -34,6 +34,13 @@ describe("buildAdminAnalyticsRegionDemandModel", () => {
       missingVsZeroState: "source_present",
     });
     expect(model.rows[0]?.dedupeKey).toContain("launch_recovery|page_view");
+    expect(model.visibleCopy).toContain(
+      "Raw geography is shown, but internal/admin traffic could not be separated in this fallback lane.",
+    );
+    expect(model.visibleCopy).not.toContain(
+      "Raw geography with internal/admin traffic separated from external demand.",
+    );
+    expect(new Set(model.visibleCopy).size).toBe(model.visibleCopy.length);
   });
 
   it("keeps zero-count fallback geography rows source-missing", () => {

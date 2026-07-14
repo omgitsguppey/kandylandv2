@@ -101,6 +101,7 @@ export function buildViewerEntitlementHardeningReport() {
   const helper = read("src/lib/server/viewer-drop-entitlement.ts");
   const drops = read("src/lib/server/drops.ts");
   const client = read("src/app/dashboard/viewer/ViewerClient.tsx");
+  const accessResolver = read("src/lib/drop-view-access.ts");
   return {
     generatedAtUtc: new Date().toISOString(),
     reportKey: "viewer-entitlement-hardening",
@@ -109,7 +110,11 @@ export function buildViewerEntitlementHardeningReport() {
     rawDropSanitized: helper.includes("sanitizeDropForClient(rawDrop)") && drops.includes("export function sanitizeDropForClient"),
     privateMediaHiddenUntilEntitled: helper.includes("privateMediaHiddenUntilEntitled: true") && drops.includes('contentUrl: ""'),
     contentFetchRoute: helper.includes("/api/drops/content"),
-    clientEntitlementEvidence: client.includes("unlockedContentTimestamps") && client.includes("drop.creatorId"),
+    clientEntitlementEvidence: client.includes("resolveDropViewAccess")
+      && client.includes("accessState.allowed")
+      && accessResolver.includes("sameId(userId, input.drop.creatorId)")
+      && accessResolver.includes("hasUnwrappedDrop(input.userProfile, input.drop.id)")
+      && accessResolver.includes("unlockedContentTimestamps"),
     rawDropFieldsReachClient: /<ViewerClient\s+drop=\{rawDrop\}/u.test(page) || page.includes("contentUrl: rawDrop"),
     publicPreviewBehavior: "Viewer page returns sanitized metadata only; private bytes load through /api/drops/content after client entitlement.",
   };

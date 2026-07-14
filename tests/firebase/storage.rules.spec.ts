@@ -21,7 +21,10 @@ const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 type StorageLike = {
   ref: (path: string) => {
-    putString: (value: string, format: string, metadata: { contentType: string }) => unknown;
+    putString: (value: string, format: string, metadata: {
+      contentType: string;
+      customMetadata?: Record<string, string>;
+    }) => unknown;
   };
 };
 
@@ -30,13 +33,19 @@ async function uploadStringWithRules(
   path: string,
   value: string,
   contentType: string,
+  customMetadata?: Record<string, string>,
 ) {
-  await storage.ref(path).putString(value, "raw", { contentType });
+  await storage.ref(path).putString(value, "raw", { contentType, customMetadata });
 }
 
-async function seedAvatar(path: string, content = "avatar-seed", contentType = "image/png") {
+async function seedAvatar(
+  path: string,
+  content = "avatar-seed",
+  contentType = "image/png",
+  customMetadata?: Record<string, string>,
+) {
   await testEnv.withSecurityRulesDisabled(async (context) => {
-    await uploadStringWithRules(context.storage(), path, content, contentType);
+    await uploadStringWithRules(context.storage(), path, content, contentType, customMetadata);
   });
 }
 
@@ -133,6 +142,29 @@ describe("storage.rules", () => {
     await assertSucceeds(
       uploadStringWithRules(storage, CREATOR_MESSAGE_PATH, "message-asset", "image/png"),
     );
+    await assertSucceeds(storage.ref(CREATOR_MESSAGE_PATH).getDownloadURL());
+  });
+
+  it("blocks unsupported creator message attachment types", async () => {
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertFails(
+      uploadStringWithRules(storage, "creator/messages/alice/thread-1/payload.html", "payload", "text/html"),
+    );
+  });
+
+  it("blocks client replacement and deletion after a chat attachment is finalized", async () => {
+    await seedAvatar(
+      CREATOR_MESSAGE_PATH,
+      "finalized-message-asset",
+      "image/png",
+      { chatAttachmentFinalized: "true" },
+    );
+    const storage = testEnv.authenticatedContext("alice").storage();
+
+    await assertFails(
+      uploadStringWithRules(storage, CREATOR_MESSAGE_PATH, "replacement", "video/mp4"),
+    );
+    await assertFails(storage.ref(CREATOR_MESSAGE_PATH).delete());
     await assertSucceeds(storage.ref(CREATOR_MESSAGE_PATH).getDownloadURL());
   });
 

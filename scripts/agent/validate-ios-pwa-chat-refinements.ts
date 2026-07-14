@@ -69,7 +69,7 @@ requireIncludes(chatServer, "subscriberFreeChatApplies", "Paid GD gate preserved
 requireNotIncludes(chat, "isAndroidPwaChatShell ? \"ios-pwa\"", "No Android/iOS branch mixing");
 
 requireIncludes(chat, "data-new-message-sheet-platform={isIosPwaChatShell ? \"ios-pwa\" : \"default\"}", "iOS PWA new message sheet marker");
-requireIncludes(chat, "data-new-message-sheet-safe={isIosPwaChatShell ? \"above-bottom-nav\" : \"default\"}", "iOS PWA new message sheet safe marker");
+requireIncludes(chat, "data-new-message-sheet-safe=\"above-bottom-nav\"", "New message sheet bottom-nav-safe marker");
 requireIncludes(chat, "Start a creator chat", "Chat list empty state copy");
 requireIncludes(chat, "Follow a creator first", "No-follow empty state copy");
 requireIncludes(chat, "Say hey to", "Thread empty state copy");

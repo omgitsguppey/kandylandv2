@@ -5,11 +5,11 @@ import {
   getPackageScripts,
   listTrackedFiles,
   nowIso,
-  readJsonFile,
   readText,
   writeJsonFile,
   type Json,
 } from "./shared";
+import { buildRepoInventory } from "./classify-repo-files";
 import {
   resolveTelemetryLaneForEvent,
   type TelemetryDependencyLane,
@@ -927,7 +927,7 @@ export function buildSignalTelemetryGraphReport(input: SignalTelemetryGraphInput
 }
 
 export function buildSignalTelemetryGraphReportFromRepo() {
-  const inventoryItems = readJsonFile<{ items: RepoInventoryItem[] }>("agent/index/repo-inventory.json").items;
+  const inventoryItems = buildRepoInventory();
   let trackedFiles: string[];
   try {
     trackedFiles = listTrackedFiles();

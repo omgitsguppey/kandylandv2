@@ -21,6 +21,7 @@ export type RuntimeFactActor = {
   actorAdminId: string;
   anonymousVisitorId: string;
   sessionId: string;
+  identityLinkId: string;
 };
 
 export type RuntimeFactTarget = {
@@ -52,6 +53,8 @@ export type RuntimeFact = {
   includeInUserBehavior: boolean;
   includeInAdminAnalytics: boolean;
   includeInGlobalEvents: boolean;
+  adminExcludedCount: number;
+  systemExcludedCount: number;
   metricEligible: boolean;
   metricExclusionReason: string;
   sourceCollection: "analytics_event_facts" | "analytics_guest_batches";

@@ -112,6 +112,67 @@ describe("admin AI ops routes", () => {
         expect(mockState.uploadAdminAiDropCoverReferenceAsset).toHaveBeenCalledTimes(1);
     });
 
+    it("rejects malformed reference multipart before AI or storage work", async () => {
+        const response = await postReference(new NextRequest("http://localhost/api/admin/ai/drop-covers/references", {
+            method: "POST",
+            headers: { "content-type": "multipart/form-data; boundary=broken" },
+            body: "not-a-valid-multipart-body",
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            errorCode: "invalid_multipart_body",
+            retryable: false,
+        });
+        expect(mockState.uploadAdminAiDropCoverReferenceAsset).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("accepts a documented 10 MiB reference with bounded multipart overhead", async () => {
+        mockState.uploadAdminAiDropCoverReferenceAsset.mockResolvedValue({ id: "ref_max", imageUrl: "https://example.com/ref-max.png" });
+        const formData = new FormData();
+        formData.append("file", new File([
+            new Uint8Array(10 * 1024 * 1024),
+        ], "max-size-reference.png", { type: "image/png" }));
+
+        const response = await postReference(new NextRequest("http://localhost/api/admin/ai/drop-covers/references", {
+            method: "POST",
+            body: formData,
+        }));
+
+        expect(response.status).toBe(201);
+        expect(mockState.guardApiRequest).toHaveBeenCalledWith(expect.any(NextRequest), expect.objectContaining({
+            maxBodyBytes: (10 * 1024 * 1024) + (64 * 1024),
+        }));
+        expect(mockState.uploadAdminAiDropCoverReferenceAsset).toHaveBeenCalledWith(expect.objectContaining({
+            bytes: expect.objectContaining({ length: 10 * 1024 * 1024 }),
+        }));
+    });
+
+    it("rejects an absent-length reference stream over the body cap before AI or storage work", async () => {
+        const formData = new FormData();
+        formData.append("file", new File([
+            new Uint8Array((10 * 1024 * 1024) + (64 * 1024)),
+        ], "oversized-reference.png", { type: "image/png" }));
+        const request = new NextRequest("http://localhost/api/admin/ai/drop-covers/references", {
+            method: "POST",
+            body: formData,
+        });
+        expect(request.headers.get("content-length")).toBeNull();
+
+        const response = await postReference(request);
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.uploadAdminAiDropCoverReferenceAsset).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
     it("updates and removes references through the canonical helpers", async () => {
         mockState.updateAdminAiDropCoverReferenceAsset.mockResolvedValue({ id: "ref_1", primary: true });
         mockState.removeAdminAiDropCoverReferenceAsset.mockResolvedValue(true);
@@ -144,14 +205,59 @@ describe("admin AI ops routes", () => {
         });
     });
 
-    it("reads and writes the prompt policy workbench", async () => {
-        mockState.getAdminAiDropCoverPromptPolicy.mockResolvedValue({ version: 4, currentMutablePrompt: "current prompt" });
-        mockState.saveAdminAiDropCoverPromptPolicy.mockResolvedValue({ version: 5, currentMutablePrompt: "next prompt" });
+    it.each([
+        ["PUT", putReference, mockState.updateAdminAiDropCoverReferenceAsset],
+        ["DELETE", deleteReference, mockState.removeAdminAiDropCoverReferenceAsset],
+    ] as const)("rejects declared oversized reference %s JSON before provider writes", async (method, handler, mutation) => {
+        const response = await handler(new NextRequest("http://localhost/api/admin/ai/drop-covers/references", {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": "128001",
+            },
+            body: JSON.stringify({ id: "ref_1" }),
+        }));
+        const body = await response.json();
 
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mutation).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ["PUT", putReference, mockState.updateAdminAiDropCoverReferenceAsset],
+        ["DELETE", deleteReference, mockState.removeAdminAiDropCoverReferenceAsset],
+    ] as const)("rejects malformed reference %s JSON before provider writes", async (method, handler, mutation) => {
+        const response = await handler(new NextRequest("http://localhost/api/admin/ai/drop-covers/references", {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: "{broken",
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            errorCode: "invalid_json",
+            retryable: false,
+        });
+        expect(mutation).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("keeps legacy cover prompt refinement blocked behind the deterministic compiler", async () => {
         const getResponse = await getPromptPolicy(new NextRequest("http://localhost/api/admin/ai/drop-covers/prompt-policy"));
         const getBody = await getResponse.json();
         expect(getResponse.status).toBe(200);
-        expect(getBody.promptPolicy.version).toBe(4);
+        expect(getBody).toMatchObject({
+            success: false,
+            code: "cover_prompt_refinement_blocked",
+            deterministic: true,
+            dataCoverPromptSource: "deterministic-compiler",
+        });
 
         const putResponse = await putPromptPolicy(new NextRequest("http://localhost/api/admin/ai/drop-covers/prompt-policy", {
             method: "PUT",
@@ -164,18 +270,14 @@ describe("admin AI ops routes", () => {
             }),
             headers: { "Content-Type": "application/json" },
         }));
-        expect(putResponse.status).toBe(200);
-        expect(mockState.saveAdminAiDropCoverPromptPolicy).toHaveBeenCalledWith({
-            actorUid: "admin_1",
-            actorEmail: "admin@example.com",
-            baseStylePrompt: "base",
-            lockedClauses: ["locked"],
-            mutableClauses: ["mutable"],
-            currentMutablePrompt: "next prompt",
-            autoOptimize: true,
-            source: "manual_override",
-            action: "manual_edit",
+        const putBody = await putResponse.json();
+        expect(putResponse.status).toBe(409);
+        expect(putBody).toMatchObject({
+            success: false,
+            code: "cover_prompt_refinement_blocked",
         });
+        expect(mockState.getAdminAiDropCoverPromptPolicy).not.toHaveBeenCalled();
+        expect(mockState.saveAdminAiDropCoverPromptPolicy).not.toHaveBeenCalled();
     });
 
     it("reads and updates the review gallery reuse state", async () => {

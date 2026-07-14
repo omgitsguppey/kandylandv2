@@ -61,6 +61,7 @@ const docsRelativePath = "docs/agent-truth/analytics-cost-runtime-inventory.md";
 
 const sourcePaths = {
   deepTracker: "src/components/Analytics/DeepTracker.tsx",
+  telemetry: "src/lib/telemetry.ts",
   analyticsIngestRoute: "src/app/api/analytics/ingest/route.ts",
   analyticsEventContract: "src/lib/analytics/analytics-event-contract.ts",
   runtimeWatchTime: "src/lib/analytics/watch-time-v2.ts",
@@ -142,30 +143,50 @@ export function buildAnalyticsCostRuntimeInventoryReport(
   const bigQueryCadenceGuarded = detected(sources.bigQueryExport ?? "", /BIGQUERY_EXPORT_MIN_CADENCE_MS|claimBigQueryExportWindow|daily cadence/iu);
   const bigQueryQueryGuarded = detected(sources.bigQueryExport ?? "", /dryRunRequiredForQueries|maximumBytesBilledRequiredForQueries|partitionFilterRequired/iu);
   const geminiCloudAssistDetected = detected(sources.geminiSearch ?? "", /Gemini|Cloud Assist|Vertex|GenerativeAI|genai|model|prompt|token/iu);
+  const guestBatchIsEventTriggered = detected(sources.deepTracker ?? "", /scheduleNonPriorityFlush/iu)
+    && detected(sources.deepTracker ?? "", /flushQueue\(["']batch["']\)/iu)
+    && !detected(sources.deepTracker ?? "", /window\.setInterval\(/iu);
+  const userIndexProjectionIsOffHotPath = detected(sources.analyticsIngestRoute ?? "", /writeBehavioralTimelineProjection|written_with_outbox/iu)
+    && !detected(sources.analyticsIngestRoute ?? "", /materializeUserTrackingIndexes\s*\(/iu);
+  const permanentGuestFailuresAdvance = detected(sources.telemetry ?? "", /shouldAdvanceGuestAnalyticsQueue/iu)
+    && detected(sources.telemetry ?? "", /permanent_failure/iu)
+    && detected(sources.telemetry ?? "", /outcome\.status\s*!==\s*["']retryable_failure["']/iu);
 
   const cloudRunFindings: InventoryFinding[] = [
     finding({
       id: "analytics-ingest-cloud-run-request-work",
-      severity: "P1",
-      status: "repo_detected_external_billing_observed_operator_context",
+      severity: userIndexProjectionIsOffHotPath ? "P2" : "P1",
+      status: userIndexProjectionIsOffHotPath
+        ? "source_bounded_outbox_external_runtime_evidence_required"
+        : "repo_detected_hot_path_materialization_review_required",
       detectionState: "repo_detected",
       evidence: [
         "src/app/api/analytics/ingest/route.ts: force-dynamic analytics ingest route.",
-        "src/app/api/analytics/ingest/route.ts: materializeUserTrackingIndexes runs after guest ingest.",
+        userIndexProjectionIsOffHotPath
+          ? "Guest ingest stores bounded timeline facts and hands user-index projection to the durable outbox/materializer lane; no direct materializeUserTrackingIndexes call remains."
+          : "Guest ingest still exposes direct user-index materialization evidence on the request path.",
         "operator_context: billing screenshot showed Cloud Run/App Hosting/Functions costs; not used as source truth.",
       ],
-      nextAction: "Review guest ingest request-path work, cache boundaries, and whether index materialization should move out of the hot request path.",
+      nextAction: userIndexProjectionIsOffHotPath
+        ? "Collect scheduler, shadow-window, and billing evidence before claiming deployed cost or runtime improvement."
+        : "Move user-index projection behind the canonical durable outbox/materializer owner before runtime promotion.",
     }),
     finding({
       id: "guest-analytics-flush-cadence",
-      severity: "P1",
-      status: "repo_detected_non_priority_2_5s_flush",
+      severity: guestBatchIsEventTriggered ? "P2" : "P1",
+      status: guestBatchIsEventTriggered
+        ? "source_bounded_event_triggered_15s_batch"
+        : "repo_detected_recurring_or_unclassified_guest_flush",
       detectionState: "repo_detected",
       evidence: [
-        "src/components/Analytics/DeepTracker.tsx: GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 2_500.",
-        "src/components/Analytics/DeepTracker.tsx: page_view, visibility, pagehide, online, and interval can flush.",
+        guestBatchIsEventTriggered
+          ? "DeepTracker schedules one 15-second non-priority batch only after an eligible event; it has no recurring setInterval loop."
+          : "DeepTracker does not prove an event-triggered non-priority batch without recurring interval work.",
+        "Page view, priority, visibility, pagehide, cleanup, and online lifecycle paths retain explicit flush behavior.",
       ],
-      nextAction: "Classify priority vs non-priority analytics cadence and consider longer debounce/batch windows in a behavior-change pass.",
+      nextAction: guestBatchIsEventTriggered
+        ? "Keep runtime request-volume and billing evidence external until measured; retain the source batch budget."
+        : "Classify priority vs non-priority cadence and move non-priority work behind the canonical event-triggered batch policy.",
     }),
   ];
 
@@ -255,14 +276,20 @@ export function buildAnalyticsCostRuntimeInventoryReport(
   const retry4xxFindings: InventoryFinding[] = [
     finding({
       id: "analytics-ingest-503-retryable",
-      severity: "P1",
-      status: "repo_detected_retryable_route_failure",
+      severity: permanentGuestFailuresAdvance ? "P2" : "P1",
+      status: permanentGuestFailuresAdvance
+        ? "source_classifies_permanent_4xx_and_transient_retry"
+        : "repo_detected_unclassified_retryable_route_failure",
       detectionState: "repo_detected",
       evidence: [
         "src/app/api/analytics/ingest/route.ts returns { success: false, retryable: true } with status 503 on catch.",
-        "src/components/Analytics/DeepTracker.tsx persists failed queue and can flush again by interval/visibility/online.",
+        permanentGuestFailuresAdvance
+          ? "The telemetry transport advances permanently rejected 4xx batches and retains only retryable/network failures for a later event or lifecycle flush."
+          : "Guest transport does not prove permanent failures advance while transient failures remain retryable.",
       ],
-      nextAction: "Classify which analytics failures are retryable and make 4xx/validation failures calm, non-retried, and cheap.",
+      nextAction: permanentGuestFailuresAdvance
+        ? "Verify deployed response classifications through bounded runtime evidence; do not infer provider/runtime behavior from source."
+        : "Classify analytics failures so permanent 4xx responses are non-retried and transient failures remain bounded.",
     }),
     finding({
       id: "expected-product-4xx-inventory",
@@ -277,14 +304,20 @@ export function buildAnalyticsCostRuntimeInventoryReport(
   const analyticsCadenceFindings: InventoryFinding[] = [
     finding({
       id: "deeptracker-non-priority-cadence",
-      severity: "P1",
-      status: "repo_detected_high_cadence_guest_flush",
+      severity: guestBatchIsEventTriggered ? "P2" : "P1",
+      status: guestBatchIsEventTriggered
+        ? "source_bounded_event_triggered_guest_batch"
+        : "repo_detected_high_or_recurring_guest_flush",
       detectionState: "repo_detected",
       evidence: [
-        "DeepTracker flush interval is 2.5s while visible.",
-        "Guest queue caps exist, but non-priority analytics cadence is still a Cloud Run/App Hosting cost review target.",
+        guestBatchIsEventTriggered
+          ? "DeepTracker uses a one-shot 15-second delay triggered by queued non-priority work and clears it on cleanup."
+          : "DeepTracker does not prove a bounded event-triggered non-priority cadence.",
+        "Guest queue caps remain source-visible; Cloud Run/App Hosting cost outcome still requires external evidence.",
       ],
-      nextAction: "Move non-priority cadence to a lower-frequency batch policy after source-owner review.",
+      nextAction: guestBatchIsEventTriggered
+        ? "Monitor deployed request volume before changing the source-owned 15-second batch budget."
+        : "Move non-priority cadence to the canonical event-triggered batch policy after source-owner review.",
     }),
     finding({
       id: "admin-analytics-cold-sources",
@@ -372,7 +405,7 @@ export function buildAnalyticsCostRuntimeInventoryReport(
       bigQueryExportFindings: bigQueryFindings.length,
       geminiCloudAssistDetected,
       geminiCloudAssistFindings: geminiCloudAssistFindings.length,
-      nonPriorityAnalyticsCadenceFindings: analyticsCadenceFindings.length,
+      nonPriorityAnalyticsCadenceFindings: analyticsCadenceFindings.filter((entry) => entry.id === "deeptracker-non-priority-cadence").length,
       retry4xxFindings: retry4xxFindings.length,
       guestTrackingFindings: trackingFindings.filter((entry) => entry.id.includes("guest")).length,
       userTrackingFindings: trackingFindings.filter((entry) => entry.id.includes("user")).length,
@@ -390,8 +423,8 @@ export function buildAnalyticsCostRuntimeInventoryReport(
     trackingFindings,
     watchTimeFindings,
     nextFixOrder: [
-      "Separate non-priority analytics cadence from product-critical telemetry and propose a lower-frequency batch policy.",
-      "Classify analytics/client retry failures so 4xx validation paths are calm, cheap, and non-retried.",
+      "Keep the event-triggered non-priority batch and permanent/transient retry classification covered by focused source tests.",
+      "Collect deployed scheduler, request-volume, and billing evidence without treating source readiness as runtime proof.",
       "Owner-review Cloud SQL/Data Connect billing and BigQuery/Gemini provider cost lanes before source changes.",
       "Wire runtime watch-time v2 to media playback only after cost/idempotency route review.",
     ],

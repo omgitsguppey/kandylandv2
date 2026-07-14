@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { buildChatThreadId, CHAT_COLLECTIONS } from "@/lib/chat";
 import { buildCreatorMessagesCompatibilityHeaders } from "@/lib/creator-message-compatibility";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import {
     safeGetChatThreadDetailForViewer,
     safeListChatThreadsForViewer,
@@ -36,6 +37,7 @@ const sendMessageSchema = z.object({
     targetUserId: z.string().trim().optional(),
     idempotencyKey: z.string().trim().max(180).optional(),
 });
+const CREATOR_MESSAGES_BODY_LIMIT_BYTES = 32_768;
 
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
@@ -145,12 +147,17 @@ export async function POST(request: NextRequest) {
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
         let rawBody: unknown;
         try {
-            rawBody = await request.json();
-        } catch {
+            rawBody = await readBoundedJsonBody<unknown>(request, {
+                maxBytes: CREATOR_MESSAGES_BODY_LIMIT_BYTES,
+                routeName: "creator/messages",
+            });
+        } catch (error) {
+            const payloadTooLarge = isBoundedJsonBodyError(error) && error.code === "payload_too_large";
             return finalize(withCompatibilityHeaders(NextResponse.json({
-                error: "Malformed request body.",
-                errorCode: "malformed_body",
-            }, { status: 400 })));
+                error: payloadTooLarge ? "Request payload is too large." : "Malformed request body.",
+                errorCode: payloadTooLarge ? "payload_too_large" : "malformed_body",
+                retryable: false,
+            }, { status: payloadTooLarge ? 413 : 400 })));
         }
         const parsedPayload = sendMessageSchema.safeParse(rawBody);
         if (!parsedPayload.success) {

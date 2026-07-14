@@ -279,11 +279,11 @@ describe("DebugControlTower", () => {
             const publicBetaCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/public-beta-score.generated.json']"));
             const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
 
-            expect(publicBetaText).toContain("Site activity evidence required");
+            expect(publicBetaText).toContain("Source activity evidence required");
             expect(publicBetaText).toContain("Source evidence lane");
-            expect(container.textContent).toContain("Site activity evidence required");
-            expect(container.textContent).toContain("source evidence gates");
-            expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
+            expect(container.textContent).toContain("Source activity evidence required");
+            expect(container.textContent).toContain("typed source-activity gates");
+            expect(container.textContent).toContain("Source activity evidence required - Produce redacted provider-backed source activity evidence");
             expect(container.textContent).toContain("Admin source activity sample required");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
@@ -345,8 +345,8 @@ describe("DebugControlTower", () => {
                 await Promise.resolve();
             });
 
-            expect(container.textContent).toContain("Site activity evidence required");
-            expect(container.textContent).toContain("Produce redacted provider-backed site activity evidence");
+            expect(container.textContent).toContain("Source activity evidence required");
+            expect(container.textContent).toContain("Produce redacted provider-backed source activity evidence");
             expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
             expect(container.innerHTML).toContain('data-public-beta-evidence-state="site_activity_evidence_required"');
             expect(container.innerHTML).not.toContain('data-public-beta-evidence-state="external_proof_required"');
@@ -398,10 +398,10 @@ describe("DebugControlTower", () => {
             const publicBetaCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/public-beta-score.generated.json']"));
             const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
 
-            expect(publicBetaText).toContain("Site activity evidence required");
+            expect(publicBetaText).toContain("Source activity evidence required");
             expect(publicBetaText).toContain("4 source evidence lanes");
             expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
-            expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
+            expect(container.textContent).toContain("Source activity evidence required - Produce redacted provider-backed source activity evidence");
             expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
             expect(container.textContent).toContain("Admin source activity sample required");
             expect(container.innerHTML).toContain('data-public-beta-evidence-state="site_activity_evidence_required"');

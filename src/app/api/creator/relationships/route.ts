@@ -406,7 +406,13 @@ export async function POST(request: NextRequest) {
         parsedCreatorId = creatorId;
         parsedAction = action;
         if (creatorId === caller.uid) {
-            return finalize(NextResponse.json({ error: "You cannot follow yourself." }, { status: 400 }));
+            return finalize(NextResponse.json({
+                success: false,
+                code: "invalid_creator_request",
+                error: "You cannot follow yourself.",
+                message: "You cannot follow yourself.",
+                retryable: false,
+            }, { status: 400 }));
         }
 
         const creator = await getCreatorRecord(creatorId);
@@ -565,6 +571,16 @@ export async function POST(request: NextRequest) {
                 code: error.code,
                 error: error.message,
             }, { status: error.status }), error);
+        }
+        if (error instanceof z.ZodError) {
+            return finalize(NextResponse.json({
+                success: false,
+                code: "invalid_creator_request",
+                error: "Choose a creator and a valid relationship action.",
+                message: "Choose a creator and a valid relationship action.",
+                retryable: false,
+                details: error.issues.map((issue) => issue.message).slice(0, 8),
+            }, { status: 400 }), error);
         }
         return finalize(handleApiError(error, "Creator.Relationships.POST"), error);
     }

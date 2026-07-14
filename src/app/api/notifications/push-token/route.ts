@@ -8,6 +8,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import {
   buildPushTokenRegistrationPayload,
   classifyPushTokenRegistration,
@@ -20,6 +21,20 @@ import {
 } from "@/lib/notifications/push-token-contract";
 
 export const runtime = "nodejs";
+
+const PUSH_TOKEN_BODY_LIMIT_BYTES = 32_768;
+
+function buildPushTokenBodyErrorResponse(error: unknown) {
+  if (!isBoundedJsonBodyError(error)) {
+    return null;
+  }
+
+  return NextResponse.json({
+    error: error.message,
+    errorCode: error.code,
+    retryable: false,
+  }, { status: error.status });
+}
 
 function tokenFingerprint(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -95,7 +110,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Notification registration is unavailable right now." }, { status: 500 });
     }
 
-    const rawPayload: unknown = await request.json().catch(() => ({}));
+    const rawPayload = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: PUSH_TOKEN_BODY_LIMIT_BYTES,
+      routeName: "notifications/push-token",
+    });
     if (!isRecord(rawPayload)) {
       return NextResponse.json({ error: "Invalid push token registration request." }, { status: 400 });
     }
@@ -194,6 +212,10 @@ export async function POST(request: NextRequest) {
       tokenRedacted: redactPushToken(payload.token),
     });
   } catch (error) {
+    const bodyErrorResponse = buildPushTokenBodyErrorResponse(error);
+    if (bodyErrorResponse) {
+      return bodyErrorResponse;
+    }
     return handleApiError(error, "NotificationsPushToken.POST");
   }
 }
@@ -215,7 +237,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Notification registration is unavailable right now." }, { status: 500 });
     }
 
-    const rawPayload: unknown = await request.json().catch(() => ({}));
+    const rawPayload = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: PUSH_TOKEN_BODY_LIMIT_BYTES,
+      routeName: "notifications/push-token",
+    });
     if (!isRecord(rawPayload)) {
       return NextResponse.json({ error: "Invalid push token revocation request." }, { status: 400 });
     }
@@ -271,6 +296,10 @@ export async function DELETE(request: NextRequest) {
       tokenFingerprint: fingerprintPrefix(fingerprint),
     });
   } catch (error) {
+    const bodyErrorResponse = buildPushTokenBodyErrorResponse(error);
+    if (bodyErrorResponse) {
+      return bodyErrorResponse;
+    }
     return handleApiError(error, "NotificationsPushToken.DELETE");
   }
 }

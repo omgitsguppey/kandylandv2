@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -381,4 +381,6 @@ function main() {
   console.log("Notification permission lifecycle validation passed.");
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === resolve(__filename)) {
+  main();
+}

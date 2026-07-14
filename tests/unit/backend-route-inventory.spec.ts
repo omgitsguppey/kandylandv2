@@ -25,4 +25,19 @@ describe("backend route inventory", () => {
     expect(report.routesMissingCostClass).toBe(0);
     expect(report.unsafeUnknowns).toEqual([]);
   });
+
+  it("keeps the user-index scheduler and its current HTTP helper with the analytics owner", () => {
+    const report = buildBackendRouteInventoryReport({ currentHead: "test-head" });
+
+    for (const routePath of [
+      "functions:user-index-materializer-schedule",
+      "functions:scheduled-http-client",
+    ]) {
+      const entry = report.entries.find((candidate) => candidate.routePath === routePath);
+      expect(entry).toMatchObject({
+        ownerSystem: "analytics",
+        canonicalServiceOwner: "analytics ingest/event fact service",
+      });
+    }
+  });
 });

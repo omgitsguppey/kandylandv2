@@ -46,6 +46,17 @@ const mockState = vi.hoisted(() => {
         return "";
     };
 
+    const normalizeQueryField = (field: unknown) => {
+        if (typeof field === "string") return field;
+        if (field && typeof field === "object") {
+            const segments = (field as { segments?: unknown }).segments;
+            if (Array.isArray(segments) && segments.every((segment) => typeof segment === "string")) {
+                return segments.join(".");
+            }
+        }
+        return String(field);
+    };
+
     const createCollectionRef = (
         name: string,
         clauses: QueryClause[] = [],
@@ -69,11 +80,13 @@ const mockState = vi.hoisted(() => {
             const ordered = [...docs];
             for (const order of [...orderBys].reverse()) {
                 ordered.sort((left, right) => {
-                    const leftValue = comparableValue(left.data()[order.field]);
-                    const rightValue = comparableValue(right.data()[order.field]);
+                    const leftValue = order.field === "__name__" ? left.id : comparableValue(left.data()[order.field]);
+                    const rightValue = order.field === "__name__" ? right.id : comparableValue(right.data()[order.field]);
                     if (leftValue < rightValue) return order.direction === "desc" ? 1 : -1;
                     if (leftValue > rightValue) return order.direction === "desc" ? -1 : 1;
-                    return left.id.localeCompare(right.id);
+                    return order.direction === "desc"
+                        ? right.id.localeCompare(left.id)
+                        : left.id.localeCompare(right.id);
                 });
             }
 
@@ -82,11 +95,11 @@ const mockState = vi.hoisted(() => {
         };
 
         return {
-            where(field: string, operator: string, value: unknown) {
-                return createCollectionRef(name, [...clauses, { field, operator, value }], orderBys, limits);
+            where(field: unknown, operator: string, value: unknown) {
+                return createCollectionRef(name, [...clauses, { field: normalizeQueryField(field), operator, value }], orderBys, limits);
             },
-            orderBy(field: string, direction: "asc" | "desc" = "asc") {
-                return createCollectionRef(name, clauses, [...orderBys, { field, direction }], limits);
+            orderBy(field: unknown, direction: "asc" | "desc" = "asc") {
+                return createCollectionRef(name, clauses, [...orderBys, { field: normalizeQueryField(field), direction }], limits);
             },
             limit(value: number) {
                 return createCollectionRef(name, clauses, orderBys, [...limits, value]);

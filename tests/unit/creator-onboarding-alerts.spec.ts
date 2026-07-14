@@ -20,7 +20,8 @@ const mockState = vi.hoisted(() => {
             return makeDocRef(`${name}/${resolvedId}`);
         },
         where(field: string, _op: string, value: string) {
-            return {
+            const filteredQuery = {
+                limit: vi.fn(() => filteredQuery),
                 async get() {
                     if (name !== "users" || field !== "role" || value !== "admin") {
                         return { docs: [] };
@@ -33,6 +34,7 @@ const mockState = vi.hoisted(() => {
                     };
                 },
             };
+            return filteredQuery;
         },
     });
 

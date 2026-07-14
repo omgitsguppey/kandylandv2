@@ -7,6 +7,7 @@ import { ADMIN_AI_CONTROL } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -34,13 +35,17 @@ async function PUT_handler(request: NextRequest) {
             maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             baseInstructionPrompt?: unknown;
             lockedClauses?: unknown;
             mutableClauses?: unknown;
             currentMutablePrompt?: unknown;
             autoOptimize?: unknown;
-        };
+        }>(request, {
+            maxBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
+            routeName: "admin/ai/drop-descriptions/prompt-policy:PUT",
+            allowEmpty: false,
+        });
 
         const policy = await saveAdminAiDropDescriptionPromptPolicy({
             actorUid: caller?.uid || "",
@@ -57,6 +62,15 @@ async function PUT_handler(request: NextRequest) {
             promptPolicy: policy,
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-descriptions/prompt-policy:PUT", NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                message: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         return finalize(startedAt, "admin/ai/drop-descriptions/prompt-policy:PUT", handleApiError(error, "admin/ai/drop-descriptions/prompt-policy"), error);
     }
 }

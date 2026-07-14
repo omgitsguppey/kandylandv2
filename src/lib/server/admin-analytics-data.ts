@@ -98,7 +98,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     : ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT;
 
   return readThroughEphemeralRouteCache({
-    key: `admin-historical-sources:${propertyId}:${startDate}:${endDate}:${startDayKey}:${startMs}:${period ?? "default"}:${timelineBucket}:${section ?? "all"}`,
+    key: `admin-historical-sources:${propertyId}:${startDate}:${endDate}:${startDayKey}:${startMs}:${period ?? "default"}:${timelineBucket}:${section ?? "all"}:${allowVendorReports ? "vendor_evidence" : "first_party_only"}`,
     ttlMs: ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS,
     loader: async () => {
       const analyticsEventNames = TELEMETRY_EVENT_QUERY_NAMES;
@@ -143,6 +143,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       analyticsClient,
       label: "traffic overview",
       issues,
+      reportBudgetSlot: 1,
       requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
@@ -165,6 +166,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       analyticsClient,
       label: "event mix",
       issues,
+      reportBudgetSlot: 2,
       requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
@@ -184,6 +186,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       analyticsClient,
       label: "geo active users",
       issues,
+      reportBudgetSlot: 3,
       requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
@@ -197,6 +200,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       analyticsClient,
       label: "geo path demand",
       issues,
+      reportBudgetSlot: 4,
       requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
@@ -210,6 +214,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       analyticsClient,
       label: "top pages",
       issues,
+      reportBudgetSlot: 5,
       requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
@@ -223,6 +228,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       analyticsClient,
       label: "device mix",
       issues,
+      reportBudgetSlot: 6,
       requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
@@ -240,6 +246,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       analyticsClient,
       label: "guided onboarding duration",
       issues,
+      reportBudgetSlot: 7,
       requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],

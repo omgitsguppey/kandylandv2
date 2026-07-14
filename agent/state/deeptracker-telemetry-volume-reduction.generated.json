@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T14:05:34.626Z",
+  "generatedAtUtc": "2026-07-14T07:07:19.798Z",
   "reportKey": "deeptracker-telemetry-volume-reduction",
-  "currentHead": "03c39a8af422bc530f24536644c61672f8815b24",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "nonPriorityFlushSeconds": 15,
     "priorityEventsPreserved": true,
@@ -13,46 +13,74 @@
     "identityLinkDuplicateGuarded": true,
     "runtimeWatchUnaffected": true,
     "estimatedSavingsNotes": [
-      "DeepTracker non-priority interval changed from 2.5 seconds to 15 seconds.",
-      "Pagehide, visibility hidden, cleanup, and priority flush paths use one closeout key per route session.",
-      "Hover and visibility events now emit summaries instead of per-transition streams.",
+      "DeepTracker schedules one 15-second non-priority batch after eligible work and no longer runs a recurring generic telemetry interval.",
+      "Retryable transport failures retain the queue and use a bounded 15/30/60/120-second event-driven backoff while the page is visible.",
+      "Pagehide, visibility hidden, cleanup, online, and priority paths retain explicit flush behavior.",
+      "Hover and visibility events emit summaries instead of per-transition streams.",
       "Scroll uses requestAnimationFrame and 25/50/75/100 milestones instead of 500ms polling.",
-      "Identity link writes pending state before send, then stores success or retry-after state to prevent duplicate bursts."
+      "Identity link writes pending state before send, then stores success or retry-after state to prevent duplicate bursts.",
+      "Runtime request-volume and billing effects remain external evidence; this report makes no provider-cost claim."
     ],
     "p0Count": 0,
     "p1Count": 1,
-    "p2Count": 2
+    "p2Count": 2,
+    "eventTriggeredBatch": true
   },
-  "auditItemsAddressed": [1, 2, 3, 4, 5, 6, 14],
+  "auditItemsAddressed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    14
+  ],
   "fixesApplied": [
     {
       "id": "deeptracker-priority-policy",
-      "items": [1, 3],
+      "items": [
+        1,
+        3
+      ],
       "files": [
         "src/lib/analytics/client-telemetry-priority.ts",
         "src/components/Analytics/DeepTracker.tsx"
       ],
-      "status": "fixed_priority_preserved",
-      "detail": "Added client telemetry priority classification, moved non-priority flushes to 15 seconds, and lowered the non-priority queue cap to 200 while preserving immediate/next-turn priority flushes."
+      "status": "fixed_event_triggered_batch_priority_preserved",
+      "detail": "Client telemetry priority remains explicit; non-priority DeepTracker work uses a one-shot 15-second event-triggered batch with a 200-event cap and no recurring generic interval."
     },
     {
       "id": "deeptracker-finalization-coalesced",
-      "items": [2],
-      "files": ["src/components/Analytics/DeepTracker.tsx"],
+      "items": [
+        2
+      ],
+      "files": [
+        "src/components/Analytics/DeepTracker.tsx"
+      ],
       "status": "fixed_idempotent_closeout",
       "detail": "Visibility hidden, pagehide, cleanup, and priority closeouts share a route-session closeout key and prefer beacon/keepalive for final sends."
     },
     {
       "id": "deeptracker-low-value-summary-events",
-      "items": [4, 5, 6],
-      "files": ["src/components/Analytics/DeepTracker.tsx"],
+      "items": [
+        4,
+        5,
+        6
+      ],
+      "files": [
+        "src/components/Analytics/DeepTracker.tsx"
+      ],
       "status": "fixed_summarized",
       "detail": "Hover, visibility, and scroll now summarize state; scroll emits only max depth and 25/50/75/100 milestones via requestAnimationFrame."
     },
     {
       "id": "identity-link-pending-retry-window",
-      "items": [14],
-      "files": ["src/lib/analytics/analytics-identity-link.ts"],
+      "items": [
+        14
+      ],
+      "files": [
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
       "status": "fixed_duplicate_burst_guarded",
       "detail": "Identity link submission marks a pending state before fetch, writes a sent state on success, and writes a retry-after window on failure without blocking auth."
     }
@@ -73,9 +101,9 @@
   ],
   "costSavingsModel": [
     {
-      "lane": "deeptracker_interval_flush",
-      "formula": "requestReduction ~= 1 - (oldIntervalSeconds / newIntervalSeconds)",
-      "estimatedPercentReduction": "about 83% fewer non-priority interval flush opportunities while visible"
+      "lane": "deeptracker_event_triggered_batch",
+      "formula": "wakeupsRemoved = priorRecurringWakeups - eventTriggeredBatchWakeups",
+      "estimatedPercentReduction": "recurring non-priority wakeups removed; deployed request-volume effect requires runtime evidence"
     },
     {
       "lane": "deeptracker_finalization",
@@ -98,23 +126,10 @@
       "estimatedPercentReduction": "up to 90% fewer duplicate identity-link requests during login/session-restore bursts"
     }
   ],
-  "prCleanupActions": [
-    {
-      "number": 271,
-      "title": "Reduce monolith file risk and clarify responsibility boundaries",
-      "classification": "preserve_out_of_phase",
-      "reason": "Docs-only monolith governance PR touches FULL_SCALE_CODEBASE_AUDIT.md and does not touch DeepTracker, telemetry contracts, identity link, or runtime watch tracking."
-    },
-    {
-      "number": 272,
-      "title": "Palette: Add aria-expanded to creator dashboard toggles",
-      "classification": "preserve_out_of_phase",
-      "reason": "Tiny creator accessibility PR touches creator UI files, not DeepTracker/client telemetry volume reduction. Commented and preserved for creator accessibility owner review."
-    }
-  ],
+  "prCleanupActions": [],
   "nextFixOrder": [
-    "Review src/lib/telemetry.ts global trackEvent cadence separately from DeepTracker.",
-    "Add richer anonymous summary fields only through a server/client ingest contract pass if product analysis needs them.",
-    "Keep RuntimeWatchTracker on its independent 10s playback heartbeat when wiring media integration."
+    "Keep the event-triggered batch and lifecycle flush paths covered by source tests.",
+    "Collect deployed request-volume and billing evidence before claiming provider cost effects.",
+    "Keep RuntimeWatchTracker on its independent 10-second playback heartbeat when wiring media integration."
   ]
 }

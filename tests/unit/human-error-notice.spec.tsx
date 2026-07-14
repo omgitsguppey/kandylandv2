@@ -33,4 +33,19 @@ describe("HumanErrorNotice", () => {
     expect(screen.queryByText(/stack trace/i)).toBeNull();
     expect(screen.queryByText(/Operator-only diagnostic/i)).toBeNull();
   });
+
+  it("does not render recovery controls without an owning action handler", () => {
+    const descriptor = {
+      ...resolveHumanErrorFromCode("internal_server_error", "runtime"),
+      primaryAction: "retry" as const,
+      secondaryAction: "contact_support" as const,
+      bugReportEligible: true,
+    };
+
+    render(<HumanErrorNotice descriptor={descriptor} />);
+
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Contact support" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Send bug/i })).toBeNull();
+  });
 });

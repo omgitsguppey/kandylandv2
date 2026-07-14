@@ -104,7 +104,7 @@ function readValidatorAuthority() {
   return readJsonFile<ValidatorAuthorityDocument>(VALIDATOR_AUTHORITY_PATH, {
     version: 2,
     updatedAt: "",
-    defaultAffectedAuditBlockedStatuses: ["legacy", "blocked"],
+    defaultAffectedAuditBlockedStatuses: ["superseded", "legacy", "blocked"],
     validators: {},
     packageScripts: {},
     summary: {
@@ -113,6 +113,7 @@ function readValidatorAuthority() {
       byStatus: {
         canonical: 0,
         supporting: 0,
+        superseded: 0,
         legacy: 0,
         blocked: 0,
       },
@@ -126,7 +127,7 @@ function filterPlanByValidatorAuthority(
   authority: ValidatorAuthorityDocument,
 ) {
   const blockedStatuses = new Set<ValidatorAuthorityStatus>(
-    authority.defaultAffectedAuditBlockedStatuses ?? ["legacy", "blocked"],
+    authority.defaultAffectedAuditBlockedStatuses ?? ["superseded", "legacy", "blocked"],
   );
 
   const shouldKeepCommand = (command: string) => {

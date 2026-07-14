@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 
-import type { RepoInventoryEntry } from "./classify-repo-files";
+import { buildVerificationCommandEntries } from "./build-agent-indexes";
+import { buildRepoInventory, type RepoInventoryEntry } from "./classify-repo-files";
 import { createMetadata, getPackageScripts, readJsonFile, toStableId, writeJsonFile, writeTextFile } from "./shared";
 
 type VerificationCommandEntry = {
@@ -93,8 +94,8 @@ function parseArgs() {
 }
 
 function getAvailableCommands() {
-  const commands = readJsonFile<{ commands: VerificationCommandEntry[] }>("agent/index/verification-commands.json").commands;
-  const available = new Map(commands.map((entry) => [entry.command, entry]));
+  const commands: VerificationCommandEntry[] = buildVerificationCommandEntries();
+  const available = new Map<string, VerificationCommandEntry>(commands.map((entry) => [entry.command, entry]));
   const packageScripts = getPackageScripts("package.json");
 
   for (const scriptName of Object.keys(packageScripts)) {
@@ -115,7 +116,7 @@ function getAvailableCommands() {
 }
 
 function getInventory() {
-  const entries = readJsonFile<{ items: RepoInventoryEntry[] }>("agent/index/repo-inventory.json").items;
+  const entries = buildRepoInventory();
   return new Map(entries.map((entry) => [entry.path, entry]));
 }
 

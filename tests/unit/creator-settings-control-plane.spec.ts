@@ -4,12 +4,32 @@ import {
   CREATOR_SETTINGS_ADMIN_ONLY_FIELDS,
   buildCreatorSettingsCompletion,
   buildCreatorSettingsControlPlane,
+  pickCreatorSettingsControlPlaneSection,
   sanitizeCreatorSettingsControlPlaneUpdate,
   stripAdminOnlyCreatorSettingsFields,
 } from "@/lib/creator-settings/creator-settings-contract";
 import { CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS } from "@/lib/creator-experiences";
 
 describe("creator settings control plane contract", () => {
+  it("picks only fields owned by the selected save section", () => {
+    const settings = buildCreatorSettingsControlPlane(null, {
+      displayName: "Creator",
+      bio: "Bio",
+      photoURL: "https://example.com/photo.jpg",
+    });
+
+    expect(pickCreatorSettingsControlPlaneSection(settings, "profile_basics")).toEqual({
+      profileDisplayName: "Creator",
+      bio: "Bio",
+      profilePhotoURL: "https://example.com/photo.jpg",
+    });
+    expect(pickCreatorSettingsControlPlaneSection(settings, "fan_pass")).toEqual({
+      fanPassEnabled: settings.fanPassEnabled,
+      fanPassPriceGd: settings.fanPassPriceGd,
+      fanPassWelcomeText: settings.fanPassWelcomeText,
+    });
+  });
+
   it("turns a missing settings document into safe defaults and a setup checklist", () => {
     const controlPlane = buildCreatorSettingsControlPlane(null, {
       displayName: "",

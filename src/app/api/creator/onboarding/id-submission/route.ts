@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import {
+    isBoundedJsonBodyError,
+    isRequestBodyTooLargeError,
+    readBoundedFormDataBody,
+} from "@/lib/server/bounded-json-body";
 import { trackServerEvent } from "@/lib/server/analytics";
 import {
     buildCreatorOnboardingHistoryEntry,
@@ -27,6 +32,7 @@ import {
 } from "@/lib/identity-truth/identity/actor-markers";
 
 const MAX_ID_UPLOAD_BYTES = 15 * 1024 * 1024;
+const ID_SUBMISSION_BODY_LIMIT_BYTES = MAX_ID_UPLOAD_BYTES + (64 * 1024);
 const ALLOWED_ID_CONTENT_TYPES = new Set([
     "image/jpeg",
     "image/png",
@@ -57,6 +63,26 @@ function buildErrorResponse(status: number, message: string) {
     return NextResponse.json({ error: message }, { status });
 }
 
+function buildCreatorValidationErrorResponse(status: 400 | 409, error: string) {
+    return NextResponse.json({
+        success: false,
+        error,
+        errorCode: "invalid_creator_request",
+        code: "invalid_creator_request",
+        retryable: false,
+    }, { status });
+}
+
+function buildUploadErrorResponse(status: 400 | 413, errorCode: string, error: string) {
+    return NextResponse.json({
+        success: false,
+        error,
+        errorCode,
+        code: status === 413 ? "payload_too_large" : "invalid_creator_request",
+        retryable: false,
+    }, { status });
+}
+
 async function POST_handler(request: NextRequest) {
     let uploadedStoragePath: string | null = null;
     let uploadedSlot: "front" | "back" | "face_with_id" | "video_with_id" = "front";
@@ -69,6 +95,7 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "user",
             scopeToCaller: true,
+            maxBodyBytes: ID_SUBMISSION_BODY_LIMIT_BYTES,
         });
 
         if (!caller?.uid) {
@@ -79,19 +106,22 @@ async function POST_handler(request: NextRequest) {
             return buildErrorResponse(500, "Database or storage not available");
         }
 
-        const formData = await request.formData();
+        const formData = await readBoundedFormDataBody(request, {
+            maxBytes: ID_SUBMISSION_BODY_LIMIT_BYTES,
+            routeName: "creator/onboarding/id-submission",
+        });
         uploadedSlot = normalizeIdSlot(formData.get("slot"));
         const file = formData.get("file");
         if (!(file instanceof File)) {
-            return buildErrorResponse(400, "Missing ID file upload");
+            return buildUploadErrorResponse(400, "missing_upload_file", "Missing ID file upload");
         }
 
         if (!ALLOWED_ID_CONTENT_TYPES.has(file.type)) {
-            return buildErrorResponse(400, "Only JPG, PNG, WebP, PDF, and common video uploads are supported.");
+            return buildUploadErrorResponse(400, "unsupported_asset_type", "Only JPG, PNG, WebP, PDF, and common video uploads are supported.");
         }
 
         if (file.size > MAX_ID_UPLOAD_BYTES) {
-            return buildErrorResponse(400, "ID uploads must be 15MB or smaller.");
+            return buildUploadErrorResponse(413, "payload_too_large", "ID uploads must be 15MB or smaller.");
         }
 
         const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(caller.uid);
@@ -113,11 +143,11 @@ async function POST_handler(request: NextRequest) {
                     userId: caller.uid,
                 },
             });
-            return buildErrorResponse(409, "Creator onboarding was not found for this account.");
+            return buildCreatorValidationErrorResponse(409, "Creator onboarding was not found for this account.");
         }
 
         if (canonical.idVerificationStatus !== "id_requested" && canonical.idVerificationStatus !== "id_rejected") {
-            return buildErrorResponse(409, "ID submission is not currently requested for this account.");
+            return buildCreatorValidationErrorResponse(409, "ID submission is not currently requested for this account.");
         }
 
         const actorMarker = assertKnownActor(buildActorMarker({
@@ -294,6 +324,13 @@ async function POST_handler(request: NextRequest) {
             documentsComplete: result.documentsComplete,
         });
     } catch (error) {
+        if (isRequestBodyTooLargeError(error)) {
+            return buildUploadErrorResponse(413, "payload_too_large", "ID uploads must be 15MB or smaller.");
+        }
+        if (isBoundedJsonBodyError(error)) {
+            return buildUploadErrorResponse(400, "invalid_multipart_body", "Invalid ID upload request");
+        }
+
         const routeError = error instanceof Error ? error : new Error(String(error));
 
         if (uploadedStoragePath && adminStorage) {
@@ -331,7 +368,7 @@ async function POST_handler(request: NextRequest) {
         ]);
 
         if (routeError.message === "ID submission is not currently requested for this account.") {
-            return buildErrorResponse(409, routeError.message);
+            return buildCreatorValidationErrorResponse(409, routeError.message);
         }
 
         return handleApiError(routeError, "Creator.Onboarding.IdSubmission");

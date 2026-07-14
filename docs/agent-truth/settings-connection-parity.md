@@ -1,8 +1,8 @@
 # Settings Connection Parity
 
-Generated: 2026-06-03T04:32:00.510Z
-Status: pass
-Head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
+Generated: 2026-07-14T16:10:28.753Z
+Status: fail
+Head: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
 
 ## Summary
 
@@ -72,9 +72,9 @@ Head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 - pass: noCreatorOnlyControlsInAccountSettings
 - pass: rawInternalServerErrorHidden
 - pass: staleDuplicateLogicRemovedOrClassified
-- pass: protectedSurfacesUntouched
+- fail: protectedSurfacesUntouched
 - pass: navigationRowsTrackLinkActions
 
 ## Validation Failures
 
-- none
+- protectedSurfacesUntouched failed.

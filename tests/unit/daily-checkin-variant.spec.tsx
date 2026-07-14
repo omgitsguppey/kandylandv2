@@ -73,10 +73,11 @@ describe("DailyCheckIn presentation variants", () => {
 
     expect(screen.getByText(/welcome back to the kandy shop, kandy/i)).toBeInTheDocument();
     expect(screen.getByText(/claim your streak and stay ready to unwrap/i)).toBeInTheDocument();
-    expect(screen.getByText(/daily rewards/i)).toBeInTheDocument();
-    expect(screen.getByText(/gum drops/i)).toBeInTheDocument();
+    const rewardHeading = screen.getByRole("heading", { name: /daily reward gd/i });
+    expect(rewardHeading).toBeInTheDocument();
+    expect(screen.getAllByText(/^reward gd$/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/day streak/i)).toBeInTheDocument();
-    expect(screen.getByText(/daily rewards/i).closest("[data-daily-checkin-variant]")).toHaveAttribute("data-daily-checkin-variant", "dashboard");
+    expect(rewardHeading.closest("[data-daily-checkin-variant]")).toHaveAttribute("data-daily-checkin-variant", "dashboard");
   });
 
   it("hides only the welcome header and subtitle on Experiences", () => {
@@ -84,9 +85,10 @@ describe("DailyCheckIn presentation variants", () => {
 
     expect(screen.queryByText(/welcome back to the kandy shop/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/claim your streak and stay ready to unwrap/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/daily rewards/i)).toBeInTheDocument();
-    expect(screen.getByText(/gum drops/i)).toBeInTheDocument();
+    const rewardHeading = screen.getByRole("heading", { name: /daily reward gd/i });
+    expect(rewardHeading).toBeInTheDocument();
+    expect(screen.getAllByText(/^reward gd$/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/day streak/i)).toBeInTheDocument();
-    expect(screen.getByText(/daily rewards/i).closest("[data-daily-checkin-variant]")).toHaveAttribute("data-daily-checkin-variant", "experiences");
+    expect(rewardHeading.closest("[data-daily-checkin-variant]")).toHaveAttribute("data-daily-checkin-variant", "experiences");
   });
 });

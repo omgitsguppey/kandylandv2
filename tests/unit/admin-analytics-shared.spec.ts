@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { maxCanonicalEventCount } from "@/lib/server/admin-analytics-shared";
+import { maxCanonicalEventCount, safeRunReport } from "@/lib/server/admin-analytics-shared";
 
 describe("admin analytics shared event counts", () => {
   it("uses the strongest canonical count across launch-era event aliases", () => {
@@ -23,5 +23,23 @@ describe("admin analytics shared event counts", () => {
       daily_checkin_claimed: 5,
       daily_check_in_claim: 5,
     }, "daily_checkin_claimed", ["daily_check_in_claim"])).toBe(5);
+  });
+
+  it("requests property quota and applies the bounded provider deadline", async () => {
+    const runReport = vi.fn().mockResolvedValue([{ rows: [] }]);
+
+    await safeRunReport(
+      { runReport } as never,
+      { property: "properties/123" } as never,
+      { timeoutMs: 2_500 },
+    );
+
+    expect(runReport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        property: "properties/123",
+        returnPropertyQuota: true,
+      }),
+      { timeout: 2_500 },
+    );
   });
 });

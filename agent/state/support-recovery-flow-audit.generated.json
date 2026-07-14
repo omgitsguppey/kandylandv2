@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T19:37:49.915Z",
+  "generatedAt": "2026-07-14T07:08:25.103Z",
   "auditKey": "support-recovery-flow-launch-audit",
   "scope": "Launch recovery paths for payment, unlock, entitlement, media, notification, chat, creator profile, account, onboarding, refund/manual credit, resend, grant, freeze, and transaction-history scenarios.",
   "sourceOfTruth": [
@@ -351,9 +351,9 @@
       "launchPriority": "pass"
     }
   ],
-  "generatedAtUtc": "2026-05-24T19:37:49.915Z",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
-  "sourceCommit": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "generatedAtUtc": "2026-07-14T07:08:25.103Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "status": "review",
   "sourceStatus": "current_static_audit"
 }

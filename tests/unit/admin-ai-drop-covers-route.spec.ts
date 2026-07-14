@@ -188,7 +188,7 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
     it("updates the default AI model through the canonical settings helper", async () => {
         const request = new NextRequest("http://localhost/api/admin/ai/drop-covers", {
             method: "PUT",
-            body: JSON.stringify({ model: "gemini-3-pro-image-preview" }),
+            body: JSON.stringify({ model: "gemini-3-pro-image" }),
             headers: {
                 "Content-Type": "application/json",
             },
@@ -200,7 +200,7 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
         expect(body.success).toBe(true);
         expect(mockState.saveAdminAiDropCoverSettings).toHaveBeenCalledWith({
             enabled: undefined,
-            model: "gemini-3-pro-image-preview",
+            model: "gemini-3-pro-image",
             useTemplateReference: undefined,
             useRecentDropCoverReferences: undefined,
             actorUid: "admin_1",

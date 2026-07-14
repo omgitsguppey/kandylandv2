@@ -39,7 +39,9 @@ const files = {
   chatSendFeedback: join(repoRoot, "src", "lib", "chat-send-feedback.ts"),
   creatorExperiences: join(repoRoot, "src", "lib", "creator-experiences.ts"),
   serverCreatorExperiences: join(repoRoot, "src", "lib", "server", "creator-experiences.ts"),
+  chat: join(repoRoot, "src", "lib", "chat.ts"),
   serverChat: join(repoRoot, "src", "lib", "server", "chat.ts"),
+  paypalCaptureRoute: join(repoRoot, "src", "app", "api", "paypal", "capture", "route.ts"),
   problemStateCopy: join(repoRoot, "src", "lib", "problem-state-copy.ts"),
   packageJson: join(repoRoot, "package.json"),
 };
@@ -70,8 +72,10 @@ function collectChangedFiles() {
     "src/lib/chat-send-feedback.ts",
     "src/lib/problem-state-copy.ts",
     "src/lib/creator-experiences.ts",
+    "src/lib/chat.ts",
     "src/lib/server/creator-experiences.ts",
     "src/lib/server/chat.ts",
+    "src/app/api/paypal/capture/route.ts",
     "scripts/agent/validate-creator-monetization-gates-lock.ts",
     "docs/agent-truth/creator-monetization-gates-lock.md",
     "agent/state/creator-monetization-gates-lock.generated.json",
@@ -96,7 +100,9 @@ function validate(): LockReport {
   const chatSendFeedback = read(files.chatSendFeedback);
   const creatorExperiences = read(files.creatorExperiences);
   const serverCreatorExperiences = read(files.serverCreatorExperiences);
+  const chat = read(files.chat);
   const serverChat = read(files.serverChat);
+  const paypalCaptureRoute = read(files.paypalCaptureRoute);
   const problemStateCopy = read(files.problemStateCopy);
   const packageJson = read(files.packageJson);
 
@@ -202,13 +208,22 @@ function validate(): LockReport {
     {
       key: "low-balance-reminder",
       label: "Low paid-GD reminder fires once per cycle and resets on paid refill",
-      ok: includesAll(serverChat, [
+      ok: includesAll(chat, [
         "buildChatPaidGdLowBalanceReminderAfterSend",
         "buildChatPaidGdLowBalanceReminderAfterPaidRefill",
         "normalizeChatPaidGdLowBalanceReminderState",
         "eligibleAgain",
         "reminderCycleId",
+      ]) && includesAll(serverChat, [
+        "buildChatPaidGdLowBalanceReminderAfterSend",
+        "normalizeChatPaidGdLowBalanceReminderState",
+        "eligibleAgain",
+        "reminderCycleId",
         "chat_paid_gd_low_balance",
+      ]) && includesAll(paypalCaptureRoute, [
+        "buildChatPaidGdLowBalanceReminderAfterPaidRefill",
+        "normalizeChatPaidGdLowBalanceReminderState",
+        "reminderCycleId",
       ]),
       evidence: [
         "Chat reminder state tracks the paid-balance cycle and re-arms after paid refill, not free balance changes.",

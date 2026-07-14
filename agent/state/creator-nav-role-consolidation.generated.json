@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T18:02:07.903Z",
+  "generatedAtUtc": "2026-07-14T06:34:55.870Z",
   "reportKey": "creator-nav-role-consolidation",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "summary": {
     "routeMatrixCanonical": true,
     "staleDoctrineRemoved": true,
@@ -12,11 +12,11 @@
     "userDashboardModulesBlockedOnCreatorRoute": true,
     "normalUserDashboardPreserved": true,
     "fanPassCrmUsesReadableIdentity": true,
-    "broadcastAudienceExplicit": false,
+    "broadcastAudienceExplicit": true,
     "oldFollowersCopyRemoved": true,
     "oldMetricGridRemoved": true,
     "p0Count": 0,
-    "p1Count": 1,
+    "p1Count": 0,
     "p2Count": 0
   },
   "doctrineFindings": [
@@ -100,14 +100,14 @@
       "id": "broadcast-audience-explicit",
       "severity": "p1",
       "file": "src/components/Creators/CreatorBroadcastManager.tsx",
-      "summary": "Broadcast UI and route expose explicit Fans audience.",
-      "status": "blocked"
+      "summary": "Broadcast UI and route expose the explicit supported Followers audience.",
+      "status": "fixed"
     },
     {
       "id": "followers-copy-removed",
       "severity": "p1",
       "file": "src/app/dashboard/profile",
-      "summary": "Creator-facing broadcast copy says Fans instead of followers.",
+      "summary": "Creator-facing broadcast copy excludes legacy all_fans and misleading broad-audience language.",
       "status": "fixed"
     },
     {
@@ -137,7 +137,7 @@
   "fixesApplied": [
     "Consolidated account menu settings links on USER_SETTINGS_ROUTE.",
     "Marked the creator landing route with data-dashboard-surface=\"creator_dashboard\".",
-    "Removed remaining creator-facing followers copy from profile creator broadcast tools.",
+    "Aligned creator broadcast copy and markers to the supported Followers audience.",
     "Locked route, nav, CRM, broadcast, and dashboard boundary doctrine into a single consolidation report."
   ],
   "prCleanupActions": [],

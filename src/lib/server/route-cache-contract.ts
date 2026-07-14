@@ -119,8 +119,8 @@ export const ROUTE_CACHE_CONTRACTS: RouteCacheContract[] = [
   {
     routePattern: "/api/health",
     surface: "api",
-    cacheMode: "static",
-    reason: "Health check is public and must stay free of paid-service reads.",
+    cacheMode: "no_store",
+    reason: "Deployment health is a live process-readiness signal; it stays no-store and free of paid-service reads.",
     dataSources: ["none"],
     userSpecific: false,
     sensitive: false,

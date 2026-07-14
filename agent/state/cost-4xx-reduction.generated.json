@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:43:13.954Z",
+  "generatedAtUtc": "2026-07-14T05:10:58.274Z",
   "reportKey": "cost-4xx-reduction",
-  "currentHead": "3878a581193dd171f69e3c0b63073ac738c14152",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
   "cloudRunFindings": [
     {
       "id": "cloud-run-app-hosting-source-config",
@@ -235,9 +235,9 @@
     "evidence": "Pre-pass required score:speed-security baseline from this prompt."
   },
   "speedSecurityAfter": {
-    "score": 51,
-    "status": "beta-risk",
-    "findings": 90,
+    "score": 100,
+    "status": "clean",
+    "findings": 1,
     "criticalFindings": 0,
     "evidence": "Post-fix score:speed-security artifact."
   },

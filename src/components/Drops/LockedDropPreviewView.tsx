@@ -82,11 +82,6 @@ export function LockedDropPreviewView({
                     mediaCounts={mediaCounts}
                     timerLabel={timerLabel}
                     timerFullLabel={timerFullLabel}
-                    authLoading={authLoading}
-                    unlocking={unlocking}
-                    confirming={confirming}
-                    onCtaClick={onCtaClick}
-                    onShare={onShare}
                 />
 
                 <div className="space-y-4">
@@ -103,15 +98,20 @@ export function LockedDropPreviewView({
 
             <StickyPreviewCta
                 truth={truth}
+                unlockCost={drop.unlockCost}
+                authLoading={authLoading}
+                unlocking={unlocking}
+                confirming={confirming}
                 onCtaClick={onCtaClick}
                 onOpenLibrary={onOpenLibrary}
                 onKeepUnwrapping={onKeepUnwrapping}
+                onShare={onShare}
             />
         </div>
     );
 }
 
-function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel, authLoading, unlocking, confirming, onCtaClick, onShare }: Pick<LockedDropPreviewViewProps, "drop" | "truth" | "mediaCounts" | "timerLabel" | "timerFullLabel" | "authLoading" | "unlocking" | "confirming" | "onCtaClick" | "onShare">) {
+function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel }: Pick<LockedDropPreviewViewProps, "drop" | "truth" | "mediaCounts" | "timerLabel" | "timerFullLabel">) {
     const imagePolicy = getImageLoadingPolicy("drop_preview", { isLcpCandidate: true });
 
     return (
@@ -137,30 +137,9 @@ function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel, authL
                 <div className="absolute bottom-3 left-3 right-3 space-y-2">
                     <PreviewFileChip images={mediaCounts.images} videos={mediaCounts.videos} />
                     <TitleMarquee title={drop.title} delaySeed={drop.id.charCodeAt(0) % 6} className="text-xl font-black leading-[1.04] tracking-tight text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)] md:text-2xl" />
-                    <CoverPreviewCta
-                        truth={truth}
-                        unlockCost={drop.unlockCost}
-                        authLoading={authLoading}
-                        unlocking={unlocking}
-                        confirming={confirming}
-                        onCtaClick={onCtaClick}
-                        onShare={onShare}
-                    />
                 </div>
             </div>
         </div>
-    );
-}
-
-function CoverPreviewCta({ truth, unlockCost, authLoading, unlocking, confirming, onCtaClick, onShare }: Pick<LockedDropPreviewViewProps, "truth" | "authLoading" | "unlocking" | "confirming" | "onCtaClick" | "onShare"> & { unlockCost: number }) {
-    if (truth.isUnlocked || truth.ctaState === "unavailable") return null;
-    const action = truth.shouldShowCreatorShareCta ? onShare : onCtaClick;
-
-    return (
-        <button type="button" onClick={action} disabled={authLoading || unlocking} aria-busy={unlocking} className={cn("mx-auto flex min-h-11 w-full max-w-[15rem] items-center justify-center gap-2 rounded-[0.95rem] border border-brand-purple/70 bg-black/70 px-3 py-2 text-xs font-black text-white shadow-[0_0_22px_rgba(164,118,255,0.24)] backdrop-blur-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60", truth.shouldShowUnwrapCta && "bg-gradient-to-r from-brand-purple to-purple-500", truth.shouldShowCreatorShareCta && "border-white/20 bg-white/12")}>
-            <CoverCtaIcon truth={truth} unlocking={unlocking} />
-            {getCoverCtaLabel({ truth, authLoading, unlocking, confirming, unlockCost })}
-        </button>
     );
 }
 
@@ -225,10 +204,16 @@ function FeedbackStrip({ selectedReaction, onReact }: Pick<LockedDropPreviewView
     );
 }
 
-function StickyPreviewCta({ truth, onCtaClick, onOpenLibrary, onKeepUnwrapping }: Pick<LockedDropPreviewViewProps, "truth" | "onCtaClick" | "onOpenLibrary" | "onKeepUnwrapping">) {
-    if (truth.isUnlocked) {
-        return (
-            <div className="sticky bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)] z-30 mt-4 rounded-[1.35rem] border border-white/10 bg-black/78 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.52)] backdrop-blur-xl md:bottom-4">
+function StickyPreviewCta({ truth, unlockCost, authLoading, unlocking, confirming, onCtaClick, onOpenLibrary, onKeepUnwrapping, onShare }: Pick<LockedDropPreviewViewProps, "truth" | "authLoading" | "unlocking" | "confirming" | "onCtaClick" | "onOpenLibrary" | "onKeepUnwrapping" | "onShare"> & { unlockCost: number }) {
+    const shouldShowLockedCta = truth.shouldShowSignupCta || truth.shouldShowTopUpCta || truth.shouldShowUnwrapCta;
+    if (!truth.isUnlocked && !truth.shouldShowCreatorShareCta && !shouldShowLockedCta) return null;
+
+    return (
+        <div
+            className={cn("sticky bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)] z-30 mt-4 rounded-[1.35rem] border border-white/10 bg-black/78 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.52)] backdrop-blur-xl md:bottom-4", truth.shouldShowCreatorShareCta && "bg-black/70")}
+            data-drop-preview-sticky-cta-above-bottom-nav="true"
+        >
+            {truth.isUnlocked ? (
                 <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
                     <button type="button" onClick={onOpenLibrary} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[1rem] border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-4 text-sm font-black text-white active:scale-[0.98]">
                         <Unlock className="h-4 w-4" />
@@ -238,28 +223,30 @@ function StickyPreviewCta({ truth, onCtaClick, onOpenLibrary, onKeepUnwrapping }
                         Keep Unwrapping
                     </button>
                 </div>
-            </div>
-        );
-    }
-
-    if (truth.shouldShowCreatorShareCta) {
-        return (
-            <div className="sticky bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)] z-30 mt-4 rounded-[1.35rem] border border-white/10 bg-black/70 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.52)] backdrop-blur-xl md:bottom-4">
-                <button type="button" onClick={onCtaClick} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-[1rem] border border-white/12 bg-white/[0.06] px-4 py-2 text-sm font-bold text-white active:scale-[0.98]">
-                    <Eye className="h-4 w-4 text-brand-purple" />
-                    Full access follows unlock rules
+            ) : truth.shouldShowCreatorShareCta ? (
+                <button type="button" onClick={onShare} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-[1rem] border border-white/12 bg-white/[0.06] px-4 py-2 text-sm font-bold text-white active:scale-[0.98]">
+                    <Share2 className="h-4 w-4 text-brand-purple" aria-hidden="true" />
+                    Share cover
                 </button>
-            </div>
-        );
-    }
-
-    return null;
+            ) : (
+                <button
+                    type="button"
+                    onClick={onCtaClick}
+                    disabled={authLoading || unlocking}
+                    aria-busy={unlocking}
+                    className={cn("inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-[1rem] border border-brand-purple/70 bg-black/70 px-4 py-2 text-sm font-black text-white shadow-[0_0_22px_rgba(164,118,255,0.24)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60", truth.shouldShowUnwrapCta && "bg-gradient-to-r from-brand-purple to-purple-500")}
+                >
+                    <CoverCtaIcon truth={truth} unlocking={unlocking} />
+                    {getCoverCtaLabel({ truth, authLoading, unlocking, confirming, unlockCost })}
+                </button>
+            )}
+        </div>
+    );
 }
 
 function CoverCtaIcon({ truth, unlocking }: { truth: LockedDropPreviewTruth; unlocking: boolean }) {
     if (unlocking) return <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />;
     if (truth.shouldShowTopUpCta) return <Wallet aria-hidden="true" className="h-4 w-4" />;
-    if (truth.shouldShowCreatorShareCta) return <Share2 aria-hidden="true" className="h-4 w-4" />;
     return <Lock aria-hidden="true" className="h-4 w-4" />;
 }
 
@@ -267,7 +254,6 @@ function getCoverCtaLabel({ truth, authLoading, unlocking, confirming, unlockCos
     if (authLoading) return "Checking access";
     if (unlocking) return "Unwrapping...";
     if (truth.shouldShowSignupCta) return "Create account to unwrap";
-    if (truth.shouldShowCreatorShareCta) return "Share cover";
     if (truth.shouldShowTopUpCta) return "Refill to unwrap";
     if (confirming) return `Confirm ${unlockCost.toLocaleString()} GD?`;
     return `Unwrap for ${unlockCost.toLocaleString()} GD`;

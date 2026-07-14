@@ -327,14 +327,14 @@ export function validateRepoDoctrineResetReport(report: RepoDoctrineResetReport)
   requireIncludes(currentDoctrine, "add no new event volume", "current operator doctrine", failures);
 
   requireIncludes(publicBetaScore, "Authority: Current authority for beta score math", "public beta score doctrine", failures);
-  requireIncludes(publicBetaScore, "Provider smoke no longer comes from final launch report string parsing", "public beta score doctrine", failures);
+  requireIncludes(publicBetaScore, "Provider-backed site activity no longer comes from final launch report string parsing", "public beta score doctrine", failures);
   if (/provider smoke is inferred by parsing final launch readiness report text/iu.test(publicBetaScore)) {
     failures.push("public-beta-score.md still implies final-launch string parsing is provider truth.");
   }
 
   requireIncludes(releaseNotes, "[skip release-notes]", "release-note doctrine", failures);
   requireMatch(releaseNotes, /Release-note-only recovery commits must include `\[skip release-notes\]`/u, "release-note doctrine", failures);
-  requireMatch(releaseNotes, /skipped Public Beta Release Notes workflow is not a failure/iu, "release-note doctrine", failures);
+  requireMatch(releaseNotes, /skipped Public Beta Release Notes Cloud Build lane is not a failure/iu, "release-note doctrine", failures);
 
   requireIncludes(watchTime, "analytics_watch_sessions.validWatchMs", "watch-time doctrine", failures);
   requireIncludes(watchTime, "watch_session_rollup", "watch-time doctrine", failures);

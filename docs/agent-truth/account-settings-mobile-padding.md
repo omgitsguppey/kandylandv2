@@ -1,8 +1,8 @@
 # Account Settings Mobile Padding
 
-Generated: 2026-05-23T00:43:57.640Z
-Status: pass
-Head: 41548a214020ae5be78fc5b546d61b6c5b48fb40
+Generated: 2026-07-14T16:09:00.995Z
+Status: fail
+Head: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
 
 ## Summary
 
@@ -16,8 +16,8 @@ Head: 41548a214020ae5be78fc5b546d61b6c5b48fb40
 - pass: sidePaddingParityMarked
 - pass: bottomSafetyPreserved
 - pass: shellPaddingAppliedToContainerOnly
-- pass: reportIssueAndNavUntouched
+- fail: reportIssueAndNavUntouched
 
 ## Validation Failures
 
-- none
+- reportIssueAndNavUntouched failed.

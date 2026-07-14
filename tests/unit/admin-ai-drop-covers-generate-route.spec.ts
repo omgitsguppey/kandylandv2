@@ -68,6 +68,55 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
         expect(mockState.generateAdminAiDropCover).not.toHaveBeenCalled();
     });
 
+    it.each([
+        ["without Content-Length", undefined],
+        ["with a dishonest Content-Length", "2"],
+        ["with an oversized declared Content-Length", "128001"],
+    ] as const)("rejects an oversized body %s before settings reads or provider work", async (_label, contentLength) => {
+        const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+        };
+        if (contentLength) {
+            headers["Content-Length"] = contentLength;
+        }
+
+        const response = await POST(new NextRequest("http://localhost/api/admin/ai/drop-covers/generate", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ title: "x".repeat(128_001) }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "payload_too_large",
+            retryable: false,
+        });
+        expect(mockState.getAdminAiDropCoverSettings).not.toHaveBeenCalled();
+        expect(mockState.generateAdminAiDropCover).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("rejects malformed JSON before settings reads or provider work", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/admin/ai/drop-covers/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: "{broken",
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            success: false,
+            errorCode: "invalid_json",
+            retryable: false,
+        });
+        expect(mockState.getAdminAiDropCoverSettings).not.toHaveBeenCalled();
+        expect(mockState.generateAdminAiDropCover).not.toHaveBeenCalled();
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
     it("passes the bounded generation input to the server helper and returns the created job", async () => {
         mockState.getAdminAiDropCoverSettings.mockResolvedValue({ enabled: true });
         mockState.generateAdminAiDropCover.mockResolvedValue({
@@ -98,9 +147,9 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
                 creatorId: "creator_1",
                 dropId: "drop_1",
                 dropType: "content",
-            tags: ["Sweet"],
-            clientRequestId: "client-123",
-            requestedModel: "gemini-3-pro-image-preview",
+                tags: ["Sweet"],
+                clientRequestId: "client-123",
+                requestedModel: "gemini-3-pro-image",
             }),
             headers: { "Content-Type": "application/json" },
         }));
@@ -119,7 +168,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             tags: ["Sweet"],
             previousJobId: null,
             clientRequestId: "client-123",
-            requestedModel: "gemini-3-pro-image-preview",
+            requestedModel: "gemini-3-pro-image",
             requestedByUid: "admin_1",
             requestedByEmail: "admin@example.com",
         });
@@ -215,12 +264,12 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
 
     it("maps provider/runtime failures to actionable AI errors instead of a generic internal server error", async () => {
         mockState.getAdminAiDropCoverSettings.mockResolvedValue({ enabled: true });
-        const providerError = new Error("Permission denied while accessing publishers/google/models/gemini-3-pro-image-preview in location global.");
+        const providerError = new Error("Permission denied while accessing publishers/google/models/gemini-3-pro-image in location global.");
         mockState.generateAdminAiDropCover.mockRejectedValue(providerError);
         mockState.toAdminAiDropCoverClientError.mockReturnValue({
             status: 503,
             body: {
-                error: "The configured Vertex image model (gemini-3-pro-image-preview) is not available to this project in global. Check Google Cloud model access, preview-model availability, and org location policy.",
+                error: "The configured Vertex image model (gemini-3-pro-image) is not available to this project in global. Check Google Cloud model access, model availability, and org location policy.",
                 errorCode: "model_location_unavailable",
             },
         });
@@ -237,7 +286,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
 
         expect(response.status).toBe(503);
         expect(body.errorCode).toBe("model_location_unavailable");
-        expect(body.error).toContain("gemini-3-pro-image-preview");
+        expect(body.error).toContain("gemini-3-pro-image");
         expect(mockState.toAdminAiDropCoverClientError).toHaveBeenCalledWith(providerError);
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });

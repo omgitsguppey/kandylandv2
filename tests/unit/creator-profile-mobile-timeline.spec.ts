@@ -36,6 +36,59 @@ describe("creator profile mobile timeline", () => {
     expect(client).toContain("handleCreatorTimelineDrop");
   });
 
+  it("cancels stale hydration and isolates paid actions across creator route changes", () => {
+    const client = read("src/app/creators/[username]/CreatorProfileClient.tsx");
+
+    expect(client).toContain("const controller = new AbortController()");
+    expect(client).toContain("signal: controller.signal");
+    expect(client).toContain("if (controller.signal.aborted)");
+    expect(client).toContain("controller.abort()");
+    expect(client).toContain('setActiveTab("drops")');
+    expect(client).toContain('setSelectedExperience(null)');
+    expect(client).toContain('setRequestCategoryId("")');
+    expect(client).toContain('setRequestDetails("")');
+    expect(client).toContain('setBookingStartAt("")');
+    expect(client).toContain('setMonetizationGuidance(null)');
+    expect(client).toContain("setFollowLoading(false)");
+    expect(client).toContain("setRelationshipLoading(false)");
+    expect(client).toContain("creatorRouteGenerationRef.current.generation + 1");
+    expect(client).toContain('const creatorRouteIdentity = `${username}:${currentUser?.uid ?? "guest"}`');
+    expect(client).toContain("creatorRouteGenerationRef.current.identity !== creatorRouteIdentity");
+    expect(client).toContain("const [viewerStateOwnerIdentity, setViewerStateOwnerIdentity] = useState(creatorRouteIdentity)");
+    expect(client).toContain("setViewerStateOwnerIdentity(creatorRouteIdentity)");
+    expect(client).toContain("if (loading || viewerStateOwnerIdentity !== creatorRouteIdentity)");
+    expect(client).toContain('const viewerActorId = currentUser?.uid ?? "guest"');
+    expect(client).toContain("const broadcastKey = `${viewerActorId}:${creator.uid}:${latestBroadcastId}:${broadcasts.length}`");
+    expect(client).toContain("}, [creatorRouteIdentity, username]);");
+    expect(client).toContain("isCurrentCreatorRouteGeneration");
+    expect(client).toContain("buildPaidActionSlot");
+    expect(client).toContain("`${userId}:${creatorId}:${slot}:${action}`");
+    expect(client).not.toContain("pendingPaidActionRef.current = {}");
+    expect(client).toContain("resolveDurableClientIdempotencyKey");
+    expect(client).toContain("clearDurableClientIdempotencyKey(pending)");
+    expect(client).toContain('action: `creator-${slot}-${action}`');
+    expect(client).toContain('const idempotencyAction = subscriptionActive ? "fan-pass-cancel" : "fan-pass-start"');
+    expect(client).toContain("currentUser.uid");
+    expect(client).toContain("isDefinitiveClientRejectionStatus");
+    expect(client).not.toContain("responseStatus !== null && responseStatus < 500");
+    expect(client).toContain("if (!isCurrentAction())");
+
+    const followAction = client.slice(
+      client.indexOf("const handleFollow"),
+      client.indexOf("const handleRelationshipAction"),
+    );
+    const notificationAction = client.slice(
+      client.indexOf("const handleRelationshipAction"),
+      client.indexOf("const handleSubscription"),
+    );
+    expect(followAction).toContain("const actionRouteGeneration = creatorRouteGenerationRef.current.generation");
+    expect(followAction).toContain("refreshCreatorBroadcasts(creator.uid, isCurrentAction)");
+    expect(followAction).toContain("if (isCurrentAction())");
+    expect(notificationAction).toContain("const actionRouteGeneration = creatorRouteGenerationRef.current.generation");
+    expect(notificationAction).toContain("if (!isCurrentAction())");
+    expect(notificationAction).toContain("if (isCurrentAction())");
+  });
+
   it("continues to exclude pending drops and draft broadcasts from public timelines", () => {
     const timeline = buildCreatorProfileTimeline({
       settings: {
@@ -66,6 +119,10 @@ describe("creator profile mobile timeline", () => {
 
     expect(validator).toContain("creator-profile-mobile-timeline");
     expect(validator).toContain("protectedNavChatUntouched");
+    expect(validator).toContain("isCreatorProfileTimelineRelatedDiff");
+    expect(validator).toContain("separateProtectedFileDiffs");
+    expect(validator).toContain("releaseNotesRequired = false");
+    expect(validator).toContain("releaseNoteRequirementSatisfied");
     expect(packageJson).toContain("\"check:creator-profile-mobile-timeline\"");
   });
 });

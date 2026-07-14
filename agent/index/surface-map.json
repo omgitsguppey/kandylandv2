@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:58:27.149Z",
+  "generatedAt": "2026-07-14T16:00:11.701Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -113,7 +113,7 @@
       "stable_id": "surface__analytics",
       "name": "analytics",
       "path_prefixes": [
-        "src/lib/telemetry",
+        "src/lib/analytics/telemetry",
         "src/app/api/telemetry",
         "functions/src/analytics",
         "dataconnect"
@@ -194,7 +194,7 @@
       ],
       "related_deploy_or_rules_surfaces": [],
       "danger_notes": [
-        "Keep AI runtime truth aligned with shared registries."
+        "Keep AI runtime truth aligned with shared registries and admin browser surface evidence."
       ]
     },
     {

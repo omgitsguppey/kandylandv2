@@ -1,12 +1,18 @@
 {
-  "generatedAt": "2026-05-08T04:44:09.154Z",
+  "generatedAt": "2026-07-14T09:59:22.731Z",
   "status": "pass",
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastCreatorMonetizationGatesLock": [
     "agent/state/creator-monetization-gates-lock.generated.json",
-    "package.json",
-    "src/components/Chat/ChatRouteShell.tsx"
+    "scripts/agent/validate-creator-monetization-gates-lock.ts",
+    "src/app/api/creator/messages/route.ts",
+    "src/app/api/paypal/capture/route.ts",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/components/Chat/ChatExperience.tsx",
+    "src/components/Creators/CreatorBroadcastManager.tsx",
+    "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
+    "src/lib/problem-state-copy.ts"
   ],
   "requiredTargetedChecks": [
     "npm run check:creator-monetization-gates-lock",

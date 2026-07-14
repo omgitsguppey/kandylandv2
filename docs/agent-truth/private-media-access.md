@@ -1,6 +1,6 @@
 # Private Media Access
 
-Generated: 2026-06-11T14:14:38.270Z
+Generated: 2026-07-14T16:05:50.609Z
 
 Status: pass
 
@@ -59,12 +59,17 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
+| .env.example | unsafe_unknown |
+| agent/context/doctrine-cards.jsonl | unsafe_unknown |
+| agent/context/doctrine-conflicts.generated.json | unsafe_unknown |
+| agent/context/doctrine-registry.json | unsafe_unknown |
 | agent/context/doctrine.cards.jsonl | unsafe_unknown |
 | agent/context/doctrine.index.json | unsafe_unknown |
 | agent/context/file-size-budget.json | unsafe_unknown |
 | agent/context/legacy-registry.json | unsafe_unknown |
 | agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
 | agent/context/task-pack.generated.json | unsafe_unknown |
+| agent/context/validator-authority.json | unsafe_unknown |
 | agent/context/validator-map.json | unsafe_unknown |
 | agent/index/blast-radius.json | unsafe_unknown |
 | agent/index/canonical-helpers.json | unsafe_unknown |
@@ -72,18 +77,13 @@ Status: pass
 | agent/index/governance-truth.json | unsafe_unknown |
 | agent/index/known-pitfalls.json | unsafe_unknown |
 | agent/index/package-manager-truth.json | unsafe_unknown |
-| agent/index/recent-passes.json | unsafe_unknown |
-| agent/index/repo-inventory.json | unsafe_unknown |
-| agent/index/retrieval-index.json | unsafe_unknown |
-| agent/index/runtime-observability.json | unsafe_unknown |
-| agent/index/surface-map.json | unsafe_unknown |
-| agent/index/ui-surface-coverage.json | unsafe_unknown |
-| agent/index/verification-commands.json | unsafe_unknown |
-| agent/index/workflow-guidance.json | unsafe_unknown |
-| agent/state/admin-cms-workflow-audit.generated.json | current_generated_artifact_to_commit |
 | agent/state/private-media-access.generated.json | current_generated_artifact_to_commit |
 | docs/agent-truth/private-media-access.md | documentation_artifact_expected |
-| scripts/agent/validate-private-media-access.ts | validator_artifact_expected |
+| FULL_SCALE_CODEBASE_AUDIT.md | unsafe_unknown |
+| README.md | unsafe_unknown |
+| REPO_MEMORY_LEDGER.md | unsafe_unknown |
+| src/app/api/chat/attachments/complete/route.ts | real_source_change_needs_review |
+| src/app/api/creator/drops/assets/route.ts | real_source_change_needs_review |
 
 ## Validation Failures
 

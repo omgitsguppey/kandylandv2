@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-05T01:04:52.715Z",
+  "generatedAt": "2026-07-14T14:20:09.022Z",
   "overallScore": 100,
   "status": "clean",
   "bucketScores": {
@@ -241,7 +241,9 @@
         "functions/src/privacy-consent-enforcement.ts",
         "functions/src/profile-builder.ts",
         "functions/src/queue-runtime.ts",
-        "functions/src/runtime-warning-store.ts"
+        "functions/src/runtime-warning-store.ts",
+        "functions/src/scheduled-http-client.ts",
+        "functions/src/user-index-materializer-schedule.ts"
       ],
       "sourceFilesMissing": [],
       "hasOwner": true,
@@ -724,6 +726,7 @@
         "src/app/api/drops/track/route.ts",
         "src/app/api/drops/unlock/route.ts",
         "src/app/api/health/route.ts",
+        "src/app/api/internal/analytics/materialize-user-index/route.ts",
         "src/app/api/notifications/push-token/route.ts",
         "src/app/api/notifications/route.ts",
         "src/app/api/paypal/capture/route.ts",
@@ -1234,7 +1237,9 @@
         "functions/src/privacy-consent-enforcement.ts",
         "functions/src/profile-builder.ts",
         "functions/src/queue-runtime.ts",
-        "functions/src/runtime-warning-store.ts"
+        "functions/src/runtime-warning-store.ts",
+        "functions/src/scheduled-http-client.ts",
+        "functions/src/user-index-materializer-schedule.ts"
       ],
       "sourceFilesMissing": [],
       "hasOwner": true,
@@ -1251,6 +1256,11 @@
         "functions/src/analytics-truth-contract.ts",
         "functions/src/analytics-truth-runtime.ts",
         "functions/src/behavioral-intelligence-runtime.ts",
+        "functions/src/user-index-materializer-schedule.ts",
+        "src/app/api/internal/analytics/materialize-user-index/route.ts",
+        "src/lib/server/behavioral-timeline-writer.ts",
+        "src/lib/server/user-index-materializer.ts",
+        "src/lib/server/user-index-writer.ts",
         "scripts/rebuild-analytics-truth.ts",
         "scripts/rebuild-behavioral-intelligence.ts"
       ],
@@ -1260,20 +1270,25 @@
       "maxEventsPerUserPerMinute": null,
       "maxEventsPerSession": null,
       "maxBytesPerRequest": null,
-      "maxRowsPerRun": 12000,
+      "maxRowsPerRun": 1000,
       "maxRuntimeMs": 600000,
       "maxRetries": 0,
-      "cachePolicy": "materialized analytics snapshots are bounded by max event/watch/guest/feedback limits.",
-      "samplingPolicy": "materializers process recent bounded windows and write capped user/drop/session docs.",
+      "cachePolicy": "materialized analytics snapshots are bounded by max event/watch/guest/feedback limits; the user-index consumer is no-store and lease-idempotent.",
+      "samplingPolicy": "materializers process recent bounded windows and write capped user/drop/session docs; user indexes cap each run at 5 subjects and 200 facts per subject, with lineage queries capped at 50 records.",
       "requiredRateLimit": "manual/scheduled only; no default CI or every-commit rebuild",
       "requiredDebugEvidence": "materializer status/failure docs and logs are capped.",
-      "requiredKillSwitch": "dry-run/max rows/max runtime source-visible wrappers.",
+      "requiredKillSwitch": "dry-run/max rows/max runtime source-visible wrappers; USER_INDEX_MATERIALIZER_MODE defaults to off and requires shadow evidence before active.",
       "validator": "check:global-cost",
       "bucket": "rebuildMaterializersImportExport",
       "sourceFilesPresent": [
         "functions/src/analytics-truth-contract.ts",
         "functions/src/analytics-truth-runtime.ts",
         "functions/src/behavioral-intelligence-runtime.ts",
+        "functions/src/user-index-materializer-schedule.ts",
+        "src/app/api/internal/analytics/materialize-user-index/route.ts",
+        "src/lib/server/behavioral-timeline-writer.ts",
+        "src/lib/server/user-index-materializer.ts",
+        "src/lib/server/user-index-writer.ts",
         "scripts/rebuild-analytics-truth.ts",
         "scripts/rebuild-behavioral-intelligence.ts"
       ],

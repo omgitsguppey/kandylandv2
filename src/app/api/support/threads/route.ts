@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { AuthError, handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -15,6 +16,8 @@ import {
     listSupportThreadsForUser,
 } from "@/lib/server/support-threads";
 import { SUPPORT_THREAD_CATEGORIES } from "@/lib/support-readiness";
+
+const SUPPORT_THREADS_BODY_LIMIT_BYTES = 64_000;
 
 const createSupportThreadSchema = z.object({
     subject: z.string().trim().min(4).max(140),
@@ -94,7 +97,12 @@ export async function POST(request: NextRequest) {
             throw new AuthError("Unauthorized", 401);
         }
 
-        const { subject, category, message, sourcePath } = createSupportThreadSchema.parse(await request.json());
+        const { subject, category, message, sourcePath } = createSupportThreadSchema.parse(
+            await readBoundedJsonBody<unknown>(request, {
+                maxBytes: SUPPORT_THREADS_BODY_LIMIT_BYTES,
+                routeName: "support/threads",
+            }),
+        );
         const profileSnapshot = adminDb ? await adminDb.collection("users").doc(caller.uid).get() : null;
         const profileData = profileSnapshot?.data() as Record<string, unknown> | undefined;
         const thread = await createSupportThread({
@@ -126,6 +134,14 @@ export async function POST(request: NextRequest) {
             thread,
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(NextResponse.json({
+                success: false,
+                error: error.message,
+                errorCode: error.code,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         return finalize(handleApiError(error, "support/threads"), error);
     }
 }

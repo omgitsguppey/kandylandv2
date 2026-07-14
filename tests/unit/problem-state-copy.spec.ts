@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getCreatorSubscriptionOutcomeCopy,
+  getCreatorSubscriptionProblemCopy,
   getNotificationProblemCopy,
   getPageProblemCopy,
   getPaymentProblemCopy,
@@ -32,6 +34,24 @@ function expectVisibleCopyIsHuman(headline: string, body: string) {
 }
 
 describe("problem-state copy", () => {
+  it("keeps Fan Pass materialization and historical receipts distinct from a new success", () => {
+    expect(getCreatorSubscriptionProblemCopy({ code: "materializer_missing" })).toContain("will not be charged twice");
+
+    expect(getCreatorSubscriptionOutcomeCopy({
+      requestedAction: "subscribe",
+      action: "cancel",
+      code: "historical_receipt",
+      subscriptionStatus: "canceled",
+      accessGranted: false,
+      historicalReceipt: true,
+      duplicatePrevented: true,
+    })).toEqual({
+      active: false,
+      tone: "info",
+      message: "An earlier Fan Pass payment is already recorded. This Fan Pass is canceled; start it again to reactivate.",
+    });
+  });
+
   it("keeps raw page error details out of visible copy", () => {
     const copy = getPageProblemCopy(new Error("analytics_aggregate backend cache path failed closed"));
 

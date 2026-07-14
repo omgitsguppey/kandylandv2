@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-06-21T20:32:00.971Z",
+  "generatedAt": "2026-07-14T07:07:50.425Z",
   "source": "local_static_validator",
-  "overallScore": 100,
-  "overallStatus": "live",
-  "status": "live",
+  "overallScore": 0,
+  "overallStatus": "fail",
+  "status": "fail",
   "productionReads": false,
   "liveBackfill": false,
-  "findingCount": 0,
-  "criticalCount": 0,
+  "findingCount": 4,
+  "criticalCount": 4,
   "report": {
     "summary": {
       "rawEvents": 7,
@@ -375,5 +375,22 @@
       "unknown": 1
     }
   },
-  "findings": []
+  "findings": [
+    {
+      "severity": "error",
+      "message": "protected chat/nav/payment/GumDrop surface changed: src/app/api/paypal/capture/route.ts"
+    },
+    {
+      "severity": "error",
+      "message": "protected chat/nav/payment/GumDrop surface changed: src/app/api/paypal/create/route.ts"
+    },
+    {
+      "severity": "error",
+      "message": "protected chat/nav/payment/GumDrop surface changed: src/components/Chat/ChatExperience.tsx"
+    },
+    {
+      "severity": "error",
+      "message": "protected chat/nav/payment/GumDrop surface changed: src/components/Navigation/ProfileDropdown.tsx"
+    }
+  ]
 }

@@ -15,9 +15,8 @@ import { isSearchIntentEventName, sanitizeSearchIntentParams } from "@/lib/behav
 import { normalizeIdentifiedRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { createRuntimeFactFirestoreDocument } from "@/lib/server/write-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
-import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
+import { writeBehavioralTimelineProjection } from "@/lib/server/behavioral-timeline-writer";
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
-import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
 import { resolveIdentityTransferTelemetryState } from "@/lib/analytics/identity-transfer";
 import { BEHAVIORAL_EVENT_FACT_VERSION, type BehavioralEventSource } from "@/lib/behavioral/event-fact-contract";
 import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
@@ -61,19 +60,52 @@ function buildFallbackEventId(userId: string, eventName: string) {
     return `evt_${encodeURIComponent(userId || "anonymous")}_${encodeURIComponent(eventName || "event")}_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
 }
 
-function normalizeIdentifiedRuntimeFactForIngestWrite(fact: RuntimeFact): RuntimeFact {
-    const serverUnlockFact = fact.canonicalEventName === "drop_unwrapped"
-        && fact.sourceTruth === "server"
-        && Boolean(fact.target.transactionId || fact.target.targetDropId);
-    if (!serverUnlockFact) {
-        return fact;
-    }
+function readStoredIdentifiedTimelineFact(input: {
+    value: unknown;
+    eventId: string;
+    callerUid: string;
+}): BehavioralTimelineFact | null {
+    if (!input.value || typeof input.value !== "object" || Array.isArray(input.value)) return null;
+    const record = input.value as Record<string, unknown>;
+    const sourceIdentity = record.sourceIdentity;
+    if (!sourceIdentity || typeof sourceIdentity !== "object" || Array.isArray(sourceIdentity)) return null;
+    if ((sourceIdentity as Record<string, unknown>).userId !== input.callerUid) return null;
 
-    return {
-        ...fact,
-        normalizedAction: "drop_unlocked",
-        metricFamily: "commerce",
-    };
+    const value = record.behavioralTimelineProjectionFact;
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const fact = value as Partial<BehavioralTimelineFact>;
+    const validTarget = Boolean(fact.target && typeof fact.target === "object" && !Array.isArray(fact.target));
+    const confidenceInputs = fact.confidenceInputs;
+    const validConfidenceInputs = Boolean(
+        confidenceInputs
+        && typeof confidenceInputs.schemaComplete === "boolean"
+        && typeof confidenceInputs.hasActor === "boolean"
+        && typeof confidenceInputs.hasTargetWhenRequired === "boolean"
+        && typeof confidenceInputs.hasSession === "boolean"
+        && typeof confidenceInputs.hasServerTruth === "boolean",
+    );
+    const actorMatches = !fact.actorUserId || fact.actorUserId === input.callerUid;
+    if (
+        fact.factId !== input.eventId
+        || fact.idempotencyKey !== input.eventId
+        || !actorMatches
+        || typeof fact.actorType !== "string"
+        || typeof fact.normalizedAction !== "string"
+        || typeof fact.eventName !== "string"
+        || typeof fact.timestampMs !== "number"
+        || !Number.isFinite(fact.timestampMs)
+        || typeof fact.route !== "string"
+        || typeof fact.sourceComponent !== "string"
+        || typeof fact.surface !== "string"
+        || typeof fact.sourceTruth !== "string"
+        || typeof fact.sourceReliability !== "number"
+        || !Number.isFinite(fact.sourceReliability)
+        || typeof fact.consentState !== "string"
+        || typeof fact.metricEligible !== "boolean"
+        || !validTarget
+        || !validConfidenceInputs
+    ) return null;
+    return fact as BehavioralTimelineFact;
 }
 
 function resolveBehavioralEventSource(sourceTruth: RuntimeFact["sourceTruth"]): BehavioralEventSource {
@@ -324,6 +356,12 @@ async function POST_handler(request: NextRequest) {
             const existingFact = await ref.get();
             if (existingFact.exists) {
                 dedupedExisting += 1;
+                const recoveredTimelineFact = readStoredIdentifiedTimelineFact({
+                    value: existingFact.data(),
+                    eventId,
+                    callerUid: caller.uid,
+                });
+                if (recoveredTimelineFact) timelineFacts.push(recoveredTimelineFact);
                 continue;
             }
 
@@ -350,7 +388,7 @@ async function POST_handler(request: NextRequest) {
                 continue;
             }
 
-            const ingestRuntimeFact = normalizeIdentifiedRuntimeFactForIngestWrite(runtimeFactResult.fact);
+            const ingestRuntimeFact = runtimeFactResult.fact;
             // Metric truth is owned by normalizeIdentifiedRuntimeFact -> normalizeIdentifiedMetricEventFact;
             // this route only persists the canonical behavioral fact snapshot/version for downstream readers.
             const behavioralEventFactResult = normalizeBehavioralEventFactWithDiagnostics({
@@ -439,6 +477,15 @@ async function POST_handler(request: NextRequest) {
                 sessionId,
                 identityLinkId,
             });
+            const consentState = readStringParam(enrichedParams, "consent_state", "consentState") === "granted"
+                ? "granted"
+                : readStringParam(enrichedParams, "consent_state", "consentState") === "denied"
+                    ? "denied"
+                    : "unknown";
+            const behavioralTimelineProjectionFact = mapRuntimeFactToBehavioralTimelineFact({
+                runtimeFact: ingestRuntimeFact,
+                consentState,
+            });
             const eventFactDocument = {
                 ...finalEvent,
                 identityLinkId: identityLinkId || null,
@@ -455,6 +502,7 @@ async function POST_handler(request: NextRequest) {
                 behavioralEventFactVersion: behavioralEventFactResult.fact ? BEHAVIORAL_EVENT_FACT_VERSION : "",
                 behavioralFact: behavioralEventFactResult.fact,
                 behavioralFactDiagnostic: behavioralEventFactResult.diagnostic,
+                behavioralTimelineProjectionFact,
                 metricFamily: parityFact.metricFamily,
                 sourceTruth: parityFact.sourceTruth,
                 sourceConfidence: parityFact.sourceConfidence,
@@ -478,15 +526,7 @@ async function POST_handler(request: NextRequest) {
             // Existing event ids are skipped before enqueueing writes; create prevents retry/race overwrites.
             batch.create(ref, eventFactDocument);
             processed++;
-            const consentState = readStringParam(enrichedParams, "consent_state", "consentState") === "granted"
-                ? "granted"
-                : readStringParam(enrichedParams, "consent_state", "consentState") === "denied"
-                    ? "denied"
-                    : "unknown";
-            timelineFacts.push(mapRuntimeFactToBehavioralTimelineFact({
-                runtimeFact: ingestRuntimeFact,
-                consentState,
-            }));
+            timelineFacts.push(behavioralTimelineProjectionFact);
 
             if (canonicalEventName === "identity_linked") {
                 const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
@@ -554,62 +594,52 @@ async function POST_handler(request: NextRequest) {
             await batch.commit();
         }
 
-        let timelineWrite = { written: 0, skipped: timelineFacts.length, reason: "not_attempted" };
-        let timelineStatus: "written" | "deferred_failed_non_blocking" = "written";
+        let projection: Awaited<ReturnType<typeof writeBehavioralTimelineProjection>>;
         try {
-            timelineWrite = await writeBehavioralTimelineFacts(timelineFacts);
+            projection = await writeBehavioralTimelineProjection({
+                facts: timelineFacts,
+                userIds: timelineFacts.length > 0 ? [caller.uid] : [],
+                requestedAtMs: Date.now(),
+                sourceWindowStartMs: Date.now() - (1000 * 60 * 60 * 24 * 14),
+                maxFacts: 500,
+            });
         } catch (error) {
-            timelineStatus = "deferred_failed_non_blocking";
             await recordServerDiagnostic({
                 channel: "analytics",
                 severity: "warn",
-                message: "Identified analytics deferred timeline write failed",
+                message: "Identified analytics timeline/outbox projection failed",
                 detail: {
                     route: "analytics/ingest-identified",
                     error: getAnalyticsIngestErrorMessage(error),
-                    retryable: false,
+                    retryable: true,
                     compatibilityMode: "identified_ingest_current",
                 },
             });
+            return NextResponse.json({ success: false, retryable: true }, { status: 503 });
         }
 
-        let materializerStatus: "queued" | "deferred_failed_non_blocking" = "queued";
-        try {
-            await materializeUserTrackingIndexes({
-                userIds: [caller.uid],
-                maxUsers: 1,
-                maxFacts: 1000,
-                runtimeCapMs: 1500,
-                sourceWindowStartMs: Date.now() - (1000 * 60 * 60 * 24 * 14),
-            });
-        } catch (error) {
-            materializerStatus = "deferred_failed_non_blocking";
-            await recordServerDiagnostic({
-                channel: "analytics",
-                severity: "warn",
-                message: "Identified analytics deferred materializer failed",
-                detail: {
-                    route: "analytics/ingest-identified",
-                    error: getAnalyticsIngestErrorMessage(error),
-                    retryable: false,
-                    compatibilityMode: "identified_ingest_current",
-                },
-            });
-        }
+        const materializerReceipt = {
+            status: projection.materializer.status,
+            requestsBuilt: projection.materializer.requestsBuilt,
+            requestsEnqueued: projection.materializer.requestsEnqueued,
+            requestsCoalesced: projection.materializer.requestsCoalesced,
+            issueCodes: projection.materializer.issueCodes,
+        };
 
         return NextResponse.json({
             success: true,
             processed,
             dedupedExisting,
             skippedUnsupported,
-            timelineFactsWritten: timelineWrite.written,
-            timelineFactsSkipped: timelineWrite.skipped,
+            timelineFactsWritten: projection.written,
+            timelineFactsSkipped: projection.skipped,
             identityLinksCreated,
             routeStatus: "active_supported_route",
             compatibilityMode: "identified_ingest_current",
             retryable: false,
-            timelineStatus,
-            materializerStatus,
+            timelineStatus: projection.reason === "no_facts" ? "source_missing" : "written_with_outbox",
+            materializerStatus: materializerReceipt.status,
+            materializerReceipt,
         });
     } catch (error) {
         if (error instanceof AuthError || error instanceof RateLimitError) {

@@ -9,6 +9,7 @@ import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-lim
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -84,13 +85,17 @@ async function PUT_handler(request: NextRequest) {
             scopeToCaller: true,
         });
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             enabled?: unknown;
             model?: unknown;
             optimizerEnabled?: unknown;
             useTemplateReference?: unknown;
             useRecentDropCoverReferences?: unknown;
-        };
+        }>(request, {
+            maxBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
+            routeName: "admin/ai/drop-covers:PUT",
+            allowEmpty: false,
+        });
         const requestedModel = typeof body.model === "string" ? body.model.trim() : "";
         if (requestedModel && !isAdminAiDropCoverSelectableModel(requestedModel)) {
             return finalize(startedAt, "admin/ai/drop-covers:PUT", NextResponse.json({ error: "Unsupported default AI image model" }, { status: 400 }));
@@ -120,6 +125,15 @@ async function PUT_handler(request: NextRequest) {
             settings,
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-covers:PUT", NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                message: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         return finalize(startedAt, "admin/ai/drop-covers:PUT", handleApiError(error, "admin/ai/drop-covers"), error);
     }
 }

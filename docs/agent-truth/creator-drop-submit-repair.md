@@ -14,11 +14,11 @@ Generated source: `agent/state/creator-drop-submit-repair.generated.json`
 - liveEvidenceStatus: connected
 - analyticsPanelHydrationStatus: event_registered_for_hydration_explanation
 - memoryEntriesAdded: 5
-- netAdditions: 610
-- netDeletions: 155
+- netAdditions: 187
+- netDeletions: 259
 - scoreBefore: 76.61
 - scoreAfter: 76.61
-- netAdditionsJustification: This focused repair adds canonical contracts, validators, tests, and compact generated evidence to prevent creator workflow regressions.
+- netAdditionsJustification:
 
 ## Findings
 
@@ -37,4 +37,3 @@ Generated source: `agent/state/creator-drop-submit-repair.generated.json`
 ## Validation
 
 Run: `npm run check:creator-drop-submit-repair`
-

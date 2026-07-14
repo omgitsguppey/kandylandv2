@@ -179,7 +179,7 @@ export const MATERIALIZATION_CONTRACT: MaterializationContract = {
       lowPriorityBehavior: "summary_only",
       currentTruth: true,
       legacyState: "current",
-      notes: "Behavioral facts normalize current telemetry; admin/projection/synthetic activity remains excluded from user behavior metrics.",
+      notes: "Canonical behavioral timeline facts feed the user_index_materializer_requests v3 worker, which publishes bounded user and guest tracking indexes with explicit ephemeral-record retention metadata; admin/projection/synthetic activity remains excluded from user behavior metrics.",
     }),
     classification({
       collection: "analytics_watch_sessions",

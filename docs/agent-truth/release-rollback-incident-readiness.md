@@ -5,8 +5,8 @@ Validator: `npm run check:release-rollback-incident-readiness`
 
 ## Summary
 
-- Generated: `2026-06-11T15:05:37.309Z`
-- Current head: `bcd7aad7d363fc377e5b123eb4c06f78678f42f5`
+- Generated: `2026-07-14T03:21:16.558Z`
+- Current head: `dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa`
 - Status: `pass`
 
 ## Report
@@ -14,9 +14,9 @@ Validator: `npm run check:release-rollback-incident-readiness`
 ```json
 {
   "reportKey": "release-rollback-incident-readiness",
-  "generatedAtUtc": "2026-06-11T15:05:37.309Z",
-  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
-  "releaseVersion": "1.5.67",
+  "generatedAtUtc": "2026-07-14T03:21:16.558Z",
+  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "releaseVersion": "1.6.15",
   "readinessStatus": "source_ready_external_evidence_blocked",
   "migrationStatus": "no_migration_detected",
   "currentHeadEvidence": {
@@ -46,7 +46,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
     "owner": "release notes",
     "validator": "npm run check:release-notes-integrity",
     "nextExactAction": "Keep public release notes free of beta-exit, provider-proof, and runtime-proof claims.",
-    "doesNotProve": "Release notes do not prove runtime health, provider smoke, or rollback success.",
+    "doesNotProve": "Release notes do not prove deployed route health, provider-backed site activity, or rollback success.",
     "blocking": false
   },
   "envContractEvidence": {
@@ -55,7 +55,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
     "evidenceKind": "source",
     "status": "passed",
     "artifactPath": "agent/state/config-env-contract.generated.json",
-    "generatedAtUtc": "2026-06-11T14:15:47.422Z",
+    "generatedAtUtc": "2026-06-09T00:43:13.958Z",
     "owner": "config/env contract",
     "validator": "npm run check:config-env-contract",
     "nextExactAction": "Keep env contract registered; provider presence remains external evidence.",
@@ -64,46 +64,46 @@ Validator: `npm run check:release-rollback-incident-readiness`
   },
   "providerEvidence": {
     "gateId": "provider-smoke-evidence",
-    "label": "Provider smoke evidence",
+    "label": "Provider-backed site activity evidence",
     "evidenceKind": "provider_proof",
     "status": "operator_reported_only",
     "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
-    "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
-    "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
-    "generatedAtUtc": "2026-06-11T14:40:22.954Z",
+    "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+    "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+    "generatedAtUtc": "2026-07-05T02:02:02.533Z",
     "owner": "operator/provider owner",
     "validator": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
-    "nextExactAction": "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",
+    "nextExactAction": "Attach redacted provider-backed site activity evidence; operator-reported provider success is not enough.",
     "doesNotProve": "Source tests and operator comments do not prove PayPal/provider callbacks or provider UI/webhook behavior.",
     "blocking": true
   },
   "runtimeEvidence": {
     "gateId": "runtime-smoke-evidence",
-    "label": "Deployed runtime smoke evidence",
+    "label": "Deployed route evidence",
     "evidenceKind": "runtime_redacted",
     "status": "passed",
     "artifactPath": "agent/state/runtime-smoke-evidence.generated.json",
-    "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-    "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-    "generatedAtUtc": "2026-06-03T18:49:41.280Z",
+    "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+    "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+    "generatedAtUtc": "2026-07-05T02:02:02.604Z",
     "owner": "operator/runtime owner",
     "validator": "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
-    "nextExactAction": "Keep deployed runtime smoke evidence fresh.",
+    "nextExactAction": "Keep deployed route evidence fresh.",
     "doesNotProve": "Source-safe harnesses do not prove deployed runtime behavior.",
     "blocking": false
   },
   "adminTruthEvidence": {
     "gateId": "admin-truth-sample-evidence",
-    "label": "Admin truth sample evidence",
+    "label": "Admin source sample evidence",
     "evidenceKind": "admin_operator_evidence",
     "status": "passed",
     "artifactPath": "agent/state/admin-truth-sample-evidence.generated.json",
-    "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-    "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-    "generatedAtUtc": "2026-06-03T18:49:43.945Z",
+    "currentHead": "84016ee29f191e9b0f75f1431727fd9ad059dc96",
+    "sourceCommit": "84016ee29f191e9b0f75f1431727fd9ad059dc96",
+    "generatedAtUtc": "2026-07-05T02:03:35.820Z",
     "owner": "operator/admin owner",
     "validator": "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
-    "nextExactAction": "Keep redacted admin truth sample evidence fresh.",
+    "nextExactAction": "Keep redacted admin source sample evidence fresh.",
     "doesNotProve": "Admin source schema does not prove production admin truth.",
     "blocking": false
   },
@@ -148,7 +148,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
       "owner": "release notes",
       "validator": "npm run check:release-notes-integrity",
       "nextExactAction": "Keep public release notes free of beta-exit, provider-proof, and runtime-proof claims.",
-      "doesNotProve": "Release notes do not prove runtime health, provider smoke, or rollback success.",
+      "doesNotProve": "Release notes do not prove deployed route health, provider-backed site activity, or rollback success.",
       "blocking": false
     },
     {
@@ -157,7 +157,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
       "evidenceKind": "source",
       "status": "passed",
       "artifactPath": "agent/state/config-env-contract.generated.json",
-      "generatedAtUtc": "2026-06-11T14:15:47.422Z",
+      "generatedAtUtc": "2026-06-09T00:43:13.958Z",
       "owner": "config/env contract",
       "validator": "npm run check:config-env-contract",
       "nextExactAction": "Keep env contract registered; provider presence remains external evidence.",
@@ -166,46 +166,46 @@ Validator: `npm run check:release-rollback-incident-readiness`
     },
     {
       "gateId": "provider-smoke-evidence",
-      "label": "Provider smoke evidence",
+      "label": "Provider-backed site activity evidence",
       "evidenceKind": "provider_proof",
       "status": "operator_reported_only",
       "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
-      "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
-      "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
-      "generatedAtUtc": "2026-06-11T14:40:22.954Z",
+      "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+      "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+      "generatedAtUtc": "2026-07-05T02:02:02.533Z",
       "owner": "operator/provider owner",
       "validator": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
-      "nextExactAction": "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",
+      "nextExactAction": "Attach redacted provider-backed site activity evidence; operator-reported provider success is not enough.",
       "doesNotProve": "Source tests and operator comments do not prove PayPal/provider callbacks or provider UI/webhook behavior.",
       "blocking": true
     },
     {
       "gateId": "runtime-smoke-evidence",
-      "label": "Deployed runtime smoke evidence",
+      "label": "Deployed route evidence",
       "evidenceKind": "runtime_redacted",
       "status": "passed",
       "artifactPath": "agent/state/runtime-smoke-evidence.generated.json",
-      "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-      "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-      "generatedAtUtc": "2026-06-03T18:49:41.280Z",
+      "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+      "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+      "generatedAtUtc": "2026-07-05T02:02:02.604Z",
       "owner": "operator/runtime owner",
       "validator": "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
-      "nextExactAction": "Keep deployed runtime smoke evidence fresh.",
+      "nextExactAction": "Keep deployed route evidence fresh.",
       "doesNotProve": "Source-safe harnesses do not prove deployed runtime behavior.",
       "blocking": false
     },
     {
       "gateId": "admin-truth-sample-evidence",
-      "label": "Admin truth sample evidence",
+      "label": "Admin source sample evidence",
       "evidenceKind": "admin_operator_evidence",
       "status": "passed",
       "artifactPath": "agent/state/admin-truth-sample-evidence.generated.json",
-      "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-      "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-      "generatedAtUtc": "2026-06-03T18:49:43.945Z",
+      "currentHead": "84016ee29f191e9b0f75f1431727fd9ad059dc96",
+      "sourceCommit": "84016ee29f191e9b0f75f1431727fd9ad059dc96",
+      "generatedAtUtc": "2026-07-05T02:03:35.820Z",
       "owner": "operator/admin owner",
       "validator": "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
-      "nextExactAction": "Keep redacted admin truth sample evidence fresh.",
+      "nextExactAction": "Keep redacted admin source sample evidence fresh.",
       "doesNotProve": "Admin source schema does not prove production admin truth.",
       "blocking": false
     },
@@ -226,16 +226,16 @@ Validator: `npm run check:release-rollback-incident-readiness`
   "blockingExternalEvidence": [
     {
       "gateId": "provider-smoke-evidence",
-      "label": "Provider smoke evidence",
+      "label": "Provider-backed site activity evidence",
       "evidenceKind": "provider_proof",
       "status": "operator_reported_only",
       "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
-      "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
-      "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
-      "generatedAtUtc": "2026-06-11T14:40:22.954Z",
+      "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+      "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+      "generatedAtUtc": "2026-07-05T02:02:02.533Z",
       "owner": "operator/provider owner",
       "validator": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
-      "nextExactAction": "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",
+      "nextExactAction": "Attach redacted provider-backed site activity evidence; operator-reported provider success is not enough.",
       "doesNotProve": "Source tests and operator comments do not prove PayPal/provider callbacks or provider UI/webhook behavior.",
       "blocking": true
     }
@@ -271,7 +271,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
     "GumDrop ledger mismatch",
     "auth session lockout",
     "admin debug false-green state",
-    "runtime smoke failure",
+    "deployed route evidence failure",
     "cost spike requiring rollback"
   ],
   "rollbackProcedure": [
@@ -293,7 +293,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
     },
     {
       "severity": "sev2",
-      "trigger": "runtime smoke or admin truth failure",
+      "trigger": "deployed route or admin source sample failure",
       "owner": "operator/runtime owner placeholder"
     },
     {
@@ -310,12 +310,12 @@ Validator: `npm run check:release-rollback-incident-readiness`
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "nextExactSteps": [
-    "Use the owning release-readiness validator, then attach formal runtime/provider/admin evidence separately."
+    "Use the owning release-readiness validator, then attach source/site-activity/deployed-route/admin-source evidence separately."
   ],
   "doesNotProve": [
     "Does not prove deployed runtime behavior.",
-    "Does not prove provider smoke success.",
-    "Does not prove current admin truth samples.",
+    "Does not prove provider-backed site activity.",
+    "Does not prove current admin source activity samples.",
     "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
   ]
 }
@@ -323,7 +323,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional UI browser reproduction unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider-backed site activity, billing, admin source activity, or optional visual reproduction unless the report explicitly includes a matching typed evidence artifact for that category.
 
 ## Validation
 

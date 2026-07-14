@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T04:00:55.350Z",
+  "generatedAt": "2026-07-14T14:58:35.008Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -292,8 +292,35 @@
     "docs/doctrine/kandydrops-ui-doctrine.md"
   ],
   "warnings": [
-    "docs/agent-truth/analytics-file-inventory.md is 442 lines; compact cards should be preferred before loading the source doc.",
-    "docs/agent-truth/behavioral-math-calibration.md is 355 lines; compact cards should be preferred before loading the source doc.",
-    "docs/agent-truth/rollback-incident-response.md is 368 lines; compact cards should be preferred before loading the source doc."
+    "docs/agent-truth/account-settings-delete-flow.md is 630 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/analytics-file-inventory.md is 440 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/behavioral-math-calibration.md is 368 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/chat-composer-modal-lift.md is 711 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/claim-truth-audit.md is 875 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/creator-monetization-admin-debug.md is 597 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/creator-monetization-readiness-lock.md is 423 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/daily-task-reward-ledger.md is 525 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/debug-cockpit-batch10-cleanup.md is 2184 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/debug-cockpit-batch3-cleanup.md is 553 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/debug-cockpit-batch4-cleanup.md is 371 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/debug-cockpit-batch5-cleanup.md is 346 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/debug-recovery-playbooks.md is 377 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/debug-signal-actionability.md is 479 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/event-facts-materializer-closure.md is 465 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/event-liveness-source-repair.md is 419 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/event-translation-bridge.md is 423 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/final-math-normalization-lock.md is 811 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/final-open-pr-closure.md is 684 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/final-release-exit-readiness-packet.md is 583 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/final-user-tracking-handoff-lock.md is 682 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/live-evidence-gate-replacement.md is 1414 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/mega-legacy-pipeline-hardening.md is 936 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/open-pr-dependency-hygiene.md is 331 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/operator-final-qa-packet.md is 416 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/person-metrics-hydration.md is 443 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/release-rollback-incident-readiness.md is 331 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/rollback-incident-response.md is 368 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/user-journey-behavioral-intelligence.md is 404 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/validator-authority-audit.md is 554 lines; compact cards should be preferred before loading the source doc."
   ]
 }

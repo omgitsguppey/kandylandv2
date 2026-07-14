@@ -212,7 +212,15 @@ describe("CreateDropModal upload guard", () => {
       />,
     );
 
+    const basicsButton = screen.getByRole("button", { name: /Basics/i });
+    const assetsButton = screen.getByRole("button", { name: /Files & Assets/i });
     expect(screen.getByPlaceholderText(/Drop Title/i)).toBeInTheDocument();
+    expect(basicsButton).toHaveAttribute("aria-expanded", "true");
+    expect(assetsButton).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(assetsButton);
+
+    expect(assetsButton).toHaveAttribute("aria-expanded", "true");
   });
 
   it("submits creator drops through the creator route and calls success reload callback", async () => {

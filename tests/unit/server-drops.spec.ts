@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockState = vi.hoisted(() => {
     const get = vi.fn();
-    const orderBy = vi.fn(() => ({ get }));
+    const limit = vi.fn(() => ({ get }));
+    const orderBy = vi.fn(() => ({ limit }));
     const add = vi.fn();
     const collection = vi.fn(() => ({ orderBy, add }));
 
@@ -11,10 +12,12 @@ const mockState = vi.hoisted(() => {
             collection,
         },
         get,
+        limit,
         orderBy,
         collection,
         reset() {
             get.mockReset();
+            limit.mockClear();
             orderBy.mockClear();
             collection.mockClear();
         },
@@ -70,6 +73,7 @@ describe("getDrops", () => {
 
         const drops = await getDrops();
 
+        expect(mockState.limit).toHaveBeenCalledWith(1_000);
         expect(drops).toHaveLength(1);
         expect(drops[0]).toMatchObject({
             id: "valid_drop",

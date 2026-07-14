@@ -44,6 +44,8 @@ Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDrop
 
 KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent.
 
+Google owns structural language: breakpoints, adaptive layout, PWA display mode, and viewport units. Apple owns style/cohesion: safe areas, floating tab bars, larger-screen sidebars, glass hierarchy, and stable top-level navigation. KandyDrops agents must use the canonical device-layout contract, mobile-shell tokens, and validators rather than freestyle layout physics.
+
 ## Hydration Performance
 
 KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first, while diagnostics and noncritical enhancements defer unless the current interaction needs them.

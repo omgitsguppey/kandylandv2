@@ -11,6 +11,7 @@ import { ADMIN_AI_CONTROL } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -46,7 +47,11 @@ async function POST_handler(request: NextRequest) {
             maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
-        parsedBody = await request.json() as typeof parsedBody;
+        parsedBody = await readBoundedJsonBody<typeof parsedBody>(request, {
+            maxBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
+            routeName: "admin/ai/drop-descriptions/generate:POST",
+            allowEmpty: false,
+        });
 
         if (typeof parsedBody.title !== "string" || parsedBody.title.trim().length === 0) {
             return finalize(startedAt, "admin/ai/drop-descriptions/generate:POST", NextResponse.json({ error: "Missing drop title" }, { status: 400 }));
@@ -70,6 +75,15 @@ async function POST_handler(request: NextRequest) {
             dataDescriptionAiPolish: "optional",
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(startedAt, "admin/ai/drop-descriptions/generate:POST", NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                message: error.message,
+                retryable: false,
+            }, { status: error.status }), error);
+        }
         if (typeof parsedBody.title === "string" && parsedBody.title.trim().length >= 3) {
             const compiled = compileDropDescriptionOptions({
                 title: parsedBody.title,

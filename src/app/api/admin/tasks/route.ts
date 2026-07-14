@@ -16,8 +16,11 @@ import { buildTelemetryEventMetadata, TELEMETRY_EVENT_OPTIONS } from "@/lib/tele
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+
+const ADMIN_TASKS_BODY_LIMIT_BYTES = 64_000;
 
 const scalarValueSchema = z.union([z.string().min(1).max(120), z.number().finite(), z.boolean()]);
 const criteriaSchema = z.object({
@@ -119,7 +122,12 @@ async function POST_handler(request: NextRequest) {
       requireTrustedOrigin: true,
       auth: "admin",
     });
-    const parsed = taskSchema.parse(await request.json());
+    const body = await readBoundedJsonBody<z.infer<typeof taskSchema>>(request, {
+      maxBytes: ADMIN_TASKS_BODY_LIMIT_BYTES,
+      routeName: "admin/tasks",
+      allowEmpty: false,
+    });
+    const parsed = taskSchema.parse(body);
     const telemetryEvent = buildTelemetryEventMetadata(parsed.eventName);
 
     if (!telemetryEvent.option) {
@@ -158,6 +166,14 @@ async function POST_handler(request: NextRequest) {
       },
     });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        retryable: false,
+      }, { status: error.status });
+    }
     return handleApiError(error, "admin/tasks.POST");
   }
 }
@@ -170,7 +186,12 @@ async function PUT_handler(request: NextRequest) {
       requireTrustedOrigin: true,
       auth: "admin",
     });
-    const { taskId, active } = updateSchema.parse(await request.json());
+    const body = await readBoundedJsonBody<z.infer<typeof updateSchema>>(request, {
+      maxBytes: ADMIN_TASKS_BODY_LIMIT_BYTES,
+      routeName: "admin/tasks",
+      allowEmpty: false,
+    });
+    const { taskId, active } = updateSchema.parse(body);
 
     await adminDb.collection("daily_task_definitions").doc(taskId).set({
       active,
@@ -179,6 +200,14 @@ async function PUT_handler(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        retryable: false,
+      }, { status: error.status });
+    }
     return handleApiError(error, "admin/tasks.PUT");
   }
 }

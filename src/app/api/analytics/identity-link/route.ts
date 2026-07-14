@@ -10,6 +10,7 @@ import { canPersistIdentityLink, normalizeConsentMode } from "@/lib/privacy/cons
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,23 @@ async function POST_handler(request: NextRequest) {
     return NextResponse.json({ success: false, reason: "auth_required", retryable: false }, { status: 401 });
   }
 
-  const rawPayload = await request.json().catch(() => null);
+  let rawPayload: unknown;
+  try {
+    rawPayload = await readBoundedJsonBody<unknown>(request, {
+      maxBytes: MAX_IDENTITY_LINK_BODY_BYTES,
+      routeName: "analytics/identity-link",
+      allowedContentTypes: ["application/json"],
+    });
+  } catch (error) {
+    if (isBoundedJsonBodyError(error) && error.code === "payload_too_large") {
+      return NextResponse.json({
+        success: false,
+        reason: "payload_too_large",
+        retryable: false,
+      }, { status: 413 });
+    }
+    return NextResponse.json({ success: false, reason: "invalid_identity_link", retryable: false }, { status: 400 });
+  }
   const parsed = IdentityLinkSchema.safeParse(rawPayload);
   if (!parsed.success) {
     return NextResponse.json({ success: false, reason: "invalid_identity_link", retryable: false }, { status: 400 });

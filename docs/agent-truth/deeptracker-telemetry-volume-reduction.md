@@ -1,29 +1,19 @@
 # DeepTracker Telemetry Volume Reduction
 
-Generated report: `agent/state/deeptracker-telemetry-volume-reduction.generated.json`
+Generated: 2026-07-14T07:07:19.798Z
+Current head: dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa
 
-This phase reduces generic client analytics volume while preserving priority tracking, identity linking, and runtime watch-time accuracy.
+This source report covers generic DeepTracker batching. It does not prove deployed request volume, provider acceptance, or billing effects.
 
-## Applied Fixes
+## Current Source Contract
 
-- Non-priority DeepTracker interval flushes now run every 15 seconds instead of 2.5 seconds.
-- Priority client telemetry is explicitly classified so purchase, payment, creator spend, identity link, auth transition, bug report, and runtime watch lifecycle events are not delayed by generic batching.
-- Pagehide, visibility hidden, cleanup, and final queue flushes share one route-session closeout key.
-- The anonymous non-priority queue cap is 200, and priority events can displace older non-priority entries instead of being dropped.
-- Hover telemetry is summarized as one session/surface summary using existing ingest-safe fields.
-- Visibility telemetry is summarized as transition totals instead of one event per visibility change.
-- Scroll telemetry uses requestAnimationFrame and 25/50/75/100 milestones instead of 500ms polling.
-- Identity link submission marks a pending state before fetch, writes sent on success, and writes retry-after on failure to avoid duplicate bursts without blocking auth.
+- Eligible non-priority work schedules one 15-second batch; retained retryable failures use bounded 15/30/60/120-second backoff, and DeepTracker has no recurring generic telemetry interval.
+- Priority purchase, payment, identity, auth, bug-report, and runtime-watch events retain their priority policy.
+- Pagehide, visibility hidden, cleanup, online, and priority paths retain explicit flush behavior.
+- Permanent 4xx transport outcomes advance the guest queue; transient and network failures remain bounded for retry.
+- Hover and visibility telemetry are summarized; scroll uses requestAnimationFrame plus 25/50/75/100 milestones.
+- Runtime watch-time remains separate on its canonical 10-second visible playback heartbeat.
 
-## Runtime Watch Boundary
+## Evidence Boundary
 
-Runtime watch-time v2 remains separate from DeepTracker batching. `RuntimeWatchTracker` still uses the canonical 10 second playback heartbeat from `RUNTIME_WATCH_HEARTBEAT_INTERVAL_MS`, and this phase does not merge watch tracking into the generic non-priority queue.
-
-## Deferred Work
-
-- `src/lib/telemetry.ts` has its own global `trackEvent` queue and should be reviewed in a separate focused pass.
-- Summary events reuse existing anonymous ingest schema fields. Richer summary dimensions should only be added through a dedicated ingest contract pass.
-
-## Savings Model
-
-Savings are formula and percentage estimates only. No billing-dollar savings are claimed without provider evidence.
+Runtime request volume, App Hosting/Cloud Run behavior, provider acceptance, and billing impact require external evidence and are not marked passed by this report.

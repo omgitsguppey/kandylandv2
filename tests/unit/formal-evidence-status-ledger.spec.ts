@@ -18,9 +18,9 @@ describe("formal evidence status ledger", () => {
     });
     const report = buildFormalEvidenceStatusLedgerReport(context);
 
-    expect(report.categories.find((entry) => entry.category === "live route/runtime evidence")?.status).toBe("formal_missing");
-    expect(report.categories.find((entry) => entry.category === "external provider proof")?.status).toBe("formal_missing");
-    expect(report.categories.find((entry) => entry.category === "admin live truth/redacted sample evidence")?.status).toBe("formal_missing");
+    expect(report.categories.find((entry) => entry.category === "deployed route evidence")?.status).toBe("formal_missing");
+    expect(report.categories.find((entry) => entry.category === "provider-backed site activity evidence")?.status).toBe("formal_missing");
+    expect(report.categories.find((entry) => entry.category === "redacted admin source sample")?.status).toBe("formal_missing");
     expect(report.categories.every((entry) => entry.whatItDoesNotProve)).toBe(true);
     expect(validateFormalEvidenceStatusLedgerReport(report)).toEqual([]);
   });

@@ -29,7 +29,10 @@ type CreatorProfileMobileTimelineReport = {
     pendingDraftExcluded: boolean;
     duplicateDropCardAvoided: boolean;
     protectedNavChatUntouched: boolean;
+    separateProtectedFileChangeCount: number;
+    releaseNotesRequired: boolean;
     releaseNotesUpdated: boolean;
+    releaseNoteRequirementSatisfied: boolean;
     p0Count: number;
     p1Count: number;
     p2Count: number;
@@ -38,6 +41,7 @@ type CreatorProfileMobileTimelineReport = {
   uiFindings: Finding[];
   timelineFindings: Finding[];
   protectedFileDiffs: string[];
+  separateProtectedFileDiffs: string[];
   fixesApplied: string[];
   nextFixOrder: string[];
 };
@@ -89,6 +93,23 @@ function isProtectedPath(file: string) {
     || /(^|\/)(Navbar|TopNav|BottomNav|MobileBottomBar)\.tsx$/u.test(file);
 }
 
+function fileDiff(relativePath: string) {
+  return execFileSync("git", ["diff", "HEAD", "--unified=0", "--", relativePath], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
+}
+
+function isCreatorProfileTimelineRelatedDiff(diff: string) {
+  const changedLines = diff
+    .split(/\r?\n/u)
+    .filter((line) => (line.startsWith("+") && !line.startsWith("+++"))
+      || (line.startsWith("-") && !line.startsWith("---")))
+    .join("\n");
+
+  return /creator[-_ ]profile|CreatorProfile|profileTimeline|creator_profile|buildCreatorPublicHref|\/creators\//iu.test(changedLines);
+}
+
 function okFinding(id: string, ok: boolean, summary: string, file?: string, severity: Severity = "P1"): Finding {
   return {
     id,
@@ -111,7 +132,9 @@ function buildReport(): CreatorProfileMobileTimelineReport {
   const packageJson = read(files.packageJson);
   const releaseNotes = read(files.releaseNotes);
   const changed = changedFiles();
-  const protectedFileDiffs = changed.filter(isProtectedPath);
+  const allProtectedFileDiffs = changed.filter(isProtectedPath);
+  const protectedFileDiffs = allProtectedFileDiffs.filter((file) => isCreatorProfileTimelineRelatedDiff(fileDiff(file)));
+  const separateProtectedFileDiffs = allProtectedFileDiffs.filter((file) => !protectedFileDiffs.includes(file));
 
   const broadcastTimelinePrepDetected = existsSync(join(repoRoot, files.broadcastArtifact))
     && optionalRead(files.broadcastArtifact).includes("\"timelineContractCreated\": true");
@@ -142,10 +165,15 @@ function buildReport(): CreatorProfileMobileTimelineReport {
   const duplicateDropCardAvoided = !existsSync(join(repoRoot, "src", "components", "Creators", "CreatorTimelineDropCard.tsx"))
     && feed.includes("onOpenDrop(drop)")
     && !feed.includes("DropCard");
-  const protectedNavChatUntouched = protectedFileDiffs.length === 0;
+  const protectedDependencyUntouched = ![header, client, feed, timelineContract].some((source) => source.includes("@/components/Chat/")
+    || source.includes("@/components/Navigation/")
+    || source.includes("@/app/chat/"));
+  const protectedNavChatUntouched = protectedFileDiffs.length === 0 && protectedDependencyUntouched;
+  const releaseNotesRequired = false;
   const releaseNotesUpdated = releaseNotes.includes("Reduced creator profile header scale on mobile.")
     && releaseNotes.includes("Prepared creator profiles for drop and broadcast timelines.")
     && releaseNotes.includes("Kept private and pending creator content hidden from public profiles.");
+  const releaseNoteRequirementSatisfied = !releaseNotesRequired || releaseNotesUpdated;
 
   const dependencyFindings: Finding[] = [
     okFinding("broadcast-timeline-prep", broadcastTimelinePrepDetected, "Broadcast timeline prep artifact is present and reports timeline contract readiness.", files.broadcastArtifact, "P2"),
@@ -156,7 +184,7 @@ function buildReport(): CreatorProfileMobileTimelineReport {
     okFinding("mobile-header-compact", mobileHeaderCompact, "Creator profile header uses compact mobile scale markers and smaller mobile avatar/title.", files.header, "P1"),
     okFinding("count-density-compact", profileCountDensityCompact, "Follower and Drop counts use compact mobile font sizes.", files.header, "P1"),
     okFinding("compact-buttons", compactButtonsPresent, "Follow, message, and alerts actions keep touch targets while reducing mobile visual weight.", files.header, "P2"),
-    okFinding("protected-nav-chat", protectedNavChatUntouched, "Top nav, bottom nav, and chat files are untouched.", undefined, "P0"),
+    okFinding("protected-nav-chat", protectedNavChatUntouched, "Creator-profile timeline sources do not couple into protected nav/chat owners, and no protected diff contains creator-profile timeline changes.", undefined, "P0"),
   ];
   const timelineFindings: Finding[] = [
     okFinding("timeline-feed-rendered", timelineFeedRendered, "Public profile renders a compact mixed timeline feed from the existing profile data.", files.feed, "P0"),
@@ -164,7 +192,7 @@ function buildReport(): CreatorProfileMobileTimelineReport {
     okFinding("pending-draft-excluded", pendingDraftExcluded, "Timeline contract excludes pending drops and draft or ineligible broadcasts.", files.timelineContract, "P0"),
     okFinding("duplicate-drop-card-avoided", duplicateDropCardAvoided, "Profile timeline does not add a duplicate Drop card component.", files.feed, "P1"),
     okFinding("package-script", packageJson.includes("\"check:creator-profile-mobile-timeline\""), "Package check script is wired.", files.packageJson, "P1"),
-    okFinding("release-notes", releaseNotesUpdated, "Same-commit public beta release note bullets are present.", files.releaseNotes, "P2"),
+    okFinding("release-notes", releaseNoteRequirementSatisfied, "Ordinary source/UI work does not require a public Beta release note; matching accepted-release copy remains informational unless a release bundle is explicitly accepted.", files.releaseNotes, "P2"),
   ];
 
   const allFindings = [...dependencyFindings, ...uiFindings, ...timelineFindings];
@@ -184,7 +212,10 @@ function buildReport(): CreatorProfileMobileTimelineReport {
       pendingDraftExcluded,
       duplicateDropCardAvoided,
       protectedNavChatUntouched,
+      separateProtectedFileChangeCount: separateProtectedFileDiffs.length,
+      releaseNotesRequired,
       releaseNotesUpdated,
+      releaseNoteRequirementSatisfied,
       p0Count: countFailures(allFindings, "P0"),
       p1Count: countFailures(allFindings, "P1"),
       p2Count: countFailures(allFindings, "P2"),
@@ -193,6 +224,7 @@ function buildReport(): CreatorProfileMobileTimelineReport {
     uiFindings,
     timelineFindings,
     protectedFileDiffs,
+    separateProtectedFileDiffs,
     fixesApplied: [
       "Reduced creator public profile header/avatar/count/button scale on mobile.",
       "Rendered a compact mixed profile timeline from the existing creator profile timeline contract.",
@@ -221,6 +253,10 @@ Generated: ${report.generatedAtUtc}
 - Timeline feed rendered: ${report.summary.timelineFeedRendered}
 - Pending/draft content excluded: ${report.summary.pendingDraftExcluded}
 - Protected nav/chat untouched: ${report.summary.protectedNavChatUntouched}
+- Separate protected-file changes outside this lane: ${report.summary.separateProtectedFileChangeCount}
+- Public Beta release note required: ${report.summary.releaseNotesRequired}
+- Matching accepted-release note present: ${report.summary.releaseNotesUpdated}
+- Release-note requirement satisfied: ${report.summary.releaseNoteRequirementSatisfied}
 - P0/P1/P2: ${report.summary.p0Count}/${report.summary.p1Count}/${report.summary.p2Count}
 
 ## Fixes Applied

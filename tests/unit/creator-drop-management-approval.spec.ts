@@ -14,12 +14,13 @@ describe("creator drop management approval lane", () => {
   it("routes Creator Dashboard Manage drops to the creator submission manager", () => {
     const routing = read("src/lib/creator-profile-routing.ts");
     const dashboard = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const quickActions = read("src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx");
 
     expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"');
     expect(routing).toContain('CREATOR_DROP_ROUTE_STATE = "creator_submission"');
-    expect(dashboard).toContain("href={CREATOR_DROP_MANAGE_ROUTE}");
+    expect(quickActions).toContain("href={CREATOR_DROP_MANAGE_ROUTE}");
     expect(dashboard).toContain("data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}");
-    expect(dashboard).not.toContain('href="/dashboard/library"');
+    expect(`${dashboard}\n${quickActions}`).not.toContain('href="/dashboard/library"');
   });
 
   it("renders a creator drop manager surface instead of My KandyDrops library language", () => {
@@ -41,9 +42,11 @@ describe("creator drop management approval lane", () => {
   it("keeps the normal user library surface separate", () => {
     const library = read("src/app/dashboard/library/LibraryClient.tsx");
     const dropdown = read("src/components/Navigation/ProfileDropdown.tsx");
+    const routing = read("src/lib/creator-profile-routing.ts");
 
     expect(library).toContain("My KandyDrops");
-    expect(dropdown).toContain('href="/dashboard/library"');
+    expect(routing).toContain('USER_LIBRARY_ROUTE = "/dashboard/library"');
+    expect(dropdown).toContain("href={USER_LIBRARY_ROUTE}");
     expect(dropdown).toContain('label="My KandyDrops"');
   });
 
