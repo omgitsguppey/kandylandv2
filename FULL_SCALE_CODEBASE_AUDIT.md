@@ -13894,4 +13894,4 @@ Results:
 
 ## 2025-02-20 POST: Fix XSS Vulnerability in Chat attachments
 - Findings: Chat component allowed rendering `javascript:` and other potentially dangerous schemes via user-provided attachments.
-- Action: Implemented strict `getSafeExternalUrl` in `src/lib/utils/url-sanitize.ts` ensuring external URLs are restricted to `http:` and `https:`. Added this logic around the rendered attachment link. Test suite passed execution.
+- Action: Implemented strict `getSafeExternalUrl` in `src/lib/utils/url-sanitize.ts` ensuring external URLs are restricted to `http:` and `https:`. Supported relative links properly by evaluating against a proxy base string. Wrapped the vulnerable attachment rendering logic. Test suite passed execution.
