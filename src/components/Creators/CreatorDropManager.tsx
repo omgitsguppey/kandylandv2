@@ -161,9 +161,12 @@ export function CreatorDropManager() {
         });
     }, []);
 
-    const { tabCounts, visibleDrops } = useMemo(() => {
-        const counts: Record<CreatorDropFilter, number> = {
-            all: drops.length,
+    const tabCounts = useMemo(() => {
+        return REVIEW_TABS.reduce<Record<CreatorDropFilter, number>>((acc, tab) => {
+            acc[tab.id] = tab.id === "all" ? drops.length : drops.filter((drop) => classifyDrop(drop) === tab.id).length;
+            return acc;
+        }, {
+            all: 0,
             draft: 0,
             submitted: 0,
             pending_review: 0,
@@ -171,21 +174,13 @@ export function CreatorDropManager() {
             needs_changes: 0,
             rejected: 0,
             expired: 0,
-        };
-        const visible: CreatorDropRow[] = [];
+        });
+    }, [drops]);
 
-        for (const drop of drops) {
-            const status = classifyDrop(drop);
-            if (counts[status] !== undefined) {
-                counts[status]++;
-            }
-            if (activeTab === "all" || status === activeTab) {
-                visible.push(drop);
-            }
-        }
-
-        return { tabCounts: counts, visibleDrops: visible };
-    }, [drops, activeTab]);
+    const visibleDrops = useMemo(
+        () => activeTab === "all" ? drops : drops.filter((drop) => classifyDrop(drop) === activeTab),
+        [activeTab, drops],
+    );
     const dropListLoadingState = getModuleLoadingState({ loading, hasData: visibleDrops.length > 0 });
     const showDropListSkeleton = dropListLoadingState === "loading";
 

@@ -25,7 +25,3 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
-
-## 2024-06-19 - Arrays processing overhead in UI components
-**Learning:** Found multiple instances where large arrays were sequentially mapped and `.filter()`ed or `reduce()`d (e.g., `drops.filter(...)` repeatedly for tab counts and visibility computations inside `useMemo` blocks). Since arrays in UI layers like `CreatorDropManager` can get large for heavily active creators, iterating over them repeatedly using nested or parallel filters causes significant CPU blocking and delays component rendering unnecessarily.
-**Action:** Replace multiple chained or parallel `filter()`/`reduce()` calls with a single-pass `for...of` loop inside `useMemo` to group arrays by categories, track counts, and build result arrays simultaneously without creating intermediate allocations or redundant calculations.
