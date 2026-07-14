@@ -6217,20 +6217,11 @@ export async function GET(request: NextRequest) {
                     adminExcludedFromUserGuestBehavior: true,
                     unknownActorNeverPromotedToAuthenticatedUser: true,
                 },
-                modules: (() => {
-                    // Bolt Optimization: Precompute a Map to avoid O(N^2) array lookup
-                    const snapshotsByModuleKey = new Map<string, typeof adminMetricSnapshots[0]>();
-                    for (const snapshot of adminMetricSnapshots) {
-                        if (!snapshotsByModuleKey.has(snapshot.moduleKey)) {
-                            snapshotsByModuleKey.set(snapshot.moduleKey, snapshot);
-                        }
-                    }
-
-                    return ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
-                        const latestSnapshot = snapshotsByModuleKey.get(entry.moduleKey) ?? null;
-                        return {
-                            moduleKey: entry.moduleKey,
-                            label: entry.label,
+                modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
+                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
+                    return {
+                        moduleKey: entry.moduleKey,
+                        label: entry.label,
                         supportedRanges: entry.supportedRanges,
                         currentImplementationStatus: entry.currentImplementationStatus,
                         defaultAdminAnalyticsCoverage: entry.defaultAdminAnalyticsCoverage,
@@ -6269,8 +6260,7 @@ export async function GET(request: NextRequest) {
                         debugPath: latestSnapshot?.debugPath ?? `/admin/debug?tab=advanced#analytics-snapshots/${entry.moduleKey}`,
                         fakeZeroPreventedPolicy: "Missing source values remain null/unavailable and are detailed in Debug.",
                     };
-                    });
-                })(),
+                }),
                 compactAnalyticsRules: [
                     "No giant empty charts.",
                     "No repeated degraded badge spam.",
