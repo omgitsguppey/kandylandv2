@@ -390,25 +390,34 @@ function renderDoc(title: string, report: Record<string, unknown>, failures: rea
   ];
 }
 
-export function writeAndValidateReport<T extends Record<string, unknown>>(spec: OutputSpec<T>) {
-  const report = spec.build();
-  const failures = spec.validate(report);
-  (report as Record<string, unknown>).validationFailures = failures;
-  const envelopeReport = withGeneratedReportEnvelope(report, {
-    reportKey: typeof report.reportKey === "string" ? report.reportKey : spec.title.toLowerCase().replace(/\s+/gu, "-"),
-    status: failures.length > 0 ? "fail" : String(report.status ?? report.statusAfter ?? "pass"),
+export function buildAdminStatusLaneGeneratedReport<T extends Record<string, unknown>>(
+  report: T,
+  title: string,
+  failures: readonly string[],
+) {
+  const validationFailures = [...failures];
+  return withGeneratedReportEnvelope(report, {
+    reportKey: typeof report.reportKey === "string" ? report.reportKey : title.toLowerCase().replace(/\s+/gu, "-"),
+    status: validationFailures.length > 0 ? "fail" : "pass",
     evidenceClass: "source_snapshot",
-    canClearSourceGate: failures.length === 0,
+    canClearSourceGate: validationFailures.length === 0,
     nextExactSteps: Array.isArray(report.nextExactSteps) && report.nextExactSteps.every((step) => typeof step === "string")
-      ? report.nextExactSteps
-      : [`Run ${spec.title} validator after touching this admin status lane.`],
-    validationFailures: failures,
+      ? report.nextExactSteps as string[]
+      : [`Run ${title} validator after touching this admin status lane.`],
+    validationFailures,
     doesNotProve: [
       "Does not prove deployed runtime behavior.",
       "Does not prove provider availability.",
       "Does not prove current admin truth samples.",
     ],
   });
+}
+
+export function writeAndValidateReport<T extends Record<string, unknown>>(spec: OutputSpec<T>) {
+  const report = spec.build();
+  const failures = spec.validate(report);
+  (report as Record<string, unknown>).validationFailures = failures;
+  const envelopeReport = buildAdminStatusLaneGeneratedReport(report, spec.title, failures);
   writeJson(spec.statePath, envelopeReport);
   writeDoc(spec.docPath, renderDoc(spec.title, envelopeReport, failures));
   if (failures.length > 0) {
