@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -8,6 +10,12 @@ import {
 } from "@/lib/testing/telemetry-trigger-test-matrix";
 
 describe("telemetry trigger test matrix", () => {
+  it("does not classify the canonical final lock adversarial fixture as a duplicate validator", () => {
+    const validatorSource = readFileSync("scripts/agent/validate-telemetry-trigger-test-matrix.ts", "utf8");
+
+    expect(validatorSource).toContain('path === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts"');
+  });
+
   it("covers every required trigger family from event envelope to score input", () => {
     const report = buildTelemetryTriggerTestMatrixReport({
       generatedAtUtc: "2026-05-23T08:00:00.000Z",

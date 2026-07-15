@@ -70,6 +70,7 @@ function classifyOldTestLogic(): OldTestLogicClassification[] {
       || path === DOC_PATH
       || path === "tests/unit/telemetry-trigger-test-matrix.spec.ts"
       || path === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts"
+      || path === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts"
       || path === "scripts/agent/validate-future-activity-signal-reclassification.ts"
       || path === "tests/unit/future-activity-signal-reclassification.spec.ts"
     ) return [];
