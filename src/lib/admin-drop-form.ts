@@ -60,6 +60,9 @@ function normalizeActionUrl(url: string | undefined): string | undefined {
                 parsed.pathname.startsWith("//")
                 || parsed.pathname.startsWith("/\\")
                 || parsed.pathname.startsWith("\\")
+                || trimmedUrl.startsWith("\\")
+                || trimmedUrl.startsWith("//")
+                || trimmedUrl.startsWith("/\\")
             ) {
                 return undefined;
             }
