@@ -223,7 +223,7 @@ for (const expected of [
   "reportAggregateSummary",
   "data-debug-canonical-public-beta-score",
 ]) {
-  requireIncludes(controlTower, expected, "Admin Debug Control Tower canonical beta score card");
+  requireIncludes(`${controlTower}\n${debugOperatorCockpit}`, expected, "Admin Debug Control Tower canonical beta score card");
 }
 requireNotIncludes(controlTower, "Needs proof", "Admin Debug Control Tower compact view must not restore the removed redundant proof label");
 requireNotIncludes(controlTower, "Source reports</p>", "Admin Debug Control Tower compact view must not restore the removed source-report card");

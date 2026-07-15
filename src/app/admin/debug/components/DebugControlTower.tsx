@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
-
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { authFetch } from "@/lib/authFetch";
@@ -13,11 +12,10 @@ import { resolveControlTowerBusinessTruthState } from "@/lib/admin/debug/control
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
-import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
+import { DebugOperatorCockpit, DebugPublicBetaDecisionDetails, DebugPublicBetaDecisionStrip, formatPublicBetaDecisionStatus, resolvePublicBetaOperatorPresentation } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
 import { formatPublicBetaCapDetailForAdmin, formatPublicBetaReadinessStatusForAdmin, resolvePublicBetaCapDetailForAdmin, summarizePublicBetaCapDisplays } from "./DebugControlTowerEvidenceCopy";
 import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatRelative, resolveReportDisplay } from "./DebugControlTowerCards";
-
 export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: { businessSnapshot?: AdminUserTruthSnapshot | null; isLocalAdminUiTestSession?: boolean }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
     const [loading, setLoading] = useState(true);
@@ -92,24 +90,30 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails) ? model.canonicalPublicBetaCapDetails : [];
     const canonicalBetaCapDisplays = canonicalBetaCapDetails.map(resolvePublicBetaCapDetailForAdmin);
     const canonicalBetaCapSummary = summarizePublicBetaCapDisplays(canonicalBetaCapDisplays);
+    const publicBetaDecision = model?.canonicalPublicBetaOperatorDecision ?? null;
+    const canonicalBetaEvidenceGates = Array.isArray(model?.canonicalPublicBetaEvidenceGates) ? model.canonicalPublicBetaEvidenceGates : [];
     const runtimeEvidenceGroups = Array.isArray(model?.runtimeEvidenceGroups) ? model.runtimeEvidenceGroups : [];
     const visibleReports = filteredSections?.reduce((count, section) => count + section.reports.length, 0) ?? 0;
     const blockerReports = (model?.reports ?? [])
         .filter((report) => report.truthState !== "live" || report.criticalCount > 0 || report.findingCount > 0)
         .slice(0, 5);
     const visibleNextActions = model?.nextActions.slice(0, 3) ?? [];
-    const publicBetaNeedsTypedEvidence = canonicalBetaCapSummary.needsTypedEvidence;
-    const publicBetaNeedsRefresh = canonicalBetaCapSummary.needsRefresh;
-    const publicBetaNeedsReview = canonicalBetaCapSummary.needsReview;
     const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
-    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" || publicBetaNeedsRefresh ? "stale" : (publicBetaNeedsTypedEvidence || publicBetaNeedsReview) ? "review" : failedReportWithFindings ? "failed" : "live";
-    const publicBetaBadgeLabel = publicBetaNeedsTypedEvidence ? "Source evidence" : publicBetaNeedsRefresh ? "Refresh due" : publicBetaNeedsReview ? "Review" : undefined;
-    const publicBetaReadinessReason = model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "";
-    const publicBetaReadinessStatusLabel = model ? formatPublicBetaReadinessStatusForAdmin({
-        status: model.canonicalPublicBetaReadinessStatus,
-        reason: model.canonicalPublicBetaReadinessReason,
-        capDetails: canonicalBetaCapDetails,
-    }) : "Readiness unavailable";
+    const publicBetaPresentation = resolvePublicBetaOperatorPresentation({
+        decision: publicBetaDecision,
+        canonicalTruthState: model?.canonicalPublicBetaTruthState,
+        fallback: canonicalBetaCapSummary,
+        failedReportWithFindings,
+    });
+    const publicBetaReadinessReason = publicBetaDecision?.releaseReadiness.detail
+        ?? (model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "");
+    const publicBetaReadinessStatusLabel = publicBetaDecision
+        ? formatPublicBetaDecisionStatus(publicBetaDecision.releaseReadiness.status)
+        : model ? formatPublicBetaReadinessStatusForAdmin({
+            status: model.canonicalPublicBetaReadinessStatus,
+            reason: model.canonicalPublicBetaReadinessReason,
+            capDetails: canonicalBetaCapDetails,
+        }) : "Readiness unavailable";
 
     return (
         <section
@@ -152,7 +156,11 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        {canonicalBetaCapSummary.summary || `${blockerReports.length} report item${blockerReports.length === 1 ? "" : "s"}`}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows.
+                        {publicBetaDecision ? (
+                            <DebugPublicBetaDecisionStrip decision={publicBetaDecision} liveIssueCount={model.liveIssues.length} />
+                        ) : (
+                            <>{canonicalBetaCapSummary.summary || `${blockerReports.length} report item${blockerReports.length === 1 ? "" : "s"}`}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows.</>
+                        )}
                     </p>
                 ) : null}
             </div>
@@ -190,16 +198,17 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     <div className="mt-3 space-y-3">
                         <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                <div>
-                                    <h3 className="font-bold text-white">Source evidence and refresh work</h3>
-                                    <p className="text-xs text-gray-400">{publicBetaReadinessReason}</p>
-                                    <p className="mt-1 text-[11px] text-gray-500">
-                                        {publicBetaReadinessStatusLabel} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
-                                    </p>
-                                </div>
-                                <AdminTruthBadge state={publicBetaBadgeState} label={publicBetaBadgeLabel} />
+                                <DebugPublicBetaDecisionDetails
+                                    decision={publicBetaDecision}
+                                    evidenceGates={canonicalBetaEvidenceGates}
+                                    fallbackReason={publicBetaReadinessReason}
+                                    fallbackStatus={publicBetaReadinessStatusLabel}
+                                    generatedAtUtc={model.canonicalPublicBetaGeneratedAtUtc}
+                                    sourceDrift={model.canonicalPublicBetaSourceDrift}
+                                />
+                                <AdminTruthBadge state={publicBetaPresentation.badgeState} label={publicBetaPresentation.badgeLabel} />
                             </div>
-                            {canonicalBetaCapDisplays.length > 0 ? (
+                            {canonicalBetaEvidenceGates.length === 0 && canonicalBetaCapDisplays.length > 0 ? (
                                 <ul className="mt-2 space-y-1 text-xs text-gray-300">
                                     {canonicalBetaCapDisplays.map((capDetail, index) => (
                                         <li

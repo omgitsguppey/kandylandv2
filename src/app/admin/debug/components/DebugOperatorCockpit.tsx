@@ -2,6 +2,8 @@
 
 import { AlertTriangle, Bot, ClipboardList, Coins, RadioTower, RefreshCw, ShieldCheck, Target } from "lucide-react";
 
+import type { AdminDebugPublicBetaEvidenceGate, AdminDebugPublicBetaOperatorDecision } from "@/lib/admin-debug-control-tower";
+import type { AdminTruthState } from "@/lib/admin-truth-state";
 import type { DebugOperatorCockpitReport, DebugOperatorCockpitSection } from "@/lib/debug/debug-operator-cockpit";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +17,113 @@ const ICONS = {
     ai_critic_requested_changes: Bot,
     recovery_playbook_cta: ClipboardList,
 };
+
+export function formatPublicBetaDecisionStatus(status: string) {
+    return status.replaceAll("_", " ").replace(/\b\w/gu, (character) => character.toUpperCase());
+}
+
+export function summarizePublicBetaOperatorDecision(decision: AdminDebugPublicBetaOperatorDecision | null) {
+    if (!decision) return null;
+    const counts = {
+        sourceFixes: decision.actionQueues.sourceFixes.length,
+        sourceVerification: decision.actionQueues.sourceVerification.length,
+        evidenceRefresh: decision.actionQueues.evidenceRefresh.length,
+        externalProof: decision.actionQueues.externalProof.length,
+        ownerReview: decision.actionQueues.ownerReview.length,
+    };
+    return {
+        counts,
+        queueSummary: `source fixes ${counts.sourceFixes}, verify ${counts.sourceVerification}, refresh ${counts.evidenceRefresh}, external ${counts.externalProof}, owner review ${counts.ownerReview}`,
+        needsTypedEvidence: counts.externalProof > 0,
+        needsRefresh: counts.evidenceRefresh > 0,
+        needsReview: counts.sourceFixes + counts.sourceVerification + counts.ownerReview > 0,
+    };
+}
+
+export function resolvePublicBetaOperatorPresentation(input: {
+    decision: AdminDebugPublicBetaOperatorDecision | null;
+    canonicalTruthState?: string;
+    fallback: { needsTypedEvidence: boolean; needsRefresh: boolean; needsReview: boolean };
+    failedReportWithFindings: boolean;
+}) {
+    const summary = summarizePublicBetaOperatorDecision(input.decision);
+    const needsTypedEvidence = summary?.needsTypedEvidence ?? input.fallback.needsTypedEvidence;
+    const needsRefresh = summary?.needsRefresh ?? input.fallback.needsRefresh;
+    const needsReview = summary?.needsReview ?? input.fallback.needsReview;
+    const badgeState: AdminTruthState = input.canonicalTruthState === "unknown"
+        ? "unavailable"
+        : input.canonicalTruthState === "stale" || needsRefresh
+            ? "stale"
+            : input.decision?.releaseReadiness.status === "blocked" || input.decision?.sourceReadiness.status === "blocked"
+                ? "failed"
+                : needsTypedEvidence || needsReview
+                    ? "review"
+                    : input.failedReportWithFindings ? "failed" : "live";
+    return {
+        summary,
+        badgeState,
+        badgeLabel: summary?.counts.sourceFixes
+            ? "Source fixes"
+            : needsTypedEvidence ? "External evidence" : needsRefresh ? "Refresh due" : needsReview ? "Review" : undefined,
+    };
+}
+
+export function DebugPublicBetaDecisionStrip({ decision, liveIssueCount }: {
+    decision: AdminDebugPublicBetaOperatorDecision;
+    liveIssueCount: number;
+}) {
+    const summary = summarizePublicBetaOperatorDecision(decision);
+    return (
+        <>
+            <span className="block font-semibold text-white">
+                {decision.primaryAction ? `Next: ${decision.primaryAction.action}` : "No typed public beta action is queued."}
+            </span>
+            <span className="block text-gray-400">
+                Source {formatPublicBetaDecisionStatus(decision.sourceReadiness.status)}; release {formatPublicBetaDecisionStatus(decision.releaseReadiness.status)}; queues: {summary?.queueSummary}. {liveIssueCount} current issue{liveIssueCount === 1 ? "" : "s"}.
+            </span>
+        </>
+    );
+}
+
+export function DebugPublicBetaDecisionDetails({
+    decision,
+    evidenceGates,
+    fallbackReason,
+    fallbackStatus,
+    generatedAtUtc,
+    sourceDrift,
+}: {
+    decision: AdminDebugPublicBetaOperatorDecision | null;
+    evidenceGates: AdminDebugPublicBetaEvidenceGate[];
+    fallbackReason: string;
+    fallbackStatus: string;
+    generatedAtUtc: string | null;
+    sourceDrift: string;
+}) {
+    const summary = summarizePublicBetaOperatorDecision(decision);
+    const openGates = evidenceGates.filter((gate) => gate.status.toLowerCase() !== "ready" || gate.blocksLaunch);
+    return (
+        <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-white">Source evidence and refresh work</h3>
+            <p className="text-xs text-gray-300">{decision?.primaryAction ? `Next: ${decision.primaryAction.action}` : fallbackReason}</p>
+            <p className="mt-1 text-[11px] text-gray-500">
+                {decision ? `Source ${formatPublicBetaDecisionStatus(decision.sourceReadiness.status)} | release ${formatPublicBetaDecisionStatus(decision.releaseReadiness.status)} | ${summary?.queueSummary}` : fallbackStatus} | {generatedAtUtc ?? "No generatedAtUtc"} | source {sourceDrift}
+            </p>
+            {decision ? <p className="mt-1 text-[11px] text-gray-500" data-public-beta-composite-role="diagnostic-only">Diagnostic composite {decision.compositeConfidence.score}/100 — not a work target.</p> : null}
+            {evidenceGates.length > 0 ? (
+                <ul className="mt-2 space-y-1 text-xs text-gray-300" data-public-beta-evidence-source="typed-gates">
+                    {openGates.map((gate) => (
+                        <li key={`canonical-beta-gate-${gate.id}`} className="rounded-md border border-white/10 bg-black/20 px-2 py-1" data-public-beta-evidence-state={gate.truthState}>
+                            <span className="font-semibold text-white">{gate.label}</span>
+                            <span className="text-gray-400"> - {gate.recommendedAction || gate.detail}</span>
+                            <span className="block text-[10px] text-gray-500">{gate.status} | {gate.freshness} | {gate.evidenceQuality}</span>
+                        </li>
+                    ))}
+                </ul>
+            ) : null}
+        </div>
+    );
+}
 
 function stateTone(state: string) {
     if (state === "failed") return "border-red-400/30 bg-red-500/10 text-red-100";

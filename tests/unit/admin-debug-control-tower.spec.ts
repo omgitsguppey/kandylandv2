@@ -173,6 +173,124 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Stale evidence:");
     });
 
+    it("projects the typed operator decision and evidence gates before legacy cap strings", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 63.18,
+            overallStatus: "beta-risk",
+            sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            evidenceGates: [
+                {
+                    id: "targetedBehavior",
+                    label: "Targeted behavior tests",
+                    status: "Stale evidence",
+                    detail: "The targeted source artifact is stale.",
+                    recommendedAction: "Refresh the targeted source validator evidence.",
+                    evidenceQuality: "source_ready",
+                    freshness: "stale",
+                    blocksLaunch: true,
+                },
+                {
+                    id: "runtimeProviderSmoke",
+                    label: "Provider-backed source activity evidence",
+                    status: "Runtime unverified",
+                    detail: "Provider-backed source activity evidence is missing.",
+                    recommendedAction: "Attach current provider-backed source activity evidence.",
+                    evidenceQuality: "external_proof_required",
+                    freshness: "unknown",
+                    blocksLaunch: true,
+                },
+            ],
+            evidenceCapDetails: [
+                "Stale evidence: Admin truth/sample evidence - This legacy string must not drive typed findings.",
+            ],
+            operatorDecision: {
+                version: "operator_decision_v1",
+                sourceReadiness: {
+                    score: 83.6,
+                    status: "verification_due",
+                    detail: "One source verification action remains.",
+                },
+                releaseReadiness: {
+                    status: "source_ready",
+                    ready: false,
+                    blockerCount: 2,
+                    detail: "Two launch blockers remain.",
+                },
+                primaryAction: {
+                    id: "gate:targetedBehavior:0",
+                    lane: "evidence_refresh",
+                    title: "Targeted behavior tests",
+                    action: "Refresh the targeted source validator evidence.",
+                    source: "evidenceGate:targetedBehavior",
+                    blocksLaunch: true,
+                },
+                actionQueues: {
+                    sourceFixes: [],
+                    sourceVerification: [],
+                    evidenceRefresh: [{
+                        id: "gate:targetedBehavior:0",
+                        lane: "evidence_refresh",
+                        title: "Targeted behavior tests",
+                        action: "Refresh the targeted source validator evidence.",
+                        source: "evidenceGate:targetedBehavior",
+                        blocksLaunch: true,
+                    }],
+                    externalProof: [{
+                        id: "gate:runtimeProviderSmoke:1",
+                        lane: "external_proof",
+                        title: "Provider-backed source activity evidence",
+                        action: "Attach current provider-backed source activity evidence.",
+                        source: "evidenceGate:runtimeProviderSmoke",
+                        blocksLaunch: true,
+                    }],
+                    ownerReview: [],
+                },
+                compositeConfidence: {
+                    score: 63.18,
+                    useAsWorkTarget: false,
+                    detail: "Diagnostic context only.",
+                },
+            },
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+        const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+
+        expect(model.canonicalPublicBetaOperatorDecision?.primaryAction?.lane).toBe("evidence_refresh");
+        expect(model.canonicalPublicBetaOperatorDecision?.compositeConfidence.useAsWorkTarget).toBe(false);
+        expect(model.canonicalPublicBetaEvidenceGates).toHaveLength(2);
+        expect(publicBeta?.evidenceGateCount).toBe(2);
+        expect(publicBeta?.topFindings.map((finding) => finding.title)).toEqual([
+            "Targeted behavior tests refresh required",
+            "Provider-backed source activity evidence",
+        ]);
+        expect(publicBeta?.topFindings[0]?.truthState).toBe("stale");
+        expect(publicBeta?.topFindings.map((finding) => finding.title).join(" ")).not.toContain("Admin");
+        expect(model.canonicalPublicBetaReadinessReason).toBe("Two launch blockers remain.");
+    });
+
+    it("keeps missing score provenance unknown instead of presenting it as live", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 99,
+            overallStatus: "clean",
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+        const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+
+        expect(publicBeta?.sourceDrift).toBe("unknown");
+        expect(publicBeta?.truthState).toBe("unknown");
+        expect(model.canonicalPublicBetaSourceDrift).toBe("unknown");
+        expect(model.canonicalPublicBetaTruthState).toBe("unknown");
+    });
+
     it("reads current provider-backed site activity caps without old smoke labels", () => {
         const root = createTempRoot();
         writeReport(root, "public-beta-score.generated.json", {
@@ -365,16 +483,21 @@ describe("admin debug control tower model", () => {
         const root = process.cwd();
         const component = readFileSync(join(root, "src/app/admin/debug/components/DebugControlTower.tsx"), "utf8");
         const operatorCockpit = readFileSync(join(root, "src/app/admin/debug/components/DebugOperatorCockpit.tsx"), "utf8");
+        const publicBetaUi = `${component}\n${operatorCockpit}`;
 
         expect(component).toContain("canonicalPublicBetaScore");
         expect(component).toContain("canonicalPublicBetaReadinessReason");
         expect(component).toContain("canonicalPublicBetaCapDetails");
         expect(component).toContain("canonicalPublicBetaSourceDrift");
         expect(component).toContain("canonicalPublicBetaTruthState");
+        expect(component).toContain("canonicalPublicBetaOperatorDecision");
+        expect(component).toContain("canonicalPublicBetaEvidenceGates");
+        expect(publicBetaUi).toContain('data-public-beta-composite-role="diagnostic-only"');
+        expect(publicBetaUi).toContain('data-public-beta-evidence-source="typed-gates"');
         expect(component).not.toContain("canonicalPublicBetaCapDetails.slice(0, 3)");
         expect(component).toContain('data-debug-visible-summary="single-triage-strip"');
         expect(component).toContain("Details and next steps");
-        expect(component).toContain("Source evidence and refresh work");
+        expect(publicBetaUi).toContain("Source evidence and refresh work");
         expect(component).not.toContain("Needs proof");
         expect(component).not.toContain("Status {model.canonicalPublicBetaStatus}");
         expect(component).not.toContain("Source reports</p>");

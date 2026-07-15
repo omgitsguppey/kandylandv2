@@ -244,6 +244,103 @@ describe("DebugControlTower", () => {
         expect(container.textContent).not.toContain("secret support body");
     });
 
+    it("leads with the typed operator action and keeps composite confidence diagnostic", async () => {
+        const payload = mockState.payload as any;
+        const previousDecision = payload.canonicalPublicBetaOperatorDecision;
+        const previousGates = payload.canonicalPublicBetaEvidenceGates;
+        const previousCaps = payload.canonicalPublicBetaCapDetails;
+        const previousTruthState = payload.canonicalPublicBetaTruthState;
+
+        try {
+            payload.canonicalPublicBetaTruthState = "live";
+            payload.canonicalPublicBetaCapDetails = [
+                "Stale evidence: Admin truth/sample evidence - Legacy fallback must stay hidden when typed gates exist.",
+            ];
+            payload.canonicalPublicBetaEvidenceGates = [{
+                id: "uiSourceCoverage",
+                label: "UI source coverage",
+                status: "Blocked",
+                detail: "The UI source contract failed.",
+                recommendedAction: "Fix the source-owned UI contract and rerun its validator.",
+                evidenceQuality: "source_ready",
+                freshness: "fresh",
+                blocksLaunch: true,
+                truthState: "failed",
+            }];
+            payload.canonicalPublicBetaOperatorDecision = {
+                version: "operator_decision_v1",
+                sourceReadiness: {
+                    score: 72,
+                    status: "needs_fix",
+                    detail: "One local source fix remains.",
+                },
+                releaseReadiness: {
+                    status: "blocked",
+                    ready: false,
+                    blockerCount: 2,
+                    detail: "Two launch blockers remain.",
+                },
+                primaryAction: {
+                    id: "finding:ui-source",
+                    lane: "source_fix",
+                    title: "UI source coverage",
+                    action: "Fix the source-owned UI contract.",
+                    source: "src/app/example.tsx",
+                    blocksLaunch: true,
+                },
+                actionQueues: {
+                    sourceFixes: [{
+                        id: "finding:ui-source",
+                        lane: "source_fix",
+                        title: "UI source coverage",
+                        action: "Fix the source-owned UI contract.",
+                        source: "src/app/example.tsx",
+                        blocksLaunch: true,
+                    }],
+                    sourceVerification: [],
+                    evidenceRefresh: [],
+                    externalProof: [{
+                        id: "gate:provider",
+                        lane: "external_proof",
+                        title: "Provider evidence",
+                        action: "Attach provider-backed evidence.",
+                        source: "evidenceGate:runtimeProviderSmoke",
+                        blocksLaunch: true,
+                    }],
+                    ownerReview: [],
+                },
+                compositeConfidence: {
+                    score: 91,
+                    useAsWorkTarget: false,
+                    detail: "Diagnostic context only.",
+                },
+            };
+
+            await act(async () => {
+                root.render(<DebugControlTower />);
+            });
+            await act(async () => {
+                await Promise.resolve();
+            });
+
+            expect(container.textContent).toContain("Next: Fix the source-owned UI contract.");
+            expect(container.textContent).toContain("Source Needs Fix; release Blocked; queues: source fixes 1, verify 0, refresh 0, external 1, owner review 0");
+            expect(container.textContent).toContain("Diagnostic composite 91/100 — not a work target.");
+            expect(container.innerHTML).toContain('data-public-beta-evidence-source="typed-gates"');
+            expect(container.textContent).toContain("Fix the source-owned UI contract and rerun its validator.");
+            expect(container.textContent).not.toContain("Legacy fallback must stay hidden");
+        } finally {
+            if (previousDecision === undefined) delete payload.canonicalPublicBetaOperatorDecision;
+            else payload.canonicalPublicBetaOperatorDecision = previousDecision;
+            if (previousGates === undefined) delete payload.canonicalPublicBetaEvidenceGates;
+            else payload.canonicalPublicBetaEvidenceGates = previousGates;
+            if (previousCaps === undefined) delete payload.canonicalPublicBetaCapDetails;
+            else payload.canonicalPublicBetaCapDetails = previousCaps;
+            if (previousTruthState === undefined) delete payload.canonicalPublicBetaTruthState;
+            else payload.canonicalPublicBetaTruthState = previousTruthState;
+        }
+    });
+
     it("labels zero-finding public beta evidence gates as source evidence instead of app errors", async () => {
         const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
         const proofReport = {

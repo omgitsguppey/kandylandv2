@@ -118,6 +118,62 @@ export type AdminDebugNextAction = {
     severity: AdminDebugSeverity;
 };
 
+export type AdminDebugPublicBetaOperatorActionLane =
+    | "source_fix"
+    | "source_verification"
+    | "evidence_refresh"
+    | "external_proof"
+    | "owner_review";
+
+export type AdminDebugPublicBetaOperatorAction = {
+    id: string;
+    lane: AdminDebugPublicBetaOperatorActionLane;
+    title: string;
+    action: string;
+    source: string;
+    blocksLaunch: boolean;
+};
+
+export type AdminDebugPublicBetaOperatorDecision = {
+    version: "operator_decision_v1";
+    sourceReadiness: {
+        score: number;
+        status: "ready" | "verification_due" | "needs_fix" | "blocked";
+        detail: string;
+    };
+    releaseReadiness: {
+        status: "source_ready" | "runtime_proven" | "evidence_complete" | "owner_review" | "launch_ready" | "blocked";
+        ready: boolean;
+        blockerCount: number;
+        detail: string;
+    };
+    primaryAction: AdminDebugPublicBetaOperatorAction | null;
+    actionQueues: {
+        sourceFixes: AdminDebugPublicBetaOperatorAction[];
+        sourceVerification: AdminDebugPublicBetaOperatorAction[];
+        evidenceRefresh: AdminDebugPublicBetaOperatorAction[];
+        externalProof: AdminDebugPublicBetaOperatorAction[];
+        ownerReview: AdminDebugPublicBetaOperatorAction[];
+    };
+    compositeConfidence: {
+        score: number;
+        useAsWorkTarget: false;
+        detail: string;
+    };
+};
+
+export type AdminDebugPublicBetaEvidenceGate = {
+    id: string;
+    label: string;
+    status: string;
+    detail: string;
+    recommendedAction: string;
+    evidenceQuality: string;
+    freshness: string;
+    blocksLaunch: boolean;
+    truthState: AdminDebugTruthState;
+};
+
 export type AdminDebugBacklogItemCard = {
     id: string;
     title: string;
@@ -207,6 +263,8 @@ export type AdminDebugControlTowerModel = {
     canonicalPublicBetaReadinessReason: string;
     canonicalPublicBetaEvidenceScore: number | null;
     canonicalPublicBetaCapDetails: string[];
+    canonicalPublicBetaEvidenceGates: AdminDebugPublicBetaEvidenceGate[];
+    canonicalPublicBetaOperatorDecision: AdminDebugPublicBetaOperatorDecision | null;
     canonicalPublicBetaGeneratedAtUtc: string | null;
     canonicalPublicBetaSourceCommit: string | null;
     canonicalPublicBetaCurrentHead: string | null;
@@ -304,6 +362,84 @@ function toStringValue(value: unknown, fallback = "") {
 
 function toStringArray(value: unknown) {
     return Array.isArray(value) ? value.map((entry) => String(entry)).filter((entry) => entry.trim().length > 0) : [];
+}
+
+function oneOf<const T extends readonly string[]>(value: unknown, allowed: T): T[number] | null {
+    return typeof value === "string" && allowed.includes(value as T[number]) ? value as T[number] : null;
+}
+
+const PUBLIC_BETA_OPERATOR_ACTION_LANES = [
+    "source_fix",
+    "source_verification",
+    "evidence_refresh",
+    "external_proof",
+    "owner_review",
+] as const;
+const PUBLIC_BETA_SOURCE_STATUSES = ["ready", "verification_due", "needs_fix", "blocked"] as const;
+const PUBLIC_BETA_RELEASE_STATUSES = ["source_ready", "runtime_proven", "evidence_complete", "owner_review", "launch_ready", "blocked"] as const;
+
+function normalizePublicBetaOperatorAction(value: unknown): AdminDebugPublicBetaOperatorAction | null {
+    if (!isRecord(value)) return null;
+    const id = toStringValue(value.id);
+    const lane = oneOf(value.lane, PUBLIC_BETA_OPERATOR_ACTION_LANES);
+    const title = toStringValue(value.title);
+    const action = toStringValue(value.action);
+    const source = toStringValue(value.source);
+    if (!id || !lane || !title || !action || !source) return null;
+
+    return {
+        id: id.slice(0, 160),
+        lane,
+        title: title.slice(0, 220),
+        action: action.slice(0, 500),
+        source: source.slice(0, 260),
+        blocksLaunch: value.blocksLaunch === true,
+    };
+}
+
+function normalizePublicBetaOperatorActionQueue(value: unknown) {
+    return Array.isArray(value)
+        ? value.map(normalizePublicBetaOperatorAction).filter((action): action is AdminDebugPublicBetaOperatorAction => Boolean(action)).slice(0, 50)
+        : [];
+}
+
+function normalizePublicBetaOperatorDecision(value: unknown): AdminDebugPublicBetaOperatorDecision | null {
+    if (!isRecord(value) || value.version !== "operator_decision_v1") return null;
+    if (!isRecord(value.sourceReadiness) || !isRecord(value.releaseReadiness) || !isRecord(value.actionQueues) || !isRecord(value.compositeConfidence)) return null;
+    const sourceScore = toNumber(value.sourceReadiness.score);
+    const sourceStatus = oneOf(value.sourceReadiness.status, PUBLIC_BETA_SOURCE_STATUSES);
+    const releaseStatus = oneOf(value.releaseReadiness.status, PUBLIC_BETA_RELEASE_STATUSES);
+    const compositeScore = toNumber(value.compositeConfidence.score);
+    const primaryAction = value.primaryAction === null ? null : normalizePublicBetaOperatorAction(value.primaryAction);
+    if (sourceScore === null || !sourceStatus || !releaseStatus || compositeScore === null || (value.primaryAction !== null && !primaryAction)) return null;
+
+    return {
+        version: "operator_decision_v1",
+        sourceReadiness: {
+            score: sourceScore,
+            status: sourceStatus,
+            detail: toStringValue(value.sourceReadiness.detail, "Source readiness detail is unavailable.").slice(0, 500),
+        },
+        releaseReadiness: {
+            status: releaseStatus,
+            ready: value.releaseReadiness.ready === true,
+            blockerCount: Math.max(0, Math.trunc(toNumber(value.releaseReadiness.blockerCount) ?? 0)),
+            detail: toStringValue(value.releaseReadiness.detail, "Release readiness detail is unavailable.").slice(0, 500),
+        },
+        primaryAction,
+        actionQueues: {
+            sourceFixes: normalizePublicBetaOperatorActionQueue(value.actionQueues.sourceFixes),
+            sourceVerification: normalizePublicBetaOperatorActionQueue(value.actionQueues.sourceVerification),
+            evidenceRefresh: normalizePublicBetaOperatorActionQueue(value.actionQueues.evidenceRefresh),
+            externalProof: normalizePublicBetaOperatorActionQueue(value.actionQueues.externalProof),
+            ownerReview: normalizePublicBetaOperatorActionQueue(value.actionQueues.ownerReview),
+        },
+        compositeConfidence: {
+            score: compositeScore,
+            useAsWorkTarget: false,
+            detail: toStringValue(value.compositeConfidence.detail, "Diagnostic context only; use the typed action queues for work.").slice(0, 500),
+        },
+    };
 }
 
 function normalizeCommit(value: unknown) {
@@ -588,6 +724,73 @@ function publicBetaEvidenceGateEvidence(detail: string) {
     return formatPublicBetaCapDetailForAdmin(detail).slice(0, 220);
 }
 
+function publicBetaEvidenceGateTruthState(gate: Record<string, unknown>): AdminDebugTruthState {
+    const freshness = toStringValue(gate.freshness).toLowerCase();
+    const status = toStringValue(gate.status).toLowerCase();
+    const id = toStringValue(gate.id);
+    if (freshness === "stale" || freshness === "head_mismatch") return "stale";
+    if (status === "ready" && gate.blocksLaunch !== true) return "live";
+    if (status === "blocked" && (id === "sourceSafety" || id === "uiSourceCoverage")) return "failed";
+    return "unknown";
+}
+
+function normalizePublicBetaEvidenceGate(value: unknown): AdminDebugPublicBetaEvidenceGate | null {
+    if (!isRecord(value)) return null;
+    const id = toStringValue(value.id);
+    const label = toStringValue(value.label);
+    if (!id || !label) return null;
+
+    return {
+        id: id.slice(0, 120),
+        label: label.slice(0, 220),
+        status: toStringValue(value.status, "Unknown").slice(0, 120),
+        detail: toStringValue(value.detail, "The evidence gate did not provide detail.").slice(0, 500),
+        recommendedAction: toStringValue(value.recommendedAction, "Open the owning evidence lane and classify the missing source.").slice(0, 500),
+        evidenceQuality: toStringValue(value.evidenceQuality, "unknown").slice(0, 120),
+        freshness: toStringValue(value.freshness, "unknown").slice(0, 120),
+        blocksLaunch: value.blocksLaunch === true,
+        truthState: publicBetaEvidenceGateTruthState(value),
+    };
+}
+
+function readTypedPublicBetaEvidenceGates(raw: Record<string, unknown>) {
+    if (!Array.isArray(raw.evidenceGates)) return null;
+    return raw.evidenceGates
+        .map(normalizePublicBetaEvidenceGate)
+        .filter((gate): gate is AdminDebugPublicBetaEvidenceGate => Boolean(gate));
+}
+
+function typedPublicBetaEvidenceGateFinding(
+    definition: ReportDefinition,
+    relativePath: string,
+    gate: AdminDebugPublicBetaEvidenceGate,
+    index: number,
+): AdminDebugFindingCard {
+    const severity: AdminDebugSeverity = gate.truthState === "failed"
+        ? "critical"
+        : gate.truthState === "stale" || gate.blocksLaunch
+            ? "major"
+            : "moderate";
+    return {
+        id: `public-beta-typed-gate-${gate.id}-${index}`,
+        reportId: definition.id,
+        section: definition.section,
+        severity,
+        title: gate.truthState === "stale" ? `${gate.label} refresh required` : gate.label,
+        domain: "beta_readiness",
+        filePath: relativePath,
+        humanReadableWarning: gate.recommendedAction || gate.detail,
+        suggestedValidator: definition.command,
+        evidence: [
+            `gate=${gate.id}`,
+            `status=${gate.status}`,
+            `quality=${gate.evidenceQuality}`,
+            `freshness=${gate.freshness}`,
+        ],
+        truthState: gate.truthState,
+    };
+}
+
 function normalizePublicBetaEvidenceGateFinding(
     definition: ReportDefinition,
     relativePath: string,
@@ -682,6 +885,13 @@ function publicBetaEvidenceGateFindings(
     raw: Record<string, unknown>,
 ) {
     if (definition.id !== "public-beta-score") return [];
+    const typedGates = readTypedPublicBetaEvidenceGates(raw);
+    if (typedGates) {
+        return typedGates
+            .filter((gate) => gate.status.toLowerCase() !== "ready" || gate.blocksLaunch)
+            .slice(0, 5)
+            .map((gate, index) => typedPublicBetaEvidenceGateFinding(definition, relativePath, gate, index));
+    }
     return toStringArray(raw.evidenceCapDetails)
         .slice(0, 5)
         .map((detail, index) => normalizePublicBetaEvidenceGateFinding(definition, relativePath, detail, index));
@@ -759,7 +969,7 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
         const evidenceGateFindings = publicBetaEvidenceGateFindings(definition, relativePath, raw);
         const criticalCount = Math.max(
             Number(raw.criticalCount) || 0,
-            [...normalizedFindings, ...queueFindings].filter((finding) => finding.severity === "critical").length,
+            [...normalizedFindings, ...queueFindings, ...evidenceGateFindings].filter((finding) => finding.severity === "critical").length,
         );
         const majorCount = Math.max(
             Number(raw.majorCount) || 0,
@@ -784,7 +994,9 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
         const baseTruthState = truthStateFromStatus(status, freshness, definition.required === true);
         const truthState = commitState.sourceDrift === "stale" && !["failed", "missing"].includes(baseTruthState)
             ? "stale"
-            : baseTruthState;
+            : commitState.sourceDrift === "unknown" && baseTruthState === "live"
+                ? "unknown"
+                : baseTruthState;
 
         return {
             id: definition.id,
@@ -861,6 +1073,8 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
             canonicalPublicBetaReadinessReason: "Canonical public beta score artifact is missing.",
             canonicalPublicBetaEvidenceScore: null,
             canonicalPublicBetaCapDetails: [],
+            canonicalPublicBetaEvidenceGates: [],
+            canonicalPublicBetaOperatorDecision: null,
             canonicalPublicBetaGeneratedAtUtc: null,
             canonicalPublicBetaSourceCommit: null,
             canonicalPublicBetaCurrentHead: null,
@@ -872,6 +1086,8 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
     try {
         const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
         const commitState = readReportCommitState(raw, repoCurrentHead);
+        const operatorDecision = normalizePublicBetaOperatorDecision(raw.operatorDecision);
+        const evidenceGates = readTypedPublicBetaEvidenceGates(raw) ?? [];
         const capDetails = toStringArray(raw.evidenceCapDetails).map(formatPublicBetaCapDetailForAdmin);
         const sourceDriftCap = commitState.sourceDrift === "stale"
             ? [
@@ -883,12 +1099,16 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
                 ].filter((entry): entry is string => Boolean(entry)).join(" - ")),
             ]
             : [];
-        const rawReadinessStatus = toStringValue(raw.readinessStatus, "unknown");
-        const rawReadinessReason = toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied.");
+        const rawReadinessStatus = operatorDecision?.releaseReadiness.status
+            ?? toStringValue(raw.readinessStatus, "unknown");
+        const rawReadinessReason = operatorDecision?.releaseReadiness.detail
+            ?? toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied.");
         const canonicalCapDetails = [...sourceDriftCap, ...capDetails];
-        const canonicalReadinessReason = formatPublicBetaCapDetailForAdmin(commitState.sourceDrift === "stale"
-            ? `Report freshness and PR integrity: Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`
-            : rawReadinessReason);
+        const canonicalReadinessReason = commitState.sourceDrift === "stale"
+            ? formatPublicBetaCapDetailForAdmin(`Report freshness and PR integrity: Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`)
+            : operatorDecision
+                ? rawReadinessReason
+                : formatPublicBetaCapDetailForAdmin(rawReadinessReason);
         const canonicalReadinessStatus = formatPublicBetaReadinessStatusForAdmin({
             status: commitState.sourceDrift === "stale" ? "Report refresh needed" : rawReadinessStatus,
             reason: canonicalReadinessReason,
@@ -903,11 +1123,17 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
             canonicalPublicBetaReadinessReason: canonicalReadinessReason,
             canonicalPublicBetaEvidenceScore: toNumber(raw.evidenceScore),
             canonicalPublicBetaCapDetails: canonicalCapDetails,
+            canonicalPublicBetaEvidenceGates: evidenceGates,
+            canonicalPublicBetaOperatorDecision: operatorDecision,
             canonicalPublicBetaGeneratedAtUtc: toStringValue(raw.generatedAtUtc ?? raw.generatedAt, "") || null,
             canonicalPublicBetaSourceCommit: commitState.sourceCommit,
             canonicalPublicBetaCurrentHead: commitState.currentHead,
             canonicalPublicBetaSourceDrift: commitState.sourceDrift,
-            canonicalPublicBetaTruthState: commitState.sourceDrift === "stale" ? "stale" as const : "live" as const,
+            canonicalPublicBetaTruthState: commitState.sourceDrift === "stale"
+                ? "stale" as const
+                : commitState.sourceDrift === "current"
+                    ? "live" as const
+                    : "unknown" as const,
         };
     } catch {
         return {
@@ -917,6 +1143,8 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
             canonicalPublicBetaReadinessReason: "Canonical public beta score artifact could not be parsed.",
             canonicalPublicBetaEvidenceScore: null,
             canonicalPublicBetaCapDetails: [],
+            canonicalPublicBetaEvidenceGates: [],
+            canonicalPublicBetaOperatorDecision: null,
             canonicalPublicBetaGeneratedAtUtc: null,
             canonicalPublicBetaSourceCommit: null,
             canonicalPublicBetaCurrentHead: null,
@@ -1413,6 +1641,7 @@ export function buildAdminDebugControlTowerModel(options?: {
         + liveIssues.filter((issue) => issue.severity === "critical").length;
     const staleReportCount = reports.filter((report) => report.truthState === "stale").length;
     const missingReportCount = reports.filter((report) => report.truthState === "missing").length;
+    const unknownReportCount = reports.filter((report) => report.truthState === "unknown").length;
     const scoreValues = reports
         .filter((report) => report.required && Number.isFinite(report.score ?? Number.NaN))
         .map((report) => report.score as number);
@@ -1425,7 +1654,9 @@ export function buildAdminDebugControlTowerModel(options?: {
             ? "missing"
             : staleReportCount > 0
                 ? "stale"
-                : "live";
+                : unknownReportCount > 0
+                    ? "unknown"
+                    : "live";
     const reportAggregateSummary = reportAggregateScore === null
         ? "No required report scores are available."
         : `Required generated report average is ${reportAggregateScore}/100 across ${scoreValues.length} scored report(s).`;
@@ -1455,7 +1686,7 @@ export function buildAdminDebugControlTowerModel(options?: {
         title: "Control Tower",
         subtitle: "Public beta truth, live evidence, and next actions.",
         overallScore: canonicalPublicBeta.canonicalPublicBetaScore,
-        overallStatus: truthState === "failed" ? "failed" : truthState === "stale" ? "stale" : truthState === "missing" ? "missing" : "live",
+        overallStatus: truthState === "failed" ? "failed" : truthState === "stale" ? "stale" : truthState === "missing" ? "missing" : truthState === "unknown" ? "unknown" : "live",
         ...canonicalPublicBeta,
         reportAggregateScore,
         reportAggregateTruthState: truthState,
