@@ -131,7 +131,20 @@ const failures = [
   ...assertChangedUiSurfacesCovered(),
   ...assertDeterministicUiSourceCoverage(),
 ];
-const output = { ...report, validationFailures: failures };
+const output: UiVisualSmokeMinimalReport & { validationFailures: string[] } = failures.length > 0
+  ? {
+      ...report,
+      status: "source_surface_checks_failed",
+      passed: false,
+      detail: `Deterministic UI source coverage validation failed with ${failures.length} issue(s).`,
+      formalGateImpact: {
+        ...report.formalGateImpact,
+        clearsUiSurfaceCoverage: false,
+      },
+      nextExactSteps: failures.map((failure) => `Resolve UI source coverage validation failure: ${failure}`),
+      validationFailures: failures,
+    }
+  : { ...report, validationFailures: [] };
 
 write(ARTIFACT_PATH, `${JSON.stringify(output, null, 2)}\n`);
 write(DOC_PATH, renderDoc(output));

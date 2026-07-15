@@ -3,9 +3,16 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { buildAdminDebugControlTowerModel, formatOperatorReportStatusForAdmin, type AdminDebugReportCard } from "@/lib/admin-debug-control-tower";
+import { buildAdminDebugControlTowerModel as buildAdminDebugControlTowerModelFromSource, formatOperatorReportStatusForAdmin, type AdminDebugReportCard } from "@/lib/admin-debug-control-tower";
 
 const tempRoots: string[] = [];
+const TEST_HEAD = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+function buildAdminDebugControlTowerModel(
+    options?: Parameters<typeof buildAdminDebugControlTowerModelFromSource>[0],
+) {
+    return buildAdminDebugControlTowerModelFromSource({ repoCurrentHead: TEST_HEAD, ...options });
+}
 
 function createTempRoot() {
     const root = join(tmpdir(), `kd-control-tower-${Date.now()}-${Math.random().toString(36).slice(2)}`);
@@ -45,6 +52,23 @@ function reportCard(overrides: Partial<AdminDebugReportCard>): AdminDebugReportC
     };
 }
 
+function readyOperatorDecision() {
+    return {
+        version: "operator_decision_v1",
+        sourceReadiness: { score: 100, status: "ready", detail: "Source ready." },
+        releaseReadiness: { status: "launch_ready", ready: true, blockerCount: 0, detail: "Launch ready." },
+        primaryAction: null,
+        actionQueues: {
+            sourceFixes: [],
+            sourceVerification: [],
+            evidenceRefresh: [],
+            externalProof: [],
+            ownerReview: [],
+        },
+        compositeConfidence: { score: 100, useAsWorkTarget: false, detail: "Diagnostic only." },
+    };
+}
+
 describe("admin debug control tower model", () => {
     afterEach(() => {
         for (const root of tempRoots.splice(0)) {
@@ -78,6 +102,102 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.truthState).toBe("stale");
         expect(publicBeta?.freshness).toBe("stale_72h");
         expect(publicBeta?.topFindings[0]?.title).toContain("older than 72 hours");
+    });
+
+    it("uses generatedAtUtc for generic report freshness instead of the file modification time", () => {
+        const root = createTempRoot();
+        writeReport(root, "device-ui-dry-audit.generated.json", {
+            generatedAtUtc: "2026-05-01T00:00:00.000Z",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+        const deviceUi = model.reports.find((report) => report.id === "device-ui-dry-audit");
+
+        expect(deviceUi?.generatedAt).toBe("2026-05-01T00:00:00.000Z");
+        expect(deviceUi?.freshness).toBe("stale_72h");
+        expect(deviceUi?.truthState).toBe("stale");
+    });
+
+    it("does not treat missing or future generated timestamps as fresh", () => {
+        const root = createTempRoot();
+        writeReport(root, "device-ui-dry-audit.generated.json", {
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            findings: [],
+        });
+        writeReport(root, "device-layout-score.generated.json", {
+            generatedAtUtc: "2026-05-05T00:00:00.000Z",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+        const deviceUi = model.reports.find((report) => report.id === "device-ui-dry-audit");
+        const deviceLayout = model.reports.find((report) => report.id === "device-layout-score");
+
+        expect(deviceUi?.freshness).toBe("unknown");
+        expect(deviceUi?.truthState).toBe("unknown");
+        expect(deviceLayout?.freshness).toBe("unknown");
+        expect(deviceLayout?.truthState).toBe("unknown");
+    });
+
+    it("surfaces explicit validation failures ahead of a high numeric score", () => {
+        const root = createTempRoot();
+        writeReport(root, "speed-security-hardening.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            overallScore: 100,
+            overallStatus: "clean",
+            passed: false,
+            validationFailures: ["A required route contract failed."],
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+        const speedSecurity = model.reports.find((report) => report.id === "speed-security-hardening");
+
+        expect(speedSecurity?.score).toBe(100);
+        expect(speedSecurity?.status).toBe("failed");
+        expect(speedSecurity?.truthState).toBe("failed");
+        expect(speedSecurity?.findingCount).toBeGreaterThan(0);
+        expect(speedSecurity?.topFindings[0]?.humanReadableWarning).toBe("A required route contract failed.");
+    });
+
+    it("keeps an actionable source finding ahead of a generic failed-status explanation", () => {
+        const root = createTempRoot();
+        writeReport(root, "speed-security-hardening.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            overallScore: 100,
+            overallStatus: "failed",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            findings: [{
+                id: "route-contract-failure",
+                severity: "critical",
+                title: "Route contract needs a source fix",
+                humanReadableWarning: "Add the missing trusted-origin guard to the affected route.",
+                filePath: "src/app/api/example/route.ts",
+            }],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+        const speedSecurity = model.reports.find((report) => report.id === "speed-security-hardening");
+
+        expect(speedSecurity?.status).toBe("failed");
+        expect(speedSecurity?.findingCount).toBe(1);
+        expect(speedSecurity?.topFindings[0]?.title).toBe("Route contract needs a source fix");
+        expect(speedSecurity?.topFindings.some((finding) => finding.id.includes("explicit-validation-failure"))).toBe(false);
     });
 
     it("reads canonical public beta score and cap reasons separately from report averages", () => {
@@ -141,7 +261,7 @@ describe("admin debug control tower model", () => {
                 "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.",
                 "Stale evidence: Runtime/provider smoke - Provider smoke: Payment context was recorded. Provider-backed site activity evidence is still separate.",
                 "Stale evidence: Admin truth/sample evidence - Produce a redacted admin source activity sample before clearing the admin source activity gate.",
-                "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
+                "Stale evidence: Required report freshness - 6 required generated report(s) are older than the freshness window.",
             ],
             sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -151,9 +271,12 @@ describe("admin debug control tower model", () => {
         const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
         const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
 
-        expect(publicBeta?.findingCount).toBe(0);
+        expect(publicBeta?.status).toBe("failed");
+        expect(publicBeta?.truthState).toBe("failed");
+        expect(publicBeta?.findingCount).toBe(1);
         expect(publicBeta?.evidenceGateCount).toBe(4);
         expect(publicBeta?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
+            "Public Beta validation failed",
             "Source-only behavior evidence",
             "Source activity evidence required",
             "Admin source activity sample required",
@@ -273,6 +396,126 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaReadinessReason).toBe("Two launch blockers remain.");
     });
 
+    it("fails closed when a v2 score omits its typed decision and evidence gates", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            scoreVersion: "beta_health_v2",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+
+        expect(model.canonicalPublicBetaTruthState).toBe("failed");
+        expect(model.canonicalPublicBetaStatus).toBe("failed");
+        expect(model.canonicalPublicBetaOperatorDecision).toBeNull();
+        expect(model.canonicalPublicBetaReadinessReason).toContain("typed decision or evidence gates are malformed");
+    });
+
+    it("rejects a launch-ready decision that contradicts a blocking typed evidence gate", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            scoreVersion: "beta_health_v2",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            launchGateStatus: "launch_ready",
+            evidenceGates: [{
+                id: "paymentSourceOfFunds",
+                label: "Protected payment source-of-funds proof",
+                status: "External proof required",
+                detail: "Current protected payment proof is missing.",
+                recommendedAction: "Attach current protected payment proof.",
+                evidenceQuality: "missing",
+                freshness: "missing",
+                blocksLaunch: true,
+            }],
+            operatorDecision: readyOperatorDecision(),
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+
+        expect(model.canonicalPublicBetaTruthState).toBe("failed");
+        expect(model.canonicalPublicBetaStatus).toBe("failed");
+        expect(model.canonicalPublicBetaOperatorDecision).toBeNull();
+        expect(model.canonicalPublicBetaReadinessReason).toContain("typed decision or evidence gates are malformed");
+    });
+
+    it("rejects empty typed evidence gates and a non-ready decision with no blocking action", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            scoreVersion: "beta_health_v2",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            evidenceGates: [],
+            operatorDecision: {
+                ...readyOperatorDecision(),
+                releaseReadiness: {
+                    status: "owner_review",
+                    ready: false,
+                    blockerCount: 0,
+                    detail: "Owner review is required.",
+                },
+            },
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+        const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+
+        expect(model.canonicalPublicBetaTruthState).toBe("failed");
+        expect(model.canonicalPublicBetaOperatorDecision).toBeNull();
+        expect(publicBeta?.topFindings.some((finding) => finding.title === "Typed public beta evidence gates are malformed")).toBe(true);
+    });
+
+    it("rejects a typed non-ready decision whose queues contain no blocking action", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            scoreVersion: "beta_health_v2",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            evidenceGates: [{
+                id: "sourceSafety",
+                label: "Source safety",
+                status: "Ready",
+                detail: "Source safety checks passed.",
+                recommendedAction: "Keep source safety checks current.",
+                evidenceQuality: "source_ready",
+                freshness: "fresh",
+                blocksLaunch: false,
+            }],
+            operatorDecision: {
+                ...readyOperatorDecision(),
+                releaseReadiness: {
+                    status: "owner_review",
+                    ready: false,
+                    blockerCount: 0,
+                    detail: "Owner review is required.",
+                },
+            },
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4, 1) });
+
+        expect(model.canonicalPublicBetaTruthState).toBe("failed");
+        expect(model.canonicalPublicBetaOperatorDecision).toBeNull();
+        expect(model.canonicalPublicBetaReadinessReason).toContain("typed decision or evidence gates are malformed");
+    });
+
     it("keeps missing score provenance unknown instead of presenting it as live", () => {
         const root = createTempRoot();
         writeReport(root, "public-beta-score.generated.json", {
@@ -289,6 +532,51 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.truthState).toBe("unknown");
         expect(model.canonicalPublicBetaSourceDrift).toBe("unknown");
         expect(model.canonicalPublicBetaTruthState).toBe("unknown");
+    });
+
+    it("suppresses an otherwise ready decision when the score is older than 24 hours", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            operatorDecision: readyOperatorDecision(),
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 5, 1) });
+
+        expect(model.canonicalPublicBetaTruthState).toBe("stale");
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("Report refresh needed");
+        expect(model.canonicalPublicBetaReadinessReason).toContain("outside the 24-hour freshness window");
+        expect(model.canonicalPublicBetaOperatorDecision).toBeNull();
+    });
+
+    it("keeps a fresh self-consistent score unknown when the current code version is unavailable", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            overallScore: 100,
+            overallStatus: "clean",
+            sourceCommit: TEST_HEAD,
+            currentHead: TEST_HEAD,
+            operatorDecision: readyOperatorDecision(),
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({
+            rootDir: root,
+            nowMs: Date.UTC(2026, 4, 4, 1),
+            repoCurrentHead: null,
+        });
+
+        expect(model.canonicalPublicBetaSourceDrift).toBe("unknown");
+        expect(model.canonicalPublicBetaTruthState).toBe("unknown");
+        expect(model.canonicalPublicBetaStatus).toBe("unknown");
+        expect(model.canonicalPublicBetaReadinessReason).toContain("Current code version is unavailable");
+        expect(model.canonicalPublicBetaOperatorDecision).toBeNull();
     });
 
     it("reads current provider-backed site activity caps without old smoke labels", () => {
@@ -448,35 +736,29 @@ describe("admin debug control tower model", () => {
 
     it("marks fresh generated snapshots stale when current-head metadata lags the deployed head", () => {
         const root = createTempRoot();
-        const previousCommit = process.env.NEXT_PUBLIC_COMMIT_SHA;
-        process.env.NEXT_PUBLIC_COMMIT_SHA = "cccccccccccccccccccccccccccccccccccccccc";
-        try {
-            writeReport(root, "public-beta-score.generated.json", {
-                generatedAt: "2026-05-04T00:00:00.000Z",
-                overallScore: 99,
-                overallStatus: "clean",
-                readinessStatus: "Ready",
-                readinessStatusReason: "Source artifacts are current.",
-                currentHead: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-                findings: [],
-            });
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 99,
+            overallStatus: "clean",
+            readinessStatus: "Ready",
+            readinessStatusReason: "Source artifacts are current.",
+            currentHead: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            findings: [],
+        });
 
-            const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
-            const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+        const model = buildAdminDebugControlTowerModel({
+            rootDir: root,
+            nowMs: Date.UTC(2026, 4, 4),
+            repoCurrentHead: "cccccccccccccccccccccccccccccccccccccccc",
+        });
+        const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
 
-            expect(publicBeta?.truthState).toBe("stale");
-            expect(publicBeta?.sourceDrift).toBe("stale");
-            expect(publicBeta?.topFindings.some((finding) => finding.title.includes("report refresh needed"))).toBe(true);
-            expect(model.canonicalPublicBetaReadinessStatus).toBe("Report refresh needed");
-            expect(model.canonicalPublicBetaSourceDrift).toBe("stale");
-            expect(model.canonicalPublicBetaTruthState).toBe("stale");
-        } finally {
-            if (previousCommit === undefined) {
-                delete process.env.NEXT_PUBLIC_COMMIT_SHA;
-            } else {
-                process.env.NEXT_PUBLIC_COMMIT_SHA = previousCommit;
-            }
-        }
+        expect(publicBeta?.truthState).toBe("stale");
+        expect(publicBeta?.sourceDrift).toBe("stale");
+        expect(publicBeta?.topFindings.some((finding) => finding.title.includes("report refresh needed"))).toBe(true);
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("Report refresh needed");
+        expect(model.canonicalPublicBetaSourceDrift).toBe("stale");
+        expect(model.canonicalPublicBetaTruthState).toBe("stale");
     });
 
     it("wires the compact UI to canonical beta score fields instead of aggregate score", () => {

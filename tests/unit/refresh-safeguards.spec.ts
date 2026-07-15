@@ -56,6 +56,7 @@ describe("refresh safeguards", () => {
       sourceCommit: "old",
       currentCodeVersion: "new",
       changedFilesSinceArtifactHead: ["scripts/agent/validate-refresh-safeguards.ts"],
+      ownedSourcePaths: ["scripts/agent/validate-creator-drop-status-metrics.ts"],
       nowUtc: "2026-05-20T13:00:00.000Z",
     });
     const staleOwnedSource = getArtifactRefreshStatus({
@@ -64,6 +65,7 @@ describe("refresh safeguards", () => {
       sourceCommit: "old",
       currentCodeVersion: "new",
       changedFilesSinceArtifactHead: ["scripts/agent/validate-creator-drop-status-metrics.ts"],
+      ownedSourcePaths: ["scripts/agent/validate-creator-drop-status-metrics.ts"],
       nowUtc: "2026-05-20T13:00:00.000Z",
     });
 
@@ -72,6 +74,20 @@ describe("refresh safeguards", () => {
     expect(currentByImpact.message).toContain("owned source inputs did not change");
     expect(staleOwnedSource.status).toBe("stale_source_version");
     expect(staleOwnedSource.needsRefresh).toBe(true);
+  });
+
+  it("does not treat future-dated reports as current", () => {
+    const future = getArtifactRefreshStatus({
+      artifactPath: "agent/state/current-beta-exit-status.generated.json",
+      generatedAtUtc: "2026-05-21T13:00:00.000Z",
+      sourceCommit: "new",
+      currentCodeVersion: "new",
+      nowUtc: "2026-05-20T13:00:00.000Z",
+    });
+
+    expect(future.status).toBe("unknown_freshness");
+    expect(future.needsRefresh).toBe(true);
+    expect(future.formalEvidenceGateCanClear).toBe(false);
   });
 
   it("builds refresh plans with commands and no raw Git jargon in user-facing messages", () => {

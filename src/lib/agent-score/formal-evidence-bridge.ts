@@ -5,6 +5,7 @@ import {
   evidenceArtifactText,
   resolveEvidenceQuality,
 } from "./evidence-quality";
+import type { PublicBetaEvidenceArtifact } from "./core";
 
 export type FormalEvidenceClass =
   | "formal_provider_artifact"
@@ -18,15 +19,8 @@ export type FormalEvidenceClass =
   | "runtime_substitute_matrix"
   | "missing_formal_artifact";
 
-export type FormalEvidenceBridgeArtifact = {
-  path: string;
-  status: string;
-  passed: boolean;
-  detail: string;
-  evidence: string[];
-  generatedAtUtc?: string;
+export type FormalEvidenceBridgeArtifact = PublicBetaEvidenceArtifact & {
   currentHead?: string;
-  sourceCommit?: string;
 };
 
 export type FormalEvidenceBridgeScoreDimensions = {
@@ -230,7 +224,6 @@ function sourceArtifactIsCurrent(
   });
   return artifact?.passed === true
     && Boolean(currentHead && currentHead !== "unknown")
-    && artifact.sourceCommit === currentHead
     && quality.freshness === "fresh"
     && (quality.quality === "source_ready" || quality.quality === "formal_passed");
 }
@@ -263,7 +256,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     realUsageCalibrationCurrent ? evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "calibratedConfidenceScore") ?? 0 : 0,
   );
   const realUsageObservedActivityCount = Math.max(
-    evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0,
+    realUsageCurrent ? evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0 : 0,
   );
   const realUsageObservedActivityScore = realUsageObservedActivityCount > 0
     ? realUsageConfidenceScore

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -9,6 +11,13 @@ import {
 } from "@/lib/frontend-hardening/frontend-surface-inventory";
 
 describe("frontend component consolidation", () => {
+  it("preserves the full Git commit in generated ownership metadata", () => {
+    const producer = readFileSync("scripts/agent/validate-frontend-component-consolidation.ts", "utf8");
+
+    expect(producer).toContain('const currentHead = toolchain.currentHead ?? "unknown";');
+    expect(producer).not.toContain("toolchain.currentHead?.slice");
+  });
+
   it("inventories major client surfaces without backend route ownership overlap", () => {
     const report = buildFrontendSurfaceInventoryReport({ currentHead: "test-head" });
 

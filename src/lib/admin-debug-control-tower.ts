@@ -385,7 +385,7 @@ function normalizePublicBetaOperatorAction(value: unknown): AdminDebugPublicBeta
     const title = toStringValue(value.title);
     const action = toStringValue(value.action);
     const source = toStringValue(value.source);
-    if (!id || !lane || !title || !action || !source) return null;
+    if (!id || !lane || !title || !action || !source || typeof value.blocksLaunch !== "boolean") return null;
 
     return {
         id: id.slice(0, 160),
@@ -393,14 +393,27 @@ function normalizePublicBetaOperatorAction(value: unknown): AdminDebugPublicBeta
         title: title.slice(0, 220),
         action: action.slice(0, 500),
         source: source.slice(0, 260),
-        blocksLaunch: value.blocksLaunch === true,
+        blocksLaunch: value.blocksLaunch,
     };
 }
 
-function normalizePublicBetaOperatorActionQueue(value: unknown) {
-    return Array.isArray(value)
-        ? value.map(normalizePublicBetaOperatorAction).filter((action): action is AdminDebugPublicBetaOperatorAction => Boolean(action)).slice(0, 50)
-        : [];
+function normalizePublicBetaOperatorActionQueue(value: unknown, expectedLane: AdminDebugPublicBetaOperatorActionLane) {
+    if (!Array.isArray(value) || value.length > 50) return null;
+    const actions = value.map(normalizePublicBetaOperatorAction);
+    if (actions.some((action) => !action || action.lane !== expectedLane)) return null;
+    return actions as AdminDebugPublicBetaOperatorAction[];
+}
+
+function publicBetaOperatorActionsMatch(
+    left: AdminDebugPublicBetaOperatorAction,
+    right: AdminDebugPublicBetaOperatorAction,
+) {
+    return left.id === right.id
+        && left.lane === right.lane
+        && left.title === right.title
+        && left.action === right.action
+        && left.source === right.source
+        && left.blocksLaunch === right.blocksLaunch;
 }
 
 function normalizePublicBetaOperatorDecision(value: unknown): AdminDebugPublicBetaOperatorDecision | null {
@@ -411,33 +424,78 @@ function normalizePublicBetaOperatorDecision(value: unknown): AdminDebugPublicBe
     const releaseStatus = oneOf(value.releaseReadiness.status, PUBLIC_BETA_RELEASE_STATUSES);
     const compositeScore = toNumber(value.compositeConfidence.score);
     const primaryAction = value.primaryAction === null ? null : normalizePublicBetaOperatorAction(value.primaryAction);
-    if (sourceScore === null || !sourceStatus || !releaseStatus || compositeScore === null || (value.primaryAction !== null && !primaryAction)) return null;
+    const sourceDetail = toStringValue(value.sourceReadiness.detail);
+    const releaseDetail = toStringValue(value.releaseReadiness.detail);
+    const compositeDetail = toStringValue(value.compositeConfidence.detail);
+    const blockerCount = toNumber(value.releaseReadiness.blockerCount);
+    const releaseReady = value.releaseReadiness.ready;
+    const actionQueues = {
+        sourceFixes: normalizePublicBetaOperatorActionQueue(value.actionQueues.sourceFixes, "source_fix"),
+        sourceVerification: normalizePublicBetaOperatorActionQueue(value.actionQueues.sourceVerification, "source_verification"),
+        evidenceRefresh: normalizePublicBetaOperatorActionQueue(value.actionQueues.evidenceRefresh, "evidence_refresh"),
+        externalProof: normalizePublicBetaOperatorActionQueue(value.actionQueues.externalProof, "external_proof"),
+        ownerReview: normalizePublicBetaOperatorActionQueue(value.actionQueues.ownerReview, "owner_review"),
+    };
+    if (
+        sourceScore === null
+        || sourceScore < 0
+        || sourceScore > 100
+        || !sourceStatus
+        || !sourceDetail
+        || !releaseStatus
+        || typeof releaseReady !== "boolean"
+        || blockerCount === null
+        || !Number.isInteger(blockerCount)
+        || blockerCount < 0
+        || !releaseDetail
+        || compositeScore === null
+        || compositeScore < 0
+        || compositeScore > 100
+        || value.compositeConfidence.useAsWorkTarget !== false
+        || !compositeDetail
+        || (value.primaryAction !== null && !primaryAction)
+        || Object.values(actionQueues).some((queue) => queue === null)
+    ) return null;
+
+    const allActions = Object.values(actionQueues).flat() as AdminDebugPublicBetaOperatorAction[];
+    const uniqueActionKeys = new Set(allActions.map((entry) => entry.id));
+    const blockingActions = allActions.filter((entry) => entry.blocksLaunch);
+    const primaryIsQueued = primaryAction === null
+        || allActions.some((entry) => publicBetaOperatorActionsMatch(entry, primaryAction));
+    const readyInvariant = releaseReady
+        ? releaseStatus === "launch_ready" && sourceStatus === "ready" && blockerCount === 0 && blockingActions.length === 0
+        : releaseStatus !== "launch_ready" && blockerCount > 0 && blockingActions.length > 0 && primaryAction?.blocksLaunch === true;
+    if (
+        uniqueActionKeys.size !== allActions.length
+        || !primaryIsQueued
+        || !readyInvariant
+    ) return null;
 
     return {
         version: "operator_decision_v1",
         sourceReadiness: {
             score: sourceScore,
             status: sourceStatus,
-            detail: toStringValue(value.sourceReadiness.detail, "Source readiness detail is unavailable.").slice(0, 500),
+            detail: sourceDetail.slice(0, 500),
         },
         releaseReadiness: {
             status: releaseStatus,
-            ready: value.releaseReadiness.ready === true,
-            blockerCount: Math.max(0, Math.trunc(toNumber(value.releaseReadiness.blockerCount) ?? 0)),
-            detail: toStringValue(value.releaseReadiness.detail, "Release readiness detail is unavailable.").slice(0, 500),
+            ready: releaseReady,
+            blockerCount,
+            detail: releaseDetail.slice(0, 500),
         },
         primaryAction,
         actionQueues: {
-            sourceFixes: normalizePublicBetaOperatorActionQueue(value.actionQueues.sourceFixes),
-            sourceVerification: normalizePublicBetaOperatorActionQueue(value.actionQueues.sourceVerification),
-            evidenceRefresh: normalizePublicBetaOperatorActionQueue(value.actionQueues.evidenceRefresh),
-            externalProof: normalizePublicBetaOperatorActionQueue(value.actionQueues.externalProof),
-            ownerReview: normalizePublicBetaOperatorActionQueue(value.actionQueues.ownerReview),
+            sourceFixes: actionQueues.sourceFixes as AdminDebugPublicBetaOperatorAction[],
+            sourceVerification: actionQueues.sourceVerification as AdminDebugPublicBetaOperatorAction[],
+            evidenceRefresh: actionQueues.evidenceRefresh as AdminDebugPublicBetaOperatorAction[],
+            externalProof: actionQueues.externalProof as AdminDebugPublicBetaOperatorAction[],
+            ownerReview: actionQueues.ownerReview as AdminDebugPublicBetaOperatorAction[],
         },
         compositeConfidence: {
             score: compositeScore,
             useAsWorkTarget: false,
-            detail: toStringValue(value.compositeConfidence.detail, "Diagnostic context only; use the typed action queues for work.").slice(0, 500),
+            detail: compositeDetail.slice(0, 500),
         },
     };
 }
@@ -481,11 +539,12 @@ function readCurrentHead() {
 function readReportCommitState(raw: Record<string, unknown>, repoCurrentHead: string | null) {
     const sourceCommit = normalizeCommit(raw.sourceCommit);
     const currentHead = normalizeCommit(raw.currentHead);
+    const recordedHead = currentHead ?? sourceCommit;
     const sourceCommitMismatch = Boolean(sourceCommit && currentHead && !commitsMatch(sourceCommit, currentHead));
-    const currentHeadLag = Boolean(currentHead && repoCurrentHead && !commitsMatch(currentHead, repoCurrentHead));
+    const currentHeadLag = Boolean(recordedHead && repoCurrentHead && !commitsMatch(recordedHead, repoCurrentHead));
     const sourceDrift: AdminDebugReportCard["sourceDrift"] = sourceCommitMismatch || currentHeadLag
         ? "stale"
-        : sourceCommit || currentHead
+        : recordedHead && repoCurrentHead
             ? "current"
             : "unknown";
 
@@ -550,12 +609,55 @@ function statusFromScore(score: number | null, fallback: string) {
     return "fail";
 }
 
+function explicitReportFailureReasons(raw: Record<string, unknown>) {
+    const declaredStatuses = [raw.overallStatus, raw.status, raw.validationState]
+        .map((value) => toStringValue(value).toLowerCase())
+        .filter(Boolean);
+    const explicitlyFailed = raw.passed === false
+        || declaredStatuses.some((status) => ["fail", "failed", "error", "critical", "blocked"].includes(status));
+    if ("validationFailures" in raw && !Array.isArray(raw.validationFailures)) {
+        return ["The generated report validationFailures field is malformed."];
+    }
+    const validationFailures = Array.isArray(raw.validationFailures)
+        ? raw.validationFailures.slice(0, 10).map((failure, index) => {
+            if (typeof failure === "string" && failure.trim()) return failure.trim().slice(0, 500);
+            if (isRecord(failure)) {
+                return toStringValue(failure.message ?? failure.detail ?? failure.title, `Validation failure ${index + 1}`).slice(0, 500);
+            }
+            return `Validation failure ${index + 1}`;
+        })
+        : [];
+    if (validationFailures.length > 0) return [...new Set(validationFailures)];
+    return explicitlyFailed ? ["The generated report explicitly declares a failed validation state."] : [];
+}
+
+function buildExplicitReportFailureFindings(
+    definition: ReportDefinition,
+    relativePath: string,
+    reasons: string[],
+): AdminDebugFindingCard[] {
+    return reasons.slice(0, 5).map((reason, index) => ({
+        id: `${definition.id}-explicit-validation-failure-${index}`,
+        reportId: definition.id,
+        section: definition.section,
+        severity: definition.required ? "critical" : "major",
+        title: `${definition.label} validation failed`,
+        domain: definition.section,
+        filePath: relativePath,
+        humanReadableWarning: reason,
+        suggestedValidator: definition.command,
+        evidence: ["The artifact's explicit validation result outranks its numeric score."],
+        truthState: "failed",
+    }));
+}
+
 function truthStateFromStatus(status: string, freshness: AdminDebugReportCard["freshness"], required: boolean): AdminDebugTruthState {
     if (freshness === "missing") return required ? "missing" : "unavailable";
     if (freshness === "failed") return "failed";
-    if (freshness === "stale_24h" || freshness === "stale_72h") return "stale";
     const normalized = status.toLowerCase();
-    if (["fail", "failed", "critical"].includes(normalized)) return "failed";
+    if (["fail", "failed", "error", "critical", "blocked"].includes(normalized)) return "failed";
+    if (freshness === "unknown") return "unknown";
+    if (freshness === "stale_24h" || freshness === "stale_72h") return "stale";
     if (["warning", "warn", "beta-risk", "degraded", "review", "needs_review"].includes(normalized)) return "stale";
     if (["clean", "pass", "live", "healthy"].includes(normalized)) return "live";
     return "unknown";
@@ -738,26 +840,61 @@ function normalizePublicBetaEvidenceGate(value: unknown): AdminDebugPublicBetaEv
     if (!isRecord(value)) return null;
     const id = toStringValue(value.id);
     const label = toStringValue(value.label);
-    if (!id || !label) return null;
+    const status = toStringValue(value.status);
+    const detail = toStringValue(value.detail);
+    const recommendedAction = toStringValue(value.recommendedAction);
+    const evidenceQuality = toStringValue(value.evidenceQuality);
+    const freshness = toStringValue(value.freshness);
+    if (
+        !id
+        || !label
+        || !status
+        || !detail
+        || !recommendedAction
+        || !evidenceQuality
+        || !freshness
+        || typeof value.blocksLaunch !== "boolean"
+        || (status.toLowerCase() === "ready" && value.blocksLaunch)
+    ) return null;
 
     return {
         id: id.slice(0, 120),
         label: label.slice(0, 220),
-        status: toStringValue(value.status, "Unknown").slice(0, 120),
-        detail: toStringValue(value.detail, "The evidence gate did not provide detail.").slice(0, 500),
-        recommendedAction: toStringValue(value.recommendedAction, "Open the owning evidence lane and classify the missing source.").slice(0, 500),
-        evidenceQuality: toStringValue(value.evidenceQuality, "unknown").slice(0, 120),
-        freshness: toStringValue(value.freshness, "unknown").slice(0, 120),
-        blocksLaunch: value.blocksLaunch === true,
+        status: status.slice(0, 120),
+        detail: detail.slice(0, 500),
+        recommendedAction: recommendedAction.slice(0, 500),
+        evidenceQuality: evidenceQuality.slice(0, 120),
+        freshness: freshness.slice(0, 120),
+        blocksLaunch: value.blocksLaunch,
         truthState: publicBetaEvidenceGateTruthState(value),
     };
 }
 
-function readTypedPublicBetaEvidenceGates(raw: Record<string, unknown>) {
-    if (!Array.isArray(raw.evidenceGates)) return null;
-    return raw.evidenceGates
-        .map(normalizePublicBetaEvidenceGate)
-        .filter((gate): gate is AdminDebugPublicBetaEvidenceGate => Boolean(gate));
+type PublicBetaEvidenceGateParseResult =
+    | { state: "absent"; gates: null }
+    | { state: "invalid"; gates: null }
+    | { state: "valid"; gates: AdminDebugPublicBetaEvidenceGate[] };
+
+function publicBetaScoreRequiresTypedProjection(raw: Record<string, unknown>) {
+    return /^beta_health_v(?:[2-9]|[1-9]\d+)$/u.test(toStringValue(raw.scoreVersion));
+}
+
+function readTypedPublicBetaEvidenceGates(raw: Record<string, unknown>): PublicBetaEvidenceGateParseResult {
+    if (!("evidenceGates" in raw)) {
+        return publicBetaScoreRequiresTypedProjection(raw)
+            ? { state: "invalid", gates: null }
+            : { state: "absent", gates: null };
+    }
+    if (!Array.isArray(raw.evidenceGates) || raw.evidenceGates.length === 0 || raw.evidenceGates.length > 50) {
+        return { state: "invalid", gates: null };
+    }
+    const gates = raw.evidenceGates.map(normalizePublicBetaEvidenceGate);
+    if (gates.some((gate) => !gate)) return { state: "invalid", gates: null };
+    const normalizedGates = gates as AdminDebugPublicBetaEvidenceGate[];
+    if (new Set(normalizedGates.map((gate) => gate.id)).size !== normalizedGates.length) {
+        return { state: "invalid", gates: null };
+    }
+    return { state: "valid", gates: normalizedGates };
 }
 
 function typedPublicBetaEvidenceGateFinding(
@@ -886,8 +1023,23 @@ function publicBetaEvidenceGateFindings(
 ) {
     if (definition.id !== "public-beta-score") return [];
     const typedGates = readTypedPublicBetaEvidenceGates(raw);
-    if (typedGates) {
-        return typedGates
+    if (typedGates.state === "invalid") {
+        return [{
+            id: "public-beta-typed-gates-invalid",
+            reportId: definition.id,
+            section: definition.section,
+            severity: "critical" as const,
+            title: "Typed public beta evidence gates are malformed",
+            domain: "beta_readiness",
+            filePath: relativePath,
+            humanReadableWarning: "Regenerate the canonical public beta score; malformed or empty typed evidence gates cannot clear readiness.",
+            suggestedValidator: definition.command,
+            evidence: ["evidenceGates must be a non-empty array of complete, uniquely identified gates."],
+            truthState: "failed" as const,
+        }];
+    }
+    if (typedGates.state === "valid") {
+        return typedGates.gates
             .filter((gate) => gate.status.toLowerCase() !== "ready" || gate.blocksLaunch)
             .slice(0, 5)
             .map((gate, index) => typedPublicBetaEvidenceGateFinding(definition, relativePath, gate, index));
@@ -944,38 +1096,50 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
     try {
         const updatedAtMs = statSync(fullPath).mtimeMs;
         const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
-        const generatedAtRaw = raw.generatedAt ?? raw.generated_at;
+        const generatedAtRaw = raw.generatedAtUtc ?? raw.generatedAt ?? raw.generated_at;
         const generatedAt = typeof generatedAtRaw === "string" && generatedAtRaw.trim().length > 0
             ? generatedAtRaw.trim()
             : null;
         const generatedAtMs = generatedAt ? Date.parse(generatedAt) : Number.NaN;
-        const sourceTimestamp = Number.isFinite(generatedAtMs) ? generatedAtMs : updatedAtMs;
-        const ageHours = Math.max(0, (nowMs - sourceTimestamp) / ONE_HOUR_MS);
-        const freshness = nowMs - sourceTimestamp > STALE_MAJOR_MS
-            ? "stale_72h"
-            : nowMs - sourceTimestamp > FRESH_MS
-                ? "stale_24h"
-                : "fresh";
+        const timestampValid = Number.isFinite(generatedAtMs) && generatedAtMs <= nowMs;
+        const ageMs = timestampValid ? nowMs - generatedAtMs : null;
+        const ageHours = ageMs === null ? null : ageMs / ONE_HOUR_MS;
+        const freshness: AdminDebugReportCard["freshness"] = ageMs === null
+            ? "unknown"
+            : ageMs > STALE_MAJOR_MS
+                ? "stale_72h"
+                : ageMs > FRESH_MS
+                    ? "stale_24h"
+                    : "fresh";
         const score = toNumber(raw.overallScore ?? raw.score);
-        const status = statusFromScore(score, toStringValue(raw.overallStatus ?? raw.status, "unknown"));
+        const explicitFailureReasons = explicitReportFailureReasons(raw);
+        const status = explicitFailureReasons.length > 0
+            ? "failed"
+            : statusFromScore(score, toStringValue(raw.overallStatus ?? raw.status, "unknown"));
         const commitState = readReportCommitState(raw, repoCurrentHead);
         const allFindings = collectFindings(raw);
         const normalizedFindings = allFindings
             .map((finding, index) => normalizeFinding(definition.id, definition.section, definition.command, index, finding))
             .sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
+        const hasConcreteValidationFailure = (Array.isArray(raw.validationFailures) && raw.validationFailures.length > 0)
+            || ("validationFailures" in raw && !Array.isArray(raw.validationFailures));
+        const explicitFailureFindings = hasConcreteValidationFailure || normalizedFindings.length === 0
+            ? buildExplicitReportFailureFindings(definition, relativePath, explicitFailureReasons)
+            : [];
+        const reportFindings = [...explicitFailureFindings, ...normalizedFindings];
         const queueFindings = collectSelfHealingQueueFindings(raw)
-            .map((finding, index) => normalizeFinding(definition.id, definition.section, definition.command, index + normalizedFindings.length, finding))
+            .map((finding, index) => normalizeFinding(definition.id, definition.section, definition.command, index + reportFindings.length, finding))
             .sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
         const evidenceGateFindings = publicBetaEvidenceGateFindings(definition, relativePath, raw);
         const criticalCount = Math.max(
             Number(raw.criticalCount) || 0,
-            [...normalizedFindings, ...queueFindings, ...evidenceGateFindings].filter((finding) => finding.severity === "critical").length,
+            [...reportFindings, ...queueFindings, ...evidenceGateFindings].filter((finding) => finding.severity === "critical").length,
         );
         const majorCount = Math.max(
             Number(raw.majorCount) || 0,
-            [...normalizedFindings, ...queueFindings].filter((finding) => finding.severity === "major").length,
+            [...reportFindings, ...queueFindings].filter((finding) => finding.severity === "major").length,
         );
-        const staleFinding: AdminDebugFindingCard[] = freshness === "stale_72h" && definition.required
+        const staleFinding: AdminDebugFindingCard[] = freshness === "stale_72h" && definition.required && ageHours !== null
             ? [{
                 id: `${definition.id}-stale-72h`,
                 reportId: definition.id,
@@ -988,6 +1152,23 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
                 suggestedValidator: definition.command,
                 evidence: [`Age ${ageHours.toFixed(1)}h`],
                 truthState: "stale",
+            }]
+            : [];
+        const timestampFinding: AdminDebugFindingCard[] = freshness === "unknown"
+            ? [{
+                id: `${definition.id}-generated-timestamp-unknown`,
+                reportId: definition.id,
+                section: definition.section,
+                severity: definition.required ? "major" : "moderate",
+                title: `${definition.label} generated timestamp is unavailable`,
+                domain: definition.section,
+                filePath: relativePath,
+                humanReadableWarning: generatedAt
+                    ? "Generated state has an invalid or future generatedAtUtc timestamp and cannot be treated as current."
+                    : "Generated state has no generatedAtUtc timestamp and cannot be treated as current.",
+                suggestedValidator: definition.command,
+                evidence: [generatedAt ? `generatedAtUtc=${generatedAt}` : "generatedAtUtc=missing"],
+                truthState: "unknown",
             }]
             : [];
         const sourceDriftFinding = buildSourceDriftFinding(definition, relativePath, commitState);
@@ -1010,19 +1191,20 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
             freshness,
             generatedAt,
             updatedAtMs,
-            ageHours: Number(ageHours.toFixed(1)),
-            findingCount: derivedFindingCount(raw, normalizedFindings, queueFindings),
+            ageHours: ageHours === null ? null : Number(ageHours.toFixed(1)),
+            findingCount: Math.max(derivedFindingCount(raw, reportFindings, queueFindings), timestampFinding.length),
             evidenceGateCount: evidenceGateFindings.length,
             criticalCount,
             majorCount: majorCount
                 + staleFinding.length
+                + timestampFinding.length
                 + sourceDriftFinding.length
                 + evidenceGateFindings.filter((finding) => finding.severity === "major").length,
             required: definition.required === true,
             sourceCommit: commitState.sourceCommit,
             currentHead: commitState.currentHead,
             sourceDrift: commitState.sourceDrift,
-            topFindings: [...staleFinding, ...sourceDriftFinding, ...evidenceGateFindings, ...queueFindings, ...normalizedFindings].slice(0, 5),
+            topFindings: [...normalizedFindings, ...explicitFailureFindings, ...timestampFinding, ...staleFinding, ...sourceDriftFinding, ...evidenceGateFindings, ...queueFindings].slice(0, 5),
         };
     } catch (error) {
         return {
@@ -1063,7 +1245,11 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
     }
 }
 
-function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCurrentHead: string | null) {
+function readCanonicalPublicBetaScore(
+    rootDir: string | null | undefined,
+    repoCurrentHead: string | null,
+    nowMs: number,
+) {
     const fullPath = resolveAgentStatePath(rootDir, "public-beta-score.generated.json");
     if (!existsSync(fullPath)) {
         return {
@@ -1086,13 +1272,53 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
     try {
         const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
         const commitState = readReportCommitState(raw, repoCurrentHead);
+        const generatedAtUtc = toStringValue(raw.generatedAtUtc ?? raw.generatedAt, "") || null;
+        const generatedAtMs = generatedAtUtc ? Date.parse(generatedAtUtc) : Number.NaN;
+        const timestampCurrent = Number.isFinite(generatedAtMs)
+            && generatedAtMs <= nowMs
+            && nowMs - generatedAtMs <= FRESH_MS;
+        const requiresRefresh = commitState.sourceDrift === "stale" || !timestampCurrent;
+        const provenanceUnknown = commitState.sourceDrift === "unknown";
+        const explicitFailureReasons = explicitReportFailureReasons(raw);
+        const scoreArtifactFailed = explicitFailureReasons.length > 0;
+        const refreshReason = commitState.sourceDrift === "stale"
+            ? "Canonical public beta score artifact source metadata is stale"
+            : generatedAtUtc
+                ? "Canonical public beta score artifact is outside the 24-hour freshness window"
+                : "Canonical public beta score artifact has no valid generated timestamp";
         const operatorDecision = normalizePublicBetaOperatorDecision(raw.operatorDecision);
-        const evidenceGates = readTypedPublicBetaEvidenceGates(raw) ?? [];
+        const operatorDecisionInvalid = ("operatorDecision" in raw && !operatorDecision)
+            || (publicBetaScoreRequiresTypedProjection(raw) && !("operatorDecision" in raw));
+        const evidenceGateParse = readTypedPublicBetaEvidenceGates(raw);
+        const evidenceGates = evidenceGateParse.state === "valid" ? evidenceGateParse.gates : [];
+        const rawLaunchGateStatus = oneOf(raw.launchGateStatus, PUBLIC_BETA_RELEASE_STATUSES);
+        const typedProjectionContradiction = Boolean(operatorDecision) && (
+            ("launchGateStatus" in raw && rawLaunchGateStatus !== operatorDecision?.releaseReadiness.status)
+            || (publicBetaScoreRequiresTypedProjection(raw) && !rawLaunchGateStatus)
+            || (operatorDecision?.releaseReadiness.ready === true && evidenceGates.some((gate) => gate.blocksLaunch))
+        );
+        const typedProjectionInvalid = operatorDecisionInvalid
+            || evidenceGateParse.state === "invalid"
+            || typedProjectionContradiction;
+        const projectionFailed = scoreArtifactFailed || typedProjectionInvalid;
+        const decisionUsable = !requiresRefresh && !provenanceUnknown && !projectionFailed;
+        const scoreFailureCap = scoreArtifactFailed
+            ? [formatPublicBetaCapDetailForAdmin(`Needs review: ${explicitFailureReasons[0]}`)]
+            : [];
+        const typedProjectionCap = typedProjectionInvalid
+            ? [formatPublicBetaCapDetailForAdmin("Needs review: Canonical public beta typed decision or evidence gates are malformed; regenerate the score artifact before using its verdict.")]
+            : [];
         const capDetails = toStringArray(raw.evidenceCapDetails).map(formatPublicBetaCapDetailForAdmin);
-        const sourceDriftCap = commitState.sourceDrift === "stale"
+        const sourceDriftCap = requiresRefresh || provenanceUnknown
             ? [
                 formatPublicBetaCapDetailForAdmin([
-                    "Report freshness and PR integrity: Public beta score source metadata is stale",
+                    provenanceUnknown
+                        ? "Report freshness and source integrity: Current code version is unavailable, so score provenance is unknown"
+                        : commitState.sourceDrift === "stale"
+                        ? "Report freshness and source integrity: Public beta score source metadata is stale"
+                        : generatedAtUtc
+                            ? "Report freshness and source integrity: Public beta score is outside the 24-hour freshness window"
+                            : "Report freshness and source integrity: Public beta score has no valid generated timestamp",
                     commitState.sourceCommit ? `sourceCommit=${commitState.sourceCommit}` : null,
                     commitState.currentHead ? `reportCurrentHead=${commitState.currentHead}` : null,
                     commitState.repoCurrentHead ? `repoCurrentHead=${commitState.repoCurrentHead}` : null,
@@ -1103,37 +1329,51 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
             ?? toStringValue(raw.readinessStatus, "unknown");
         const rawReadinessReason = operatorDecision?.releaseReadiness.detail
             ?? toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied.");
-        const canonicalCapDetails = [...sourceDriftCap, ...capDetails];
-        const canonicalReadinessReason = commitState.sourceDrift === "stale"
-            ? formatPublicBetaCapDetailForAdmin(`Report freshness and PR integrity: Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`)
-            : operatorDecision
-                ? rawReadinessReason
-                : formatPublicBetaCapDetailForAdmin(rawReadinessReason);
+        const canonicalCapDetails = [...sourceDriftCap, ...scoreFailureCap, ...typedProjectionCap, ...capDetails];
+        const canonicalReadinessReason = scoreArtifactFailed
+            ? `Failed: ${explicitFailureReasons[0]}`
+            : typedProjectionInvalid
+                ? "Needs review: Canonical public beta typed decision or evidence gates are malformed; regenerate the score artifact before using its verdict."
+                : provenanceUnknown
+                    ? formatPublicBetaCapDetailForAdmin(`Report freshness and source integrity: Current code version is unavailable, so the canonical score decision cannot be used. ${rawReadinessReason}`)
+                    : requiresRefresh
+                        ? formatPublicBetaCapDetailForAdmin(`Report freshness and source integrity: ${refreshReason}. ${rawReadinessReason}`)
+                        : operatorDecision
+                            ? rawReadinessReason
+                            : formatPublicBetaCapDetailForAdmin(rawReadinessReason);
         const canonicalReadinessStatus = formatPublicBetaReadinessStatusForAdmin({
-            status: commitState.sourceDrift === "stale" ? "Report refresh needed" : rawReadinessStatus,
+            status: projectionFailed ? "failed" : provenanceUnknown ? "Unknown evidence" : requiresRefresh ? "Report refresh needed" : rawReadinessStatus,
             reason: canonicalReadinessReason,
             capDetails: canonicalCapDetails,
         });
         return {
             canonicalPublicBetaScore: toNumber(raw.overallScore),
-            canonicalPublicBetaStatus: commitState.sourceDrift === "stale"
-                ? "stale"
-                : toStringValue(raw.overallStatus ?? raw.status, "unknown"),
+            canonicalPublicBetaStatus: projectionFailed
+                ? "failed"
+                : provenanceUnknown
+                    ? "unknown"
+                    : requiresRefresh
+                        ? "stale"
+                        : toStringValue(raw.overallStatus ?? raw.status, "unknown"),
             canonicalPublicBetaReadinessStatus: canonicalReadinessStatus,
             canonicalPublicBetaReadinessReason: canonicalReadinessReason,
             canonicalPublicBetaEvidenceScore: toNumber(raw.evidenceScore),
             canonicalPublicBetaCapDetails: canonicalCapDetails,
             canonicalPublicBetaEvidenceGates: evidenceGates,
-            canonicalPublicBetaOperatorDecision: operatorDecision,
-            canonicalPublicBetaGeneratedAtUtc: toStringValue(raw.generatedAtUtc ?? raw.generatedAt, "") || null,
+            canonicalPublicBetaOperatorDecision: decisionUsable ? operatorDecision : null,
+            canonicalPublicBetaGeneratedAtUtc: generatedAtUtc,
             canonicalPublicBetaSourceCommit: commitState.sourceCommit,
             canonicalPublicBetaCurrentHead: commitState.currentHead,
             canonicalPublicBetaSourceDrift: commitState.sourceDrift,
-            canonicalPublicBetaTruthState: commitState.sourceDrift === "stale"
-                ? "stale" as const
-                : commitState.sourceDrift === "current"
-                    ? "live" as const
-                    : "unknown" as const,
+            canonicalPublicBetaTruthState: projectionFailed
+                ? "failed" as const
+                : provenanceUnknown
+                    ? "unknown" as const
+                    : requiresRefresh
+                        ? "stale" as const
+                        : commitState.sourceDrift === "current"
+                            ? "live" as const
+                            : "unknown" as const,
         };
     } catch {
         return {
@@ -1615,14 +1855,17 @@ function buildSections(reports: AdminDebugReportCard[]) {
 export function buildAdminDebugControlTowerModel(options?: {
     rootDir?: string;
     nowMs?: number;
+    repoCurrentHead?: string | null;
     debugEvidence?: DebugEvidenceAuditSummary[];
     debugEvidenceSource?: "firestore" | "generated" | "unavailable";
 }): AdminDebugControlTowerModel {
     const rootDir = options?.rootDir ?? null;
     const nowMs = options?.nowMs ?? Date.now();
-    const repoCurrentHead = readCurrentHead();
+    const repoCurrentHead = options && Object.prototype.hasOwnProperty.call(options, "repoCurrentHead")
+        ? options.repoCurrentHead ?? null
+        : readCurrentHead();
     const reports = ADMIN_DEBUG_CONTROL_TOWER_REPORTS.map((definition) => readGeneratedReport(rootDir, definition, nowMs, repoCurrentHead));
-    const canonicalPublicBeta = readCanonicalPublicBetaScore(rootDir, repoCurrentHead);
+    const canonicalPublicBeta = readCanonicalPublicBetaScore(rootDir, repoCurrentHead, nowMs);
     const gumdropRecovery = readGeneratedGumdropRecoverySummary(rootDir, nowMs);
     const allFindings = reports.flatMap((report) => report.topFindings);
     const sortedFindings = [...allFindings].sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);

@@ -32,7 +32,7 @@ export type GeneratedArtifactGitContext = {
   artifactCommit: string | null;
   effectiveComparisonHead: string | null;
   changedFilesInHead: string[];
-  changedFilesSinceArtifactHead: string[];
+  changedFilesSinceArtifactHead?: string[];
 };
 
 function normalizePath(path: string) {
@@ -107,7 +107,12 @@ export function classifyGeneratedArtifactVersion(input: GeneratedArtifactVersion
     };
   }
 
-  if (input.ownedSourcePaths && !ownedSourceChanged(input)) {
+  if (
+    input.ownedSourcePaths
+    && input.ownedSourcePaths.length > 0
+    && Array.isArray(input.changedFilesSinceArtifactHead)
+    && !ownedSourceChanged(input)
+  ) {
     return {
       artifactPath,
       artifactHead,
@@ -179,12 +184,12 @@ export function readGeneratedArtifactGitContext(
     }
   }
 
-  let changedFilesSinceArtifactHead: string[] = [];
+  let changedFilesSinceArtifactHead: string[] | undefined;
   if (effectiveComparisonHead) {
     try {
       changedFilesSinceArtifactHead = gitList(cwd, ["diff", "--name-only", `${effectiveComparisonHead}..HEAD`]);
     } catch {
-      changedFilesSinceArtifactHead = [];
+      changedFilesSinceArtifactHead = undefined;
     }
   }
 

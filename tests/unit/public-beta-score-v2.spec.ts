@@ -12,6 +12,7 @@ const freshRequiredReports: PublicBetaEvidenceInput["requiredReports"] = [{
   freshness: "fresh",
   sourceCommit: "head",
   currentHead: "head",
+  validationState: "passed",
 }];
 
 const freshGeneratedAtUtc = new Date().toISOString();
@@ -129,7 +130,6 @@ function buildReport(evidence: PublicBetaEvidenceInput = {}) {
           lastSeenAt: Date.now(),
         }],
       },
-      openPrTriageFresh: true,
       costReadiness: {
         cloudRunCostReadiness: {
           status: "cost_review_required",

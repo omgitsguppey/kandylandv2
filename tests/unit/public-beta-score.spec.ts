@@ -48,6 +48,7 @@ const freshEvidence = {
             freshness: "fresh" as const,
             sourceCommit: currentHead,
             currentHead,
+            validationState: "passed" as const,
         },
     ],
     debugEvidence: {
@@ -132,7 +133,6 @@ const freshEvidence = {
         generatedAtUtc: freshGeneratedAtUtc,
         sourceCommit: currentHead,
     },
-    openPrTriageFresh: true,
 };
 
 const missingTargetedBehaviorEvidence = {
@@ -290,6 +290,7 @@ describe("public beta scoring math", () => {
 
     it("downgrades stale generated reports", () => {
         const report = buildPublicBetaScoreReport([], {
+            currentHead,
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
                 ...freshEvidence,
@@ -303,8 +304,10 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.readinessStatus).toBe("Stale evidence");
-        expect(report.overallStatus).toBe("fail");
+        expect(["beta-risk", "fail"]).toContain(report.overallStatus);
         expect(report.overallScore).toBeLessThan(100);
+        expect(report.operatorDecision.releaseReadiness.ready).toBe(false);
+        expect(report.launchBlockers.join("\n")).toContain("Required report freshness");
     });
 
     it("marks empty debug evidence as source evidence required", () => {
@@ -328,6 +331,7 @@ describe("public beta scoring math", () => {
 
     it("keeps missing UI source coverage from clearing the UI lane", () => {
         const report = buildPublicBetaScoreReport([], {
+            currentHead,
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
                 ...freshEvidence,
@@ -363,7 +367,7 @@ describe("public beta scoring math", () => {
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
     });
 
-    it("classifies missing provider smoke as source evidence required", () => {
+    it("classifies missing provider and payment proof as external evidence required", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -372,7 +376,7 @@ describe("public beta scoring math", () => {
             },
         });
 
-        expect(report.readinessStatus).toBe("Source evidence required");
+        expect(report.readinessStatus).toBe("External proof required");
         expect(report.overallScore).toBeLessThan(100);
     });
 
@@ -446,11 +450,12 @@ describe("public beta scoring math", () => {
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
         expect(smokeGate?.status).toBe("External proof required");
-        expect(smokeGate?.runtimeCredit).toBeGreaterThan(0);
+        expect(smokeGate?.runtimeCredit).toBe(0);
+        expect(report.runtimeHealthScore).toBeLessThan(100);
         expect(smokeGate?.evidence.join("\n")).toContain("deployedRuntimeRouteCredit=100");
         expect(smokeGate?.evidence.join("\n")).toContain("providerBackedSourceActivityCredit=0");
         expect(report.readinessStatus).toBe("External proof required");
-        expect(report.overallScore).toBeGreaterThanOrEqual(80);
+        expect(report.overallScore).toBeLessThan(100);
         expect(report.overallScore).toBeLessThanOrEqual(report.healthScore);
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);

@@ -1,6 +1,7 @@
 {
   "status": "template_not_evidence",
   "capturedAtUtc": "",
+  "currentHead": "",
   "appBaseUrl": "",
   "environment": "unknown",
   "checks": [

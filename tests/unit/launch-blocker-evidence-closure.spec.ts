@@ -26,7 +26,7 @@ function baseInput() {
       launchBlockers: [
         "Runtime/provider smoke: Runtime unverified",
         "Admin truth/sample evidence: Ready with smoke required",
-        "Report freshness and PR integrity: Stale evidence",
+        "Required report freshness: Stale evidence",
       ],
     },
     formalEvidenceBridge: {

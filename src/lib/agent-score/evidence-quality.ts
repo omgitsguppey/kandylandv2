@@ -1,5 +1,6 @@
 import type {
   PublicBetaCostReadiness,
+  PublicBetaCostReadinessLane,
   PublicBetaEvidenceArtifact,
   PublicBetaGeneratedReportEvidence,
 } from "./core";
@@ -56,7 +57,6 @@ export type PublicBetaCostReadinessScore = {
 export type PublicBetaRegressionRiskInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   runtimeCodeChangedSinceReport?: boolean;
-  openPrTriageFresh?: boolean;
   recentHighBlastFilesChanged?: boolean;
   staleGeneratedArtifacts?: string[];
   sourceValidatorsMissing?: string[];
@@ -168,7 +168,7 @@ function ageHours(generatedAtUtc: string | undefined, nowUtc: string | undefined
   const generated = Date.parse(generatedAtUtc);
   const now = Date.parse(nowUtc ?? new Date().toISOString());
   if (!Number.isFinite(generated) || !Number.isFinite(now)) return null;
-  return Math.max(0, (now - generated) / 3_600_000);
+  return (now - generated) / 3_600_000;
 }
 
 function resolveFreshness(
@@ -184,14 +184,9 @@ function resolveFreshness(
   if (context.requiredForExit && !artifact.sourceCommit) {
     return { freshness: "unknown", freshnessScore: 0, reason: "Required evidence sourceCommit is missing." };
   }
-  if (artifact.sourceCommit && context.currentHead && artifact.sourceCommit !== context.currentHead) {
-    if (artifact.versionStatus === "same_commit_snapshot" || artifact.versionStatus === "current_by_impact") {
-      return {
-        freshness: "fresh",
-        freshnessScore: 1,
-        reason: "Evidence was generated before the latest commit, but no owned source inputs changed.",
-      };
-    }
+  const acceptedVersionDrift = artifact.versionStatus === "same_commit_snapshot"
+    || artifact.versionStatus === "current_by_impact";
+  if (artifact.sourceCommit && context.currentHead && artifact.sourceCommit !== context.currentHead && !acceptedVersionDrift) {
     return {
       freshness: "head_mismatch",
       freshnessScore: 0.4,
@@ -201,6 +196,9 @@ function resolveFreshness(
   const hours = ageHours(artifact.generatedAtUtc, context.nowUtc);
   if (hours === null) {
     return { freshness: "unknown", freshnessScore: 0.6, reason: "Evidence generatedAtUtc is missing or invalid." };
+  }
+  if (hours < 0) {
+    return { freshness: "unknown", freshnessScore: 0, reason: "Evidence generatedAtUtc is in the future." };
   }
   const windowHours = context.freshnessWindowHours ?? PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS;
   if (hours > windowHours) {
@@ -212,6 +210,13 @@ function resolveFreshness(
       freshness: "stale",
       freshnessScore: round(clamp(decay, PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.staleDecayMin, 0.85)),
       reason: `Evidence is ${round(hours)}h old and outside the ${windowHours}h freshness window.`,
+    };
+  }
+  if (acceptedVersionDrift) {
+    return {
+      freshness: "fresh",
+      freshnessScore: 1,
+      reason: "Evidence is inside the freshness window and no owned source inputs changed.",
     };
   }
   return { freshness: "fresh", freshnessScore: 1, reason: "Evidence is fresh." };
@@ -406,6 +411,18 @@ export function scoreCostReadinessLaneStatus(status: string) {
   return 25;
 }
 
+export function costReadinessLaneNeedsOwnerReview(lane: PublicBetaCostReadinessLane) {
+  const status = normalizeStatus(lane.status);
+  return status === "owner_review"
+    || status === "cost_review_required"
+    || status === "source_guarded_external_review_remaining"
+    || status === "source_ready_no_runtime_usage_detected"
+    || status === "source_ready_config_missing_safe"
+    || status === "owner_review_external_billing_required"
+    || (status === "not_detected_in_repo"
+      && lane.evidence.some((entry) => /externalBillingObserved=true|external billing/iu.test(entry)));
+}
+
 export function scoreCostReadiness(costReadiness: PublicBetaCostReadiness): PublicBetaCostReadinessScore {
   const lanes = Object.entries(costReadiness);
   const reasons: string[] = [];
@@ -416,15 +433,7 @@ export function scoreCostReadiness(costReadiness: PublicBetaCostReadiness): Publ
   for (const [key, lane] of lanes) {
     const status = normalizeStatus(lane.status);
     total += scoreCostReadinessLaneStatus(status);
-    if (
-      status === "owner_review"
-      || status === "cost_review_required"
-      || status === "source_guarded_external_review_remaining"
-      || status === "source_ready_no_runtime_usage_detected"
-      || status === "source_ready_config_missing_safe"
-      || status === "owner_review_external_billing_required"
-      || (status === "not_detected_in_repo" && lane.evidence.some((entry) => /externalBillingObserved=true|external billing/iu.test(entry)))
-    ) {
+    if (costReadinessLaneNeedsOwnerReview(lane)) {
       ownerReviewRequired = true;
       reasons.push(`${key} remains source-cost/external-review tracked (${lane.status}).`);
     }
@@ -489,10 +498,6 @@ export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): Publi
   if (input.runtimeCodeChangedSinceReport) {
     penalty += 15;
     reasons.push("New runtime code landed after this report was created.");
-  }
-  if (input.openPrTriageFresh === false) {
-    penalty += 10;
-    reasons.push("Open PR triage is not fresh.");
   }
   if (input.recentHighBlastFilesChanged) {
     penalty += 10;

@@ -474,8 +474,8 @@ function buildPrClosure(input: {
   return {
     closure: {
       id: "reportFreshnessPrIntegrity",
-      label: "Report freshness and PR integrity",
-      currentStatus: stringValue(arrayValue(input.publicBetaScore.launchBlockers).find((entry) => /Report freshness and PR integrity/iu.test(String(entry))), "Report freshness and PR integrity: Stale evidence"),
+      label: "Required report freshness",
+      currentStatus: stringValue(arrayValue(input.publicBetaScore.launchBlockers).find((entry) => /Required report freshness/iu.test(String(entry))), "Required report freshness: Stale evidence"),
       classification,
       classificationDetails: [
         ...(staleClosed ? ["can_close_now" as const] : ["external_review_required" as const]),
@@ -597,7 +597,7 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
         reason: "Source admin truth wiring is present, but a redacted production sample remains the formal gate.",
       },
       {
-        reference: "Report freshness and PR integrity: Stale evidence",
+        reference: "Required report freshness: Stale evidence",
         classification: reportFreshnessPrIntegrity.classification,
         reason: openPrIntegrity.evidenceUnavailable
           ? "Open PR evidence was not queried or supplied; source validation cannot close PR integrity by assuming zero open PRs."

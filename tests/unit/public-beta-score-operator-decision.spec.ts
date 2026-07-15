@@ -66,8 +66,8 @@ function passingEvidence(): PublicBetaEvidenceInput {
       sourceCommit: CURRENT_HEAD,
       currentHead: CURRENT_HEAD,
       versionStatus: "current_head",
+      validationState: "passed",
     }],
-    openPrTriageFresh: true,
     targetedBehaviorEvidence: formalArtifact({
       path: "agent/state/targeted-behavior-evidence.generated.json",
       detail: "Targeted behavior validators passed.",
@@ -337,6 +337,24 @@ describe("public beta operator-decision invariants", () => {
     expect(report.operatorDecision.releaseReadiness.ready).toBe(true);
   });
 
+  it("clears provider and protected payment gates when formal proof accompanies operator context", () => {
+    const evidence = passingEvidence();
+    evidence.providerSmokeEvidence = {
+      ...evidence.providerSmokeEvidence!,
+      evidence: [
+        ...evidence.providerSmokeEvidence!.evidence,
+        "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke",
+        "operatorRevenueSmoke.providerBackedSiteActivityPassed=false",
+      ],
+    };
+
+    const report = buildReport([], evidence);
+
+    expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(true);
+    expect(report.launchClearance.formalGates.paymentSourceOfFunds.cleared).toBe(true);
+    expect(report.operatorDecision.releaseReadiness.ready).toBe(true);
+  });
+
   it("keeps optional advisory changes out of required health and release decisions", () => {
     const withoutDebugEvidence = buildReport();
     const evidenceWithDebug = passingEvidence();
@@ -389,6 +407,21 @@ describe("public beta operator-decision invariants", () => {
     });
   });
 
+  it("does not treat a fresh current failed required report as ready", () => {
+    const evidence = passingEvidence();
+    evidence.requiredReports = evidence.requiredReports?.map((report) => ({
+      ...report,
+      validationState: "failed",
+      validationDetail: "required child validator failed",
+    }));
+
+    const report = buildReport([], evidence);
+    const freshnessGate = report.evidenceGates.find((gate) => gate.id === "freshnessIntegrity");
+
+    expect(freshnessGate).toMatchObject({ status: "Blocked", blocksLaunch: true });
+    expect(report.operatorDecision.releaseReadiness.ready).toBe(false);
+  });
+
   it("does not accept an unrecognized passing status as formal evidence", () => {
     const evidence = passingEvidence();
     evidence.providerSmokeEvidence = {
@@ -402,6 +435,24 @@ describe("public beta operator-decision invariants", () => {
 
     expect(gate?.status).not.toBe("Ready");
     expect(gate?.blocksLaunch).toBe(true);
+    expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+    expect(report.operatorDecision.releaseReadiness.ready).toBe(false);
+  });
+
+  it.each([
+    ["stale current-by-impact", { generatedAtUtc: STALE_GENERATED_AT, sourceCommit: OLD_HEAD, versionStatus: "current_by_impact" as const }],
+    ["future timestamp", { generatedAtUtc: "2999-01-01T00:00:00.000Z" }],
+  ])("does not let %s formal evidence clear launch", (_label, override) => {
+    const evidence = passingEvidence();
+    evidence.providerSmokeEvidence = {
+      ...evidence.providerSmokeEvidence!,
+      ...override,
+    };
+
+    const report = buildReport([], evidence);
+    const gate = report.evidenceGates.find((candidate) => candidate.id === "runtimeProviderSmoke");
+
+    expect(gate?.status).not.toBe("Ready");
     expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
     expect(report.operatorDecision.releaseReadiness.ready).toBe(false);
   });

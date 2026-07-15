@@ -57,4 +57,34 @@ describe("control tower formal gate display", () => {
       capDetails: ["provider smoke missing"],
     })).toBe("Source activity evidence required");
   });
+
+  it("only reads an explicit required-report count from refresh detail", () => {
+    const timeWindow = resolvePublicBetaCapDetailForAdmin(
+      "Report freshness and source integrity: Public beta score is outside the 24-hour freshness window.",
+    );
+    const reportCount = resolvePublicBetaCapDetailForAdmin(
+      "Report freshness: 6 required generated report(s) are outside the freshness window.",
+    );
+
+    expect(timeWindow.detail).toBe("Public beta score is outside the 24-hour freshness window.");
+    expect(timeWindow.detail).not.toContain("24 required generated reports");
+    expect(reportCount.detail).toBe("6 required generated reports are outside the freshness window.");
+  });
+
+  it("preserves unknown code-version provenance in refresh copy", () => {
+    const display = resolvePublicBetaCapDetailForAdmin(
+      "Report freshness and source integrity: Current code version is unavailable, so score provenance is unknown.",
+    );
+
+    expect(display.state).toBe("refresh_due");
+    expect(display.detail).toBe("Current code version is unavailable, so the canonical score decision cannot be used.");
+  });
+
+  it("keeps an explicit failed verdict ahead of secondary evidence copy", () => {
+    expect(formatPublicBetaReadinessStatusForAdmin({
+      status: "failed",
+      reason: "A required validator failed.",
+      capDetails: ["Provider smoke evidence remains required."],
+    })).toBe("Failed");
+  });
 });

@@ -91,7 +91,7 @@ export function buildFormalGateDisplay(input: FormalGateDisplayInput): FormalGat
 
 export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaCapDisplay {
   const normalized = String(detail ?? "").trim();
-  const count = normalized.match(/\b\d+\b/u)?.[0];
+  const requiredReportCount = normalized.match(/\b(\d+)\s+required generated report(?:\(s\)|s)?\b/iu)?.[1];
 
   if (!normalized) {
     return { state: "review", label: "Readiness unavailable", detail: "The public beta evidence gate did not provide a reason." };
@@ -128,12 +128,21 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
   }
 
   if (/report refresh required|report freshness|pr integrity|freshness window|current-head|current head|source commit|older than 72 hours|generated report|report metadata/iu.test(normalized)) {
+    const refreshDetail = /current code version is unavailable|score provenance is unknown|current code version unavailable/iu.test(normalized)
+      ? "Current code version is unavailable, so the canonical score decision cannot be used."
+      : /outside the 24-hour freshness window|outside 24-hour freshness window/iu.test(normalized)
+        ? "Public beta score is outside the 24-hour freshness window."
+        : /no valid generated timestamp|has no valid generated timestamp/iu.test(normalized)
+          ? "Public beta score has no valid generated timestamp."
+          : /source metadata is stale/iu.test(normalized)
+            ? "Public beta score source metadata is stale."
+            : requiredReportCount
+              ? `${requiredReportCount} required generated reports are outside the freshness window.`
+              : "Required generated reports are outside the freshness window.";
     return {
       state: "refresh_due",
       label: "Refresh due",
-      detail: /source metadata is stale/iu.test(normalized)
-        ? "Public beta score source metadata is stale."
-        : count ? `${count} required generated reports are outside the freshness window.` : "Required generated reports are outside the freshness window.",
+      detail: refreshDetail,
     };
   }
 
@@ -184,6 +193,7 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
   const status = String(input.status ?? "").trim();
   const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
   if (!combined.trim()) return "Readiness unavailable";
+  if (/^(?:fail|failed|error|critical|blocked)$/iu.test(status)) return "Failed";
   if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Source activity evidence required";
   if (/report refresh needed|report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
   if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";

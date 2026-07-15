@@ -16,6 +16,7 @@ function artifact(input: Partial<FormalEvidenceBridgeArtifact>): FormalEvidenceB
     sourceCommit: input.sourceCommit ?? "head",
     detail: input.detail ?? "",
     evidence: input.evidence ?? [],
+    ...input,
   };
 }
 
@@ -159,6 +160,49 @@ describe("source evidence bridge", () => {
     expect(report.gates.runtimeProviderSmoke.runtimeCredit).toBe(95);
     expect(report.gates.runtimeProviderSmoke.formalGateCleared).toBe(false);
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
+  });
+
+  it("accepts fresh current-by-impact source evidence without requiring an exact source head", () => {
+    const report = buildFormalEvidenceBridgeReport({
+      generatedAtUtc: new Date().toISOString(),
+      currentHead: "head",
+      artifacts: {
+        sourceBackedRuntimeConfidence: artifact({
+          status: "source_ready_runtime_confidence",
+          sourceCommit: "older-head",
+          versionStatus: "current_by_impact",
+          evidence: [
+            "runtimeConfidenceScore=81",
+            "liveRuntimeEvidence.firstPartySiteActivityConfirmed=2",
+          ],
+        }),
+      },
+    });
+
+    expect(report.sourceConfidenceStatus.runtimeConfidenceScore).toBe(81);
+    expect(report.gates.runtimeProviderSmoke.formalGateCleared).toBe(false);
+  });
+
+  it("does not combine stale observed activity with a current calibration score", () => {
+    const report = buildFormalEvidenceBridgeReport({
+      generatedAtUtc: new Date().toISOString(),
+      currentHead: "head",
+      artifacts: {
+        realUsageConfidence: artifact({
+          status: "source_ready_real_usage_confidence",
+          sourceCommit: "older-head",
+          evidence: ["confidenceScore=92", "observedSignals=4"],
+        }),
+        realUsageConfidenceCalibration: artifact({
+          status: "source_ready_real_usage_confidence_calibrated",
+          sourceCommit: "head",
+          evidence: ["runtimeHealthCredit=95", "calibratedConfidenceScore=95"],
+        }),
+      },
+    });
+
+    expect(report.sourceConfidenceStatus.realUsageConfidenceScore).toBe(95);
+    expect(report.sourceConfidenceStatus.realUsageObservedActivityScore).toBe(0);
   });
 
   it("fails validation if operator revenue clears the provider-backed source gate", () => {

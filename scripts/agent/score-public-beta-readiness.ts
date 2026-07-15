@@ -38,56 +38,8 @@ import type {
 } from "../../src/lib/agent-score/core";
 
 const REQUIRED_EVIDENCE_REPORTS = [
-  "agent/state/evidence-capture-status.generated.json",
-  "agent/state/creator-experience-simplification.generated.json",
-  "agent/state/user-creator-ui-parity.generated.json",
   "agent/state/targeted-behavior-evidence.generated.json",
-  "agent/state/final-parity-telemetry-lock.generated.json",
-  "agent/state/media-discovery-score-lock.generated.json",
-  "agent/state/creator-monetization-readiness-lock.generated.json",
 ] as const;
-
-const REQUIRED_REPORT_OWNED_SOURCE_PATHS: Record<string, string[]> = {
-  "agent/state/creator-experience-simplification.generated.json": [
-    "scripts/agent/validate-creator-experience-simplification.ts",
-    "src/app/creators",
-    "src/components/Creators",
-  ],
-  "agent/state/user-creator-ui-parity.generated.json": [
-    "scripts/agent/validate-user-creator-ui-parity.ts",
-    "src/app",
-    "src/components",
-  ],
-  "agent/state/targeted-behavior-evidence.generated.json": [
-    "scripts/agent/validate-targeted-behavior-evidence.ts",
-    "scripts/agent/validate-targeted-behavior-evidence-repair.ts",
-    "agent/state/final-parity-telemetry-lock.generated.json",
-    "agent/state/media-discovery-score-lock.generated.json",
-    "agent/state/creator-monetization-readiness-lock.generated.json",
-  ],
-  "agent/state/final-parity-telemetry-lock.generated.json": [
-    "scripts/agent/validate-final-parity-telemetry-lock.ts",
-    "src/lib/parity",
-    "src/lib/analytics",
-    "src/lib/identity-truth",
-    "src/app",
-    "src/components",
-  ],
-  "agent/state/media-discovery-score-lock.generated.json": [
-    "scripts/agent/validate-media-discovery-score-lock.ts",
-    "src/lib/media",
-    "src/lib/analytics",
-    "src/app",
-    "src/components",
-  ],
-  "agent/state/creator-monetization-readiness-lock.generated.json": [
-    "scripts/agent/validate-creator-monetization-readiness-lock.ts",
-    "src/lib/creator",
-    "src/lib/analytics",
-    "src/app/creators",
-    "src/components/Creators",
-  ],
-};
 
 const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.generated.json";
 const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generated.json";
@@ -163,15 +115,16 @@ function collectRefreshArtifacts(root: string, currentHead: string, generatedAtU
       parentHead: gitContext?.parentHead,
       changedFilesInHead: gitContext?.changedFilesInHead,
       changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
-      ownedSourcePaths: entry.ownedSourcePaths,
+      ownedSourcePaths: entry.allowCurrentByImpact ? entry.ownedSourcePaths : undefined,
       exists: true,
     };
   });
 }
 
 function ownedSourcePathsForReport(reportPath: string) {
+  if ((REQUIRED_EVIDENCE_REPORTS as readonly string[]).includes(reportPath)) return undefined;
   const registryEntry = REFRESH_ARTIFACT_REGISTRY.find((entry) => entry.artifactPath === reportPath);
-  return registryEntry?.ownedSourcePaths ?? REQUIRED_REPORT_OWNED_SOURCE_PATHS[reportPath] ?? [];
+  return registryEntry?.allowCurrentByImpact ? registryEntry.ownedSourcePaths : undefined;
 }
 
 function evidenceVersionMetadata(root: string, artifactPath: string, artifactHead: string | undefined) {
@@ -276,16 +229,22 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
   const surfaces = Array.isArray(parsed.surfaces) ? parsed.surfaces : [];
   const summary = readRecord(parsed.summary);
   const formalGateImpact = readRecord(parsed.formalGateImpact);
+  const validationFailures = Array.isArray(parsed.validationFailures)
+    ? parsed.validationFailures.filter((value): value is string => typeof value === "string" && value.length > 0)
+    : [];
+  const validatorPassed = validationFailures.length === 0;
   const normalized: UiVisualSmokeMinimalReport = {
-    status: (readString(parsed.status) ?? "source_surface_checks_failed") as UiVisualSmokeReportStatus,
-    passed: readBoolean(parsed.passed) === true,
+    status: (validatorPassed
+      ? readString(parsed.status) ?? "source_surface_checks_failed"
+      : "source_surface_checks_failed") as UiVisualSmokeReportStatus,
+    passed: validatorPassed && readBoolean(parsed.passed) === true,
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt) ?? new Date(0).toISOString(),
     currentHead: readString(parsed.currentHead),
     sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
     detail: readString(parsed.detail) ?? "UI source coverage evidence artifact was found.",
     nonUiLanesBlocked: readBoolean(parsed.nonUiLanesBlocked) === true,
     formalGateImpact: {
-      clearsUiSurfaceCoverage: readBoolean(formalGateImpact.clearsUiSurfaceCoverage) === true,
+      clearsUiSurfaceCoverage: validatorPassed && readBoolean(formalGateImpact.clearsUiSurfaceCoverage) === true,
       clearsProviderSmoke: readBoolean(formalGateImpact.clearsProviderSmoke) === true,
       clearsDeployedRuntimeSmoke: readBoolean(formalGateImpact.clearsDeployedRuntimeSmoke) === true,
       clearsAdminTruthSmoke: readBoolean(formalGateImpact.clearsAdminTruthSmoke) === true,
@@ -318,8 +277,12 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
       statusCounts: readRecord(summary.statusCounts) as never,
     },
     evidence: Array.isArray(parsed.evidence)
-      ? parsed.evidence.filter((value): value is string => typeof value === "string")
-      : [],
+      ? [
+          ...parsed.evidence.filter((value): value is string => typeof value === "string"),
+          `uiVisualSmoke.validationFailureCount=${validationFailures.length}`,
+          ...validationFailures.map((failure) => `uiVisualSmoke.validationFailure=${failure}`),
+        ]
+      : [`uiVisualSmoke.validationFailureCount=${validationFailures.length}`],
     nextExactSteps: Array.isArray(parsed.nextExactSteps)
       ? parsed.nextExactSteps.filter((value): value is string => typeof value === "string")
       : [],
@@ -381,6 +344,17 @@ export function collectGeneratedReportEvidence(root: string, currentHead?: strin
     const embeddedFreshness = parsed.freshness === "fresh" || parsed.freshness === "stale" || parsed.freshness === "unknown"
       ? parsed.freshness
       : undefined;
+    const reportStatus = (readString(parsed.status) ?? readString(parsed.overallStatus) ?? "").toLowerCase();
+    const validationFailures = Array.isArray(parsed.validationFailures)
+      ? parsed.validationFailures.filter((failure) => typeof failure === "string" && failure.trim().length > 0)
+      : [];
+    const validationState: PublicBetaGeneratedReportEvidence["validationState"] = validationFailures.length > 0
+      || readBoolean(parsed.passed) === false
+      || /fail|failed|blocked|error/u.test(reportStatus)
+      ? "failed"
+      : readBoolean(parsed.passed) === true && /pass|passed|ready|clean/u.test(reportStatus)
+        ? "passed"
+        : "unknown";
     let freshness: PublicBetaGeneratedReportEvidence["freshness"] = "unknown";
     if (version?.status === "stale_source_version") {
       freshness = "stale";
@@ -400,11 +374,17 @@ export function collectGeneratedReportEvidence(root: string, currentHead?: strin
       ageHours: Number.isFinite(ageHours) ? ageHours : undefined,
       currentHead,
       versionStatus: version?.status ?? "missing_version",
+      validationState,
+      validationDetail: validationState === "failed"
+        ? validationFailures[0] ?? `status=${reportStatus || "unknown"}; passed=${String(parsed.passed)}`
+        : validationState === "passed"
+          ? `status=${reportStatus}; passed=true`
+          : "No explicit passing validation state was supplied.",
     };
   });
 }
 
-function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
+export function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const parsed = readJsonFile(root, PROVIDER_SMOKE_EVIDENCE_PATH);
   const operatorSmoke = readJsonFile(root, OPERATOR_REVENUE_SMOKE_PATH);
   const operatorSummary = readRecord(operatorSmoke?.summary);
@@ -441,13 +421,23 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const readinessImpact = readRecord(parsed.readinessImpact);
   const providerStatus = readString(providerSmoke.status) ?? readString(parsed.overallStatus) ?? "missing_formal_evidence";
   const paypalStatus = readString(paypalRefillSmoke.status);
-  const status = providerStatus;
-  const providerGatePassed = readBoolean(providerSmoke.passed) === true
-    || readBoolean(readinessImpact.providerSmokeGatePassed) === true;
+  const providerPassedFlag = readBoolean(providerSmoke.passed);
+  const readinessPassedFlag = readBoolean(readinessImpact.providerSmokeGatePassed);
+  const validationFailures = Array.isArray(parsed.validationFailures)
+    ? parsed.validationFailures.filter((failure) => typeof failure === "string" && failure.trim().length > 0)
+    : [];
+  const gateFieldsAgree = providerPassedFlag === readinessPassedFlag;
+  const providerGatePassed = providerPassedFlag === true
+    && readinessPassedFlag === true
+    && validationFailures.length === 0;
+  const status = validationFailures.length > 0 || !gateFieldsAgree ? "failed" : providerStatus;
   const passed = providerGatePassed
     && status !== "missing_formal_evidence"
     && status !== "operator_reported_not_formal_provider_smoke"
     && paypalStatus !== "operator_reported_not_formal_provider_smoke";
+  const operatorContextNote = operatorSmokeNote && passed
+    ? "Operator-confirmed revenue is retained as product context; the current provider-backed source artifact controls this gate."
+    : operatorSmokeNote;
   const paypalNote = readString(paypalRefillSmoke.note);
   const providerRecommendedAction = readString(providerSmoke.recommendedAction);
   const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
@@ -457,7 +447,9 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     status,
     passed,
     detail: [
-      operatorSmokeNote,
+      operatorContextNote,
+      validationFailures[0],
+      !gateFieldsAgree ? "Provider evidence gate fields disagree, so the artifact cannot clear the gate." : undefined,
       passed ? "Provider-backed source activity evidence passed." : "Provider-backed source activity evidence is missing.",
       paypalNote,
       providerRecommendedAction,
@@ -465,8 +457,9 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     evidence: [
       `providerArtifactStatus=${status}`,
       `providerSmoke.status=${providerStatus}`,
-      `providerSmoke.passed=${readBoolean(providerSmoke.passed) === true}`,
-      `readinessImpact.providerSmokeGatePassed=${readBoolean(readinessImpact.providerSmokeGatePassed) === true}`,
+      `providerSmoke.passed=${providerPassedFlag === true}`,
+      `readinessImpact.providerSmokeGatePassed=${readinessPassedFlag === true}`,
+      `providerSmoke.validationFailures=${validationFailures.length}`,
       ...operatorSmokeEvidence,
       ...(paypalStatus ? [`paypalRefillSmoke.status=${paypalStatus}`] : []),
       ...(paypalNote ? [`paypalRefillSmoke.note=${paypalNote}`] : []),
@@ -478,7 +471,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   };
 }
 
-function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
+export function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const parsed = readJsonFile(root, RUNTIME_SMOKE_EVIDENCE_PATH);
   if (!parsed) {
     return readEvidenceArtifact(
@@ -490,9 +483,17 @@ function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   }
 
   const readinessImpact = readRecord(parsed.readinessImpact);
-  const status = readString(parsed.overallStatus) ?? readString(parsed.status) ?? "runtime_unverified";
-  const runtimeGatePassed = readBoolean(parsed.runtimeDeploymentSmokePassed) === true
-    || readBoolean(readinessImpact.runtimeGatePassed) === true;
+  const reportedStatus = readString(parsed.overallStatus) ?? readString(parsed.status) ?? "runtime_unverified";
+  const deploymentPassedFlag = readBoolean(parsed.runtimeDeploymentSmokePassed);
+  const readinessPassedFlag = readBoolean(readinessImpact.runtimeGatePassed);
+  const validationFailures = Array.isArray(parsed.validationFailures)
+    ? parsed.validationFailures.filter((failure) => typeof failure === "string" && failure.trim().length > 0)
+    : [];
+  const gateFieldsAgree = deploymentPassedFlag === readinessPassedFlag;
+  const runtimeGatePassed = deploymentPassedFlag === true
+    && readinessPassedFlag === true
+    && validationFailures.length === 0;
+  const status = validationFailures.length > 0 || !gateFieldsAgree ? "failed" : reportedStatus;
   const passed = runtimeGatePassed && status !== "runtime_unverified" && status !== "missing_formal_evidence";
   const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
 
@@ -500,12 +501,15 @@ function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     path: RUNTIME_SMOKE_EVIDENCE_PATH,
     status,
     passed,
-    detail: readString(readinessImpact.recommendedAction)
+    detail: validationFailures[0]
+      ?? (!gateFieldsAgree ? "Runtime evidence gate fields disagree, so the artifact cannot clear the gate." : undefined)
+      ?? readString(readinessImpact.recommendedAction)
       ?? (passed ? "Deployed runtime route evidence passed." : "No deployed runtime route evidence was supplied."),
     evidence: [
       `runtimeArtifactStatus=${status}`,
-      `runtimeDeploymentSmokePassed=${readBoolean(parsed.runtimeDeploymentSmokePassed) === true}`,
-      `readinessImpact.runtimeGatePassed=${readBoolean(readinessImpact.runtimeGatePassed) === true}`,
+      `runtimeDeploymentSmokePassed=${deploymentPassedFlag === true}`,
+      `readinessImpact.runtimeGatePassed=${readinessPassedFlag === true}`,
+      `runtimeSmoke.validationFailures=${validationFailures.length}`,
       ...evidenceLinesFromArray(parsed.evidenceItems, "runtimeEvidenceItems"),
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
@@ -545,7 +549,7 @@ function readAdminTruthSourceSampleEvidence(root: string): PublicBetaEvidenceArt
   };
 }
 
-function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact {
+export function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact {
   const parsed = readJsonFile(root, ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH);
   if (!parsed) {
     const sourceSample = readAdminTruthSourceSampleEvidence(root);
@@ -564,7 +568,11 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
   const freshSampleAttached = readBoolean(parsed.freshAdminTruthSampleAttached) === true;
   const formalAdminTruthSamplePassed = readBoolean(parsed.formalAdminTruthSamplePassed) === true;
   const adminGatePassed = readBoolean(readinessImpact.adminTruthSampleGatePassed) === true;
-  const passed = freshSampleAttached && adminGatePassed && sampleCount > 0 && status !== "missing_or_unknown";
+  const passed = freshSampleAttached
+    && formalAdminTruthSamplePassed
+    && adminGatePassed
+    && sampleCount > 0
+    && status !== "missing_or_unknown";
   if (!passed) {
     const sourceSample = readAdminTruthSourceSampleEvidence(root);
     if (sourceSample) return sourceSample;
@@ -1032,7 +1040,7 @@ function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvi
   return readEventTranslationBridgeEvidence(root) ?? debugRuntime;
 }
 
-function readUiSurfaceCoverageEvidence(root: string): PublicBetaEvidenceArtifact {
+export function readUiSurfaceCoverageEvidence(root: string): PublicBetaEvidenceArtifact {
   const inspected: string[] = [];
   for (const evidencePath of [UI_VISUAL_SMOKE_MINIMAL_PATH] as const) {
     const parsed = readJsonFile(root, evidencePath);
@@ -1068,15 +1076,11 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
   const currentHead = readGitHead(root);
   const generatedAtUtc = new Date().toISOString();
   const requiredReports = collectGeneratedReportEvidence(root, currentHead);
-  const launchPrTriage = requiredReports.find((entry) => entry.path === "agent/state/launch-pr-triage.generated.json");
-  const openPrTriageFresh = launchPrTriage?.freshness === "fresh"
-    && (launchPrTriage.versionStatus === "current_head"
-      || launchPrTriage.versionStatus === "same_commit_snapshot"
-      || launchPrTriage.versionStatus === "current_by_impact");
   const debugEvidence = loadDebugEvidenceForAuditDomains([
     ...Object.keys(PUBLIC_BETA_DOMAIN_WEIGHTS),
     "support",
   ], root, 10);
+  const providerSmokeEvidence = readProviderSmokeEvidence(root);
   const report = buildPublicBetaReadinessReport({
     root,
     generatedAt: generatedAtUtc,
@@ -1094,13 +1098,13 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       behaviorMathEvidence: readBehaviorMathEvidence(root),
       activityVerificationEvidence: readActivityVerificationEvidence(root),
       uiSurfaceCoverageEvidence: readUiSurfaceCoverageEvidence(root),
-      providerSmokeEvidence: readProviderSmokeEvidence(root),
+      providerSmokeEvidence,
+      paymentSourceOfFundsEvidence: providerSmokeEvidence,
       runtimeSmokeEvidence: readRuntimeSmokeEvidence(root),
       adminTruthSampleEvidence: readAdminTruthSampleEvidence(root),
       costReadiness: buildScore80CostReadinessFromRepo(root).costReadiness,
       nonEventScorePolicy: readNonEventScorePolicyEvidence(root),
       regressionRiskRefreshEvidence: readRegressionRiskRefreshEvidence(root, currentHead),
-      openPrTriageFresh,
     },
   });
   const refreshPlan = buildRefreshPlan(collectRefreshArtifacts(root, currentHead ?? "unknown", generatedAtUtc), {

@@ -3,7 +3,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { assertAutofixGate, type PublicBetaAutofixPlan } from "../../src/lib/agent-score/autofix";
-import type { PublicBetaEvidenceGate, PublicBetaFinding, PublicBetaScoreReport } from "../../src/lib/agent-score/core";
+import {
+  orderPublicBetaOperatorActions,
+  type PublicBetaEvidenceGate,
+  type PublicBetaFinding,
+  type PublicBetaScoreReport,
+} from "../../src/lib/agent-score/core";
 import { classifyGeneratedArtifactFromGit, isGeneratedArtifactCurrent } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import { PUBLIC_BETA_SCORE_REPORT_PATH } from "../../src/lib/agent-score/reporting";
 
@@ -299,24 +304,9 @@ if (report) {
     } else {
       validateOperatorAction(operatorDecision.primaryAction, "operatorDecision.primaryAction");
       const primaryId = operatorDecision.primaryAction?.id;
-      type QueueName = (typeof queueContracts)[number][0];
       const queues = operatorDecision.actionQueues;
-      const queue = (name: QueueName) => {
-        const actions = queues?.[name];
-        return Array.isArray(actions) ? actions as Array<Record<string, unknown>> : [];
-      };
-      const sourceVerification = queue("sourceVerification");
-      const evidenceRefresh = queue("evidenceRefresh");
-      const primaryPriorityActions = [
-        ...queue("sourceFixes"),
-        ...sourceVerification.filter((action) => action.blocksLaunch === true),
-        ...evidenceRefresh.filter((action) => action.blocksLaunch === true),
-        ...queue("externalProof"),
-        ...queue("ownerReview"),
-        ...sourceVerification.filter((action) => action.blocksLaunch !== true),
-        ...evidenceRefresh.filter((action) => action.blocksLaunch !== true),
-      ];
-      const firstQueuedId = primaryPriorityActions[0] && typeof primaryPriorityActions[0] === "object"
+      const primaryPriorityActions = queues ? orderPublicBetaOperatorActions(queues) : [];
+      const firstQueuedId = primaryPriorityActions[0]
         ? primaryPriorityActions[0].id
         : undefined;
       if (primaryId !== firstQueuedId) {
@@ -338,7 +328,7 @@ if (report) {
     failures.push("launchClearance.formalGates must preserve compatibility gate status.");
   } else {
     const gates = report.launchClearance.formalGates;
-    for (const key of ["providerSmoke", "deployedRuntimeSmoke", "adminTruthSample", "uiSurfaceCoverage"] as const) {
+    for (const key of ["providerSmoke", "deployedRuntimeSmoke", "adminTruthSample", "uiSurfaceCoverage", "paymentSourceOfFunds"] as const) {
       if (typeof gates[key]?.cleared !== "boolean" || typeof gates[key]?.status !== "string" || typeof gates[key]?.source !== "string") {
         failures.push(`launchClearance.formalGates.${key} must include cleared, status, and source.`);
       }
@@ -346,8 +336,8 @@ if (report) {
     if (RETIRED_UI_FORMAL_GATE_KEY in gates) {
       failures.push("launchClearance.formalGates must use uiSurfaceCoverage instead of the retired UI evidence gate.");
     }
-    if (gates.paymentSourceOfFunds?.cleared !== false || gates.paymentSourceOfFunds.status !== "protected_not_evaluated_in_source_model") {
-      failures.push("launchClearance must keep payment/source-of-funds protected outside the Studio source model.");
+    if (report.launchGateStatus === "launch_ready" && !gates.paymentSourceOfFunds.cleared) {
+      failures.push("launch_ready requires current protected payment/source-of-funds proof.");
     }
   }
   if (!["clean", "pass", "warning", "beta-risk", "fail"].includes(report.scannerStatus)) {
@@ -581,9 +571,10 @@ if (report) {
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke", "runtimeProviderSmoke evidence");
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.amountUsdConfirmed=", "runtimeProviderSmoke evidence");
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.providerBackedSiteActivityPassed=false", "runtimeProviderSmoke evidence");
-      requireIncludes(runtimeProviderSmokeGate.detail.toLowerCase(), "provider-backed source activity evidence is still separate.", "runtimeProviderSmoke detail");
-      if (runtimeProviderSmokeGate.status === "Ready") {
-        failures.push("Operator-confirmed revenue smoke must not make runtimeProviderSmoke Ready.");
+      if (runtimeProviderSmokeGate.status !== "Ready") {
+        requireIncludes(runtimeProviderSmokeGate.detail.toLowerCase(), "provider-backed source activity evidence is still separate.", "runtimeProviderSmoke detail");
+      } else if (!/providerArtifactStatus=(?:formal_provider_smoke_passed|passed_formal_evidence|passed)/u.test(runtimeProviderEvidence)) {
+        failures.push("Operator-confirmed revenue context can accompany Ready only when current formal provider proof is attached.");
       }
     }
   }
@@ -642,8 +633,21 @@ if (report) {
   })) {
     failures.push("public beta score staleArtifacts must include nextAction and refreshCommand.");
   }
-  if (!Array.isArray(report.exactRefreshCommands) || !report.exactRefreshCommands.includes("npm run score:beta && npm run check:beta-score")) {
-    failures.push("exactRefreshCommands must include the beta score refresh command.");
+  if (!Array.isArray(report.exactRefreshCommands)) {
+    failures.push("exactRefreshCommands must be present on public beta score.");
+  } else if (Array.isArray(report.refreshPlan)) {
+    const refreshEntries = report.refreshPlan
+      .map((entry) => entry && typeof entry === "object" && !Array.isArray(entry)
+        ? entry as Record<string, unknown>
+        : null)
+      .filter((entry): entry is Record<string, unknown> => entry !== null);
+    const expectedRefreshCommands = Array.from(new Set(refreshEntries
+      .filter((entry) => entry.needsRefresh === true)
+      .map((entry) => entry.refreshCommand)
+      .filter((command): command is string => typeof command === "string" && command.length > 0)));
+    if (JSON.stringify(report.exactRefreshCommands) !== JSON.stringify(expectedRefreshCommands)) {
+      failures.push("exactRefreshCommands must exactly match the deduplicated commands for refresh-plan entries that need refresh.");
+    }
   }
   if (!report.commandBudget?.forbiddenCommands?.includes("playwright")) {
     failures.push("commandBudget.forbiddenCommands must include playwright.");

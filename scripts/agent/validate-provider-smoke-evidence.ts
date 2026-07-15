@@ -8,9 +8,15 @@ type EvidenceStatus = "missing" | "incomplete" | "complete";
 type ValidationOptions = {
   requireComplete?: boolean;
   existingPaths?: Set<string>;
+  currentHead?: string;
+  nowMs?: number;
+  nowUtc?: string;
+  maxAgeHours?: number;
 };
 
-type LaneEvaluation = {
+type EvaluationOptions = Pick<ValidationOptions, "currentHead" | "nowMs" | "nowUtc" | "maxAgeHours">;
+
+export type ProviderSmokeLaneEvaluation = {
   lane: "providerSmokeEvidence";
   status: EvidenceStatus;
   folder: string;
@@ -38,6 +44,7 @@ const __dirname = dirname(__filename);
 const repoRoot = join(__dirname, "..", "..");
 const evidenceFolder = "agent/evidence/provider-smoke";
 const templatePath = `${evidenceFolder}/evidence.template.json`;
+const MAX_PROVIDER_SMOKE_AGE_HOURS = 24;
 const secretPatterns = [
   /access_token/i,
   /refresh_token/i,
@@ -61,6 +68,12 @@ function array(value: unknown) {
 
 function isValidUtc(value: unknown) {
   return typeof value === "string" && value.length > 0 && !Number.isNaN(Date.parse(value));
+}
+
+function evaluatedNowMs(options: Pick<ValidationOptions, "nowMs" | "nowUtc">) {
+  if (typeof options.nowMs === "number" && Number.isFinite(options.nowMs)) return options.nowMs;
+  if (isValidUtc(options.nowUtc)) return Date.parse(String(options.nowUtc));
+  return Date.now();
 }
 
 function isRelativeEvidencePath(value: unknown) {
@@ -111,7 +124,27 @@ export function validateProviderSmokeEvidenceDocument(
   }
   if (doc.status !== "complete") return failures;
 
-  if (!isValidUtc(doc.capturedAtUtc)) failures.push("provider smoke complete evidence must include capturedAtUtc.");
+  if (!isValidUtc(doc.capturedAtUtc)) {
+    failures.push("provider smoke complete evidence must include a valid capturedAtUtc.");
+  } else {
+    const capturedAtMs = Date.parse(String(doc.capturedAtUtc));
+    const nowMs = evaluatedNowMs(options);
+    const maxAgeHours = typeof options.maxAgeHours === "number" && Number.isFinite(options.maxAgeHours)
+      ? options.maxAgeHours
+      : MAX_PROVIDER_SMOKE_AGE_HOURS;
+    if (capturedAtMs > nowMs) {
+      failures.push("provider smoke complete evidence capturedAtUtc must not be in the future.");
+    } else if (nowMs - capturedAtMs > maxAgeHours * 60 * 60 * 1000) {
+      failures.push(`provider smoke complete evidence capturedAtUtc is older than ${maxAgeHours}h.`);
+    }
+  }
+  const expectedHead = options.currentHead ?? currentHead();
+  const artifactHead = typeof doc.currentHead === "string" ? doc.currentHead : "";
+  if (!artifactHead) {
+    failures.push("provider smoke complete evidence must include currentHead.");
+  } else if (artifactHead !== expectedHead) {
+    failures.push(`provider smoke complete evidence currentHead ${artifactHead} does not match ${expectedHead}.`);
+  }
   if (doc.provider !== "paypal") failures.push("provider smoke complete evidence provider must be paypal.");
   if (!["production", "sandbox", "unknown"].includes(String(doc.environment))) {
     failures.push("provider smoke complete evidence environment must be production, sandbox, or unknown.");
@@ -156,24 +189,31 @@ function listEvidenceFiles() {
     .map((entry) => `${evidenceFolder}/${entry}`);
 }
 
-export function evaluateProviderSmokeEvidence(): LaneEvaluation {
+export function evaluateProviderSmokeEvidence(options: EvaluationOptions = {}): ProviderSmokeLaneEvaluation {
   const files = listEvidenceFiles();
   const failures: string[] = [];
   const completeArtifacts: string[] = [];
   const passingArtifacts: string[] = [];
+  const expectedHead = options.currentHead ?? currentHead();
+  const nowMs = evaluatedNowMs(options);
 
   for (const file of files) {
     try {
       const document = readJson(file);
-      const validationFailures = validateProviderSmokeEvidenceDocument(document, { requireComplete: true });
+      const validationFailures = validateProviderSmokeEvidenceDocument(document, {
+        requireComplete: true,
+        currentHead: expectedHead,
+        nowMs,
+        maxAgeHours: options.maxAgeHours,
+      });
       if (validationFailures.length === 0) {
         completeArtifacts.push(file);
         const checks = array(record(document).checks).map(record);
         if (checks.length > 0 && checks.every((check) => check.status === "pass")) {
           passingArtifacts.push(file);
         }
-      } else if (containsRawSecret(document)) {
-        failures.push(...validationFailures);
+      } else {
+        failures.push(...validationFailures.map((failure) => `${file}: ${failure}`));
       }
     } catch (error) {
       failures.push(`${file} must be valid JSON: ${(error as Error).message}`);
@@ -213,14 +253,22 @@ function readOptionalJson(relativePath: string) {
   }
 }
 
-function writeGeneratedState(result: LaneEvaluation) {
+export function providerSmokeEvaluationPassed(
+  result: Pick<ProviderSmokeLaneEvaluation, "passingArtifacts" | "failures">,
+) {
+  return result.passingArtifacts.length > 0 && result.failures.length === 0;
+}
+
+function writeGeneratedState(result: ProviderSmokeLaneEvaluation) {
   const head = currentHead();
   const generatedAtUtc = new Date().toISOString();
-  const passed = result.passingArtifacts.length > 0;
+  const passed = providerSmokeEvaluationPassed(result);
   const operatorRevenue = record(record(readOptionalJson("agent/state/operator-revenue-smoke.generated.json")).summary);
   const operatorConfirmed = operatorRevenue.revenueSmokeStatus === "operator_confirmed_revenue_smoke";
   const operatorNote = operatorConfirmed
-    ? "Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed site activity evidence."
+    ? passed
+      ? "Operator-confirmed PayPal activity is retained as product context; the current provider-backed source artifact controls this gate."
+      : "Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed site activity evidence."
     : "No operator-confirmed PayPal activity is attached.";
   const report = {
     generatedAtUtc,
@@ -252,7 +300,11 @@ function writeGeneratedState(result: LaneEvaluation) {
         : "Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate.",
     },
     paypalRefillSmoke: {
-      status: operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
+      status: passed
+        ? "formal_provider_smoke_passed"
+        : operatorConfirmed
+          ? "operator_reported_not_formal_provider_smoke"
+          : "missing_formal_evidence",
       note: operatorNote,
       formalRepoArtifactAttached: passed,
     },
@@ -270,6 +322,7 @@ function writeGeneratedState(result: LaneEvaluation) {
     evidenceFiles: result.evidenceFiles,
     completeArtifacts: result.completeArtifacts,
     passingArtifacts: result.passingArtifacts,
+    validationFailures: result.failures,
     evidence: [
       `providerSmoke.status=${result.status}`,
       `providerSmoke.completeArtifacts=${result.completeArtifacts.length}`,

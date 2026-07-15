@@ -12,6 +12,7 @@ const baseEvidence = {
     path: "agent/state/final-launch-readiness-report.generated.json",
     generatedAt: new Date().toISOString(),
     freshness: "fresh" as const,
+    validationState: "passed" as const,
   }],
   targetedBehaviorEvidence: {
     path: "agent/state/targeted-behavior-evidence.generated.json",
@@ -41,18 +42,19 @@ const baseEvidence = {
     detail: "Formal admin truth sample remains missing.",
     evidence: ["adminTruthSampleArtifactStatus=missing_or_unknown"],
   },
-  openPrTriageFresh: true,
 };
 
 describe("Codex visual gate removal", () => {
   const retiredUiScoreGateId = ["visual", "Manual", "Smoke"].join("");
+  const currentHead = "abc123";
 
   it("keeps UI source coverage as a deterministic gate instead of requiring screenshots", () => {
     const visualReport = buildUiVisualSmokeMinimalReport({
-      currentHead: "abc123",
-      generatedAtUtc: "2026-05-21T12:00:00.000Z",
+      currentHead,
+      generatedAtUtc: new Date().toISOString(),
     });
     const report = buildPublicBetaScoreReport([], {
+      currentHead,
       commandBudget: buildPublicBetaCommandBudget(),
       evidence: {
         ...baseEvidence,
@@ -75,8 +77,12 @@ describe("Codex visual gate removal", () => {
   });
 
   it("does not let UI source coverage clear runtime/provider/admin gates", () => {
-    const visualReport = buildUiVisualSmokeMinimalReport();
+    const visualReport = buildUiVisualSmokeMinimalReport({
+      currentHead,
+      generatedAtUtc: new Date().toISOString(),
+    });
     const report = buildPublicBetaScoreReport([], {
+      currentHead,
       commandBudget: buildPublicBetaCommandBudget(),
       evidence: {
         ...baseEvidence,

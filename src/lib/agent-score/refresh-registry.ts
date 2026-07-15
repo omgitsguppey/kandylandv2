@@ -2,6 +2,7 @@ export type RefreshArtifactKey =
   | "public-beta-score"
   | "current-beta-exit-status"
   | "evidence-capture-status"
+  | "targeted-behavior-evidence"
   | "source-truth-authority-map"
   | "final-telemetry-closure-lock"
   | "mobile-ui-final-lock"
@@ -27,6 +28,7 @@ export type RefreshArtifactRegistryEntry = {
   maxAgeHours: number;
   userFacingLabel: string;
   ownedSourcePaths?: string[];
+  allowCurrentByImpact?: boolean;
 };
 
 export const DEFAULT_REFRESH_MAX_AGE_HOURS = 24;
@@ -67,6 +69,15 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Evidence capture status",
     ownedSourcePaths: ["scripts/agent/validate-evidence-capture-status.ts"],
+  },
+  {
+    key: "targeted-behavior-evidence",
+    reportKey: "targeted-behavior-evidence",
+    artifactPath: "agent/state/targeted-behavior-evidence.generated.json",
+    refreshCommand: "npm run check:targeted-behavior-evidence",
+    owner: "evidence",
+    maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
+    userFacingLabel: "Targeted behavior evidence",
   },
   {
     key: "source-truth-authority-map",

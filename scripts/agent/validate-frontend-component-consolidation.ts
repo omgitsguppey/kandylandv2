@@ -80,7 +80,7 @@ function renderDoc(
 
 const generatedAtUtc = new Date().toISOString();
 const toolchain = readRepoToolchainState();
-const currentHead = toolchain.currentHead?.slice(0, 12) ?? "unknown";
+const currentHead = toolchain.currentHead ?? "unknown";
 const report = buildFrontendComponentConsolidationReport({ generatedAtUtc, currentHead });
 const inventory = buildFrontendSurfaceInventoryReport({ generatedAtUtc, currentHead });
 const betaScore = readPublicBetaScore();

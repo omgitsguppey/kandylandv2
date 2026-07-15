@@ -6,7 +6,6 @@ export type FreshnessPlainLanguageContext = {
   ageHours?: number;
   reportPath?: string;
   runtimeCodeChangedSinceReport?: boolean;
-  openPrTriageFresh?: boolean;
 };
 
 export type FreshnessPlainLanguageDescription = {
@@ -24,7 +23,6 @@ export type FreshnessPlainLanguageDescription = {
     ageHours?: number;
     reportPath?: string;
     runtimeCodeChangedSinceReport?: boolean;
-    openPrTriageFresh?: boolean;
   };
 };
 
@@ -37,7 +35,6 @@ function details(context: FreshnessPlainLanguageContext): FreshnessPlainLanguage
     ageHours: context.ageHours,
     reportPath: context.reportPath,
     runtimeCodeChangedSinceReport: context.runtimeCodeChangedSinceReport,
-    openPrTriageFresh: context.openPrTriageFresh,
   };
 }
 
@@ -127,17 +124,6 @@ export function describeFreshnessState(context: FreshnessPlainLanguageContext): 
       operatorMessage: "Refresh runtime readiness evidence from the latest code version, then rerun the beta score check.",
       actionLabel: "Refresh report",
       actionDetail: "Refresh runtime readiness evidence before beta exit review.",
-    });
-  }
-
-  if (context.openPrTriageFresh === false) {
-    return description(context, {
-      internalStatus: "open_pr_triage_outdated",
-      userTitle: "Evidence needs refresh",
-      userMessage: "Open pull request triage is outdated, so refresh it before using beta readiness.",
-      operatorMessage: "Refresh pull request triage from the latest code version, then rerun the beta score check.",
-      actionLabel: "Refresh triage",
-      actionDetail: "Refresh open pull request triage before beta exit review.",
     });
   }
 

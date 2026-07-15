@@ -24,20 +24,61 @@ export function formatPublicBetaDecisionStatus(status: string) {
 
 export function summarizePublicBetaOperatorDecision(decision: AdminDebugPublicBetaOperatorDecision | null) {
     if (!decision) return null;
+    const queues = decision.actionQueues;
     const counts = {
-        sourceFixes: decision.actionQueues.sourceFixes.length,
-        sourceVerification: decision.actionQueues.sourceVerification.length,
-        evidenceRefresh: decision.actionQueues.evidenceRefresh.length,
-        externalProof: decision.actionQueues.externalProof.length,
-        ownerReview: decision.actionQueues.ownerReview.length,
+        sourceFixes: queues.sourceFixes.length,
+        sourceVerification: queues.sourceVerification.length,
+        evidenceRefresh: queues.evidenceRefresh.length,
+        externalProof: queues.externalProof.length,
+        ownerReview: queues.ownerReview.length,
     };
+    const blockingCounts = {
+        sourceFixes: queues.sourceFixes.filter((action) => action.blocksLaunch).length,
+        sourceVerification: queues.sourceVerification.filter((action) => action.blocksLaunch).length,
+        evidenceRefresh: queues.evidenceRefresh.filter((action) => action.blocksLaunch).length,
+        externalProof: queues.externalProof.filter((action) => action.blocksLaunch).length,
+        ownerReview: queues.ownerReview.filter((action) => action.blocksLaunch).length,
+    };
+    const totalCount = Object.values(counts).reduce((total, count) => total + count, 0);
+    const blockingCount = Object.values(blockingCounts).reduce((total, count) => total + count, 0);
     return {
         counts,
-        queueSummary: `source fixes ${counts.sourceFixes}, verify ${counts.sourceVerification}, refresh ${counts.evidenceRefresh}, external ${counts.externalProof}, owner review ${counts.ownerReview}`,
-        needsTypedEvidence: counts.externalProof > 0,
-        needsRefresh: counts.evidenceRefresh > 0,
-        needsReview: counts.sourceFixes + counts.sourceVerification + counts.ownerReview > 0,
+        blockingCounts,
+        blockingCount,
+        advisoryCount: totalCount - blockingCount,
+        queueSummary: `source fixes ${counts.sourceFixes}, verify ${counts.sourceVerification}, refresh ${counts.evidenceRefresh}, external ${counts.externalProof}, owner review ${counts.ownerReview}, advisories ${totalCount - blockingCount}`,
+        needsTypedEvidence: blockingCounts.externalProof > 0,
+        needsRefresh: blockingCounts.evidenceRefresh > 0,
+        needsReview: blockingCounts.sourceFixes + blockingCounts.sourceVerification + blockingCounts.ownerReview > 0,
     };
+}
+
+function publicBetaActionBadgeLabel(action: AdminDebugPublicBetaOperatorDecision["primaryAction"]) {
+    if (!action) return undefined;
+    if (action.lane === "source_fix") return "Source fixes";
+    if (action.lane === "source_verification") return "Verify source";
+    if (action.lane === "evidence_refresh") return "Refresh due";
+    if (action.lane === "external_proof") return "External evidence";
+    return "Owner review";
+}
+
+export function listSecondaryPublicBetaOperatorActions(decision: AdminDebugPublicBetaOperatorDecision | null) {
+    if (!decision) return [];
+    const actions = [
+        ...decision.actionQueues.sourceFixes,
+        ...decision.actionQueues.sourceVerification,
+        ...decision.actionQueues.evidenceRefresh,
+        ...decision.actionQueues.externalProof,
+        ...decision.actionQueues.ownerReview,
+    ];
+    const primaryKey = decision.primaryAction ? `${decision.primaryAction.lane}:${decision.primaryAction.id}` : null;
+    const seen = new Set<string>();
+    return actions.filter((action) => {
+        const key = `${action.lane}:${action.id}`;
+        if (key === primaryKey || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
 }
 
 export function resolvePublicBetaOperatorPresentation(input: {
@@ -50,21 +91,51 @@ export function resolvePublicBetaOperatorPresentation(input: {
     const needsTypedEvidence = summary?.needsTypedEvidence ?? input.fallback.needsTypedEvidence;
     const needsRefresh = summary?.needsRefresh ?? input.fallback.needsRefresh;
     const needsReview = summary?.needsReview ?? input.fallback.needsReview;
+    const queuedActions = input.decision ? [
+        ...input.decision.actionQueues.sourceFixes,
+        ...input.decision.actionQueues.sourceVerification,
+        ...input.decision.actionQueues.evidenceRefresh,
+        ...input.decision.actionQueues.externalProof,
+        ...input.decision.actionQueues.ownerReview,
+    ] : [];
+    const blockingPrimaryAction = input.decision?.primaryAction?.blocksLaunch
+        ? input.decision.primaryAction
+        : queuedActions.find((action) => action.blocksLaunch) ?? null;
+    const releaseReady = input.decision?.releaseReadiness.ready === true
+        && input.decision.releaseReadiness.status === "launch_ready"
+        && input.decision.releaseReadiness.blockerCount === 0
+        && !blockingPrimaryAction;
     const badgeState: AdminTruthState = input.canonicalTruthState === "unknown"
         ? "unavailable"
-        : input.canonicalTruthState === "stale" || needsRefresh
+        : input.canonicalTruthState === "stale"
             ? "stale"
-            : input.decision?.releaseReadiness.status === "blocked" || input.decision?.sourceReadiness.status === "blocked"
+            : input.canonicalTruthState === "failed" || input.failedReportWithFindings
                 ? "failed"
-                : needsTypedEvidence || needsReview
-                    ? "review"
-                    : input.failedReportWithFindings ? "failed" : "live";
+                : !input.decision
+                    ? needsRefresh ? "stale" : needsTypedEvidence || needsReview ? "review" : "live"
+                    : releaseReady
+                        ? "live"
+                        : blockingPrimaryAction?.lane === "evidence_refresh"
+                            ? "stale"
+                            : blockingPrimaryAction?.lane === "source_fix"
+                                || input.decision.releaseReadiness.status === "blocked"
+                                || input.decision.sourceReadiness.status === "blocked"
+                                ? "failed"
+                                : "review";
+    const badgeLabel = input.canonicalTruthState === "stale"
+        ? "Refresh due"
+        : input.canonicalTruthState === "failed" || input.failedReportWithFindings
+            ? "Needs fix"
+            : releaseReady
+                ? undefined
+                : publicBetaActionBadgeLabel(blockingPrimaryAction)
+                    ?? (input.decision ? "Release blocked" : summary?.counts.sourceFixes
+                        ? "Source fixes"
+                        : needsRefresh ? "Refresh due" : needsTypedEvidence ? "External evidence" : needsReview ? "Review" : undefined);
     return {
         summary,
         badgeState,
-        badgeLabel: summary?.counts.sourceFixes
-            ? "Source fixes"
-            : needsTypedEvidence ? "External evidence" : needsRefresh ? "Refresh due" : needsReview ? "Review" : undefined,
+        badgeLabel,
     };
 }
 
@@ -101,6 +172,7 @@ export function DebugPublicBetaDecisionDetails({
     sourceDrift: string;
 }) {
     const summary = summarizePublicBetaOperatorDecision(decision);
+    const secondaryActions = listSecondaryPublicBetaOperatorActions(decision);
     const openGates = evidenceGates.filter((gate) => gate.status.toLowerCase() !== "ready" || gate.blocksLaunch);
     return (
         <div className="min-w-0 flex-1">
@@ -120,6 +192,28 @@ export function DebugPublicBetaDecisionDetails({
                         </li>
                     ))}
                 </ul>
+            ) : null}
+            {secondaryActions.length > 0 ? (
+                <div className="mt-2" data-public-beta-secondary-actions="typed">
+                    <p className="text-[11px] font-semibold text-gray-300">Other typed actions</p>
+                    <ul className="mt-1 space-y-1 text-xs text-gray-300">
+                        {secondaryActions.slice(0, 8).map((action) => (
+                            <li
+                                key={`public-beta-secondary-${action.lane}-${action.id}`}
+                                className="rounded-md border border-white/10 bg-black/20 px-2 py-1"
+                                data-public-beta-action-lane={action.lane}
+                                data-public-beta-action-source={action.source}
+                                data-public-beta-blocks-launch={String(action.blocksLaunch)}
+                            >
+                                <span className="font-semibold text-white">{action.title}</span>
+                                <span className="text-gray-400"> - {action.action}</span>
+                                <span className="block text-[10px] text-gray-500">
+                                    {formatPublicBetaDecisionStatus(action.lane)} | source {action.source} | {action.blocksLaunch ? "Blocks launch" : "Advisory"}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             ) : null}
         </div>
     );

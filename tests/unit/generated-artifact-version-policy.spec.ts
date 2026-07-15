@@ -76,6 +76,31 @@ describe("generated artifact version policy", () => {
     expect(status.reason).toContain("current code version is unavailable");
   });
 
+  it("does not infer current-by-impact when an artifact has no owned source boundary", () => {
+    const status = classifyGeneratedArtifactVersion({
+      artifactPath: "agent/state/runtime-smoke-evidence.generated.json",
+      artifactHead: "old-head",
+      currentHead: "current-head",
+      changedFilesSinceArtifactHead: [],
+      ownedSourcePaths: [],
+    });
+
+    expect(status.status).toBe("stale_source_version");
+    expect(status.needsRefresh).toBe(true);
+  });
+
+  it("does not infer current-by-impact when source comparison is unavailable", () => {
+    const status = classifyGeneratedArtifactVersion({
+      artifactPath: "agent/state/targeted-behavior-evidence.generated.json",
+      artifactHead: "unresolvable-head",
+      currentHead: "current-head",
+      ownedSourcePaths: ["scripts/agent/validate-targeted-behavior-evidence.ts"],
+    });
+
+    expect(status.status).toBe("stale_source_version");
+    expect(status.needsRefresh).toBe(true);
+  });
+
   it("lets refresh safeguards treat same-commit snapshots as current", () => {
     const status = getArtifactRefreshStatus({
       artifactPath: "agent/state/public-beta-score.generated.json",

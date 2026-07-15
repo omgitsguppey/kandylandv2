@@ -5,6 +5,11 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DebugControlTower } from "@/app/admin/debug/components/DebugControlTower";
+import {
+    resolvePublicBetaOperatorPresentation,
+    summarizePublicBetaOperatorDecision,
+} from "@/app/admin/debug/components/DebugOperatorCockpit";
+import type { AdminDebugPublicBetaOperatorDecision } from "@/lib/admin-debug-control-tower";
 
 const mockState = vi.hoisted(() => ({
     payload: {
@@ -215,6 +220,112 @@ describe("DebugControlTower", () => {
         container.remove();
     });
 
+    it("keeps launch-ready posture live when only a non-blocking advisory remains", () => {
+        const decision: AdminDebugPublicBetaOperatorDecision = {
+            version: "operator_decision_v1",
+            sourceReadiness: { score: 100, status: "ready", detail: "Source ready." },
+            releaseReadiness: { status: "launch_ready", ready: true, blockerCount: 0, detail: "Launch ready." },
+            primaryAction: null,
+            actionQueues: {
+                sourceFixes: [],
+                sourceVerification: [],
+                evidenceRefresh: [],
+                externalProof: [{
+                    id: "optional-provider-context",
+                    lane: "external_proof",
+                    title: "Optional provider context",
+                    action: "Attach optional provider context when available.",
+                    source: "provider:optional",
+                    blocksLaunch: false,
+                }],
+                ownerReview: [],
+            },
+            compositeConfidence: { score: 100, useAsWorkTarget: false, detail: "Diagnostic only." },
+        };
+
+        const summary = summarizePublicBetaOperatorDecision(decision);
+        const presentation = resolvePublicBetaOperatorPresentation({
+            decision,
+            canonicalTruthState: "live",
+            fallback: { needsTypedEvidence: false, needsRefresh: false, needsReview: false },
+            failedReportWithFindings: false,
+        });
+
+        expect(summary?.advisoryCount).toBe(1);
+        expect(summary?.needsTypedEvidence).toBe(false);
+        expect(presentation.badgeState).toBe("live");
+        expect(presentation.badgeLabel).toBeUndefined();
+    });
+
+    it("labels a blocking refresh primary action ahead of later external proof", () => {
+        const refreshAction = {
+            id: "refresh-targeted",
+            lane: "evidence_refresh" as const,
+            title: "Refresh targeted evidence",
+            action: "Rerun the targeted evidence validator.",
+            source: "artifact:targeted",
+            blocksLaunch: true,
+        };
+        const decision: AdminDebugPublicBetaOperatorDecision = {
+            version: "operator_decision_v1",
+            sourceReadiness: { score: 90, status: "verification_due", detail: "Refresh due." },
+            releaseReadiness: { status: "source_ready", ready: false, blockerCount: 2, detail: "Two blockers remain." },
+            primaryAction: refreshAction,
+            actionQueues: {
+                sourceFixes: [],
+                sourceVerification: [],
+                evidenceRefresh: [refreshAction],
+                externalProof: [{
+                    id: "provider-proof",
+                    lane: "external_proof",
+                    title: "Provider proof",
+                    action: "Attach provider proof.",
+                    source: "provider:formal",
+                    blocksLaunch: true,
+                }],
+                ownerReview: [],
+            },
+            compositeConfidence: { score: 90, useAsWorkTarget: false, detail: "Diagnostic only." },
+        };
+
+        const presentation = resolvePublicBetaOperatorPresentation({
+            decision,
+            canonicalTruthState: "live",
+            fallback: { needsTypedEvidence: false, needsRefresh: false, needsReview: false },
+            failedReportWithFindings: false,
+        });
+
+        expect(presentation.badgeState).toBe("stale");
+        expect(presentation.badgeLabel).toBe("Refresh due");
+    });
+
+    it("does not show live when a non-ready decision has no queued action", () => {
+        const decision: AdminDebugPublicBetaOperatorDecision = {
+            version: "operator_decision_v1",
+            sourceReadiness: { score: 100, status: "ready", detail: "Source ready." },
+            releaseReadiness: { status: "owner_review", ready: false, blockerCount: 0, detail: "Owner review is required." },
+            primaryAction: null,
+            actionQueues: {
+                sourceFixes: [],
+                sourceVerification: [],
+                evidenceRefresh: [],
+                externalProof: [],
+                ownerReview: [],
+            },
+            compositeConfidence: { score: 100, useAsWorkTarget: false, detail: "Diagnostic only." },
+        };
+
+        const presentation = resolvePublicBetaOperatorPresentation({
+            decision,
+            canonicalTruthState: "live",
+            fallback: { needsTypedEvidence: false, needsRefresh: false, needsReview: false },
+            failedReportWithFindings: false,
+        });
+
+        expect(presentation.badgeState).toBe("review");
+        expect(presentation.badgeLabel).toBe("Release blocked");
+    });
+
     it("renders mobile compact control tower sections without sensitive bodies", async () => {
         await act(async () => {
             root.render(<DebugControlTower />);
@@ -328,6 +439,11 @@ describe("DebugControlTower", () => {
             expect(container.textContent).toContain("Diagnostic composite 91/100 — not a work target.");
             expect(container.innerHTML).toContain('data-public-beta-evidence-source="typed-gates"');
             expect(container.textContent).toContain("Fix the source-owned UI contract and rerun its validator.");
+            expect(container.textContent).toContain("Other typed actions");
+            expect(container.textContent).toContain("Provider evidence - Attach provider-backed evidence.");
+            expect(container.innerHTML).toContain('data-public-beta-action-lane="external_proof"');
+            expect(container.innerHTML).toContain('data-public-beta-action-source="evidenceGate:runtimeProviderSmoke"');
+            expect(container.innerHTML).toContain('data-public-beta-blocks-launch="true"');
             expect(container.textContent).not.toContain("Legacy fallback must stay hidden");
         } finally {
             if (previousDecision === undefined) delete payload.canonicalPublicBetaOperatorDecision;
@@ -398,7 +514,7 @@ describe("DebugControlTower", () => {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
                 "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.",
-                "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
+                "Stale evidence: Required report freshness - 6 required generated report(s) are older than the freshness window.",
             ];
             payload.canonicalPublicBetaReadinessReason = "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.";
 
@@ -415,7 +531,7 @@ describe("DebugControlTower", () => {
             expect(container.textContent).toContain("Refresh due");
             expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");
-            expect(container.textContent).not.toContain("Stale evidence: Report freshness and PR integrity");
+            expect(container.textContent).not.toContain("Stale evidence: Required report freshness");
             expect(container.textContent).not.toContain("manual proof");
             expect(container.textContent).not.toContain("Proof required");
         } finally {
@@ -475,7 +591,7 @@ describe("DebugControlTower", () => {
                 "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.",
                 "Stale evidence: Runtime/provider smoke - Provider smoke: Payment context was recorded. Provider-backed site activity evidence is still separate. Attach redacted provider-backed site activity evidence. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
                 "Stale evidence: Admin truth/sample evidence - Produce a redacted admin source activity sample before clearing the admin source activity gate.",
-                "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
+                "Stale evidence: Required report freshness - 6 required generated report(s) are older than the freshness window.",
             ];
             payload.canonicalPublicBetaStatus = "ERROR";
             payload.canonicalPublicBetaReadinessStatus = "Source evidence required";
@@ -511,7 +627,7 @@ describe("DebugControlTower", () => {
             expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");
             expect(container.textContent).not.toContain("Stale evidence: Runtime/provider smoke");
             expect(container.textContent).not.toContain("Stale evidence: Admin truth/sample evidence");
-            expect(container.textContent).not.toContain("Stale evidence: Report freshness and PR integrity");
+            expect(container.textContent).not.toContain("Stale evidence: Required report freshness");
         } finally {
             Object.assign(mockState.payload, originalPayload);
         }

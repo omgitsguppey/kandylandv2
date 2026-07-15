@@ -274,7 +274,6 @@ function main() {
         "No admin truth source sample artifact was supplied.",
       ),
       costReadiness: buildScore80CostReadinessFromRepo(root).costReadiness,
-      openPrTriageFresh: true,
     },
   });
 

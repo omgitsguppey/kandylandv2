@@ -291,7 +291,7 @@ export function buildDailyTaskDebugScoreLockReport(input: BuildInput = {}): Dail
 
   const report: DailyTaskDebugScoreLockReport = {
     generatedAtUtc: input.now ?? new Date().toISOString(),
-    currentHead: input.currentHead ?? (git(["rev-parse", "--short", "HEAD"]) || "unknown"),
+    currentHead: input.currentHead ?? (git(["rev-parse", "HEAD"]) || "unknown"),
     resetTruthStatus: reset.resetPolicyExplicit && reset.duplicateRewardGuard && reset.rewardSourceTruth === "reward_gd_only" ? "pass" : statusFromPass(reset.status),
     lifecycleTelemetryStatus: lifecycle.requiredEventsRegistered && lifecycle.completionHasStartAttemptPath && lifecycle.rewardGrantedServerTruth ? "pass" : statusFromPass(lifecycle.status),
     durationTrackingStatus: lifecycle.durationRejectsPassivePageTime ? "active_duration_only" : "passive_page_time",

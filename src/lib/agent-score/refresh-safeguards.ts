@@ -63,7 +63,8 @@ function ageHours(generatedAtUtc: string | undefined, nowUtc: string) {
   const generatedMs = Date.parse(generatedAtUtc);
   const nowMs = Date.parse(nowUtc);
   if (!Number.isFinite(generatedMs) || !Number.isFinite(nowMs)) return undefined;
-  return Math.max(0, (nowMs - generatedMs) / (60 * 60 * 1000));
+  const computedAgeHours = (nowMs - generatedMs) / (60 * 60 * 1000);
+  return computedAgeHours >= 0 ? computedAgeHours : undefined;
 }
 
 function statusFromInput(
@@ -83,7 +84,7 @@ function statusFromInput(
       changedFilesInHead: input.changedFilesInHead,
       changedFilesSinceArtifactHead: input.changedFilesSinceArtifactHead,
       ownedSourcePaths: hasImpactContext
-        ? input.ownedSourcePaths ?? registryEntry.ownedSourcePaths
+        ? input.ownedSourcePaths ?? (registryEntry.allowCurrentByImpact ? registryEntry.ownedSourcePaths : undefined)
         : undefined,
     });
     if (version.status !== "current_head") {

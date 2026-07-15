@@ -185,7 +185,6 @@ describe("beta health algorithm v2 evidence quality", () => {
         freshness: "fresh",
       }],
       runtimeCodeChangedSinceReport: false,
-      openPrTriageFresh: true,
     });
 
     expect(score.score).toBeLessThan(100);

@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   REQUIRED_PROVIDER_SMOKE_CHECKS,
+  providerSmokeEvaluationPassed,
   validateProviderSmokeEvidenceDocument,
 } from "../../scripts/agent/validate-provider-smoke-evidence";
 import {
+  buildRuntimeSmokeEvidenceReport,
   REQUIRED_RUNTIME_SMOKE_CHECKS,
   validateRuntimeSmokeEvidenceDocument,
 } from "../../scripts/agent/validate-runtime-smoke-evidence";
@@ -21,7 +23,77 @@ import {
   resolveEvidenceCaptureMode,
 } from "../../scripts/agent/capture-truthful-evidence";
 
+const RUNTIME_EVIDENCE_PATH = "agent/evidence/runtime-smoke/sample.json";
+const RUNTIME_TEST_HEAD = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const RUNTIME_TEST_NOW_MS = Date.parse("2026-05-17T06:00:00.000Z");
+const PROVIDER_EVIDENCE_PATH = "agent/evidence/provider-smoke/sample.redacted.json";
+const PROVIDER_TEST_HEAD = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+const PROVIDER_TEST_NOW_MS = Date.parse("2026-05-17T06:00:00.000Z");
+
+function completeProviderSmokeDocument(overrides: Record<string, unknown> = {}) {
+  return {
+    status: "complete",
+    capturedAtUtc: "2026-05-17T05:30:00.000Z",
+    currentHead: PROVIDER_TEST_HEAD,
+    provider: "paypal",
+    environment: "sandbox",
+    checks: REQUIRED_PROVIDER_SMOKE_CHECKS.map((id) => ({
+      id,
+      status: "pass",
+      artifactPath: PROVIDER_EVIDENCE_PATH,
+      notes: "",
+    })),
+    redactions: ["tokens"],
+    operatorNotes: "",
+    ...overrides,
+  };
+}
+
+const providerValidationOptions = {
+  requireComplete: true,
+  existingPaths: new Set([PROVIDER_EVIDENCE_PATH]),
+  currentHead: PROVIDER_TEST_HEAD,
+  nowMs: PROVIDER_TEST_NOW_MS,
+};
+
+function completeRuntimeSmokeDocument(overrides: Record<string, unknown> = {}) {
+  return {
+    status: "complete",
+    capturedAtUtc: "2026-05-17T05:30:00.000Z",
+    currentHead: RUNTIME_TEST_HEAD,
+    appBaseUrl: "https://kandydrops.com",
+    environment: "preview",
+    checks: REQUIRED_RUNTIME_SMOKE_CHECKS.map((route) => ({
+      route,
+      status: "pass",
+      artifactPath: RUNTIME_EVIDENCE_PATH,
+      notes: "",
+    })),
+    redactions: ["none"],
+    operatorNotes: "",
+    ...overrides,
+  };
+}
+
+const runtimeValidationOptions = {
+  requireComplete: true,
+  existingPaths: new Set([RUNTIME_EVIDENCE_PATH]),
+  currentHead: RUNTIME_TEST_HEAD,
+  nowMs: RUNTIME_TEST_NOW_MS,
+};
+
 describe("evidence artifact schemas", () => {
+  it("does not emit a passing provider verdict when any scanned evidence artifact is invalid", () => {
+    expect(providerSmokeEvaluationPassed({
+      passingArtifacts: ["agent/evidence/provider-smoke/valid.json"],
+      failures: ["agent/evidence/provider-smoke/invalid.json contains a raw secret"],
+    })).toBe(false);
+    expect(providerSmokeEvaluationPassed({
+      passingArtifacts: ["agent/evidence/provider-smoke/valid.json"],
+      failures: [],
+    })).toBe(true);
+  });
+
   it("keeps truthful evidence capture source-safe unless runtime smoke is explicit", () => {
     expect(resolveEvidenceCaptureMode([])).toEqual({
       runtime: false,
@@ -430,16 +502,10 @@ describe("evidence artifact schemas", () => {
       .map((id) => ({ id, status: "pass", artifactPath: "agent/evidence/provider-smoke/sample.redacted.json", notes: "" }));
 
     const failures = validateProviderSmokeEvidenceDocument(
-      {
-        status: "complete",
-        capturedAtUtc: "2026-05-17T05:30:00.000Z",
-        provider: "paypal",
-        environment: "sandbox",
+      completeProviderSmokeDocument({
         checks,
-        redactions: ["tokens"],
-        operatorNotes: "",
-      },
-      { requireComplete: true, existingPaths: new Set(["agent/evidence/provider-smoke/sample.redacted.json"]) },
+      }),
+      providerValidationOptions,
     );
 
     expect(failures).toContain('provider smoke complete evidence must include check "paid-bonus-purchased-balance".');
@@ -447,22 +513,10 @@ describe("evidence artifact schemas", () => {
 
   it("rejects raw provider secrets in provider smoke evidence", () => {
     const failures = validateProviderSmokeEvidenceDocument(
-      {
-        status: "complete",
-        capturedAtUtc: "2026-05-17T05:30:00.000Z",
-        provider: "paypal",
-        environment: "sandbox",
+      completeProviderSmokeDocument({
         access_token: "paypal_access_token_should_not_be_written",
-        checks: REQUIRED_PROVIDER_SMOKE_CHECKS.map((id) => ({
-          id,
-          status: "pass",
-          artifactPath: "agent/evidence/provider-smoke/sample.redacted.json",
-          notes: "",
-        })),
-        redactions: ["tokens"],
-        operatorNotes: "",
-      },
-      { requireComplete: true, existingPaths: new Set(["agent/evidence/provider-smoke/sample.redacted.json"]) },
+      }),
+      providerValidationOptions,
     );
 
     expect(failures).toContain("provider smoke evidence must not include raw secrets or provider tokens.");
@@ -470,49 +524,168 @@ describe("evidence artifact schemas", () => {
 
   it("rejects screenshot-only provider-backed source activity evidence", () => {
     const failures = validateProviderSmokeEvidenceDocument(
-      {
-        status: "complete",
-        capturedAtUtc: "2026-05-17T05:30:00.000Z",
-        provider: "paypal",
-        environment: "sandbox",
+      completeProviderSmokeDocument({
         sourceEvidence: {
           sourceStatus: "source_validated",
           screenshotOnlyClearsGate: true,
         },
-        checks: REQUIRED_PROVIDER_SMOKE_CHECKS.map((id) => ({
-          id,
-          status: "pass",
-          artifactPath: "agent/evidence/provider-smoke/sample.redacted.json",
-          notes: "",
-        })),
-        redactions: ["tokens"],
         operatorNotes: "Manual screenshot clears provider gate.",
-      },
-      { requireComplete: true, existingPaths: new Set(["agent/evidence/provider-smoke/sample.redacted.json"]) },
+      }),
+      providerValidationOptions,
     );
 
     expect(failures).toContain("provider-backed source activity evidence cannot be cleared by screenshot-only or manual-only proof.");
   });
 
+  it("accepts provider evidence only for the exact current commit inside the 24-hour window", () => {
+    expect(validateProviderSmokeEvidenceDocument(
+      completeProviderSmokeDocument(),
+      providerValidationOptions,
+    )).toEqual([]);
+    expect(validateProviderSmokeEvidenceDocument(
+      completeProviderSmokeDocument({ capturedAtUtc: "2026-05-16T06:00:00.000Z" }),
+      providerValidationOptions,
+    )).toEqual([]);
+  });
+
+  it("rejects stale, future, malformed, or wrong-commit provider evidence", () => {
+    expect(validateProviderSmokeEvidenceDocument(
+      completeProviderSmokeDocument({ capturedAtUtc: "2026-05-16T05:59:59.999Z" }),
+      providerValidationOptions,
+    )).toContain("provider smoke complete evidence capturedAtUtc is older than 24h.");
+    expect(validateProviderSmokeEvidenceDocument(
+      completeProviderSmokeDocument({ capturedAtUtc: "2026-05-17T06:00:00.001Z" }),
+      providerValidationOptions,
+    )).toContain("provider smoke complete evidence capturedAtUtc must not be in the future.");
+    expect(validateProviderSmokeEvidenceDocument(
+      completeProviderSmokeDocument({ capturedAtUtc: "not-a-timestamp" }),
+      providerValidationOptions,
+    )).toContain("provider smoke complete evidence must include a valid capturedAtUtc.");
+    expect(validateProviderSmokeEvidenceDocument(
+      completeProviderSmokeDocument({ currentHead: "cccccccccccccccccccccccccccccccccccccccc" }),
+      providerValidationOptions,
+    )).toContain(
+      "provider smoke complete evidence currentHead cccccccccccccccccccccccccccccccccccccccc does not match bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.",
+    );
+  });
+
   it("requires runtime smoke route and no-provider-call checks", () => {
     const checks = REQUIRED_RUNTIME_SMOKE_CHECKS
       .filter((route) => route !== "no-provider-calls")
-      .map((route) => ({ route, status: "pass", artifactPath: "agent/evidence/runtime-smoke/sample.json", notes: "" }));
+      .map((route) => ({ route, status: "pass", artifactPath: RUNTIME_EVIDENCE_PATH, notes: "" }));
 
     const failures = validateRuntimeSmokeEvidenceDocument(
-      {
-        status: "complete",
-        capturedAtUtc: "2026-05-17T05:30:00.000Z",
-        appBaseUrl: "https://example.test",
-        environment: "preview",
+      completeRuntimeSmokeDocument({
         checks,
-        redactions: ["none"],
-        operatorNotes: "",
-      },
-      { requireComplete: true, existingPaths: new Set(["agent/evidence/runtime-smoke/sample.json"]) },
+      }),
+      runtimeValidationOptions,
     );
 
     expect(failures).toContain('runtime smoke complete evidence must include check "no-provider-calls".');
+  });
+
+  it("accepts fresh runtime smoke evidence for the exact evaluated full commit", () => {
+    expect(validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument(),
+      runtimeValidationOptions,
+    )).toEqual([]);
+  });
+
+  it("accepts runtime smoke evidence at the 24-hour freshness boundary", () => {
+    expect(validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ capturedAtUtc: "2026-05-16T06:00:00.000Z" }),
+      runtimeValidationOptions,
+    )).toEqual([]);
+  });
+
+  it("rejects stale runtime smoke evidence", () => {
+    const failures = validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ capturedAtUtc: "2026-05-16T05:59:59.999Z" }),
+      runtimeValidationOptions,
+    );
+
+    expect(failures).toContain("runtime smoke complete evidence capturedAtUtc is older than 24h.");
+  });
+
+  it("rejects runtime smoke evidence for a different or missing commit", () => {
+    const mismatchedFailures = validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ currentHead: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }),
+      runtimeValidationOptions,
+    );
+    const missingFailures = validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ currentHead: undefined }),
+      runtimeValidationOptions,
+    );
+
+    expect(mismatchedFailures).toContain(
+      "runtime smoke complete evidence currentHead bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb does not match aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.",
+    );
+    expect(missingFailures).toContain("runtime smoke complete evidence must include currentHead.");
+  });
+
+  it("rejects future or malformed runtime smoke capture timestamps", () => {
+    const futureFailures = validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ capturedAtUtc: "2026-05-17T06:00:00.001Z" }),
+      runtimeValidationOptions,
+    );
+    const malformedFailures = validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ capturedAtUtc: "not-a-timestamp" }),
+      runtimeValidationOptions,
+    );
+
+    expect(futureFailures).toContain("runtime smoke complete evidence capturedAtUtc must not be in the future.");
+    expect(malformedFailures).toContain("runtime smoke complete evidence must include a valid capturedAtUtc.");
+  });
+
+  it("does not let local, malformed, or unknown-environment captures clear deployed runtime proof", () => {
+    expect(validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ appBaseUrl: "http://localhost:3000" }),
+      runtimeValidationOptions,
+    )).toContain("runtime smoke complete evidence appBaseUrl must be a configured non-local HTTPS deployment origin without credentials.");
+    expect(validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ appBaseUrl: "not-a-url" }),
+      runtimeValidationOptions,
+    )).toContain("runtime smoke complete evidence appBaseUrl must be a configured non-local HTTPS deployment origin without credentials.");
+    expect(validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ appBaseUrl: "https://example.test" }),
+      runtimeValidationOptions,
+    )).toContain("runtime smoke complete evidence appBaseUrl must be a configured non-local HTTPS deployment origin without credentials.");
+    expect(validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ appBaseUrl: "https://192.168.1.5" }),
+      runtimeValidationOptions,
+    )).toContain("runtime smoke complete evidence appBaseUrl must be a configured non-local HTTPS deployment origin without credentials.");
+    expect(validateRuntimeSmokeEvidenceDocument(
+      completeRuntimeSmokeDocument({ environment: "unknown" }),
+      runtimeValidationOptions,
+    )).toContain("runtime smoke complete evidence environment must be production or preview.");
+  });
+
+  it("does not report a mixed valid and invalid runtime evidence set as passed", () => {
+    const report = buildRuntimeSmokeEvidenceReport({
+      lane: "runtimeSmokeEvidence",
+      status: "complete",
+      folder: "agent/evidence/runtime-smoke",
+      templatePath: "agent/evidence/runtime-smoke/evidence.template.json",
+      templateExists: true,
+      evidenceFiles: ["valid.json", "invalid.json"],
+      completeArtifacts: ["valid.json"],
+      passingArtifacts: ["valid.json"],
+      failures: ["invalid.json must be valid JSON"],
+    }, {
+      currentHead: RUNTIME_TEST_HEAD,
+      generatedAtUtc: "2026-05-17T06:00:00.000Z",
+    });
+
+    expect(report).toMatchObject({
+      overallStatus: "runtime_unverified",
+      status: "runtime_unverified",
+      runtimeDeploymentSmokePassed: false,
+      passed: false,
+      validationFailures: ["invalid.json must be valid JSON"],
+      readinessImpact: {
+        runtimeGatePassed: false,
+      },
+    });
   });
 
   it("requires admin truth source freshness, redactions, and artifact path for complete evidence", () => {

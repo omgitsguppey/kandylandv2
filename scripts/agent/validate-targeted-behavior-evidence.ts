@@ -12,6 +12,7 @@ export type TargetedBehaviorValidatorResult = {
   status: TargetedBehaviorValidatorStatus;
   artifactPath: string;
   currentHead?: string;
+  artifactGeneratedAtUtc?: string;
   surfaces: string[];
   proves: string;
   doesNotProve: string;
@@ -239,22 +240,70 @@ function readReportStatus(report: Record<string, unknown> | null) {
   return undefined;
 }
 
+export function targetedBehaviorHeadsMatch(reportHead: string | undefined, currentHead: string) {
+  return Boolean(reportHead)
+    && /^[0-9a-f]{40}$/iu.test(reportHead ?? "")
+    && /^[0-9a-f]{40}$/iu.test(currentHead)
+    && reportHead === currentHead;
+}
+
+export function targetedBehaviorReportHasExplicitPass(report: Record<string, unknown> | null) {
+  const status = readReportStatus(report);
+  const hasValidationFailures = Array.isArray(report?.validationFailures)
+    && report.validationFailures.length > 0;
+  return !hasValidationFailures
+    && status !== undefined
+    && /^(?:pass|passed|ready|clean)$/u.test(status);
+}
+
+export function targetedBehaviorReportIsFresh(
+  report: Record<string, unknown> | null,
+  nowMs = Date.now(),
+  maxAgeHours = 24,
+) {
+  const generatedAtUtc = report?.generatedAtUtc ?? report?.generatedAt;
+  if (typeof generatedAtUtc !== "string") return false;
+  const generatedAtMs = Date.parse(generatedAtUtc);
+  if (!Number.isFinite(generatedAtMs) || generatedAtMs > nowMs) return false;
+  return nowMs - generatedAtMs <= maxAgeHours * 60 * 60 * 1000;
+}
+
 function validatorResultsForHead(head: string): TargetedBehaviorValidatorResult[] {
   return TARGETED_VALIDATORS.map((validator) => {
     const report = readJson(validator.artifactPath);
     const reportHead = readReportHead(report);
     const reportStatus = readReportStatus(report);
+    const reportGeneratedAtUtc = typeof report?.generatedAtUtc === "string"
+      ? report.generatedAtUtc
+      : typeof report?.generatedAt === "string"
+        ? report.generatedAt
+        : undefined;
+    const validationFailures = Array.isArray(report?.validationFailures)
+      ? report.validationFailures.filter((failure) => typeof failure === "string" && failure.trim().length > 0)
+      : [];
+    const commandExists = hasPackageScript(validator.command);
     let status: TargetedBehaviorValidatorStatus = "pass";
     let blocker: string | undefined;
-    if (!hasPackageScript(validator.command)) {
+    if (!commandExists) {
       status = "in_flight";
       blocker = `${validator.command} is not defined in package.json; lane is treated as in-flight unless it becomes required.`;
     } else if (!report) {
-      status = "in_flight";
-      blocker = `${validator.artifactPath} is missing.`;
-    } else if (reportStatus && /fail|failed|blocked/iu.test(reportStatus)) {
       status = "fail";
-      blocker = `${validator.artifactPath} reports failing status ${reportStatus}.`;
+      blocker = `${validator.artifactPath} is missing.`;
+    } else if (validationFailures.length > 0 || report?.passed === false || reportStatus && /fail|failed|blocked|error/iu.test(reportStatus)) {
+      status = "fail";
+      blocker = validationFailures[0]
+        ? `${validator.artifactPath} reports validation failure: ${validationFailures[0]}`
+        : `${validator.artifactPath} reports failing status ${reportStatus ?? "passed=false"}.`;
+    } else if (!targetedBehaviorHeadsMatch(reportHead, head)) {
+      status = "fail";
+      blocker = `${validator.artifactPath} was not generated for the current code version.`;
+    } else if (!targetedBehaviorReportIsFresh(report)) {
+      status = "fail";
+      blocker = `${validator.artifactPath} is missing a valid timestamp inside the 24-hour freshness window.`;
+    } else if (!targetedBehaviorReportHasExplicitPass(report)) {
+      status = "fail";
+      blocker = `${validator.artifactPath} does not declare an explicit passing verdict.`;
     }
     return {
       id: validator.id,
@@ -266,9 +315,10 @@ function validatorResultsForHead(head: string): TargetedBehaviorValidatorResult[
       doesNotProve: DOES_NOT_PROVE,
       blocker,
       classification: status === "in_flight" ? "in_flight_validator" : "current_lock_validator",
-      requiredForCurrentLane: status !== "in_flight",
+      requiredForCurrentLane: commandExists,
       replacementFor: "replacementFor" in validator ? [...(validator.replacementFor ?? [])] : undefined,
       currentHead: reportHead ?? head,
+      artifactGeneratedAtUtc: reportGeneratedAtUtc,
     };
   });
 }
@@ -370,6 +420,18 @@ export function validateTargetedBehaviorEvidenceReport(report: TargetedBehaviorE
     if (!["pass", "fail", "unavailable", "in_flight", "superseded"].includes(result.status)) failures.push(`${result.id} has invalid validator status.`);
     if (!result.command || !result.proves || !result.doesNotProve) failures.push(`${result.id} must include command, proves, and doesNotProve.`);
     if (result.status !== "pass" && !result.blocker) failures.push(`${result.id} failed/unavailable validator must record blocker.`);
+    if (result.status === "pass" && !targetedBehaviorHeadsMatch(result.currentHead, report.latestCodeVersion)) {
+      failures.push(`${result.id} cannot pass from an older or unverifiable code version.`);
+    }
+    if (
+      result.status === "pass"
+      && !targetedBehaviorReportIsFresh(
+        { generatedAtUtc: result.artifactGeneratedAtUtc },
+        Date.parse(report.generatedAtUtc),
+      )
+    ) {
+      failures.push(`${result.id} cannot pass from missing, future, or outdated child evidence.`);
+    }
   }
   return failures;
 }

@@ -160,7 +160,7 @@ export function buildCreatorMonetizationReadinessLockReport(input: {
 } = {}): CreatorMonetizationReadinessLockReport {
   const scoreBefore = input.scoreBefore ?? 77.83;
   const scoreAfter = input.scoreAfter ?? scoreBefore;
-  const currentHead = input.currentHead ?? run("git", ["rev-parse", "--short", "HEAD"]);
+  const currentHead = input.currentHead ?? run("git", ["rev-parse", "HEAD"]);
   const fanPassReport = buildFanPassLifecycleReport({ currentHead, dirtyFiles: [], scoreBefore, scoreAfter });
   const settingsReport = buildCreatorMonetizationSettingsTruthReport({ currentHead, dirtyFiles: [], scoreBefore, scoreAfter });
   const entitlementReport = buildCreatorRevenueEntitlementLedgerReport({ currentHead, dirtyFiles: [], scoreBefore, scoreAfter });
