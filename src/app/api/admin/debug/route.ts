@@ -2528,6 +2528,13 @@ function buildRolloutRegistryPanelState(input: {
         };
     });
 
+    const rolloutItemsById = new Map<string, typeof rolloutItems[0]>();
+    for (const item of rolloutItems) {
+        if (!rolloutItemsById.has(item.id)) {
+            rolloutItemsById.set(item.id, item);
+        }
+    }
+
     const actorRows: RolloutActorEvaluationRow[] = input.rolloutSamples.map((sample) => {
         const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
         const roleRaw = toOptionalString(sample.role);
@@ -2538,7 +2545,7 @@ function buildRolloutRegistryPanelState(input: {
         const actorSource: RolloutActorEvaluationRow["actorSource"] = "representative_fixture";
         const actorId = null;
         const evaluations = assignments.map((assignment) => {
-                const match = rolloutItems.find((item) => item.id === toOptionalString(assignment.id));
+                const match = rolloutItemsById.get(toOptionalString(assignment.id) || "") ?? undefined;
                 const reasonRaw = toOptionalString(assignment.reason);
                 const assignedVariant = toOptionalString(assignment.variant) || "unknown";
                 const defaultVariant = toOptionalString(assignment.defaultVariant) || match?.defaultVariant || "unknown";
@@ -6217,50 +6224,59 @@ export async function GET(request: NextRequest) {
                     adminExcludedFromUserGuestBehavior: true,
                     unknownActorNeverPromotedToAuthenticatedUser: true,
                 },
-                modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
-                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
-                    return {
-                        moduleKey: entry.moduleKey,
-                        label: entry.label,
-                        supportedRanges: entry.supportedRanges,
-                        currentImplementationStatus: entry.currentImplementationStatus,
-                        defaultAdminAnalyticsCoverage: entry.defaultAdminAnalyticsCoverage,
-                        canRunDefaultRefresh: entry.canRunDefaultRefresh,
-                        unavailableReason: entry.unavailableReason,
-                        canonicalSources: entry.canonicalSources,
-                        parityChecksRequired: entry.parityChecksRequired,
-                        legacySupportStatus: entry.legacySupportStatus,
-                        cacheKey: latestSnapshot?.cacheKey ?? null,
-                        refreshVersion: latestSnapshot?.refreshVersion ?? 0,
-                        sourceVersion: latestSnapshot?.sourceVersion ?? null,
-                        sourceMode: latestSnapshot?.sourceMode ?? "unavailable",
-                        truthState: latestSnapshot?.truthState ?? "unavailable",
-                        refreshCacheState: latestSnapshot?.refreshCacheState ?? "unavailable",
-                        lastVerifiedAt: latestSnapshot?.lastVerifiedAt ?? null,
-                        lastRefreshRequestedAt: latestSnapshot?.lastRefreshRequestedAt ?? null,
-                        lastRefreshStartedAt: latestSnapshot?.lastRefreshStartedAt ?? null,
-                        lastRefreshCompletedAt: latestSnapshot?.lastRefreshCompletedAt ?? null,
-                        lastRefreshFailedAt: latestSnapshot?.lastRefreshFailedAt ?? null,
-                        generatedAt: latestSnapshot?.generatedAt ?? null,
-                        refreshStatus: latestSnapshot?.refreshStatus ?? "unavailable",
-                        duplicateRefreshPrevented: latestSnapshot?.duplicateRefreshPrevented ?? false,
-                        staleButVerified: latestSnapshot?.staleButVerified ?? false,
-                        invalidationReason: latestSnapshot?.invalidationReason ?? null,
-                        displaySource: latestSnapshot?.displaySource ?? "unavailable",
-                        displayAllowedBecause: latestSnapshot?.displayAllowedBecause ?? null,
-                        displayBlockedBecause: latestSnapshot?.displayBlockedBecause ?? "no_verified_snapshot",
-                        blocksOnRealtime: false,
-                        blocksOnRefresh: false,
-                        blocksOnTimeExpiry: false,
-                        fakeWaitingPrevented: latestSnapshot?.fakeWaitingPrevented ?? false,
-                        confidence: latestSnapshot?.confidence ?? 0,
-                        warningCount: latestSnapshot?.warningCount ?? 0,
-                        parityCount: latestSnapshot?.parityCount ?? 0,
-                        legacyIncluded: latestSnapshot?.legacyIncluded ?? false,
-                        debugPath: latestSnapshot?.debugPath ?? `/admin/debug?tab=advanced#analytics-snapshots/${entry.moduleKey}`,
-                        fakeZeroPreventedPolicy: "Missing source values remain null/unavailable and are detailed in Debug.",
-                    };
-                }),
+                modules: (() => {
+                    const adminMetricSnapshotsByModuleKey = new Map<string, typeof adminMetricSnapshots[0]>();
+                    for (const snapshot of adminMetricSnapshots) {
+                        const moduleKey = String(snapshot.moduleKey);
+                        if (!adminMetricSnapshotsByModuleKey.has(moduleKey)) {
+                            adminMetricSnapshotsByModuleKey.set(moduleKey, snapshot);
+                        }
+                    }
+                    return ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
+                        const latestSnapshot = adminMetricSnapshotsByModuleKey.get(entry.moduleKey) ?? null;
+                        return {
+                            moduleKey: entry.moduleKey,
+                            label: entry.label,
+                            supportedRanges: entry.supportedRanges,
+                            currentImplementationStatus: entry.currentImplementationStatus,
+                            defaultAdminAnalyticsCoverage: entry.defaultAdminAnalyticsCoverage,
+                            canRunDefaultRefresh: entry.canRunDefaultRefresh,
+                            unavailableReason: entry.unavailableReason,
+                            canonicalSources: entry.canonicalSources,
+                            parityChecksRequired: entry.parityChecksRequired,
+                            legacySupportStatus: entry.legacySupportStatus,
+                            cacheKey: latestSnapshot?.cacheKey ?? null,
+                            refreshVersion: latestSnapshot?.refreshVersion ?? 0,
+                            sourceVersion: latestSnapshot?.sourceVersion ?? null,
+                            sourceMode: latestSnapshot?.sourceMode ?? "unavailable",
+                            truthState: latestSnapshot?.truthState ?? "unavailable",
+                            refreshCacheState: latestSnapshot?.refreshCacheState ?? "unavailable",
+                            lastVerifiedAt: latestSnapshot?.lastVerifiedAt ?? null,
+                            lastRefreshRequestedAt: latestSnapshot?.lastRefreshRequestedAt ?? null,
+                            lastRefreshStartedAt: latestSnapshot?.lastRefreshStartedAt ?? null,
+                            lastRefreshCompletedAt: latestSnapshot?.lastRefreshCompletedAt ?? null,
+                            lastRefreshFailedAt: latestSnapshot?.lastRefreshFailedAt ?? null,
+                            generatedAt: latestSnapshot?.generatedAt ?? null,
+                            refreshStatus: latestSnapshot?.refreshStatus ?? "unavailable",
+                            duplicateRefreshPrevented: latestSnapshot?.duplicateRefreshPrevented ?? false,
+                            staleButVerified: latestSnapshot?.staleButVerified ?? false,
+                            invalidationReason: latestSnapshot?.invalidationReason ?? null,
+                            displaySource: latestSnapshot?.displaySource ?? "unavailable",
+                            displayAllowedBecause: latestSnapshot?.displayAllowedBecause ?? null,
+                            displayBlockedBecause: latestSnapshot?.displayBlockedBecause ?? "no_verified_snapshot",
+                            blocksOnRealtime: false,
+                            blocksOnRefresh: false,
+                            blocksOnTimeExpiry: false,
+                            fakeWaitingPrevented: latestSnapshot?.fakeWaitingPrevented ?? false,
+                            confidence: latestSnapshot?.confidence ?? 0,
+                            warningCount: latestSnapshot?.warningCount ?? 0,
+                            parityCount: latestSnapshot?.parityCount ?? 0,
+                            legacyIncluded: latestSnapshot?.legacyIncluded ?? false,
+                            debugPath: latestSnapshot?.debugPath ?? `/admin/debug?tab=advanced#analytics-snapshots/${entry.moduleKey}`,
+                            fakeZeroPreventedPolicy: "Missing source values remain null/unavailable and are detailed in Debug.",
+                        };
+                    });
+                })(),
                 compactAnalyticsRules: [
                     "No giant empty charts.",
                     "No repeated degraded badge spam.",
