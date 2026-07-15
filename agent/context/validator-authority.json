@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-07-14T09:28:44.993Z",
+  "updatedAt": "2026-07-15T04:03:53.029Z",
   "defaultAffectedAuditBlockedStatuses": [
     "superseded",
     "legacy",
@@ -9235,18 +9235,18 @@
       "reason": "Canonical authority validator for settings debug and validator ownership."
     },
     "scripts/agent/validate-settings-health-status-cleanup.ts": {
-      "surface": "repo-governance",
-      "authority": "canonical_contract",
-      "status": "canonical",
+      "surface": "settings",
+      "authority": "superseded_contract",
+      "status": "superseded",
       "canonicalContracts": [
-        "agent/context/validator-authority.json",
-        "agent/context/validator-map.json",
-        "scripts/agent/plan-affected-audits.ts"
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/client-preferences-contract.ts",
+        "src/lib/settings/settings-surface-contract.ts"
       ],
       "packageScripts": [
         "check:settings-health-status-cleanup"
       ],
-      "reason": "scripts/agent/validate-settings-health-status-cleanup.ts is an active canonical validator for repo-governance contracts."
+      "reason": "The compatibility cleanup report duplicates the canonical six-component settings authority and remains archive-only evidence."
     },
     "scripts/agent/validate-settings-route-alias-cleanup.ts": {
       "surface": "settings",
@@ -9428,20 +9428,6 @@
         "check:stale-route-grouping-cleanup"
       ],
       "reason": "scripts/agent/validate-stale-route-grouping-cleanup.ts is an active canonical validator for repo-governance contracts."
-    },
-    "scripts/agent/validate-stale-route-sample-classification.ts": {
-      "surface": "repo-governance",
-      "authority": "canonical_contract",
-      "status": "canonical",
-      "canonicalContracts": [
-        "agent/context/validator-authority.json",
-        "agent/context/validator-map.json",
-        "scripts/agent/plan-affected-audits.ts"
-      ],
-      "packageScripts": [
-        "check:stale-route-sample-classification"
-      ],
-      "reason": "scripts/agent/validate-stale-route-sample-classification.ts is an active canonical validator for repo-governance contracts."
     },
     "scripts/agent/validate-support-account-safety-consolidation.ts": {
       "surface": "support",
@@ -10473,20 +10459,6 @@
         "check:user-management-refactor"
       ],
       "reason": "scripts/agent/validate-user-management-refactor.ts is an active canonical validator for user-management contracts."
-    },
-    "scripts/agent/validate-user-management-status-truth.ts": {
-      "surface": "user-management",
-      "authority": "canonical_contract",
-      "status": "canonical",
-      "canonicalContracts": [
-        "src/lib/admin-user-truth-contract.ts",
-        "src/lib/server/admin-user-truth-snapshot.ts",
-        "src/lib/server/user-behavior-truth-rollup.ts"
-      ],
-      "packageScripts": [
-        "check:user-management-status-truth"
-      ],
-      "reason": "scripts/agent/validate-user-management-status-truth.ts is an active canonical validator for user-management contracts."
     },
     "scripts/agent/validate-user-profile-api-contract.ts": {
       "surface": "settings",
@@ -21494,18 +21466,18 @@
       "legacyReference": false
     },
     "check:settings-health-status-cleanup": {
-      "surface": "repo-governance",
-      "authority": "canonical_contract",
-      "status": "canonical",
+      "surface": "settings",
+      "authority": "superseded_contract",
+      "status": "superseded",
       "canonicalContracts": [
-        "agent/context/validator-authority.json",
-        "agent/context/validator-map.json",
-        "scripts/agent/plan-affected-audits.ts"
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/client-preferences-contract.ts",
+        "src/lib/settings/settings-surface-contract.ts"
       ],
       "validators": [
         "scripts/agent/validate-settings-health-status-cleanup.ts"
       ],
-      "reason": "check:settings-health-status-cleanup aggregates repo-governance validator evidence.",
+      "reason": "The compatibility cleanup report duplicates the canonical six-component settings authority and remains archive-only evidence.",
       "legacyReference": false
     },
     "check:settings-route-alias-cleanup": {
@@ -21700,21 +21672,6 @@
         "scripts/agent/validate-stale-route-grouping-cleanup.ts"
       ],
       "reason": "check:stale-route-grouping-cleanup aggregates repo-governance validator evidence.",
-      "legacyReference": false
-    },
-    "check:stale-route-sample-classification": {
-      "surface": "repo-governance",
-      "authority": "canonical_contract",
-      "status": "canonical",
-      "canonicalContracts": [
-        "agent/context/validator-authority.json",
-        "agent/context/validator-map.json",
-        "scripts/agent/plan-affected-audits.ts"
-      ],
-      "validators": [
-        "scripts/agent/validate-stale-route-sample-classification.ts"
-      ],
-      "reason": "check:stale-route-sample-classification aggregates repo-governance validator evidence.",
       "legacyReference": false
     },
     "check:support-account-safety-consolidation": {
@@ -22921,21 +22878,6 @@
       "reason": "check:user-management-refactor aggregates user-management validator evidence.",
       "legacyReference": false
     },
-    "check:user-management-status-truth": {
-      "surface": "user-management",
-      "authority": "canonical_contract",
-      "status": "canonical",
-      "canonicalContracts": [
-        "src/lib/admin-user-truth-contract.ts",
-        "src/lib/server/admin-user-truth-snapshot.ts",
-        "src/lib/server/user-behavior-truth-rollup.ts"
-      ],
-      "validators": [
-        "scripts/agent/validate-user-management-status-truth.ts"
-      ],
-      "reason": "check:user-management-status-truth aggregates user-management validator evidence.",
-      "legacyReference": false
-    },
     "check:user-profile-api-contract": {
       "surface": "settings",
       "authority": "canonical_contract",
@@ -23693,12 +23635,12 @@
     }
   },
   "summary": {
-    "validatorCount": 814,
-    "packageScriptCount": 809,
+    "validatorCount": 812,
+    "packageScriptCount": 807,
     "byStatus": {
-      "canonical": 748,
+      "canonical": 745,
       "supporting": 62,
-      "superseded": 1,
+      "superseded": 2,
       "legacy": 1,
       "blocked": 2
     }

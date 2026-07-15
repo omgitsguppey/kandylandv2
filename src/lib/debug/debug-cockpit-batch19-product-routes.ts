@@ -72,8 +72,7 @@ export type UserCheckinRouteErrorMappingReport = {
   historicalErrorsCurrentFailure: false;
 };
 
-export type StaleRouteSampleClassificationReport = {
-  reportKey: "stale-route-sample-classification";
+export type Batch19RouteEvidenceSummary = {
   paypalCaptureStatus: "critical_payment_evidence_required";
   paypalFreshnessFaked: false;
   groupedActionList: string[];
@@ -214,9 +213,8 @@ export function buildUserCheckinRouteErrorMappingReport(): UserCheckinRouteError
   };
 }
 
-export function buildStaleRouteSampleClassificationReport(): StaleRouteSampleClassificationReport {
+export function buildBatch19RouteEvidenceSummary(): Batch19RouteEvidenceSummary {
   return {
-    reportKey: "stale-route-sample-classification",
     paypalCaptureStatus: "critical_payment_evidence_required",
     paypalFreshnessFaked: false,
     groupedActionList: [
@@ -235,7 +233,7 @@ export function buildDebugCockpitBatch19ProductRoutesReport(): DebugCockpitBatch
   const support = buildSupportThreadsIndexRepairReport();
   const watch = buildViewerWatchSessionErrorCleanupReport();
   const user = buildUserCheckinRouteErrorMappingReport();
-  const stale = buildStaleRouteSampleClassificationReport();
+  const stale = buildBatch19RouteEvidenceSummary();
 
   return {
     generatedAtUtc: new Date().toISOString(),
@@ -327,7 +325,7 @@ export function validateUserCheckinRouteErrorMappingReport(report = buildUserChe
   return failures;
 }
 
-export function validateStaleRouteSampleClassificationReport(report = buildStaleRouteSampleClassificationReport()) {
+export function validateBatch19RouteEvidenceSummary(report = buildBatch19RouteEvidenceSummary()) {
   const failures: string[] = [];
   if (report.staleRoutesMarkedCurrent) failures.push("stale route sample marked current.");
   if (report.paypalFreshnessFaked) failures.push("stale payment route marked fresh without evidence.");
@@ -343,7 +341,7 @@ export function validateDebugCockpitBatch19ProductRoutesReport(report = buildDeb
     ...validateSupportThreadsIndexRepairReport(),
     ...validateViewerWatchSessionErrorCleanupReport(),
     ...validateUserCheckinRouteErrorMappingReport(),
-    ...validateStaleRouteSampleClassificationReport(),
+    ...validateBatch19RouteEvidenceSummary(),
   ];
   for (const dimension of BATCH19_SCORE_DIMENSIONS) {
     if (!report.scoreDimensions.includes(dimension)) failures.push(`score dimension missing: ${dimension}.`);

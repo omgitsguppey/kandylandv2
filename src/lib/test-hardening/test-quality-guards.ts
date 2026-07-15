@@ -72,7 +72,7 @@ function classify(file: string, kind: TestQualityFindingKind, text: string): Tes
   return kind === "only" ? "unsafe_unknown" : "documented_exception";
 }
 
-export function buildTestQualityGuardsReport(): TestQualityGuardsReport {
+export function buildTestQualityGuardsReport(input: { generatedAtUtc?: string } = {}): TestQualityGuardsReport {
   const files = listFiles(["tests", "scripts/agent", "src/lib/testing"], [".ts", ".tsx", ".json"]);
   const findings: TestQualityFinding[] = [];
 
@@ -97,7 +97,7 @@ export function buildTestQualityGuardsReport(): TestQualityGuardsReport {
 
   const report: TestQualityGuardsReport = {
     reportKey: "test-quality-guards",
-    generatedAtUtc: TEST_HARDENING_GENERATED_AT_UTC,
+    generatedAtUtc: input.generatedAtUtc ?? TEST_HARDENING_GENERATED_AT_UTC,
     currentHead: currentGitHead(),
     filesAudited: files.length,
     onlyTestsFound: findings.filter((finding) => finding.kind === "only").length,

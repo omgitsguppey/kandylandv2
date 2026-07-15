@@ -4,14 +4,12 @@ import path from "node:path";
 import {
   buildAdminUsersLatencyRepairReport,
   buildDebugCockpitBatch19ProductRoutesReport,
-  buildStaleRouteSampleClassificationReport,
   buildSupportThreadsIndexRepairReport,
   buildTasksRotateRuntimeRepairReport,
   buildUserCheckinRouteErrorMappingReport,
   buildViewerWatchSessionErrorCleanupReport,
   validateAdminUsersLatencyRepairReport,
   validateDebugCockpitBatch19ProductRoutesReport,
-  validateStaleRouteSampleClassificationReport,
   validateSupportThreadsIndexRepairReport,
   validateTasksRotateRuntimeRepairReport,
   validateUserCheckinRouteErrorMappingReport,
@@ -151,16 +149,6 @@ export function validateUserCheckinRouteErrorMapping() {
   pushIf(containsAll(profile, ["readBoundedJsonBody", "buildUserProfileErrorResponse", "validation_failed", "username_taken", "retryable: false"]), failures, "user/profile expected errors lack typed mapping.");
   pushIf(containsAll(register, ["readBoundedJsonBody", "buildUserRegisterErrorResponse", "validation_failed", "username_taken", "retryable: false"]), failures, "user/register expected errors lack typed mapping.");
   pushIf(containsAll(checkin, ["duplicate_claim", "profile_missing", "retryable: false"]), failures, "checkin expected errors lack typed mapping.");
-  runValidation(report.reportKey, report, failures);
-}
-
-export function validateStaleRouteSampleClassification() {
-  const report = buildStaleRouteSampleClassificationReport();
-  const batchReport = buildDebugCockpitBatch19ProductRoutesReport();
-  const failures = validateStaleRouteSampleClassificationReport(report);
-  pushIf(batchReport.staleCriticalRoutes.includes("paypal/capture:POST"), failures, "stale payment route marked fresh without evidence.");
-  pushIf(batchReport.staleRoutesGrouped.length > 0, failures, "grouped stale-route action list missing.");
-  pushIf(batchReport.remainingGaps.some((gap) => gap.includes("PayPal capture freshness")), failures, "critical payment route evidence requirement missing.");
   runValidation(report.reportKey, report, failures);
 }
 

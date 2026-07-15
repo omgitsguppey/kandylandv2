@@ -10,5 +10,5 @@ writeAndValidateReport({
   docPath: "docs/agent-truth/settings-health-status-cleanup.md",
   build: buildSettingsHealthStatusCleanupReport,
   validate: validateSettingsHealthStatusCleanupReport,
+  archiveOnly: true,
 });
-

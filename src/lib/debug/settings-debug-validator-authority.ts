@@ -175,6 +175,19 @@ export const ACTIVE_SETTINGS_VALIDATORS: SettingsValidatorAuthorityRecord[] = [
 
 export const SUPERSEDED_SETTINGS_VALIDATORS: SettingsValidatorAuthorityRecord[] = [
   {
+    id: "settings_health_status_cleanup",
+    script: "scripts/agent/validate-settings-health-status-cleanup.ts",
+    packageScript: "check:settings-health-status-cleanup",
+    artifactPath: "agent/state/settings-health-status-cleanup.generated.json",
+    owner: "settings",
+    authority: "superseded_contract",
+    status: "superseded",
+    runOrder: null,
+    ownedComponents: SETTINGS_HEALTH_COMPONENTS.map((component) => component.id),
+    supersededBy: ["check:settings-debug-validator-authority"],
+    reason: "The compatibility cleanup report duplicates the canonical six-component settings authority and remains archive-only evidence.",
+  },
+  {
     id: "settings_creator_dashboard_split",
     script: "scripts/agent/validate-settings-creator-dashboard-split.ts",
     packageScript: "check:settings-creator-dashboard-split",
@@ -190,6 +203,12 @@ export const SUPERSEDED_SETTINGS_VALIDATORS: SettingsValidatorAuthorityRecord[] 
 ] as const;
 
 export const DEPRECATED_SETTINGS_ARTIFACTS = [
+  {
+    artifactPath: "agent/state/settings-health-status-cleanup.generated.json",
+    status: "superseded",
+    replacementArtifacts: ["agent/state/settings-debug-validator-authority.generated.json"],
+    scoreAuthority: "excluded_from_settings_health_score",
+  },
   {
     artifactPath: "agent/state/settings-creator-dashboard-split.generated.json",
     status: "superseded",

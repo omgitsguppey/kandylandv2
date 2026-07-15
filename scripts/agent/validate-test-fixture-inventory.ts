@@ -2,7 +2,7 @@ import { buildTestFixtureInventoryReport, validateTestFixtureInventoryReport } f
 import { writeCompactJson, writeText } from "@/lib/test-hardening/test-hardening-shared";
 import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
-const report = buildTestFixtureInventoryReport();
+const report = buildTestFixtureInventoryReport({ generatedAtUtc: new Date().toISOString() });
 const validation = validateTestFixtureInventoryReport(report);
 const compact = withGeneratedReportEnvelope({
   ...report,

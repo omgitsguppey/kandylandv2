@@ -20,6 +20,7 @@ type OutputSpec<T> = {
   build: () => T;
   validate: (report: T) => string[];
   title: string;
+  archiveOnly?: boolean;
 };
 
 function run(command: string, args: readonly string[]) {
@@ -72,10 +73,10 @@ export function classifyBatch4DirtyFile(path: string) {
     || normalized === "scripts/agent/validate-notification-pwa-score-lock.ts"
     || normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts"
   ) return "validator_artifact_expected";
-  if (/^scripts\/agent\/validate-(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
-  if (/^tests\/unit\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
-  if (/^agent\/state\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
-  if (/^docs\/agent-truth\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^scripts\/agent\/validate-(admin-summary-lane-status-classifier|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(admin-summary-lane-status-classifier|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(admin-summary-lane-status-classifier|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(admin-summary-lane-status-classifier|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "CHANGELOG.md" || normalized === "public/kandydrops-release-notes.json" || normalized.startsWith("src/lib/release-notes/")) return "release_artifact_expected";
   if (normalized === "agent/state/public-beta-score.generated.json" || normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "current_generated_artifact_to_commit";
@@ -136,32 +137,6 @@ export function validateAdminSummaryLaneStatusClassifierReport(report: ReturnTyp
   if (!report.decisions.some((decision) => decision.status === "source_missing_actionable")) failures.push("source missing is hidden as info.");
   if (!report.decisions.some((decision) => decision.status === "formal_gate_required" && /typed evidence artifact/iu.test(decision.nextAction))) failures.push("typed evidence gate lacks normalized next action.");
   if (report.decisions.some((decision) => /formal evidence artifact|manual proof|screenshot proof/iu.test(`${decision.reason} ${decision.nextAction}`))) failures.push("admin summary status emits stale formal/manual proof wording.");
-  return failures;
-}
-
-export function buildUserManagementStatusTruthReport(input: BuildInput = {}) {
-  const decision = classifyAdminSummaryLaneStatus({ laneId: "user_management", sourceContractPresent: true, sampleLoaded: false, counts: [0, 0] });
-  return withValidation({
-    reportKey: "user-management-status-truth",
-    ...cleanScore(input),
-    statusBefore: "live_stale",
-    statusAfter: decision.status,
-    summaries: 0,
-    lowConfidenceMetrics: 0,
-    sourceWindowPresent: false,
-    rawTablesDefaultOpen: false,
-    summaryFirstRoutePolicy: true,
-    missingHydrationExplanations: ["No bounded user summary sample is loaded; lowConfidence=0 is not activity proof."],
-    validationFailures: [] as string[],
-  }, []);
-}
-
-export function validateUserManagementStatusTruthReport(report: ReturnType<typeof buildUserManagementStatusTruthReport>) {
-  const failures: string[] = [];
-  if (report.summaries === 0 && report.statusAfter === "healthy_current" && !report.sourceWindowPresent) failures.push("summaries=0 displays live without provenZero/sourceWindow.");
-  if (report.lowConfidenceMetrics === 0 && report.summaries === 0 && report.statusAfter === "healthy_current") failures.push("lowConfidence=0 masks no sample.");
-  if (report.rawTablesDefaultOpen) failures.push("raw tables default open.");
-  if (!report.summaryFirstRoutePolicy) failures.push("summary-first route policy missing.");
   return failures;
 }
 
@@ -298,7 +273,12 @@ export function validateDailyTaskLaneStatusCleanupReport(report: ReturnType<type
 
 export function buildDebugCockpitBatch4CleanupReport(input: BuildInput = {}) {
   const score = scoreSnapshot();
-  const user = buildUserManagementStatusTruthReport(input);
+  const userManagementStatus = classifyAdminSummaryLaneStatus({
+    laneId: "user_management",
+    sourceContractPresent: true,
+    sampleLoaded: false,
+    counts: [0, 0],
+  });
   const testing = buildTestingCoverageStatusCleanupReport(input);
   const settings = buildSettingsHealthStatusCleanupReport(input);
   const auth = buildAuthLaneStatusCleanupReport(input);
@@ -310,8 +290,8 @@ export function buildDebugCockpitBatch4CleanupReport(input: BuildInput = {}) {
     reportKey: "debug-cockpit-batch4-cleanup",
     generatedAtUtc: now(input),
     currentHead: input.currentHead ?? currentHead(),
-    userManagementStatusBefore: user.statusBefore,
-    userManagementStatusAfter: user.statusAfter,
+    userManagementStatusBefore: "live_stale",
+    userManagementStatusAfter: userManagementStatus.status,
     testingCoverageStatusBefore: testing.statusBefore,
     testingCoverageStatusAfter: testing.statusAfter,
     settingsHealthStatusBefore: settings.statusBefore,
@@ -394,13 +374,14 @@ export function buildAdminStatusLaneGeneratedReport<T extends Record<string, unk
   report: T,
   title: string,
   failures: readonly string[],
+  archiveOnly = false,
 ) {
   const validationFailures = [...failures];
   return withGeneratedReportEnvelope(report, {
     reportKey: typeof report.reportKey === "string" ? report.reportKey : title.toLowerCase().replace(/\s+/gu, "-"),
     status: validationFailures.length > 0 ? "fail" : "pass",
-    evidenceClass: "source_snapshot",
-    canClearSourceGate: validationFailures.length === 0,
+    evidenceClass: archiveOnly ? "historical_evidence_only" : "source_snapshot",
+    canClearSourceGate: !archiveOnly && validationFailures.length === 0,
     nextExactSteps: Array.isArray(report.nextExactSteps) && report.nextExactSteps.every((step) => typeof step === "string")
       ? report.nextExactSteps as string[]
       : [`Run ${title} validator after touching this admin status lane.`],
@@ -417,7 +398,7 @@ export function writeAndValidateReport<T extends Record<string, unknown>>(spec: 
   const report = spec.build();
   const failures = spec.validate(report);
   (report as Record<string, unknown>).validationFailures = failures;
-  const envelopeReport = buildAdminStatusLaneGeneratedReport(report, spec.title, failures);
+  const envelopeReport = buildAdminStatusLaneGeneratedReport(report, spec.title, failures, spec.archiveOnly);
   writeJson(spec.statePath, envelopeReport);
   writeDoc(spec.docPath, renderDoc(spec.title, envelopeReport, failures));
   if (failures.length > 0) {

@@ -2,10 +2,11 @@ import { buildTestQualityGuardsReport, validateTestQualityGuardsReport } from "@
 import { writeCompactJson, writeText } from "@/lib/test-hardening/test-hardening-shared";
 import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
-const report = buildTestQualityGuardsReport();
+const report = buildTestQualityGuardsReport({ generatedAtUtc: new Date().toISOString() });
 const validation = validateTestQualityGuardsReport(report);
 const compact = withGeneratedReportEnvelope({
   ...report,
+  findingCount: report.findings.length,
   findings: report.findings.slice(0, 40),
   validation,
 }, {

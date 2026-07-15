@@ -104,7 +104,7 @@ function deferredReasonFor(entry: {
   return "Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.";
 }
 
-export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
+export function buildTestFixtureInventoryReport(input: { generatedAtUtc?: string } = {}): TestFixtureInventoryReport {
   const files = listFiles(["tests", "scripts/agent", "src/lib/testing"], [".ts", ".tsx", ".json"]);
   const testFiles = files.filter((file) => /(^tests\/|\.spec\.|\.test\.)/u.test(file));
   const candidateFiles = files.filter((file) => {
@@ -164,7 +164,7 @@ export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
 
   const report: TestFixtureInventoryReport = {
     reportKey: "test-fixture-inventory",
-    generatedAtUtc: TEST_HARDENING_GENERATED_AT_UTC,
+    generatedAtUtc: input.generatedAtUtc ?? TEST_HARDENING_GENERATED_AT_UTC,
     currentHead: currentGitHead(),
     testsAudited: testFiles.length,
     fixturesAudited: entries.length,

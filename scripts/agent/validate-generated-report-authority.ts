@@ -184,28 +184,12 @@ const TARGET_REPORT_SPECS: Array<{
     recommendation: "Keep as classifier behavior coverage; do not treat the synthetic stale/no-sample examples as current route health proof.",
   },
   {
-    reportKey: "stale-route-sample-classification",
-    producerPath: "scripts/agent/validate-stale-route-sample-classification.ts",
-    proofScope: "classifier_behavior_only",
-    classification: "real_pass",
-    actionableStatus: "actionable",
-    recommendation: "Keep compact route evidence classification and use groupedActionList as next-action evidence, not route freshness proof.",
-  },
-  {
-    reportKey: "user-management-status-truth",
-    producerPath: "scripts/agent/validate-user-management-status-truth.ts",
-    proofScope: "missing_source_sample",
-    classification: "missing_implementation",
-    actionableStatus: "actionable",
-    recommendation: "Keep as source-missing/admin sample action queue; summaries=0 and sourceWindowPresent=false must not count as healthy user-management proof.",
-  },
-  {
     reportKey: "settings-health-status-cleanup",
     producerPath: "scripts/agent/validate-settings-health-status-cleanup.ts",
-    proofScope: "source_contract_only",
-    classification: "real_pass",
-    actionableStatus: "nonblocking_pass",
-    recommendation: "Keep as settings health source-contract evidence; refresh before use and do not claim runtime/admin sample proof from it alone.",
+    proofScope: "archive_evidence_only",
+    classification: "archive_candidate",
+    actionableStatus: "archive_only",
+    recommendation: "Keep only as compatibility history; check:settings-debug-validator-authority owns the active six-component settings health contract.",
   },
   {
     reportKey: "bug-report-truth-terminal-state",
@@ -268,6 +252,11 @@ function readStringField(record: JsonRecord | null, key: string) {
 function readArrayLength(record: JsonRecord | null, key: string) {
   const value = record?.[key];
   return Array.isArray(value) ? value.length : 0;
+}
+
+function readNonNegativeNumber(record: JsonRecord | null, key: string) {
+  const value = record?.[key];
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
 }
 
 function readObjectKeyCount(record: JsonRecord | null, key: string) {
@@ -402,20 +391,28 @@ function buildTargetReportActionabilityAudit(spec: (typeof TARGET_REPORT_SPECS)[
   const evidenceClass = readStringField(record, "evidenceClass") ?? "historical_evidence_only";
   const doesNotProve = Array.isArray(record?.doesNotProve) ? record.doesNotProve.filter((value): value is string => typeof value === "string") : [];
   const validationOk = validationFailureCount === 0;
-  const findingCount =
-    validationFailureCount
-    + readArrayLength(record, "groupedActionList")
-    + readArrayLength(record, "surfaces")
-    + readArrayLength(record, "rollbackTriggerConditions")
-    + readArrayLength(record, "missingHydrationExplanations")
-    + readArrayLength(record, "oldLogicReferences")
-    + readObjectKeyCount(record, "loadedEmpty")
-    + readObjectKeyCount(record, "failed")
-    + readObjectKeyCount(record, "staleFailure")
-    + readObjectKeyCount(record, "noSample");
+  const directFindingCount = Math.max(
+    readNonNegativeNumber(record, "findingCount"),
+    readNonNegativeNumber(record, "remainingGapCount"),
+    readArrayLength(record, "findings"),
+    readArrayLength(record, "remainingGaps"),
+  );
+  const findingCount = Math.max(
+    validationFailureCount,
+    directFindingCount,
+    readArrayLength(record, "groupedActionList"),
+    readArrayLength(record, "surfaces"),
+    readArrayLength(record, "rollbackTriggerConditions"),
+    readArrayLength(record, "missingHydrationExplanations"),
+    readArrayLength(record, "oldLogicReferences"),
+    readObjectKeyCount(record, "loadedEmpty"),
+    readObjectKeyCount(record, "failed"),
+    readObjectKeyCount(record, "staleFailure"),
+    readObjectKeyCount(record, "noSample"),
+  );
   const hasSourceMissingSignal =
     hasTruthyField(record, "sourceWindowPresent") === false
-    && (spec.reportKey === "user-management-status-truth" || status.includes("source_ready_no_sample"));
+    && status.includes("source_ready_no_sample");
   const emptyProofRisk =
     validationOk
     && findingCount === 0
@@ -431,7 +428,7 @@ function buildTargetReportActionabilityAudit(spec: (typeof TARGET_REPORT_SPECS)[
     proofScope: hasSourceMissingSignal ? "missing_source_sample" : spec.proofScope,
     countsAsRuntimeProof: false,
     countsAsProviderProof: false,
-    countsAsAdminTruthProof: spec.proofScope === "source_contract_only" && spec.reportKey === "settings-health-status-cleanup",
+    countsAsAdminTruthProof: false,
     actionableStatus: hasSourceMissingSignal ? "actionable" : spec.actionableStatus,
     findingCount,
     recommendation: spec.recommendation,
@@ -478,6 +475,9 @@ function main() {
     }
     const record = readJsonRecord(audit.statePath);
     const clearsForbiddenGate = record?.canClearRuntimeGate === true || record?.canClearProviderGate === true || record?.canClearAdminTruthGate === true;
+    if (audit.classification === "archive_candidate" && (record?.evidenceClass !== "historical_evidence_only" || record?.canClearSourceGate === true || clearsForbiddenGate)) {
+      fail(`${audit.reportKey} archive evidence must be historical_evidence_only with every gate disabled.`);
+    }
     const hasExternalException = JSON.stringify(record ?? {}).includes("provider_call") || JSON.stringify(record ?? {}).includes("production_read");
     if (hasExternalException && clearsForbiddenGate) {
       fail(`${audit.reportKey} provider_call/production_read exceptions cannot clear release/proof gates.`);

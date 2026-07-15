@@ -61,4 +61,10 @@ describe("test fixture inventory", () => {
       "scripts/agent/validate-admin-analytics-snapshot-migration.ts: replace local fake/mock data with canonical test factory where practical.",
     );
   });
+
+  it("accepts a fresh producer timestamp without changing deterministic test defaults", () => {
+    const generatedAtUtc = "2026-07-14T12:00:00.000Z";
+
+    expect(buildTestFixtureInventoryReport({ generatedAtUtc }).generatedAtUtc).toBe(generatedAtUtc);
+  });
 });

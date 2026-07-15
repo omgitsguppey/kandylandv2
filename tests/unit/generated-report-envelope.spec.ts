@@ -118,6 +118,24 @@ describe("generated child report evidence", () => {
     expect(validateGeneratedReportEnvelope(report)).toEqual([]);
     expect(validateGeneratedReportEnvelope({ ...report, sourceCommit: "b".repeat(40) })).toContain("sourceCommit must match currentHead");
   });
+
+  it("keeps a failed envelope distinct from its domain status", () => {
+    const report = withGeneratedReportEnvelope({ statusAfter: "source_ready_no_sample_loaded" }, {
+      reportKey: "domain-status-report",
+      status: "fail",
+      generatedAtUtc: "2026-07-14T11:00:00.000Z",
+      currentHead: TEST_HEAD,
+      evidenceClass: "source_snapshot",
+      canClearSourceGate: false,
+      nextExactSteps: ["Repair the source validator."],
+      validationFailures: ["synthetic failure"],
+      doesNotProve: ["Does not prove runtime evidence."],
+    });
+
+    expect(report.status).toBe("fail");
+    expect(report.statusAfter).toBe("source_ready_no_sample_loaded");
+    expect(report.canClearSourceGate).toBe(false);
+  });
 });
 
 describe("generated report authority policy", () => {
@@ -132,5 +150,14 @@ describe("generated report authority policy", () => {
     expect(policy).toContain('classification: "real_pass"');
     expect(policy).toContain('actionableStatus: "nonblocking_pass"');
     expect(policy).not.toContain("archive_candidate");
+  });
+
+  it("keeps source-contract findings visible without treating them as admin truth", () => {
+    const source = readFileSync("scripts/agent/validate-generated-report-authority.ts", "utf8");
+
+    expect(source).toContain('readNonNegativeNumber(record, "findingCount")');
+    expect(source).toContain('readArrayLength(record, "findings")');
+    expect(source).toContain('readNonNegativeNumber(record, "remainingGapCount")');
+    expect(source).toContain("countsAsAdminTruthProof: false");
   });
 });

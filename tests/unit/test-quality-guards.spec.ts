@@ -37,4 +37,10 @@ describe("test quality guards", () => {
     expect(validation.ok).toBe(false);
     expect(validation.failures).toContain("unowned fantasy DTO fixtures found: 1");
   });
+
+  it("accepts a fresh producer timestamp without changing deterministic test defaults", () => {
+    const generatedAtUtc = "2026-07-14T12:00:00.000Z";
+
+    expect(buildTestQualityGuardsReport({ generatedAtUtc }).generatedAtUtc).toBe(generatedAtUtc);
+  });
 });

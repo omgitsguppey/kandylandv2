@@ -50,8 +50,15 @@ describe("settings debug validator authority", () => {
           script: "scripts/agent/validate-settings-creator-dashboard-split.ts",
           status: "superseded",
         }),
+        expect.objectContaining({
+          script: "scripts/agent/validate-settings-health-status-cleanup.ts",
+          packageScript: "check:settings-health-status-cleanup",
+          status: "superseded",
+          supersededBy: ["check:settings-debug-validator-authority"],
+        }),
       ]),
     );
+    expect(activeScripts).not.toContain("scripts/agent/validate-settings-health-status-cleanup.ts");
   });
 
   it("maps settings validators in validator authority and validator map", async () => {
