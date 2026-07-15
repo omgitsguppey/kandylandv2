@@ -95,13 +95,12 @@ function passingChildReports(): {
 }
 
 describe("notification PWA score lock", () => {
-  it("locks notification permission, push tokens, targeting, PWA safety, telemetry, debug, and score dimensions", () => {
+  it("locks notification truth using telemetry derived by the canonical feature registry", () => {
     const report = buildNotificationPwaScoreLockReport({
       currentHead: TEST_HEAD,
       scoreBefore: score,
       scoreAfter: score,
       ...passingChildReports(),
-      featureRegistryText: "notifications notification_prompt_viewed notification_permission_granted notification_permission_denied notification_permission_failed push_token_registered push_token_registration_failed pwa_service_worker_registered pwa_update_available pwa_offline_seen notification_targeting_dry_run_eligible",
       telemetryCatalogText: "notification_prompt_viewed notification_permission_granted notification_permission_denied notification_permission_failed push_token_registered push_token_registration_failed pwa_service_worker_registered pwa_update_available pwa_offline_seen notification_targeting_dry_run_eligible",
       dirtyFiles: [
         "scripts/agent/validate-notification-pwa-score-lock.ts",
@@ -133,6 +132,31 @@ describe("notification PWA score lock", () => {
       gumdropRuntimeTouched: false,
     });
     expect(validateNotificationPwaScoreLockReport(report)).toEqual([]);
+  });
+
+  it("fails when the feature registry omits a required notification event", () => {
+    const report = buildNotificationPwaScoreLockReport({
+      currentHead: TEST_HEAD,
+      scoreBefore: score,
+      scoreAfter: score,
+      ...passingChildReports(),
+      featureTelemetryEvents: [
+        "notification_prompt_viewed",
+        "notification_permission_granted",
+        "notification_permission_denied",
+        "notification_permission_failed",
+        "push_token_registered",
+        "push_token_registration_failed",
+        "notification_targeting_dry_run_eligible",
+        "pwa_service_worker_registered",
+        "pwa_update_available",
+      ],
+      telemetryCatalogText: "notification_prompt_viewed notification_permission_granted notification_permission_denied notification_permission_failed push_token_registered push_token_registration_failed pwa_service_worker_registered pwa_update_available pwa_offline_seen notification_targeting_dry_run_eligible",
+      dirtyFiles: [],
+    });
+
+    expect(report.notificationTelemetryStatus.status).toBe("fail");
+    expect(report.validationFailures).toContain("notification telemetry missing from feature registry");
   });
 
   it("fails when real push sends or protected runtime changes are present", () => {
@@ -179,7 +203,6 @@ describe("notification PWA score lock", () => {
       scoreBefore: score,
       scoreAfter: score,
       ...childReports,
-      featureRegistryText: "notifications notification_prompt_viewed notification_permission_granted notification_permission_denied notification_permission_failed push_token_registered push_token_registration_failed pwa_service_worker_registered pwa_update_available pwa_offline_seen notification_targeting_dry_run_eligible",
       telemetryCatalogText: "notification_prompt_viewed notification_permission_granted notification_permission_denied notification_permission_failed push_token_registered push_token_registration_failed pwa_service_worker_registered pwa_update_available pwa_offline_seen notification_targeting_dry_run_eligible",
       dirtyFiles: [],
     });
@@ -203,7 +226,6 @@ describe("notification PWA score lock", () => {
       scoreBefore: score,
       scoreAfter: score,
       ...childReports,
-      featureRegistryText: "notifications notification_prompt_viewed notification_permission_granted notification_permission_denied notification_permission_failed push_token_registered push_token_registration_failed pwa_service_worker_registered pwa_update_available pwa_offline_seen notification_targeting_dry_run_eligible",
       telemetryCatalogText: "notification_prompt_viewed notification_permission_granted notification_permission_denied notification_permission_failed push_token_registered push_token_registration_failed pwa_service_worker_registered pwa_update_available pwa_offline_seen notification_targeting_dry_run_eligible",
       dirtyFiles: [],
     });

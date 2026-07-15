@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { FEATURE_REGISTRATION_REGISTRY } from "../../src/lib/features/feature-registration-registry";
 import { validateGeneratedChildReportEvidence } from "./generated-report-envelope";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -101,7 +102,7 @@ type BuildInput = {
   pushReport?: Record<string, any>;
   targetingReport?: Record<string, any>;
   pwaReport?: Record<string, any>;
-  featureRegistryText?: string;
+  featureTelemetryEvents?: readonly string[];
   telemetryCatalogText?: string;
   dirtyFiles?: string[];
   oldLogicClassification?: NotificationPwaScoreLockReport["oldLogicClassification"];
@@ -297,8 +298,12 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
     classification: classifyNotificationPwaScoreLockDirtyFile(path),
   }));
   const telemetryText = input.telemetryCatalogText ?? readText("src/lib/telemetry-catalog.ts");
-  const featureText = input.featureRegistryText ?? readText("src/lib/features/feature-registration-registry.ts");
-  const telemetryMapped = REQUIRED_TELEMETRY_EVENTS.every((event) => telemetryText.includes(event) && featureText.includes(event));
+  const featureTelemetryEvents = input.featureTelemetryEvents
+    ?? FEATURE_REGISTRATION_REGISTRY.find((feature) => feature.featureId === "notifications")?.telemetryEvents
+    ?? [];
+  const telemetryMapped = REQUIRED_TELEMETRY_EVENTS.every((event) =>
+    telemetryText.includes(event) && featureTelemetryEvents.includes(event),
+  );
   const permissionOk = Boolean(
     childEvidenceFailures.permission.length === 0
       && permission.permissionStateTracked
