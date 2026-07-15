@@ -25,13 +25,17 @@ export function buildRecommendedNextActions(
   operatorDecision?: PublicBetaScoreReport["operatorDecision"],
 ) {
   if (operatorDecision) {
-    const queuedActions = [
+    const queueActions = [
       ...operatorDecision.actionQueues.sourceFixes,
       ...operatorDecision.actionQueues.sourceVerification,
       ...operatorDecision.actionQueues.evidenceRefresh,
       ...operatorDecision.actionQueues.externalProof,
       ...operatorDecision.actionQueues.ownerReview,
-    ].map((item) => `${item.lane}: ${item.action}`);
+    ];
+    const orderedActions = operatorDecision.primaryAction
+      ? [operatorDecision.primaryAction, ...queueActions.filter((item) => item.id !== operatorDecision.primaryAction?.id)]
+      : queueActions;
+    const queuedActions = orderedActions.map((item) => `${item.lane}: ${item.action}`);
     if (queuedActions.length > 0) {
       return Array.from(new Set(queuedActions));
     }

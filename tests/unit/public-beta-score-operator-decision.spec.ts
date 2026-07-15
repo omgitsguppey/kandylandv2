@@ -369,6 +369,26 @@ describe("public beta operator-decision invariants", () => {
     );
   });
 
+  it("prioritizes a launch-blocking refresh before optional debug advice", () => {
+    const evidence = passingEvidence();
+    evidence.uiSurfaceCoverageEvidence = {
+      ...evidence.uiSurfaceCoverageEvidence!,
+      sourceCommit: OLD_HEAD,
+    };
+
+    const report = buildReport([], evidence);
+
+    expect(report.operatorDecision.actionQueues.sourceVerification[0]).toMatchObject({
+      id: expect.stringContaining("debugRuntimeEvidence"),
+      blocksLaunch: false,
+    });
+    expect(report.operatorDecision.primaryAction).toMatchObject({
+      lane: "evidence_refresh",
+      title: "UI source coverage",
+      blocksLaunch: true,
+    });
+  });
+
   it("does not accept an unrecognized passing status as formal evidence", () => {
     const evidence = passingEvidence();
     evidence.providerSmokeEvidence = {

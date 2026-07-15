@@ -299,11 +299,28 @@ if (report) {
     } else {
       validateOperatorAction(operatorDecision.primaryAction, "operatorDecision.primaryAction");
       const primaryId = operatorDecision.primaryAction?.id;
-      const firstQueuedId = orderedActions[0] && typeof orderedActions[0] === "object"
-        ? (orderedActions[0] as { id?: unknown }).id
+      type QueueName = (typeof queueContracts)[number][0];
+      const queues = operatorDecision.actionQueues;
+      const queue = (name: QueueName) => {
+        const actions = queues?.[name];
+        return Array.isArray(actions) ? actions as Array<Record<string, unknown>> : [];
+      };
+      const sourceVerification = queue("sourceVerification");
+      const evidenceRefresh = queue("evidenceRefresh");
+      const primaryPriorityActions = [
+        ...queue("sourceFixes"),
+        ...sourceVerification.filter((action) => action.blocksLaunch === true),
+        ...evidenceRefresh.filter((action) => action.blocksLaunch === true),
+        ...queue("externalProof"),
+        ...queue("ownerReview"),
+        ...sourceVerification.filter((action) => action.blocksLaunch !== true),
+        ...evidenceRefresh.filter((action) => action.blocksLaunch !== true),
+      ];
+      const firstQueuedId = primaryPriorityActions[0] && typeof primaryPriorityActions[0] === "object"
+        ? primaryPriorityActions[0].id
         : undefined;
       if (primaryId !== firstQueuedId) {
-        failures.push("operatorDecision.primaryAction must select the first action in queue priority order.");
+        failures.push("operatorDecision.primaryAction must prioritize launch-blocking source work before non-blocking advisories.");
       }
     }
     requireNumber(operatorDecision.compositeConfidence?.score, "operatorDecision.compositeConfidence.score", 0, 100);

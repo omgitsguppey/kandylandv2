@@ -2020,11 +2020,15 @@ function buildOperatorDecision(input: {
         : sourceVerification.length > 0 || evidenceRefresh.length > 0
           ? `Required source gates are ready; ${sourceVerification.length + evidenceRefresh.length} optional advisory action(s) remain.`
           : "No scanner defect or local source-verification action remains in the current score input.";
+  const advisorySourceVerification = sourceVerification.filter((action) => !action.blocksLaunch);
+  const advisoryEvidenceRefresh = evidenceRefresh.filter((action) => !action.blocksLaunch);
   const primaryAction = sourceFixes[0]
-    ?? sourceVerification[0]
-    ?? evidenceRefresh[0]
+    ?? blockingSourceVerification[0]
+    ?? blockingEvidenceRefresh[0]
     ?? externalProof[0]
     ?? ownerReview[0]
+    ?? advisorySourceVerification[0]
+    ?? advisoryEvidenceRefresh[0]
     ?? null;
   const releaseReady = input.launchGateStatus === "launch_ready"
     && input.launchBlockers.length === 0
