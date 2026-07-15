@@ -615,6 +615,10 @@ export function buildPublicBetaReadinessReport(input: {
   return {
     ...preliminary,
     debugEvidence: input.debugEvidence,
-    recommendedNextActions: buildRecommendedNextActions(preliminary.findings, preliminary.evidenceGates),
+    recommendedNextActions: buildRecommendedNextActions(
+      preliminary.findings,
+      preliminary.evidenceGates,
+      preliminary.operatorDecision,
+    ),
   };
 }

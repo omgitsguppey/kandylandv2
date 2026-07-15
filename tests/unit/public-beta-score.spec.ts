@@ -17,6 +17,7 @@ import { readSourceBackedRuntimeConfidenceEvidence } from "../../scripts/agent/s
 
 const freshGeneratedAtUtc = new Date().toISOString();
 const staleGeneratedAtUtc = "2026-05-01T00:00:00.000Z";
+const currentHead = "head";
 
 function tempScoreRoot() {
     const root = mkdtempSync(join(tmpdir(), "kandydrops-beta-score-"));
@@ -45,6 +46,8 @@ const freshEvidence = {
             path: "agent/state/final-launch-readiness-report.generated.json",
             generatedAt: freshGeneratedAtUtc,
             freshness: "fresh" as const,
+            sourceCommit: currentHead,
+            currentHead,
         },
     ],
     debugEvidence: {
@@ -68,6 +71,7 @@ const freshEvidence = {
         detail: "Targeted behavior validators passed.",
         evidence: ["targetedBehavior.status=passed"],
         generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: currentHead,
     },
     uiSurfaceCoverageEvidence: {
         path: "agent/state/ui-visual-smoke-minimal.generated.json",
@@ -76,6 +80,7 @@ const freshEvidence = {
         detail: "Deterministic UI surface coverage passed.",
         evidence: ["uiVisualSmoke.status=source_surface_checks_current"],
         generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: currentHead,
     },
     providerSmokeEvidence: {
         path: "agent/state/provider-smoke-evidence.generated.json",
@@ -84,6 +89,7 @@ const freshEvidence = {
         detail: "Provider-backed source activity evidence passed.",
         evidence: ["providerArtifactStatus=passed"],
         generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: currentHead,
     },
     runtimeSmokeEvidence: {
         path: "agent/state/runtime-smoke-evidence.generated.json",
@@ -92,6 +98,7 @@ const freshEvidence = {
         detail: "Deployed runtime route evidence passed.",
         evidence: ["runtimeArtifactStatus=passed"],
         generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: currentHead,
     },
     debugRuntimeEvidenceArtifact: {
         path: "agent/state/debug-runtime-evidence.generated.json",
@@ -100,6 +107,7 @@ const freshEvidence = {
         detail: "Source-backed debug runtime evidence is current.",
         evidence: ["sourceBackedRuntimeConfidence=100", "deployedRuntimeSmokeCleared=false"],
         generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: currentHead,
     },
     behaviorMathEvidence: {
         path: "agent/state/behavior-math-evidence.generated.json",
@@ -108,6 +116,7 @@ const freshEvidence = {
         detail: "Behavior math evidence is source-ready.",
         evidence: ["behaviorMathConfidence=85"],
         generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: currentHead,
     },
     adminTruthSampleEvidence: {
         path: "agent/state/admin-truth-sample-evidence.generated.json",
@@ -121,6 +130,7 @@ const freshEvidence = {
             "productionSampleAttached=true",
         ],
         generatedAtUtc: freshGeneratedAtUtc,
+        sourceCommit: currentHead,
     },
     openPrTriageFresh: true,
 };
@@ -293,7 +303,7 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.readinessStatus).toBe("Stale evidence");
-        expect(report.overallStatus).toBe("beta-risk");
+        expect(report.overallStatus).toBe("fail");
         expect(report.overallScore).toBeLessThan(100);
     });
 
@@ -310,7 +320,10 @@ describe("public beta scoring math", () => {
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
             expect.objectContaining({ id: "debugRuntimeEvidence", status: "Source evidence required" }),
         ]));
-        expect(report.readinessStatus).not.toBe("Ready");
+        expect(report.readinessStatus).toBe("Ready");
+        expect(report.evidenceAdvisoryDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Debug/runtime evidence"),
+        ]));
     });
 
     it("keeps missing UI source coverage from clearing the UI lane", () => {
@@ -380,6 +393,7 @@ describe("public beta scoring math", () => {
                         "runtimeDeploymentSmokePassed=true",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
             },
         });
@@ -412,6 +426,7 @@ describe("public beta scoring math", () => {
                         "runtimeDeploymentSmokePassed=true",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
                 sourceBackedRuntimeConfidenceEvidence: {
                     path: "agent/state/live-evidence-gate-replacement.generated.json",
@@ -424,6 +439,7 @@ describe("public beta scoring math", () => {
                         "liveRuntimeEvidence.firstPartySiteActivityConfirmed=0",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
             },
         });
@@ -461,7 +477,7 @@ describe("public beta scoring math", () => {
             },
         });
 
-        expect(report.evidenceCapDetails.join("\n")).toContain("Refresh provider-backed source activity and deployed runtime route evidence.");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Refresh or produce provider-backed source activity evidence and deployed runtime route evidence for the current code version.");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("deployed runtime route evidence is current.");
     });
 
@@ -562,14 +578,14 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.detail).toContain("does not close provider-backed source activity");
         expect(targetedGate?.partialReason).toContain("matching site activity records");
         expect(targetedGate?.partialReason).not.toContain("manual proof");
-        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+        expect(report.evidenceAdvisoryDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
-        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+        expect(report.evidenceAdvisoryDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source behavior passed; deployed route evidence, provider-backed source activity, and admin source activity lanes still need their matching records."),
         ]));
-        expect(report.evidenceCapDetails.join("\n")).not.toContain("attach targeted source validator evidence");
-        expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove visual review");
+        expect(report.evidenceAdvisoryDetails.join("\n")).not.toContain("attach targeted source validator evidence");
+        expect(report.evidenceAdvisoryDetails.join("\n")).not.toContain("does not prove visual review");
         expect(targetedGate?.detail).toContain("does not close provider-backed source activity");
     });
 
@@ -607,7 +623,7 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.evidence.join("\n")).toContain("behaviorMathSourceCredit=88");
         expect(targetedGate?.evidence.join("\n")).toContain("watch_session_rollups_only_not_page_time");
         expect(runtimeGate?.runtimeCredit).toBe(0);
-        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+        expect(report.evidenceAdvisoryDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source activity evidence is present; attach targeted source validator evidence"),
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
@@ -641,6 +657,7 @@ describe("public beta scoring math", () => {
                         "activityVerification.formalGatesCleared=false",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
             },
         });
@@ -687,7 +704,7 @@ describe("public beta scoring math", () => {
             expect.objectContaining({ id: "adminTruthSamples", status: "Stale evidence", score: 0 }),
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            "Stale evidence: Provider-backed source activity + deployed route evidence - Refresh provider-backed source activity and deployed runtime route evidence.",
+            "Stale evidence: Provider-backed source activity + deployed route evidence - Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
             "Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
@@ -759,6 +776,7 @@ describe("public beta scoring math", () => {
                         "formalAdminTruthSamplePassed=false",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
             },
         });
@@ -805,6 +823,7 @@ describe("public beta scoring math", () => {
                         "adminTruthSample.staleReason=old artifact is stale",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
             },
         });
@@ -848,7 +867,7 @@ describe("public beta scoring math", () => {
         const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
         expect(targetedGate?.status).toBe("Stale evidence");
         expect(targetedGate?.evidenceQuality).toBe("stale");
-        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+        expect(report.evidenceAdvisoryDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Stale evidence: Targeted behavior tests"),
         ]));
     });
@@ -874,9 +893,12 @@ describe("public beta scoring math", () => {
 
         expect(report.evidenceCapDetails.length).toBeGreaterThanOrEqual(3);
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Targeted behavior tests - Source activity evidence is present; attach targeted source validator evidence"),
+            expect.stringContaining("UI source coverage"),
             expect.stringContaining("Provider-backed source activity + deployed route evidence - Produce provider-backed source activity"),
             expect.stringContaining("Admin source activity evidence - Produce redacted admin source activity evidence."),
+        ]));
+        expect(report.evidenceAdvisoryDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Targeted behavior tests - Source activity evidence is present; attach targeted source validator evidence"),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("Operator reported PayPal");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("No fresh admin source activity evidence.");
@@ -984,6 +1006,7 @@ describe("public beta scoring math", () => {
                         "launchGateImpact=site_activity_can_clear_connected_site_activity_lanes",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
             },
         });
@@ -1013,6 +1036,7 @@ describe("public beta scoring math", () => {
                         "launchGateImpact=site_activity_can_clear_connected_site_activity_lanes",
                     ],
                     generatedAtUtc: freshGeneratedAtUtc,
+                    sourceCommit: currentHead,
                 },
             },
         });
@@ -1066,7 +1090,7 @@ describe("public beta scoring math", () => {
         expect(report.readinessStatus).toBe("Ready");
     });
 
-    it("separates Studio confidence display from formal launch clearance", () => {
+    it("separates typed operator actions from diagnostic composite confidence", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -1157,21 +1181,18 @@ describe("public beta scoring math", () => {
             "costRisk",
             "regressionRisk",
         ]);
-        expect(report.studioDashboard.sections.map((section) => section.label)).toEqual([
-            "Audience Activity",
-            "Runtime Confidence",
-            "Source Quality",
-            "Debug Signal",
-            "Admin Hydration",
-            "Evidence Gates",
-        ]);
-        expect(report.studioDashboard.sections.find((section) => section.id === "runtimeConfidence")?.score).toBe(report.runtimeHealthScore);
-        expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.status).toBe("needs_proof");
-        expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.detail).toContain("Open evidence gates:");
+        expect(report.operatorDecision.version).toBe("operator_decision_v1");
+        expect(report.operatorDecision.compositeConfidence.useAsWorkTarget).toBe(false);
+        expect(report.operatorDecision.compositeConfidence.score).toBe(report.overallScore);
+        expect(report.operatorDecision.sourceReadiness.status).toBe("ready");
+        expect(report.operatorDecision.releaseReadiness.ready).toBe(false);
+        expect(report.operatorDecision.actionQueues.externalProof.length).toBeGreaterThanOrEqual(2);
+        expect(report.operatorDecision.actionQueues.ownerReview.length).toBeGreaterThan(0);
+        expect(report.operatorDecision.primaryAction?.lane).toBe("external_proof");
         expect(report.sourceHealthScore).toBeGreaterThanOrEqual(90);
-        expect(report.runtimeHealthScore).toBeGreaterThanOrEqual(70);
-        expect(report.evidenceCompletenessScore).toBeGreaterThanOrEqual(75);
-        expect(report.freshnessScore).toBeGreaterThanOrEqual(90);
+        expect(report.runtimeHealthScore).toBeLessThan(report.sourceHealthScore);
+        expect(report.evidenceCompletenessScore).toBeLessThan(100);
+        expect(report.freshnessScore).toBeLessThan(100);
         expect(report.costRiskScore).toBeGreaterThanOrEqual(90);
         expect(report.regressionRiskScore).toBeGreaterThanOrEqual(90);
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);

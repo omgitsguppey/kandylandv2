@@ -64,6 +64,18 @@ describe("generated artifact version policy", () => {
     expect(status.needsRefresh).toBe(true);
   });
 
+  it("fails closed when the current code version is unavailable", () => {
+    const status = classifyGeneratedArtifactVersion({
+      artifactPath: "agent/state/public-beta-score.generated.json",
+      artifactHead: "recorded-head",
+    });
+
+    expect(status.status).toBe("missing_version");
+    expect(status.needsRefresh).toBe(true);
+    expect(isGeneratedArtifactCurrent(status)).toBe(false);
+    expect(status.reason).toContain("current code version is unavailable");
+  });
+
   it("lets refresh safeguards treat same-commit snapshots as current", () => {
     const status = getArtifactRefreshStatus({
       artifactPath: "agent/state/public-beta-score.generated.json",

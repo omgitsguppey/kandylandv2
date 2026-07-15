@@ -3,6 +3,7 @@ import {
   evidenceArtifactHasSourceConfidence,
   evidenceArtifactNumericValue,
   evidenceArtifactText,
+  resolveEvidenceQuality,
 } from "./evidence-quality";
 
 export type FormalEvidenceClass =
@@ -203,24 +204,63 @@ function estimatedAfter(before: FormalEvidenceBridgeScoreDimensions, gates: Form
   });
 }
 
+function formalArtifactIsCurrent(
+  artifact: FormalEvidenceBridgeArtifact | undefined,
+  currentHead: string,
+  lane: string,
+) {
+  const quality = resolveEvidenceQuality({
+    artifact,
+    context: { currentHead, lane, requiredForExit: true, requiresRuntimeProof: true },
+  });
+  return evidenceArtifactHasFormalPass(artifact)
+    && quality.quality === "formal_passed"
+    && quality.freshness === "fresh"
+    && !quality.blocksLaunch;
+}
+
+function sourceArtifactIsCurrent(
+  artifact: FormalEvidenceBridgeArtifact | undefined,
+  currentHead: string,
+  lane: string,
+) {
+  const quality = resolveEvidenceQuality({
+    artifact,
+    context: { currentHead, lane, requiredForExit: false },
+  });
+  return artifact?.passed === true
+    && Boolean(currentHead && currentHead !== "unknown")
+    && artifact.sourceCommit === currentHead
+    && quality.freshness === "fresh"
+    && (quality.quality === "source_ready" || quality.quality === "formal_passed");
+}
+
 export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput): FormalEvidenceBridgeReport {
   const artifacts = input.artifacts ?? {};
-  const providerFormal = evidenceArtifactHasFormalPass(artifacts.providerSmoke);
-  const runtimeFormal = evidenceArtifactHasFormalPass(artifacts.runtimeSmoke);
-  const adminFormal = evidenceArtifactHasAdminSourceActivityPass(artifacts.adminSourceSample)
+  const providerFormal = formalArtifactIsCurrent(artifacts.providerSmoke, input.currentHead, "provider_smoke");
+  const runtimeFormal = formalArtifactIsCurrent(artifacts.runtimeSmoke, input.currentHead, "runtime_smoke");
+  const adminFormal = formalArtifactIsCurrent(artifacts.adminSourceSample, input.currentHead, "admin_truth_sample")
+    && evidenceArtifactHasAdminSourceActivityPass(artifacts.adminSourceSample)
     && /productionSampleAttached=true|formalAdminTruthSamplePassed=true/iu.test(evidenceArtifactText(artifacts.adminSourceSample));
   const operatorRevenue = includesOperatorRevenue(artifacts.operatorRevenueSmoke) || includesOperatorRevenue(artifacts.providerSmoke);
-  const rawRuntimeConfidenceScore = Math.max(
+  const runtimeConfidenceCurrent = sourceArtifactIsCurrent(artifacts.sourceBackedRuntimeConfidence, input.currentHead, "source_backed_runtime_confidence");
+  const realUsageCurrent = sourceArtifactIsCurrent(artifacts.realUsageConfidence, input.currentHead, "real_usage_confidence");
+  const realUsageCalibrationCurrent = sourceArtifactIsCurrent(artifacts.realUsageConfidenceCalibration, input.currentHead, "real_usage_confidence_calibration");
+  const runtimeSubstituteCurrent = sourceArtifactIsCurrent(artifacts.runtimeSubstituteMatrix, input.currentHead, "runtime_substitute_matrix");
+  const debugRuntimeCurrent = sourceArtifactIsCurrent(artifacts.debugRuntimeEvidence, input.currentHead, "debug_runtime_evidence");
+  const adminSourceCurrent = sourceArtifactIsCurrent(artifacts.adminSourceSample, input.currentHead, "admin_source_sample");
+  const rawRuntimeConfidenceScore = runtimeConfidenceCurrent ? Math.max(
     evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "runtimeConfidenceScore") ?? 0,
     evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "sourceBackedRuntimeConfidence") ?? 0,
-  );
-  const runtimeConfidenceScore = (evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0) > 0
+  ) : 0;
+  const runtimeConfidenceScore = runtimeConfidenceCurrent
+    && (evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0) > 0
     ? rawRuntimeConfidenceScore
     : 0;
   const realUsageConfidenceScore = Math.max(
-    evidenceArtifactNumericValue(artifacts.realUsageConfidence, "confidenceScore") ?? 0,
-    evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "runtimeHealthCredit") ?? 0,
-    evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "calibratedConfidenceScore") ?? 0,
+    realUsageCurrent ? evidenceArtifactNumericValue(artifacts.realUsageConfidence, "confidenceScore") ?? 0 : 0,
+    realUsageCalibrationCurrent ? evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "runtimeHealthCredit") ?? 0 : 0,
+    realUsageCalibrationCurrent ? evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "calibratedConfidenceScore") ?? 0 : 0,
   );
   const realUsageObservedActivityCount = Math.max(
     evidenceArtifactNumericValue(artifacts.realUsageConfidence, "observedSignals") ?? 0,
@@ -229,12 +269,16 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     ? realUsageConfidenceScore
     : 0;
   const runtimeSubstituteEvidenceScore =
-    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeHealthCredit")
-    ?? evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeProviderActivityCredit")
-    ?? 0;
-  const debugRuntimeConfidenceScore = evidenceArtifactNumericValue(artifacts.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
-    ?? (evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? 55 : 0);
-  const adminSourceConfidenceScore = sourceBackedAdminConfidence(artifacts.adminSourceSample, adminFormal);
+    runtimeSubstituteCurrent
+      ? evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeHealthCredit")
+        ?? evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeProviderActivityCredit")
+        ?? 0
+      : 0;
+  const debugRuntimeConfidenceScore = debugRuntimeCurrent
+    ? evidenceArtifactNumericValue(artifacts.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
+      ?? (evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? 55 : 0)
+    : 0;
+  const adminSourceConfidenceScore = adminSourceCurrent ? sourceBackedAdminConfidence(artifacts.adminSourceSample, adminFormal) : 0;
   const runtimeSourceConfidence = Math.max(
     runtimeConfidenceScore,
     realUsageObservedActivityScore,
@@ -259,11 +303,11 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     ...(runtimeFormal ? ["deployed_runtime_artifact" as const] : ["missing_formal_artifact" as const]),
     ...(adminFormal ? ["production_admin_truth_artifact" as const] : ["missing_formal_artifact" as const]),
     ...(operatorRevenue ? ["operator_confirmed_revenue" as const] : []),
-    ...(evidenceArtifactHasSourceConfidence(artifacts.sourceBackedRuntimeConfidence) ? ["source_backed_runtime_confidence" as const] : []),
-    ...(evidenceArtifactHasSourceConfidence(artifacts.realUsageConfidence) || evidenceArtifactHasSourceConfidence(artifacts.realUsageConfidenceCalibration) ? ["real_usage_confidence" as const] : []),
-    ...(evidenceArtifactHasSourceConfidence(artifacts.runtimeSubstituteMatrix) ? ["runtime_substitute_matrix" as const] : []),
-    ...(evidenceArtifactHasSourceConfidence(artifacts.adminSourceSample) ? ["admin_source_sample" as const] : []),
-    ...(evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? ["debug_runtime_source_evidence" as const] : []),
+    ...(runtimeConfidenceCurrent && evidenceArtifactHasSourceConfidence(artifacts.sourceBackedRuntimeConfidence) ? ["source_backed_runtime_confidence" as const] : []),
+    ...((realUsageCurrent && evidenceArtifactHasSourceConfidence(artifacts.realUsageConfidence)) || (realUsageCalibrationCurrent && evidenceArtifactHasSourceConfidence(artifacts.realUsageConfidenceCalibration)) ? ["real_usage_confidence" as const] : []),
+    ...(runtimeSubstituteCurrent && evidenceArtifactHasSourceConfidence(artifacts.runtimeSubstituteMatrix) ? ["runtime_substitute_matrix" as const] : []),
+    ...(adminSourceCurrent && evidenceArtifactHasSourceConfidence(artifacts.adminSourceSample) ? ["admin_source_sample" as const] : []),
+    ...(debugRuntimeCurrent && evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? ["debug_runtime_source_evidence" as const] : []),
   ];
   const gates = {
     runtimeProviderSmoke: gateCredit({

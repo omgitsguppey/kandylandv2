@@ -346,11 +346,12 @@ function buildBlockerClassifications(publicBetaScore: JsonRecord, launchBlockerC
 }
 
 function formalEvidenceRemaining(launchBlockerClosure: JsonRecord) {
-  const remaining = arrayValue(launchBlockerClosure.remainingLaunchBlockers)
+  if (!Array.isArray(launchBlockerClosure.remainingLaunchBlockers)) {
+    return ["formal_provider_smoke", "deployed_runtime_smoke", "production_admin_truth_sample"];
+  }
+  return launchBlockerClosure.remainingLaunchBlockers
     .map((entry) => String(entry))
-    .filter(Boolean);
-  const formal = remaining.filter((entry) => /formal|runtime|provider|admin.*sample|production_admin_truth_sample/iu.test(entry));
-  return formal.length > 0 ? formal : ["formal_provider_smoke", "deployed_runtime_smoke", "production_admin_truth_sample"];
+    .filter((entry) => entry.length > 0 && /formal|runtime|provider|admin.*sample|production_admin_truth_sample/iu.test(entry));
 }
 
 function costReviewRemaining(costRiskExitPass: JsonRecord) {
@@ -391,11 +392,14 @@ export function buildFinalBetaExitGateReadinessReport(input: BuildInput = {}): F
     ...costRemaining.map((lane) => `${lane.lane}: ${lane.nextAction}`),
     "ui_source_coverage: Keep deterministic UI source coverage current; use visual reproduction only after a source-reported UI issue.",
   ].filter((step) => step.trim().length > 0);
-  const betaExitReady = stringValue(publicBetaScore.launchGateStatus) === "ready"
+  const betaExitReady = stringValue(publicBetaScore.launchGateStatus) === "launch_ready"
+    && arrayValue(publicBetaScore.launchBlockers).length === 0
     && formalRemaining.length === 0
+    && costRemaining.length === 0
     && openPrsRemaining.length === 0
     && staleArtifactsRemaining.length === 0
-    && dimensionsBelow80.length === 0;
+    && dimensionsBelow80.length === 0
+    && dirtyFiles.every((file) => file.classification !== "unsafe_unknown");
   const report: FinalBetaExitGateReadinessReport = {
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
     reportKey: "final-beta-exit-gate-readiness",
@@ -466,8 +470,16 @@ export function validateFinalBetaExitGateReadinessReport(report: FinalBetaExitGa
     failures.push("launch blocker lacks classification.");
   }
   if (report.betaExitReady && report.formalEvidenceRemaining.length > 0) failures.push("betaExitReady true while formal blockers remain.");
-  if (report.betaExitReady && report.launchGateStatus !== "ready") failures.push("betaExitReady true while formal blockers remain.");
+  if (report.betaExitReady && report.launchGateStatus !== "launch_ready") failures.push("betaExitReady true unless launch gate status is launch_ready.");
+  if (report.betaExitReady && report.launchBlockers.length > 0) failures.push("betaExitReady true while launch blockers remain.");
+  if (report.betaExitReady && report.costReviewRemaining.length > 0) failures.push("betaExitReady true while cost owner review remains.");
+  if (report.betaExitReady && report.openPrsRemaining.length > 0) failures.push("betaExitReady true while open PR review remains.");
+  if (report.betaExitReady && report.staleArtifactsRemaining.length > 0) failures.push("betaExitReady true while stale artifacts remain.");
+  if (report.betaExitReady && report.dimensionsBelow80.length > 0) failures.push("betaExitReady true while score dimensions remain below target.");
   if (report.dirtyFiles.some((file) => file.classification === "unsafe_unknown")) failures.push("dirty files unclassified.");
+  if (report.betaExitReady && report.dirtyFiles.some((file) => file.classification === "unsafe_unknown")) {
+    failures.push("betaExitReady true while unsafe dirty files remain.");
+  }
   if (report.productionReadsPerformed || report.providerCallsPerformed || report.deployPerformed) {
     failures.push("production/provider/deploy actions are not allowed.");
   }

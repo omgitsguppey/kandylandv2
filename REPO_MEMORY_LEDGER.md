@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-07-14
 Repo: `C:\Users\uylus\Documents\KandyDrops_Final`
 
+## 2026-07-14 Operator-action score memory
+
+Public beta scoring now separates action truth from diagnostic confidence. `operatorDecision` version `operator_decision_v1` owns the operator projection and orders work through source fixes, source verification, evidence refresh, external proof, and owner review. `launch_ready` requires source readiness, zero launch blockers, zero owner-review actions, and an affirmative typed release decision. Optional evidence is advisory and cannot cap release. The overall/health composite remains backward-compatible trend context only; it is not a work target and cannot average away a failed source or formal evidence lane. Evidence scoring is normalized only across positive-weight gates, and zero-weight derived lanes cannot inflate it. The owning validator must reject `Ready` gates that also block launch and reject any action/release contradiction rather than accepting a plausible-looking number.
+
 ## 2026-07-14 Generated-report runtime-read ownership memory
 
 The canonical generated-report contract owns the definition of runtime consumption. Authority and debt scanners must reuse its roots, import/read matcher, and explicit evidence-reader exceptions instead of independently treating every quoted `agent/state`, `agent/index`, or `agent/context` path as consumption. Registry entries, evidence metadata, route descriptions, and report-path labels are not runtime reads. The Admin Debug route is the sole diagnostic-only evidence reader: it must remain missing/error-aware and cannot define runtime business truth or clear runtime, provider, or admin-truth gates. Preserve the hard boundary against every other actual import or file read; do not improve a debt score by weakening that boundary or by adding a third scanner.

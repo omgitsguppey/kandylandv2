@@ -70,7 +70,18 @@ export function classifyGeneratedArtifactVersion(input: GeneratedArtifactVersion
     };
   }
 
-  if (!currentHead || artifactHead === currentHead) {
+  if (!currentHead) {
+    return {
+      artifactPath,
+      artifactHead,
+      currentHead,
+      status: "missing_version",
+      needsRefresh: true,
+      reason: `${artifactPath} cannot be current because the current code version is unavailable.`,
+    };
+  }
+
+  if (artifactHead === currentHead) {
     return {
       artifactPath,
       artifactHead,

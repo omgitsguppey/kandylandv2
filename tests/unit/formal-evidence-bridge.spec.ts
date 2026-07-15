@@ -11,8 +11,9 @@ function artifact(input: Partial<FormalEvidenceBridgeArtifact>): FormalEvidenceB
     path: input.path ?? "agent/state/example.generated.json",
     status: input.status ?? "source_ready",
     passed: input.passed ?? true,
-    generatedAtUtc: input.generatedAtUtc ?? "2026-05-21T00:00:00.000Z",
+    generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
     currentHead: input.currentHead ?? "old-head",
+    sourceCommit: input.sourceCommit ?? "head",
     detail: input.detail ?? "",
     evidence: input.evidence ?? [],
   };

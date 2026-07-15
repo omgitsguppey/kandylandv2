@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -113,11 +113,15 @@ const UI_VISUAL_SMOKE_MINIMAL_PATH = "agent/state/ui-visual-smoke-minimal.genera
 const UI_VISUAL_SMOKE_REQUIRED_SURFACES_EVIDENCE_KEY = "uiVisualSmoke.requiredSurfaces";
 
 function parseJsonObject(source: string): Record<string, unknown> {
+  return parseJsonObjectOrNull(source) ?? {};
+}
+
+function parseJsonObjectOrNull(source: string): Record<string, unknown> | null {
   try {
     const parsed = JSON.parse(source) as unknown;
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : null;
   } catch {
-    return {};
+    return null;
   }
 }
 
@@ -206,13 +210,7 @@ function readNumber(value: unknown) {
 
 function readGitHead(root: string) {
   try {
-    const gitDir = join(root, ".git");
-    const headSource = readFileSync(join(gitDir, "HEAD"), "utf8").trim();
-    if (headSource.startsWith("ref: ")) {
-      const refPath = headSource.slice("ref: ".length).trim();
-      return readFileSync(join(gitDir, refPath), "utf8").trim();
-    }
-    return headSource;
+    return readGeneratedArtifactGitContext(root).currentHead;
   } catch {
     return undefined;
   }
@@ -339,27 +337,34 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
   };
 }
 
-function collectGeneratedReportEvidence(root: string, currentHead?: string, now = Date.now()): PublicBetaGeneratedReportEvidence[] {
+export function collectGeneratedReportEvidence(root: string, currentHead?: string, now = Date.now()): PublicBetaGeneratedReportEvidence[] {
   return REQUIRED_EVIDENCE_REPORTS.map((reportPath) => {
     const fullPath = join(root, reportPath);
     if (!existsSync(fullPath)) {
       return { path: reportPath, freshness: "missing" };
     }
 
-    const parsed = parseJsonObject(readFileSync(fullPath, "utf8"));
-    const stats = statSync(fullPath);
+    const parsed = parseJsonObjectOrNull(readFileSync(fullPath, "utf8"));
+    if (!parsed) {
+      return {
+        path: reportPath,
+        freshness: "unknown",
+        currentHead,
+        versionStatus: "missing_version",
+      };
+    }
     const generatedAt = typeof parsed.generatedAtUtc === "string"
       ? parsed.generatedAtUtc
       : typeof parsed.generatedAt === "string"
         ? parsed.generatedAt
-        : stats.mtime.toISOString();
-    const ageHours = (now - Date.parse(generatedAt)) / (60 * 60 * 1000);
+        : undefined;
+    const ageHours = generatedAt ? (now - Date.parse(generatedAt)) / (60 * 60 * 1000) : Number.NaN;
     const artifactHead = typeof parsed.sourceCommit === "string"
       ? parsed.sourceCommit
       : typeof parsed.currentHead === "string"
         ? parsed.currentHead
         : undefined;
-    const gitContext = artifactHead && currentHead
+    const gitContext = artifactHead && currentHead && artifactHead !== currentHead
       ? readGeneratedArtifactGitContext(root, artifactHead, reportPath)
       : null;
     const version = artifactHead && currentHead
@@ -376,15 +381,16 @@ function collectGeneratedReportEvidence(root: string, currentHead?: string, now 
     const embeddedFreshness = parsed.freshness === "fresh" || parsed.freshness === "stale" || parsed.freshness === "unknown"
       ? parsed.freshness
       : undefined;
-    const freshness = version && !version.needsRefresh
-      ? "fresh"
-      : version?.status === "stale_source_version"
-        ? "stale"
-        : version?.status === "missing_version"
-          ? "unknown"
-          : embeddedFreshness ?? (
-            Number.isFinite(ageHours) && ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS ? "fresh" : "stale"
-          );
+    let freshness: PublicBetaGeneratedReportEvidence["freshness"] = "unknown";
+    if (version?.status === "stale_source_version") {
+      freshness = "stale";
+    } else if (version && !version.needsRefresh) {
+      if (embeddedFreshness === "stale" || embeddedFreshness === "unknown") {
+        freshness = embeddedFreshness;
+      } else if (Number.isFinite(ageHours) && ageHours >= 0) {
+        freshness = ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS ? "fresh" : "stale";
+      }
+    }
 
     return {
       path: reportPath,
@@ -393,7 +399,7 @@ function collectGeneratedReportEvidence(root: string, currentHead?: string, now 
       freshness,
       ageHours: Number.isFinite(ageHours) ? ageHours : undefined,
       currentHead,
-      versionStatus: version?.status,
+      versionStatus: version?.status ?? "missing_version",
     };
   });
 }
@@ -594,17 +600,33 @@ function readTargetedBehaviorEvidence(root: string): PublicBetaEvidenceArtifact 
   );
 }
 
-function readRegressionRiskRefreshEvidence(root: string) {
+export function readRegressionRiskRefreshEvidence(root: string, currentHead = readGitHead(root), now = Date.now()) {
   const parsed = readJsonFile(root, REGRESSION_RISK_REFRESH_PATH);
   if (!parsed) return undefined;
   const scoreAfter = readRecord(parsed.scoreAfter);
-  const highBlastCoverageCurrent = readBoolean(parsed.highBlastCoverageCurrent) === true;
+  const generatedAtUtc = readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt);
+  const generatedAtMs = generatedAtUtc ? Date.parse(generatedAtUtc) : Number.NaN;
+  const sourceCommit = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
+  const ageHours = (now - generatedAtMs) / (60 * 60 * 1000);
+  const artifactIsFreshAndCurrent = Boolean(
+    currentHead
+    && sourceCommit === currentHead
+    && Number.isFinite(ageHours)
+    && ageHours >= 0
+    && ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS,
+  );
+  const highBlastCoverageCurrent = readBoolean(parsed.highBlastCoverageCurrent) === true
+    && artifactIsFreshAndCurrent;
   return {
     highBlastCoverageCurrent,
     regressionRiskScore: readNumber(scoreAfter.regressionRisk),
     failedLaneCount: Array.isArray(parsed.failedLanes) ? parsed.failedLanes.length : undefined,
     inFlightLaneCount: Array.isArray(parsed.inFlightLanes) ? parsed.inFlightLanes.length : undefined,
   };
+}
+
+export function exactRefreshCommandsForPlan(plan: ReturnType<typeof buildRefreshPlan>) {
+  return uniqueRefreshCommands(plan.filter((entry) => entry.needsRefresh));
 }
 
 function liveRuntimeEvidenceConfirmsActivity(artifact: PublicBetaEvidenceArtifact | null) {
@@ -1045,6 +1067,12 @@ function readUiSurfaceCoverageEvidence(root: string): PublicBetaEvidenceArtifact
 export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesApplied = 0) {
   const currentHead = readGitHead(root);
   const generatedAtUtc = new Date().toISOString();
+  const requiredReports = collectGeneratedReportEvidence(root, currentHead);
+  const launchPrTriage = requiredReports.find((entry) => entry.path === "agent/state/launch-pr-triage.generated.json");
+  const openPrTriageFresh = launchPrTriage?.freshness === "fresh"
+    && (launchPrTriage.versionStatus === "current_head"
+      || launchPrTriage.versionStatus === "same_commit_snapshot"
+      || launchPrTriage.versionStatus === "current_by_impact");
   const debugEvidence = loadDebugEvidenceForAuditDomains([
     ...Object.keys(PUBLIC_BETA_DOMAIN_WEIGHTS),
     "support",
@@ -1056,7 +1084,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
     currentHead,
     debugEvidence,
     evidence: {
-      requiredReports: collectGeneratedReportEvidence(root, currentHead),
+      requiredReports,
       debugRuntimeEvidenceArtifact: readDebugRuntimeOrEventTranslationEvidence(root),
       runtimeSmokeSubstituteMatrixEvidence: readRuntimeSmokeSubstituteMatrixEvidence(root),
       targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),
@@ -1071,8 +1099,8 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       adminTruthSampleEvidence: readAdminTruthSampleEvidence(root),
       costReadiness: buildScore80CostReadinessFromRepo(root).costReadiness,
       nonEventScorePolicy: readNonEventScorePolicyEvidence(root),
-      regressionRiskRefreshEvidence: readRegressionRiskRefreshEvidence(root),
-      openPrTriageFresh: true,
+      regressionRiskRefreshEvidence: readRegressionRiskRefreshEvidence(root, currentHead),
+      openPrTriageFresh,
     },
   });
   const refreshPlan = buildRefreshPlan(collectRefreshArtifacts(root, currentHead ?? "unknown", generatedAtUtc), {
@@ -1081,7 +1109,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
   });
   report.refreshPlan = refreshPlan;
   report.staleArtifacts = staleArtifactsFromPlan(refreshPlan);
-  report.exactRefreshCommands = uniqueRefreshCommands(refreshPlan);
+  report.exactRefreshCommands = exactRefreshCommandsForPlan(refreshPlan);
   writePublicBetaScoreReport(report, root);
   return report;
 }

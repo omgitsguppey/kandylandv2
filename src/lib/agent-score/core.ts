@@ -145,6 +145,7 @@ export type PublicBetaCostReadiness = {
 export type PublicBetaScoreExplanation = {
   scannerScoreMeaning: string;
   evidenceScoreMeaning: string;
+  overallScoreMeaning: string;
   missingEvidenceCaps: string[];
   staleReportHandling: string;
   sourcePassConfidence: string;
@@ -175,18 +176,48 @@ export type PublicBetaOperatorFinalChecks = {
   };
 };
 
-export type PublicBetaStudioDashboardSection = {
-  id: "audienceActivity" | "runtimeConfidence" | "sourceQuality" | "debugSignal" | "adminHydration" | "needsProof";
-  label: string;
-  score: number;
-  status: "healthy" | "watching" | "needs_attention" | "needs_proof";
+export type PublicBetaOperatorActionLane =
+  | "source_fix"
+  | "source_verification"
+  | "evidence_refresh"
+  | "external_proof"
+  | "owner_review";
+
+export type PublicBetaOperatorAction = {
+  id: string;
+  lane: PublicBetaOperatorActionLane;
+  title: string;
+  action: string;
   source: string;
-  detail: string;
+  blocksLaunch: boolean;
 };
 
-export type PublicBetaStudioDashboard = {
-  status: "healthy" | "watching" | "needs_attention";
-  sections: PublicBetaStudioDashboardSection[];
+export type PublicBetaOperatorDecision = {
+  version: "operator_decision_v1";
+  sourceReadiness: {
+    score: number;
+    status: "ready" | "verification_due" | "needs_fix" | "blocked";
+    detail: string;
+  };
+  releaseReadiness: {
+    status: PublicBetaLaunchGateStatus;
+    ready: boolean;
+    blockerCount: number;
+    detail: string;
+  };
+  primaryAction: PublicBetaOperatorAction | null;
+  actionQueues: {
+    sourceFixes: PublicBetaOperatorAction[];
+    sourceVerification: PublicBetaOperatorAction[];
+    evidenceRefresh: PublicBetaOperatorAction[];
+    externalProof: PublicBetaOperatorAction[];
+    ownerReview: PublicBetaOperatorAction[];
+  };
+  compositeConfidence: {
+    score: number;
+    useAsWorkTarget: false;
+    detail: string;
+  };
 };
 
 export type PublicBetaLaunchClearance = {
@@ -234,7 +265,7 @@ export type PublicBetaEvidenceInput = {
 };
 
 export type PublicBetaEvidenceGate = {
-  id: keyof typeof PUBLIC_BETA_EVIDENCE_WEIGHTS | "debugRuntimeEvidence" | "algorithmicEvidenceCoverage" | "formalEvidenceBridge";
+  id: keyof typeof PUBLIC_BETA_EVIDENCE_WEIGHTS | "uiSourceCoverage" | "debugRuntimeEvidence" | "algorithmicEvidenceCoverage" | "formalEvidenceBridge";
   label: string;
   weight: number;
   score: number;
@@ -297,7 +328,7 @@ export type PublicBetaScoreReport = {
   launchBlockers: string[];
   healthScore: number;
   healthScoreBreakdown: PublicBetaHealthScoreBreakdown;
-  studioDashboard: PublicBetaStudioDashboard;
+  operatorDecision: PublicBetaOperatorDecision;
   launchClearance: PublicBetaLaunchClearance;
   scoreDimensionExplanations: Record<PublicBetaHealthDimension | "overallHealthScore", ScoreDimensionExplanation>;
   scoreDeltaDrivers: string[];
@@ -310,6 +341,8 @@ export type PublicBetaScoreReport = {
   evidenceGates: PublicBetaEvidenceGate[];
   evidenceCapsApplied: string[];
   evidenceCapDetails: string[];
+  evidenceAdvisories: string[];
+  evidenceAdvisoryDetails: string[];
   evidenceWeights: typeof PUBLIC_BETA_EVIDENCE_WEIGHTS;
   scoreExplanation: PublicBetaScoreExplanation;
   operatorFinalChecks: PublicBetaOperatorFinalChecks;
@@ -417,14 +450,6 @@ function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
     READINESS_STATUS_RANK[status] > READINESS_STATUS_RANK[current] ? status : current, "Ready");
 }
 
-function readinessStatusToLegacyStatus(status: PublicBetaReadinessStatus, score: number, hasCritical: boolean): PublicBetaStatus {
-  if (status === "Blocked" || hasCritical) return "fail";
-  if (status === "External proof required" || status === "Stale evidence" || status === "Needs review") return "beta-risk";
-  if (status === "Source evidence required" || status === "Unknown evidence" || status === "Runtime unverified") return "warning";
-  if (status === "Source validation only" || status === "Ready with smoke required") return score >= PUBLIC_BETA_STATUS_THRESHOLDS.pass ? "pass" : "warning";
-  return resolvePublicBetaStatus(score, hasCritical);
-}
-
 function capForReadinessStatus(status: PublicBetaReadinessStatus) {
   switch (status) {
     case "Ready with smoke required":
@@ -487,7 +512,7 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
       return `${statusPrefix}: ${gate.label} - Produce provider-backed source activity and keep deployed runtime route evidence current.`;
     }
     if (gate.status === "Stale evidence") {
-      return `${gate.status}: ${gate.label} - Refresh provider-backed source activity and deployed runtime route evidence.`;
+      return `${gate.status}: ${gate.label} - ${gate.recommendedAction}`;
     }
     if (gate.status === "Runtime unverified" || gate.status === "Ready with smoke required") {
       return `${gate.status}: ${gate.label} - Deployed runtime and provider-backed source evidence are still required.`;
@@ -621,11 +646,22 @@ function realUsageObservedSiteActivityCount(input: {
   return observedSiteActivityCount(input.realUsageConfidenceEvidence);
 }
 
-function sourceActivityClearsProviderLane(artifact: PublicBetaEvidenceArtifact | undefined) {
+function sourceActivityClearsProviderLane(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  currentHead: string | undefined,
+) {
   if (!artifact) return false;
   const status = String(evidenceArtifactStatus(artifact, "missing_or_unknown"));
   if (!status.includes("source_ready")) return false;
-  return (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0) > 0
+  const quality = resolveEvidenceQuality({
+    artifact,
+    context: { currentHead, lane: "source_backed_runtime_confidence", requiredForExit: false },
+  });
+  return artifact.passed === true
+    && artifactMatchesCurrentHead(artifact, currentHead)
+    && quality.freshness === "fresh"
+    && (quality.quality === "source_ready" || quality.quality === "formal_passed")
+    && (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0) > 0
     && (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.providerRequired") ?? 1) === 0
     && (evidenceArtifactNumber(artifact, "liveRuntimeEvidence.blockedSiteActivityLanes") ?? 1) === 0
     && evidenceArtifactEvidence(artifact).some((line) => line.includes("launchGateImpact=site_activity_can_clear_connected_site_activity_lanes"));
@@ -681,12 +717,13 @@ function buildScoreExplanation(input: {
   evidenceCapDetails: string[];
 }): PublicBetaScoreExplanation {
   const blockedBy = input.evidenceGates
-    .filter((gate) => gate.status !== "Ready")
+    .filter((gate) => gate.blocksLaunch)
     .map((gate) => `${gate.label}: ${gate.status}`);
 
   return {
     scannerScoreMeaning: `Scanner score ${input.scannerScore}/100 (${input.scannerStatus}) is scanner-only source hygiene, not beta readiness.`,
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
+    overallScoreMeaning: "Overall score is a backward-compatible composite confidence signal. It is diagnostic trend context, not a work target or launch decision; use operatorDecision.sourceReadiness and operatorDecision.releaseReadiness instead.",
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
     sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider-backed source activity, deployed route, admin source activity, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
@@ -701,22 +738,43 @@ function readEvidenceListValue(artifact: PublicBetaEvidenceArtifact | undefined,
   return entry.slice(prefix.length).split(",").map((item) => item.trim()).filter(Boolean);
 }
 
-function buildOperatorFinalChecks(uiSurfaceCoverageEvidence?: PublicBetaEvidenceArtifact): PublicBetaOperatorFinalChecks {
+function artifactMatchesCurrentHead(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  currentHead: string | undefined,
+) {
+  if (!artifact?.sourceCommit || !currentHead) return false;
+  return artifact.sourceCommit === currentHead
+    || artifact.versionStatus === "same_commit_snapshot"
+    || artifact.versionStatus === "current_by_impact";
+}
+
+function buildOperatorFinalChecks(
+  uiSurfaceCoverageEvidence: PublicBetaEvidenceArtifact | undefined,
+  currentHead: string | undefined,
+): PublicBetaOperatorFinalChecks {
   const requiredSurfaceIds = readEvidenceListValue(uiSurfaceCoverageEvidence, "uiVisualSmoke.requiredSurfaces");
   const pendingSurfaceIds = readEvidenceListValue(uiSurfaceCoverageEvidence, "uiVisualSmoke.missingSurfaces");
-  const statusText = String(uiSurfaceCoverageEvidence?.status ?? "source_surface_checks_failed");
+  const statusText = String(uiSurfaceCoverageEvidence?.status ?? "source_surface_checks_missing");
+  const quality = resolveEvidenceQuality({
+    artifact: uiSurfaceCoverageEvidence,
+    context: { currentHead, lane: "ui_source_coverage", requiredForExit: true },
+  });
+  const declaredPass = /^(?:source_surface_checks_current|source_surface_checked|not_required)$/iu.test(statusText);
+  const sourceChecksPassed = uiSurfaceCoverageEvidence?.passed === true
+    && declaredPass
+    && quality.freshness === "fresh"
+    && artifactMatchesCurrentHead(uiSurfaceCoverageEvidence, currentHead);
   const status: PublicBetaOperatorFinalVisualSurface["status"] =
-    statusText === "source_surface_checks_current" || statusText === "source_surface_checked"
+    sourceChecksPassed && (statusText === "source_surface_checks_current" || statusText === "source_surface_checked")
       ? "source_surface_checked"
-      : statusText === "source_surface_checks_failed" || statusText === "source_surface_gap"
+      : statusText === "source_surface_checks_failed" || statusText === "source_surface_gap" || !sourceChecksPassed
         ? "source_surface_gap"
-        : statusText === "not_required"
+        : sourceChecksPassed && statusText === "not_required"
           ? "not_required"
           : "source_surface_gap";
   const surfaceIds = requiredSurfaceIds.length > 0 ? requiredSurfaceIds : pendingSurfaceIds;
   const pendingSet = new Set(pendingSurfaceIds);
-  const sourceChecksPassed = uiSurfaceCoverageEvidence?.passed === true || status === "source_surface_checked" || status === "not_required";
-  const needsOperatorReview = status === "source_surface_gap" || pendingSurfaceIds.length > 0;
+  const needsOperatorReview = !sourceChecksPassed || status === "source_surface_gap" || pendingSurfaceIds.length > 0;
 
   return {
     uiVisualSurfaces: {
@@ -760,6 +818,9 @@ function buildEvidenceGate(input: {
   const evidenceCredit = roundScore(input.quality.partialCredit * 100);
   const score = roundScore(input.weight * input.quality.partialCredit);
   const blocksLaunch = input.quality.blocksLaunch || input.status === "Blocked";
+  const status: PublicBetaReadinessStatus = blocksLaunch && input.status === "Ready"
+    ? "Needs review"
+    : input.status;
   return {
     id: input.id,
     label: input.label,
@@ -777,7 +838,7 @@ function buildEvidenceGate(input: {
     gateRequiredForExit: input.gateRequiredForExit,
     blocksLaunch,
     partialReason: input.quality.partialCredit < 1 ? input.quality.reason : undefined,
-    status: input.status,
+    status,
     detail: input.detail,
     evidence: input.evidence,
     recommendedAction: input.recommendedAction,
@@ -851,10 +912,11 @@ export function buildPublicBetaEvidenceGates(input: {
   scannerScore: number;
   scannerStatus: PublicBetaStatus;
   hasCritical: boolean;
+  currentHead?: string;
   evidence?: PublicBetaEvidenceInput;
 }) {
   const evidence = input.evidence ?? {};
-  const currentHead = evidence.requiredReports?.find((report) => report.currentHead)?.currentHead;
+  const currentHead = input.currentHead ?? evidence.requiredReports?.find((report) => report.currentHead)?.currentHead;
   const reportEvidence = summarizeRequiredReportEvidence(evidence.requiredReports);
   const debugRuntimeEvidenceQuality = resolveEvidenceQuality({
     artifact: evidence.debugRuntimeEvidenceArtifact,
@@ -866,17 +928,19 @@ export function buildPublicBetaEvidenceGates(input: {
     },
   });
   const debugRuntimeEvidenceArtifactReady = debugRuntimeEvidenceQuality.quality === "source_ready"
+    && evidence.debugRuntimeEvidenceArtifact?.passed === true
+    && debugRuntimeEvidenceQuality.freshness === "fresh"
     && String(evidenceArtifactStatus(evidence.debugRuntimeEvidenceArtifact, "missing_or_unknown")).includes("source_ready");
   const debugEvidenceAvailable = hasDebugEvidence(evidence.debugEvidence) || debugRuntimeEvidenceArtifactReady;
   const freshnessStatus = mostSevereReadinessStatus([
     reportEvidence.status,
-    evidence.openPrTriageFresh === false || evidence.runtimeCodeChangedSinceReport ? "Needs review" : "Ready",
+    evidence.openPrTriageFresh !== true || evidence.runtimeCodeChangedSinceReport ? "Needs review" : "Ready",
   ]);
   const freshnessDetail = freshnessStatus === reportEvidence.status && reportEvidence.status !== "Ready"
     ? reportEvidence.detail
     : evidence.runtimeCodeChangedSinceReport
       ? describeFreshnessState({ runtimeCodeChangedSinceReport: true }).userMessage
-      : evidence.openPrTriageFresh === false
+      : evidence.openPrTriageFresh !== true
         ? describeFreshnessState({ openPrTriageFresh: false }).userMessage
         : reportEvidence.detail;
   const realUsageConfidenceStatus = String(evidenceArtifactStatus(
@@ -907,6 +971,8 @@ export function buildPublicBetaEvidenceGates(input: {
   });
   const realUsageCalibrationCredit = realUsageCalibrationQuality.quality === "source_ready"
     && realUsageCalibrationStatus.includes("source_ready")
+    && evidence.realUsageConfidenceCalibrationEvidence?.passed === true
+    && realUsageCalibrationQuality.freshness === "fresh"
     ? Math.max(
         realUsageCalibrationQuality.partialCredit * 100,
         clamp(evidenceArtifactNumber(evidence.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit") ?? 0, 0, 100),
@@ -914,6 +980,8 @@ export function buildPublicBetaEvidenceGates(input: {
     : 0;
   const realUsageConfidenceCredit = realUsageConfidenceQuality.quality === "source_ready"
     && realUsageConfidenceStatus.includes("source_ready")
+    && evidence.realUsageConfidenceEvidence?.passed === true
+    && realUsageConfidenceQuality.freshness === "fresh"
     ? Math.max(
         realUsageConfidenceQuality.partialCredit * 100,
         clamp(evidenceArtifactNumber(evidence.realUsageConfidenceEvidence, "confidenceScore") ?? 0, 0, 100),
@@ -1038,11 +1106,18 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
-  const providerSmokePassed = evidenceArtifactPassed(evidence.providerSmokeEvidence);
-  const runtimeSmokePassed = evidenceArtifactPassed(evidence.runtimeSmokeEvidence);
+  const providerSmokePassed = providerQuality.quality === "formal_passed"
+    && providerQuality.freshness === "fresh"
+    && !providerQuality.blocksLaunch;
+  const runtimeSmokePassed = runtimeQuality.quality === "formal_passed"
+    && runtimeQuality.freshness === "fresh"
+    && !runtimeQuality.blocksLaunch;
   const providerSmokeStatus = String(evidenceArtifactStatus(evidence.providerSmokeEvidence));
   const runtimeSmokeStatus = String(evidenceArtifactStatus(evidence.runtimeSmokeEvidence, "runtime_unverified"));
-  const providerLaneSatisfiedBySourceActivity = sourceActivityClearsProviderLane(evidence.sourceBackedRuntimeConfidenceEvidence);
+  const providerLaneSatisfiedBySourceActivity = sourceActivityClearsProviderLane(
+    evidence.sourceBackedRuntimeConfidenceEvidence,
+    currentHead,
+  );
   const providerLaneRequiresExternalArtifact = sourceActivityStillRequiresProviderArtifact(evidence.sourceBackedRuntimeConfidenceEvidence);
   const runtimeProviderSmokePassed = (providerSmokePassed || providerLaneSatisfiedBySourceActivity) && runtimeSmokePassed;
   const providerActivityEvidenceRequired = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
@@ -1051,22 +1126,19 @@ export function buildPublicBetaEvidenceGates(input: {
   const providerEvidenceRecorded = providerSmokePassed || providerLaneSatisfiedBySourceActivity || /formal_provider_smoke_passed|passed_formal_evidence|passed/iu.test(providerSmokeStatus);
   const runtimeProviderSmokeFreshnessUnknown = (!providerLaneSatisfiedBySourceActivity && providerQuality.freshness === "unknown")
     || runtimeQuality.freshness === "unknown";
+  const providerSmokeOutdated = providerQuality.freshness === "stale" || providerQuality.freshness === "head_mismatch";
+  const runtimeSmokeOutdated = runtimeQuality.freshness === "stale" || runtimeQuality.freshness === "head_mismatch";
   let runtimeProviderSmokeStatus: PublicBetaReadinessStatus = "Ready with smoke required";
   if (runtimeProviderSmokePassed && !runtimeProviderSmokeFreshnessUnknown) {
     runtimeProviderSmokeStatus = "Ready";
   } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
     runtimeProviderSmokeStatus = "Needs review";
+  } else if (providerSmokeOutdated || runtimeSmokeOutdated) {
+    runtimeProviderSmokeStatus = "Stale evidence";
   } else if (providerActivityEvidenceRequired && providerLaneRequiresExternalArtifact && !providerLaneSatisfiedBySourceActivity) {
     runtimeProviderSmokeStatus = "External proof required";
   } else if ((providerActivityEvidenceRequired && !providerLaneSatisfiedBySourceActivity) || runtimeRouteEvidenceRequired) {
     runtimeProviderSmokeStatus = "Source evidence required";
-  } else if (
-    providerQuality.freshness === "stale"
-    || runtimeQuality.freshness === "stale"
-    || providerQuality.freshness === "head_mismatch"
-    || runtimeQuality.freshness === "head_mismatch"
-  ) {
-    runtimeProviderSmokeStatus = "Stale evidence";
   } else if (runtimeProviderSmokeFreshnessUnknown) {
     runtimeProviderSmokeStatus = "Unknown evidence";
   } else if (runtimeSmokeStatus === "runtime_unverified") {
@@ -1088,11 +1160,16 @@ export function buildPublicBetaEvidenceGates(input: {
     : runtimeRouteEvidenceRequired && providerEvidenceRecorded
       ? "Deployed route evidence"
       : "Provider-backed source activity + deployed route evidence";
-  const runtimeProviderSmokeRecommendedAction = providerActivityEvidenceRequired && runtimeEvidenceRecorded
-    ? "Produce provider-backed source activity evidence; keep deployed route evidence current."
-    : runtimeRouteEvidenceRequired && providerEvidenceRecorded
-      ? "Produce deployed runtime route evidence; keep provider-backed source activity evidence current."
-      : "Keep provider-backed source activity and deployed route evidence current before clearing launch readiness.";
+  const runtimeProviderSmokeRecommendedAction = providerSmokeOutdated || runtimeSmokeOutdated
+    ? `Refresh ${[
+        providerSmokeOutdated ? "provider-backed source activity evidence" : providerActivityEvidenceRequired ? "or produce provider-backed source activity evidence" : null,
+        runtimeSmokeOutdated ? "deployed runtime route evidence" : runtimeRouteEvidenceRequired ? "or produce deployed runtime route evidence" : null,
+      ].filter(Boolean).join(" and ")} for the current code version.`
+    : providerActivityEvidenceRequired && runtimeEvidenceRecorded
+      ? "Produce provider-backed source activity evidence; keep deployed route evidence current."
+      : runtimeRouteEvidenceRequired && providerEvidenceRecorded
+        ? "Produce deployed runtime route evidence; keep provider-backed source activity evidence current."
+        : "Keep provider-backed source activity and deployed route evidence current before clearing launch readiness.";
   const runtimeProviderSmokeEvidence = Array.from(new Set([
     `providerArtifactStatus=${providerSmokeStatus}`,
     `runtimeArtifactStatus=${runtimeSmokeStatus}`,
@@ -1116,6 +1193,8 @@ export function buildPublicBetaEvidenceGates(input: {
     evidenceArtifactNumber(evidence.sourceBackedRuntimeConfidenceEvidence, "liveRuntimeEvidence.firstPartySiteActivityConfirmed") ?? 0;
   const sourceBackedRuntimeConfidenceCredit = sourceBackedRuntimeConfidenceQuality.quality === "source_ready"
     && sourceBackedRuntimeConfidenceStatus.includes("source_ready")
+    && evidence.sourceBackedRuntimeConfidenceEvidence?.passed === true
+    && sourceBackedRuntimeConfidenceQuality.freshness === "fresh"
     && sourceBackedRuntimeObservedActivityCount > 0
     ? sourceBackedRuntimeConfidenceQuality.partialCredit * 100
     : 0;
@@ -1134,6 +1213,8 @@ export function buildPublicBetaEvidenceGates(input: {
   });
   const runtimeSmokeSubstituteMatrixCredit = runtimeSmokeSubstituteMatrixQuality.quality === "source_ready"
     && runtimeSmokeSubstituteMatrixStatus.includes("source_ready")
+    && evidence.runtimeSmokeSubstituteMatrixEvidence?.passed === true
+    && runtimeSmokeSubstituteMatrixQuality.freshness === "fresh"
     ? Math.max(
         runtimeSmokeSubstituteMatrixQuality.partialCredit * 100,
         clamp(evidenceArtifactNumber(evidence.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit") ?? 0, 0, 100),
@@ -1141,6 +1222,8 @@ export function buildPublicBetaEvidenceGates(input: {
     : 0;
   const runtimeSmokeSubstituteMatrixActivityCredit = runtimeSmokeSubstituteMatrixQuality.quality === "source_ready"
     && runtimeSmokeSubstituteMatrixStatus.includes("source_ready")
+    && evidence.runtimeSmokeSubstituteMatrixEvidence?.passed === true
+    && runtimeSmokeSubstituteMatrixQuality.freshness === "fresh"
     ? clamp(evidenceArtifactNumber(evidence.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeProviderActivityCredit") ?? 0, 0, 100)
     : 0;
   const runtimeProviderSourceActivityCredit = Math.max(
@@ -1256,13 +1339,15 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
-  const currentAdminSourceActivitySamplePassed = adminSourceActivitySampleIsCurrent(
-    evidence.adminTruthSampleEvidence,
-    adminTruthSampleEvidenceRaw,
-    adminBaseQuality.freshness,
-  );
-  const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence)
-    || currentAdminSourceActivitySamplePassed;
+  const currentAdminSourceActivitySamplePassed = adminBaseQuality.quality === "formal_passed"
+    && !adminBaseQuality.blocksLaunch
+    && artifactMatchesCurrentHead(evidence.adminTruthSampleEvidence, currentHead)
+    && adminSourceActivitySampleIsCurrent(
+      evidence.adminTruthSampleEvidence,
+      adminTruthSampleEvidenceRaw,
+      adminBaseQuality.freshness,
+    );
+  const adminTruthSamplePassed = currentAdminSourceActivitySamplePassed;
   const adminSourceActivityEvidenceRequired = /missing_formal_evidence|missing_or_unknown|tracked_not_passing|admin_truth_sample_required/iu.test(adminTruthSampleStatus);
   const adminTruthSampleDetail = evidenceArtifactDetail(
     evidence.adminTruthSampleEvidence,
@@ -1273,7 +1358,9 @@ export function buildPublicBetaEvidenceGates(input: {
   const adminTruthSampleEvidence = adminTruthSampleEvidenceRaw;
   const adminBridgeEvidenceCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit;
   const adminBridgeCanContribute = currentAdminSourceActivitySamplePassed
-    || (adminBaseQuality.quality === "source_ready" && adminBaseQuality.freshness === "fresh");
+    || (adminBaseQuality.quality === "source_ready"
+      && adminBaseQuality.freshness === "fresh"
+      && evidence.adminTruthSampleEvidence?.passed === true);
   const adminBridgeCredit = adminBridgeCanContribute ? adminBridgeEvidenceCredit / 100 : 0;
   const adminSourceActivityCredit = adminBridgeCredit;
   const adminQuality = {
@@ -1304,16 +1391,67 @@ export function buildPublicBetaEvidenceGates(input: {
     adminTruthSampleStatusLabel = "Unknown evidence";
   }
 
+  const uiSurfaceCoverageStatus = String(evidenceArtifactStatus(
+    evidence.uiSurfaceCoverageEvidence,
+    "source_surface_checks_missing",
+  ));
+  const uiBaseQuality = resolveEvidenceQuality({
+    artifact: evidence.uiSurfaceCoverageEvidence,
+    context: {
+      currentHead,
+      lane: "ui_source_coverage",
+      requiredForExit: true,
+    },
+  });
+  const uiSurfaceCoverageDeclaredPass = /^(?:source_surface_checks_current|source_surface_checked|not_required)$/iu
+    .test(uiSurfaceCoverageStatus);
+  const uiSurfaceCoveragePassed = evidence.uiSurfaceCoverageEvidence?.passed === true
+    && uiSurfaceCoverageDeclaredPass
+    && uiBaseQuality.freshness === "fresh"
+    && artifactMatchesCurrentHead(evidence.uiSurfaceCoverageEvidence, currentHead);
+  const uiSurfaceCoverageQuality = {
+    ...uiBaseQuality,
+    quality: uiSurfaceCoveragePassed
+      ? "source_ready"
+      : uiBaseQuality.quality === "failed"
+        ? "failed"
+        : uiBaseQuality.freshness === "stale" || uiBaseQuality.freshness === "head_mismatch"
+          ? "stale"
+          : "missing",
+    confidence: uiSurfaceCoveragePassed ? 1 : 0,
+    partialCredit: uiSurfaceCoveragePassed ? 1 : 0,
+    blocksLaunch: !uiSurfaceCoveragePassed,
+    reason: uiSurfaceCoveragePassed
+      ? "Deterministic UI source coverage passed for the current code version."
+      : uiBaseQuality.freshness === "head_mismatch"
+        ? "UI source coverage was generated before the latest code changes."
+        : evidence.uiSurfaceCoverageEvidence?.passed === false && uiSurfaceCoverageDeclaredPass
+          ? "UI source coverage declares a current status but its pass flag is false."
+          : evidenceArtifactDetail(evidence.uiSurfaceCoverageEvidence, "Current deterministic UI source coverage is required."),
+  } satisfies ReturnType<typeof resolveEvidenceQuality>;
+  const uiSurfaceCoverageReadinessStatus: PublicBetaReadinessStatus = uiSurfaceCoveragePassed
+    ? "Ready"
+    : uiBaseQuality.freshness === "stale" || uiBaseQuality.freshness === "head_mismatch"
+      ? "Stale evidence"
+      : uiBaseQuality.freshness === "unknown"
+        ? "Unknown evidence"
+        : evidence.uiSurfaceCoverageEvidence?.passed === false && uiSurfaceCoverageDeclaredPass
+          ? "Needs review"
+          : "Source evidence required";
+
+  const sourceFindingsRemain = input.scannerScore < 100;
   const sourceSafetyQuality = {
-    quality: input.hasCritical ? "failed" : "formal_passed",
-    confidence: input.hasCritical ? 0 : 1,
+    quality: input.hasCritical ? "failed" : sourceFindingsRemain ? "formal_partial" : "formal_passed",
+    confidence: input.hasCritical ? 0 : input.scannerScore / 100,
     freshness: "fresh",
     freshnessScore: 1,
     partialCredit: input.hasCritical ? 0 : input.scannerScore / 100,
-    blocksLaunch: input.hasCritical,
+    blocksLaunch: sourceFindingsRemain,
     reason: input.hasCritical
       ? "High-confidence critical scanner findings remain."
-      : "Deterministic source scanners did not find a critical blocker.",
+      : sourceFindingsRemain
+        ? "Verified source findings remain and must be fixed or explicitly accepted before release readiness can be true."
+        : "Deterministic source scanners found no scored source defect.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
   const freshnessPartialCredit = freshnessStatus === "Ready"
@@ -1393,12 +1531,16 @@ export function buildPublicBetaEvidenceGates(input: {
       id: "sourceSafety",
       label: "Source safety",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.sourceSafety,
-      status: input.hasCritical ? "Blocked" : "Ready",
+      status: input.hasCritical ? "Blocked" : sourceFindingsRemain ? "Needs review" : "Ready",
       detail: input.hasCritical
         ? "High-confidence critical scanner findings remain."
-        : "Deterministic source scanners did not find a critical blocker.",
+        : sourceFindingsRemain
+          ? "Verified source findings remain and release readiness stays false until they are fixed or explicitly accepted."
+          : "Deterministic source scanners found no scored source defect.",
       evidence: [`scannerStatus=${input.scannerStatus}`, `scannerScore=${input.scannerScore}`],
-      recommendedAction: input.hasCritical ? "Fix critical scanner findings before scoring readiness." : "Keep source scanner lane in the fast loop.",
+      recommendedAction: sourceFindingsRemain
+        ? "Fix the scored source findings and rerun their targeted validators before evaluating release readiness."
+        : "Keep source scanner lane in the fast loop.",
       quality: sourceSafetyQuality,
       gateRequiredForExit: true,
       sourceCredit: input.hasCritical ? 0 : input.scannerScore,
@@ -1415,6 +1557,25 @@ export function buildPublicBetaEvidenceGates(input: {
       quality: targetedQuality,
       gateRequiredForExit: false,
       sourceCredit: targetedSourceCredit,
+      runtimeCredit: 0,
+    }),
+    buildEvidenceGate({
+      id: "uiSourceCoverage",
+      label: "UI source coverage",
+      weight: 0,
+      status: uiSurfaceCoverageReadinessStatus,
+      detail: uiSurfaceCoverageQuality.reason,
+      evidence: evidence.uiSurfaceCoverageEvidence
+        ? [
+            `uiSurfaceCoverageStatus=${uiSurfaceCoverageStatus}`,
+            `uiSurfaceCoveragePassed=${evidence.uiSurfaceCoverageEvidence.passed}`,
+            ...evidenceArtifactEvidence(evidence.uiSurfaceCoverageEvidence),
+          ]
+        : ["uiSurfaceCoverageStatus=source_surface_checks_missing"],
+      recommendedAction: "Run the deterministic UI source coverage validator for the current code version; use browser reproduction only when that source lane reports a concrete issue.",
+      quality: uiSurfaceCoverageQuality,
+      gateRequiredForExit: true,
+      sourceCredit: uiSurfaceCoveragePassed ? 100 : 0,
       runtimeCredit: 0,
     }),
     buildEvidenceGate({
@@ -1598,16 +1759,23 @@ export function buildPublicBetaEvidenceGates(input: {
     }));
   }
 
-  const evidenceScore = roundScore(gates.reduce((sum, gate) => sum + gate.score, 0));
-  const readinessStatus = mostSevereReadinessStatus(gates.map((gate) => gate.status));
-  const caps = gates
-    .filter((gate) => gate.status !== "Ready")
+  const weightedEvidenceGates = gates.filter((gate) => gate.maxScore > 0);
+  const weightedEvidenceScore = weightedEvidenceGates.reduce((sum, gate) => sum + gate.score, 0);
+  const weightedEvidenceMaximum = weightedEvidenceGates.reduce((sum, gate) => sum + gate.maxScore, 0);
+  const evidenceScore = roundScore((weightedEvidenceScore / Math.max(1, weightedEvidenceMaximum)) * 100);
+  const blockingGates = gates.filter((gate) => gate.gateRequiredForExit || gate.blocksLaunch);
+  const readinessGates = blockingGates.length > 0 ? blockingGates : gates;
+  const readinessStatus = mostSevereReadinessStatus(readinessGates.map((gate) => gate.status));
+  const capGates = gates.filter((gate) => gate.status !== "Ready" && (gate.gateRequiredForExit || gate.blocksLaunch));
+  const advisoryGates = gates.filter((gate) => gate.status !== "Ready" && !gate.gateRequiredForExit && !gate.blocksLaunch);
+  const caps = capGates
     .map(summarizeEvidenceCapTitle);
-  const evidenceCapDetails = gates
-    .filter((gate) => gate.status !== "Ready")
+  const evidenceCapDetails = capGates
     .map(summarizeEvidenceGateForCap);
+  const evidenceAdvisories = advisoryGates.map(summarizeEvidenceCapTitle);
+  const evidenceAdvisoryDetails = advisoryGates.map(summarizeEvidenceGateForCap);
   const readinessCap = capForReadinessStatus(readinessStatus);
-  const readinessGate = gates.find((gate) => gate.status === readinessStatus);
+  const readinessGate = readinessGates.find((gate) => gate.status === readinessStatus);
 
   return {
     evidenceScore,
@@ -1616,6 +1784,8 @@ export function buildPublicBetaEvidenceGates(input: {
     evidenceGates: gates,
     evidenceCapsApplied: caps,
     evidenceCapDetails,
+    evidenceAdvisories,
+    evidenceAdvisoryDetails,
     cappedScore: readinessStatus === "Ready" ? input.scannerScore : Math.min(input.scannerScore, readinessCap),
   };
 }
@@ -1748,126 +1918,154 @@ function launchGateStatusFrom(input: {
   readinessStatus: PublicBetaReadinessStatus;
   launchBlockers: string[];
   costOwnerReview: boolean;
+  costBlocksLaunch: boolean;
   runtimeHealthScore: number;
   evidenceCompletenessScore: number;
 }): PublicBetaLaunchGateStatus {
-  if (input.hasCritical || input.readinessStatus === "Blocked") return "blocked";
+  if (input.hasCritical || input.readinessStatus === "Blocked" || input.costBlocksLaunch) return "blocked";
+  if (input.launchBlockers.length > 0) return "source_ready";
+  if (input.costOwnerReview) return "owner_review";
   if (input.launchBlockers.length === 0 && input.evidenceCompletenessScore >= 95 && input.runtimeHealthScore >= 95) {
     return "launch_ready";
   }
-  if (input.launchBlockers.length > 0) return "source_ready";
-  if (input.costOwnerReview) return "owner_review";
   if (input.evidenceCompletenessScore >= 90) return "evidence_complete";
   if (input.runtimeHealthScore >= 70) return "runtime_proven";
   return "source_ready";
 }
 
-function studioStatusFromScore(score: number): PublicBetaStudioDashboardSection["status"] {
-  if (score >= 90) return "healthy";
-  if (score >= 80) return "watching";
-  return "needs_attention";
-}
-
-function summarizeEvidenceGateStates(gates: PublicBetaEvidenceGate[]) {
-  const openGates = gates.filter((gate) => gate.status !== "Ready");
-  if (openGates.length === 0) {
-    return {
-      openGates,
-      detail: "All evidence gates are clear in the existing evidence model.",
-    };
-  }
-
-  const statusCounts = openGates.reduce<Record<string, number>>((counts, gate) => {
-    counts[gate.status] = (counts[gate.status] ?? 0) + 1;
-    return counts;
-  }, {});
-  const summary = Object.entries(statusCounts)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([status, count]) => `${status} (${count})`)
-    .join(", ");
-
-  return {
-    openGates,
-    detail: `Open evidence gates: ${summary}. Source checks stay separate from provider-backed source activity, deployed route evidence, and admin source activity evidence.`,
-  };
-}
-
-function buildStudioDashboard(input: {
+function buildOperatorDecision(input: {
   sourceHealthScore: number;
-  runtimeHealthScore: number;
-  evidenceCompletenessScore: number;
-  freshnessScore: number;
-  costRiskScore: number;
-  regressionRiskScore: number;
+  overallScore: number;
+  hasCritical: boolean;
+  findings: PublicBetaFinding[];
   evidenceGates: PublicBetaEvidenceGate[];
-}): PublicBetaStudioDashboard {
-  const debugGate = input.evidenceGates.find((gate) => gate.id === "debugRuntimeEvidence");
-  const adminGate = input.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
-  const evidenceGateSummary = summarizeEvidenceGateStates(input.evidenceGates);
-  const sections: PublicBetaStudioDashboardSection[] = [
-    {
-      id: "audienceActivity",
-      label: "Audience Activity",
-      score: input.runtimeHealthScore,
-      status: studioStatusFromScore(input.runtimeHealthScore),
-      source: "runtimeHealthScore",
-      detail: "Estimated from codebase-verifiable activity, telemetry, runtime substitute, and source-ready signals.",
-    },
-    {
-      id: "runtimeConfidence",
-      label: "Runtime Confidence",
-      score: input.runtimeHealthScore,
-      status: studioStatusFromScore(input.runtimeHealthScore),
-      source: "runtimeHealthScore",
-      detail: "Shows source-backed runtime confidence without clearing typed deployed route evidence.",
-    },
-    {
-      id: "sourceQuality",
-      label: "Source Quality",
-      score: input.sourceHealthScore,
-      status: studioStatusFromScore(input.sourceHealthScore),
-      source: "sourceHealthScore",
-      detail: "Scanner and source-gate confidence using the existing source health dimension.",
-    },
-    {
-      id: "debugSignal",
-      label: "Debug Signal",
-      score: roundScore(debugGate?.runtimeCredit ?? debugGate?.evidenceCredit ?? input.regressionRiskScore),
-      status: studioStatusFromScore(debugGate?.runtimeCredit ?? debugGate?.evidenceCredit ?? input.regressionRiskScore),
-      source: debugGate ? "debugRuntimeEvidence gate" : "regressionRiskScore",
-      detail: debugGate?.detail ?? "Uses existing regression/debug signal confidence when no debug runtime gate is available.",
-    },
-    {
-      id: "adminHydration",
-      label: "Admin Hydration",
-      score: roundScore(adminGate?.sourceCredit ?? adminGate?.evidenceCredit ?? input.evidenceCompletenessScore),
-      status: studioStatusFromScore(adminGate?.sourceCredit ?? adminGate?.evidenceCredit ?? input.evidenceCompletenessScore),
-      source: adminGate ? "adminTruthSamples gate" : "evidenceCompletenessScore",
-      detail: adminGate?.detail ?? "Admin analytics hydration is summarized from existing evidence completeness.",
-    },
-    {
-      id: "needsProof",
-      label: "Evidence Gates",
-      score: input.evidenceCompletenessScore,
-      status: evidenceGateSummary.openGates.length > 0 ? "needs_proof" : studioStatusFromScore(input.evidenceCompletenessScore),
-      source: "evidenceCompletenessScore",
-      detail: evidenceGateSummary.detail,
-    },
-  ];
-  const overall = Math.min(...sections.filter((section) => section.id !== "needsProof").map((section) => section.score));
+  costReadiness: PublicBetaCostReadiness;
+  launchGateStatus: PublicBetaLaunchGateStatus;
+  launchBlockers: string[];
+}): PublicBetaOperatorDecision {
+  const findingActions: PublicBetaOperatorAction[] = input.findings
+    .filter((finding) => finding.weightedPenalty > 0)
+    .map((finding) => ({
+      id: `finding:${finding.id}`,
+      lane: "source_fix",
+      title: finding.title,
+      action: `Resolve the verified ${finding.severity} source finding in ${finding.filePath}, then run its targeted validator.`,
+      source: finding.filePath,
+      blocksLaunch: true,
+    }));
+  const openGates = input.evidenceGates
+    .map((gate, index) => ({ gate, index }))
+    .filter(({ gate }) => gate.status !== "Ready");
+  const gateAction = (
+    gate: PublicBetaEvidenceGate,
+    index: number,
+    lane: PublicBetaOperatorActionLane,
+  ): PublicBetaOperatorAction => ({
+    id: `gate:${gate.id}:${index}`,
+    lane,
+    title: gate.label,
+    action: normalizeTechnicalFreshnessTerms(gate.recommendedAction || gate.detail),
+    source: `evidenceGate:${gate.id}`,
+    blocksLaunch: gate.blocksLaunch,
+  });
+  const sourceSafetyActions = openGates
+    .filter(({ gate }) => gate.id === "sourceSafety" && findingActions.length === 0)
+    .map(({ gate, index }) => gateAction(gate, index, "source_fix"));
+  const externalProof = openGates
+    .filter(({ gate }) => gate.id === "runtimeProviderSmoke" || gate.id === "adminTruthSamples")
+    .map(({ gate, index }) => gateAction(gate, index, "external_proof"));
+  const evidenceRefresh = openGates
+    .filter(({ gate }) => (
+      gate.id !== "runtimeProviderSmoke"
+      && gate.id !== "adminTruthSamples"
+      && (gate.id === "freshnessIntegrity" || gate.freshness === "stale" || gate.freshness === "head_mismatch")
+    ))
+    .map(({ gate, index }) => gateAction(gate, index, "evidence_refresh"));
+  const sourceVerification = openGates
+    .filter(({ gate }) => (
+      gate.id !== "sourceSafety"
+      && gate.id !== "runtimeProviderSmoke"
+      && gate.id !== "adminTruthSamples"
+      && gate.id !== "freshnessIntegrity"
+      && gate.freshness !== "stale"
+      && gate.freshness !== "head_mismatch"
+    ))
+    .map(({ gate, index }) => gateAction(gate, index, "source_verification"));
+  const ownerReview = (Object.entries(input.costReadiness) as Array<[keyof PublicBetaCostReadiness, PublicBetaCostReadinessLane]>)
+    .filter(([, lane]) => lane.blocksBetaExit || /owner_review|cost_review|external_review/iu.test(lane.status))
+    .map(([laneId, lane]): PublicBetaOperatorAction => ({
+      id: `cost:${laneId}`,
+      lane: "owner_review",
+      title: laneId.replace(/Readiness$/u, " readiness").replace(/([a-z])([A-Z])/gu, "$1 $2"),
+      action: normalizeTechnicalFreshnessTerms(lane.detail),
+      source: `costReadiness:${laneId}`,
+      blocksLaunch: lane.blocksBetaExit,
+    }));
+  const sourceFixes = [...findingActions, ...sourceSafetyActions];
+  const blockingSourceVerification = sourceVerification.filter((action) => action.blocksLaunch);
+  const blockingEvidenceRefresh = evidenceRefresh.filter((action) => action.blocksLaunch);
+  const sourceStatus = input.hasCritical
+    ? "blocked"
+    : sourceFixes.length > 0
+      ? "needs_fix"
+      : blockingSourceVerification.length > 0 || blockingEvidenceRefresh.length > 0
+        ? "verification_due"
+        : "ready";
+  const sourceDetail = input.hasCritical
+    ? "A verified critical source finding blocks release work."
+    : sourceFixes.length > 0
+      ? `${sourceFixes.length} locally fixable source finding(s) remain.`
+      : blockingSourceVerification.length > 0 || blockingEvidenceRefresh.length > 0
+        ? `No scanner defect is blocking, but ${blockingSourceVerification.length + blockingEvidenceRefresh.length} required local verification or evidence refresh action(s) remain.`
+        : sourceVerification.length > 0 || evidenceRefresh.length > 0
+          ? `Required source gates are ready; ${sourceVerification.length + evidenceRefresh.length} optional advisory action(s) remain.`
+          : "No scanner defect or local source-verification action remains in the current score input.";
+  const primaryAction = sourceFixes[0]
+    ?? sourceVerification[0]
+    ?? evidenceRefresh[0]
+    ?? externalProof[0]
+    ?? ownerReview[0]
+    ?? null;
+  const releaseReady = input.launchGateStatus === "launch_ready"
+    && input.launchBlockers.length === 0
+    && sourceStatus === "ready"
+    && ownerReview.length === 0;
+
   return {
-    status: sections.some((section) => section.status === "needs_attention" || section.status === "needs_proof")
-      ? "needs_attention"
-      : overall >= 90
-        ? "healthy"
-        : "watching",
-    sections,
+    version: "operator_decision_v1",
+    sourceReadiness: {
+      score: input.sourceHealthScore,
+      status: sourceStatus,
+      detail: sourceDetail,
+    },
+    releaseReadiness: {
+      status: input.launchGateStatus,
+      ready: releaseReady,
+      blockerCount: input.launchBlockers.length,
+      detail: releaseReady
+        ? "All modeled launch gates are clear. Protected payment, provider, deployment, and production truth still require their owning release contracts."
+        : `${input.launchBlockers.length} launch blocker(s) remain; missing proof stays separate from local source defects.`,
+    },
+    primaryAction,
+    actionQueues: {
+      sourceFixes,
+      sourceVerification,
+      evidenceRefresh,
+      externalProof,
+      ownerReview,
+    },
+    compositeConfidence: {
+      score: input.overallScore,
+      useAsWorkTarget: false,
+      detail: "Backward-compatible composite confidence only. Do not chase this number; act on the typed queues and release gate.",
+    },
   };
 }
 
 function buildLaunchClearance(input: {
   launchGateStatus: PublicBetaLaunchGateStatus;
   launchBlockers: string[];
+  currentHead?: string;
   evidence?: PublicBetaEvidenceInput;
 }): PublicBetaLaunchClearance {
   const evidence = input.evidence ?? {};
@@ -1875,6 +2073,14 @@ function buildLaunchClearance(input: {
   const runtimeSmoke = evidence.runtimeSmokeEvidence;
   const adminTruth = evidence.adminTruthSampleEvidence;
   const uiSurfaceCoverage = evidence.uiSurfaceCoverageEvidence;
+  const providerQuality = resolveEvidenceQuality({
+    artifact: providerSmoke,
+    context: { currentHead: input.currentHead, lane: "provider_smoke", requiredForExit: true },
+  });
+  const runtimeQuality = resolveEvidenceQuality({
+    artifact: runtimeSmoke,
+    context: { currentHead: input.currentHead, lane: "runtime_smoke", requiredForExit: true, requiresRuntimeProof: true },
+  });
   const adminTruthStatus = String(evidenceArtifactStatus(adminTruth, "missing_or_unknown"));
   const adminTruthEvidence = Array.from(new Set([
     `adminTruthSampleArtifactStatus=${adminTruthStatus}`,
@@ -1883,27 +2089,42 @@ function buildLaunchClearance(input: {
   const adminTruthQuality = resolveEvidenceQuality({
     artifact: adminTruth,
     context: {
+      currentHead: input.currentHead,
       lane: "admin_truth_sample",
       requiredForExit: true,
       requiresRuntimeProof: true,
     },
   });
-  const adminTruthSampleCleared = evidenceArtifactPassed(adminTruth)
-    || adminSourceActivitySampleIsCurrent(adminTruth, adminTruthEvidence, adminTruthQuality.freshness);
-  const uiSurfaceCoverageStatus = String(evidenceArtifactStatus(uiSurfaceCoverage, "source_surface_checks_current"));
-  const uiSurfaceCoverageCleared = evidenceArtifactPassed(uiSurfaceCoverage)
-    || /source_surface_checks_current|source_surface_checked|not_required/iu.test(uiSurfaceCoverageStatus);
+  const adminTruthSampleCleared = adminTruthQuality.quality === "formal_passed"
+    && !adminTruthQuality.blocksLaunch
+    && artifactMatchesCurrentHead(adminTruth, input.currentHead)
+    && adminSourceActivitySampleIsCurrent(adminTruth, adminTruthEvidence, adminTruthQuality.freshness);
+  const uiSurfaceCoverageStatus = String(evidenceArtifactStatus(uiSurfaceCoverage, "source_surface_checks_missing"));
+  const uiSurfaceCoverageQuality = resolveEvidenceQuality({
+    artifact: uiSurfaceCoverage,
+    context: { currentHead: input.currentHead, lane: "ui_source_coverage", requiredForExit: true },
+  });
+  const uiSurfaceCoverageCleared = uiSurfaceCoverage?.passed === true
+    && /^(?:source_surface_checks_current|source_surface_checked|not_required)$/iu.test(uiSurfaceCoverageStatus)
+    && uiSurfaceCoverageQuality.freshness === "fresh"
+    && artifactMatchesCurrentHead(uiSurfaceCoverage, input.currentHead);
+  const providerSmokeCleared = providerQuality.quality === "formal_passed"
+    && providerQuality.freshness === "fresh"
+    && !providerQuality.blocksLaunch;
+  const runtimeSmokeCleared = runtimeQuality.quality === "formal_passed"
+    && runtimeQuality.freshness === "fresh"
+    && !runtimeQuality.blocksLaunch;
   return {
     status: input.launchGateStatus,
     blockers: input.launchBlockers,
     formalGates: {
       providerSmoke: {
-        cleared: evidenceArtifactPassed(providerSmoke),
+        cleared: providerSmokeCleared,
         status: String(evidenceArtifactStatus(providerSmoke)),
         source: providerSmoke?.path ?? "agent/state/provider-smoke-evidence.generated.json",
       },
       deployedRuntimeSmoke: {
-        cleared: evidenceArtifactPassed(runtimeSmoke),
+        cleared: runtimeSmokeCleared,
         status: String(evidenceArtifactStatus(runtimeSmoke, "runtime_unverified")),
         source: runtimeSmoke?.path ?? "agent/state/runtime-smoke-evidence.generated.json",
       },
@@ -1931,6 +2152,8 @@ export function buildPublicBetaScoreReport(
   options: PublicBetaScoreOptions,
 ): PublicBetaScoreReport {
   const recentFiles = options.recentFiles ?? [];
+  const currentHead = options.currentHead
+    ?? options.evidence?.requiredReports?.find((report) => report.currentHead)?.currentHead;
   const findings = dedupePublicBetaFindings(rawFindings.map((finding) => buildPublicBetaFinding(finding, recentFiles)));
   const domainScores = {} as PublicBetaScoreReport["domainScores"];
   let weightedScoreTotal = 0;
@@ -1963,6 +2186,7 @@ export function buildPublicBetaScoreReport(
     scannerScore,
     scannerStatus,
     hasCritical: criticalAutoFail,
+    currentHead,
     evidence: options.evidence,
   });
   const uiSurfaceCoverageEvidence = options.evidence?.uiSurfaceCoverageEvidence;
@@ -1981,28 +2205,27 @@ export function buildPublicBetaScoreReport(
     highBlastRefreshInFlightLaneCount: options.evidence?.regressionRiskRefreshEvidence?.inFlightLaneCount,
   });
   const sourceGates = evidenceReadiness.evidenceGates.filter((gate) =>
-    gate.id === "sourceSafety" || gate.id === "targetedBehaviorTests" || gate.id === "freshnessIntegrity");
+    gate.id === "sourceSafety" || gate.id === "targetedBehaviorTests");
   const runtimeRequiredGates = evidenceReadiness.evidenceGates.filter((gate) =>
     gate.id === "runtimeProviderSmoke"
-    || gate.id === "adminTruthSamples"
-    || gate.id === "debugRuntimeEvidence"
-    || gate.id === "algorithmicEvidenceCoverage"
-    || gate.id === "formalEvidenceBridge");
+    || gate.id === "adminTruthSamples");
   const requiredExitGates = evidenceReadiness.evidenceGates.filter((gate) => gate.gateRequiredForExit);
-  const nonUiRequiredExitGates = [
-    ...requiredExitGates,
-    ...evidenceReadiness.evidenceGates.filter((gate) => gate.id === "formalEvidenceBridge"),
-  ];
-  const operatorFinalChecks = buildOperatorFinalChecks(uiSurfaceCoverageEvidence);
+  const freshnessGates = evidenceReadiness.evidenceGates.filter((gate) => gate.maxScore > 0 || gate.gateRequiredForExit);
+  const freshnessWeights = freshnessGates.map((gate) => gate.maxScore > 0 ? gate.maxScore : 1);
+  const freshnessWeightedTotal = freshnessGates.reduce((sum, gate, index) => {
+    const freshnessCredit = gate.freshness === "fresh" ? 100 : gate.freshness === "stale" ? 35 : gate.freshness === "head_mismatch" ? 40 : 0;
+    return sum + (freshnessCredit * (freshnessWeights[index] ?? 1));
+  }, 0);
+  const operatorFinalChecks = buildOperatorFinalChecks(uiSurfaceCoverageEvidence, currentHead);
   const sourceHealthScore = roundScore(clamp((scannerScore * 0.7) + (average(sourceGates.map((gate) => gate.sourceCredit)) * 0.3), 0, 100));
   const runtimeHealthScore = average(runtimeRequiredGates.map((gate) => gate.runtimeCredit));
-  const evidenceCompletenessScore = average(nonUiRequiredExitGates.map((gate) => gate.evidenceCredit));
-  const freshnessScore = average(evidenceReadiness.evidenceGates.map((gate) => gate.freshness === "fresh" ? 100 : gate.freshness === "stale" ? 35 : gate.freshness === "head_mismatch" ? 40 : 0));
+  const evidenceCompletenessScore = average(requiredExitGates.map((gate) => gate.evidenceCredit));
+  const freshnessScore = roundScore(freshnessWeightedTotal / Math.max(1, freshnessWeights.reduce((sum, weight) => sum + weight, 0)));
   const costRiskScore = costScore.score;
   const regressionRiskScore = regressionScore.score;
   const launchBlockers = Array.from(new Set([
     ...evidenceReadiness.evidenceGates
-      .filter((gate) => gate.blocksLaunch && gate.gateRequiredForExit)
+      .filter((gate) => gate.blocksLaunch)
       .map((gate) => `${gate.label}: ${gate.status}`),
     ...(criticalAutoFail ? ["critical scanner finding blocks launch"] : []),
     ...(costScore.blocksLaunch ? costScore.reasons : []),
@@ -2012,6 +2235,7 @@ export function buildPublicBetaScoreReport(
     readinessStatus: evidenceReadiness.readinessStatus,
     launchBlockers,
     costOwnerReview: costScore.ownerReviewRequired,
+    costBlocksLaunch: costScore.blocksLaunch,
     runtimeHealthScore,
     evidenceCompletenessScore,
   });
@@ -2035,7 +2259,7 @@ export function buildPublicBetaScoreReport(
       reasons: [
         "Deterministic UI surface coverage is source-owned and runs before any visual review.",
         "Quiet future activity does not reduce evidence completeness.",
-        ...nonUiRequiredExitGates.map((gate) => `${gate.label} evidenceCredit=${gate.evidenceCredit}`),
+        ...requiredExitGates.map((gate) => `${gate.label} evidenceCredit=${gate.evidenceCredit}`),
       ],
     },
     freshness: {
@@ -2074,7 +2298,7 @@ export function buildPublicBetaScoreReport(
       overallHealthScore: healthScore,
     },
   });
-  const summaryStatus = readinessStatusToLegacyStatus(evidenceReadiness.readinessStatus, overallScore, criticalAutoFail);
+  const summaryStatus = resolvePublicBetaStatus(overallScore, criticalAutoFail);
   const scoreDeltaDrivers = [
     `sourceHealthScore=${sourceHealthScore}`,
     `runtimeHealthScore=${runtimeHealthScore}`,
@@ -2094,18 +2318,20 @@ export function buildPublicBetaScoreReport(
     ))
     ? "Source activity evidence required"
     : evidenceReadiness.readinessStatus;
-  const studioDashboard = buildStudioDashboard({
+  const operatorDecision = buildOperatorDecision({
     sourceHealthScore,
-    runtimeHealthScore,
-    evidenceCompletenessScore,
-    freshnessScore,
-    costRiskScore,
-    regressionRiskScore,
+    overallScore,
+    hasCritical: criticalAutoFail,
+    findings,
     evidenceGates: evidenceReadiness.evidenceGates,
+    costReadiness,
+    launchGateStatus,
+    launchBlockers,
   });
   const launchClearance = buildLaunchClearance({
     launchGateStatus,
     launchBlockers,
+    currentHead,
     evidence: options.evidence,
   });
   const nuancedScoreExplanation = [
@@ -2130,7 +2356,7 @@ export function buildPublicBetaScoreReport(
 
   return {
     generatedAt: options.generatedAt ?? new Date().toISOString(),
-    currentHead: options.currentHead,
+    currentHead,
     scoreVersion: "beta_health_v2",
     scannerScore,
     scannerStatus,
@@ -2148,7 +2374,7 @@ export function buildPublicBetaScoreReport(
     launchBlockers,
     healthScore,
     healthScoreBreakdown,
-    studioDashboard,
+    operatorDecision,
     launchClearance,
     scoreDimensionExplanations,
     scoreDeltaDrivers,
@@ -2161,6 +2387,8 @@ export function buildPublicBetaScoreReport(
     evidenceGates: evidenceReadiness.evidenceGates,
     evidenceCapsApplied: evidenceReadiness.evidenceCapsApplied,
     evidenceCapDetails: evidenceReadiness.evidenceCapDetails,
+    evidenceAdvisories: evidenceReadiness.evidenceAdvisories,
+    evidenceAdvisoryDetails: evidenceReadiness.evidenceAdvisoryDetails,
     evidenceWeights: PUBLIC_BETA_EVIDENCE_WEIGHTS,
     scoreExplanation,
     operatorFinalChecks,
@@ -2173,6 +2401,6 @@ export function buildPublicBetaScoreReport(
     recommendedNextActions: options.recommendedNextActions ?? [],
     minimalVerificationCommands: options.minimalVerificationCommands ?? [],
     commandBudget: options.commandBudget,
-    summary: `Public beta readiness score ${overallScore}/100 (${readinessDisplayStatus}; scanner ${scannerScore}/100 ${scannerStatus}) with ${findings.length} deduped finding(s), ${safeAutofixesAvailable} safe autofix(es), and ${evidenceReadiness.evidenceCapsApplied.length} evidence cap(s) applied.`,
+    summary: `Source readiness ${sourceHealthScore}/100 (${operatorDecision.sourceReadiness.status}); launch gate ${launchGateStatus} with ${launchBlockers.length} blocker(s). Composite confidence ${overallScore}/100 is diagnostic-only; ${evidenceReadiness.evidenceCapsApplied.length} release cap(s) and ${evidenceReadiness.evidenceAdvisories.length} advisory item(s) remain (${readinessDisplayStatus}).`,
   };
 }

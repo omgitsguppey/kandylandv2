@@ -174,9 +174,29 @@ describe("final beta exit gate readiness", () => {
         "open PRs unclassified.",
         "stale required reports unclassified.",
         "betaExitReady true while formal blockers remain.",
+        "betaExitReady true unless launch gate status is launch_ready.",
         "dirty files unclassified.",
       ]),
     );
+  });
+
+  it("recognizes launch_ready as the only launch status compatible with betaExitReady", () => {
+    const input = baseInput();
+    input.publicBetaScore.launchGateStatus = "launch_ready";
+    input.publicBetaScore.launchBlockers = [];
+    input.publicBetaScore.staleArtifacts = [];
+    input.launchBlockerClosure.remainingLaunchBlockers = [];
+    input.costRiskExitPass.externalBillingRemaining = [];
+    input.costRiskExitPass.nextExactSteps = [];
+    input.openPrs = [];
+
+    const report = buildFinalBetaExitGateReadinessReport(input);
+    expect(report.betaExitReady).toBe(true);
+    expect(report.formalEvidenceRemaining).toEqual([]);
+    expect(validateFinalBetaExitGateReadinessReport(report)).toEqual([]);
+
+    report.launchGateStatus = "owner_review";
+    expect(validateFinalBetaExitGateReadinessReport(report)).toContain("betaExitReady true unless launch gate status is launch_ready.");
   });
 
   it("classifies scoped final gate files and rejects product runtime edits", () => {

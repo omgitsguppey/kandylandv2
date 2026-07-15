@@ -161,6 +161,32 @@ function validateFinding(finding: PublicBetaFinding, index: number) {
   requireNumber(finding.autofixConfidence, `findings[${index}].autofixConfidence`, 0, 1);
 }
 
+function validateOperatorAction(
+  action: unknown,
+  label: string,
+  expectedLane?: "source_fix" | "source_verification" | "evidence_refresh" | "external_proof" | "owner_review",
+) {
+  if (!action || typeof action !== "object" || Array.isArray(action)) {
+    failures.push(`${label} must be a typed operator action.`);
+    return;
+  }
+  const record = action as Record<string, unknown>;
+  for (const key of ["id", "lane", "title", "action", "source"] as const) {
+    if (typeof record[key] !== "string" || record[key].trim().length === 0) {
+      failures.push(`${label}.${key} must be a non-empty string.`);
+    }
+  }
+  if (!["source_fix", "source_verification", "evidence_refresh", "external_proof", "owner_review"].includes(String(record.lane))) {
+    failures.push(`${label}.lane must be a typed operator action lane.`);
+  }
+  if (expectedLane && record.lane !== expectedLane) {
+    failures.push(`${label}.lane must be ${expectedLane}.`);
+  }
+  if (typeof record.blocksLaunch !== "boolean") {
+    failures.push(`${label}.blocksLaunch must be boolean.`);
+  }
+}
+
 const report = readReport();
 if (report) {
   const headSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
@@ -207,21 +233,88 @@ if (report) {
   if (Object.keys(report.healthScoreBreakdown ?? {}).sort().join(",") !== healthDimensions.sort().join(",")) {
     failures.push("healthScoreBreakdown must keep the existing six beta health dimensions only.");
   }
-  if (!report.studioDashboard || !Array.isArray(report.studioDashboard.sections)) {
-    failures.push("studioDashboard.sections must summarize existing health and gate signals.");
+  const operatorDecision = report.operatorDecision;
+  if (!operatorDecision || typeof operatorDecision !== "object") {
+    failures.push("operatorDecision must be present.");
   } else {
-    const sectionLabels = report.studioDashboard.sections.map((section) => section.label);
-    for (const expected of ["Audience Activity", "Runtime Confidence", "Source Quality", "Debug Signal", "Admin Hydration", "Evidence Gates"]) {
-      if (!sectionLabels.includes(expected)) failures.push(`studioDashboard must include ${expected}.`);
+    if (operatorDecision.version !== "operator_decision_v1") {
+      failures.push("operatorDecision.version must be operator_decision_v1.");
     }
-    for (const section of report.studioDashboard.sections) {
-      requireNumber(section.score, `studioDashboard.${section.id}.score`, 0, 100);
-      if (typeof section.detail !== "string" || section.detail.trim().length === 0) {
-        failures.push(`studioDashboard.${section.id}.detail must be non-empty.`);
+    requireNumber(operatorDecision.sourceReadiness?.score, "operatorDecision.sourceReadiness.score", 0, 100);
+    if (!["ready", "verification_due", "needs_fix", "blocked"].includes(String(operatorDecision.sourceReadiness?.status))) {
+      failures.push("operatorDecision.sourceReadiness.status must be a typed source-readiness state.");
+    }
+    if (typeof operatorDecision.sourceReadiness?.detail !== "string" || operatorDecision.sourceReadiness.detail.trim().length === 0) {
+      failures.push("operatorDecision.sourceReadiness.detail must be non-empty.");
+    }
+    if (operatorDecision.sourceReadiness?.score !== report.sourceHealthScore) {
+      failures.push("operatorDecision.sourceReadiness.score must match sourceHealthScore.");
+    }
+    if (!operatorDecision.releaseReadiness || typeof operatorDecision.releaseReadiness !== "object") {
+      failures.push("operatorDecision.releaseReadiness must be present.");
+    } else {
+      if (operatorDecision.releaseReadiness.status !== report.launchGateStatus) {
+        failures.push("operatorDecision.releaseReadiness.status must match launchGateStatus.");
       }
-      if (!["healthy", "watching", "needs_attention", "needs_proof"].includes(String(section.status))) {
-        failures.push(`studioDashboard.${section.id}.status must be a Studio display status.`);
+      if (typeof operatorDecision.releaseReadiness.ready !== "boolean") {
+        failures.push("operatorDecision.releaseReadiness.ready must be boolean.");
       }
+      requireNumber(operatorDecision.releaseReadiness.blockerCount, "operatorDecision.releaseReadiness.blockerCount", 0, 10_000);
+      if (operatorDecision.releaseReadiness.blockerCount !== report.launchBlockers.length) {
+        failures.push("operatorDecision.releaseReadiness.blockerCount must match launchBlockers.");
+      }
+      if (typeof operatorDecision.releaseReadiness.detail !== "string" || operatorDecision.releaseReadiness.detail.trim().length === 0) {
+        failures.push("operatorDecision.releaseReadiness.detail must be non-empty.");
+      }
+    }
+    const queueContracts = [
+      ["sourceFixes", "source_fix"],
+      ["sourceVerification", "source_verification"],
+      ["evidenceRefresh", "evidence_refresh"],
+      ["externalProof", "external_proof"],
+      ["ownerReview", "owner_review"],
+    ] as const;
+    const orderedActions: unknown[] = [];
+    if (!operatorDecision.actionQueues || typeof operatorDecision.actionQueues !== "object") {
+      failures.push("operatorDecision.actionQueues must be present.");
+    } else {
+      for (const [queueName, lane] of queueContracts) {
+        const queue = operatorDecision.actionQueues[queueName];
+        if (!Array.isArray(queue)) {
+          failures.push(`operatorDecision.actionQueues.${queueName} must be an array.`);
+          continue;
+        }
+        queue.forEach((action, index) => validateOperatorAction(action, `operatorDecision.actionQueues.${queueName}[${index}]`, lane));
+        orderedActions.push(...queue);
+      }
+      const actionIds = orderedActions
+        .map((action) => action && typeof action === "object" ? (action as { id?: unknown }).id : undefined)
+        .filter((id): id is string => typeof id === "string");
+      if (new Set(actionIds).size !== actionIds.length) {
+        failures.push("operatorDecision action ids must be unique across queues.");
+      }
+    }
+    if (operatorDecision.primaryAction === null) {
+      if (orderedActions.length > 0) failures.push("operatorDecision.primaryAction must select the first queued action.");
+    } else {
+      validateOperatorAction(operatorDecision.primaryAction, "operatorDecision.primaryAction");
+      const primaryId = operatorDecision.primaryAction?.id;
+      const firstQueuedId = orderedActions[0] && typeof orderedActions[0] === "object"
+        ? (orderedActions[0] as { id?: unknown }).id
+        : undefined;
+      if (primaryId !== firstQueuedId) {
+        failures.push("operatorDecision.primaryAction must select the first action in queue priority order.");
+      }
+    }
+    requireNumber(operatorDecision.compositeConfidence?.score, "operatorDecision.compositeConfidence.score", 0, 100);
+    if (operatorDecision.compositeConfidence?.score !== report.overallScore) {
+      failures.push("operatorDecision.compositeConfidence.score must match overallScore.");
+    }
+    if (operatorDecision.compositeConfidence?.useAsWorkTarget !== false) {
+      failures.push("operatorDecision.compositeConfidence.useAsWorkTarget must remain false.");
+    }
+    if (typeof operatorDecision.compositeConfidence?.detail !== "string" || !/diagnostic|do not chase/iu.test(operatorDecision.compositeConfidence.detail)) {
+      failures.push("operatorDecision.compositeConfidence.detail must identify the composite as diagnostic context.");
     }
   }
   if (!report.launchClearance?.formalGates) {
@@ -269,6 +362,23 @@ if (report) {
     failures.push("evidenceGates must be a non-empty array.");
   } else {
     report.evidenceGates.forEach(validateEvidenceGate);
+    for (const [index, gate] of report.evidenceGates.entries()) {
+      if (gate.score > gate.maxScore) {
+        failures.push(`evidenceGates[${index}].score cannot exceed maxScore.`);
+      }
+      if (gate.status === "Ready" && gate.blocksLaunch) {
+        failures.push(`evidenceGates[${index}] cannot be Ready while blocksLaunch is true.`);
+      }
+    }
+    const scoredGates = report.evidenceGates.filter((gate) => gate.maxScore > 0);
+    const availableEvidencePoints = scoredGates.reduce((sum, gate) => sum + gate.score, 0);
+    const possibleEvidencePoints = scoredGates.reduce((sum, gate) => sum + gate.maxScore, 0);
+    const normalizedEvidenceScore = possibleEvidencePoints > 0
+      ? Math.round((availableEvidencePoints / possibleEvidencePoints) * 10_000) / 100
+      : 0;
+    if (Math.abs(report.evidenceScore - normalizedEvidenceScore) > 0.01) {
+      failures.push(`evidenceScore must normalize weighted gate points to 100 (expected ${normalizedEvidenceScore}).`);
+    }
     if (report.evidenceGates.some((gate) => gate.id === RETIRED_UI_SCORE_GATE_ID)) {
       failures.push("UI visual source coverage must not be a Codex score evidence gate.");
     }
@@ -301,6 +411,22 @@ if (report) {
   } else if (report.evidenceCapDetails.length < report.evidenceCapsApplied.length) {
     failures.push("evidenceCapDetails must include at least every active evidence cap.");
   }
+  if (!Array.isArray(report.evidenceAdvisories)) {
+    failures.push("evidenceAdvisories must be an array.");
+  }
+  if (!Array.isArray(report.evidenceAdvisoryDetails)) {
+    failures.push("evidenceAdvisoryDetails must be an array.");
+  } else if (Array.isArray(report.evidenceAdvisories) && report.evidenceAdvisoryDetails.length < report.evidenceAdvisories.length) {
+    failures.push("evidenceAdvisoryDetails must include at least every advisory.");
+  }
+  if (Array.isArray(report.evidenceAdvisories) && Array.isArray(report.evidenceGates)) {
+    const expectedAdvisoryCount = report.evidenceGates.filter((gate) => (
+      gate.status !== "Ready" && !gate.gateRequiredForExit && !gate.blocksLaunch
+    )).length;
+    if (report.evidenceAdvisories.length !== expectedAdvisoryCount) {
+      failures.push("evidenceAdvisories must describe non-blocking open gates only.");
+    }
+  }
   if (!report.evidenceWeights || typeof report.evidenceWeights !== "object") {
     failures.push("evidenceWeights must be present.");
   }
@@ -310,6 +436,8 @@ if (report) {
     requireIncludes(report.scoreExplanation.scannerScoreMeaning ?? "", "scanner-only", "scoreExplanation.scannerScoreMeaning");
     requireIncludes(report.scoreExplanation.sourcePassConfidence ?? "", "does not clear", "scoreExplanation.sourcePassConfidence");
     requireIncludes(report.scoreExplanation.evidenceScoreMeaning ?? "", "partial-credit", "scoreExplanation.evidenceScoreMeaning");
+    requireIncludes(report.scoreExplanation.overallScoreMeaning ?? "", "diagnostic", "scoreExplanation.overallScoreMeaning");
+    requireIncludes(report.scoreExplanation.overallScoreMeaning ?? "", "not a work target", "scoreExplanation.overallScoreMeaning");
     if (/missing lanes score zero/iu.test(report.scoreExplanation.evidenceScoreMeaning ?? "")) {
       failures.push("scoreExplanation.evidenceScoreMeaning must not claim missing lanes simply score zero.");
     }
@@ -351,6 +479,26 @@ if (report) {
     && report.evidenceGates.some((gate) => gate.gateRequiredForExit && gate.blocksLaunch)
   ) {
     failures.push("Required evidence gates that block launch cannot produce launch_ready.");
+  }
+  if (report.launchGateStatus === "launch_ready" && report.operatorDecision) {
+    if (report.operatorDecision.sourceReadiness?.status !== "ready") {
+      failures.push("launch_ready requires operatorDecision source readiness to be ready.");
+    }
+    if (report.operatorDecision.releaseReadiness?.ready !== true) {
+      failures.push("launch_ready requires operatorDecision release readiness to be ready.");
+    }
+    if (Array.isArray(report.operatorDecision.actionQueues?.ownerReview) && report.operatorDecision.actionQueues.ownerReview.length > 0) {
+      failures.push("launch_ready cannot retain owner-review actions.");
+    }
+  }
+  if (report.operatorDecision?.releaseReadiness?.ready === true && (
+    report.launchGateStatus !== "launch_ready"
+    || report.launchBlockers.length > 0
+    || report.operatorDecision.sourceReadiness?.status !== "ready"
+    || !Array.isArray(report.operatorDecision.actionQueues?.ownerReview)
+    || report.operatorDecision.actionQueues.ownerReview.length > 0
+  )) {
+    failures.push("operatorDecision release readiness can be ready only when source and launch gates are fully clear.");
   }
   if (!report.domainScores || typeof report.domainScores !== "object") {
     failures.push("domainScores must be present.");
@@ -530,7 +678,10 @@ requireIncludes(core, "sourceHealthScore", "Public beta score core");
 requireIncludes(core, "runtimeHealthScore", "Public beta score core");
 requireIncludes(core, "evidenceCompletenessScore", "Public beta score core");
 requireIncludes(core, "launchGateStatus", "Public beta score core");
-requireIncludes(core, "studioDashboard", "Public beta score core");
+requireIncludes(core, "operatorDecision", "Public beta score core");
+requireIncludes(core, "operator_decision_v1", "Public beta score core");
+requireIncludes(core, "evidenceAdvisories", "Public beta score core");
+requireIncludes(core, "overallScoreMeaning", "Public beta score core");
 requireIncludes(core, "launchClearance", "Public beta score core");
 requireIncludes(core, "scoreCostReadiness", "Public beta score core");
 requireIncludes(core, "scoreRegressionRisk", "Public beta score core");

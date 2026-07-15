@@ -22,7 +22,22 @@ export function buildPublicBetaCommandBudget(): PublicBetaScoreReport["commandBu
 export function buildRecommendedNextActions(
   findings: PublicBetaFinding[],
   evidenceGates: PublicBetaScoreReport["evidenceGates"] = [],
+  operatorDecision?: PublicBetaScoreReport["operatorDecision"],
 ) {
+  if (operatorDecision) {
+    const queuedActions = [
+      ...operatorDecision.actionQueues.sourceFixes,
+      ...operatorDecision.actionQueues.sourceVerification,
+      ...operatorDecision.actionQueues.evidenceRefresh,
+      ...operatorDecision.actionQueues.externalProof,
+      ...operatorDecision.actionQueues.ownerReview,
+    ].map((item) => `${item.lane}: ${item.action}`);
+    if (queuedActions.length > 0) {
+      return Array.from(new Set(queuedActions));
+    }
+    return ["No current source, refresh, external-proof, or owner-review action is reported by the canonical score owner."];
+  }
+
   const evidenceActions = evidenceGates
     .filter((gate) => gate.status !== "Ready")
     .map((gate) => normalizeTechnicalFreshnessTerms(`${displayEvidenceGateStatus(gate)}: ${gate.recommendedAction}`));
@@ -96,8 +111,17 @@ export function readPublicBetaScoreReport(root = process.cwd()) {
 }
 
 export function printPublicBetaScoreSummary(report: PublicBetaScoreReport) {
-  console.log(`Public beta score: ${report.overallScore}/100 (${displayPublicBetaReadinessStatus(report)}; legacy ${report.overallStatus})`);
-  console.log(`Health v2: ${report.healthScore}/100 (${report.launchGateStatus}) source=${report.sourceHealthScore} runtime=${report.runtimeHealthScore} evidence=${report.evidenceCompletenessScore} freshness=${report.freshnessScore} cost=${report.costRiskScore} regression=${report.regressionRiskScore}`);
+  const decision = report.operatorDecision;
+  console.log(`Source readiness: ${decision.sourceReadiness.score}/100 (${decision.sourceReadiness.status}) - ${decision.sourceReadiness.detail}`);
+  console.log(`Release decision: ${decision.releaseReadiness.status}; ready=${decision.releaseReadiness.ready}; blockers=${decision.releaseReadiness.blockerCount}`);
+  if (decision.primaryAction) {
+    console.log(`Next useful action [${decision.primaryAction.lane}]: ${decision.primaryAction.action}`);
+  } else {
+    console.log("Next useful action: none reported.");
+  }
+  console.log(`Action queues: source fixes=${decision.actionQueues.sourceFixes.length}, source verification=${decision.actionQueues.sourceVerification.length}, evidence refresh=${decision.actionQueues.evidenceRefresh.length}, external proof=${decision.actionQueues.externalProof.length}, owner review=${decision.actionQueues.ownerReview.length}`);
+  console.log(`Composite confidence (diagnostic only): ${report.overallScore}/100 (${displayPublicBetaReadinessStatus(report)}; legacy ${report.overallStatus})`);
+  console.log(`Health v2 diagnostics: ${report.healthScore}/100 source=${report.sourceHealthScore} runtime=${report.runtimeHealthScore} evidence=${report.evidenceCompletenessScore} freshness=${report.freshnessScore} cost-readiness=${report.costRiskScore} regression-readiness=${report.regressionRiskScore}`);
   console.log(`Scanner score: ${report.scannerScore}/100 (${report.scannerStatus})`);
   console.log(`Evidence score: ${report.evidenceScore}/100`);
   console.log(`Deduped findings: ${report.dedupedFindingCount}`);

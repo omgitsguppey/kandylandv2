@@ -133,6 +133,10 @@ export function evidenceArtifactHasFormalPass(artifact: PublicBetaEvidenceArtifa
     && !/source_ready|operator_confirmed|runtime_unverified|missing|unknown|not_formal/u.test(`${status}\n${text}`);
 }
 
+function evidenceStatusDeclaresFormalPass(status: string) {
+  return /^(?:pass|passed|usable|formal_complete|formal_passed|formal_[a-z0-9_]*_passed|[a-z0-9_]+_formal_evidence_passed)$/u.test(status);
+}
+
 export function evidenceArtifactHasSourceConfidence(artifact: PublicBetaEvidenceArtifact | undefined) {
   const status = evidenceArtifactStatusText(artifact, "missing_or_unknown").toLowerCase();
   const text = evidenceArtifactText(artifact).toLowerCase();
@@ -150,10 +154,11 @@ export function evidenceArtifactIsPassing(
   const text = evidenceArtifactText(artifact).toLowerCase();
   const freshness = resolveFreshness(artifact, {
     lane: "formal_evidence_artifact",
-    requiredForExit: true,
+    requiredForExit: false,
   });
   return artifact.passed === true
     && freshness.freshness === "fresh"
+    && evidenceStatusDeclaresFormalPass(status)
     && !NON_PASSING_EVIDENCE_STATUSES.has(status)
     && !/source[_-]ready|runtime[_-]proof[_-]required|operator[_-]reported|not[_-]formal|runtime[_-]unverified|missing|unknown|failed|stale|unavailable|needs[_-]review|tracked[_-]not[_-]passing/iu.test(`${status}\n${text}`);
 }
@@ -172,6 +177,12 @@ function resolveFreshness(
 ): { freshness: PublicBetaEvidenceFreshnessState; freshnessScore: number; reason: string } {
   if (!artifact) {
     return { freshness: "missing", freshnessScore: 0, reason: "Evidence artifact is missing." };
+  }
+  if (context.requiredForExit && !context.currentHead) {
+    return { freshness: "unknown", freshnessScore: 0, reason: "The current code version is unavailable, so required evidence cannot be treated as current." };
+  }
+  if (context.requiredForExit && !artifact.sourceCommit) {
+    return { freshness: "unknown", freshnessScore: 0, reason: "Required evidence sourceCommit is missing." };
   }
   if (artifact.sourceCommit && context.currentHead && artifact.sourceCommit !== context.currentHead) {
     if (artifact.versionStatus === "same_commit_snapshot" || artifact.versionStatus === "current_by_impact") {
@@ -266,6 +277,17 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
     || status.includes("source-complete")
     || status.includes("source_complete")
   ) {
+    if (artifact.passed !== true) {
+      return {
+        quality: "failed",
+        confidence: 0,
+        freshness: freshness.freshness,
+        freshnessScore: freshness.freshnessScore,
+        partialCredit: 0,
+        blocksLaunch: context.requiredForExit === true,
+        reason: "Evidence declares source readiness but its pass flag is not true.",
+      };
+    }
     const requiresRuntime = context.requiresRuntimeProof === true || status.includes("runtime_proof");
     const sourceCredit = sourceReadyCreditForEvidence(`${status}\n${text}`);
     return {
@@ -336,7 +358,12 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
     };
   }
 
-  if (artifact.passed === true && !status.includes("missing") && !status.includes("unverified")) {
+  if (
+    artifact.passed === true
+    && evidenceStatusDeclaresFormalPass(status)
+    && !status.includes("missing")
+    && !status.includes("unverified")
+  ) {
     const credit = freshness.freshness === "fresh"
       ? PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.formalPassed
       : Math.max(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.staleDecayMin, freshness.freshnessScore);
@@ -430,12 +457,7 @@ export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): Publi
     if ((input.highBlastRefreshFailedLaneCount ?? 0) > 0) {
       reasons.push("Some high-blast validators failed and remain regression risk.");
     }
-    const riskPenalty = round(clamp((100 - refreshScore) + failedLanePenalty + inFlightLanePenalty, 0, 100));
-    return {
-      score: round(clamp(100 - riskPenalty, 0, 100)),
-      riskPenalty,
-      reasons: reasons.map(normalizeTechnicalFreshnessTerms),
-    };
+    penalty += clamp((100 - refreshScore) + failedLanePenalty + inFlightLanePenalty, 0, 100);
   }
 
   for (const report of input.requiredReports ?? []) {
@@ -451,6 +473,17 @@ export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): Publi
     if (report.freshness === "missing") {
       penalty += 20;
       reasons.push(`${report.path} is missing.`);
+    }
+    if (report.freshness === "unknown") {
+      penalty += 12;
+      reasons.push(`${report.path} has unknown freshness.`);
+    }
+    if (report.versionStatus === "missing_version") {
+      penalty += 20;
+      reasons.push(`${report.path} has no verifiable source version.`);
+    } else if (report.versionStatus === "stale_source_version" && !(report.sourceCommit && report.currentHead && report.sourceCommit !== report.currentHead)) {
+      penalty += 20;
+      reasons.push(`${report.path} was generated from an outdated source version.`);
     }
   }
   if (input.runtimeCodeChangedSinceReport) {

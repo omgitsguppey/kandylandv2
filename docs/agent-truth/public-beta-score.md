@@ -33,6 +33,18 @@ Scanner cleanliness is not readiness by itself. The score now also records evide
 
 The report keeps the scanner score separately from the evidence-aware readiness score. Zero scanner findings plus missing evidence must not produce `clean`, `Ready`, or 100/100.
 
+The report's canonical operator projection is `operatorDecision` version `operator_decision_v1`. It deliberately replaces the old generic dashboard projection with five typed queues, in execution order:
+
+1. `sourceFixes`
+2. `sourceVerification`
+3. `evidenceRefresh`
+4. `externalProof`
+5. `ownerReview`
+
+`primaryAction` is the first action in that priority order. `sourceReadiness` answers whether local source is ready; `releaseReadiness` answers whether the modeled launch gates are clear. A release can be `launch_ready` only when source readiness is `ready`, there are no launch blockers, no owner-review actions remain, and `releaseReadiness.ready` is true. Optional open lanes are recorded under `evidenceAdvisories`; only required or explicitly launch-blocking lanes belong in evidence caps.
+
+`overallScore`, `healthScore`, and the six-dimension breakdown remain backward-compatible diagnostic confidence signals. They are not work targets and they never override typed source/release decisions. `evidenceScore` is normalized from earned points across positive-weight evidence gates to 0-100; zero-weight derived lanes cannot pad it. Operators should complete the typed queues rather than chase a composite number.
+
 Honest readiness statuses:
 
 - `Ready`
