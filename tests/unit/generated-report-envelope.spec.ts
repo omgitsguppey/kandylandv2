@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -115,5 +117,20 @@ describe("generated child report evidence", () => {
     expect(report.sourceCommit).toBe(TEST_HEAD);
     expect(validateGeneratedReportEnvelope(report)).toEqual([]);
     expect(validateGeneratedReportEnvelope({ ...report, sourceCommit: "b".repeat(40) })).toContain("sourceCommit must match currentHead");
+  });
+});
+
+describe("generated report authority policy", () => {
+  it("keeps the actively produced notification return-loop report out of archive-only evidence", () => {
+    const source = readFileSync("scripts/agent/validate-generated-report-authority.ts", "utf8");
+    const start = source.indexOf('reportKey: "notification-return-loop-audit"');
+    const end = source.indexOf("\n  },", start);
+    const policy = source.slice(start, end);
+
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(policy).toContain('proofScope: "source_contract_only"');
+    expect(policy).toContain('classification: "real_pass"');
+    expect(policy).toContain('actionableStatus: "nonblocking_pass"');
+    expect(policy).not.toContain("archive_candidate");
   });
 });

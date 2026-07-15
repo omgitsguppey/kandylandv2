@@ -162,10 +162,10 @@ const TARGET_REPORT_SPECS: Array<{
   {
     reportKey: "notification-return-loop-audit",
     producerPath: "scripts/agent/validate-notification-return-loop.ts",
-    proofScope: "archive_evidence_only",
-    classification: "archive_candidate",
-    actionableStatus: "archive_only",
-    recommendation: "Archive or replace with a regenerated report producer; current validator reads this audit but does not produce a fresh current-head artifact.",
+    proofScope: "source_contract_only",
+    classification: "real_pass",
+    actionableStatus: "nonblocking_pass",
+    recommendation: "Keep as current notification return-loop source-contract evidence; it does not prove deployed notification delivery, provider availability, or runtime return behavior.",
   },
   {
     reportKey: "release-rollback-incident-readiness",
