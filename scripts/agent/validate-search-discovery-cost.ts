@@ -130,7 +130,10 @@ type SearchDiscoveryCostGeneratedReport = {
   reportKey: "search-discovery-cost";
   generatedAtUtc: string;
   currentHead?: string;
+  sourceCommit: string;
   status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
   productionReadsPerformed: false;
   providerCallsPerformed: false;
   events: string[];
@@ -165,6 +168,9 @@ const dirty = dirtyFiles().map((filePath) => ({
   classification: classifyDirtyFile(filePath),
 }));
 const validationFailures: string[] = [];
+if (!currentHead || !/^[0-9a-f]{40}$/iu.test(currentHead)) {
+  validationFailures.push("current git head is missing or is not a full commit SHA.");
+}
 
 for (const eventName of SEARCH_DISCOVERY_EVENTS) {
   if (!telemetryCatalogEvents.has(eventName)) validationFailures.push(`${eventName} is missing from telemetry catalog.`);
@@ -267,7 +273,10 @@ const report: SearchDiscoveryCostGeneratedReport = {
   reportKey: "search-discovery-cost",
   generatedAtUtc,
   currentHead,
+  sourceCommit: currentHead ?? "unknown",
   status: validationFailures.length ? "fail" : "pass",
+  passed: validationFailures.length === 0,
+  canClearSourceGate: validationFailures.length === 0,
   productionReadsPerformed: false,
   providerCallsPerformed: false,
   events: [...SEARCH_DISCOVERY_EVENTS],

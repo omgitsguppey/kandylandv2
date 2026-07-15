@@ -7,6 +7,7 @@ import {
   summarizeActionableActivitySignals,
   type ActionableActivitySignalSummary,
 } from "@/lib/debug/actionable-signal-filter";
+import { validateGeneratedChildReportEvidence } from "./generated-report-envelope";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/final-testing-tracking-telemetry-lock.generated.json";
@@ -49,6 +50,10 @@ export type FinalTestingTrackingTelemetryLockReport = {
   reportKey: "final-testing-tracking-telemetry-lock";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
   scoreBefore: Record<FinalLockDimension, number>;
   scoreAfter: Record<FinalLockDimension, number>;
   metrics: Record<FinalLockDimension, FinalLockMetric>;
@@ -102,6 +107,7 @@ type BuildOptions = {
   generatedAtUtc?: string;
   currentHead?: string;
   changedFiles?: string[];
+  nowMs?: number;
 };
 
 const ARTIFACT_PATHS: Record<keyof FinalLockArtifacts, string> = {
@@ -263,6 +269,24 @@ function statusOf(artifact: JsonRecord | undefined) {
   return stringValue(artifact?.status ?? artifact?.overallStatus ?? artifact?.launchGateStatus, artifact ? "present" : "missing");
 }
 
+function trustedChildReport(
+  artifact: JsonRecord | undefined,
+  expectedReportKey: string,
+  currentHead: string,
+  nowMs: number,
+  failures: string[],
+) {
+  const childFailures = validateGeneratedChildReportEvidence({
+    report: artifact,
+    expectedReportKey,
+    currentHead,
+    nowMs,
+    requireSourceGate: true,
+  });
+  failures.push(...childFailures);
+  return childFailures.length === 0 ? artifact : undefined;
+}
+
 function buildMetrics(artifacts: FinalLockArtifacts) {
   const scoreBefore = {} as Record<FinalLockDimension, number>;
   const scoreAfter = {} as Record<FinalLockDimension, number>;
@@ -353,22 +377,72 @@ export function buildFinalTestingTrackingTelemetryLockReport(options: BuildOptio
       nextAction: metrics[dimension].nextExactAction,
     }));
   const staleLogicRefs = staleReferences();
+  const reportHead = options.currentHead ?? (git(["rev-parse", "HEAD"]) || "unknown");
+  const generatedAtUtc = options.generatedAtUtc ?? new Date().toISOString();
+  const nowMs = options.nowMs ?? Date.now();
+  const childEvidenceFailures: string[] = [];
+  const eventTranslation = trustedChildReport(
+    artifacts.eventTranslation,
+    "event-translation-bridge",
+    reportHead,
+    nowMs,
+    childEvidenceFailures,
+  );
+  const personMetricsHydration = trustedChildReport(
+    artifacts.personMetricsHydration,
+    "person-metrics-hydration",
+    reportHead,
+    nowMs,
+    childEvidenceFailures,
+  );
+  const telemetryTriggerTestMatrix = trustedChildReport(
+    artifacts.telemetryTriggerTestMatrix,
+    "telemetry-trigger-test-matrix",
+    reportHead,
+    nowMs,
+    childEvidenceFailures,
+  );
+  const userManagementRefactor = trustedChildReport(
+    artifacts.userManagementRefactor,
+    "user-management-refactor",
+    reportHead,
+    nowMs,
+    childEvidenceFailures,
+  );
+  const debugTrackingSimplification = trustedChildReport(
+    artifacts.debugTrackingSimplification,
+    "debug-tracking-simplification",
+    reportHead,
+    nowMs,
+    childEvidenceFailures,
+  );
+  const monolithOrphanMetricRegistry = trustedChildReport(
+    artifacts.monolithOrphanMetricRegistry,
+    "monolith-orphan-metric-registry",
+    reportHead,
+    nowMs,
+    childEvidenceFailures,
+  );
   const report: FinalTestingTrackingTelemetryLockReport = {
     reportKey: "final-testing-tracking-telemetry-lock",
-    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
-    currentHead: options.currentHead ?? (git(["rev-parse", "HEAD"]) || "unknown"),
+    generatedAtUtc,
+    currentHead: reportHead,
+    sourceCommit: reportHead,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
     scoreBefore,
     scoreAfter,
     metrics,
-    eventTranslationStatus: statusOf(artifacts.eventTranslation),
-    personMetricsHydrationStatus: statusOf(artifacts.personMetricsHydration),
-    triggerTestCoverageStatus: statusOf(artifacts.telemetryTriggerTestMatrix),
-    userManagementStatus: statusOf(artifacts.userManagementRefactor),
-    debugSimplificationStatus: statusOf(artifacts.debugTrackingSimplification),
-    waitingOnActivityLanes: buildWaitingSummary(artifacts.eventTranslation),
-    activitySignalSummary: buildActivitySignalSummary(artifacts.eventTranslation),
-    orphanMetricCount: orphanMetricCount(artifacts.monolithOrphanMetricRegistry),
-    duplicateValidatorCount: duplicateValidatorCount(artifacts.telemetryTriggerTestMatrix),
+    eventTranslationStatus: statusOf(eventTranslation),
+    personMetricsHydrationStatus: statusOf(personMetricsHydration),
+    triggerTestCoverageStatus: statusOf(telemetryTriggerTestMatrix),
+    userManagementStatus: statusOf(userManagementRefactor),
+    debugSimplificationStatus: statusOf(debugTrackingSimplification),
+    waitingOnActivityLanes: buildWaitingSummary(eventTranslation),
+    activitySignalSummary: buildActivitySignalSummary(eventTranslation),
+    orphanMetricCount: orphanMetricCount(monolithOrphanMetricRegistry),
+    duplicateValidatorCount: duplicateValidatorCount(telemetryTriggerTestMatrix),
     staleLogicRemoved: {
       activeOldLogicCount: 0,
       removed: true,
@@ -378,14 +452,19 @@ export function buildFinalTestingTrackingTelemetryLockReport(options: BuildOptio
     nextExactSteps: remainingGaps.map((gap) => `${gap.dimension}: ${gap.nextAction}`),
     dirtyFiles,
     protectedChanges,
-    validationFailures: [],
+    validationFailures: childEvidenceFailures,
   };
   report.validationFailures = validateFinalTestingTrackingTelemetryLockReport(report);
+  report.passed = report.validationFailures.length === 0;
+  report.status = report.passed ? "pass" : "fail";
+  report.canClearSourceGate = report.passed;
   return report;
 }
 
 export function validateFinalTestingTrackingTelemetryLockReport(report: FinalTestingTrackingTelemetryLockReport) {
-  const failures: string[] = [];
+  const failures: string[] = [...report.validationFailures];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead) || report.sourceCommit !== report.currentHead) failures.push("final lock provenance is invalid.");
+  if (report.passed !== (report.status === "pass") || report.canClearSourceGate !== report.passed) failures.push("final lock verdict fields disagree.");
   for (const dimension of FINAL_LOCK_DIMENSIONS) {
     const metric = report.metrics[dimension];
     if (!metric || metric.target !== 80 || typeof metric.before !== "number" || typeof metric.after !== "number") {

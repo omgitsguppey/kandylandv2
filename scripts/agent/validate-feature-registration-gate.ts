@@ -126,10 +126,14 @@ const protectedChanges = changed.filter((path) =>
 if (protectedChanges.length > 0) {
   failures.push(`protected chat/nav/payment/GumDrop files changed: ${protectedChanges.join(", ")}`);
 }
+if (!/^[0-9a-f]{40}$/iu.test(report.currentHead ?? "")) failures.push("current Git head is missing or is not a full commit SHA.");
 
 const output = {
   ...report,
+  sourceCommit: report.currentHead,
   status: failures.length > 0 ? "fail" as const : "pass" as const,
+  passed: failures.length === 0,
+  canClearSourceGate: failures.length === 0,
   changedFiles: changed,
   protectedChanges,
   validationFailures: failures,

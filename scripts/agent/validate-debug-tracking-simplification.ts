@@ -170,12 +170,16 @@ function main() {
   for (const [key, passed] of Object.entries(checks)) {
     if (!passed) failures.push(key);
   }
+  if (!/^[0-9a-f]{40}$/iu.test(currentHead)) failures.push("current Git head is missing or is not a full commit SHA.");
 
   const report = {
     generatedAtUtc,
     reportKey: "debug-tracking-simplification",
     currentHead,
+    sourceCommit: currentHead,
     status: failures.length > 0 ? "fail" as const : "pass" as const,
+    passed: failures.length === 0,
+    canClearSourceGate: failures.length === 0,
     changedFiles,
     summary: {
       defaultView: summary.defaultView,

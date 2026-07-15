@@ -41,7 +41,10 @@ export type CreatorMonetizationReadinessLockReport = {
   reportKey: "creator-monetization-readiness-lock";
   generatedAtUtc: string;
   currentHead?: string;
+  sourceCommit: string;
   status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
   productionReadsPerformed: false;
   providerCallsPerformed: false;
   fanPassLifecycleStatus: "pass" | "fail";
@@ -248,6 +251,7 @@ export function buildCreatorMonetizationReadinessLockReport(input: {
     ...personMetricFailures,
     ...privacyFailures,
     ...dirtyFailures,
+    ...(/^[0-9a-f]{40}$/iu.test(currentHead) ? [] : ["Current Git head is missing or is not a full commit SHA."]),
     ...(paymentRuntimeChanged ? ["Payment runtime changed during creator monetization readiness lock."] : []),
     ...(gumdropMathChanged ? ["GumDrop math changed during creator monetization readiness lock."] : []),
   ];
@@ -256,7 +260,10 @@ export function buildCreatorMonetizationReadinessLockReport(input: {
     reportKey: "creator-monetization-readiness-lock",
     generatedAtUtc: new Date().toISOString(),
     currentHead,
+    sourceCommit: currentHead || "unknown",
     status: validationFailures.length === 0 ? "pass" : "fail",
+    passed: validationFailures.length === 0,
+    canClearSourceGate: validationFailures.length === 0,
     productionReadsPerformed: false,
     providerCallsPerformed: false,
     fanPassLifecycleStatus: fanPassFailures.length === 0 ? "pass" : "fail",
@@ -290,6 +297,8 @@ export function buildCreatorMonetizationReadinessLockReport(input: {
 
 export function validateCreatorMonetizationReadinessLockReport(report: CreatorMonetizationReadinessLockReport) {
   const failures = [...report.validationFailures];
+  if (!report.currentHead || report.sourceCommit !== report.currentHead || !/^[0-9a-f]{40}$/iu.test(report.currentHead)) failures.push("creator monetization report provenance is invalid.");
+  if (report.passed !== (report.status === "pass") || report.canClearSourceGate !== report.passed) failures.push("creator monetization report verdict fields disagree.");
   if (report.fanPassLifecycleStatus !== "pass") failures.push("Fan Pass lifecycle missing or failing.");
   if (report.creatorSettingsTruthStatus !== "pass") failures.push("creator monetization settings source-of-truth missing or failing.");
   if (report.entitlementLedgerStatus !== "pass") failures.push("creator entitlement ledger missing or failing.");

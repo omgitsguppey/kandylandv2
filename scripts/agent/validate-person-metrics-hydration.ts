@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
 import {
@@ -38,15 +39,22 @@ function compactList<T>(items: readonly T[], limit = SAMPLE_LIMIT) {
 }
 
 type FullPersonMetricsHydrationOutput = Omit<ReturnType<typeof buildPersonMetricsHydrationReport>, "status"> & {
+  reportKey: "person-metrics-hydration";
   status: "pass" | "review" | "fail";
+  passed: boolean;
   currentHead: string;
+  sourceCommit: string;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   dirtyFiles: Array<{ path: string; classification: string }>;
   activeOldLogic: string[];
   validationFailures: string[];
 };
 
-function compactPersonMetricsHydrationOutput(report: FullPersonMetricsHydrationOutput) {
-  const compactMetricStatus = compactList(Object.values(report.metricStatus).map((metric) => ({
+export function compactPersonMetricsHydrationOutput(report: FullPersonMetricsHydrationOutput) {
+  const metricStatusRows = Object.values(report.metricStatus).map((metric) => ({
       metricId: metric.metricId,
       state: metric.state,
       count: metric.count,
@@ -59,7 +67,16 @@ function compactPersonMetricsHydrationOutput(report: FullPersonMetricsHydrationO
       missingBridge: metric.missingBridge,
       lowConfidenceReason: metric.lowConfidenceReason,
       missingSourceExplanation: metric.state === "hydrated" ? "" : metric.missingSourceExplanation,
-  })), 8);
+  }));
+  const compactMetricStatus = compactList(metricStatusRows, 8);
+  const consumerMetricRows = metricStatusRows;
+  const consumerMetricStatus = {
+    total: metricStatusRows.length,
+    emitted: consumerMetricRows.length,
+    omitted: metricStatusRows.length - consumerMetricRows.length,
+    sample: consumerMetricRows,
+    byId: Object.fromEntries(consumerMetricRows.map((metric) => [metric.metricId, metric])),
+  };
   const compactScopes = Object.values(report.scopes).map((scope) => ({
       scope: scope.scope,
       totalCount: scope.totalCount,
@@ -84,10 +101,15 @@ function compactPersonMetricsHydrationOutput(report: FullPersonMetricsHydrationO
       blocksUserParity: metric.blocksUserParity,
       debugNextAction: metric.blocksUserParity ? metric.debugNextAction : "",
   })), 8);
+  const compactUserParityGaps = compactList(report.userParityGaps);
+  const indexedUserParityGaps = Object.fromEntries(
+    report.userParityGaps.map((gap) => [gap.metricId, gap]),
+  );
 
   return {
     ...report,
     metricStatus: compactMetricStatus,
+    consumerMetricStatus,
     scopes: compactScopes,
     userParityStatus: compactUserParityStatus,
     lowConfidenceMetrics: compactList(report.lowConfidenceMetrics.map((metric) => ({
@@ -100,7 +122,10 @@ function compactPersonMetricsHydrationOutput(report: FullPersonMetricsHydrationO
       missingBridge: metric.missingBridge,
       lowConfidenceReason: metric.lowConfidenceReason,
     }))),
-    userParityGaps: compactList(report.userParityGaps),
+    userParityGaps: {
+      ...compactUserParityGaps,
+      byId: indexedUserParityGaps,
+    },
     dirtyFiles: compactList(report.dirtyFiles),
     activeOldLogic: compactList(report.activeOldLogic),
     compaction: {
@@ -111,6 +136,7 @@ function compactPersonMetricsHydrationOutput(report: FullPersonMetricsHydrationO
         "full hydratedEventIds",
         "full sourceEvents",
         "full lowConfidenceMetrics list",
+        "non-blocking full user parity status rows",
         "full dirty file list",
       ],
     },
@@ -186,7 +212,11 @@ function envelope(eventName: string, index: number): CanonicalEventEnvelope {
     debugVisibility: "admin_debug",
     scoreImpact: "evidence_completeness",
     privacyClass: eventName.startsWith("watch_session") || eventName === "viewer_watch_checkpoint" ? "behavioral" : "minimal_product",
-    metadata: validatorMetadataFor(eventName, index),
+    metadata: {
+      ...validatorMetadataFor(eventName, index),
+      evidenceMode: "source_validation_fixture",
+      syntheticFixture: true,
+    },
     pipelineStatus: "normal",
     unavailableGuestReason: null,
     includeInUserBehavior: true,
@@ -225,6 +255,7 @@ function findActiveOldLogic() {
 function renderDoc(report: Omit<ReturnType<typeof buildPersonMetricsHydrationReport>, "status"> & {
   status: "pass" | "review" | "fail";
   currentHead: string;
+  sourceCommit: string;
   dirtyFiles: Array<{ path: string; classification: string }>;
   activeOldLogic: string[];
   validationFailures: string[];
@@ -242,6 +273,7 @@ function renderDoc(report: Omit<ReturnType<typeof buildPersonMetricsHydrationRep
     "",
     `Generated: ${report.generatedAtUtc}`,
     `Status: ${report.status}`,
+    `Evidence mode: ${report.evidenceMode}`,
     `Current head: ${report.currentHead}`,
     "",
     "## Contract",
@@ -295,10 +327,12 @@ function main() {
     source: "validator",
     sessionId: "legacy_validator",
   });
+  const sourceValidationEnvelopes = validationEnvelopes();
   const report = buildPersonMetricsHydrationReport({
-    envelopes: validationEnvelopes(),
+    envelopes: sourceValidationEnvelopes,
     legacyCandidates: [legacyUnknown],
     generatedAtUtc,
+    evidenceMode: "source_validation_fixture",
   });
   const failures: string[] = [];
   const debugSummary = read("src/lib/debug/debug-panel-tracking-summary.ts");
@@ -307,6 +341,11 @@ function main() {
   const packageJson = read("package.json");
   const activeOldLogic = findActiveOldLogic();
   const dirtyFileClassifications = dirty.map((path) => ({ path, classification: classifyPersonMetricsHydrationDirtyFile(path) }));
+
+  if (sourceValidationEnvelopes.some((entry) =>
+    entry.metadata.evidenceMode !== "source_validation_fixture" || entry.metadata.syntheticFixture !== true)) {
+    failures.push("synthetic person metric envelopes are not explicitly labeled source_validation_fixture.");
+  }
 
   for (const metric of PERSON_METRIC_DEFINITIONS) {
     if (metric.eventNames.length === 0) failures.push(`${metric.id} exists without hydration source.`);
@@ -346,11 +385,21 @@ function main() {
   if (dirtyFileClassifications.some((file) => file.classification === "unsafe_unknown")) {
     failures.push("dirty files unclassified.");
   }
+  if (!/^[0-9a-f]{40}$/iu.test(currentHead)) {
+    failures.push("person metrics hydration report provenance is not a full Git commit.");
+  }
 
   const output = {
     ...report,
+    reportKey: "person-metrics-hydration" as const,
     status: failures.length > 0 ? "fail" as const : report.status,
+    passed: failures.length === 0 && report.status === "pass",
     currentHead,
+    sourceCommit: currentHead,
+    canClearSourceGate: failures.length === 0 && report.status === "pass",
+    canClearRuntimeGate: false as const,
+    canClearProviderGate: false as const,
+    canClearAdminTruthGate: false as const,
     dirtyFiles: dirtyFileClassifications,
     activeOldLogic,
     validationFailures: [...new Set(failures)],
@@ -360,6 +409,9 @@ function main() {
   let serializedReport = `${JSON.stringify(compactOutput, null, 2)}\n`;
   if (serializedReport.length > 100_000) {
     failures.push("person metrics hydration generated report is too large; keep full detail in source-derived validation, not generated state.");
+    output.status = "fail";
+    output.passed = false;
+    output.canClearSourceGate = false;
     output.validationFailures = [...new Set(failures)];
     compactOutput = compactPersonMetricsHydrationOutput(output);
     serializedReport = `${JSON.stringify(compactOutput, null, 2)}\n`;
@@ -375,4 +427,6 @@ function main() {
   console.log(`Person metrics hydration validation passed: mapped=${output.debugLane.personMetricsMapped}, hydrated=${output.debugLane.eventEnvelopesHydrated}, lowConfidence=${output.debugLane.lowConfidenceMetrics}, gaps=${output.debugLane.gaps}.`);
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

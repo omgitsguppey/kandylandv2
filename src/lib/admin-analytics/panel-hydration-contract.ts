@@ -123,7 +123,9 @@ export type AnalyticsPanelHydrationDebugLane = {
   runtimeEvidenceRequired: number;
   adminTruthSourceRequired: number;
   providerGated: number;
+  protectedPaymentRequired: number;
   externalRequired: number;
+  permissionBlocked: number;
   hiddenByRole: number;
   broken: number;
   topNextActions: string[];
@@ -149,8 +151,10 @@ export type AnalyticsPanelHydrationReport = {
   runtimeEvidenceRequiredPanels: number;
   adminTruthSourceRequiredPanels: number;
   providerGatedPanels: number;
+  protectedPaymentRequiredPanels: number;
   externalRequiredPanels: number;
   permissionBlockedPanels: number;
+  hiddenByRolePanels: number;
   brokenPanels: number;
   panelsByGroup: Record<AdminAnalyticsPanelGroup, {
     total: number;

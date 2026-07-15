@@ -2,12 +2,15 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { validateGeneratedChildReportEvidence } from "./generated-report-envelope";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..", "..");
 const STATE_PATH = "agent/state/notification-pwa-score-lock.generated.json";
 const DOC_PATH = "docs/agent-truth/notification-pwa-score-lock.md";
+const FULL_GIT_SHA_PATTERN = /^[0-9a-f]{40}$/iu;
+const MAX_REPORT_AGE_MS = 24 * 60 * 60 * 1000;
 
 const SCORE_DIMENSIONS = [
   "sourceHealth",
@@ -44,8 +47,13 @@ export type NotificationPwaStatus = {
 };
 
 export type NotificationPwaScoreLockReport = {
+  reportKey: "notification-pwa-score-lock";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
   productionReadsRequired: false;
   providerCallsRequired: false;
   deployRequired: false;
@@ -85,6 +93,7 @@ export type NotificationPwaScoreLockReport = {
 };
 
 type BuildInput = {
+  generatedAtUtc?: string;
   currentHead?: string;
   scoreBefore?: Partial<ScoreSnapshot>;
   scoreAfter?: Partial<ScoreSnapshot>;
@@ -92,7 +101,6 @@ type BuildInput = {
   pushReport?: Record<string, any>;
   targetingReport?: Record<string, any>;
   pwaReport?: Record<string, any>;
-  featureRegistrationReport?: Record<string, any>;
   featureRegistryText?: string;
   telemetryCatalogText?: string;
   dirtyFiles?: string[];
@@ -266,25 +274,19 @@ function belowTargetNextAction(dimension: ScoreDimension) {
   }
 }
 
-function featureTelemetryText(report: Record<string, any>, fallbackText: string) {
-  const features = Array.isArray(report.features) ? report.features : [];
-  const notifications = features.find((feature) => feature?.featureId === "notifications");
-  if (notifications && Array.isArray(notifications.telemetryEvents)) {
-    return notifications.telemetryEvents.join(" ");
-  }
-  return fallbackText;
-}
-
-function sourceReportStatus(report: Record<string, any>) {
-  return report.status === "pass" || report.status === undefined;
-}
-
 export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): NotificationPwaScoreLockReport {
+  const generatedAtUtc = input.generatedAtUtc ?? new Date().toISOString();
+  const reportHead = input.currentHead ?? currentHead();
   const permission = input.permissionReport ?? readState("notification-permission-lifecycle.generated.json");
   const push = input.pushReport ?? readState("push-token-registration.generated.json");
   const targeting = input.targetingReport ?? readState("notification-targeting-intent.generated.json");
   const pwa = input.pwaReport ?? readState("pwa-service-worker-safety.generated.json");
-  const featureRegistration = input.featureRegistrationReport ?? readState("feature-registration-gate.generated.json");
+  const childEvidenceFailures = {
+    permission: validateGeneratedChildReportEvidence({ report: permission, expectedReportKey: "notification-permission-lifecycle", currentHead: reportHead, requireSourceGate: true }),
+    push: validateGeneratedChildReportEvidence({ report: push, expectedReportKey: "push-token-registration", currentHead: reportHead, requireSourceGate: true }),
+    targeting: validateGeneratedChildReportEvidence({ report: targeting, expectedReportKey: "notification-targeting-intent", currentHead: reportHead, requireSourceGate: true }),
+    pwa: validateGeneratedChildReportEvidence({ report: pwa, expectedReportKey: "pwa-service-worker-safety", currentHead: reportHead, requireSourceGate: true }),
+  };
   const beta = readState("public-beta-score.generated.json");
   const baseScore = scoreSnapshot(beta);
   const scoreAfter = mergeScore(baseScore, input.scoreAfter);
@@ -295,10 +297,11 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
     classification: classifyNotificationPwaScoreLockDirtyFile(path),
   }));
   const telemetryText = input.telemetryCatalogText ?? readText("src/lib/telemetry-catalog.ts");
-  const featureText = featureTelemetryText(featureRegistration, input.featureRegistryText ?? readText("src/lib/features/feature-registration-registry.ts"));
+  const featureText = input.featureRegistryText ?? readText("src/lib/features/feature-registration-registry.ts");
   const telemetryMapped = REQUIRED_TELEMETRY_EVENTS.every((event) => telemetryText.includes(event) && featureText.includes(event));
   const permissionOk = Boolean(
-    permission.permissionStateTracked
+    childEvidenceFailures.permission.length === 0
+      && permission.permissionStateTracked
       && permission.autoFireOnPageLoadBlocked
       && permission.cooldownPolicyPresent
       && permission.canonicalEnvelopeMapped
@@ -311,7 +314,7 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
       && permission.promptLifecycleEvents.includes("notification_permission_granted"),
   );
   const pushOk = Boolean(
-    sourceReportStatus(push)
+    childEvidenceFailures.push.length === 0
       && push.authenticatedOnly
       && push.arbitraryUserBindingBlocked
       && push.rawTokenExposureBlocked
@@ -323,7 +326,7 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
       && push.debugLane?.rawTokenExposureCount === 0,
   );
   const targetingOk = Boolean(
-    sourceReportStatus(targeting)
+    childEvidenceFailures.targeting.length === 0
       && targeting.realPushNotificationsSent === false
       && Array.isArray(targeting.intentTypes)
       && targeting.intentTypes.includes("chat_message")
@@ -333,7 +336,7 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
   );
   const pwaPolicy = pwa.serviceWorkerSafetyStatus?.cachePolicy ?? {};
   const pwaOk = Boolean(
-    sourceReportStatus(pwa)
+    childEvidenceFailures.pwa.length === 0
       && pwa.realPushNotificationsSent === false
       && pwa.debugLane?.status === "live"
       && pwa.debugLane?.notificationCompatible === true
@@ -341,12 +344,14 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
       && pwa.serviceWorkerSafetyStatus?.debugVisibility === "debug_visible",
   );
   const offlineOk = Boolean(
-    pwa.debugLane?.offlineFallbackSafe === true
+    childEvidenceFailures.pwa.length === 0
+      && pwa.debugLane?.offlineFallbackSafe === true
       && pwaPolicy.forbiddenCacheSafe === true
       && pwaPolicy.offlineFallbackShowsPrivateTruth === false,
   );
   const debugOk = Boolean(
-    permission.debugLanePresent
+    Object.values(childEvidenceFailures).every((failures) => failures.length === 0)
+      && permission.debugLanePresent
       && permission.debugLane?.status === "live"
       && push.debugLane?.status === "live"
       && (targeting.debugLane?.status === "live" || JSON.stringify(targeting).includes("Notification targeting"))
@@ -377,10 +382,17 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
   const nextExactSteps = remainingGaps.length > 0
     ? remainingGaps.map((gap) => `Resolve ${gap}`)
     : ["Continue with formal runtime/provider/admin evidence capture when allowed; do not send real push notifications for source-only validation."];
+  const baseValidationFailures = Object.values(childEvidenceFailures).flat();
+  const basePassed = baseValidationFailures.length === 0;
 
   const report: NotificationPwaScoreLockReport = {
-    generatedAtUtc: new Date().toISOString(),
-    currentHead: input.currentHead ?? currentHead(),
+    reportKey: "notification-pwa-score-lock",
+    generatedAtUtc,
+    currentHead: reportHead,
+    sourceCommit: reportHead,
+    status: basePassed ? "pass" : "fail",
+    passed: basePassed,
+    canClearSourceGate: basePassed,
     productionReadsRequired: false,
     providerCallsRequired: false,
     deployRequired: false,
@@ -412,14 +424,42 @@ export function buildNotificationPwaScoreLockReport(input: BuildInput = {}): Not
       },
     ],
     protectedSurfaceStatus: protectedStatus,
-    validationFailures: [],
+    validationFailures: baseValidationFailures,
   };
-  report.validationFailures = validateNotificationPwaScoreLockReport(report);
-  return report;
+  const validationFailures = validateNotificationPwaScoreLockReport(report);
+  const passed = validationFailures.length === 0;
+  const finalRemainingGaps = [...new Set([
+    ...report.remainingGaps,
+    ...validationFailures.map((failure) => `Notification/PWA source blocker: ${failure}`),
+  ])];
+  return {
+    ...report,
+    status: passed ? "pass" : "fail",
+    passed,
+    canClearSourceGate: passed,
+    remainingGaps: finalRemainingGaps,
+    nextExactSteps: validationFailures.length > 0
+      ? validationFailures.map((failure) => `Resolve notification/PWA source blocker: ${failure}`)
+      : report.nextExactSteps,
+    validationFailures,
+  };
 }
 
 export function validateNotificationPwaScoreLockReport(report: NotificationPwaScoreLockReport) {
-  const failures: string[] = [];
+  const failures: string[] = [...report.validationFailures];
+  const generatedAtMs = Date.parse(report.generatedAtUtc);
+  const nowMs = Date.now();
+  if (!FULL_GIT_SHA_PATTERN.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("currentHead and sourceCommit must be the same full 40-character Git SHA.");
+  }
+  if (!Number.isFinite(generatedAtMs) || generatedAtMs > nowMs || nowMs - generatedAtMs > MAX_REPORT_AGE_MS) {
+    failures.push("generatedAtUtc must be a current, non-future timestamp inside the 24-hour evidence window.");
+  }
+  if (report.passed !== (report.status === "pass")) failures.push("passed must match the validator status.");
+  if (report.canClearSourceGate !== report.passed) failures.push("canClearSourceGate must match the passing source verdict.");
+  if (report.status === "pass" && report.validationFailures.length > 0) {
+    failures.push("validator status cannot pass while validation failures are present.");
+  }
   const statusEntries: Array<[string, NotificationPwaStatus]> = [
     ["notification prompt lifecycle missing", report.permissionLifecycleStatus],
     ["push token registration status missing", report.pushTokenStatus],
@@ -477,6 +517,12 @@ function renderDoc(report: NotificationPwaScoreLockReport) {
 Generated: ${report.generatedAtUtc}
 
 Current head: ${report.currentHead}
+
+Source commit: ${report.sourceCommit}
+
+Validator status: ${report.status}
+
+Validator passed: ${report.passed}
 
 ## Status
 

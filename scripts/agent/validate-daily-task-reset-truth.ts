@@ -4,6 +4,10 @@ import { execSync } from "node:child_process";
 
 import { DAILY_CHECK_IN_TASK_CONTRACT, buildDailyTaskDebugLane } from "../../src/lib/tasks/daily-task-contract";
 import { explainTaskReset, preventDuplicateRewardClaim, resolveTaskResetPolicy } from "../../src/lib/tasks/daily-task-reset";
+import {
+  withGeneratedReportEnvelope,
+  type GeneratedReportEnvelope,
+} from "./generated-report-envelope";
 
 type ScoreDimensions = {
   sourceHealth: number;
@@ -15,9 +19,14 @@ type ScoreDimensions = {
   overallHealthScore: number;
 };
 
-export type DailyTaskResetTruthReport = {
-  generatedAtUtc: string;
-  currentHead: string;
+export type DailyTaskResetTruthReport = GeneratedReportEnvelope & {
+  reportKey: "daily-task-reset-truth";
+  status: "pass" | "fail";
+  passed: boolean;
+  sourceCommit: string;
+  sourceStatus: "pass" | "fail";
+  sourceValidationFailures: string[];
+  isolationFailures: string[];
   scoreBefore: ScoreDimensions;
   scoreAfter: ScoreDimensions;
   resetPolicyExplicit: boolean;
@@ -37,7 +46,6 @@ export type DailyTaskResetTruthReport = {
   dirtyFileClassifications: Array<{ path: string; classification: string }>;
   scoreDimensionImpact: Record<keyof ScoreDimensions, string>;
   remainingGaps: string[];
-  nextExactSteps: string[];
 };
 
 const ROOT = process.cwd();
@@ -51,10 +59,27 @@ function readIfExists(path: string) {
 
 function getCurrentHead() {
   try {
-    return execSync("git rev-parse --short HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
+    return execSync("git rev-parse HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
   } catch {
     return "unknown";
   }
+}
+
+export function isDailyTaskResetIsolationFailure(failure: string) {
+  return failure === "chat files changed."
+    || failure === "payment/wallet runtime changed."
+    || failure === "paid-GD math changed."
+    || failure.startsWith("dirty files unclassified:");
+}
+
+export function projectDailyTaskResetSourceStatus(validationFailures: readonly string[]) {
+  const isolationFailures = validationFailures.filter(isDailyTaskResetIsolationFailure);
+  const sourceValidationFailures = validationFailures.filter((failure) => !isDailyTaskResetIsolationFailure(failure));
+  return {
+    sourceStatus: sourceValidationFailures.length === 0 ? "pass" as const : "fail" as const,
+    sourceValidationFailures: [...new Set(sourceValidationFailures)],
+    isolationFailures: [...new Set(isolationFailures)],
+  };
 }
 
 function getDirtyFiles() {
@@ -145,6 +170,7 @@ export function classifyDailyTaskResetTruthDirtyFile(path: string) {
 }
 
 export function buildDailyTaskResetTruthReport(input?: {
+  generatedAtUtc?: string;
   currentHead?: string;
   dirtyFiles?: string[];
   scoreBefore?: ScoreDimensions;
@@ -167,9 +193,9 @@ export function buildDailyTaskResetTruthReport(input?: {
   const dirtyFiles = input?.dirtyFiles ?? getDirtyFiles();
   const score = readScore();
 
-  return {
-    generatedAtUtc: new Date().toISOString(),
-    currentHead: input?.currentHead ?? getCurrentHead(),
+  const generatedAtUtc = input?.generatedAtUtc ?? new Date().toISOString();
+  const currentHead = input?.currentHead ?? getCurrentHead();
+  const payload = {
     scoreBefore: input?.scoreBefore ?? score,
     scoreAfter: input?.scoreAfter ?? score,
     resetPolicyExplicit: reset.resetPolicy === "calendar_day" && explainTaskReset(reset).includes("calendar day"),
@@ -180,7 +206,9 @@ export function buildDailyTaskResetTruthReport(input?: {
     rewardSourceTruth: DAILY_CHECK_IN_TASK_CONTRACT.rewardSource,
     apiTrustsCallerAuth: route.includes("guardApiRequest") && route.includes("const userId = caller.uid"),
     apiRejectsArbitraryUserId: !/request\.json\(\)[\s\S]{0,400}userId/u.test(route),
-    uiGuidanceRouteStatus: ui.includes("/api/checkin") && ui.includes("Reward GD") ? "current_routes" : "stale_route",
+    uiGuidanceRouteStatus: ui.includes("/api/checkin") && ui.includes("Reward GD")
+      ? "current_routes" as const
+      : "stale_route" as const,
     taskStatusHasNextEligibleAt: route.includes("nextEligibleAt") && route.includes("eligibilityExplanation"),
     debugLanePresent: debugSummary.includes("daily_tasks_reset") && buildDailyTaskDebugLane().lane === "Daily tasks/reset",
     chatTouched: dirtyFiles.some((file) => file.replace(/\\/gu, "/").includes("/chat") || file.toLowerCase().includes("chat")),
@@ -204,10 +232,49 @@ export function buildDailyTaskResetTruthReport(input?: {
       "Collect runtime/provider smoke evidence separately if beta score evidence gates require it.",
     ],
   };
+
+  const provisional = {
+    ...withGeneratedReportEnvelope(payload, {
+      reportKey: "daily-task-reset-truth",
+      status: "pass",
+      generatedAtUtc,
+      currentHead,
+      evidenceClass: "source_snapshot",
+      canClearSourceGate: true,
+      nextExactSteps: payload.nextExactSteps,
+      validationFailures: [],
+      doesNotProve: [
+        "Does not prove deployed task runtime behavior.",
+        "Does not prove provider or payment behavior.",
+        "Does not prove production task activity.",
+      ],
+    }),
+    reportKey: "daily-task-reset-truth" as const,
+    sourceCommit: currentHead,
+    status: "pass" as const,
+    passed: true,
+    sourceStatus: "pass" as const,
+    sourceValidationFailures: [] as string[],
+    isolationFailures: [] as string[],
+  } satisfies DailyTaskResetTruthReport;
+  const validationFailures = [...new Set(validateDailyTaskResetTruthReport(provisional))];
+  const sourceProjection = projectDailyTaskResetSourceStatus(validationFailures);
+  const status = validationFailures.length === 0 ? "pass" as const : "fail" as const;
+  return {
+    ...provisional,
+    status,
+    passed: status === "pass",
+    canClearSourceGate: status === "pass",
+    validationFailures,
+    ...sourceProjection,
+  };
 }
 
 export function validateDailyTaskResetTruthReport(report: DailyTaskResetTruthReport): string[] {
   const failures: string[] = [];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("daily task reset report provenance is not a full matching Git commit.");
+  }
   if (!report.resetPolicyExplicit) failures.push("reset policy is ambiguous.");
   if (!report.duplicateRewardGuard) failures.push("duplicate reward guard is missing.");
   if (report.rewardSourceTruth !== "reward_gd_only") failures.push("reward GD can become paid GD.");
@@ -263,11 +330,10 @@ function writeReport(report: DailyTaskResetTruthReport) {
 
 if (require.main === module) {
   const report = buildDailyTaskResetTruthReport();
-  const failures = validateDailyTaskResetTruthReport(report);
   writeReport(report);
-  if (failures.length > 0) {
+  if (report.validationFailures.length > 0) {
     console.error("Daily task reset truth validation failed:");
-    failures.forEach((failure) => console.error(`- ${failure}`));
+    report.validationFailures.forEach((failure) => console.error(`- ${failure}`));
     process.exit(1);
   }
   console.log("Daily task reset truth validation passed.");

@@ -1,12 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import {
   buildDailyTaskRewardDebugLane,
   buildDailyTaskRewardLedgerGrant,
   buildDailyTaskRewardTransactionExtra,
 } from "../../src/lib/tasks/daily-task-reward-ledger";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/daily-task-reward-ledger.generated.json";
@@ -33,6 +35,46 @@ type DirtyClassification =
   | "validator_artifact_expected"
   | "test_artifact_expected"
   | "unsafe_unknown";
+
+export type DailyTaskRewardLedgerSourceProjection = {
+  sourceStatus: "pass" | "fail";
+  sourceValidationFailures: string[];
+  isolationFailures: string[];
+};
+
+export function isDailyTaskRewardLedgerIsolationFailure(failure: string) {
+  return failure === "payment/wallet runtime changed."
+    || failure === "chat/nav changed."
+    || failure === "dirty files unclassified.";
+}
+
+export function projectDailyTaskRewardLedgerSourceStatus(report: {
+  status?: unknown;
+  validationFailures?: unknown;
+}): DailyTaskRewardLedgerSourceProjection {
+  if (!Array.isArray(report.validationFailures) || !report.validationFailures.every((failure) => typeof failure === "string")) {
+    return {
+      sourceStatus: "fail",
+      sourceValidationFailures: ["reward ledger validation failures are missing or malformed."],
+      isolationFailures: [],
+    };
+  }
+  const validationFailures = report.validationFailures as string[];
+  const isolationFailures = validationFailures.filter(isDailyTaskRewardLedgerIsolationFailure);
+  const sourceValidationFailures = validationFailures.filter((failure) => !isDailyTaskRewardLedgerIsolationFailure(failure));
+  if (report.status !== "pass" && report.status !== "fail") {
+    sourceValidationFailures.push("reward ledger validator status is missing or malformed.");
+  } else if (report.status === "pass" && validationFailures.length > 0) {
+    sourceValidationFailures.push("reward ledger validator reports pass with validation failures.");
+  } else if (report.status === "fail" && validationFailures.length === 0) {
+    sourceValidationFailures.push("reward ledger validator reports fail without a validation failure.");
+  }
+  return {
+    sourceStatus: sourceValidationFailures.length === 0 ? "pass" : "fail",
+    sourceValidationFailures: [...new Set(sourceValidationFailures)],
+    isolationFailures,
+  };
+}
 
 function run(command: string, args: readonly string[]) {
   try {
@@ -160,11 +202,17 @@ export function classifyDailyTaskRewardLedgerDirtyFile(path: string): DirtyClass
   return "unsafe_unknown";
 }
 
-export function buildDailyTaskRewardLedgerReport() {
-  const generatedAtUtc = new Date().toISOString();
-  const currentHead = run("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
-  const scoreBefore = readScoreSnapshot();
-  const scoreAfter = scoreBefore;
+export function buildDailyTaskRewardLedgerReport(input: {
+  generatedAtUtc?: string;
+  currentHead?: string;
+  dirtyFiles?: string[];
+  scoreBefore?: ScoreDimensions;
+  scoreAfter?: ScoreDimensions;
+} = {}) {
+  const generatedAtUtc = input.generatedAtUtc ?? new Date().toISOString();
+  const currentHead = input.currentHead ?? (run("git", ["rev-parse", "HEAD"]) || "unknown");
+  const scoreBefore = input.scoreBefore ?? readScoreSnapshot();
+  const scoreAfter = input.scoreAfter ?? scoreBefore;
   const contract = read("src/lib/tasks/daily-task-reward-ledger.ts");
   const checkinRoute = read("src/app/api/checkin/route.ts");
   const dailyTasks = read("src/lib/server/daily-tasks.ts");
@@ -174,7 +222,7 @@ export function buildDailyTaskRewardLedgerReport() {
   const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
   const packageJson = read("package.json");
   const unitTest = read("tests/unit/daily-task-reward-ledger.spec.ts");
-  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDailyTaskRewardLedgerDirtyFile(path) }));
+  const dirtyFiles = (input.dirtyFiles ?? changedFiles()).map((path) => ({ path, classification: classifyDailyTaskRewardLedgerDirtyFile(path) }));
   const sampleGrant = buildDailyTaskRewardLedgerGrant({
     taskId: "check_in_today",
     userId: "validator_user",
@@ -259,11 +307,35 @@ export function buildDailyTaskRewardLedgerReport() {
   if (report.validationInputs.paymentRuntimeTouched) failures.push("payment/wallet runtime changed.");
   if (report.validationInputs.chatOrNavTouched) failures.push("chat/nav changed.");
   if (dirtyFiles.some((entry) => entry.classification === "unsafe_unknown")) failures.push("dirty files unclassified.");
+  if (!/^[0-9a-f]{40}$/iu.test(currentHead)) failures.push("daily task reward report provenance is not a full Git commit.");
 
+  const validationFailures = [...new Set(failures)];
+  const status = validationFailures.length > 0 ? "fail" as const : "pass" as const;
+  const sourceProjection = projectDailyTaskRewardLedgerSourceStatus({ status, validationFailures });
   return {
-    ...report,
-    status: failures.length > 0 ? "fail" : "pass",
-    validationFailures: [...new Set(failures)],
+    ...withGeneratedReportEnvelope(report, {
+      reportKey: "daily-task-reward-ledger",
+      status,
+      generatedAtUtc,
+      currentHead,
+      evidenceClass: "source_snapshot",
+      canClearSourceGate: status === "pass",
+      nextExactSteps: [
+        "Keep reward grants source-aware and collect deployed runtime evidence separately.",
+      ],
+      validationFailures,
+      doesNotProve: [
+        "Does not prove deployed reward writes.",
+        "Does not prove production ledger activity.",
+        "Does not prove paid-provider behavior.",
+      ],
+    }),
+    reportKey: "daily-task-reward-ledger" as const,
+    sourceCommit: currentHead,
+    status,
+    passed: status === "pass",
+    validationFailures,
+    ...sourceProjection,
   };
 }
 
@@ -277,6 +349,7 @@ function renderDoc(report: ReturnType<typeof buildDailyTaskRewardLedgerReport>) 
     `Generated: ${report.generatedAtUtc}`,
     `Current head: ${report.currentHead}`,
     `Status: ${report.status}`,
+    `Source status: ${report.sourceStatus}`,
     "",
     "## Contract",
     "",
@@ -329,4 +402,6 @@ function main() {
   console.log(`Daily task reward ledger validation passed: source=${report.rewardGrantContract.sourceOfFunds}, duplicatePolicy=${report.rewardGrantContract.duplicateClaimPolicy}, debug=${report.debugLane.lane}.`);
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

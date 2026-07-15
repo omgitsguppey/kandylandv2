@@ -55,6 +55,9 @@ export interface FinalParityTelemetryLockReport {
   reportKey: "final-parity-telemetry-lock";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
   currentHeadSource: "git" | "repo_inventory" | "generated_artifact" | "unknown";
   gitStatus: "available" | "missing" | "error";
   toolingDegraded: boolean;
@@ -88,6 +91,9 @@ export interface FinalParityTelemetryLockReport {
 
 const STATE_PATH = "agent/state/final-parity-telemetry-lock.generated.json";
 const DOC_PATH = "docs/agent-truth/final-parity-telemetry-lock.md";
+const FULL_GIT_SHA_PATTERN = /^[0-9a-f]{40}$/iu;
+const UTC_ISO_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u;
+const MAX_REPORT_AGE_MS = 24 * 60 * 60 * 1000;
 
 const BASE_REQUIRED_STATES = ["loading", "empty", "error"] as const;
 const CANONICAL_DEBUG_LANES = [
@@ -117,54 +123,139 @@ function readJson(filePath: string) {
   }
 }
 
-function readString(value: unknown) {
-  return typeof value === "string" ? value : "";
+function asRecord(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
 }
 
-function statusIncludes(report: Record<string, unknown> | null, patterns: readonly RegExp[]) {
-  if (!report) return false;
-  const haystack = [
-    readString(report.status),
-    readString(report.overallStatus),
-    readString(report.externalEvidenceStatus),
-    JSON.stringify(report.readinessImpact ?? {}),
-    JSON.stringify(report.evidenceBoundary ?? {}),
-  ].join("\n");
-  return patterns.some((pattern) => pattern.test(haystack));
+function hasOwn(record: Record<string, unknown>, key: string) {
+  return Object.prototype.hasOwnProperty.call(record, key);
 }
 
-function artifactHeadMatches(report: Record<string, unknown> | null, currentHead: string) {
-  if (!report || !currentHead) return true;
-  const sourceCommit = readString(report.sourceCommit);
-  const reportHead = readString(report.currentHead);
-  const artifactHead = sourceCommit || reportHead;
-  return !artifactHead || artifactHead === currentHead;
+function hasExactCurrentHead(
+  report: Record<string, unknown>,
+  currentHead: string,
+  requiredFields: readonly ("currentHead" | "sourceCommit")[],
+) {
+  if (!FULL_GIT_SHA_PATTERN.test(currentHead)) return false;
+  for (const field of ["currentHead", "sourceCommit"] as const) {
+    if (!requiredFields.includes(field) && !hasOwn(report, field)) continue;
+    const artifactHead = report[field];
+    if (typeof artifactHead !== "string" || !FULL_GIT_SHA_PATTERN.test(artifactHead) || artifactHead !== currentHead) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function hasFreshGeneratedTimestamp(report: Record<string, unknown>, nowMs: number) {
+  const generatedAtUtc = report.generatedAtUtc;
+  if (typeof generatedAtUtc !== "string" || !UTC_ISO_TIMESTAMP_PATTERN.test(generatedAtUtc)) return false;
+  const generatedAtMs = Date.parse(generatedAtUtc);
+  return Number.isFinite(generatedAtMs)
+    && generatedAtMs <= nowMs
+    && nowMs - generatedAtMs <= MAX_REPORT_AGE_MS;
+}
+
+function hasNoValidationFailures(report: Record<string, unknown>, required: boolean) {
+  if (!hasOwn(report, "validationFailures")) return !required;
+  return Array.isArray(report.validationFailures) && report.validationFailures.length === 0;
+}
+
+function hasNonEmptyStringArray(value: unknown) {
+  return Array.isArray(value) && value.length > 0 && value.every((entry) => typeof entry === "string" && entry.length > 0);
+}
+
+type ExternalProofClass = Exclude<TelemetryParityProofClass, "source_parity">;
+
+function hasRecognizedPositiveVerdict(proofClass: ExternalProofClass, report: Record<string, unknown>) {
+  if (hasOwn(report, "passed") && report.passed !== true) return false;
+
+  if (proofClass === "runtime_route_health") {
+    return report.status === "formal_route_health_passed"
+      && report.routeHealthStatusAfter === "formal_route_health_passed"
+      && report.runtimeProofRequired === false
+      && report.sourceOnlyCanClear === false
+      && report.delayedClassification !== "runtime_evidence_required"
+      && (!hasOwn(report, "activeFailureCount") || report.activeFailureCount === 0);
+  }
+
+  if (proofClass === "provider_smoke") {
+    const providerSmoke = asRecord(report.providerSmoke);
+    const paypalRefillSmoke = asRecord(report.paypalRefillSmoke);
+    const readinessImpact = asRecord(report.readinessImpact);
+    return report.status === "formal_provider_smoke_passed"
+      && report.overallStatus === "formal_provider_smoke_passed"
+      && report.externalEvidenceStatus === "formal_provider_proof_attached"
+      && providerSmoke.status === "formal_provider_smoke_passed"
+      && providerSmoke.passed === true
+      && paypalRefillSmoke.formalRepoArtifactAttached === true
+      && readinessImpact.providerSmokeGatePassed === true
+      && readinessImpact.paypalSmokeGatePassed === true
+      && hasNonEmptyStringArray(report.passingArtifacts);
+  }
+
+  const readinessImpact = asRecord(report.readinessImpact);
+  return report.status === "formal_admin_truth_sample_passed"
+    && report.overallStatus === "formal_admin_truth_sample_passed"
+    && report.passed === true
+    && report.formalAdminTruthSamplePassed === true
+    && report.freshAdminTruthSampleAttached === true
+    && report.productionSampleAttached === true
+    && typeof report.sampleCount === "number"
+    && report.sampleCount > 0
+    && readinessImpact.adminTruthSampleGatePassed === true
+    && readinessImpact.canClearAdminTruthGate === true
+    && hasNonEmptyStringArray(report.passingArtifacts);
+}
+
+export function classifyFinalParityExternalProofArtifact(input: {
+  proofClass: ExternalProofClass;
+  report: Record<string, unknown> | null;
+  currentHead: string;
+  nowMs?: number;
+}): TelemetryParityProofStatus {
+  const report = input.report;
+  if (!report) return "missing";
+
+  const contract = input.proofClass === "runtime_route_health"
+    ? {
+        reportKey: "route-health-reconciliation",
+        requiredHeadFields: ["currentHead"] as const,
+        requiresValidationFailures: true,
+      }
+    : input.proofClass === "provider_smoke"
+      ? {
+          reportKey: "provider-smoke-evidence",
+          requiredHeadFields: ["currentHead", "sourceCommit"] as const,
+          requiresValidationFailures: true,
+        }
+      : {
+          reportKey: "admin-truth-sample-evidence",
+          requiredHeadFields: ["currentHead", "sourceCommit"] as const,
+          requiresValidationFailures: false,
+        };
+
+  if (report.reportKey !== contract.reportKey) return "missing";
+  if (!hasExactCurrentHead(report, input.currentHead, contract.requiredHeadFields)) return "stale";
+  if (!hasFreshGeneratedTimestamp(report, input.nowMs ?? Date.now())) return "stale";
+  if (!hasNoValidationFailures(report, contract.requiresValidationFailures)) return "missing";
+  return hasRecognizedPositiveVerdict(input.proofClass, report) ? "present" : "missing";
 }
 
 function resolveFormalProofStatus(proofClass: TelemetryParityProofClass, currentHead: string): TelemetryParityProofStatus {
   if (proofClass === "source_parity") return "present";
-
-  if (proofClass === "runtime_route_health") {
-    const routeHealth = readJson("agent/state/route-health-reconciliation.generated.json");
-    if (!artifactHeadMatches(routeHealth, currentHead)) return "stale";
-    if (routeHealth && routeHealth.runtimeProofRequired === true) return "missing";
-    if (statusIncludes(routeHealth, [/route_listener_delayed|runtime_evidence_required|runtime_unverified/iu])) return "missing";
-    return statusIncludes(routeHealth, [/formal_route_health_passed|route_health_passed/iu]) ? "present" : "missing";
-  }
-
-  if (proofClass === "provider_smoke") {
-    const providerSmoke = readJson("agent/state/provider-smoke-evidence.generated.json");
-    if (!artifactHeadMatches(providerSmoke, currentHead)) return "stale";
-    return statusIncludes(providerSmoke, [/formal_provider_smoke_passed|passed_formal_evidence/iu])
-      ? "present"
-      : "missing";
-  }
-
-  const adminTruth = readJson("agent/state/admin-truth-sample-evidence.generated.json");
-  if (!artifactHeadMatches(adminTruth, currentHead)) return "stale";
-  return statusIncludes(adminTruth, [/formal_admin_truth_sample_passed/iu])
-    ? "present"
-    : "missing";
+  const reportPath = proofClass === "runtime_route_health"
+    ? "agent/state/route-health-reconciliation.generated.json"
+    : proofClass === "provider_smoke"
+      ? "agent/state/provider-smoke-evidence.generated.json"
+      : "agent/state/admin-truth-sample-evidence.generated.json";
+  return classifyFinalParityExternalProofArtifact({
+    proofClass,
+    report: readJson(reportPath),
+    currentHead,
+  });
 }
 
 function buildFinalProofClasses(sourceParityPass: boolean, currentHead: string): TelemetryParityProofClassState[] {
@@ -381,6 +472,9 @@ export function buildFinalParityTelemetryLockReport(input: {
     reportKey: "final-parity-telemetry-lock",
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
     currentHead,
+    sourceCommit: currentHead,
+    status: "pass",
+    passed: true,
     currentHeadSource: toolchain.currentHeadSource,
     gitStatus: toolchain.gitStatus,
     toolingDegraded: toolchain.toolingDegraded,
@@ -427,14 +521,36 @@ export function buildFinalParityTelemetryLockReport(input: {
     validationFailures: [],
   };
 
+  const validationFailures = validateFinalParityTelemetryLockReport(report);
+  const passed = validationFailures.length === 0;
   return {
     ...report,
-    validationFailures: validateFinalParityTelemetryLockReport(report),
+    status: passed ? "pass" : "fail",
+    passed,
+    canClearSourceGate: passed,
+    validationFailures,
   };
 }
 
 export function validateFinalParityTelemetryLockReport(report: FinalParityTelemetryLockReport) {
-  const failures: string[] = [];
+  const failures: string[] = [...report.validationFailures];
+  const generatedAtMs = Date.parse(report.generatedAtUtc);
+  const nowMs = Date.now();
+  if (!FULL_GIT_SHA_PATTERN.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("currentHead and sourceCommit must be the same full 40-character Git SHA.");
+  }
+  if (!Number.isFinite(generatedAtMs) || generatedAtMs > nowMs || nowMs - generatedAtMs > MAX_REPORT_AGE_MS) {
+    failures.push("generatedAtUtc must be a current, non-future timestamp inside the 24-hour evidence window.");
+  }
+  if (report.passed !== (report.status === "pass")) {
+    failures.push("passed must match the validator status.");
+  }
+  if (report.canClearSourceGate !== report.passed) {
+    failures.push("canClearSourceGate must match the passing source verdict.");
+  }
+  if (report.status === "pass" && report.validationFailures.length > 0) {
+    failures.push("validator status cannot pass while validation failures are present.");
+  }
   for (const surfaceId of MAJOR_SURFACE_PARITY_IDS) {
     const lock = report.surfaceLocks.find((surface) => surface.surfaceId === surfaceId);
     if (!lock) {
@@ -505,10 +621,13 @@ function writeDoc(report: FinalParityTelemetryLockReport) {
 
 Generated: ${report.generatedAtUtc}
 Head: ${report.currentHead}
+Source commit: ${report.sourceCommit}
 Head source: ${report.currentHeadSource}
 Git status: ${report.gitStatus}
 Tooling degraded: ${report.toolingDegraded}
-Status: ${report.overallStatus}
+Validator status: ${report.status}
+Validator passed: ${report.passed}
+Overall evidence status: ${report.overallStatus}
 
 ## Summary
 

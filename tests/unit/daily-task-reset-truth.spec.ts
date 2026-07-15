@@ -19,6 +19,7 @@ import {
 const MAY_23_2026_NOON_CENTRAL = Date.UTC(2026, 4, 23, 17, 0, 0);
 const MAY_23_2026_ELEVEN_PM_CENTRAL = Date.UTC(2026, 4, 24, 4, 0, 0);
 const MAY_24_2026_ONE_AM_CENTRAL = Date.UTC(2026, 4, 24, 6, 0, 0);
+const TEST_HEAD = "0123456789abcdef0123456789abcdef01234567";
 
 describe("daily task reset truth", () => {
   it("makes the daily check-in reset policy explicit as a Central-time calendar day", () => {
@@ -93,13 +94,26 @@ describe("daily task reset truth", () => {
 
   it("fails the validator report when reset policy or duplicate guard truth is missing", () => {
     const report = buildDailyTaskResetTruthReport({
-      currentHead: "test-head",
+      generatedAtUtc: "2026-07-14T17:00:00.000Z",
+      currentHead: TEST_HEAD,
       dirtyFiles: [
         "src/lib/tasks/daily-task-contract.ts",
         "src/lib/tasks/daily-task-reset.ts",
       ],
     });
 
+    expect(report).toMatchObject({
+      reportKey: "daily-task-reset-truth",
+      status: "pass",
+      passed: true,
+      currentHead: TEST_HEAD,
+      sourceCommit: TEST_HEAD,
+      canClearSourceGate: true,
+      sourceStatus: "pass",
+      validationFailures: [],
+      sourceValidationFailures: [],
+      isolationFailures: [],
+    });
     expect(validateDailyTaskResetTruthReport(report)).toEqual([]);
 
     expect(validateDailyTaskResetTruthReport({
@@ -110,5 +124,26 @@ describe("daily task reset truth", () => {
       "reset policy is ambiguous.",
       "duplicate reward guard is missing.",
     ]));
+  });
+
+  it("keeps source-slice status but cannot clear the canonical gate after an isolation failure", () => {
+    const report = buildDailyTaskResetTruthReport({
+      generatedAtUtc: "2026-07-14T17:00:00.000Z",
+      currentHead: TEST_HEAD,
+      dirtyFiles: ["tmp/unclassified-reset-file.txt"],
+    });
+
+    expect(report.status).toBe("fail");
+    expect(report.passed).toBe(false);
+    expect(report.sourceStatus).toBe("pass");
+    expect(report.isolationFailures).toHaveLength(1);
+    expect(report.canClearSourceGate).toBe(false);
+  });
+
+  it("fails closed when Git provenance is unavailable", () => {
+    const report = buildDailyTaskResetTruthReport({ currentHead: "unknown", dirtyFiles: [] });
+    expect(report.status).toBe("fail");
+    expect(report.canClearSourceGate).toBe(false);
+    expect(report.validationFailures).toContain("daily task reset report provenance is not a full matching Git commit.");
   });
 });

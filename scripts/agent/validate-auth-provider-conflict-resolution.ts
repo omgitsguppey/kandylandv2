@@ -58,8 +58,16 @@ type DirtyClassification =
   | "unsafe_unknown";
 
 type AuthProviderConflictResolutionReport = {
+  reportKey: "auth-provider-conflict-resolution";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   providerConflictsMapped: Array<{
     code: string;
     attemptedMethod: "google" | "email_password";
@@ -147,7 +155,7 @@ function write(path: string, value: string) {
 }
 
 function currentHead() {
-  return shell("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
+  return shell("git", ["rev-parse", "HEAD"]) || "unknown";
 }
 
 function numberValue(value: unknown, fallback = 0) {
@@ -377,10 +385,19 @@ export function buildAuthProviderConflictResolutionReport(): AuthProviderConflic
   const remainingGaps = SCORE_DIMENSIONS
     .filter((dimension) => scoreDimensions[dimension].status === "below_target")
     .map((dimension) => `${dimension}: ${scoreDimensions[dimension].nextExactAction}`);
+  const head = currentHead();
 
   return {
+    reportKey: "auth-provider-conflict-resolution",
     generatedAtUtc: new Date().toISOString(),
-    currentHead: currentHead(),
+    currentHead: head,
+    sourceCommit: head,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     providerConflictsMapped: mapped,
     googleCreatedEmailPasswordAttempt: mapped.some((item) => item.conflictKind === "google_account_email_password_attempt" && item.googleSignInOffered) ? "mapped" : "missing",
     emailPasswordCreatedGoogleAttempt: mapped.some((item) => item.conflictKind === "email_account_google_attempt" && item.passwordResetOffered) ? "mapped" : "missing",
@@ -431,6 +448,9 @@ export function buildAuthProviderConflictResolutionReport(): AuthProviderConflic
 
 export function validateAuthProviderConflictResolution(report: AuthProviderConflictResolutionReport) {
   const failures: string[] = [];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("auth provider conflict report provenance is not a full matching Git commit.");
+  }
   const authContext = read("src/context/AuthContext.tsx");
   const authModal = read("src/components/Auth/AuthModal.tsx");
   const telemetryCatalog = read("src/lib/telemetry-catalog.ts");
@@ -477,7 +497,13 @@ export function validateAuthProviderConflictResolution(report: AuthProviderConfl
 function main() {
   const report = buildAuthProviderConflictResolutionReport();
   const failures = validateAuthProviderConflictResolution(report);
-  const finalReport = { ...report, validationFailures: failures };
+  const finalReport = {
+    ...report,
+    status: failures.length > 0 ? "fail" as const : "pass" as const,
+    passed: failures.length === 0,
+    canClearSourceGate: failures.length === 0,
+    validationFailures: failures,
+  };
   write(STATE_PATH, `${JSON.stringify(finalReport, null, 2)}\n`);
   write(DOC_PATH, renderDoc(finalReport));
   if (failures.length > 0) {

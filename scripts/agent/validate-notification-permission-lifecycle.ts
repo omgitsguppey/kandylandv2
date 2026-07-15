@@ -104,7 +104,7 @@ function readJson(path: string): Record<string, any> {
 }
 
 function currentHead() {
-  return shell("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
+  return shell("git", ["rev-parse", "HEAD"]) || "unknown";
 }
 
 function dirtyFiles() {
@@ -308,6 +308,7 @@ export function buildNotificationPermissionLifecycleReport(input: {
 
 export function validateNotificationPermissionLifecycleReport(report: NotificationPermissionLifecycleReport): string[] {
   const failures: string[] = [];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead)) failures.push("current Git head is missing or is not a full commit SHA.");
   if (!report.autoFireOnPageLoadBlocked) failures.push("permission prompt can auto-fire on page load.");
   if (!report.permissionStateTracked) failures.push("permission state is not tracked.");
   if (!report.telemetryCatalogMapped) failures.push("granted/denied/failure events are missing.");

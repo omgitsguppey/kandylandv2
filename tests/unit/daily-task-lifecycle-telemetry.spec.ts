@@ -13,6 +13,21 @@ import {
   finishDailyTaskDuration,
   startDailyTaskDuration,
 } from "@/lib/tasks/daily-task-duration";
+import {
+  buildDailyTaskLifecycleTelemetryReport,
+  validateDailyTaskLifecycleTelemetryReport,
+} from "../../scripts/agent/validate-daily-task-lifecycle-telemetry";
+
+const TEST_HEAD = "0123456789abcdef0123456789abcdef01234567";
+const TEST_SCORE = {
+  sourceHealth: 90,
+  runtimeHealth: 90,
+  evidenceCompleteness: 90,
+  freshness: 90,
+  costRisk: 90,
+  regressionRisk: 90,
+  overallHealthScore: 90,
+};
 
 function envelope(eventName: string): CanonicalEventEnvelope {
   return {
@@ -192,5 +207,56 @@ describe("daily task lifecycle telemetry", () => {
       durationUnavailableCount: 1,
       failureReasons: ["inactive_after_start"],
     });
+  });
+
+  it("emits a deterministic full-head source verdict envelope", () => {
+    const report = buildDailyTaskLifecycleTelemetryReport({
+      generatedAtUtc: "2026-07-14T17:00:00.000Z",
+      currentHead: TEST_HEAD,
+      dirtyFiles: [],
+      scoreBefore: TEST_SCORE,
+      scoreAfter: TEST_SCORE,
+    });
+
+    expect(report).toMatchObject({
+      reportKey: "daily-task-lifecycle-telemetry",
+      status: "pass",
+      passed: true,
+      currentHead: TEST_HEAD,
+      sourceCommit: TEST_HEAD,
+      canClearSourceGate: true,
+      sourceStatus: "pass",
+      validationFailures: [],
+      sourceValidationFailures: [],
+      isolationFailures: [],
+    });
+    expect(validateDailyTaskLifecycleTelemetryReport(report)).toEqual([]);
+  });
+
+  it("does not clear the canonical source gate when only isolation checks fail", () => {
+    const report = buildDailyTaskLifecycleTelemetryReport({
+      generatedAtUtc: "2026-07-14T17:00:00.000Z",
+      currentHead: TEST_HEAD,
+      dirtyFiles: ["tmp/unclassified-lifecycle-file.txt"],
+      scoreBefore: TEST_SCORE,
+      scoreAfter: TEST_SCORE,
+    });
+
+    expect(report.status).toBe("fail");
+    expect(report.sourceStatus).toBe("pass");
+    expect(report.isolationFailures).toHaveLength(1);
+    expect(report.canClearSourceGate).toBe(false);
+  });
+
+  it("fails closed when Git provenance is unavailable", () => {
+    const report = buildDailyTaskLifecycleTelemetryReport({
+      currentHead: "unknown",
+      dirtyFiles: [],
+      scoreBefore: TEST_SCORE,
+      scoreAfter: TEST_SCORE,
+    });
+    expect(report.status).toBe("fail");
+    expect(report.canClearSourceGate).toBe(false);
+    expect(report.validationFailures).toContain("daily task lifecycle report provenance is not a full matching Git commit.");
   });
 });

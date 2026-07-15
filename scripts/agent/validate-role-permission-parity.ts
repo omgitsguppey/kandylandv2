@@ -89,18 +89,25 @@ const baseReport = buildRolePermissionParityReport({
   dirtyFiles,
   registry: ROLE_PERMISSION_REGISTRY,
 });
+const validationFailures = [
+  ...baseReport.validationFailures,
+  ...(toolchain.gitStatus !== "available"
+    ? [`git_required: role permission parity cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`]
+    : []),
+];
+const passed = validationFailures.length === 0;
 const report = {
   ...baseReport,
+  reportKey: "role-permission-parity" as const,
+  sourceCommit: baseReport.currentHead ?? "unknown",
+  status: passed ? "pass" as const : "fail" as const,
+  passed,
+  canClearSourceGate: passed,
   gitStatus: toolchain.gitStatus,
   currentHeadSource: toolchain.currentHeadSource,
   toolingDegraded: toolchain.toolingDegraded,
   degradationReason: toolchain.degradationReason,
-  validationFailures: [
-    ...baseReport.validationFailures,
-    ...(toolchain.gitStatus !== "available"
-      ? [`git_required: role permission parity cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`]
-      : []),
-  ],
+  validationFailures,
 };
 
 writeJson(STATE_PATH, report);

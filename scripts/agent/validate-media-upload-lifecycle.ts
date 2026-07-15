@@ -143,7 +143,10 @@ type MediaUploadLifecycleReport = {
   reportKey: "media-upload-lifecycle";
   generatedAtUtc: string;
   currentHead?: string;
+  sourceCommit: string;
   status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
   productionReadsPerformed: false;
   providerCallsPerformed: false;
   lifecycleEvents: string[];
@@ -208,6 +211,9 @@ const samplePayloads = MEDIA_UPLOAD_LIFECYCLE_EVENTS.map((eventName, index) => b
 const validationFailures = [
   ...samplePayloads.flatMap(validateMediaUploadLifecyclePayload),
 ];
+if (!currentHead || !/^[0-9a-f]{40}$/iu.test(currentHead)) {
+  validationFailures.push("current git head is missing or is not a full commit SHA.");
+}
 
 const missingCatalogEvents = mediaTelemetryEvents.filter((eventName) => !telemetryCatalogEvents.has(eventName));
 if (missingCatalogEvents.length) validationFailures.push(`media upload events missing from telemetry catalog: ${missingCatalogEvents.join(", ")}`);
@@ -257,7 +263,10 @@ const report: MediaUploadLifecycleReport = {
   reportKey: "media-upload-lifecycle",
   generatedAtUtc,
   currentHead,
+  sourceCommit: currentHead ?? "unknown",
   status: validationFailures.length ? "fail" : "pass",
+  passed: validationFailures.length === 0,
+  canClearSourceGate: validationFailures.length === 0,
   productionReadsPerformed: false,
   providerCallsPerformed: false,
   lifecycleEvents: [...MEDIA_UPLOAD_LIFECYCLE_EVENTS],

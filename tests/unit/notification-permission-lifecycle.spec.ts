@@ -134,7 +134,7 @@ describe("notification permission lifecycle", () => {
     expect(lane.telemetryStatus).toBe("mapped");
 
     const report = buildNotificationPermissionLifecycleReport({
-      currentHead: "test-head",
+      currentHead: "0123456789abcdef0123456789abcdef01234567",
       dirtyFiles: [
         "src/lib/notifications/notification-permission-contract.ts",
         "src/lib/notifications/notification-prompt-telemetry.ts",
@@ -144,6 +144,10 @@ describe("notification permission lifecycle", () => {
     });
 
     expect(validateNotificationPermissionLifecycleReport(report)).toEqual([]);
+    expect(validateNotificationPermissionLifecycleReport({
+      ...report,
+      currentHead: "unknown",
+    })).toContain("current Git head is missing or is not a full commit SHA.");
     expect(validateNotificationPermissionLifecycleReport({
       ...report,
       autoFireOnPageLoadBlocked: false,

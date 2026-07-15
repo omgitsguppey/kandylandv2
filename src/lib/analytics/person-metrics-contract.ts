@@ -46,6 +46,11 @@ export const PERSON_METRIC_IDS = [
 export type PersonMetricId = (typeof PERSON_METRIC_IDS)[number];
 export type PersonMetricCounts = Record<PersonMetricId, number>;
 
+export const PERSON_METRIC_ARTIFACT_CONSUMER_IDS = [
+  "chat_actions",
+  "auth_runtime_events",
+] as const satisfies readonly PersonMetricId[];
+
 export function createEmptyPersonMetricCounts(): PersonMetricCounts {
   return PERSON_METRIC_IDS.reduce<PersonMetricCounts>((counts, metricId) => {
     counts[metricId] = 0;

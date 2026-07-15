@@ -57,7 +57,7 @@ function write(path: string, value: string) {
 }
 
 function currentHead() {
-  return shell("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
+  return shell("git", ["rev-parse", "HEAD"]) || "unknown";
 }
 
 function dirtyFiles() {
@@ -319,10 +319,19 @@ function main() {
     failures.push("dirty files unclassified or protected chat/payment/GumDrop/task files changed.");
   }
 
+  const reportHead = currentHead();
+  if (!/^[0-9a-f]{40}$/iu.test(reportHead)) {
+    failures.push("current git head is missing or is not a full commit SHA.");
+  }
+
   const output = {
+    reportKey: "pwa-service-worker-safety",
     generatedAtUtc: new Date().toISOString(),
-    currentHead: currentHead(),
+    currentHead: reportHead,
+    sourceCommit: reportHead,
     status: failures.length > 0 ? "fail" : "pass",
+    passed: failures.length === 0,
+    canClearSourceGate: failures.length === 0,
     productionReadsRequired: false,
     providerCallsRequired: false,
     deployRequired: false,

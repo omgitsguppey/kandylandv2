@@ -32,6 +32,7 @@ import {
 } from "@/lib/media/media-upload-contract";
 import { PERSON_METRIC_DEFINITIONS } from "@/lib/analytics/person-metrics-contract";
 import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
+import { validateGeneratedChildReportEvidence } from "./generated-report-envelope";
 
 export type MediaDiscoveryScoreLockStatus = "pass" | "fail";
 
@@ -50,6 +51,10 @@ export interface MediaDiscoveryScoreLockReport {
   reportKey: "media-discovery-score-lock";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
   mediaUploadStatus: MediaDiscoveryScoreLockStatus;
   privateMediaAccessStatus: MediaDiscoveryScoreLockStatus;
   creatorDiscoveryStatus: MediaDiscoveryScoreLockStatus;
@@ -80,6 +85,8 @@ export interface MediaDiscoveryScoreLockReport {
 
 const STATE_PATH = "agent/state/media-discovery-score-lock.generated.json";
 const DOC_PATH = "docs/agent-truth/media-discovery-score-lock.md";
+const FULL_GIT_SHA_PATTERN = /^[0-9a-f]{40}$/iu;
+const MAX_REPORT_AGE_MS = 24 * 60 * 60 * 1000;
 
 const REQUIRED_ARTIFACTS = [
   "agent/state/media-upload-lifecycle.generated.json",
@@ -99,6 +106,13 @@ const REQUIRED_ARTIFACTS = [
   "scripts/agent/validate-search-discovery-cost.ts",
   "tests/unit/search-discovery-cost.spec.ts",
 ] as const;
+
+const CHILD_REPORT_KEYS: Record<string, string> = {
+  "agent/state/media-upload-lifecycle.generated.json": "media-upload-lifecycle",
+  "agent/state/private-media-access.generated.json": "private-media-access",
+  "agent/state/creator-discovery-relationship-funnel.generated.json": "creator-discovery-relationship-funnel",
+  "agent/state/search-discovery-cost.generated.json": "search-discovery-cost",
+};
 
 const FINAL_SCORE_DIMENSIONS: PublicBetaHealthDimension[] = [
   "sourceHealth",
@@ -145,19 +159,32 @@ function classifyStatus(failures: readonly string[]) {
   return failures.length === 0 ? "pass" as const : "fail" as const;
 }
 
-function artifactPassStatus(filePath: string, missingForTest?: string) {
-  if (filePath === missingForTest) return "missing" as const;
-  if (!fs.existsSync(filePath)) return "missing" as const;
-  if (!filePath.endsWith(".generated.json")) return "pass" as const;
-  const json = readJson(filePath);
-  return json?.status === "pass" ? "pass" as const : "fail" as const;
-}
-
-function requiredArtifactStatuses(missingForTest?: string) {
-  return Object.fromEntries(REQUIRED_ARTIFACTS.map((filePath) => [
-    filePath,
-    artifactPassStatus(filePath, missingForTest),
-  ])) as Record<string, MediaDiscoveryScoreLockStatus | "missing">;
+function requiredArtifactStatuses(
+  expectedHead: string,
+  missingForTest?: string,
+  artifactReports: Partial<Record<string, Record<string, unknown>>> = {},
+) {
+  const statuses: Record<string, MediaDiscoveryScoreLockStatus | "missing"> = {};
+  const validationFailures: string[] = [];
+  for (const filePath of REQUIRED_ARTIFACTS) {
+    if (filePath === missingForTest || (!artifactReports[filePath] && !fs.existsSync(filePath))) {
+      statuses[filePath] = "missing";
+      continue;
+    }
+    if (!filePath.endsWith(".generated.json")) {
+      statuses[filePath] = "pass";
+      continue;
+    }
+    const failures = validateGeneratedChildReportEvidence({
+      report: artifactReports[filePath] ?? readJson(filePath),
+      expectedReportKey: CHILD_REPORT_KEYS[filePath],
+      currentHead: expectedHead,
+      requireSourceGate: true,
+    });
+    statuses[filePath] = failures.length === 0 ? "pass" : "fail";
+    validationFailures.push(...failures);
+  }
+  return { statuses, validationFailures };
 }
 
 export function classifyMediaDiscoveryScoreLockDirtyFile(pathValue: string): MediaDiscoveryScoreLockDirtyClassification {
@@ -338,7 +365,10 @@ export function buildMediaDiscoveryScoreLockReport(input: {
   scoreBefore?: number;
   scoreAfter?: number;
   missingArtifactForTest?: string;
+  artifactReports?: Partial<Record<string, Record<string, unknown>>>;
 } = {}): MediaDiscoveryScoreLockReport {
+  const generatedAtUtc = input.generatedAtUtc ?? new Date().toISOString();
+  const currentHead = input.currentHead ?? git(["rev-parse", "HEAD"]);
   const eventSpines = {
     mediaUpload: [...MEDIA_UPLOAD_LIFECYCLE_EVENTS],
     privateMediaAccess: [...MEDIA_ACCESS_EVENTS],
@@ -367,7 +397,12 @@ export function buildMediaDiscoveryScoreLockReport(input: {
     relationshipDebugLane.label,
     searchDebugLane.label,
   ]);
-  const artifactStatus = requiredArtifactStatuses(input.missingArtifactForTest);
+  const artifactEvidence = requiredArtifactStatuses(
+    currentHead,
+    input.missingArtifactForTest,
+    input.artifactReports,
+  );
+  const artifactStatus = artifactEvidence.statuses;
   const rawFailures = rawSensitiveTelemetryFailures();
   const accessFailures = sensitiveRouteAccessFailures();
   const telemetryFailures = catalogAndPersonMetricsFailures(allEvents);
@@ -401,16 +436,35 @@ export function buildMediaDiscoveryScoreLockReport(input: {
   const scriptFailures = packageJson.includes("\"check:media-discovery-score-lock\"")
     ? []
     : ["check:media-discovery-score-lock package script missing."];
+  const baseValidationFailures = [
+    ...artifactEvidence.validationFailures,
+    ...artifactFailures,
+    ...relationshipFailures,
+    ...searchFailures,
+    ...costFailures,
+    ...accessFailures,
+    ...telemetryFailures,
+    ...rawFailures,
+    ...scriptFailures,
+  ];
+  const basePassed = baseValidationFailures.length === 0;
 
   const report: MediaDiscoveryScoreLockReport = {
     reportKey: "media-discovery-score-lock",
-    generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
-    currentHead: input.currentHead ?? git(["rev-parse", "HEAD"]),
-    mediaUploadStatus: classifyStatus(artifactFailures.filter((failure) => failure.includes("media upload lifecycle"))),
-    privateMediaAccessStatus: classifyStatus(artifactFailures.filter((failure) => failure.includes("private media access"))),
-    creatorDiscoveryStatus: classifyStatus(artifactFailures.filter((failure) => failure.includes("creator discovery"))),
+    generatedAtUtc,
+    currentHead,
+    sourceCommit: currentHead,
+    status: basePassed ? "pass" : "fail",
+    passed: basePassed,
+    canClearSourceGate: basePassed,
+    mediaUploadStatus: artifactStatus["agent/state/media-upload-lifecycle.generated.json"] === "pass" ? "pass" : "fail",
+    privateMediaAccessStatus: artifactStatus["agent/state/private-media-access.generated.json"] === "pass" ? "pass" : "fail",
+    creatorDiscoveryStatus: artifactStatus["agent/state/creator-discovery-relationship-funnel.generated.json"] === "pass" ? "pass" : "fail",
     relationshipFunnelStatus: classifyStatus(relationshipFailures),
-    searchDiscoveryStatus: classifyStatus([...searchFailures, ...artifactFailures.filter((failure) => failure.includes("search discovery"))]),
+    searchDiscoveryStatus: classifyStatus([
+      ...searchFailures,
+      ...(artifactStatus["agent/state/search-discovery-cost.generated.json"] === "pass" ? [] : ["search discovery child evidence failed"]),
+    ]),
     costControlStatus: classifyStatus([...costFailures, ...accessFailures]),
     telemetryStatus: classifyStatus([...telemetryFailures, ...rawFailures]),
     debugVisibilityStatus: debugLanes.length === 4 ? "pass" : "fail",
@@ -433,29 +487,43 @@ export function buildMediaDiscoveryScoreLockReport(input: {
       "Use runtime smoke only after explicit operator approval; this lock intentionally avoids production reads and provider calls.",
     ],
     dirtyFiles,
-    validationFailures: [],
+    validationFailures: baseValidationFailures,
   };
 
+  const validationFailures = validateMediaDiscoveryScoreLockReport(report);
+  const passed = validationFailures.length === 0;
+  const remainingGaps = [...new Set([
+    ...report.remainingGaps,
+    ...validationFailures.map((failure) => `Media/discovery source blocker: ${failure}`),
+  ])];
   return {
     ...report,
-    validationFailures: validateMediaDiscoveryScoreLockReport({
-      ...report,
-      validationFailures: [
-        ...artifactFailures,
-        ...relationshipFailures,
-        ...searchFailures,
-        ...costFailures,
-        ...accessFailures,
-        ...telemetryFailures,
-        ...rawFailures,
-        ...scriptFailures,
-      ],
-    }),
+    status: passed ? "pass" : "fail",
+    passed,
+    canClearSourceGate: passed,
+    remainingGaps,
+    nextExactSteps: validationFailures.length > 0
+      ? validationFailures.map((failure) => `Resolve media/discovery source blocker: ${failure}`)
+      : report.nextExactSteps,
+    validationFailures,
   };
 }
 
 export function validateMediaDiscoveryScoreLockReport(report: MediaDiscoveryScoreLockReport) {
   const failures: string[] = [...report.validationFailures];
+  const generatedAtMs = Date.parse(report.generatedAtUtc);
+  const nowMs = Date.now();
+  if (!FULL_GIT_SHA_PATTERN.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("currentHead and sourceCommit must be the same full 40-character Git SHA.");
+  }
+  if (!Number.isFinite(generatedAtMs) || generatedAtMs > nowMs || nowMs - generatedAtMs > MAX_REPORT_AGE_MS) {
+    failures.push("generatedAtUtc must be a current, non-future timestamp inside the 24-hour evidence window.");
+  }
+  if (report.passed !== (report.status === "pass")) failures.push("passed must match the validator status.");
+  if (report.canClearSourceGate !== report.passed) failures.push("canClearSourceGate must match the passing source verdict.");
+  if (report.status === "pass" && report.validationFailures.length > 0) {
+    failures.push("validator status cannot pass while validation failures are present.");
+  }
   if (report.mediaUploadStatus !== "pass") failures.push("media upload lifecycle missing.");
   if (report.privateMediaAccessStatus !== "pass") failures.push("private media access unresolved.");
   if (report.creatorDiscoveryStatus !== "pass") failures.push("creator discovery lock missing.");
@@ -494,7 +562,9 @@ function writeDoc(report: MediaDiscoveryScoreLockReport) {
 
 Generated: ${report.generatedAtUtc}
 Head: ${report.currentHead}
-Status: ${report.validationFailures.length === 0 ? "pass" : "fail"}
+Source commit: ${report.sourceCommit}
+Validator status: ${report.status}
+Validator passed: ${report.passed}
 
 ## Summary
 

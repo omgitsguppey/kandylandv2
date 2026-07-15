@@ -40,6 +40,12 @@ type DirtyClassification =
   | "unsafe_unknown";
 
 type AuthRuntimeLockReport = ReturnType<typeof buildAuthRuntimeTelemetryReport> & {
+  sourceCommit: string;
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   scoreBefore: ScoreSnapshot;
   scoreAfter: ScoreSnapshot;
   scoreDimensions: Record<ScoreDimension, {
@@ -99,7 +105,7 @@ function write(path: string, value: string) {
 }
 
 function currentHead() {
-  return shell("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
+  return shell("git", ["rev-parse", "HEAD"]) || "unknown";
 }
 
 function numberValue(value: unknown, fallback = 0) {
@@ -190,6 +196,9 @@ function scoreDimensions(before: ScoreSnapshot, after: ScoreSnapshot): AuthRunti
 
 function validateReport(report: AuthRuntimeLockReport) {
   const failures: string[] = [...report.validationFailures];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead ?? "") || report.sourceCommit !== report.currentHead) {
+    failures.push("auth runtime report provenance is not a full matching Git commit");
+  }
   if (report.eventEnvelopeStatus !== "mapped") failures.push("auth events bypass event envelope");
   if (report.personMetricsStatus !== "mapped") failures.push("auth events lack person metrics mapping");
   if (report.featureRegistrationStatus !== "mapped") failures.push("auth not feature registered");
@@ -206,7 +215,8 @@ function validateReport(report: AuthRuntimeLockReport) {
 
 function buildReport(): AuthRuntimeLockReport {
   const before = scoreSnapshot();
-  const base = buildAuthRuntimeTelemetryReport({ currentHead: currentHead() });
+  const head = currentHead();
+  const base = buildAuthRuntimeTelemetryReport({ currentHead: head });
   const authModal = read("src/components/Auth/AuthModal.tsx");
   const authContext = read("src/context/AuthContext.tsx");
   const telemetryCatalog = read("src/lib/telemetry-catalog.ts");
@@ -255,6 +265,12 @@ function buildReport(): AuthRuntimeLockReport {
   const after = before;
   const report: AuthRuntimeLockReport = {
     ...base,
+    sourceCommit: head,
+    passed: base.status === "pass",
+    canClearSourceGate: base.status === "pass",
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     scoreBefore: before,
     scoreAfter: after,
     scoreDimensions: scoreDimensions(before, after),
@@ -303,6 +319,8 @@ function buildReport(): AuthRuntimeLockReport {
   }
   report.validationFailures = validateReport(report);
   report.status = report.validationFailures.length > 0 ? "fail" : "pass";
+  report.passed = report.validationFailures.length === 0;
+  report.canClearSourceGate = report.passed;
   report.debugLane = buildAuthRuntimeDebugLane({
     telemetryStatus: report.featureRegistrationStatus === "mapped" ? "mapped" : "missing",
     personMetricsStatus: report.personMetricsStatus,

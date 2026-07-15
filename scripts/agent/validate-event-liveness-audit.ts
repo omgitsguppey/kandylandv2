@@ -302,6 +302,7 @@ function main() {
   const report = {
     ...summary,
     status: validationFailures.length > 0 ? "fail" : "pass",
+    sourceCommit: summary.currentHead,
     scoreBefore: scoreReport.before,
     scoreAfter: scoreReport.after,
     metrics: scoreReport.metrics,

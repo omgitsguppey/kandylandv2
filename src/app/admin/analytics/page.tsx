@@ -66,6 +66,10 @@ function formatPanelRecoveryCount(count: number, singular: string, plural = `${s
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+function formatPanelRecoveryStateCount(count: number, label: string) {
+  return `${count} ${count === 1 ? "panel" : "panels"}: ${label}`;
+}
+
 type PanelRecoveryTruthState =
   | "collecting"
   | "source_ready_collecting"
@@ -73,9 +77,13 @@ type PanelRecoveryTruthState =
   | "source_missing"
   | "materializer_missing"
   | "bridge_missing"
+  | "stale"
+  | "permission_blocked"
+  | "hidden_by_role"
   | "runtime_evidence_required"
   | "admin_truth_source_required"
   | "provider_gated"
+  | "protected_payment_required"
   | "external_required"
   | "broken";
 
@@ -91,16 +99,24 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
       return "materializer missing";
     case "bridge_missing":
       return "bridge missing";
+    case "stale":
+      return "stale source";
+    case "permission_blocked":
+      return "permission blocked";
+    case "hidden_by_role":
+      return "hidden by role";
     case "runtime_evidence_required":
       return "deployed route evidence required";
     case "admin_truth_source_required":
       return "admin source activity sample required";
     case "provider_gated":
       return "provider-backed activity required";
+    case "protected_payment_required":
+      return "protected payment proof required";
     case "external_required":
       return "external source required";
     case "broken":
-      return "not configured";
+      return "source failed";
     case "collecting":
     default:
       return "collecting";
@@ -550,9 +566,13 @@ export default function AdminAnalyticsPage() {
         { state: "source_missing", count: panelHydrationSummary.sourceMissing },
         { state: "materializer_missing", count: panelHydrationSummary.materializerMissing },
         { state: "bridge_missing", count: panelHydrationSummary.bridgeMissing },
+        { state: "stale", count: panelHydrationSummary.stale },
+        { state: "permission_blocked", count: panelHydrationSummary.permissionBlocked ?? 0 },
+        { state: "hidden_by_role", count: panelHydrationSummary.hiddenByRole ?? 0 },
         { state: "runtime_evidence_required", count: panelHydrationSummary.runtimeEvidenceRequired ?? 0 },
         { state: "admin_truth_source_required", count: panelHydrationSummary.adminTruthSourceRequired ?? 0 },
         { state: "provider_gated", count: panelHydrationSummary.providerGated ?? 0 },
+        { state: "protected_payment_required", count: panelHydrationSummary.protectedPaymentRequired ?? 0 },
         { state: "external_required", count: panelHydrationSummary.externalRequired },
         { state: "broken", count: panelHydrationSummary.broken },
       ] satisfies Array<{ state: PanelRecoveryTruthState; count: number }>).filter((item) => item.count > 0)
@@ -577,6 +597,7 @@ export default function AdminAnalyticsPage() {
       item.state === "source_missing" ||
       item.state === "materializer_missing" ||
       item.state === "bridge_missing" ||
+      item.state === "stale" ||
       item.state === "broken",
     )
     .reduce((total, item) => total + item.count, 0);
@@ -585,27 +606,36 @@ export default function AdminAnalyticsPage() {
       item.state === "runtime_evidence_required" ||
       item.state === "admin_truth_source_required" ||
       item.state === "provider_gated" ||
+      item.state === "protected_payment_required" ||
       item.state === "external_required",
     )
     .reduce((total, item) => total + item.count, 0);
+  const panelRecoveryAccessCount = panelRecoveryTruthItems
+    .filter((item) => item.state === "permission_blocked" || item.state === "hidden_by_role")
+    .reduce((total, item) => total + item.count, 0);
   const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
   const showPanelRecovery = Boolean(panelHydrationSummary) && (panelRecoveryTruthItems.length > 0 || connectedPanelCount < totalPanelCount);
-  const panelRecoveryReviewCount = panelRecoveryNeedsEvidenceCount > 0 && panelRecoverySourceGapCount === 0 && panelRecoveryEvidenceGateCount === 0 ? panelRecoveryNeedsEvidenceCount : 0;
+  const panelRecoveryReviewCount = Math.max(
+    0,
+    panelRecoveryNeedsEvidenceCount - panelRecoverySourceGapCount - panelRecoveryEvidenceGateCount - panelRecoveryAccessCount,
+  );
   const panelRecoveryGateSummary = panelRecoveryEvidenceGateCount > 0
     ? groupPanelRecoveryTruthItems(panelRecoveryTruthItems.filter((item) =>
         item.state === "runtime_evidence_required" ||
         item.state === "admin_truth_source_required" ||
         item.state === "provider_gated" ||
+        item.state === "protected_payment_required" ||
         item.state === "external_required",
       ))
-        .map((item) => formatPanelRecoveryCount(item.count, item.label, item.label))
+        .map((item) => formatPanelRecoveryStateCount(item.count, item.label))
         .join(", ")
     : null;
   const sourceRecoverySummaryParts = [
     panelRecoverySourceGapCount > 0 ? formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap") : null,
     panelRecoveryGateSummary,
-    panelRecoveryWaitingCount > 0 ? `${panelRecoveryWaitingCount} collecting activity` : null,
-    panelRecoveryReviewCount > 0 ? `${panelRecoveryReviewCount} needs review` : null,
+    panelRecoveryAccessCount > 0 ? formatPanelRecoveryStateCount(panelRecoveryAccessCount, "access restricted") : null,
+    panelRecoveryWaitingCount > 0 ? formatPanelRecoveryStateCount(panelRecoveryWaitingCount, "collecting activity") : null,
+    panelRecoveryReviewCount > 0 ? formatPanelRecoveryStateCount(panelRecoveryReviewCount, "needs review") : null,
   ].filter((item): item is string => Boolean(item));
   const sourceRecoverySummary = sourceRecoverySummaryParts.length > 0
     ? sourceRecoverySummaryParts.join(" - ")
@@ -768,7 +798,7 @@ export default function AdminAnalyticsPage() {
                             data-panel-recovery-truth-state={item.primaryState}
                             data-panel-recovery-truth-states={item.states.join(",")}
                           >
-                            {formatPanelRecoveryCount(item.count, item.label, item.label)}
+                            {formatPanelRecoveryStateCount(item.count, item.label)}
                           </li>
                         );
                       })}

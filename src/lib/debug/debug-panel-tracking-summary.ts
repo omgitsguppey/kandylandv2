@@ -418,15 +418,23 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const personHydrationGaps = toNumber(personHydration.gaps);
   const personHydrationMapped = toNumber(personHydration.personMetricsMapped);
   const personHydrationLowConfidence = toNumber(personHydration.lowConfidenceMetrics);
+  const personHydrationEvidenceMode = String(input.personMetricsHydration?.evidenceMode ?? "unknown");
+  const personHydrationNoRuntimeSample = personHydrationEvidenceMode === "runtime_evidence_required"
+    && toNumber(personHydration.eventEnvelopesHydrated) === 0;
+  const personHydrationWarnings = personHydrationNoRuntimeSample && personHydrationGaps === 0
+    ? 0
+    : personHydrationGaps + personHydrationLowConfidence;
   const personHydrationStatus = personHydrationGaps > 0
     ? "degraded"
-    : personHydrationLowConfidence > 0
-      ? "source_ready_collecting"
-      : personHydrationMapped > 0 && toNumber(personHydration.eventEnvelopesHydrated) === 0
+    : personHydrationNoRuntimeSample
+      ? "source_ready_no_sample_loaded"
+      : personHydrationLowConfidence > 0
         ? "source_ready_collecting"
-        : personHydrationMapped > 0
-          ? "live"
-          : toStatus(input.personMetricsHydration?.status);
+        : personHydrationMapped > 0 && toNumber(personHydration.eventEnvelopesHydrated) === 0
+          ? "source_ready_collecting"
+          : personHydrationMapped > 0
+            ? "live"
+            : toStatus(input.personMetricsHydration?.status);
   const userManagement = input.userManagementRefactor?.debugLane ?? {};
   const userManagementLowConfidence = toNumber(userManagement.lowConfidenceMetrics);
   const userManagementSummarized = toNumber(userManagement.usersSummarized);
@@ -1052,11 +1060,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       sourceOwner: "analytics",
       sourceOfTruth: "src/lib/analytics/person-metrics-hydration.ts",
       status: personHydrationStatus,
-      severity: severityFromCounts(0, personHydrationGaps + personHydrationLowConfidence, personHydrationStatus),
+      severity: severityFromCounts(0, personHydrationWarnings, personHydrationStatus),
       scoreImpact: "high",
-      primarySignal: `Mapped=${personHydrationMapped}; envelopes=${toNumber(personHydration.eventEnvelopesHydrated)}; global=${toNumber(personHydration.globalMetricsHydrated)}; signed-in=${toNumber(personHydration.signedInMetricsHydrated)}; linked=${toNumber(personHydration.linkedPersonMetricsHydrated)}; low-confidence=${personHydrationLowConfidence}; gaps=${personHydrationGaps}.`,
+      primarySignal: `Evidence=${personHydrationEvidenceMode}; mapped=${personHydrationMapped}; envelopes=${toNumber(personHydration.eventEnvelopesHydrated)}; global=${toNumber(personHydration.globalMetricsHydrated)}; signed-in=${toNumber(personHydration.signedInMetricsHydrated)}; linked=${toNumber(personHydration.linkedPersonMetricsHydrated)}; low-confidence=${personHydrationLowConfidence}; gaps=${personHydrationGaps}.`,
       criticalCount: 0,
-      warningCount: personHydrationGaps + personHydrationLowConfidence,
+      warningCount: personHydrationWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#person-metrics-hydration",
     }),
     makeLane({

@@ -321,10 +321,14 @@ function main() {
   if (oldUserManagementLogic.some((entry) => entry.classification === "duplicate_user_table" || entry.classification === "raw_dump_default")) failures.push("old duplicate/raw user management logic remains active.");
   if (report.dirtyFiles.some((file) => file.classification === "unsafe_unknown")) failures.push("dirty files unclassified.");
   if (report.validation.chatNavPaymentRuntimeChanged) failures.push("chat/nav/payment runtime changed.");
+  if (!currentHead || !/^[0-9a-f]{40}$/iu.test(currentHead)) failures.push("current Git head is missing or is not a full commit SHA.");
 
-  const output: UserManagementRefactorReport = {
+  const output = {
     ...report,
-    status: failures.length > 0 ? "fail" : "pass",
+    sourceCommit: currentHead ?? "unknown",
+    status: failures.length > 0 ? "fail" as const : "pass" as const,
+    passed: failures.length === 0,
+    canClearSourceGate: failures.length === 0,
     validationFailures: [...new Set(failures)],
   };
 

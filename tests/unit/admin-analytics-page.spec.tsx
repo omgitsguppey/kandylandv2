@@ -145,10 +145,17 @@ const mockState = vi.hoisted(() => {
           collecting: 2,
           sourceReadyWaitingForActivity: 1,
           notObservedButExpected: 2,
+          stale: 0,
           sourceMissing: 1,
           materializerMissing: 1,
           bridgeMissing: 0,
+          runtimeEvidenceRequired: 0,
+          adminTruthSourceRequired: 0,
+          providerGated: 0,
+          protectedPaymentRequired: 0,
           externalRequired: 1,
+          permissionBlocked: 0,
+          hiddenByRole: 0,
           broken: 0,
           topNextActions: [
             "Audience snapshot: Refresh analytics_admin_metric_snapshots before treating audience as hydrated.",
@@ -313,6 +320,11 @@ describe("AdminAnalyticsPage", () => {
     expect(ANALYTICS_STATE_SOURCE).toContain("unknownDeviceUsers");
     expect(ANALYTICS_STATE_SOURCE).toContain("classifiedDeviceUsers > 0");
     expect(ANALYTICS_STATE_SOURCE).not.toContain("? totalDeviceUsers > 0");
+  });
+
+  it("uses the exact wallet-open metric for wallet panel hydration", () => {
+    expect(ANALYTICS_STATE_SOURCE).toContain("hasData: funnel.walletOpens > 0");
+    expect(ANALYTICS_STATE_SOURCE).not.toContain("hasData: packagePerformanceItems.length > 0 || recentCommerceFeedItems.length > 0");
   });
 
   it("derives launch recovery confidence from canonical confidence bands", () => {
@@ -620,16 +632,16 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("3/11 connected");
     expect(container.textContent).not.toContain("3 source details");
     expect(container.textContent).toContain("2 source gaps");
-    expect(container.textContent).toContain("1 external source required");
+    expect(container.textContent).toContain("1 panel: external source required");
     expect(container.textContent).not.toContain("1 source evidence required");
-    expect(container.textContent).toContain("5 collecting activity");
+    expect(container.textContent).toContain("5 panels: collecting activity");
     expect(container.textContent).not.toMatch(/evidence gate|source note/u);
     expect(container.textContent).not.toContain("3 need source");
-    expect(container.textContent).toContain("2 collecting");
-    expect(container.textContent).toContain("1 collecting activity");
-    expect(container.textContent).toContain("2 no recent activity");
-    expect(container.textContent).toContain("1 source missing");
-    expect(container.textContent).toContain("1 materializer missing");
+    expect(container.textContent).toContain("2 panels: collecting");
+    expect(container.textContent).toContain("1 panel: collecting activity");
+    expect(container.textContent).toContain("2 panels: no recent activity");
+    expect(container.textContent).toContain("1 panel: source missing");
+    expect(container.textContent).toContain("1 panel: materializer missing");
     expect(container.textContent).not.toContain("need verification");
     expect(container.textContent).not.toContain("snapshot-first realtime payload");
     expect(container.textContent).not.toContain("Repair src/");
@@ -643,6 +655,54 @@ describe("AdminAnalyticsPage", () => {
       "Traffic overview: Reconnect the source so Traffic overview can hydrate.",
     );
     expect(container.textContent).not.toContain("platform_pulse:30d");
+  });
+
+  it("shows stale, permission, provider, protected-payment, and external recovery truths without double counting", async () => {
+    const currentPanelHydration = mockState.analyticsState.panelHydration as Record<string, unknown>;
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      panelHydration: {
+        ...currentPanelHydration,
+        summary: {
+          totalPanels: 11,
+          hydrated: 4,
+          collecting: 0,
+          sourceReadyWaitingForActivity: 0,
+          notObservedButExpected: 0,
+          stale: 1,
+          sourceMissing: 0,
+          materializerMissing: 0,
+          bridgeMissing: 0,
+          runtimeEvidenceRequired: 0,
+          adminTruthSourceRequired: 0,
+          providerGated: 2,
+          protectedPaymentRequired: 1,
+          externalRequired: 1,
+          permissionBlocked: 1,
+          hiddenByRole: 1,
+          broken: 1,
+          topNextActions: [],
+        },
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("1 panel: stale source");
+    expect(container.textContent).toContain("1 panel: permission blocked");
+    expect(container.textContent).toContain("1 panel: hidden by role");
+    expect(container.textContent).toContain("1 panel: source failed");
+    expect(container.textContent).toContain("2 panels: provider-backed activity required");
+    expect(container.textContent).toContain("1 panel: protected payment proof required");
+    expect(container.textContent).toContain("1 panel: external source required");
+    expect(container.textContent).not.toContain("4 panels: external source required");
+    expect(container.textContent).not.toContain("1 not configured");
+    expect(container.querySelector("[data-panel-recovery-truth-state='stale']")).toBeTruthy();
+    expect(container.querySelector("[data-panel-recovery-truth-state='permission_blocked']")).toBeTruthy();
+    expect(container.querySelector("[data-panel-recovery-truth-state='hidden_by_role']")).toBeTruthy();
+    expect(container.querySelector("[data-panel-recovery-truth-state='protected_payment_required']")).toBeTruthy();
   });
 
   it("does not render generic cache or debug-only realtime policy as source warnings", async () => {

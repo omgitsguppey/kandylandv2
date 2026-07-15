@@ -8,6 +8,7 @@ import {
   resolvePanelHydration,
   validateAnalyticsPanelHydrationReport,
 } from "@/lib/admin-analytics/panel-hydration-resolver";
+import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
 import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
 
 const scoreDimensions = {
@@ -19,8 +20,125 @@ const scoreDimensions = {
   regressionRisk: 86,
 };
 
+const CURRENT_HEAD = "0123456789abcdef0123456789abcdef01234567";
+
+function compactMetricRow(metricId: "auth_runtime_events" | "chat_actions", state: "hydrated" | "collecting" = "collecting") {
+  return {
+    metricId,
+    state,
+    count: state === "hydrated" ? 1 : 0,
+    confidence: state === "hydrated" ? "exact" : "unknown",
+    provenZero: false,
+  };
+}
+
+function compactScope(
+  scope: "global" | "guest" | "signedIn" | "linkedPerson" | "creatorRole",
+  hydratedMetricIds: string[] = [],
+) {
+  return {
+    scope,
+    totalCount: hydratedMetricIds.length,
+    lowConfidenceCount: 0,
+    metricCount: 37,
+    hydratedMetricIds,
+    provenZeroMetricIds: [],
+  };
+}
+
 function lineCount(path: string) {
   return readFileSync(path, "utf8").split(/\r?\n/u).length;
+}
+
+function compactPersonMetricsArtifact(overrides: Record<string, unknown> = {}) {
+  const consumerRows = [compactMetricRow("auth_runtime_events"), compactMetricRow("chat_actions")];
+  const status = overrides.status === "review" ? "review" : "pass";
+  const evidenceMode = overrides.evidenceMode === "bounded_runtime_sample"
+    ? "bounded_runtime_sample"
+    : overrides.evidenceMode === "runtime_evidence_required"
+      ? "runtime_evidence_required"
+      : "source_validation_fixture";
+  return {
+    reportKey: "person-metrics-hydration",
+    generatedAtUtc: new Date().toISOString(),
+    currentHead: CURRENT_HEAD,
+    sourceCommit: CURRENT_HEAD,
+    status,
+    passed: status === "pass",
+    evidenceMode,
+    evidenceClass: evidenceMode === "bounded_runtime_sample" ? "runtime_redacted" : "source_snapshot",
+    canClearSourceGate: evidenceMode === "source_validation_fixture" && status === "pass",
+    canClearRuntimeGate: evidenceMode === "bounded_runtime_sample",
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
+    boundedRuntimeWindow: null,
+    fakeMetricsUsed: true,
+    validationFailures: [],
+    metricStatus: { total: 37, emitted: 0, omitted: 37, sample: [] },
+    consumerMetricStatus: {
+      total: 37,
+      emitted: consumerRows.length,
+      omitted: 37 - consumerRows.length,
+      sample: consumerRows,
+      byId: Object.fromEntries(consumerRows.map((row) => [row.metricId, row])),
+    },
+    userParityStatus: { total: 37, emitted: 0, omitted: 37, sample: [] },
+    userParityGaps: { total: 0, emitted: 0, omitted: 0, sample: [], byId: {} },
+    scopes: [
+      compactScope("global"),
+      compactScope("guest"),
+      compactScope("signedIn"),
+      compactScope("linkedPerson"),
+      compactScope("creatorRole"),
+    ],
+    compaction: { fullReportValidatedInMemory: true },
+    ...overrides,
+  };
+}
+
+function boundedPersonMetricsArtifact(metricId: "auth_runtime_events" | "chat_actions") {
+  const now = Date.now();
+  const consumerRows = [
+    compactMetricRow("auth_runtime_events", metricId === "auth_runtime_events" ? "hydrated" : "collecting"),
+    compactMetricRow("chat_actions", metricId === "chat_actions" ? "hydrated" : "collecting"),
+  ];
+  return compactPersonMetricsArtifact({
+    generatedAtUtc: new Date(now).toISOString(),
+    evidenceMode: "bounded_runtime_sample",
+    fakeMetricsUsed: false,
+    boundedRuntimeWindow: {
+      startedAtUtc: new Date(now - 5 * 60 * 1000).toISOString(),
+      endedAtUtc: new Date(now - 1000).toISOString(),
+      source: "redacted_admin_runtime_sample",
+    },
+    consumerMetricStatus: {
+      total: 37,
+      emitted: consumerRows.length,
+      omitted: 37 - consumerRows.length,
+      sample: consumerRows,
+      byId: Object.fromEntries(consumerRows.map((row) => [row.metricId, row])),
+    },
+    scopes: [
+      compactScope("global", [metricId]),
+      compactScope("guest"),
+      compactScope("signedIn", [metricId]),
+      compactScope("linkedPerson"),
+      compactScope("creatorRole"),
+    ],
+  });
+}
+
+function persistedEventArtifact(classifications: Array<Record<string, unknown>>, overrides: Record<string, unknown> = {}) {
+  return {
+    reportKey: "event-liveness-audit",
+    status: "pass",
+    validationFailures: [],
+    generatedAtUtc: new Date().toISOString(),
+    currentHead: CURRENT_HEAD,
+    sourceCommit: CURRENT_HEAD,
+    classifications,
+    ...overrides,
+  };
 }
 
 describe("analytics panel hydration", () => {
@@ -34,10 +152,12 @@ describe("analytics panel hydration", () => {
   });
 
   it("keeps the generated hydration report compact while retaining panel lookup", () => {
+    const now = new Date().toISOString();
     const report = buildAnalyticsPanelHydrationReport({
       currentHead: "head",
+      generatedAtUtc: now,
       scoreDimensions,
-      runtimeSignals: [{ panelId: "traffic_overview", hasData: true, sourceLoaded: true }],
+      runtimeSignals: [{ panelId: "traffic_overview", hasData: true, sourceLoaded: true, lastSeenAt: now }],
     });
 
     expect(report.panelStatus.traffic_overview.hydrationStatus).toBe("hydrated");
@@ -72,38 +192,522 @@ describe("analytics panel hydration", () => {
   });
 
   it("prefers user parity gaps over global person metric hydration", () => {
+    const gap = {
+      metricId: "visits",
+      state: "bridge_missing",
+      globalCount: 4,
+      guestCount: 0,
+      signedInCount: 0,
+      linkedPersonCount: 0,
+      creatorRoleCount: 0,
+      provenZero: false,
+      blocksUserParity: true,
+      debugNextAction: "Global visits exist, but user/person bridge is missing.",
+    };
     const panel = resolvePanelHydration({
       panelId: "traffic_overview",
-      personMetricsHydration: {
-        metricStatus: {
-          visits: {
-            metricId: "visits",
-            state: "hydrated",
-            count: 4,
-            confidence: "exact",
-            provenZero: false,
-          },
+      personMetricsHydration: compactPersonMetricsArtifact({
+        status: "review",
+        userParityGaps: {
+          total: 1,
+          emitted: 1,
+          omitted: 0,
+          sample: [gap],
+          byId: { visits: gap },
         },
-        userParityStatus: {
-          visits: {
-            metricId: "visits",
-            state: "bridge_missing",
-            globalCount: 4,
-            guestCount: 0,
-            signedInCount: 0,
-            linkedPersonCount: 0,
-            creatorRoleCount: 0,
-            provenZero: false,
-            blocksUserParity: true,
-            debugNextAction: "Global visits exist, but user/person bridge is missing.",
-          },
-        },
-      },
+      }),
     });
 
     expect(panel.hydrationStatus).toBe("bridge_missing");
     expect(panel.userSafeDisplayState).toBe("show_not_connected");
     expect(panel.canDisplayZero).toBe(false);
+  });
+
+  it("allows only bounded runtime person-metric samples to hydrate panels", () => {
+    const sourceFixture = resolvePanelHydration({
+      panelId: "auth_attempts_failures",
+      personMetricsHydration: {
+        ...boundedPersonMetricsArtifact("auth_runtime_events"),
+        evidenceMode: "source_validation_fixture",
+        evidenceClass: "source_snapshot",
+        boundedRuntimeWindow: null,
+        fakeMetricsUsed: true,
+        canClearSourceGate: true,
+        canClearRuntimeGate: false,
+      },
+    });
+    const boundedRuntime = resolvePanelHydration({
+      panelId: "auth_attempts_failures",
+      personMetricsHydration: boundedPersonMetricsArtifact("auth_runtime_events"),
+    });
+
+    expect(sourceFixture.hydrationStatus).toBe("collecting");
+    expect(sourceFixture.liveEvidenceContribution).toBe("source_exists_collecting");
+    expect(boundedRuntime.hydrationStatus).toBe("hydrated");
+    expect(boundedRuntime.liveEvidenceContribution).toBe("clears_live_evidence");
+  });
+
+  it("allows only bounded runtime evidence to prove a person metric is zero", () => {
+    const zeroRow = {
+      ...compactMetricRow("auth_runtime_events", "hydrated"),
+      count: 0,
+      provenZero: true,
+    };
+    const chatRow = compactMetricRow("chat_actions");
+    const global = { ...compactScope("global"), provenZeroMetricIds: ["auth_runtime_events"] };
+    const boundedZero = compactPersonMetricsArtifact({
+      evidenceMode: "bounded_runtime_sample",
+      fakeMetricsUsed: false,
+      boundedRuntimeWindow: {
+        startedAtUtc: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+        endedAtUtc: new Date(Date.now() - 1000).toISOString(),
+        source: "redacted_admin_runtime_sample",
+      },
+      consumerMetricStatus: {
+        total: 37,
+        emitted: 2,
+        omitted: 35,
+        sample: [zeroRow, chatRow],
+        byId: { auth_runtime_events: zeroRow, chat_actions: chatRow },
+      },
+      scopes: [
+        global,
+        compactScope("guest"),
+        compactScope("signedIn"),
+        compactScope("linkedPerson"),
+        compactScope("creatorRole"),
+      ],
+    });
+    const sourceFixtureZero = {
+      ...boundedZero,
+      evidenceMode: "source_validation_fixture",
+      evidenceClass: "source_snapshot",
+      boundedRuntimeWindow: null,
+      fakeMetricsUsed: true,
+      canClearSourceGate: true,
+      canClearRuntimeGate: false,
+    };
+
+    const bounded = resolvePanelHydration({ panelId: "auth_attempts_failures", personMetricsHydration: boundedZero });
+    const fixture = resolvePanelHydration({ panelId: "auth_attempts_failures", personMetricsHydration: sourceFixtureZero });
+
+    expect(bounded.hydrationStatus).toBe("hydrated");
+    expect(bounded.canDisplayZero).toBe(true);
+    expect(fixture.hydrationStatus).toBe("collecting");
+    expect(fixture.canDisplayZero).toBe(false);
+  });
+
+  it("preserves an indexed wallet parity gap over positive event evidence", () => {
+    const walletGap = {
+      metricId: "wallet_opens",
+      state: "bridge_missing",
+      globalCount: 4,
+      guestCount: 0,
+      signedInCount: 0,
+      linkedPersonCount: 0,
+      creatorRoleCount: 0,
+      provenZero: false,
+      blocksUserParity: true,
+      debugNextAction: "Repair the wallet identity bridge.",
+    };
+    const panel = resolvePanelHydration({
+      panelId: "wallet_opens",
+      eventLivenessAudit: {
+        classifications: [{ eventName: "wallet_opened", livenessStatus: "observed_recently", lastSeenAtUtc: new Date().toISOString() }],
+      },
+      personMetricsHydration: compactPersonMetricsArtifact({
+        status: "review",
+        userParityGaps: {
+          total: 1,
+          emitted: 0,
+          omitted: 1,
+          sample: [],
+          byId: { wallet_opens: walletGap },
+        },
+      }),
+    });
+
+    expect(panel.hydrationStatus).toBe("bridge_missing");
+    expect(panel.userSafeDisplayState).toBe("show_not_connected");
+    expect(panel.liveEvidenceContribution).toBe("actionable_gap");
+    expect(panel.canDisplayZero).toBe(false);
+  });
+
+  it("keeps guest-only wallet activity global while blocking person-panel parity", () => {
+    const walletRow = {
+      metricId: "wallet_opens",
+      state: "hydrated",
+      count: 1,
+      confidence: "weak",
+      provenZero: false,
+    };
+    const walletGap = {
+      metricId: "wallet_opens",
+      state: "bridge_missing",
+      globalCount: 1,
+      guestCount: 1,
+      signedInCount: 0,
+      linkedPersonCount: 0,
+      creatorRoleCount: 0,
+      provenZero: false,
+      blocksUserParity: true,
+    };
+    const authRow = compactMetricRow("auth_runtime_events");
+    const chatRow = compactMetricRow("chat_actions");
+    const panel = resolvePanelHydration({
+      panelId: "wallet_opens",
+      personMetricsHydration: compactPersonMetricsArtifact({
+        status: "review",
+        consumerMetricStatus: {
+          total: 37,
+          emitted: 3,
+          omitted: 34,
+          sample: [authRow, chatRow, walletRow],
+          byId: { auth_runtime_events: authRow, chat_actions: chatRow, wallet_opens: walletRow },
+        },
+        userParityGaps: { total: 1, emitted: 0, omitted: 1, sample: [], byId: { wallet_opens: walletGap } },
+        scopes: [
+          compactScope("global", ["wallet_opens"]),
+          compactScope("guest", ["wallet_opens"]),
+          compactScope("signedIn"),
+          compactScope("linkedPerson"),
+          compactScope("creatorRole"),
+        ],
+      }),
+    });
+
+    expect(panel.hydrationStatus).toBe("bridge_missing");
+    expect(panel.canDisplayZero).toBe(false);
+  });
+
+  it("does not let compact scope summaries inject unindexed panel evidence", () => {
+    const panel = resolvePanelHydration({
+      panelId: "wallet_opens",
+      personMetricsHydration: compactPersonMetricsArtifact({
+        evidenceMode: "bounded_runtime_sample",
+        fakeMetricsUsed: false,
+        boundedRuntimeWindow: {
+          startedAtUtc: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+          endedAtUtc: new Date(Date.now() - 1000).toISOString(),
+          source: "redacted_admin_runtime_sample",
+        },
+        scopes: [
+          compactScope("global", ["wallet_opens"]),
+          compactScope("guest"),
+          compactScope("signedIn", ["wallet_opens"]),
+          compactScope("linkedPerson"),
+          compactScope("creatorRole"),
+        ],
+      }),
+    });
+
+    expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+    expect(panel.liveEvidenceContribution).toBe("formal_evidence_required");
+  });
+
+  it("requires typed runtime authority for bounded person-metric clears", () => {
+    const bounded = boundedPersonMetricsArtifact("auth_runtime_events");
+    for (const personMetricsHydration of [
+      { ...bounded, canClearRuntimeGate: false },
+      { ...bounded, evidenceClass: "source_snapshot" },
+      {
+        ...bounded,
+        boundedRuntimeWindow: {
+          startedAtUtc: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+          endedAtUtc: new Date(Date.now() - 1000).toISOString(),
+          source: "untyped_sample",
+        },
+      },
+    ]) {
+      const panel = resolvePanelHydration({ panelId: "auth_attempts_failures", personMetricsHydration });
+      expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+      expect(panel.canDisplayZero).toBe(false);
+    }
+  });
+
+  it("rejects malformed or unresolved compact person-metric artifacts", () => {
+    const positiveScopes = [
+      compactScope("global", ["wallet_opens"]),
+      compactScope("guest"),
+      compactScope("signedIn", ["wallet_opens"]),
+      compactScope("linkedPerson"),
+      compactScope("creatorRole"),
+    ];
+    const cases = [
+      compactPersonMetricsArtifact({ validationFailures: ["source validation failed"], scopes: positiveScopes }),
+      compactPersonMetricsArtifact({ validationFailures: undefined, scopes: positiveScopes }),
+      compactPersonMetricsArtifact({
+        scopes: positiveScopes,
+        userParityGaps: { total: 1, emitted: 0, omitted: 1, sample: [] },
+      }),
+      compactPersonMetricsArtifact({
+        scopes: positiveScopes,
+        userParityGaps: {
+          total: 1,
+          emitted: 0,
+          omitted: 1,
+          sample: [],
+          byId: { wallet_opens: {} },
+        },
+      }),
+    ];
+
+    for (const personMetricsHydration of cases) {
+      const panel = resolvePanelHydration({
+        panelId: "wallet_opens",
+        eventLivenessAudit: {
+          classifications: [{ eventName: "wallet_opened", livenessStatus: "observed_recently", lastSeenAtUtc: new Date().toISOString() }],
+        },
+        personMetricsHydration,
+      });
+      expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+      expect(panel.userSafeDisplayState).toBe("show_not_connected");
+      expect(panel.liveEvidenceContribution).toBe("formal_evidence_required");
+      expect(panel.canDisplayZero).toBe(false);
+    }
+  });
+
+  it("rejects stale, wrong-head, internally inconsistent, or injected compact person evidence", () => {
+    const now = Date.now();
+    const evaluatedAtUtc = new Date(now).toISOString();
+    const positive = boundedPersonMetricsArtifact("auth_runtime_events");
+    const consumerStatus = positive.consumerMetricStatus as {
+      sample: Array<Record<string, unknown>>;
+      byId: Record<string, Record<string, unknown>>;
+    };
+    const injectedWallet = {
+      metricId: "wallet_opens",
+      state: "hydrated",
+      count: 999,
+      confidence: "exact",
+      provenZero: false,
+    };
+    const cases = [
+      { ...positive, currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+      { ...positive, sourceCommit: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+      { ...positive, generatedAtUtc: new Date(now - 25 * 60 * 60 * 1000).toISOString() },
+      { ...positive, generatedAtUtc: new Date(now + 60 * 1000).toISOString() },
+      { ...positive, metricStatus: { total: 37, emitted: 1, omitted: 36, sample: [] } },
+      {
+        ...positive,
+        consumerMetricStatus: {
+          total: 37,
+          emitted: 3,
+          omitted: 34,
+          sample: [...consumerStatus.sample, injectedWallet],
+          byId: { ...consumerStatus.byId, wallet_opens: injectedWallet },
+        },
+      },
+      {
+        ...positive,
+        scopes: [
+          compactScope("global", ["auth_runtime_events"]),
+          compactScope("guest"),
+          compactScope("signedIn"),
+          compactScope("linkedPerson"),
+          compactScope("creatorRole"),
+        ],
+      },
+    ];
+
+    for (const personMetricsHydration of cases) {
+      const panel = resolvePanelHydration({
+        panelId: "auth_attempts_failures",
+        currentHead: CURRENT_HEAD,
+        generatedAtUtc: evaluatedAtUtc,
+        personMetricsHydration,
+        runtimeSignals: [{
+          panelId: "auth_attempts_failures",
+          hasData: true,
+          sourceLoaded: true,
+          lastSeenAt: evaluatedAtUtc,
+        }],
+      });
+
+      expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+      expect(panel.liveEvidenceContribution).toBe("formal_evidence_required");
+      expect(panel.canDisplayZero).toBe(false);
+    }
+  });
+
+  it("does not reinterpret a no-sample person report as a materializer failure", () => {
+    const panel = resolvePanelHydration({
+      panelId: "traffic_overview",
+      personMetricsHydration: buildPersonMetricsHydrationReport() as unknown as Record<string, unknown>,
+    });
+
+    expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+    expect(panel.reason).toContain("bounded route or debug runtime evidence");
+    expect(panel.hydrationStatus).not.toBe("materializer_missing");
+  });
+
+  it("keeps source-validation fixtures out of live-panel clears", () => {
+    const fixture = {
+      ...boundedPersonMetricsArtifact("auth_runtime_events"),
+      evidenceMode: "source_validation_fixture",
+      evidenceClass: "source_snapshot",
+      boundedRuntimeWindow: null,
+      fakeMetricsUsed: true,
+      canClearSourceGate: true,
+      canClearRuntimeGate: false,
+    };
+    const report = buildAnalyticsPanelHydrationReport({
+      currentHead: CURRENT_HEAD,
+      scoreDimensions,
+      personMetricsHydration: fixture,
+    });
+    const liveEvidence = buildLivePanelEvidenceReport(report);
+
+    expect(report.panelStatus.auth_attempts_failures.hydrationStatus).toBe("collecting");
+    expect(liveEvidence.liveEvidencePanelIds).not.toContain("auth_attempts_failures");
+    expect(liveEvidence.decisions.find((decision) => decision.panelId === "auth_attempts_failures")).toMatchObject({
+      status: "source_exists_collecting",
+    });
+  });
+
+  it("requires fresh timestamps for runtime data and proven-zero claims", () => {
+    const now = Date.now();
+    const generatedAtUtc = new Date(now).toISOString();
+    const resolve = (signal: { hasData?: boolean; provenZero?: boolean; lastSeenAt?: string }) => resolvePanelHydration({
+      panelId: "traffic_overview",
+      generatedAtUtc,
+      runtimeSignals: [{ panelId: "traffic_overview", sourceLoaded: true, ...signal }],
+    });
+
+    expect(resolve({ hasData: true, lastSeenAt: new Date(now - 1000).toISOString() }).hydrationStatus).toBe("hydrated");
+    expect(resolve({ hasData: true }).hydrationStatus).toBe("runtime_evidence_required");
+    expect(resolve({ hasData: true, lastSeenAt: new Date(now + 1000).toISOString() }).hydrationStatus).toBe("runtime_evidence_required");
+    expect(resolve({ hasData: true, lastSeenAt: new Date(now - 25 * 60 * 60 * 1000).toISOString() }).hydrationStatus).toBe("stale");
+    const staleZero = resolve({ provenZero: true, lastSeenAt: new Date(now - 25 * 60 * 60 * 1000).toISOString() });
+    expect(staleZero.hydrationStatus).toBe("stale");
+    expect(staleZero.canDisplayZero).toBe(false);
+  });
+
+  it("requires an explicitly loaded source before runtime values or zero can hydrate", () => {
+    const now = new Date().toISOString();
+    for (const signal of [{ hasData: true }, { provenZero: true }]) {
+      const panel = resolvePanelHydration({
+        panelId: "traffic_overview",
+        generatedAtUtc: now,
+        runtimeSignals: [{ panelId: "traffic_overview", lastSeenAt: now, ...signal }],
+      });
+      expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+      expect(panel.canDisplayZero).toBe(false);
+    }
+  });
+
+  it("keeps explicit runtime failures visible when persisted evidence is rejected", () => {
+    const now = new Date().toISOString();
+    const rejectedEvidence = compactPersonMetricsArtifact({ validationFailures: ["invalid artifact"] });
+    const cases = [
+      { signal: { error: "route exploded" }, status: "broken" },
+      { signal: { permissionBlocked: true }, status: "permission_blocked" },
+      { signal: { sourceLoaded: false }, status: "source_missing" },
+    ] as const;
+    for (const testCase of cases) {
+      const panel = resolvePanelHydration({
+        panelId: "traffic_overview",
+        generatedAtUtc: now,
+        personMetricsHydration: rejectedEvidence,
+        runtimeSignals: [{ panelId: "traffic_overview", ...testCase.signal }],
+      });
+      expect(panel.hydrationStatus).toBe(testCase.status);
+    }
+  });
+
+  it("gives person blockers priority over otherwise fresh runtime positives", () => {
+    const now = new Date().toISOString();
+    const gap = {
+      metricId: "visits",
+      state: "bridge_missing",
+      globalCount: 1,
+      guestCount: 0,
+      signedInCount: 0,
+      linkedPersonCount: 0,
+      creatorRoleCount: 0,
+      provenZero: false,
+      blocksUserParity: true,
+    };
+    const panel = resolvePanelHydration({
+      panelId: "traffic_overview",
+      generatedAtUtc: now,
+      personMetricsHydration: compactPersonMetricsArtifact({
+        status: "review",
+        userParityGaps: { total: 1, emitted: 1, omitted: 0, sample: [gap], byId: { visits: gap } },
+      }),
+      runtimeSignals: [{ panelId: "traffic_overview", hasData: true, sourceLoaded: true, lastSeenAt: now }],
+    });
+
+    expect(panel.hydrationStatus).toBe("bridge_missing");
+    expect(panel.liveEvidenceContribution).toBe("actionable_gap");
+  });
+
+  it("requires strict event verdict provenance and prioritizes blocking classifications", () => {
+    const now = Date.now();
+    const generatedAtUtc = new Date(now).toISOString();
+    const recent = { eventName: "drop_preview_opened", livenessStatus: "observed_recently", lastSeenAtUtc: generatedAtUtc };
+    const runtimeSignal = [{ panelId: "drop_opens", hasData: true, sourceLoaded: true, lastSeenAt: generatedAtUtc }];
+    const rejected = [
+      persistedEventArtifact([recent], { status: "fail" }),
+      persistedEventArtifact([recent], { validationFailures: ["event source failed"] }),
+      persistedEventArtifact([recent], {
+        currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      }),
+      persistedEventArtifact([recent], { sourceCommit: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }),
+      persistedEventArtifact([recent], { generatedAtUtc: new Date(now - 25 * 60 * 60 * 1000).toISOString() }),
+    ];
+
+    for (const eventLivenessAudit of rejected) {
+      const panel = resolvePanelHydration({
+        panelId: "drop_opens",
+        currentHead: CURRENT_HEAD,
+        generatedAtUtc,
+        eventLivenessAudit,
+        runtimeSignals: runtimeSignal,
+      });
+      expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+      expect(panel.liveEvidenceContribution).toBe("formal_evidence_required");
+    }
+
+    const mixed = resolvePanelHydration({
+      panelId: "drop_opens",
+      currentHead: CURRENT_HEAD,
+      generatedAtUtc,
+      eventLivenessAudit: persistedEventArtifact([
+        recent,
+        { eventName: "drop_preview_opened", livenessStatus: "source_missing" },
+      ]),
+    });
+    expect(mixed.hydrationStatus).toBe("source_missing");
+
+    const staleClassification = resolvePanelHydration({
+      panelId: "drop_opens",
+      currentHead: CURRENT_HEAD,
+      generatedAtUtc,
+      eventLivenessAudit: persistedEventArtifact([{
+        ...recent,
+        lastSeenAtUtc: new Date(now - 25 * 60 * 60 * 1000).toISOString(),
+      }]),
+    });
+    expect(staleClassification.hydrationStatus).toBe("stale");
+  });
+
+  it("does not let global event evidence hydrate a person panel without person evidence", () => {
+    const now = new Date().toISOString();
+    const panel = resolvePanelHydration({
+      panelId: "drop_opens",
+      currentHead: CURRENT_HEAD,
+      generatedAtUtc: now,
+      eventLivenessAudit: persistedEventArtifact([{
+        eventName: "drop_preview_opened",
+        livenessStatus: "observed_recently",
+        lastSeenAtUtc: now,
+      }]),
+    });
+
+    expect(panel.hydrationStatus).toBe("runtime_evidence_required");
+    expect(panel.liveEvidenceContribution).toBe("formal_evidence_required");
   });
 
   it("keeps source-ready panel mappings distinct from runtime evidence", () => {
@@ -182,6 +786,14 @@ describe("analytics panel hydration", () => {
     expect(report.liveEvidenceContribution.externalRequired).not.toContain("error_rate_4xx");
     expect(report.debugLane.runtimeEvidenceRequired).toBe(report.runtimeEvidenceRequiredPanels);
     expect(report.debugLane.adminTruthSourceRequired).toBe(report.adminTruthSourceRequiredPanels);
+    expect(report.debugLane.providerGated).toBe(report.providerGatedPanels);
+    expect(report.debugLane.protectedPaymentRequired).toBe(report.protectedPaymentRequiredPanels);
+    expect(report.debugLane.externalRequired).toBe(report.externalRequiredPanels);
+    expect(report.debugLane.permissionBlocked).toBe(report.permissionBlockedPanels);
+    expect(report.debugLane.hiddenByRole).toBe(report.hiddenByRolePanels);
+    expect(report.externalRequiredPanels).toBe(1);
+    expect(report.providerGatedPanels).toBe(2);
+    expect(report.protectedPaymentRequiredPanels).toBe(1);
     expect(report).not.toHaveProperty("manualOrRuntimeRequiredPanels");
     expect(report.debugLane).not.toHaveProperty("manualOrRuntimeRequired");
   });
@@ -196,15 +808,17 @@ describe("analytics panel hydration", () => {
   });
 
   it("lets runtime signals hydrate panels without showing missing data as zero", () => {
+    const now = new Date().toISOString();
     const report = buildAnalyticsPanelHydrationReport({
       currentHead: "head",
+      generatedAtUtc: now,
       scoreDimensions,
       runtimeSignals: [
         {
           panelId: "traffic_overview",
           hasData: true,
           sourceLoaded: true,
-          lastSeenAt: "2026-05-26T12:00:00.000Z",
+          lastSeenAt: now,
         },
       ],
     });
@@ -216,14 +830,17 @@ describe("analytics panel hydration", () => {
   });
 
   it("feeds panel hydration into debug and live evidence", () => {
+    const now = new Date().toISOString();
     const report = buildAnalyticsPanelHydrationReport({
       currentHead: "head",
+      generatedAtUtc: now,
       scoreDimensions,
       runtimeSignals: [
         {
           panelId: "traffic_overview",
           hasData: true,
           sourceLoaded: true,
+          lastSeenAt: now,
         },
       ],
     });

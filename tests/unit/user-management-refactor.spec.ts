@@ -120,6 +120,8 @@ function hydration(overrides: Partial<PersonMetricsHydrationReport> = {}): Perso
     status: "pass",
     productionReadsRequired: false,
     legacyMutationAllowed: false,
+    evidenceMode: "runtime_evidence_required",
+    boundedRuntimeWindow: null,
     fakeMetricsUsed: false,
     debugLane: {
       label: "Person metrics hydration",

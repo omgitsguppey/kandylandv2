@@ -5,12 +5,14 @@ import { dirname, join } from "node:path";
 import { PERSON_METRIC_DEFINITIONS, PERSON_METRIC_IDS } from "../../src/lib/analytics/person-metrics-contract";
 import { hydratePersonMetrics } from "../../src/lib/analytics/person-metrics-hydration";
 import type { CanonicalEventEnvelope } from "../../src/lib/analytics/event-envelope-contract";
+import { getTelemetryEventOption } from "../../src/lib/telemetry-catalog";
 import { computeDailyTaskActiveDuration } from "../../src/lib/tasks/daily-task-duration";
 import {
   DAILY_TASK_LIFECYCLE_EVENT_NAMES,
   buildDailyTaskLifecycleDebugLane,
   buildDailyTaskLifecycleEventPayload,
 } from "../../src/lib/tasks/daily-task-telemetry";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/daily-task-lifecycle-telemetry.generated.json";
@@ -50,6 +52,23 @@ const REQUIRED_TASK_METRICS = [
   "daily_task_abandonments",
   "daily_task_reset_locked_views",
 ] as const;
+
+export function isDailyTaskLifecycleIsolationFailure(failure: string) {
+  return failure === "chat files changed."
+    || failure === "payment/wallet runtime changed."
+    || failure === "paid-GD math changed."
+    || failure.startsWith("dirty files unclassified:");
+}
+
+export function projectDailyTaskLifecycleSourceStatus(validationFailures: readonly string[]) {
+  const isolationFailures = validationFailures.filter(isDailyTaskLifecycleIsolationFailure);
+  const sourceValidationFailures = validationFailures.filter((failure) => !isDailyTaskLifecycleIsolationFailure(failure));
+  return {
+    sourceStatus: sourceValidationFailures.length === 0 ? "pass" as const : "fail" as const,
+    sourceValidationFailures: [...new Set(sourceValidationFailures)],
+    isolationFailures: [...new Set(isolationFailures)],
+  };
+}
 
 function read(path: string) {
   return readFileSync(join(ROOT, path), "utf8");
@@ -121,12 +140,16 @@ function envelope(eventName: string): CanonicalEventEnvelope {
     guestId: null,
     userRef: { kind: "user", id: "validator_user" },
     linkId: null,
-    source: "system",
+    source: eventName === "daily_task_reward_granted" ? "server" : "client",
     materializerLane: "person_metrics.daily_tasks",
     debugVisibility: "admin_debug",
     scoreImpact: "evidence_completeness",
     privacyClass: "minimal_product",
-    metadata: eventName === "daily_task_completed" ? { durationMs: 12000, durationConfidence: "exact" } : {},
+    metadata: eventName === "daily_task_completed"
+      ? { durationMs: 12000, durationConfidence: "exact" }
+      : eventName === "daily_task_reward_granted"
+        ? { taskId: "validator_task", resetWindowId: "validator_reset" }
+        : {},
     pipelineStatus: "normal",
     unavailableGuestReason: null,
     includeInUserBehavior: true,
@@ -199,7 +222,13 @@ export function classifyDailyTaskLifecycleDirtyFile(path: string) {
   return "unsafe_unknown";
 }
 
-export function buildDailyTaskLifecycleTelemetryReport() {
+export function buildDailyTaskLifecycleTelemetryReport(input: {
+  generatedAtUtc?: string;
+  currentHead?: string;
+  dirtyFiles?: string[];
+  scoreBefore?: ScoreDimensions;
+  scoreAfter?: ScoreDimensions;
+} = {}) {
   const telemetryCatalog = read("src/lib/telemetry-catalog.ts");
   const dailyCheckIn = read("src/components/Dashboard/DailyCheckIn.tsx");
   const checkinRoute = read("src/app/api/checkin/route.ts");
@@ -238,18 +267,18 @@ export function buildDailyTaskLifecycleTelemetryReport() {
     durationUnavailableCount: 1,
     failureReasons: ["inactive_after_start"],
   });
-  const dirtyFileClassifications = changedFiles().map((path) => ({
+  const dirtyFileClassifications = (input.dirtyFiles ?? changedFiles()).map((path) => ({
     path,
     classification: classifyDailyTaskLifecycleDirtyFile(path),
   }));
 
-  return {
-    generatedAtUtc: new Date().toISOString(),
-    currentHead: run("git rev-parse --short HEAD") || "unknown",
-    scoreBefore: score,
-    scoreAfter: score,
+  const generatedAtUtc = input.generatedAtUtc ?? new Date().toISOString();
+  const currentHead = input.currentHead ?? (run("git rev-parse HEAD") || "unknown");
+  const payload = {
+    scoreBefore: input.scoreBefore ?? score,
+    scoreAfter: input.scoreAfter ?? score,
     lifecycleEvents: [...DAILY_TASK_LIFECYCLE_EVENT_NAMES],
-    requiredEventsRegistered: REQUIRED_EVENTS.every((eventName) => telemetryCatalog.includes(`eventName: "${eventName}"`)),
+    requiredEventsRegistered: REQUIRED_EVENTS.every((eventName) => Boolean(getTelemetryEventOption(eventName).option)),
     completionHasStartAttemptPath: dailyCheckIn.includes('trackEvent("daily_task_started"') && dailyCheckIn.includes('trackEvent("daily_task_action_attempted"'),
     rewardGrantedServerTruth: checkinRoute.includes('recordTelemetryEventStat("daily_task_reward_granted"') && checkinRoute.includes('serverTruthSource: "transactions.daily_reward.check_in"'),
     durationRejectsPassivePageTime: durationProbe.durationMs === 2000 && passiveProbe.durationMs === null && passiveProbe.confidence === "unavailable",
@@ -277,12 +306,70 @@ export function buildDailyTaskLifecycleTelemetryReport() {
       regressionRisk: "Adds red-green unit coverage for active duration and reward-source separation.",
       overallHealthScore: "Improves task lifecycle evidence without clearing formal external gates.",
     },
-    validationFailures: [] as string[],
+    nextExactSteps: [
+      "Keep daily-task lifecycle source checks current; collect deployed runtime evidence separately.",
+    ],
+  };
+
+  const provisional = {
+    ...withGeneratedReportEnvelope(payload, {
+      reportKey: "daily-task-lifecycle-telemetry",
+      status: "pass",
+      generatedAtUtc,
+      currentHead,
+      evidenceClass: "source_snapshot",
+      canClearSourceGate: true,
+      nextExactSteps: payload.nextExactSteps,
+      validationFailures: [],
+      doesNotProve: [
+        "Does not prove deployed task telemetry delivery.",
+        "Does not prove production person-metric activity.",
+        "Does not prove provider or payment behavior.",
+      ],
+    }),
+    reportKey: "daily-task-lifecycle-telemetry" as const,
+    sourceCommit: currentHead,
+    status: "pass" as const,
+    passed: true,
+    sourceStatus: "pass" as const,
+    sourceValidationFailures: [] as string[],
+    isolationFailures: [] as string[],
+  };
+  const validationFailures = [...new Set(validateDailyTaskLifecycleTelemetryReport(provisional))];
+  const sourceProjection = projectDailyTaskLifecycleSourceStatus(validationFailures);
+  const status = validationFailures.length === 0 ? "pass" as const : "fail" as const;
+  return {
+    ...provisional,
+    status,
+    passed: status === "pass",
+    canClearSourceGate: status === "pass",
+    validationFailures,
+    ...sourceProjection,
   };
 }
 
-export function validateDailyTaskLifecycleTelemetryReport(report: ReturnType<typeof buildDailyTaskLifecycleTelemetryReport>) {
+export function validateDailyTaskLifecycleTelemetryReport(report: {
+  currentHead: string;
+  sourceCommit: string;
+  requiredEventsRegistered: boolean;
+  completionHasStartAttemptPath: boolean;
+  rewardGrantedServerTruth: boolean;
+  durationRejectsPassivePageTime: boolean;
+  abandonedTasksClassifiable: boolean;
+  failureReasonRequired: boolean;
+  rewardSourceTruth: string;
+  personTaskMetrics: Array<{ present: boolean; eventNames: readonly string[]; hydratedCount: number }>;
+  debugLanePresent: boolean;
+  scoreDimensionImpact: Record<string, string>;
+  chatTouched: boolean;
+  paymentRuntimeTouched: boolean;
+  paidGdMathTouched: boolean;
+  dirtyFileClassifications: Array<{ path: string; classification: string }>;
+}) {
   const failures: string[] = [];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("daily task lifecycle report provenance is not a full matching Git commit.");
+  }
   if (!report.requiredEventsRegistered) failures.push("daily task lifecycle events are not registered in telemetry catalog.");
   if (!report.completionHasStartAttemptPath) failures.push("task completion tracked without start/attempt path.");
   if (!report.rewardGrantedServerTruth) failures.push("task reward granted lacks server-truth source.");
@@ -353,7 +440,6 @@ function writeReport(report: ReturnType<typeof buildDailyTaskLifecycleTelemetryR
 
 if (require.main === module) {
   const report = buildDailyTaskLifecycleTelemetryReport();
-  report.validationFailures = validateDailyTaskLifecycleTelemetryReport(report);
   writeReport(report);
   if (report.validationFailures.length > 0) {
     console.error("Daily task lifecycle telemetry validation failed:");

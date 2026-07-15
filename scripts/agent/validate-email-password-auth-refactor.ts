@@ -42,8 +42,16 @@ type DirtyClassification =
   | "unsafe_unknown";
 
 type EmailPasswordAuthReport = {
+  reportKey: "email-password-auth-refactor";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   contractStatus: "mapped" | "missing";
   signupFlowStatus: "mapped" | "missing";
   loginFlowStatus: "mapped" | "missing";
@@ -118,7 +126,7 @@ function write(path: string, value: string) {
 }
 
 function currentHead() {
-  return shell("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
+  return shell("git", ["rev-parse", "HEAD"]) || "unknown";
 }
 
 function numberValue(value: unknown, fallback = 0) {
@@ -210,6 +218,9 @@ function scoreDimensions(before: ScoreSnapshot, after: ScoreSnapshot): EmailPass
 
 function validateReport(report: EmailPasswordAuthReport) {
   const failures: string[] = [];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("email/password auth report provenance is not a full matching Git commit");
+  }
   if (report.contractStatus !== "mapped") failures.push("email/password auth contract missing");
   if (report.signupFlowStatus !== "mapped") failures.push("signup flow helpers missing");
   if (report.loginFlowStatus !== "mapped") failures.push("login flow helpers missing");
@@ -290,10 +301,19 @@ function buildReport(): EmailPasswordAuthReport {
     authContext.indexOf("const signInWithGoogle"),
     authContext.indexOf("const signInWithEmail"),
   );
+  const head = currentHead();
 
   const report: EmailPasswordAuthReport = {
+    reportKey: "email-password-auth-refactor",
     generatedAtUtc: new Date().toISOString(),
-    currentHead: currentHead(),
+    currentHead: head,
+    sourceCommit: head,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     contractStatus: contract.includes("EMAIL_PASSWORD_AUTH_CONTRACT") && EMAIL_PASSWORD_AUTH_CONTRACT.welcomeBonusSource === "reward_gd_only" ? "mapped" : "missing",
     signupFlowStatus: flow.includes("prepareEmailSignup") && preparedFan.normalizedEmail === "fan@example.com" && validation.ok === true ? "mapped" : "missing",
     loginFlowStatus: flow.includes("prepareEmailLogin") && login.normalizedIdentifier === "fan@example.com" ? "mapped" : "missing",
@@ -348,6 +368,9 @@ function buildReport(): EmailPasswordAuthReport {
   if (!packageJson.includes("\"check:email-password-auth-refactor\"")) {
     report.validationFailures.push("package script check:email-password-auth-refactor missing");
   }
+  report.status = report.validationFailures.length > 0 ? "fail" : "pass";
+  report.passed = report.validationFailures.length === 0;
+  report.canClearSourceGate = report.passed;
   return report;
 }
 

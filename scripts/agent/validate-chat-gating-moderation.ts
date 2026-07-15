@@ -35,6 +35,13 @@ export type ChatGatingModerationReport = {
   reportKey: "chat-gating-moderation";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   productionReadsRequired: false;
   liveDataMutationAllowed: false;
   deployRequired: false;
@@ -316,11 +323,19 @@ export function buildChatGatingModerationReport(input: {
     path,
     classification: classifyChatGatingDirtyFile(path),
   }));
+  const head = input.currentHead ?? git(["rev-parse", "HEAD"]);
 
   return {
     reportKey: "chat-gating-moderation",
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
-    currentHead: input.currentHead ?? git(["rev-parse", "HEAD"]),
+    currentHead: head,
+    sourceCommit: head,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     productionReadsRequired: false,
     liveDataMutationAllowed: false,
     deployRequired: false,
@@ -386,6 +401,9 @@ function writeDoc(report: ChatGatingModerationReport) {
 function main() {
   const report = buildChatGatingModerationReport();
   report.validationFailures = validateChatGatingModerationReport(report);
+  report.status = report.validationFailures.length > 0 ? "fail" : "pass";
+  report.passed = report.validationFailures.length === 0;
+  report.canClearSourceGate = report.passed;
   writeReport(report);
   writeDoc(report);
   if (report.validationFailures.length > 0) {

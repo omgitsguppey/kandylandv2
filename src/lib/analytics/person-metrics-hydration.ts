@@ -24,6 +24,13 @@ import {
 export type PersonMetricHydrationScope = "global" | "guest" | "signedIn" | "linkedPerson" | "creatorRole";
 export type PersonMetricHydrationState = "hydrated" | "collecting" | "unavailable";
 export type PersonMetricUserParityState = UserMetricHydrationStatus;
+export type PersonMetricsEvidenceMode = "source_validation_fixture" | "bounded_runtime_sample" | "runtime_evidence_required";
+
+export type PersonMetricsBoundedRuntimeWindow = {
+  startedAtUtc: string;
+  endedAtUtc: string;
+  source: string;
+};
 
 export type PersonMetricScopeEntry = {
   metricId: PersonMetricId;
@@ -83,15 +90,19 @@ export type PersonMetricsHydrationInput = {
   bridgeMissingMetricIds?: readonly PersonMetricId[];
   materializerMissingMetricIds?: readonly PersonMetricId[];
   generatedAtUtc?: string;
+  evidenceMode?: PersonMetricsEvidenceMode;
+  boundedRuntimeWindow?: PersonMetricsBoundedRuntimeWindow | null;
 };
 
 export type PersonMetricsHydrationReport = {
   reportKey: "person-metrics-hydration";
   generatedAtUtc: string;
   status: "pass" | "review";
+  evidenceMode: PersonMetricsEvidenceMode;
+  boundedRuntimeWindow: PersonMetricsBoundedRuntimeWindow | null;
   productionReadsRequired: false;
   legacyMutationAllowed: false;
-  fakeMetricsUsed: false;
+  fakeMetricsUsed: boolean;
   debugLane: {
     label: "Person metrics hydration";
     producersRegistered: number;
@@ -227,8 +238,8 @@ function statusForMetric(metric: PersonMetricDefinition, globalEntry: PersonMetr
         ? `${metric.id} hydrated below exact confidence (${globalEntry.confidence}).`
         : explanation
       : null,
-    missingProducer: hydrated || globalEntry.provenZero ? null : metric.eventNames[0] ?? metric.id,
-    missingBridge: hydrated || globalEntry.provenZero ? null : metric.materializer,
+    missingProducer: null,
+    missingBridge: null,
     missingSourceExplanation: explanation,
   };
 }
@@ -398,6 +409,18 @@ function scoreImpact(lowConfidenceCount: number, gapCount: number) {
   };
 }
 
+function isCurrentBoundedRuntimeWindow(window: PersonMetricsBoundedRuntimeWindow | null) {
+  if (!window || typeof window.source !== "string" || !window.source.trim()) return false;
+  const startedAtMs = Date.parse(window.startedAtUtc);
+  const endedAtMs = Date.parse(window.endedAtUtc);
+  const now = Date.now();
+  return Number.isFinite(startedAtMs)
+    && Number.isFinite(endedAtMs)
+    && startedAtMs <= endedAtMs
+    && endedAtMs <= now
+    && now - endedAtMs <= 24 * 60 * 60 * 1000;
+}
+
 export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): PersonMetricsHydrationReport {
   const eventMap = sourceEventMap();
   const envelopes = [...(input.envelopes ?? [])];
@@ -407,6 +430,11 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
   const sourceMissingMetricIds = new Set(input.sourceMissingMetricIds ?? []);
   const bridgeMissingMetricIds = new Set(input.bridgeMissingMetricIds ?? []);
   const materializerMissingMetricIds = new Set(input.materializerMissingMetricIds ?? []);
+  const requestedEvidenceMode = input.evidenceMode ?? "runtime_evidence_required";
+  const boundedRuntimeWindow = input.boundedRuntimeWindow ?? null;
+  const evidenceMode = requestedEvidenceMode === "bounded_runtime_sample" && !isCurrentBoundedRuntimeWindow(boundedRuntimeWindow)
+    ? "runtime_evidence_required"
+    : requestedEvidenceMode;
   const scopes = {
     global: createScope("global"),
     guest: createScope("guest"),
@@ -520,18 +548,18 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
     .map((metricId) => userParityStatus[metricId])
     .filter((metric) => metric.blocksUserParity)
     .sort((left, right) => left.metricId.localeCompare(right.metricId));
-  const gapCount = new Set([
-    ...missingHydration.map((gap) => gap.metricId),
-    ...userParityGaps.map((gap) => gap.metricId),
-  ]).size;
+  const gapCount = userParityGaps.length;
+  const noRuntimeSample = evidenceMode === "runtime_evidence_required" && envelopes.length === 0;
 
   return {
     reportKey: "person-metrics-hydration",
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
-    status: checkoutStartCountsAsPaymentSuccess || pageTimeCountsAsWatchTime || userParityGaps.length > 0 ? "review" : "pass",
+    status: checkoutStartCountsAsPaymentSuccess || pageTimeCountsAsWatchTime || userParityGaps.length > 0 || noRuntimeSample ? "review" : "pass",
+    evidenceMode,
+    boundedRuntimeWindow: evidenceMode === "bounded_runtime_sample" ? boundedRuntimeWindow : null,
     productionReadsRequired: false,
     legacyMutationAllowed: false,
-    fakeMetricsUsed: false,
+    fakeMetricsUsed: evidenceMode === "source_validation_fixture",
     debugLane: {
       label: "Person metrics hydration",
       producersRegistered: PERSON_METRIC_DEFINITIONS.reduce((total, metric) => total + metric.eventNames.length, 0),

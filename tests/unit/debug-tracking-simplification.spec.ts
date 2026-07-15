@@ -98,6 +98,31 @@ describe("debug tracking simplification", () => {
     });
   });
 
+  it("reports an absent person runtime sample without inventing warnings", () => {
+    const summary = buildDebugPanelTrackingSummary({
+      personMetricsHydration: {
+        status: "review",
+        evidenceMode: "runtime_evidence_required",
+        debugLane: {
+          personMetricsMapped: 37,
+          eventEnvelopesHydrated: 0,
+          globalMetricsHydrated: 0,
+          signedInMetricsHydrated: 0,
+          linkedPersonMetricsHydrated: 0,
+          lowConfidenceMetrics: 37,
+          gaps: 0,
+        },
+      },
+      stats: {},
+    });
+
+    expect(summary.lanes.find((lane) => lane.id === "person_metrics_hydration")).toMatchObject({
+      status: "source_ready_no_sample_loaded",
+      warningCount: 0,
+      primarySignal: expect.stringContaining("Evidence=runtime_evidence_required"),
+    });
+  });
+
   it("sorts critical tracking lanes first without hiding p1 or p2 backlog", () => {
     const summary = buildDebugPanelTrackingSummary({
       identityHandoff: { status: "live" },

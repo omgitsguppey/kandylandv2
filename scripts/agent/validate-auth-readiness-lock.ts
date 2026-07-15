@@ -3,11 +3,15 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { validateGeneratedChildReportEvidence } from "./generated-report-envelope";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..", "..");
 const STATE_PATH = "agent/state/auth-readiness-lock.generated.json";
 const DOC_PATH = "docs/agent-truth/auth-readiness-lock.md";
+const FULL_GIT_SHA_PATTERN = /^[0-9a-f]{40}$/iu;
+const MAX_REPORT_AGE_MS = 24 * 60 * 60 * 1000;
 
 export const AUTH_READINESS_SCORE_DIMENSIONS = [
   "sourceHealth",
@@ -56,6 +60,13 @@ export type AuthReadinessLockReport = {
   reportKey: "auth-readiness-lock";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   productionReadsRequired: false;
   providerCallsRequired: false;
   deployRequired: false;
@@ -274,6 +285,8 @@ export function classifyAuthReadinessLockDirtyFile(path: string) {
     || normalized === "src/lib/release-notes/public-release-notes.ts"
     || normalized === "src/lib/release-notes/release-version-contract.ts"
   ) return "release_artifact_expected";
+  if (/^agent\/state\/[^/]+\.generated\.json$/u.test(normalized)) return "unrelated_generated_evidence_recorded";
+  if (/^docs\/agent-truth\/[^/]+\.md$/u.test(normalized)) return "unrelated_generated_evidence_documentation_recorded";
   if (/^src\/(components\/Chat|lib\/chat|lib\/tasks|lib\/notifications|app\/api\/checkin|app\/api\/.*chat)/u.test(normalized)) return "unsafe_unknown";
   if (/^src\/(app\/api\/(paypal|checkout|wallet)|lib\/(paypal|wallet|gumdrop|gumdrop-ledger)|components\/PurchaseModal)/u.test(normalized)) return "unsafe_unknown";
   return "unsafe_unknown";
@@ -312,11 +325,52 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
   const personMetrics = input.artifacts?.personMetrics ?? readState("person-metrics-hydration.generated.json");
   const publicBetaScore = input.artifacts?.publicBetaScore ?? readState("public-beta-score.generated.json");
   const score = scoreSnapshot(publicBetaScore);
+  const currentHead = input.currentHead ?? git(["rev-parse", "HEAD"]);
+  const childEvidenceFailures = {
+    providerConflict: validateGeneratedChildReportEvidence({
+      report: providerConflict,
+      expectedReportKey: "auth-provider-conflict-resolution",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    emailPassword: validateGeneratedChildReportEvidence({
+      report: emailPassword,
+      expectedReportKey: "email-password-auth-refactor",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    persistence: validateGeneratedChildReportEvidence({
+      report: persistence,
+      expectedReportKey: "auth-persistence-stability",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    runtime: validateGeneratedChildReportEvidence({
+      report: runtime,
+      expectedReportKey: "auth-runtime-telemetry",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    personMetrics: validateGeneratedChildReportEvidence({
+      report: personMetrics,
+      expectedReportKey: "person-metrics-hydration",
+      currentHead,
+      requireSourceGate: true,
+    }),
+  };
+  const childEvidenceOk = Object.fromEntries(
+    Object.entries(childEvidenceFailures).map(([key, failures]) => [key, failures.length === 0]),
+  ) as Record<keyof typeof childEvidenceFailures, boolean>;
   const dirtyPaths = listDirtyFiles(input.dirtyFiles);
   const dirtyFiles = dirtyPaths.map((path) => ({ path, classification: classifyAuthReadinessLockDirtyFile(path) }));
-  const authMetric = personMetrics.metricStatus?.auth_runtime_events;
+  const authMetric = personMetrics.consumerMetricStatus?.byId?.auth_runtime_events
+    ?? personMetrics.metricStatus?.auth_runtime_events;
+  const personMetricsValidationOk = personMetrics.status === "pass"
+    && Array.isArray(personMetrics.validationFailures)
+    && personMetrics.validationFailures.length === 0;
 
-  const providerConflictOk = providerConflict.googleCreatedEmailPasswordAttempt === "mapped"
+  const providerConflictOk = childEvidenceOk.providerConflict
+    && providerConflict.googleCreatedEmailPasswordAttempt === "mapped"
     && providerConflict.emailPasswordCreatedGoogleAttempt === "mapped"
     && providerConflict.emailAlreadyInUseResolution === "mapped"
     && providerConflict.wrongPasswordInvalidCredentialGuidance === "mapped"
@@ -327,7 +381,8 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
     && runtime.privacy?.rawFirebaseTokenLogged === false
     && runtime.debugLane?.rawPiiExposed === false
     && runtime.debugLane?.rawTokensExposed === false;
-  const authTelemetryOk = runtimeEventsOk
+  const authTelemetryOk = childEvidenceOk.runtime
+    && runtimeEventsOk
     && runtime.featureRegistrationStatus === "mapped"
     && runtime.eventEnvelopeStatus === "mapped"
     && runtime.personMetricsStatus === "mapped"
@@ -336,7 +391,14 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
   const report: AuthReadinessLockReport = {
     reportKey: "auth-readiness-lock",
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
-    currentHead: input.currentHead ?? git(["rev-parse", "HEAD"]),
+    currentHead,
+    sourceCommit: currentHead,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     productionReadsRequired: false,
     providerCallsRequired: false,
     deployRequired: false,
@@ -349,43 +411,46 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
       "Keep provider conflict resolver mapped before adding new auth providers.",
     ),
     googleAuthStatus: statusFrom(
-      emailPassword.googleAuthPathStatus === "untouched_required_path_present" && hasEvent(runtime, "auth_google_started") && hasEvent(runtime, "auth_google_completed") && hasEvent(runtime, "auth_google_failed"),
+      childEvidenceOk.emailPassword && childEvidenceOk.runtime && emailPassword.googleAuthPathStatus === "untouched_required_path_present" && hasEvent(runtime, "auth_google_started") && hasEvent(runtime, "auth_google_completed") && hasEvent(runtime, "auth_google_failed"),
       ["Google auth path remains present and has runtime start/complete/fail telemetry."],
       ["Google auth runtime path or telemetry is incomplete."],
       "Restore Google auth path or runtime event mapping before release.",
     ),
     emailPasswordAuthStatus: statusFrom(
-      emailPassword.signupFlowStatus === "mapped" && emailPassword.loginFlowStatus === "mapped" && emailPassword.rollbackStatus === "safe",
+      childEvidenceOk.emailPassword && emailPassword.signupFlowStatus === "mapped" && emailPassword.loginFlowStatus === "mapped" && emailPassword.rollbackStatus === "safe",
       ["Email/password signup and login flows are mapped with rollback safety."],
       ["Email/password signup/login flow, rollback, or common error mapping incomplete."],
       "Run npm run check:email-password-auth-refactor and fix the first failing auth flow invariant.",
     ),
     signupStatus: statusFrom(
-      emailPassword.signupFlowStatus === "mapped" && hasEvent(runtime, "auth_email_signup_started") && hasEvent(runtime, "auth_email_signup_completed") && hasEvent(runtime, "auth_email_signup_failed"),
+      childEvidenceOk.emailPassword && childEvidenceOk.runtime && emailPassword.signupFlowStatus === "mapped" && hasEvent(runtime, "auth_email_signup_started") && hasEvent(runtime, "auth_email_signup_completed") && hasEvent(runtime, "auth_email_signup_failed"),
       ["Signup flow maps start, complete, and fail telemetry."],
       ["Signup lifecycle telemetry missing."],
       "Wire signup start/complete/fail through the auth telemetry contract.",
     ),
     loginStatus: statusFrom(
-      emailPassword.loginFlowStatus === "mapped" && hasEvent(runtime, "auth_email_login_started") && hasEvent(runtime, "auth_email_login_completed") && hasEvent(runtime, "auth_email_login_failed"),
+      childEvidenceOk.emailPassword && childEvidenceOk.runtime && emailPassword.loginFlowStatus === "mapped" && hasEvent(runtime, "auth_email_login_started") && hasEvent(runtime, "auth_email_login_completed") && hasEvent(runtime, "auth_email_login_failed"),
       ["Login flow maps start, complete, and fail telemetry."],
       ["Login lifecycle telemetry missing."],
       "Wire login start/complete/fail through the auth telemetry contract.",
     ),
     passwordResetStatus: statusFrom(
-      hasEvent(runtime, "auth_password_reset_requested") && hasEvent(runtime, "auth_password_reset_failed"),
+      childEvidenceOk.runtime && hasEvent(runtime, "auth_password_reset_requested") && hasEvent(runtime, "auth_password_reset_failed"),
       ["Password reset request/failure telemetry is mapped without raw credentials."],
       ["Password reset telemetry missing."],
       "Map password reset request/failure events through auth telemetry.",
     ),
     persistenceStatus: statusFrom(
-      persistence.persistenceStatus === "established" && persistence.securityLogoutStatus === "preserved" && persistence.explicitLogoutStatus === "clears_session",
+      childEvidenceOk.persistence && persistence.persistenceStatus === "established" && persistence.securityLogoutStatus === "preserved" && persistence.explicitLogoutStatus === "clears_session",
       ["Browser persistence is established; security and explicit logout behavior are preserved."],
       ["Persistence, security logout, or explicit logout behavior missing."],
       "Fix auth persistence status without weakening security logout handling.",
     ),
     navigationSessionStatus: statusFrom(
-      emailPassword.navigationSessionOrdering === "after_registration_truth"
+      childEvidenceOk.emailPassword
+        && childEvidenceOk.persistence
+        && childEvidenceOk.runtime
+        && emailPassword.navigationSessionOrdering === "after_registration_truth"
         && persistence.navigationSessionDeletePolicy === "reasoned_only"
         && hasEvent(runtime, "auth_navigation_session_failed"),
       ["Navigation session is established after registration truth and failures are tracked."],
@@ -393,7 +458,9 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
       "Keep navigation session creation after registration truth and map failure telemetry.",
     ),
     profileBootstrapStatus: statusFrom(
-      persistence.profileSnapshotRetryStatus === "transient_retry_keeps_user"
+      childEvidenceOk.persistence
+        && childEvidenceOk.runtime
+        && persistence.profileSnapshotRetryStatus === "transient_retry_keeps_user"
         && hasEvent(runtime, "auth_profile_bootstrap_started")
         && hasEvent(runtime, "auth_profile_bootstrap_completed")
         && hasEvent(runtime, "auth_profile_bootstrap_failed"),
@@ -402,7 +469,7 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
       "Wire profile bootstrap events and preserve transient snapshot retry behavior.",
     ),
     unexpectedLogoutStatus: statusFrom(
-      persistence.logoutReasonStatus === "mapped" && hasEvent(runtime, "auth_unexpected_session_drop"),
+      childEvidenceOk.persistence && childEvidenceOk.runtime && persistence.logoutReasonStatus === "mapped" && hasEvent(runtime, "auth_unexpected_session_drop"),
       ["Unexpected logout reason is classified and telemetry-visible."],
       ["Unexpected logout reason or telemetry missing."],
       "Map unexpected session drops with explicit logout reason.",
@@ -414,13 +481,16 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
       "Fix the first missing link in auth telemetry: feature registration, envelope, person metrics, or privacy redaction.",
     ),
     adminDebugStatus: statusFrom(
-      runtime.debugLane?.status === "live" && providerConflict.debugLaneStatus?.status === "live" && persistence.debugLane?.status === "live",
+      childEvidenceOk.runtime && childEvidenceOk.providerConflict && childEvidenceOk.persistence && runtime.debugLane?.status === "live" && providerConflict.debugLaneStatus?.status === "live" && persistence.debugLane?.status === "live",
       ["Auth runtime, provider conflict, and persistence debug lanes are live."],
       ["Admin debug auth lane missing."],
       "Restore the auth runtime lane in debug-panel tracking summary and admin debug route.",
     ),
     personMetricsStatus: statusFrom(
-      runtime.personMetricsStatus === "mapped"
+      childEvidenceOk.personMetrics
+        && childEvidenceOk.runtime
+        && personMetricsValidationOk
+        && runtime.personMetricsStatus === "mapped"
         && personMetrics.debugLane?.lowConfidenceMetrics === 0
         && (authMetric?.state === "hydrated" || authMetric?.hydrated === true),
       ["auth_runtime_events is hydrated through person metrics with lowConfidenceMetrics=0."],
@@ -464,15 +534,46 @@ export function buildAuthReadinessLockReport(input: BuildInput = {}): AuthReadin
       },
     ],
     protectedSurfaceStatus: protectedSurfaceStatus(dirtyPaths),
-    validationFailures: [],
+    validationFailures: Object.values(childEvidenceFailures).flat(),
   };
+  report.passed = report.validationFailures.length === 0;
+  report.status = report.passed ? "pass" : "fail";
+  report.canClearSourceGate = report.passed;
   report.validationFailures = validateAuthReadinessLockReport(report);
+  report.passed = report.validationFailures.length === 0;
+  report.status = report.passed ? "pass" : "fail";
+  report.canClearSourceGate = report.passed;
+  report.remainingGaps = [...new Set([
+    ...report.remainingGaps,
+    ...report.validationFailures.map((failure) => `Auth source blocker: ${failure}`),
+  ])];
+  report.nextExactSteps = report.validationFailures.length > 0
+    ? report.validationFailures.map((failure) => `Resolve auth source blocker: ${failure}`)
+    : report.nextExactSteps;
   return report;
 }
 
 export function validateAuthReadinessLockReport(report: AuthReadinessLockReport) {
-  const failures: string[] = [];
+  const declaredFailures = Array.isArray(report.validationFailures) ? report.validationFailures : [];
+  const failures: string[] = [...declaredFailures];
+  const generatedAtMs = Date.parse(report.generatedAtUtc);
+  const nowMs = Date.now();
   if (report.reportKey !== "auth-readiness-lock") failures.push("reportKey must be auth-readiness-lock.");
+  if (!FULL_GIT_SHA_PATTERN.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("currentHead and sourceCommit must be the same full 40-character Git SHA.");
+  }
+  if (!Number.isFinite(generatedAtMs) || generatedAtMs > nowMs || nowMs - generatedAtMs > MAX_REPORT_AGE_MS) {
+    failures.push("generatedAtUtc must be a current, non-future timestamp inside the 24-hour evidence window.");
+  }
+  if (report.status !== "pass" && report.status !== "fail") failures.push("status must be pass or fail.");
+  if (report.passed !== (report.status === "pass")) failures.push("passed must match the validator status.");
+  if (!Array.isArray(report.validationFailures)) failures.push("validationFailures must be an array.");
+  if (report.status === "pass" && declaredFailures.length > 0) {
+    failures.push("validator status cannot pass while validation failures are present.");
+  }
+  if (report.status === "fail" && declaredFailures.length === 0) {
+    failures.push("validator status cannot fail without validation failures.");
+  }
   for (const dimension of AUTH_READINESS_SCORE_DIMENSIONS) {
     if (!report.scoreDimensions[dimension]) failures.push(`score dimension missing: ${dimension}.`);
     if (report.scoreAfter[dimension] < 80 && !report.scoreDimensions[dimension]?.nextExactAction) {
@@ -483,8 +584,14 @@ export function validateAuthReadinessLockReport(report: AuthReadinessLockReport)
     failures.push("Google-created account email/password attempt unresolved.");
     failures.push("Email/password-created account Google attempt unresolved.");
   }
+  if (report.googleAuthStatus.status !== "pass") failures.push("Google auth runtime path or telemetry is incomplete.");
   if (report.emailPasswordAuthStatus.status !== "pass") failures.push("Email signup/login common failures unmapped.");
+  if (report.signupStatus.status !== "pass") failures.push("Signup lifecycle telemetry missing.");
+  if (report.loginStatus.status !== "pass") failures.push("Login lifecycle telemetry missing.");
+  if (report.passwordResetStatus.status !== "pass") failures.push("Password reset telemetry missing.");
   if (report.persistenceStatus.status !== "pass") failures.push("Auth persistence missing.");
+  if (report.navigationSessionStatus.status !== "pass") failures.push("Navigation session ordering or failure telemetry missing.");
+  if (report.profileBootstrapStatus.status !== "pass") failures.push("Profile bootstrap lifecycle or transient retry behavior incomplete.");
   if (report.unexpectedLogoutStatus.status !== "pass") failures.push("Unexpected logout reason missing.");
   if (report.authTelemetryStatus.status !== "pass") failures.push("Auth telemetry is missing event envelope or person metrics mapping.");
   if (report.adminDebugStatus.status !== "pass") failures.push("Admin debug auth lane missing.");
@@ -510,6 +617,9 @@ function renderDoc(report: AuthReadinessLockReport) {
     "",
     `Generated: ${report.generatedAtUtc}`,
     `Current head: ${report.currentHead}`,
+    `Source commit: ${report.sourceCommit}`,
+    `Validator status: ${report.status}`,
+    `Validator passed: ${report.passed}`,
     "",
     "## Status",
     `- Provider conflicts: ${report.providerConflictStatus.status}`,
@@ -543,6 +653,9 @@ function renderDoc(report: AuthReadinessLockReport) {
     "",
     "## Old Logic Classification",
     ...report.oldLogicClassification.map((entry) => `- ${entry.reference}: ${entry.classification} - ${entry.reason}`),
+    "",
+    "## Validation Failures",
+    ...(report.validationFailures.length > 0 ? report.validationFailures.map((failure) => `- ${failure}`) : ["- None."]),
     "",
   ];
   return `${lines.join("\n")}\n`;

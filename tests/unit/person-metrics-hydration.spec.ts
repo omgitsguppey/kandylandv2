@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
 import {
+  buildPersonMetricsHydrationReport,
   classifyPersonMetricsHydrationDirtyFile,
   explainMissingMetricHydration,
   hydrateConfidenceByMetric,
@@ -10,7 +11,9 @@ import {
   hydrateLinkedUserMetrics,
   hydratePersonMetrics,
 } from "@/lib/analytics/person-metrics-hydration";
+import { PERSON_METRIC_IDS } from "@/lib/analytics/person-metrics-contract";
 import { buildLegacyEventRecoveryCandidate } from "@/lib/legacy/march-first-event-recovery";
+import { compactPersonMetricsHydrationOutput } from "../../scripts/agent/validate-person-metrics-hydration";
 
 function envelope(input: Partial<CanonicalEventEnvelope> & Pick<CanonicalEventEnvelope, "eventName">): CanonicalEventEnvelope {
   return {
@@ -114,7 +117,7 @@ describe("person metrics hydration", () => {
     expect(report.scopes.signedIn.metrics.wallet_opens.count).toBe(0);
     expect(report.scopes.creatorRole.metrics.wallet_opens.count).toBe(0);
     expect(report.userParityStatus.wallet_opens).toMatchObject({
-      state: "materializer_missing",
+      state: "collecting",
       signedInCount: 0,
       creatorRoleCount: 0,
       provenZero: false,
@@ -140,7 +143,7 @@ describe("person metrics hydration", () => {
     expect(report.scopes.global.metrics.wallet_opens.count).toBe(0);
     expect(report.scopes.signedIn.metrics.wallet_opens.count).toBe(0);
     expect(report.userParityStatus.wallet_opens).toMatchObject({
-      state: "materializer_missing",
+      state: "collecting",
       signedInCount: 0,
       provenZero: false,
     });
@@ -238,7 +241,7 @@ describe("person metrics hydration", () => {
     expect(report.scopes.global.metrics.drop_opens.count).toBe(0);
     expect(report.scopes.signedIn.metrics.drop_opens.count).toBe(0);
     expect(report.metricStatus.drop_opens.state).toBe("collecting");
-    expect(report.userParityStatus.drop_opens.state).toBe("materializer_missing");
+    expect(report.userParityStatus.drop_opens.state).toBe("collecting");
   });
 
   it("does not count checkout starts as payment approvals", () => {
@@ -364,5 +367,109 @@ describe("person metrics hydration", () => {
       signedInCount: 1,
     });
     expect(report.userParityStatus.wallet_opens.debugNextAction).toContain("permission_blocked instead of zero");
+  });
+
+  it("keeps every Admin-consumed metric authoritative without breaking the compact size budget", () => {
+    const report = hydratePersonMetrics({
+      evidenceMode: "source_validation_fixture",
+      envelopes: [
+        envelope({ eventName: "auth_google_completed", eventId: "auth_compaction" }),
+        envelope({ eventName: "chat_message_sent", eventId: "chat_compaction" }),
+        envelope({
+          eventName: "wallet_opened",
+          eventId: "wallet_gap_compaction",
+          actorKind: "guest",
+          identityState: "guest_unknown_consent",
+          identityConfidence: "weak",
+          guestId: null,
+          userRef: null,
+        }),
+      ],
+    });
+    const compact = compactPersonMetricsHydrationOutput({
+      ...report,
+      reportKey: "person-metrics-hydration",
+      status: report.status,
+      currentHead: "0123456789abcdef0123456789abcdef01234567",
+      sourceCommit: "0123456789abcdef0123456789abcdef01234567",
+      passed: report.status === "pass",
+      canClearSourceGate: false,
+      canClearRuntimeGate: false,
+      canClearProviderGate: false,
+      canClearAdminTruthGate: false,
+      dirtyFiles: [],
+      activeOldLogic: [],
+      validationFailures: [],
+    });
+
+    expect(compact.consumerMetricStatus.byId.auth_runtime_events).toMatchObject({ state: "hydrated", count: 1 });
+    expect(compact.consumerMetricStatus.byId.chat_actions).toMatchObject({ state: "hydrated", count: 1 });
+    expect(compact.consumerMetricStatus.byId.wallet_opens).toMatchObject({ state: "hydrated", count: 1 });
+    expect(compact.consumerMetricStatus).toMatchObject({
+      total: PERSON_METRIC_IDS.length,
+      emitted: PERSON_METRIC_IDS.length,
+      omitted: 0,
+    });
+    expect(compact.consumerMetricStatus.sample).toHaveLength(compact.consumerMetricStatus.emitted);
+    expect(compact.evidenceMode).toBe("source_validation_fixture");
+    expect(compact.fakeMetricsUsed).toBe(true);
+    expect(compact.userParityGaps.byId.wallet_opens).toMatchObject({
+      metricId: "wallet_opens",
+      state: "bridge_missing",
+      blocksUserParity: true,
+      provenZero: false,
+    });
+    expect(Object.keys(compact.userParityGaps.byId)).toHaveLength(compact.userParityGaps.total);
+    expect(compact.metricStatus.emitted).toBeLessThanOrEqual(8);
+    expect(compact.userParityStatus.emitted).toBeLessThanOrEqual(8);
+    expect(Buffer.byteLength(JSON.stringify(compact), "utf8")).toBeLessThan(100_000);
+  });
+
+  it("keeps runtime proof authority explicit and downgrades unbounded samples", () => {
+    const now = Date.now();
+    const required = hydratePersonMetrics({
+      envelopes: [envelope({ eventName: "wallet_opened", eventId: "wallet_runtime_required" })],
+    });
+    const unbounded = hydratePersonMetrics({
+      evidenceMode: "bounded_runtime_sample",
+      envelopes: [envelope({ eventName: "wallet_opened", eventId: "wallet_unbounded" })],
+    });
+    const bounded = hydratePersonMetrics({
+      evidenceMode: "bounded_runtime_sample",
+      boundedRuntimeWindow: {
+        startedAtUtc: new Date(now - 5 * 60 * 1000).toISOString(),
+        endedAtUtc: new Date(now - 1000).toISOString(),
+        source: "redacted_admin_runtime_sample",
+      },
+      envelopes: [envelope({ eventName: "wallet_opened", eventId: "wallet_bounded" })],
+    });
+
+    expect(required).toMatchObject({
+      evidenceMode: "runtime_evidence_required",
+      boundedRuntimeWindow: null,
+      fakeMetricsUsed: false,
+    });
+    expect(unbounded).toMatchObject({
+      evidenceMode: "runtime_evidence_required",
+      boundedRuntimeWindow: null,
+      fakeMetricsUsed: false,
+    });
+    expect(bounded).toMatchObject({
+      evidenceMode: "bounded_runtime_sample",
+      fakeMetricsUsed: false,
+    });
+  });
+
+  it("keeps an absent runtime sample distinct from a source or materializer gap", () => {
+    const report = buildPersonMetricsHydrationReport();
+
+    expect(report).toMatchObject({
+      status: "review",
+      evidenceMode: "runtime_evidence_required",
+      debugLane: { gaps: 0, eventEnvelopesHydrated: 0 },
+    });
+    expect(report.userParityGaps).toEqual([]);
+    expect(Object.values(report.userParityStatus).every((metric) => metric.state === "collecting")).toBe(true);
+    expect(report.missingHydration.every((metric) => metric.missingProducer === null && metric.missingBridge === null)).toBe(true);
   });
 });

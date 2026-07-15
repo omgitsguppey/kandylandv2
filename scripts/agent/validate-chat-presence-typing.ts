@@ -35,6 +35,13 @@ export type ChatPresenceTypingReport = {
   reportKey: "chat-presence-typing";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   productionReadsRequired: false;
   liveDataMutationAllowed: false;
   deployRequired: false;
@@ -205,11 +212,19 @@ export function buildChatPresenceTypingReport(input: {
     path,
     classification: classifyChatPresenceTypingDirtyFile(path),
   }));
+  const head = input.currentHead ?? git(["rev-parse", "HEAD"]);
 
   return {
     reportKey: "chat-presence-typing",
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
-    currentHead: input.currentHead ?? git(["rev-parse", "HEAD"]),
+    currentHead: head,
+    sourceCommit: head,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     productionReadsRequired: false,
     liveDataMutationAllowed: false,
     deployRequired: false,
@@ -265,6 +280,9 @@ function writeDoc(report: ChatPresenceTypingReport) {
 function main() {
   const report = buildChatPresenceTypingReport();
   report.validationFailures = validateChatPresenceTypingReport(report);
+  report.status = report.validationFailures.length > 0 ? "fail" : "pass";
+  report.passed = report.validationFailures.length === 0;
+  report.canClearSourceGate = report.passed;
   writeReport(report);
   writeDoc(report);
   if (report.validationFailures.length > 0) {

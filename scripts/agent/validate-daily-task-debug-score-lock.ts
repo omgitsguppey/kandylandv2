@@ -3,6 +3,13 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import {
+  validateGeneratedChildReportEvidence,
+  validateGeneratedReportEnvelope,
+  withGeneratedReportEnvelope,
+  type GeneratedReportEnvelope,
+} from "./generated-report-envelope";
+
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/daily-task-debug-score-lock.generated.json";
 const DOC_PATH = "docs/agent-truth/daily-task-debug-score-lock.md";
@@ -23,9 +30,14 @@ type Status = "pass" | "review" | "fail" | "missing";
 type DurationTrackingStatus = "active_duration_only" | "passive_page_time" | "missing";
 type RewardGdSourceTruth = "reward_gd_only" | "paid_gd" | "paid_bonus_gd" | "unsafe_unknown";
 
-export type DailyTaskDebugScoreLockReport = {
-  generatedAtUtc: string;
-  currentHead: string;
+export type DailyTaskDebugScoreLockReport = GeneratedReportEnvelope & {
+  reportKey: "daily-task-debug-score-lock";
+  status: "pass" | "fail";
+  passed: boolean;
+  sourceCommit: string;
+  sourceStatus: "pass" | "fail";
+  sourceValidationFailures: string[];
+  isolationFailures: string[];
   resetTruthStatus: Status;
   lifecycleTelemetryStatus: Status;
   durationTrackingStatus: DurationTrackingStatus;
@@ -66,13 +78,20 @@ export type DailyTaskDebugScoreLockReport = {
     paymentRuntimeTouched: boolean;
     paidGdMathTouched: boolean;
   };
-  validationFailures: string[];
 };
 
 type BuildInput = {
   now?: string;
+  nowMs?: number;
   currentHead?: string;
   dirtyFiles?: string[];
+  sourceReports?: {
+    resetTruth?: Record<string, any>;
+    lifecycleTelemetry?: Record<string, any>;
+    rewardLedger?: Record<string, any>;
+    guidanceRouteAudit?: Record<string, any>;
+    publicBetaScore?: Record<string, any>;
+  };
 };
 
 function git(args: readonly string[]) {
@@ -243,8 +262,115 @@ export function classifyDailyTaskDebugScoreLockDirtyFile(path: string) {
   return "unsafe_unknown";
 }
 
-function statusFromPass(value: unknown): Status {
-  return value === "pass" ? "pass" : value ? "review" : "missing";
+const MAX_CHILD_REPORT_AGE_MS = 24 * 60 * 60 * 1_000;
+
+function isFullGitCommit(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{40}$/u.test(value);
+}
+
+function readStringArray(value: unknown): string[] | null {
+  return Array.isArray(value) && value.every((entry) => typeof entry === "string")
+    ? value
+    : null;
+}
+
+function sameStringSet(left: readonly string[], right: readonly string[]) {
+  const leftSet = new Set(left);
+  const rightSet = new Set(right);
+  return leftSet.size === left.length
+    && rightSet.size === right.length
+    && leftSet.size === rightSet.size
+    && [...leftSet].every((entry) => rightSet.has(entry));
+}
+
+function validateDailyTaskChildReport(input: {
+  label: string;
+  expectedReportKey: string;
+  expectedHead: string;
+  nowMs: number;
+  report: Record<string, any>;
+}) {
+  const report = input.report;
+  const failures = [
+    ...validateGeneratedChildReportEvidence({
+      report,
+      expectedReportKey: input.expectedReportKey,
+      currentHead: input.expectedHead,
+      nowMs: input.nowMs,
+      requireSourceGate: true,
+    }),
+    ...validateGeneratedReportEnvelope(report)
+      .map((failure) => `${input.label}: ${failure}.`),
+  ];
+
+  const generatedAtMs = typeof report.generatedAtUtc === "string"
+    ? Date.parse(report.generatedAtUtc)
+    : Number.NaN;
+  if (
+    !Number.isFinite(generatedAtMs)
+    || new Date(generatedAtMs).toISOString() !== report.generatedAtUtc
+  ) {
+    failures.push(`${input.label}: generatedAtUtc must be a canonical ISO timestamp.`);
+  }
+
+  const validationFailures = readStringArray(report.validationFailures);
+  const sourceValidationFailures = readStringArray(report.sourceValidationFailures);
+  const isolationFailures = readStringArray(report.isolationFailures);
+  if (!validationFailures) failures.push(`${input.label}: validationFailures must be an explicit string array.`);
+  if (!sourceValidationFailures) failures.push(`${input.label}: sourceValidationFailures must be an explicit string array.`);
+  if (!isolationFailures) failures.push(`${input.label}: isolationFailures must be an explicit string array.`);
+
+  if (typeof report.passed !== "boolean") failures.push(`${input.label}: passed must be explicit.`);
+  if (report.sourceStatus !== "pass" && report.sourceStatus !== "fail") {
+    failures.push(`${input.label}: sourceStatus must be pass or fail.`);
+  }
+  if (report.evidenceClass !== "source_snapshot") {
+    failures.push(`${input.label}: evidenceClass must be source_snapshot.`);
+  }
+  if (report.canClearRuntimeGate !== false || report.canClearProviderGate !== false || report.canClearAdminTruthGate !== false) {
+    failures.push(`${input.label}: source evidence cannot clear runtime, provider, or admin truth gates.`);
+  }
+
+  if (validationFailures && report.status !== (validationFailures.length === 0 ? "pass" : "fail")) {
+    failures.push(`${input.label}: status contradicts validationFailures.`);
+  }
+  if (validationFailures && report.passed !== (validationFailures.length === 0)) {
+    failures.push(`${input.label}: passed contradicts validationFailures.`);
+  }
+  if (sourceValidationFailures) {
+    const expectedSourceStatus = sourceValidationFailures.length === 0 ? "pass" : "fail";
+    if (report.sourceStatus !== expectedSourceStatus) {
+      failures.push(`${input.label}: sourceStatus contradicts sourceValidationFailures.`);
+    }
+  }
+  if (validationFailures && report.canClearSourceGate !== (validationFailures.length === 0)) {
+    failures.push(`${input.label}: canClearSourceGate contradicts validationFailures.`);
+  }
+  if (validationFailures && sourceValidationFailures && isolationFailures) {
+    if (!sameStringSet(validationFailures, [...sourceValidationFailures, ...isolationFailures])) {
+      failures.push(`${input.label}: validationFailures must equal source and isolation failures.`);
+    }
+  }
+  return {
+    failures: [...new Set(failures)],
+    trusted: failures.length === 0,
+  };
+}
+
+export function isDailyTaskDebugScoreLockIsolationFailure(failure: string) {
+  return failure === "dirty files unclassified."
+    || failure === "chat/nav changed."
+    || failure === "payment runtime or paid GumDrop math changed.";
+}
+
+export function projectDailyTaskDebugScoreLockSourceStatus(validationFailures: readonly string[]) {
+  const isolationFailures = validationFailures.filter(isDailyTaskDebugScoreLockIsolationFailure);
+  const sourceValidationFailures = validationFailures.filter((failure) => !isDailyTaskDebugScoreLockIsolationFailure(failure));
+  return {
+    sourceStatus: sourceValidationFailures.length === 0 ? "pass" as const : "fail" as const,
+    sourceValidationFailures: [...new Set(sourceValidationFailures)],
+    isolationFailures: [...new Set(isolationFailures)],
+  };
 }
 
 function allScoreImpactsPresent(...reports: Array<Record<string, any>>) {
@@ -255,11 +381,56 @@ function allScoreImpactsPresent(...reports: Array<Record<string, any>>) {
 }
 
 export function buildDailyTaskDebugScoreLockReport(input: BuildInput = {}): DailyTaskDebugScoreLockReport {
-  const reset = readJson("agent/state/daily-task-reset-truth.generated.json");
-  const lifecycle = readJson("agent/state/daily-task-lifecycle-telemetry.generated.json");
-  const reward = readJson("agent/state/daily-task-reward-ledger.generated.json");
-  const guidance = readJson("agent/state/daily-task-guidance-route-audit.generated.json");
-  const score = readJson("agent/state/public-beta-score.generated.json");
+  const generatedAtUtc = input.now ?? new Date(input.nowMs ?? Date.now()).toISOString();
+  const currentHead = input.currentHead ?? (git(["rev-parse", "HEAD"]) || "unknown");
+  const parsedGeneratedAtMs = Date.parse(generatedAtUtc);
+  const nowMs = input.nowMs ?? (Number.isFinite(parsedGeneratedAtMs) ? parsedGeneratedAtMs : Date.now());
+  const resetInput = input.sourceReports?.resetTruth ?? readJson("agent/state/daily-task-reset-truth.generated.json");
+  const lifecycleInput = input.sourceReports?.lifecycleTelemetry ?? readJson("agent/state/daily-task-lifecycle-telemetry.generated.json");
+  const rewardInput = input.sourceReports?.rewardLedger ?? readJson("agent/state/daily-task-reward-ledger.generated.json");
+  const guidanceInput = input.sourceReports?.guidanceRouteAudit ?? readJson("agent/state/daily-task-guidance-route-audit.generated.json");
+  const score = input.sourceReports?.publicBetaScore ?? readJson("agent/state/public-beta-score.generated.json");
+  const resetCheck = validateDailyTaskChildReport({
+    label: "reset truth child",
+    expectedReportKey: "daily-task-reset-truth",
+    expectedHead: currentHead,
+    nowMs,
+    report: resetInput,
+  });
+  const lifecycleCheck = validateDailyTaskChildReport({
+    label: "lifecycle telemetry child",
+    expectedReportKey: "daily-task-lifecycle-telemetry",
+    expectedHead: currentHead,
+    nowMs,
+    report: lifecycleInput,
+  });
+  const rewardCheck = validateDailyTaskChildReport({
+    label: "reward ledger child",
+    expectedReportKey: "daily-task-reward-ledger",
+    expectedHead: currentHead,
+    nowMs,
+    report: rewardInput,
+  });
+  const guidanceCheck = validateDailyTaskChildReport({
+    label: "guidance route child",
+    expectedReportKey: "daily-task-guidance-route-audit",
+    expectedHead: currentHead,
+    nowMs,
+    report: guidanceInput,
+  });
+  const childValidationFailures = [
+    ...resetCheck.failures,
+    ...lifecycleCheck.failures,
+    ...rewardCheck.failures,
+    ...guidanceCheck.failures,
+  ];
+
+  // Payload fields are consumed only after the child's identity, provenance, verdict,
+  // failure partition, and source gate have all been validated.
+  const reset = resetCheck.trusted ? resetInput : {};
+  const lifecycle = lifecycleCheck.trusted ? lifecycleInput : {};
+  const reward = rewardCheck.trusted ? rewardInput : {};
+  const guidance = guidanceCheck.trusted ? guidanceInput : {};
   const scoreAfter = scoreSnapshot(score);
   const scoreBefore = scoreFromReport(reset, scoreAfter);
   const guidanceSummary = guidance.summary ?? {};
@@ -289,17 +460,74 @@ export function buildDailyTaskDebugScoreLockReport(input: BuildInput = {}): Dail
   const taskPersonMetricsPresent = personTaskMetrics.length >= 8 && personTaskMetrics.every((metric: any) => metric.present === true);
   const taskScoreCoveragePresent = allScoreImpactsPresent(reset, lifecycle, reward, guidance);
 
-  const report: DailyTaskDebugScoreLockReport = {
-    generatedAtUtc: input.now ?? new Date().toISOString(),
-    currentHead: input.currentHead ?? (git(["rev-parse", "HEAD"]) || "unknown"),
-    resetTruthStatus: reset.resetPolicyExplicit && reset.duplicateRewardGuard && reset.rewardSourceTruth === "reward_gd_only" ? "pass" : statusFromPass(reset.status),
-    lifecycleTelemetryStatus: lifecycle.requiredEventsRegistered && lifecycle.completionHasStartAttemptPath && lifecycle.rewardGrantedServerTruth ? "pass" : statusFromPass(lifecycle.status),
-    durationTrackingStatus: lifecycle.durationRejectsPassivePageTime ? "active_duration_only" : "passive_page_time",
-    rewardLedgerStatus: reward.status === "pass" ? "pass" : statusFromPass(reward.status),
-    guidanceRouteStatus: guidance.status === "pass" && activeTaskRouteMismatchCount === 0 && activeTaskMissingCompletionSignalCount === 0 ? "pass" : statusFromPass(guidance.status),
-    taskFailureDebugStatus: lifecycle.debugLanePresent && Array.isArray(lifecycleDebugLane.failureReasons) ? "present" : "missing",
-    taskPersonMetricsStatus: taskPersonMetricsPresent ? "present" : "missing",
-    taskScoreCoverageStatus: taskScoreCoveragePresent ? "present" : "missing",
+  const resetTruthStatus: Status = resetCheck.trusted
+    && reset.resetPolicyExplicit
+    && reset.duplicateRewardGuard
+    && reset.rewardSourceTruth === "reward_gd_only"
+    ? "pass"
+    : "missing";
+  const lifecycleTelemetryStatus: Status = lifecycleCheck.trusted
+    && lifecycle.requiredEventsRegistered
+    && lifecycle.completionHasStartAttemptPath
+    && lifecycle.rewardGrantedServerTruth
+    ? "pass"
+    : "missing";
+  const durationTrackingStatus: DurationTrackingStatus = !lifecycleCheck.trusted
+    ? "missing"
+    : lifecycle.durationRejectsPassivePageTime
+      ? "active_duration_only"
+      : "passive_page_time";
+  const rewardLedgerStatus: Status = rewardCheck.trusted ? "pass" : "missing";
+  const guidanceRouteStatus: Status = guidanceCheck.trusted ? "pass" : "missing";
+  const debugLanes = [
+    { lane: "Daily tasks/reset", status: resetCheck.trusted && reset.debugLanePresent ? "present" : "missing", source: "daily-task-reset-truth" },
+    { lane: String(lifecycleDebugLane.lane ?? "Daily task lifecycle"), status: lifecycleCheck.trusted && lifecycle.debugLanePresent ? "present" : "missing", source: "daily-task-lifecycle-telemetry" },
+    { lane: String(rewardDebugLane.lane ?? "Daily task reward ledger"), status: rewardCheck.trusted && rewardDebugLane.lane ? "present" : "missing", source: "daily-task-reward-ledger" },
+    { lane: String(guidance.debugLane?.lane ?? "Task guidance health"), status: guidanceCheck.trusted && guidance.debugLane ? "present" : "missing", source: "daily-task-guidance-route-audit" },
+  ];
+  const scoreDimensions = buildScoreDimensions(scoreBefore, scoreAfter);
+  const remainingGaps = [
+    ...childValidationFailures,
+    ...debugLanes.filter((lane) => lane.status === "missing").map((lane) => `${lane.lane} debug lane missing.`),
+    ...Object.entries(scoreDimensions)
+      .filter(([, dimension]) => dimension.status === "below_target")
+      .map(([dimension, value]) => `${dimension} below 80: ${value.nextExactAction}`),
+  ];
+  const nextExactSteps = remainingGaps.length > 0
+    ? remainingGaps
+    : ["Keep daily task validators in the targeted signoff lane; collect formal runtime/provider evidence separately."];
+  const taskFailureDebugStatus: "present" | "missing" = lifecycle.debugLanePresent && Array.isArray(lifecycleDebugLane.failureReasons)
+    ? "present"
+    : "missing";
+  const taskPersonMetricsStatus: "present" | "missing" = taskPersonMetricsPresent ? "present" : "missing";
+  const taskScoreCoverageStatus: "present" | "missing" = taskScoreCoveragePresent ? "present" : "missing";
+  const oldTaskLogicClassification: DailyTaskDebugScoreLockReport["oldTaskLogicClassification"] = [
+    {
+      reference: "unknown_legacy reset handling",
+      classification: "still_required",
+      reason: "Legacy reset anchors remain explicitly unavailable instead of claimable truth.",
+    },
+    {
+      reference: "passive page time duration",
+      classification: "stale_removed",
+      reason: "Task lifecycle report requires active start/attempt duration and rejects passive page time.",
+    },
+    {
+      reference: "unfiltered task guidance rendering",
+      classification: "superseded",
+      reason: "Guidance route audit filters unsupported active tasks before rendering/claiming.",
+    },
+  ];
+
+  const payload = {
+    resetTruthStatus,
+    lifecycleTelemetryStatus,
+    durationTrackingStatus,
+    rewardLedgerStatus,
+    guidanceRouteStatus,
+    taskFailureDebugStatus,
+    taskPersonMetricsStatus,
+    taskScoreCoverageStatus,
     rewardGdSourceTruth,
     unknownLegacyTaskCount,
     duplicateRewardRiskCount,
@@ -307,9 +535,8 @@ export function buildDailyTaskDebugScoreLockReport(input: BuildInput = {}): Dail
     activeTaskMissingCompletionSignalCount,
     scoreBefore,
     scoreAfter,
-    scoreDimensions: buildScoreDimensions(scoreBefore, scoreAfter),
-    remainingGaps: [],
-    nextExactSteps: [],
+    scoreDimensions,
+    remainingGaps,
     sourceReports: {
       resetTruth: "agent/state/daily-task-reset-truth.generated.json",
       lifecycleTelemetry: "agent/state/daily-task-lifecycle-telemetry.generated.json",
@@ -317,53 +544,129 @@ export function buildDailyTaskDebugScoreLockReport(input: BuildInput = {}): Dail
       guidanceRouteAudit: "agent/state/daily-task-guidance-route-audit.generated.json",
       publicBetaScore: "agent/state/public-beta-score.generated.json",
     },
-    debugLanes: [
-      { lane: "Daily tasks/reset", status: reset.debugLanePresent ? "present" : "missing", source: "daily-task-reset-truth" },
-      { lane: String(lifecycleDebugLane.lane ?? "Daily task lifecycle"), status: lifecycle.debugLanePresent ? "present" : "missing", source: "daily-task-lifecycle-telemetry" },
-      { lane: String(rewardDebugLane.lane ?? "Daily task reward ledger"), status: rewardDebugLane.lane ? "present" : "missing", source: "daily-task-reward-ledger" },
-      { lane: String(guidance.debugLane?.lane ?? "Task guidance health"), status: guidance.debugLane ? "present" : "missing", source: "daily-task-guidance-route-audit" },
-    ],
+    debugLanes,
     dirtyFileClassifications,
-    oldTaskLogicClassification: [
-      {
-        reference: "unknown_legacy reset handling",
-        classification: "still_required",
-        reason: "Legacy reset anchors remain explicitly unavailable instead of claimable truth.",
-      },
-      {
-        reference: "passive page time duration",
-        classification: "stale_removed",
-        reason: "Task lifecycle report requires active start/attempt duration and rejects passive page time.",
-      },
-      {
-        reference: "unfiltered task guidance rendering",
-        classification: "superseded",
-        reason: "Guidance route audit filters unsupported active tasks before rendering/claiming.",
-      },
-    ],
+    oldTaskLogicClassification,
     protectedSurfaceStatus: {
       chatTouched: dirtyFileClassifications.some((entry) => /(^|\/)(Chat|chat)(\/|\.|-)/u.test(entry.path)),
       navTouched: dirtyFileClassifications.some((entry) => /Navbar|Navigation|bottom-nav|top-nav/iu.test(entry.path)),
       paymentRuntimeTouched: dirtyFileClassifications.some((entry) => /paypal|payment|PurchaseModal|wallet\/route|api\/wallet/iu.test(entry.path)),
       paidGdMathTouched: dirtyFileClassifications.some((entry) => /src\/lib\/gumdrop|src\/lib\/gumdrops|gumdrop-math/iu.test(entry.path)),
     },
-    validationFailures: [],
   };
-  report.remainingGaps = [
-    ...report.debugLanes.filter((lane) => lane.status === "missing").map((lane) => `${lane.lane} debug lane missing.`),
-    ...Object.entries(report.scoreDimensions)
-      .filter(([, dimension]) => dimension.status === "below_target")
-      .map(([dimension, value]) => `${dimension} below 80: ${value.nextExactAction}`),
-  ];
-  report.nextExactSteps = report.remainingGaps.length > 0
-    ? report.remainingGaps
-    : ["Keep daily task validators in the targeted signoff lane; collect formal runtime/provider evidence separately."];
-  report.validationFailures = validateDailyTaskDebugScoreLockReport(report);
-  return report;
+
+  const initialSourceProjection = projectDailyTaskDebugScoreLockSourceStatus(childValidationFailures);
+  const initialStatus = childValidationFailures.length === 0 ? "pass" as const : "fail" as const;
+  const provisionalReport: DailyTaskDebugScoreLockReport = {
+    ...withGeneratedReportEnvelope(payload, {
+      reportKey: "daily-task-debug-score-lock",
+      status: initialStatus,
+      generatedAtUtc,
+      currentHead,
+      evidenceClass: "source_snapshot",
+      canClearSourceGate: initialStatus === "pass",
+      nextExactSteps,
+      validationFailures: childValidationFailures,
+      doesNotProve: [
+        "Does not prove deployed daily-task behavior.",
+        "Does not prove production task activity or provider delivery.",
+        "Does not clear runtime, provider, or admin truth gates.",
+      ],
+    }),
+    reportKey: "daily-task-debug-score-lock",
+    status: initialStatus,
+    passed: initialStatus === "pass",
+    sourceCommit: currentHead,
+    validationFailures: childValidationFailures,
+    ...initialSourceProjection,
+  };
+  const validationFailures = validateDailyTaskDebugScoreLockReport(provisionalReport, {
+    expectedHead: currentHead,
+    nowMs,
+  });
+  const sourceProjection = projectDailyTaskDebugScoreLockSourceStatus(validationFailures);
+  const status = validationFailures.length === 0 ? "pass" as const : "fail" as const;
+  const finalReport: DailyTaskDebugScoreLockReport = {
+    ...provisionalReport,
+    status,
+    passed: status === "pass",
+    canClearSourceGate: status === "pass",
+    validationFailures,
+    ...sourceProjection,
+  };
+  const verifiedFailures = validateDailyTaskDebugScoreLockReport(finalReport, {
+    expectedHead: currentHead,
+    nowMs,
+  });
+  const verifiedProjection = projectDailyTaskDebugScoreLockSourceStatus(verifiedFailures);
+  const verifiedStatus = verifiedFailures.length === 0 ? "pass" as const : "fail" as const;
+  const verifiedRemainingGaps = [...new Set([
+    ...finalReport.remainingGaps,
+    ...verifiedFailures.map((failure) => `Daily task source blocker: ${failure}`),
+  ])];
+  return {
+    ...finalReport,
+    status: verifiedStatus,
+    passed: verifiedStatus === "pass",
+    canClearSourceGate: verifiedStatus === "pass",
+    remainingGaps: verifiedRemainingGaps,
+    nextExactSteps: verifiedFailures.length > 0
+      ? verifiedFailures.map((failure) => `Resolve daily task source blocker: ${failure}`)
+      : finalReport.nextExactSteps,
+    validationFailures: verifiedFailures,
+    ...verifiedProjection,
+  };
 }
 
-export function validateDailyTaskDebugScoreLockReport(report: DailyTaskDebugScoreLockReport) {
-  const failures: string[] = [];
+export function validateDailyTaskDebugScoreLockReport(
+  report: DailyTaskDebugScoreLockReport,
+  input: { expectedHead?: string; nowMs?: number } = {},
+) {
+  const persistedValidationFailures = readStringArray(report.validationFailures);
+  const sourceValidationFailures = readStringArray(report.sourceValidationFailures);
+  const isolationFailures = readStringArray(report.isolationFailures);
+  const failures: string[] = persistedValidationFailures ? [...persistedValidationFailures] : [];
+  if (!persistedValidationFailures) failures.push("validationFailures must be an explicit string array.");
+  if (!sourceValidationFailures) failures.push("sourceValidationFailures must be an explicit string array.");
+  if (!isolationFailures) failures.push("isolationFailures must be an explicit string array.");
+  failures.push(...validateGeneratedReportEnvelope(report)
+    .map((failure) => `aggregate envelope: ${failure}.`));
+  if (report.reportKey !== "daily-task-debug-score-lock") failures.push("aggregate reportKey is incorrect.");
+  if (!isFullGitCommit(report.currentHead)) failures.push("aggregate currentHead is not a full Git commit.");
+  if (!isFullGitCommit(report.sourceCommit) || report.sourceCommit !== report.currentHead) {
+    failures.push("aggregate sourceCommit must equal currentHead.");
+  }
+  if (input.expectedHead && report.currentHead !== input.expectedHead) failures.push("aggregate currentHead is not current.");
+  const generatedAtMs = Date.parse(report.generatedAtUtc);
+  if (!Number.isFinite(generatedAtMs) || new Date(generatedAtMs).toISOString() !== report.generatedAtUtc) {
+    failures.push("aggregate generatedAtUtc must be a canonical ISO timestamp.");
+  } else if (input.nowMs !== undefined) {
+    if (generatedAtMs > input.nowMs) failures.push("aggregate generatedAtUtc is in the future.");
+    if (input.nowMs - generatedAtMs > MAX_CHILD_REPORT_AGE_MS) failures.push("aggregate report is older than 24 hours.");
+  }
+  if (report.status !== "pass" && report.status !== "fail") failures.push("aggregate status must be pass or fail.");
+  if (typeof report.passed !== "boolean") failures.push("aggregate passed must be explicit.");
+  if (report.evidenceClass !== "source_snapshot") failures.push("aggregate evidenceClass must be source_snapshot.");
+  if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {
+    failures.push("aggregate source evidence cannot clear runtime, provider, or admin truth gates.");
+  }
+  if (persistedValidationFailures) {
+    const expectedStatus = persistedValidationFailures.length === 0 ? "pass" : "fail";
+    if (report.status !== expectedStatus) failures.push("aggregate status contradicts validationFailures.");
+    if (report.passed !== (expectedStatus === "pass")) failures.push("aggregate passed contradicts validationFailures.");
+  }
+  if (sourceValidationFailures) {
+    const expectedSourceStatus = sourceValidationFailures.length === 0 ? "pass" : "fail";
+    if (report.sourceStatus !== expectedSourceStatus) failures.push("aggregate sourceStatus contradicts sourceValidationFailures.");
+  }
+  if (persistedValidationFailures && report.canClearSourceGate !== (persistedValidationFailures.length === 0)) {
+    failures.push("aggregate canClearSourceGate contradicts validationFailures.");
+  }
+  if (persistedValidationFailures && sourceValidationFailures && isolationFailures) {
+    if (!sameStringSet(persistedValidationFailures, [...sourceValidationFailures, ...isolationFailures])) {
+      failures.push("aggregate validationFailures must equal source and isolation failures.");
+    }
+  }
   if (report.resetTruthStatus !== "pass") failures.push("reset truth missing.");
   if (report.lifecycleTelemetryStatus !== "pass") failures.push("lifecycle telemetry missing.");
   if (report.durationTrackingStatus !== "active_duration_only") failures.push("task duration uses page time.");
@@ -410,6 +713,9 @@ function renderDoc(report: DailyTaskDebugScoreLockReport) {
 
 Generated: ${report.generatedAtUtc}
 Current head: ${report.currentHead}
+Source commit: ${report.sourceCommit}
+Status: ${report.status}
+Source status: ${report.sourceStatus}
 
 ## Lock Status
 

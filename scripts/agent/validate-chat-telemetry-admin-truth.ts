@@ -49,6 +49,13 @@ export type ChatTelemetryAdminTruthReport = {
   reportKey: "chat-telemetry-admin-truth";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   productionReadsRequired: false;
   liveDataMutationAllowed: false;
   deployRequired: false;
@@ -308,11 +315,19 @@ export function buildChatTelemetryAdminTruthReport(input: {
     path,
     classification: classifyChatTelemetryAdminTruthDirtyFile(path),
   }));
+  const head = input.currentHead ?? git(["rev-parse", "HEAD"]);
 
   return {
     reportKey: "chat-telemetry-admin-truth",
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
-    currentHead: input.currentHead ?? git(["rev-parse", "HEAD"]),
+    currentHead: head,
+    sourceCommit: head,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     productionReadsRequired: false,
     liveDataMutationAllowed: false,
     deployRequired: false,
@@ -347,7 +362,7 @@ function writeReport(report: ChatTelemetryAdminTruthReport) {
   const docPath = join(repoRoot, DOC_PATH);
   mkdirSync(dirname(statePath), { recursive: true });
   mkdirSync(dirname(docPath), { recursive: true });
-  writeFileSync(statePath, `${JSON.stringify({ ...report, validationFailures: validateChatTelemetryAdminTruthReport(report) }, null, 2)}\n`);
+  writeFileSync(statePath, `${JSON.stringify(report, null, 2)}\n`);
   writeFileSync(docPath, [
     "# Chat Telemetry Admin Truth",
     "",
@@ -389,6 +404,10 @@ function writeReport(report: ChatTelemetryAdminTruthReport) {
 if (process.argv[1]?.replace(/\\/gu, "/").endsWith("scripts/agent/validate-chat-telemetry-admin-truth.ts")) {
   const report = buildChatTelemetryAdminTruthReport();
   const failures = validateChatTelemetryAdminTruthReport(report);
+  report.validationFailures = failures;
+  report.status = failures.length > 0 ? "fail" : "pass";
+  report.passed = failures.length === 0;
+  report.canClearSourceGate = report.passed;
   writeReport(report);
   if (failures.length > 0) {
     console.error(`Chat telemetry admin truth validation failed:\n- ${failures.join("\n- ")}`);

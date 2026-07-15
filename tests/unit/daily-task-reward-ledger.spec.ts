@@ -6,6 +6,18 @@ import {
   buildDailyTaskRewardLedgerGrant,
   buildDailyTaskRewardTransactionExtra,
 } from "@/lib/tasks/daily-task-reward-ledger";
+import { buildDailyTaskRewardLedgerReport } from "../../scripts/agent/validate-daily-task-reward-ledger";
+
+const TEST_HEAD = "0123456789abcdef0123456789abcdef01234567";
+const TEST_SCORE = {
+  sourceHealth: 90,
+  runtimeHealth: 90,
+  evidenceCompleteness: 90,
+  freshness: 90,
+  costRisk: 90,
+  regressionRisk: 90,
+  overallHealthScore: 90,
+};
 
 describe("daily task reward ledger", () => {
   it("builds deterministic reward-only grant metadata for daily task rewards", () => {
@@ -90,5 +102,57 @@ describe("daily task reward ledger", () => {
       sourceOfFunds: "reward_gd",
       rawDetailsCollapsedByDefault: true,
     });
+  });
+
+  it("keeps source readiness separate from dirty-tree isolation", () => {
+    const report = buildDailyTaskRewardLedgerReport({
+      generatedAtUtc: "2026-07-14T17:00:00.000Z",
+      currentHead: TEST_HEAD,
+      dirtyFiles: [],
+      scoreBefore: TEST_SCORE,
+      scoreAfter: TEST_SCORE,
+    });
+
+    expect(report).toMatchObject({
+      reportKey: "daily-task-reward-ledger",
+      status: "pass",
+      passed: true,
+      currentHead: TEST_HEAD,
+      sourceCommit: TEST_HEAD,
+      canClearSourceGate: true,
+    });
+    expect(report.sourceStatus).toBe("pass");
+    expect(report.sourceValidationFailures).toEqual([]);
+    expect(report.validationFailures).toEqual([
+      ...report.sourceValidationFailures,
+      ...report.isolationFailures,
+    ]);
+  });
+
+  it("does not clear the canonical source gate when an isolation failure remains", () => {
+    const report = buildDailyTaskRewardLedgerReport({
+      generatedAtUtc: "2026-07-14T17:00:00.000Z",
+      currentHead: TEST_HEAD,
+      dirtyFiles: ["tmp/unclassified-reward-file.txt"],
+      scoreBefore: TEST_SCORE,
+      scoreAfter: TEST_SCORE,
+    });
+
+    expect(report.status).toBe("fail");
+    expect(report.sourceStatus).toBe("pass");
+    expect(report.isolationFailures).toEqual(["dirty files unclassified."]);
+    expect(report.canClearSourceGate).toBe(false);
+  });
+
+  it("fails closed when Git provenance is unavailable", () => {
+    const report = buildDailyTaskRewardLedgerReport({
+      currentHead: "unknown",
+      dirtyFiles: [],
+      scoreBefore: TEST_SCORE,
+      scoreAfter: TEST_SCORE,
+    });
+    expect(report.status).toBe("fail");
+    expect(report.canClearSourceGate).toBe(false);
+    expect(report.validationFailures).toContain("daily task reward report provenance is not a full Git commit.");
   });
 });

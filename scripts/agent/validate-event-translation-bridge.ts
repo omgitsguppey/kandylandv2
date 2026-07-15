@@ -217,10 +217,14 @@ function main() {
   if (dirtyFileClassifications.some((file) => file.classification === "unsafe_unknown")) {
     failures.push("dirty files are unclassified.");
   }
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead ?? "")) failures.push("current Git head is missing or is not a full commit SHA.");
 
   const output = {
     ...report,
+    sourceCommit: report.currentHead,
     status: failures.length > 0 ? "fail" as const : "pass" as const,
+    passed: failures.length === 0,
+    canClearSourceGate: failures.length === 0,
     dirtyFiles: dirtyFileClassifications,
     activeOldLogic,
     validationFailures: [...new Set(failures)],

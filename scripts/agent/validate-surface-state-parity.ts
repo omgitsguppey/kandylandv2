@@ -129,11 +129,15 @@ for (const surface of SURFACE_STATE_REGISTRY) {
 
 const finalReport = {
   ...report,
+  reportKey: "surface-state-parity" as const,
+  sourceCommit: currentHead ?? "unknown",
   gitStatus: toolchain.gitStatus,
   currentHeadSource: toolchain.currentHeadSource,
   toolingDegraded: toolchain.toolingDegraded,
   degradationReason: toolchain.degradationReason,
   status: failures.length > 0 ? "fail" as const : "pass" as const,
+  passed: failures.length === 0,
+  canClearSourceGate: failures.length === 0,
   validationFailures: [...new Set(failures)],
 };
 

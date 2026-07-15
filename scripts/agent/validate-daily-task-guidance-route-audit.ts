@@ -1,15 +1,70 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import {
   buildDailyTaskGuidanceAuditReport,
   validateDailyTaskGuidanceRows,
   type DailyTaskGuidanceAuditReport,
 } from "@/lib/tasks/daily-task-guidance-contract";
+import {
+  withGeneratedReportEnvelope,
+  type GeneratedReportEnvelope,
+} from "./generated-report-envelope";
 
 const REPORT_PATH = "agent/state/daily-task-guidance-route-audit.generated.json";
 const DOC_PATH = "docs/agent-truth/daily-task-guidance-route-audit.md";
+
+export type DailyTaskGuidanceSourceProjection = {
+  sourceStatus: "pass" | "fail";
+  sourceValidationFailures: string[];
+  isolationFailures: string[];
+};
+
+export type DailyTaskGuidanceValidatorReport = DailyTaskGuidanceAuditReport
+  & GeneratedReportEnvelope
+  & DailyTaskGuidanceSourceProjection
+  & {
+    reportKey: "daily-task-guidance-route-audit";
+    status: "pass" | "fail";
+    passed: boolean;
+    sourceCommit: string;
+  };
+
+export function isDailyTaskGuidanceIsolationFailure(failure: string) {
+  return failure === "dirty files are unclassified."
+    || failure.startsWith("protected chat/nav/payment/GumDrop paid math files changed:")
+    || failure.startsWith("dirty files unclassified:");
+}
+
+export function projectDailyTaskGuidanceSourceStatus(report: {
+  status?: unknown;
+  validationFailures?: unknown;
+}): DailyTaskGuidanceSourceProjection {
+  if (!Array.isArray(report.validationFailures) || !report.validationFailures.every((failure) => typeof failure === "string")) {
+    return {
+      sourceStatus: "fail",
+      sourceValidationFailures: ["guidance route validation failures are missing or malformed."],
+      isolationFailures: [],
+    };
+  }
+  const validationFailures = report.validationFailures as string[];
+  const isolationFailures = validationFailures.filter(isDailyTaskGuidanceIsolationFailure);
+  const sourceValidationFailures = validationFailures.filter((failure) => !isDailyTaskGuidanceIsolationFailure(failure));
+  if (report.status !== "pass" && report.status !== "fail") {
+    sourceValidationFailures.push("guidance route validator status is missing or malformed.");
+  } else if (report.status === "pass" && validationFailures.length > 0) {
+    sourceValidationFailures.push("guidance route validator reports pass with validation failures.");
+  } else if (report.status === "fail" && validationFailures.length === 0) {
+    sourceValidationFailures.push("guidance route validator reports fail without a validation failure.");
+  }
+  return {
+    sourceStatus: sourceValidationFailures.length === 0 ? "pass" : "fail",
+    sourceValidationFailures: [...new Set(sourceValidationFailures)],
+    isolationFailures,
+  };
+}
 
 function readText(path: string) {
   return existsSync(path) ? readFileSync(path, "utf8") : "";
@@ -71,7 +126,7 @@ export function classifyDailyTaskGuidanceDirtyFile(path: string) {
   return "unsafe_unknown";
 }
 
-function buildDoc(report: DailyTaskGuidanceAuditReport) {
+function buildDoc(report: DailyTaskGuidanceValidatorReport) {
   const rows = report.rows.map((row) =>
     `| ${row.taskId} | ${row.currentSiteStatus} | ${row.targetRoute} | ${row.targetFeatureId} | ${row.completionSignal} | ${row.missingEvidence.join("; ") || "none"} |`,
   ).join("\n");
@@ -87,6 +142,7 @@ function buildDoc(report: DailyTaskGuidanceAuditReport) {
 Generated: ${report.generatedAtUtc}
 Current HEAD: ${report.currentHead ?? "unknown"}
 Status: ${report.status}
+Source status: ${report.sourceStatus}
 
 ## Summary
 
@@ -126,7 +182,10 @@ ${report.validationFailures.map((failure) => `- ${failure}`).join("\n") || "- no
 `;
 }
 
-export function validateDailyTaskGuidanceRouteAuditReport(report: DailyTaskGuidanceAuditReport) {
+export function validateDailyTaskGuidanceRouteAuditReport(
+  report: DailyTaskGuidanceAuditReport,
+  input: { dirtyFiles?: string[] } = {},
+) {
   const failures = [...validateDailyTaskGuidanceRows(report.rows)];
 
   if (!report.dirtyFilesClassified) failures.push("dirty files are unclassified.");
@@ -170,9 +229,11 @@ export function validateDailyTaskGuidanceRouteAuditReport(report: DailyTaskGuida
     failures.push("debug task guidance health lane missing.");
   }
 
-  const protectedFilesChanged = gitOutput("git diff --name-only")
-    .split(/\r?\n/u)
-    .filter(Boolean)
+  const dirtyFiles = input.dirtyFiles ?? [
+    ...gitOutput("git diff --name-only").split(/\r?\n/u).filter(Boolean),
+    ...gitOutput("git ls-files --others --exclude-standard").split(/\r?\n/u).filter(Boolean),
+  ];
+  const protectedFilesChanged = dirtyFiles
     .filter((path) =>
       /^src\/app\/dashboard\/chat/u.test(path)
       || /^src\/components\/Chat/u.test(path)
@@ -186,10 +247,6 @@ export function validateDailyTaskGuidanceRouteAuditReport(report: DailyTaskGuida
     failures.push(`protected chat/nav/payment/GumDrop paid math files changed: ${protectedFilesChanged.join(", ")}`);
   }
 
-  const dirtyFiles = [
-    ...gitOutput("git diff --name-only").split(/\r?\n/u).filter(Boolean),
-    ...gitOutput("git ls-files --others --exclude-standard").split(/\r?\n/u).filter(Boolean),
-  ];
   const unsafeDirtyFiles = dirtyFiles.filter((path) => classifyDailyTaskGuidanceDirtyFile(path) === "unsafe_unknown");
   if (unsafeDirtyFiles.length > 0) {
     failures.push(`dirty files unclassified: ${unsafeDirtyFiles.join(", ")}`);
@@ -198,36 +255,70 @@ export function validateDailyTaskGuidanceRouteAuditReport(report: DailyTaskGuida
   return [...new Set(failures)];
 }
 
-function main() {
-  const currentHead = gitOutput("git rev-parse --short HEAD") || undefined;
-  const dirtyFiles = [
+export function buildDailyTaskGuidanceValidatorReport(input: {
+  generatedAtUtc?: string;
+  currentHead?: string;
+  dirtyFiles?: string[];
+} = {}): DailyTaskGuidanceValidatorReport {
+  const currentHead = input.currentHead ?? (gitOutput("git rev-parse HEAD") || "unknown");
+  const dirtyFiles = input.dirtyFiles ?? [
     ...gitOutput("git diff --name-only").split(/\r?\n/u).filter(Boolean),
     ...gitOutput("git ls-files --others --exclude-standard").split(/\r?\n/u).filter(Boolean),
   ];
   const dirtyFilesClassified = dirtyFiles.every((path) => classifyDailyTaskGuidanceDirtyFile(path) !== "unsafe_unknown");
   const report = buildDailyTaskGuidanceAuditReport({
+    generatedAtUtc: input.generatedAtUtc,
     currentHead,
     dirtyFilesClassified,
   });
-  const validationFailures = validateDailyTaskGuidanceRouteAuditReport(report);
-  const finalReport: DailyTaskGuidanceAuditReport = {
-    ...report,
-    status: validationFailures.length === 0 ? "pass" : "fail",
+  const validationFailures = validateDailyTaskGuidanceRouteAuditReport(report, { dirtyFiles });
+  if (!/^[0-9a-f]{40}$/iu.test(currentHead)) {
+    validationFailures.push("daily task guidance report provenance is not a full Git commit.");
+  }
+  const status = validationFailures.length === 0 ? "pass" as const : "fail" as const;
+  const sourceProjection = projectDailyTaskGuidanceSourceStatus({ status, validationFailures });
+  return {
+    ...withGeneratedReportEnvelope(report, {
+      reportKey: "daily-task-guidance-route-audit",
+      status,
+      generatedAtUtc: report.generatedAtUtc,
+      currentHead,
+      evidenceClass: "source_snapshot",
+      canClearSourceGate: status === "pass",
+      nextExactSteps: [
+        "Keep guidance route source checks current; collect deployed runtime evidence separately.",
+      ],
+      validationFailures,
+      doesNotProve: [
+        "Does not prove deployed guidance behavior.",
+        "Does not prove production task completion activity.",
+        "Does not prove provider or payment behavior.",
+      ],
+    }),
+    reportKey: "daily-task-guidance-route-audit" as const,
+    status,
+    passed: status === "pass",
+    sourceCommit: currentHead,
     validationFailures,
+    ...sourceProjection,
   };
+}
+
+function main() {
+  const finalReport = buildDailyTaskGuidanceValidatorReport();
 
   writeText(REPORT_PATH, `${JSON.stringify(finalReport, null, 2)}\n`);
   writeText(DOC_PATH, buildDoc(finalReport));
 
-  if (validationFailures.length > 0) {
+  if (finalReport.validationFailures.length > 0) {
     console.error("Daily task guidance route audit validation failed:");
-    for (const failure of validationFailures) console.error(`- ${failure}`);
+    for (const failure of finalReport.validationFailures) console.error(`- ${failure}`);
     process.exit(1);
   }
 
   console.log(`Daily task guidance route audit validation passed for ${finalReport.rows.length} tasks.`);
 }
 
-if (require.main === module) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

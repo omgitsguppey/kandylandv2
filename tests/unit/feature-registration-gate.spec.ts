@@ -56,6 +56,15 @@ describe("feature registration gate", () => {
     expect(failures).toContain("route src/app/new-social-feed/page.tsx lacks feature registration or system/internal classification.");
   });
 
+  it("classifies the authenticated scheduled analytics materializer as system/internal", () => {
+    const route = "src/app/api/internal/analytics/materialize-user-index/route.ts";
+    const report = buildFeatureRegistrationGateReport({ appRouteFiles: [route] });
+
+    expect(report.status).toBe("pass");
+    expect(report.systemInternalRoutes).toEqual([route]);
+    expect(report.routeCoverage.unmappedRoutes).toEqual([]);
+  });
+
   it("fails when a feature lacks required completion fields", () => {
     const [first] = FEATURE_REGISTRATION_REGISTRY;
     const report = buildFeatureRegistrationGateReport({

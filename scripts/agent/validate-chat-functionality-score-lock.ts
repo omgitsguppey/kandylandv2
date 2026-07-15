@@ -3,9 +3,13 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { validateGeneratedChildReportEvidence } from "./generated-report-envelope";
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const STATE_PATH = join(ROOT, "agent", "state", "chat-functionality-score-lock.generated.json");
 const DOC_PATH = join(ROOT, "docs", "agent-truth", "chat-functionality-score-lock.md");
+const FULL_GIT_SHA_PATTERN = /^[0-9a-f]{40}$/iu;
+const MAX_REPORT_AGE_MS = 24 * 60 * 60 * 1000;
 const BATCH5_SLUGS = [
   "config-runtime-sample-status-classifier",
   "chat-gating-status-cleanup",
@@ -47,8 +51,16 @@ export interface ChatFunctionalityStatus {
 }
 
 export interface ChatFunctionalityScoreLockReport {
+  reportKey: "chat-functionality-score-lock";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   productionReadsRequired: false;
   liveDataMutationAllowed: false;
   deployRequired: false;
@@ -89,6 +101,7 @@ export interface ChatFunctionalityScoreLockReport {
 
 interface BuildInput {
   currentHead?: string;
+  generatedAtUtc?: string;
   realtimeReport?: any;
   presenceReport?: any;
   gatingReport?: any;
@@ -104,13 +117,18 @@ function git(args: readonly string[]) {
   return execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim();
 }
 
-function readJson(path: string) {
+export function readChatFunctionalityArtifact(path: string) {
   if (!existsSync(path)) return null;
-  return JSON.parse(readFileSync(path, "utf8"));
+  try {
+    const parsed = JSON.parse(readFileSync(path, "utf8")) as unknown;
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
 }
 
 function readState(name: string) {
-  return readJson(join(ROOT, "agent", "state", name));
+  return readChatFunctionalityArtifact(join(ROOT, "agent", "state", name));
 }
 
 function readScoreSnapshot(score: any): ScoreSnapshot {
@@ -266,6 +284,23 @@ function statusFrom(condition: boolean, evidence: string[], missing: string[], n
   };
 }
 
+function hasHydratedPersonMetric(report: any, metricId: string) {
+  const metric = report?.consumerMetricStatus?.byId?.[metricId]
+    ?? (!Array.isArray(report?.metricStatus) ? report?.metricStatus?.[metricId] : null);
+  return metric?.state === "hydrated" || metric?.hydrated === true;
+}
+
+function explicitLowConfidenceMetricCount(report: any) {
+  const candidates = [
+    report?.debugLane?.lowConfidenceMetrics,
+    report?.lowConfidenceMetricCount,
+    report?.lowConfidenceMetrics?.total,
+    Array.isArray(report?.lowConfidenceMetrics) ? report.lowConfidenceMetrics.length : null,
+  ];
+  const value = candidates.find((candidate) => typeof candidate === "number" && Number.isFinite(candidate));
+  return typeof value === "number" ? value : null;
+}
+
 function buildScoreDimensions(before: ScoreSnapshot, after: ScoreSnapshot): ChatFunctionalityScoreLockReport["scoreDimensions"] {
   return Object.fromEntries(SCORE_DIMENSIONS.map((dimension) => {
     const value = after[dimension];
@@ -288,6 +323,42 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
   const telemetry = input.telemetryReport ?? readState("chat-telemetry-admin-truth.generated.json") ?? {};
   const personMetrics = input.personMetricsReport ?? readState("person-metrics-hydration.generated.json") ?? {};
   const score = readState("public-beta-score.generated.json") ?? {};
+  const currentHead = input.currentHead ?? git(["rev-parse", "HEAD"]);
+  const childEvidenceFailures = {
+    realtime: validateGeneratedChildReportEvidence({
+      report: realtime,
+      expectedReportKey: "chat-realtime-cost-control",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    presence: validateGeneratedChildReportEvidence({
+      report: presence,
+      expectedReportKey: "chat-presence-typing",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    gating: validateGeneratedChildReportEvidence({
+      report: gating,
+      expectedReportKey: "chat-gating-moderation",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    telemetry: validateGeneratedChildReportEvidence({
+      report: telemetry,
+      expectedReportKey: "chat-telemetry-admin-truth",
+      currentHead,
+      requireSourceGate: true,
+    }),
+    personMetrics: validateGeneratedChildReportEvidence({
+      report: personMetrics,
+      expectedReportKey: "person-metrics-hydration",
+      currentHead,
+      requireSourceGate: true,
+    }),
+  };
+  const childEvidenceOk = Object.fromEntries(
+    Object.entries(childEvidenceFailures).map(([key, failures]) => [key, failures.length === 0]),
+  ) as Record<keyof typeof childEvidenceFailures, boolean>;
   const scoreAfter = mergeScoreSnapshot(readScoreSnapshot(score), input.scoreAfter);
   const scoreBefore = mergeScoreSnapshot(scoreAfter, input.scoreBefore);
   const realtimeSource = realtime.sourceValidation ?? {};
@@ -315,7 +386,8 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
   ];
 
   const realtimeOk = Boolean(
-    realtimeSource.threadListenerBounded
+    childEvidenceOk.realtime
+      && realtimeSource.threadListenerBounded
       && realtimeSource.messageListenerSelectedThreadOnly
       && realtimeSource.messageListenerBounded
       && realtimeSource.detachOnUnmount
@@ -323,12 +395,14 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
       && realtimeSource.hasRealtimeErrorDebugVisibility,
   );
   const listenerCostOk = Boolean(
-    realtimeSource.hasNoBroadAllMessageListener
+    childEvidenceOk.realtime
+      && realtimeSource.hasNoBroadAllMessageListener
       && realtimeSource.threadListenerBounded
       && realtimeSource.messageListenerBounded,
   );
   const presenceOk = Boolean(
-    presenceSource.onDisconnectAttached
+    childEvidenceOk.presence
+      && presenceSource.onDisconnectAttached
       && presenceSource.usesTypingController
       && presenceSource.noPerKeystrokeTypingWrites
       && presenceSource.timeoutStopsTyping
@@ -339,7 +413,8 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
       && presenceSource.telemetryNotPerKeystroke,
   );
   const gatingOk = Boolean(
-    gatingSource.backendEnforcesPaidOnly
+    childEvidenceOk.gating
+      && gatingSource.backendEnforcesPaidOnly
       && gatingSource.rejectsRewardFreeGd
       && gatingSource.doesNotTrustClientPriceOrBalance
       && gatingSource.idempotencyKeyRequired
@@ -347,28 +422,36 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
       && gatingSource.humanSafeBlockedErrors
       && gatingSource.gumdropMathUntouched,
   );
-  const moderationOk = Boolean(gatingSource.moderationStatusDebugVisible && gatingSource.mediaLimitsEnforcedServerSide);
-  const telemetryOk = eventFamilies.length > 0
+  const moderationOk = Boolean(childEvidenceOk.gating && gatingSource.moderationStatusDebugVisible && gatingSource.mediaLimitsEnforcedServerSide);
+  const telemetryOk = childEvidenceOk.telemetry
+    && eventFamilies.length > 0
     && eventFamilies.every((event: any) => event.inTelemetryCatalog && event.eventEnvelopeMapped && event.adminDebugVisible);
   const adminTruthOk = Boolean(
-    (adminLane.sourceMissing === false || adminLane.sourceState === "connected")
+    childEvidenceOk.telemetry
+      && (adminLane.sourceMissing === false || adminLane.sourceState === "connected")
       && (adminLane.rawMessageContentIncluded === false || adminLane.rawMessageContentDefault === false)
-      && (adminLane.blockedFailedVisible !== false)
-      && (adminLane.userLevelMetricsVisible !== false)
-      && (adminLane.creatorLevelMetricsVisible !== false),
+      && adminLane.blockedFailedVisible === true
+      && adminLane.userLevelMetricsVisible === true
+      && adminLane.creatorLevelMetricsVisible === true,
   );
   const transcriptOk = Boolean(
-    transcriptPolicy.broadAdminSummaryIncludesMessageContent === false
+    childEvidenceOk.telemetry
+      && transcriptPolicy.broadAdminSummaryIncludesMessageContent === false
       && transcriptPolicy.transcriptDefaultOpen === false
       && transcriptPolicy.drilldownRequiresPermissionGuard
       && transcriptPolicy.sourceRoute
       && transcriptPolicy.sourceHelper,
   );
-  const chatActionsMetric = Array.isArray(personMetrics.metricStatuses)
-    ? personMetrics.metricStatuses.some((metric: any) => metric.metricId === "chat_actions" && (metric.hydrationSource || metric.state === "hydrated"))
-    : personMetrics.metricStatus?.chat_actions?.state === "hydrated" || Number(personMetrics.hydratedMetricCount ?? 0) > 0;
-  const lowConfidenceCount = Number(personMetrics.lowConfidenceMetricCount ?? personMetrics.lowConfidenceMetrics?.length ?? 0);
-  const personMetricsOk = Boolean(chatActionsMetric && lowConfidenceCount === 0);
+  const chatActionsMetric = hasHydratedPersonMetric(personMetrics, "chat_actions");
+  const lowConfidenceCount = explicitLowConfidenceMetricCount(personMetrics);
+  const personMetricsOk = Boolean(
+    childEvidenceOk.personMetrics
+      && personMetrics.status === "pass"
+      && Array.isArray(personMetrics.validationFailures)
+      && personMetrics.validationFailures.length === 0
+      && chatActionsMetric
+      && lowConfidenceCount === 0,
+  );
 
   const remainingGaps = [
     ...(!realtimeOk ? ["chat realtime propagation/source validation incomplete"] : []),
@@ -383,8 +466,16 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
   ];
 
   const report: ChatFunctionalityScoreLockReport = {
-    generatedAtUtc: new Date().toISOString(),
-    currentHead: input.currentHead ?? git(["rev-parse", "HEAD"]),
+    reportKey: "chat-functionality-score-lock",
+    generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
+    currentHead,
+    sourceCommit: currentHead,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     productionReadsRequired: false,
     liveDataMutationAllowed: false,
     deployRequired: false,
@@ -414,16 +505,41 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
     dirtyFileCount: dirty.length,
     ...dirtySummary,
     oldChatLogicReferences,
-    validationFailures: [],
+    validationFailures: Object.values(childEvidenceFailures).flat(),
   };
+  report.passed = report.validationFailures.length === 0;
+  report.status = report.passed ? "pass" : "fail";
+  report.canClearSourceGate = report.passed;
   report.validationFailures = validateChatFunctionalityScoreLockReport(report);
+  report.passed = report.validationFailures.length === 0;
+  report.status = report.passed ? "pass" : "fail";
+  report.canClearSourceGate = report.passed;
   return report;
 }
 
 export function validateChatFunctionalityScoreLockReport(report: ChatFunctionalityScoreLockReport) {
-  const failures: string[] = [];
-  if (!report.realtimePropagationStatus) failures.push("realtime status missing.");
-  if (!report.typingPresenceStatus) failures.push("typing/presence status missing.");
+  const declaredFailures = Array.isArray(report.validationFailures) ? report.validationFailures : [];
+  const failures: string[] = [...declaredFailures];
+  const generatedAtMs = Date.parse(report.generatedAtUtc);
+  const nowMs = Date.now();
+  if (!FULL_GIT_SHA_PATTERN.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("currentHead and sourceCommit must be the same full 40-character Git SHA.");
+  }
+  if (!Number.isFinite(generatedAtMs) || generatedAtMs > nowMs || nowMs - generatedAtMs > MAX_REPORT_AGE_MS) {
+    failures.push("generatedAtUtc must be a current, non-future timestamp inside the 24-hour evidence window.");
+  }
+  if (report.status !== "pass" && report.status !== "fail") failures.push("status must be pass or fail.");
+  if (report.passed !== (report.status === "pass")) failures.push("passed must match the validator status.");
+  if (!Array.isArray(report.validationFailures)) failures.push("validationFailures must be an array.");
+  if (report.status === "pass" && declaredFailures.length > 0) {
+    failures.push("validator status cannot pass while validation failures are present.");
+  }
+  if (report.status === "fail" && declaredFailures.length === 0) {
+    failures.push("validator status cannot fail without validation failures.");
+  }
+  if (report.realtimePropagationStatus?.status !== "pass") failures.push("realtime status missing.");
+  if (report.listenerCostStatus?.status !== "pass") failures.push("listener cost status missing.");
+  if (report.typingPresenceStatus?.status !== "pass") failures.push("typing/presence status missing.");
   if (report.paidGdGatingStatus.status !== "pass") failures.push("paid-GD backend enforcement missing.");
   if (report.moderationStatus.status !== "pass") failures.push("moderation status missing.");
   if (report.telemetryStatus.status !== "pass") failures.push("chat telemetry missing from catalog.");
@@ -437,7 +553,7 @@ export function validateChatFunctionalityScoreLockReport(report: ChatFunctionali
   if (report.oldChatLogicReferences.some((entry) => String(entry.classification) === "unsafe_unknown")) failures.push("old chat unknown/orphan logic remains active.");
   if (report.unsafeUnknownCount > 0 || report.dirtyFiles.some((entry) => String(entry.classification) === "unsafe_unknown")) failures.push("dirty files unclassified.");
   if (report.dirtyFiles.some((entry) => entry.classification === "protected_manual_review_payment_or_fan_pass_gating" && /src\/lib\/chat|src\/components\/Chat|src\/app\/api\/chat/iu.test(entry.path))) failures.push("chat-owned Fan Pass/payment gating source changed.");
-  return failures;
+  return [...new Set(failures)];
 }
 
 function renderDoc(report: ChatFunctionalityScoreLockReport) {
@@ -461,6 +577,9 @@ function renderDoc(report: ChatFunctionalityScoreLockReport) {
     "",
     `Generated: ${report.generatedAtUtc}`,
     `Current HEAD: ${report.currentHead}`,
+    `Source commit: ${report.sourceCommit}`,
+    `Validator status: ${report.status}`,
+    `Validator passed: ${report.passed}`,
     "",
     "## Status",
     "",

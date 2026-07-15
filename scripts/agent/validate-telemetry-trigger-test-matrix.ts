@@ -198,10 +198,14 @@ function main() {
   if (dirty.map((path) => classifyTelemetryTriggerTestDirtyFile(path)).includes("unsafe_unknown")) {
     failures.push("dirty files unclassified.");
   }
+  if (!/^[0-9a-f]{40}$/iu.test(currentHead)) failures.push("current Git head is missing or is not a full commit SHA.");
 
   const output = {
     ...report,
+    sourceCommit: currentHead,
     status: failures.length > 0 ? "fail" as const : "pass" as const,
+    passed: failures.length === 0,
+    canClearSourceGate: failures.length === 0,
     validation: {
       ...report.validation,
       duplicateStaleValidatorActive: oldTestLogicClassification.some((entry) => entry.classification === "duplicate_validator" || entry.classification === "stale_validator"),

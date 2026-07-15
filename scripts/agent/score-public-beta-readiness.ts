@@ -32,6 +32,11 @@ import { summarizeNonEventScorePolicy } from "../../src/lib/agent-score/non-even
 import type { DeviceBand } from "../../src/lib/frontend-hardening/ui/mobile-scale-contract";
 import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
 import { buildScore80CostReadinessFromRepo } from "./validate-score-80-cost-readiness";
+import {
+  TARGETED_VALIDATORS,
+  validateTargetedBehaviorEvidenceReport,
+  type TargetedBehaviorEvidenceReport,
+} from "./validate-targeted-behavior-evidence";
 import type {
   PublicBetaEvidenceArtifact,
   PublicBetaGeneratedReportEvidence,
@@ -127,22 +132,46 @@ function ownedSourcePathsForReport(reportPath: string) {
   return registryEntry?.allowCurrentByImpact ? registryEntry.ownedSourcePaths : undefined;
 }
 
-function evidenceVersionMetadata(root: string, artifactPath: string, artifactHead: string | undefined) {
+type EvidenceVersionMetadata = {
+  currentHead?: string;
+  versionStatus?: PublicBetaGeneratedReportEvidence["versionStatus"];
+};
+
+function evidenceVersionMetadata(
+  root: string,
+  artifactPath: string,
+  artifactHead: string | undefined,
+  currentHead?: string,
+): EvidenceVersionMetadata {
   if (!artifactHead) return {};
-  const gitContext = readGeneratedArtifactGitContext(root, artifactHead, artifactPath);
+  const resolvedCurrentHead = currentHead ?? readGitHead(root);
+  let gitContext: ReturnType<typeof readGeneratedArtifactGitContext> | null = null;
+  if (resolvedCurrentHead && artifactHead !== resolvedCurrentHead && existsSync(join(root, ".git"))) {
+    try {
+      gitContext = readGeneratedArtifactGitContext(root, artifactHead, artifactPath);
+    } catch {
+      gitContext = null;
+    }
+  }
   const version = classifyGeneratedArtifactVersion({
     artifactPath,
     artifactHead,
-    currentHead: gitContext.currentHead,
-    parentHead: gitContext.parentHead,
-    changedFilesInHead: gitContext.changedFilesInHead,
-    changedFilesSinceArtifactHead: gitContext.changedFilesSinceArtifactHead,
+    currentHead: resolvedCurrentHead,
+    parentHead: gitContext?.parentHead,
+    changedFilesInHead: gitContext?.changedFilesInHead,
+    changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
     ownedSourcePaths: ownedSourcePathsForReport(artifactPath),
   });
   return {
-    currentHead: gitContext.currentHead,
+    currentHead: resolvedCurrentHead,
     versionStatus: version.status,
   };
+}
+
+function evidenceVersionIsAccepted(metadata: EvidenceVersionMetadata) {
+  return metadata.versionStatus === "current_head"
+    || metadata.versionStatus === "same_commit_snapshot"
+    || metadata.versionStatus === "current_by_impact";
 }
 
 function readRecord(value: unknown): Record<string, unknown> {
@@ -288,6 +317,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
       : [],
   };
   const summarized = summarizeUiVisualSmokeEvidenceForScore(normalized);
+  const artifactHead = normalized.sourceCommit ?? normalized.currentHead;
   return {
     ...summarized,
     path: filePath,
@@ -297,6 +327,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
       `uiVisualSmoke.artifactExists=${Boolean(readJsonFile(root, filePath))}`,
       `${UI_VISUAL_SMOKE_REQUIRED_SURFACES_EVIDENCE_KEY}=exact_surface_list_required`,
     ],
+    ...evidenceVersionMetadata(root, filePath, artifactHead),
   };
 }
 
@@ -599,13 +630,133 @@ export function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceAr
   };
 }
 
-function readTargetedBehaviorEvidence(root: string): PublicBetaEvidenceArtifact {
-  return readEvidenceArtifact(
+export function readTargetedBehaviorEvidence(
+  root: string,
+  currentHead = readGitHead(root),
+  now = Date.now(),
+): PublicBetaEvidenceArtifact {
+  const parsed = readJsonFile(root, TARGETED_BEHAVIOR_EVIDENCE_PATH);
+  if (!parsed) {
+    return {
+      path: TARGETED_BEHAVIOR_EVIDENCE_PATH,
+      status: "missing_formal_evidence",
+      passed: false,
+      detail: "No valid targeted source validator evidence artifact was supplied.",
+      evidence: [
+        `artifactPath=${TARGETED_BEHAVIOR_EVIDENCE_PATH}`,
+        "artifactExists=false_or_malformed",
+        "strictTargetedBehaviorSchema=false",
+      ],
+    };
+  }
+
+  const generatedAtUtc = readString(parsed.generatedAtUtc);
+  const generatedAtMs = generatedAtUtc ? Date.parse(generatedAtUtc) : Number.NaN;
+  const artifactHead = readString(parsed.currentHead);
+  const sourceCommit = readString(parsed.sourceCommit);
+  const latestCodeVersion = readString(parsed.latestCodeVersion);
+  const versionMetadata = evidenceVersionMetadata(
     root,
     TARGETED_BEHAVIOR_EVIDENCE_PATH,
-    "missing_formal_evidence",
-    "No targeted source validator evidence artifact was supplied.",
+    sourceCommit,
+    currentHead,
   );
+  const artifactVersionAccepted = evidenceVersionIsAccepted(versionMetadata);
+  const validationFailures = Array.isArray(parsed.validationFailures)
+    && parsed.validationFailures.every((value) => typeof value === "string")
+    ? parsed.validationFailures as string[]
+    : null;
+  const validatorResultsAreRecords = Array.isArray(parsed.validatorResults)
+    && parsed.validatorResults.every((value) => Boolean(value) && typeof value === "object" && !Array.isArray(value));
+  const validatorResults = Array.isArray(parsed.validatorResults) && validatorResultsAreRecords
+    ? parsed.validatorResults.filter((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value))
+    : [];
+  const expectedValidatorIds = TARGETED_VALIDATORS.map((validator) => validator.id).sort();
+  const actualValidatorIds = validatorResults
+    .map((result) => readString(result.id))
+    .filter((value): value is string => Boolean(value))
+    .sort();
+  const validatorSetMatches = validatorResults.length === TARGETED_VALIDATORS.length
+    && actualValidatorIds.length === expectedValidatorIds.length
+    && actualValidatorIds.every((id, index) => id === expectedValidatorIds[index]);
+  const childResultsStrict = validatorSetMatches && validatorResults.every((result) => {
+    const id = readString(result.id);
+    const childGeneratedAtUtc = readString(result.artifactGeneratedAtUtc);
+    const childGeneratedAtMs = childGeneratedAtUtc ? Date.parse(childGeneratedAtUtc) : Number.NaN;
+    const childAgeHours = (now - childGeneratedAtMs) / (60 * 60 * 1000);
+    return Boolean(
+      id
+      && result.status === "pass"
+      && result.reportKey === id
+      && result.currentHead === latestCodeVersion
+      && result.sourceCommit === result.currentHead
+      && result.canClearSourceGate === true
+      && Array.isArray(result.childValidationFailures)
+      && result.childValidationFailures.length === 0
+      && Number.isFinite(childGeneratedAtMs)
+      && childAgeHours >= 0
+      && childAgeHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS
+    );
+  });
+  const aggregateShapeSafe = validationFailures !== null
+    && Array.isArray(parsed.doesNotClear)
+    && parsed.doesNotClear.every((value) => typeof value === "string")
+    && Array.isArray(parsed.surfacesCovered)
+    && parsed.surfacesCovered.every((value) => typeof value === "string")
+    && validatorResultsAreRecords;
+  const aggregateValidationFailures = aggregateShapeSafe
+    ? validateTargetedBehaviorEvidenceReport(parsed as TargetedBehaviorEvidenceReport)
+    : ["targeted behavior aggregate shape is invalid."];
+  const readinessImpact = readRecord(parsed.readinessImpact);
+  const ageHours = (now - generatedAtMs) / (60 * 60 * 1000);
+  const strictSchemaPassed = Boolean(
+    parsed.reportKey === "targeted-behavior-evidence"
+    && parsed.status === "passed"
+    && parsed.overallStatus === "passed"
+    && parsed.passed === true
+    && parsed.canClearSourceGate === true
+    && /^[0-9a-f]{40}$/iu.test(currentHead ?? "")
+    && artifactHead === sourceCommit
+    && sourceCommit === latestCodeVersion
+    && artifactVersionAccepted
+    && Number.isFinite(generatedAtMs)
+    && ageHours >= 0
+    && ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS
+    && validationFailures?.length === 0
+    && aggregateValidationFailures.length === 0
+    && childResultsStrict
+    && parsed.formalEvidenceImpact === "source_behavior_only"
+    && readinessImpact.targetedBehaviorGatePassed === true
+  );
+  const status = strictSchemaPassed ? "passed" : "failed";
+
+  return {
+    path: TARGETED_BEHAVIOR_EVIDENCE_PATH,
+    status,
+    passed: strictSchemaPassed,
+    detail: strictSchemaPassed
+      ? "Targeted source behavior validators passed under the accepted generated-artifact version and source-only evidence contracts."
+      : "Targeted behavior evidence failed strict identity, provenance, freshness, verdict, or source-only classification checks.",
+    evidence: [
+      `artifactPath=${TARGETED_BEHAVIOR_EVIDENCE_PATH}`,
+      "artifactExists=true",
+      `strictTargetedBehaviorSchema=${strictSchemaPassed}`,
+      `reportKey=${readString(parsed.reportKey) ?? "missing"}`,
+      `artifactHead=${artifactHead ?? "missing"}`,
+      `sourceCommit=${sourceCommit ?? "missing"}`,
+      `latestCodeVersion=${latestCodeVersion ?? "missing"}`,
+      `artifactVersionStatus=${versionMetadata.versionStatus ?? "missing_version"}`,
+      `formalEvidenceImpact=${readString(parsed.formalEvidenceImpact) ?? "missing"}`,
+      `validationFailureCount=${validationFailures?.length ?? "missing"}`,
+      `validatorSetMatches=${validatorSetMatches}`,
+      `childResultsStrict=${childResultsStrict}`,
+      `aggregateValidationFailureCount=${aggregateValidationFailures.length}`,
+      ...evidenceLinesFromArray(parsed.evidence, "artifactEvidence"),
+    ],
+    generatedAtUtc,
+    sourceCommit,
+    ...versionMetadata,
+  };
 }
 
 export function readRegressionRiskRefreshEvidence(root: string, currentHead = readGitHead(root), now = Date.now()) {
@@ -615,10 +766,16 @@ export function readRegressionRiskRefreshEvidence(root: string, currentHead = re
   const generatedAtUtc = readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt);
   const generatedAtMs = generatedAtUtc ? Date.parse(generatedAtUtc) : Number.NaN;
   const sourceCommit = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
+  const versionMetadata = evidenceVersionMetadata(
+    root,
+    REGRESSION_RISK_REFRESH_PATH,
+    sourceCommit,
+    currentHead,
+  );
   const ageHours = (now - generatedAtMs) / (60 * 60 * 1000);
   const artifactIsFreshAndCurrent = Boolean(
     currentHead
-    && sourceCommit === currentHead
+    && evidenceVersionIsAccepted(versionMetadata)
     && Number.isFinite(ageHours)
     && ageHours >= 0
     && ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS,
@@ -630,6 +787,8 @@ export function readRegressionRiskRefreshEvidence(root: string, currentHead = re
     regressionRiskScore: readNumber(scoreAfter.regressionRisk),
     failedLaneCount: Array.isArray(parsed.failedLanes) ? parsed.failedLanes.length : undefined,
     inFlightLaneCount: Array.isArray(parsed.inFlightLanes) ? parsed.inFlightLanes.length : undefined,
+    sourceCommit,
+    ...versionMetadata,
   };
 }
 
@@ -685,6 +844,7 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
       : sourceReadyWaiting > 0 || notObservedButExpected > 0
       ? "source_ready_waiting_for_activity"
       : "source_missing_live_runtime_evidence";
+  const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
 
   return {
     path: LIVE_EVIDENCE_GATE_REPLACEMENT_PATH,
@@ -715,7 +875,8 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
         : "launchGateImpact=site_activity_missing_source_still_required",
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    sourceCommit: artifactHead,
+    ...evidenceVersionMetadata(root, LIVE_EVIDENCE_GATE_REPLACEMENT_PATH, artifactHead),
   };
 }
 
@@ -755,7 +916,7 @@ function readBehaviorMathEvidence(root: string): PublicBetaEvidenceArtifact {
   );
 }
 
-function readActivityVerificationEvidence(root: string): PublicBetaEvidenceArtifact {
+export function readActivityVerificationEvidence(root: string): PublicBetaEvidenceArtifact {
   const parsed = readJsonFile(root, ACTIVITY_VERIFICATION_ENGINE_PATH);
   if (!parsed) {
     return {
@@ -791,6 +952,7 @@ function readActivityVerificationEvidence(root: string): PublicBetaEvidenceArtif
   const clearsFormalProvider = readBoolean(formalGateImpact.clearsFormalProvider) === true;
   const clearsDeployedRuntime = readBoolean(formalGateImpact.clearsDeployedRuntime) === true;
   const clearsFormalAdminTruth = readBoolean(formalGateImpact.clearsFormalAdminTruth) === true;
+  const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
   const passed = status === "pass"
     && verifiedByActivity > 0
     && !fakeActivityUsed
@@ -823,7 +985,8 @@ function readActivityVerificationEvidence(root: string): PublicBetaEvidenceArtif
       "activityVerification.formalGatesCleared=false",
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    sourceCommit: artifactHead,
+    ...evidenceVersionMetadata(root, ACTIVITY_VERIFICATION_ENGINE_PATH, artifactHead),
   };
 }
 
@@ -901,40 +1064,79 @@ function readEventTranslationBridgeEvidence(root: string): PublicBetaEvidenceArt
   };
 }
 
-function readPersonMetricsHydrationEvidence(root: string): PublicBetaEvidenceArtifact | null {
+export function readPersonMetricsHydrationEvidence(
+  root: string,
+  currentHead = readGitHead(root),
+  now = Date.now(),
+): PublicBetaEvidenceArtifact | null {
   const parsed = readJsonFile(root, PERSON_METRICS_HYDRATION_PATH);
   if (!parsed) return null;
 
   const debugLane = readRecord(parsed.debugLane);
   const readLaneNumber = (key: string) => readNumber(debugLane[key]) ?? readNumber(parsed[key]) ?? 0;
   const status = readString(parsed.status) ?? "missing_or_unknown";
+  const evidenceMode = readString(parsed.evidenceMode) ?? "missing_or_unknown";
   const gapCount = readLaneNumber("gaps");
+  const generatedAtUtc = readString(parsed.generatedAtUtc);
+  const generatedAtMs = generatedAtUtc ? Date.parse(generatedAtUtc) : Number.NaN;
+  const artifactHead = readString(parsed.currentHead);
+  const sourceCommit = readString(parsed.sourceCommit);
+  const versionMetadata = evidenceVersionMetadata(
+    root,
+    PERSON_METRICS_HYDRATION_PATH,
+    sourceCommit,
+    currentHead,
+  );
+  const validationFailures = Array.isArray(parsed.validationFailures)
+    && parsed.validationFailures.every((value) => typeof value === "string")
+    ? parsed.validationFailures as string[]
+    : null;
+  const ageHours = (now - generatedAtMs) / (60 * 60 * 1000);
   const sourceReady = status === "pass"
+    && parsed.reportKey === "person-metrics-hydration"
+    && parsed.passed === true
+    && parsed.canClearSourceGate === true
+    && parsed.canClearRuntimeGate === false
+    && parsed.canClearProviderGate === false
+    && parsed.canClearAdminTruthGate === false
+    && /^[0-9a-f]{40}$/iu.test(currentHead ?? "")
+    && artifactHead === sourceCommit
+    && evidenceVersionIsAccepted(versionMetadata)
+    && Number.isFinite(generatedAtMs)
+    && ageHours >= 0
+    && ageHours <= PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS
+    && validationFailures?.length === 0
     && gapCount === 0
     && readBoolean(parsed.productionReadsRequired) === false
     && readBoolean(parsed.legacyMutationAllowed) === false
-    && readBoolean(parsed.fakeMetricsUsed) === false;
+    && evidenceMode === "source_validation_fixture"
+    && readBoolean(parsed.fakeMetricsUsed) === true;
 
   return {
     path: PERSON_METRICS_HYDRATION_PATH,
-    status: sourceReady ? "source_ready_person_metrics_hydration" : status,
-    passed: false,
+    status: sourceReady ? "source_ready_person_metrics_hydration" : "failed",
+    passed: sourceReady,
     detail: sourceReady
       ? "Person metrics hydration is source-ready for canonical envelopes, linked guest/user confidence, debug evidence, and score inputs without claiming future real activity as proven."
       : "Person metrics hydration evidence is missing required source-ready guardrails.",
     evidence: [
       `personMetricsHydration.status=${status}`,
+      `personMetricsHydration.evidenceMode=${evidenceMode}`,
+      `personMetricsHydration.fakeMetricsUsed=${readBoolean(parsed.fakeMetricsUsed) === true}`,
       `personMetricsHydration.producersRegistered=${readLaneNumber("producersRegistered")}`,
       `personMetricsHydration.producersConnected=${readLaneNumber("producersConnected")}`,
       `personMetricsHydration.eventEnvelopesHydrated=${readLaneNumber("eventEnvelopesHydrated")}`,
       `personMetricsHydration.personMetricsMapped=${readLaneNumber("personMetricsMapped")}`,
       `personMetricsHydration.lowConfidenceMetrics=${readLaneNumber("lowConfidenceMetrics")}`,
       `personMetricsHydration.gapCount=${gapCount}`,
+      `personMetricsHydration.strictSourceEnvelope=${sourceReady}`,
+      `personMetricsHydration.artifactVersionStatus=${versionMetadata.versionStatus ?? "missing_version"}`,
       "launchGateImpact=does_not_clear_deployed_runtime_smoke",
       "legacyImpact=unknown_legacy_never_exact_user_truth",
     ],
-    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    generatedAtUtc,
+    sourceCommit,
+    ...versionMetadata,
   };
 }
 
@@ -1025,19 +1227,8 @@ function readUserManagementRefactorEvidence(root: string): PublicBetaEvidenceArt
   };
 }
 
-function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvidenceArtifact {
-  const debugRuntime = readDebugRuntimeEvidence(root);
-  const currentHead = readGitHead(root);
-  const debugSourceReady = String(debugRuntime.status).includes("source_ready")
-    && (!debugRuntime.sourceCommit || !currentHead || debugRuntime.sourceCommit === currentHead);
-  if (debugSourceReady) return debugRuntime;
-  const personMetricsHydration = readPersonMetricsHydrationEvidence(root);
-  if (personMetricsHydration?.status === "source_ready_person_metrics_hydration") return personMetricsHydration;
-  const telemetryTriggerTestMatrix = readTelemetryTriggerTestMatrixEvidence(root);
-  if (telemetryTriggerTestMatrix?.status === "source_ready_telemetry_trigger_test_matrix") return telemetryTriggerTestMatrix;
-  const userManagementRefactor = readUserManagementRefactorEvidence(root);
-  if (userManagementRefactor?.status === "source_ready_user_management_refactor") return userManagementRefactor;
-  return readEventTranslationBridgeEvidence(root) ?? debugRuntime;
+export function readDebugRuntimeEvidenceForScore(root: string): PublicBetaEvidenceArtifact {
+  return readDebugRuntimeEvidence(root);
 }
 
 export function readUiSurfaceCoverageEvidence(root: string): PublicBetaEvidenceArtifact {
@@ -1089,7 +1280,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
     debugEvidence,
     evidence: {
       requiredReports,
-      debugRuntimeEvidenceArtifact: readDebugRuntimeOrEventTranslationEvidence(root),
+      debugRuntimeEvidenceArtifact: readDebugRuntimeEvidenceForScore(root),
       runtimeSmokeSubstituteMatrixEvidence: readRuntimeSmokeSubstituteMatrixEvidence(root),
       targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),
       sourceBackedRuntimeConfidenceEvidence: readSourceBackedRuntimeConfidenceEvidence(root),

@@ -159,10 +159,16 @@ function renderDoc(report: {
 
 const metricRegistry = buildOrphanMetricRegistry();
 const monolithRegistry = buildMonolithRiskRegistry();
+const generatedAtUtc = new Date().toISOString();
+const currentHead = git(["rev-parse", "HEAD"]) || "unknown";
 const validationFailures = [
   ...validateOrphanMetricRegistry(metricRegistry),
   ...validateMonolithRiskRegistry(monolithRegistry),
 ];
+
+if (!/^[0-9a-f]{40}$/iu.test(currentHead)) {
+  validationFailures.push("current Git head is missing or is not a full commit SHA.");
+}
 
 ensureControlTowerRegistration(validationFailures);
 
@@ -176,10 +182,15 @@ const monolithSummary = summarizeMonoliths(monolithRegistry);
 const findings = buildFindings(metricRegistry, monolithRegistry);
 const overallScore = Math.max(0, 100 - metricSummary.sourceReadyEvidenceGap * 5 - metricSummary.uiWithoutSource * 20 - metricSummary.producerWithoutConsumer * 20 - monolithSummary.highRisk * 3);
 const report = {
-  generatedAt: new Date().toISOString(),
-  sourceCommit: git(["rev-parse", "HEAD"]) || null,
-  currentHead: git(["rev-parse", "HEAD"]) || null,
+  reportKey: "monolith-orphan-metric-registry",
+  generatedAt: generatedAtUtc,
+  generatedAtUtc,
+  sourceCommit: currentHead,
+  currentHead,
+  status: validationFailures.length > 0 ? "fail" as const : "pass" as const,
   overallStatus: validationFailures.length > 0 ? "fail" : "pass",
+  passed: validationFailures.length === 0,
+  canClearSourceGate: validationFailures.length === 0,
   overallScore,
   metricSummary,
   monolithSummary,

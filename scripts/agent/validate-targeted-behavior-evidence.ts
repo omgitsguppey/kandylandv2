@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateGeneratedChildReportEvidence } from "./generated-report-envelope";
 
 export type TargetedBehaviorStatus = "passed" | "partial" | "failed";
 export type TargetedBehaviorValidatorStatus = "pass" | "fail" | "unavailable" | "in_flight" | "superseded";
@@ -11,8 +12,12 @@ export type TargetedBehaviorValidatorResult = {
   command: string;
   status: TargetedBehaviorValidatorStatus;
   artifactPath: string;
+  reportKey?: string;
   currentHead?: string;
+  sourceCommit?: string;
   artifactGeneratedAtUtc?: string;
+  canClearSourceGate?: boolean;
+  childValidationFailures?: string[];
   surfaces: string[];
   proves: string;
   doesNotProve: string;
@@ -28,6 +33,7 @@ export type TargetedBehaviorEvidenceReport = {
   status: TargetedBehaviorStatus;
   overallStatus: TargetedBehaviorStatus;
   passed: boolean;
+  canClearSourceGate: boolean;
   sourceCommit: string;
   latestCodeVersion: string;
   currentHead: string;
@@ -50,6 +56,7 @@ export type TargetedBehaviorEvidenceReport = {
   formalEvidenceImpact: "source_behavior_only" | string;
   doesNotClear: string[];
   evidence: string[];
+  validationFailures: string[];
   readinessImpact: {
     targetedBehaviorGatePassed: boolean;
     notes: string[];
@@ -227,19 +234,6 @@ function hasPackageScript(command: string) {
   return Boolean(scripts && typeof scripts === "object" && script in scripts);
 }
 
-function readReportHead(report: Record<string, unknown> | null) {
-  const head = report?.currentHead ?? report?.sourceCommit ?? report?.latestCodeVersion;
-  return typeof head === "string" ? head : undefined;
-}
-
-function readReportStatus(report: Record<string, unknown> | null) {
-  const status = report?.status ?? report?.overallStatus ?? report?.validationStatus;
-  if (typeof status === "string") return status.toLowerCase();
-  if (report?.passed === true || report?.ok === true || report?.valid === true) return "pass";
-  if (report?.passed === false || report?.ok === false || report?.valid === false) return "fail";
-  return undefined;
-}
-
 export function targetedBehaviorHeadsMatch(reportHead: string | undefined, currentHead: string) {
   return Boolean(reportHead)
     && /^[0-9a-f]{40}$/iu.test(reportHead ?? "")
@@ -248,12 +242,10 @@ export function targetedBehaviorHeadsMatch(reportHead: string | undefined, curre
 }
 
 export function targetedBehaviorReportHasExplicitPass(report: Record<string, unknown> | null) {
-  const status = readReportStatus(report);
-  const hasValidationFailures = Array.isArray(report?.validationFailures)
-    && report.validationFailures.length > 0;
-  return !hasValidationFailures
-    && status !== undefined
-    && /^(?:pass|passed|ready|clean)$/u.test(status);
+  return report?.status === "pass"
+    && Array.isArray(report.validationFailures)
+    && report.validationFailures.length === 0
+    && (!Object.prototype.hasOwnProperty.call(report, "passed") || report.passed === true);
 }
 
 export function targetedBehaviorReportIsFresh(
@@ -261,66 +253,71 @@ export function targetedBehaviorReportIsFresh(
   nowMs = Date.now(),
   maxAgeHours = 24,
 ) {
-  const generatedAtUtc = report?.generatedAtUtc ?? report?.generatedAt;
+  const generatedAtUtc = report?.generatedAtUtc;
   if (typeof generatedAtUtc !== "string") return false;
   const generatedAtMs = Date.parse(generatedAtUtc);
   if (!Number.isFinite(generatedAtMs) || generatedAtMs > nowMs) return false;
   return nowMs - generatedAtMs <= maxAgeHours * 60 * 60 * 1000;
 }
 
+export type TargetedBehaviorValidatorDefinition = {
+  id: string;
+  command: string;
+  artifactPath: string;
+  surfaces: readonly string[];
+  proves: string;
+  replacementFor?: readonly string[];
+};
+
+export function targetedBehaviorValidatorResultForReport(input: {
+  validator: TargetedBehaviorValidatorDefinition;
+  report: unknown;
+  currentHead: string;
+  commandExists: boolean;
+  nowMs?: number;
+}): TargetedBehaviorValidatorResult {
+  const report = input.report && typeof input.report === "object" && !Array.isArray(input.report)
+    ? input.report as Record<string, unknown>
+    : null;
+  const childValidationFailures = [
+    ...(input.commandExists ? [] : [`${input.validator.command} is not defined in package.json.`]),
+    ...validateGeneratedChildReportEvidence({
+      report: input.report,
+      expectedReportKey: input.validator.id,
+      currentHead: input.currentHead,
+      nowMs: input.nowMs,
+      requireSourceGate: true,
+    }),
+  ];
+  const status: TargetedBehaviorValidatorStatus = childValidationFailures.length === 0 ? "pass" : "fail";
+  return {
+    id: input.validator.id,
+    command: input.validator.command,
+    status,
+    artifactPath: input.validator.artifactPath,
+    reportKey: typeof report?.reportKey === "string" ? report.reportKey : undefined,
+    currentHead: typeof report?.currentHead === "string" ? report.currentHead : undefined,
+    sourceCommit: typeof report?.sourceCommit === "string" ? report.sourceCommit : undefined,
+    artifactGeneratedAtUtc: typeof report?.generatedAtUtc === "string" ? report.generatedAtUtc : undefined,
+    canClearSourceGate: report?.canClearSourceGate === true,
+    childValidationFailures,
+    surfaces: [...input.validator.surfaces],
+    proves: input.validator.proves,
+    doesNotProve: DOES_NOT_PROVE,
+    blocker: childValidationFailures[0],
+    classification: "current_lock_validator",
+    requiredForCurrentLane: true,
+    replacementFor: input.validator.replacementFor ? [...input.validator.replacementFor] : undefined,
+  };
+}
+
 function validatorResultsForHead(head: string): TargetedBehaviorValidatorResult[] {
-  return TARGETED_VALIDATORS.map((validator) => {
-    const report = readJson(validator.artifactPath);
-    const reportHead = readReportHead(report);
-    const reportStatus = readReportStatus(report);
-    const reportGeneratedAtUtc = typeof report?.generatedAtUtc === "string"
-      ? report.generatedAtUtc
-      : typeof report?.generatedAt === "string"
-        ? report.generatedAt
-        : undefined;
-    const validationFailures = Array.isArray(report?.validationFailures)
-      ? report.validationFailures.filter((failure) => typeof failure === "string" && failure.trim().length > 0)
-      : [];
-    const commandExists = hasPackageScript(validator.command);
-    let status: TargetedBehaviorValidatorStatus = "pass";
-    let blocker: string | undefined;
-    if (!commandExists) {
-      status = "in_flight";
-      blocker = `${validator.command} is not defined in package.json; lane is treated as in-flight unless it becomes required.`;
-    } else if (!report) {
-      status = "fail";
-      blocker = `${validator.artifactPath} is missing.`;
-    } else if (validationFailures.length > 0 || report?.passed === false || reportStatus && /fail|failed|blocked|error/iu.test(reportStatus)) {
-      status = "fail";
-      blocker = validationFailures[0]
-        ? `${validator.artifactPath} reports validation failure: ${validationFailures[0]}`
-        : `${validator.artifactPath} reports failing status ${reportStatus ?? "passed=false"}.`;
-    } else if (!targetedBehaviorHeadsMatch(reportHead, head)) {
-      status = "fail";
-      blocker = `${validator.artifactPath} was not generated for the current code version.`;
-    } else if (!targetedBehaviorReportIsFresh(report)) {
-      status = "fail";
-      blocker = `${validator.artifactPath} is missing a valid timestamp inside the 24-hour freshness window.`;
-    } else if (!targetedBehaviorReportHasExplicitPass(report)) {
-      status = "fail";
-      blocker = `${validator.artifactPath} does not declare an explicit passing verdict.`;
-    }
-    return {
-      id: validator.id,
-      command: validator.command,
-      status,
-      artifactPath: validator.artifactPath,
-      surfaces: [...validator.surfaces],
-      proves: validator.proves,
-      doesNotProve: DOES_NOT_PROVE,
-      blocker,
-      classification: status === "in_flight" ? "in_flight_validator" : "current_lock_validator",
-      requiredForCurrentLane: commandExists,
-      replacementFor: "replacementFor" in validator ? [...(validator.replacementFor ?? [])] : undefined,
-      currentHead: reportHead ?? head,
-      artifactGeneratedAtUtc: reportGeneratedAtUtc,
-    };
-  });
+  return TARGETED_VALIDATORS.map((validator) => targetedBehaviorValidatorResultForReport({
+    validator,
+    report: readJson(validator.artifactPath),
+    currentHead: head,
+    commandExists: hasPackageScript(validator.command),
+  }));
 }
 
 function uniqueSorted(values: string[]) {
@@ -333,13 +330,14 @@ export function buildTargetedBehaviorEvidenceReport(
   const failed = inputs.validatorResults.filter((result) => result.status === "fail");
   const unavailable = inputs.validatorResults.filter((result) => result.status === "unavailable");
   const inFlight = inputs.validatorResults.filter((result) => result.status === "in_flight");
-  const blockingInFlight = inFlight.filter((result) => result.requiredForCurrentLane === true);
-  const status: TargetedBehaviorStatus = failed.length > 0 || blockingInFlight.length > 0
-    ? "failed"
-    : unavailable.length > 0
-      ? "partial"
-      : "passed";
+  const blocking = inputs.validatorResults.filter((result) => result.status !== "pass");
+  const status: TargetedBehaviorStatus = blocking.length > 0 ? "failed" : "passed";
   const passed = status === "passed";
+  const validationFailures = uniqueSorted(blocking.flatMap((result) => (
+    result.childValidationFailures?.length
+      ? result.childValidationFailures
+      : [result.blocker ?? `${result.id} did not pass.`]
+  )));
   const surfacesCovered = uniqueSorted(inputs.validatorResults.flatMap((result) => result.surfaces));
   const evidence = [
     `validatorCount=${inputs.validatorResults.length}`,
@@ -357,6 +355,7 @@ export function buildTargetedBehaviorEvidenceReport(
     status,
     overallStatus: status,
     passed,
+    canClearSourceGate: passed,
     sourceCommit: inputs.latestCodeVersion,
     latestCodeVersion: inputs.latestCodeVersion,
     currentHead: inputs.latestCodeVersion,
@@ -383,6 +382,7 @@ export function buildTargetedBehaviorEvidenceReport(
     formalEvidenceImpact: "source_behavior_only",
     doesNotClear: DOES_NOT_CLEAR,
     evidence,
+    validationFailures,
     readinessImpact: {
       targetedBehaviorGatePassed: passed,
       notes: [
@@ -396,14 +396,16 @@ export function buildTargetedBehaviorEvidenceReport(
 }
 
 export function validateTargetedBehaviorEvidenceReport(report: TargetedBehaviorEvidenceReport) {
-  const failures: string[] = [];
+  const failures: string[] = Array.isArray(report.validationFailures) ? [...report.validationFailures] : [];
   if (report.reportKey !== "targeted-behavior-evidence") failures.push("reportKey must be targeted-behavior-evidence.");
   if (!report.generatedAtUtc || Number.isNaN(Date.parse(report.generatedAtUtc))) failures.push("generatedAtUtc must be parseable UTC.");
-  if (!report.latestCodeVersion || report.sourceCommit !== report.latestCodeVersion || report.currentHead !== report.latestCodeVersion) {
+  if (!/^[0-9a-f]{40}$/iu.test(report.latestCodeVersion) || report.sourceCommit !== report.latestCodeVersion || report.currentHead !== report.latestCodeVersion) {
     failures.push("targeted behavior evidence must be generated from the latest code version.");
   }
   if (!["passed", "partial", "failed"].includes(report.status)) failures.push("status must be passed, partial, or failed.");
   if (report.passed !== (report.status === "passed")) failures.push("passed must match status=passed.");
+  if (report.canClearSourceGate !== report.passed) failures.push("canClearSourceGate must match the passing source verdict.");
+  if (!Array.isArray(report.validationFailures)) failures.push("validationFailures must be an explicit array.");
   if (!Array.isArray(report.validatorResults) || report.validatorResults.length === 0) failures.push("validator results are missing.");
   if (report.status === "passed" && report.validatorResults.some((result) => result.status !== "pass")) {
     failures.push("failed validator is hidden by passed status.");
@@ -420,8 +422,18 @@ export function validateTargetedBehaviorEvidenceReport(report: TargetedBehaviorE
     if (!["pass", "fail", "unavailable", "in_flight", "superseded"].includes(result.status)) failures.push(`${result.id} has invalid validator status.`);
     if (!result.command || !result.proves || !result.doesNotProve) failures.push(`${result.id} must include command, proves, and doesNotProve.`);
     if (result.status !== "pass" && !result.blocker) failures.push(`${result.id} failed/unavailable validator must record blocker.`);
+    if (result.status === "pass" && result.reportKey !== result.id) failures.push(`${result.id} cannot pass with a different child reportKey.`);
     if (result.status === "pass" && !targetedBehaviorHeadsMatch(result.currentHead, report.latestCodeVersion)) {
       failures.push(`${result.id} cannot pass from an older or unverifiable code version.`);
+    }
+    if (result.status === "pass" && result.sourceCommit !== result.currentHead) {
+      failures.push(`${result.id} cannot pass with sourceCommit different from currentHead.`);
+    }
+    if (result.status === "pass" && result.canClearSourceGate !== true) {
+      failures.push(`${result.id} cannot pass without source-gate authority.`);
+    }
+    if (result.status === "pass" && (!Array.isArray(result.childValidationFailures) || result.childValidationFailures.length > 0)) {
+      failures.push(`${result.id} cannot pass without an explicit empty child failure list.`);
     }
     if (
       result.status === "pass"
@@ -433,7 +445,7 @@ export function validateTargetedBehaviorEvidenceReport(report: TargetedBehaviorE
       failures.push(`${result.id} cannot pass from missing, future, or outdated child evidence.`);
     }
   }
-  return failures;
+  return uniqueSorted(failures);
 }
 
 function renderDoc(report: TargetedBehaviorEvidenceReport) {
@@ -480,7 +492,7 @@ Targeted behavior evidence can improve source behavior confidence when fresh and
 
 function main() {
   const head = currentHead();
-  const report = buildTargetedBehaviorEvidenceReport({
+  const builtReport = buildTargetedBehaviorEvidenceReport({
     generatedAtUtc: new Date().toISOString(),
     latestCodeVersion: head,
     validatorResults: validatorResultsForHead(head),
@@ -491,13 +503,27 @@ function main() {
       "real-device evidence",
     ],
   });
+  const failures = validateTargetedBehaviorEvidenceReport(builtReport);
+  const report: TargetedBehaviorEvidenceReport = failures.length === 0
+    ? builtReport
+    : {
+        ...builtReport,
+        status: "failed",
+        overallStatus: "failed",
+        passed: false,
+        canClearSourceGate: false,
+        validationFailures: uniqueSorted([...builtReport.validationFailures, ...failures]),
+        readinessImpact: {
+          ...builtReport.readinessImpact,
+          targetedBehaviorGatePassed: false,
+        },
+      };
 
   mkdirSync(join(ROOT, "agent/state"), { recursive: true });
   mkdirSync(join(ROOT, "docs/agent-truth"), { recursive: true });
   writeFileSync(join(ROOT, ARTIFACT_PATH), `${JSON.stringify(report, null, 2)}\n`);
   writeFileSync(join(ROOT, DOC_PATH), renderDoc(report));
 
-  const failures = validateTargetedBehaviorEvidenceReport(report);
   if (failures.length > 0) {
     console.error("Targeted behavior evidence validation failed:");
     for (const failure of failures) console.error(`- ${failure}`);

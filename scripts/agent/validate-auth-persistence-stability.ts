@@ -44,8 +44,16 @@ type DirtyClassification =
   | "unsafe_unknown";
 
 type AuthPersistenceReport = {
+  reportKey: "auth-persistence-stability";
   generatedAtUtc: string;
   currentHead: string;
+  sourceCommit: string;
+  status: "pass" | "fail";
+  passed: boolean;
+  canClearSourceGate: boolean;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
   persistenceStatus: "established" | "missing";
   transitionClassifierStatus: "mapped" | "missing";
   navigationSessionDeletePolicy: "reasoned_only" | "unsafe_harmless_delete";
@@ -114,7 +122,7 @@ function write(path: string, value: string) {
 }
 
 function currentHead() {
-  return shell("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
+  return shell("git", ["rev-parse", "HEAD"]) || "unknown";
 }
 
 function numberValue(value: unknown, fallback = 0) {
@@ -240,6 +248,9 @@ function scoreDimensions(before: ScoreSnapshot, after: ScoreSnapshot): AuthPersi
 
 function validateReport(report: AuthPersistenceReport) {
   const failures: string[] = [];
+  if (!/^[0-9a-f]{40}$/iu.test(report.currentHead) || report.sourceCommit !== report.currentHead) {
+    failures.push("auth persistence report provenance is not a full matching Git commit");
+  }
   if (report.persistenceStatus !== "established") failures.push("browserLocalPersistence not established");
   if (report.transitionClassifierStatus !== "mapped") failures.push("auth state transition classifier missing");
   if (report.navigationSessionDeletePolicy !== "reasoned_only") failures.push("navigation session deletion happens on harmless state sync");
@@ -296,10 +307,19 @@ function buildReport(): AuthPersistenceReport {
   ];
   const authStateBlock = authContext.slice(authContext.indexOf("unsubscribe = onAuthStateChanged"), authContext.indexOf("setUser(currentUser)"));
   const logoutBlock = authContext.slice(authContext.indexOf("const logout = useCallback"), authContext.indexOf("const identityValue"));
+  const head = currentHead();
 
   const report: AuthPersistenceReport = {
+    reportKey: "auth-persistence-stability",
     generatedAtUtc: new Date().toISOString(),
-    currentHead: currentHead(),
+    currentHead: head,
+    sourceCommit: head,
+    status: "pass",
+    passed: true,
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
     persistenceStatus: authContext.includes("setPersistence(auth, browserLocalPersistence)")
       && authContext.includes("auth_persistence_established")
       && AUTH_PERSISTENCE_CONTRACT.persistenceStatus === "browser_local_persistence_established"
@@ -386,6 +406,9 @@ function buildReport(): AuthPersistenceReport {
     report.validationFailures.push("package script check:auth-persistence-stability missing");
   }
   report.validationFailures.push(...validateReport(report));
+  report.status = report.validationFailures.length > 0 ? "fail" : "pass";
+  report.passed = report.validationFailures.length === 0;
+  report.canClearSourceGate = report.passed;
   return report;
 }
 

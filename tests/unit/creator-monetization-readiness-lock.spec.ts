@@ -7,9 +7,11 @@ import {
 } from "../../scripts/agent/validate-creator-monetization-readiness-lock";
 
 describe("creator monetization readiness lock", () => {
+  const testHead = "a".repeat(40);
+
   it("locks Fan Pass, settings, entitlements, chat pricing, admin debug, telemetry, and score evidence", () => {
     const report = buildCreatorMonetizationReadinessLockReport({
-      currentHead: "test-head",
+      currentHead: testHead,
       dirtyFiles: [],
       scoreBefore: 77.83,
       scoreAfter: 77.83,
@@ -49,7 +51,7 @@ describe("creator monetization readiness lock", () => {
     expect(classifyCreatorMonetizationReadinessLockDirtyFile("src/lib/server/paypal.ts")).toBe("unsafe_unknown");
 
     const report = buildCreatorMonetizationReadinessLockReport({
-      currentHead: "test-head",
+      currentHead: testHead,
       dirtyFiles: ["src/lib/gumdrop-ledger.ts"],
     });
     expect(validateCreatorMonetizationReadinessLockReport(report)).toContain("src/lib/gumdrop-ledger.ts is unclassified for creator monetization readiness lock.");
