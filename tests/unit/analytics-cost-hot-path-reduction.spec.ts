@@ -65,6 +65,8 @@ describe("analytics cost hot path reduction", () => {
     const truthState = readRepoFile("src/lib/server/admin-debug/truth-state.ts");
 
     expect(source).toContain("ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD");
+    expect(source).toContain("const latestTaskEventByUserId = new Map<string, number>();");
+    expect(source).not.toContain(".filter((event) => event.userId === input.userId)");
     expect(truthState).toContain('ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD = "debug_cost_reduced_initial_summary"');
   });
 
