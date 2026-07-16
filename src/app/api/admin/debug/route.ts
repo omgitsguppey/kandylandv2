@@ -1429,7 +1429,7 @@ function buildTaskIssueAttribution(input: {
     displayName: string;
     userData: Record<string, unknown>;
     tasks: Array<{ assignedAt?: number }>;
-    taskEvents: Array<{ userId: string; timestamp: number }>;
+    lastTaskEventAt: number | null;
     materializedAt: number | null;
     sampleWindowMs: number;
 }): TaskIssueAttribution | null {
@@ -1440,9 +1440,7 @@ function buildTaskIssueAttribution(input: {
         : undefined;
     const explicitlyIncomplete = input.userData.onboardingCompleted === false;
     const eligibleForTasks = !explicitlyIncomplete;
-    const lastTaskEventAt = input.taskEvents
-        .filter((event) => event.userId === input.userId)
-        .reduce((max, event) => Math.max(max, event.timestamp), 0) || null;
+    const lastTaskEventAt = input.lastTaskEventAt;
     const lastTaskAssignmentAt = getLatestTaskAssignmentAt(input.tasks);
     const userCreatedAt = toNumber(input.userData.createdAtMs)
         || toTimestampNumber(input.userData.createdAt)
@@ -4227,12 +4225,16 @@ export async function GET(request: NextRequest) {
         const taskInventoryById = new Map<string, typeof taskInventory[number]>(taskInventory.map((entry) => [entry.taskId, entry]));
         const taskInventorySummary = summarizeDailyTaskInventory(taskInventory);
 
-        const taskEventsForAttribution = taskEventsSnapshot.docs.map((doc) => {
+        // ⚡ Bolt: Precomputing the latest task event per user using a Map
+        // Impact: Eliminates O(N*M) nested array filtering during user iteration, significantly improving dashboard load time
+        const latestTaskEventByUserId = new Map<string, number>();
+        taskEventsSnapshot.docs.forEach((doc) => {
             const data = doc.data() as Record<string, unknown>;
-            return {
-                userId: toStringValue(data.userId),
-                timestamp: toNumber(data.timestamp),
-            };
+            const userId = toStringValue(data.userId);
+            const timestamp = toNumber(data.timestamp);
+            if (userId) {
+                latestTaskEventByUserId.set(userId, Math.max(latestTaskEventByUserId.get(userId) || 0, timestamp));
+            }
         });
         const materializedTaskRollupAt = taskRollupSnapshot.docs.reduce((latest, doc) => {
             const data = doc.data() as Record<string, unknown>;
@@ -4286,7 +4288,7 @@ export async function GET(request: NextRequest) {
                 displayName: username,
                 userData: data,
                 tasks: currentWindowTasks,
-                taskEvents: taskEventsForAttribution,
+                lastTaskEventAt: latestTaskEventByUserId.get(doc.id) || null,
                 materializedAt: materializedTaskRollupAt,
                 sampleWindowMs: ONE_WEEK_MS,
             });
