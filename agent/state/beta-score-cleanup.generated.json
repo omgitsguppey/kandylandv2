@@ -1,13 +1,13 @@
 {
-  "generatedAtUtc": "2026-06-21T19:37:12.441Z",
+  "generatedAtUtc": "2026-07-16T21:26:31.878Z",
   "reportKey": "beta-score-cleanup",
-  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
+  "currentHead": "78060565020da1d7272253f2f5727d35910dfc42",
   "summary": {
-    "betaScore": 84,
-    "betaStatus": "Source evidence required",
+    "betaScore": 52.19,
+    "betaStatus": "Stale evidence",
     "scannerScore": 100,
-    "evidenceScore": 67.04,
-    "evidenceCaps": 2,
+    "evidenceScore": 35,
+    "evidenceCaps": 3,
     "staleReportsRetired": 3,
     "activeReportsNeedingRefresh": 0,
     "costReadinessLanes": 4,
@@ -21,8 +21,9 @@
       "Visual/manual compatibility, provider-backed site activity, deployed route, admin source activity, and debug/runtime evidence lanes still score zero until typed artifacts exist."
     ],
     "missingEvidenceCaps": [
-      "Source validation only: Targeted behavior tests - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.",
-      "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current."
+      "Stale evidence: Provider-backed source activity evidence - Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
+      "Stale evidence: Protected payment source-of-funds proof - Attach a current redacted provider-backed artifact that validates payment and GumDrop source-of-funds checks.",
+      "Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence."
     ],
     "scannerScoreWarning": "Scanner score 100 is scanner-only source hygiene and must never be read as beta readiness."
   },
@@ -31,7 +32,7 @@
       "status": "cost_review_required",
       "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
       "evidence": [
-        "finalCostCurrent=false",
+        "finalCostCurrent=true",
         "globalCostSourceClean=true",
         "cloudRunGuarded=false",
         "externalBillingReviewed=false",
@@ -43,10 +44,10 @@
       "blocksBetaExit": false
     },
     "cloudSqlCostReadiness": {
-      "status": "owner_review_external_billing_required",
-      "detail": "Cloud SQL/Data Connect source or external billing state still needs owner review.",
+      "status": "source_ready_no_runtime_usage_detected",
+      "detail": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
       "evidence": [
-        "cloudSqlGuardReportCurrent=false",
+        "cloudSqlGuardReportCurrent=true",
         "cloudSqlRuntimeDetected=false",
         "sqlMirrorScriptsGuarded=true",
         "sqlMirrorRequiresExplicitApproval=true",
@@ -60,10 +61,10 @@
       "blocksBetaExit": false
     },
     "geminiCloudAssistCostReadiness": {
-      "status": "cost_review_required",
-      "detail": "AI cost lane lacks enough source guard evidence for refinement.",
+      "status": "source_guarded_external_review_remaining",
+      "detail": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
       "evidence": [
-        "cloudSqlGeminiGuardCurrent=false",
+        "cloudSqlGeminiGuardCurrent=true",
         "geminiRuntimeDetected=true",
         "aiCallsRequireExplicitAction=true",
         "aiCallsHaveRateOrCacheGuard=true",
@@ -77,14 +78,14 @@
       "blocksBetaExit": false
     },
     "route4xxReadiness": {
-      "status": "cost_review_required",
-      "detail": "Route 4xx readiness needs current diagnostics and retry classification.",
+      "status": "source_ready_retry_storm_guarded",
+      "detail": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
       "evidence": [
         "artifactPath=agent/state/final-cost-audit-lock.generated.json",
         "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
-        "finalCostCurrent=false",
-        "analyticsRuntimeCurrent=false",
-        "route4xxSourceReady=false",
+        "finalCostCurrent=true",
+        "analyticsRuntimeCurrent=true",
+        "route4xxSourceReady=true",
         "retry4xxClassified=true",
         "owner=server-routing",
         "externalReviewRequired=false",

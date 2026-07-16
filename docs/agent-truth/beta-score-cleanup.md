@@ -3,15 +3,15 @@
 Artifact: `agent/state/beta-score-cleanup.generated.json`
 Validator: `npm run check:beta-score-cleanup`
 
-Generated: 2026-06-21T19:37:12.441Z
-Current source head: `187d6964a50ddf5a4077b19e88471c7e23414b75`
+Generated: 2026-07-16T21:26:31.878Z
+Current source head: `78060565020da1d7272253f2f5727d35910dfc42`
 
 ## Summary
 
-- Beta score: 84/100, `Source evidence required`.
+- Beta score: 52.19/100, `Stale evidence`.
 - Scanner score: 100/100. This is scanner-only source hygiene, not beta readiness.
-- Evidence score: 67.04/100.
-- Evidence caps represented: 2.
+- Evidence score: 35/100.
+- Evidence caps represented: 3.
 - Cost-readiness lanes represented: 4.
 - Beta exit review can start: no.
 
@@ -24,17 +24,18 @@ Current source head: `187d6964a50ddf5a4077b19e88471c7e23414b75`
 
 Missing evidence caps:
 
-- Source validation only: Targeted behavior tests - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.
-- Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.
+- Stale evidence: Provider-backed source activity evidence - Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.
+- Stale evidence: Protected payment source-of-funds proof - Attach a current redacted provider-backed artifact that validates payment and GumDrop source-of-funds checks.
+- Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence.
 
 Scanner score 100 is scanner-only source hygiene and must never be read as beta readiness.
 
 ## Cost Readiness
 
 - cloudRunCostReadiness: `cost_review_required` - Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.
-- cloudSqlCostReadiness: `owner_review_external_billing_required` - Cloud SQL/Data Connect source or external billing state still needs owner review.
-- geminiCloudAssistCostReadiness: `cost_review_required` - AI cost lane lacks enough source guard evidence for refinement.
-- route4xxReadiness: `cost_review_required` - Route 4xx readiness needs current diagnostics and retry classification.
+- cloudSqlCostReadiness: `source_ready_no_runtime_usage_detected` - Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.
+- geminiCloudAssistCostReadiness: `source_guarded_external_review_remaining` - AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.
+- route4xxReadiness: `source_ready_retry_storm_guarded` - Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.
 
 These lanes are source inventory and owner-review signals. `not_detected_in_repo`, `config_not_in_repo`, and `source_inventory_complete` are not formal beta-exit passes.
 

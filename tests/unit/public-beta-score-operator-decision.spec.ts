@@ -407,6 +407,34 @@ describe("public beta operator-decision invariants", () => {
     });
   });
 
+  it("keeps stale optional aggregate evidence out of required source readiness", () => {
+    const evidence = passingEvidence();
+    evidence.requiredReports = [];
+    evidence.targetedBehaviorEvidence = {
+      ...evidence.targetedBehaviorEvidence!,
+      sourceCommit: OLD_HEAD,
+    };
+
+    const report = buildReport([], evidence);
+    const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+    const freshnessGate = report.evidenceGates.find((gate) => gate.id === "freshnessIntegrity");
+
+    expect(targetedGate).toMatchObject({
+      status: "Stale evidence",
+      blocksLaunch: false,
+      gateRequiredForExit: false,
+    });
+    expect(freshnessGate).toMatchObject({ status: "Ready", blocksLaunch: false });
+    expect(report.sourceHealthScore).toBe(100);
+    expect(report.operatorDecision.sourceReadiness.status).toBe("ready");
+    expect(report.operatorDecision.actionQueues.evidenceRefresh).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        title: "Targeted behavior tests",
+        blocksLaunch: false,
+      }),
+    ]));
+  });
+
   it("does not treat a fresh current failed required report as ready", () => {
     const evidence = passingEvidence();
     evidence.requiredReports = evidence.requiredReports?.map((report) => ({

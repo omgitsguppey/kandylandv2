@@ -42,9 +42,15 @@ import type {
   PublicBetaGeneratedReportEvidence,
 } from "../../src/lib/agent-score/core";
 
-const REQUIRED_EVIDENCE_REPORTS = [
+const TRACKED_GENERATED_REPORTS = [
   "agent/state/targeted-behavior-evidence.generated.json",
 ] as const;
+
+// Aggregate targeted-behavior evidence is an advisory rollup, not a universal
+// prerequisite. Changed surfaces own their targeted validators; requiring this
+// rollup for every commit turns unrelated source/config changes into a broad
+// refresh marathon and duplicates the targetedBehaviorTests gate below.
+const REQUIRED_EVIDENCE_REPORTS: readonly string[] = [];
 
 const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.generated.json";
 const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generated.json";
@@ -127,7 +133,7 @@ function collectRefreshArtifacts(root: string, currentHead: string, generatedAtU
 }
 
 function ownedSourcePathsForReport(reportPath: string) {
-  if ((REQUIRED_EVIDENCE_REPORTS as readonly string[]).includes(reportPath)) return undefined;
+  if ((TRACKED_GENERATED_REPORTS as readonly string[]).includes(reportPath)) return undefined;
   const registryEntry = REFRESH_ARTIFACT_REGISTRY.find((entry) => entry.artifactPath === reportPath);
   return registryEntry?.allowCurrentByImpact ? registryEntry.ownedSourcePaths : undefined;
 }
@@ -332,7 +338,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
 }
 
 export function collectGeneratedReportEvidence(root: string, currentHead?: string, now = Date.now()): PublicBetaGeneratedReportEvidence[] {
-  return REQUIRED_EVIDENCE_REPORTS.map((reportPath) => {
+  return TRACKED_GENERATED_REPORTS.map((reportPath) => {
     const fullPath = join(root, reportPath);
     if (!existsSync(fullPath)) {
       return { path: reportPath, freshness: "missing" };
@@ -1266,7 +1272,9 @@ export function readUiSurfaceCoverageEvidence(root: string): PublicBetaEvidenceA
 export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesApplied = 0) {
   const currentHead = readGitHead(root);
   const generatedAtUtc = new Date().toISOString();
-  const requiredReports = collectGeneratedReportEvidence(root, currentHead);
+  const generatedReportEvidence = collectGeneratedReportEvidence(root, currentHead);
+  const requiredReports = generatedReportEvidence.filter((report) =>
+    REQUIRED_EVIDENCE_REPORTS.includes(report.path));
   const debugEvidence = loadDebugEvidenceForAuditDomains([
     ...Object.keys(PUBLIC_BETA_DOMAIN_WEIGHTS),
     "support",

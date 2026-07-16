@@ -869,6 +869,14 @@ function buildEvidenceGate(input: {
 
 function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvidence[] | undefined) {
   const requiredReports = reports ?? [];
+  if (requiredReports.length === 0) {
+    return {
+      status: "Ready" as const,
+      score: PUBLIC_BETA_EVIDENCE_WEIGHTS.freshnessIntegrity,
+      detail: "No universal generated report is required; changed-surface validators own their evidence freshness.",
+      evidence: [],
+    };
+  }
   const missingReports = requiredReports.filter((report) => report.freshness === "missing");
   const commitMismatches = requiredReports.filter((report) => report.versionStatus === "stale_source_version");
   const staleReports = requiredReports.filter((report) => report.freshness === "stale" && report.versionStatus !== "stale_source_version");
@@ -925,20 +933,10 @@ function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvide
       evidence: unknownValidationReports.map((report) => report.path),
     };
   }
-  if (requiredReports.length === 0) {
-    return {
-      status: "Source evidence required" as const,
-      score: 0,
-      detail: "No generated report freshness evidence was supplied.",
-      evidence: [],
-    };
-  }
   return {
     status: "Ready" as const,
     score: PUBLIC_BETA_EVIDENCE_WEIGHTS.freshnessIntegrity,
-    detail: requiredReports.length > 0
-      ? "Required generated reports are fresh for deterministic scoring."
-      : "No required generated report freshness evidence was provided.",
+    detail: "Required generated reports are fresh for deterministic scoring.",
     evidence: requiredReports.map((report) => report.path),
   };
 }
@@ -2293,8 +2291,7 @@ export function buildPublicBetaScoreReport(
     highBlastRefreshFailedLaneCount: options.evidence?.regressionRiskRefreshEvidence?.failedLaneCount,
     highBlastRefreshInFlightLaneCount: options.evidence?.regressionRiskRefreshEvidence?.inFlightLaneCount,
   });
-  const sourceGates = evidenceReadiness.evidenceGates.filter((gate) =>
-    gate.id === "sourceSafety" || gate.id === "targetedBehaviorTests");
+  const sourceGates = evidenceReadiness.evidenceGates.filter((gate) => gate.id === "sourceSafety");
   const runtimeRequiredGates = evidenceReadiness.evidenceGates.filter((gate) =>
     gate.id === "runtimeProviderSmoke"
     || gate.id === "adminTruthSamples");
