@@ -1,19 +1,19 @@
 # Control Tower Canonical Source
 
-Generated Control Tower cleanup evidence. Formal gates remain visible but are not source-code bugs.
+Generated Control Tower cleanup evidence. Typed evidence gates remain visible but are not source-code bugs.
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T17:35:18.159Z",
+  "generatedAtUtc": "2026-07-16T04:29:56.704Z",
   "reportKey": "control-tower-canonical-source",
-  "currentHead": "5c126a7df36e39be20ab55b40ce5d14c04779fb5",
-  "artifactHead": "5c126a7df36e39be20ab55b40ce5d14c04779fb5",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "artifactHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "headMatchesMain": true,
-  "generatedAt": "2026-05-24T17:32:40.543Z",
+  "generatedAt": "2026-07-16T04:29:33.071Z",
   "freshnessWindow": "24h",
   "canonicalScoreSource": "agent/state/public-beta-score.generated.json",
-  "score": 79,
-  "evidenceScore": 65.7,
+  "score": 52.98,
+  "evidenceScore": 46,
   "staleSourceCount": 2,
   "supersededSourceCount": 1,
   "supersededSources": [

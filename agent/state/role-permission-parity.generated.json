@@ -1,8 +1,8 @@
 {
   "reportKey": "role-permission-parity",
   "version": "2026.05.role-permission.1",
-  "generatedAtUtc": "2026-06-11T15:03:17.374Z",
-  "currentHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8",
+  "generatedAtUtc": "2026-07-16T04:23:24.612Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -2743,300 +2743,40 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/context/doctrine.cards.jsonl",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/doctrine.index.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/file-size-budget.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/legacy-registry.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/surface-contracts.jsonl",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/task-pack.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/validator-map.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/blast-radius.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/canonical-helpers.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/dependency-graph.summary.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/governance-truth.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/known-pitfalls.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/package-manager-truth.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/recent-passes.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/retrieval-index.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/runtime-observability.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/surface-map.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/ui-surface-coverage.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/verification-commands.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/workflow-guidance.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/config-env-contract.generated.json",
+      "path": "agent/state/activity-verification-engine.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "path": "agent/state/debug-tracking-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/global-cost-surfaces.generated.json",
+      "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/identity-handoff-spine.generated.json",
+      "path": "agent/state/feature-registration-gate.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
+      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-dimension-80-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-impact-stale-artifact-sweep.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/settings-creator-dashboard-split.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-mirror-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-sync.payload.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/support-policy-surface-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/surface-state-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/surface-telemetry-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/task-context.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/treasury-reconciliation-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/treasury-structure-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-management-status-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/config-env-contract.md",
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
+      "path": "docs/agent-truth/feature-registration-gate.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "path": "docs/agent-truth/monolith-orphan-metric-registry.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/score-dimension-80-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/score-impact-stale-artifact-sweep.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/support-policy-surface-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/surface-state-parity.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/surface-telemetry-parity.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/treasury-reconciliation-engine.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/treasury-structure-contract.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-management-status-truth.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/build-agent-indexes.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/debug-cockpit-batch19-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/debug-cockpit-batch20-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/release-readiness-report-runner.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-freshness-window-repair.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-frontend-component-consolidation.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-frontend-telemetry-consolidation.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-guest-user-identity-transfer.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-identity-transfer-telemetry-closure.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-role-permission-parity.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-surface-state-parity.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-surface-telemetry-parity.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/repo-inventory.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/parity/role-permission-resolver.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/parity/surface-state-resolver.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/telemetry/surface-telemetry-registry.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/debug-evidence-staleness-queue.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
   "staleRolePermissionLogicClassification": [
@@ -3057,6 +2797,9 @@
     }
   ],
   "validationFailures": [],
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "passed": true,
+  "canClearSourceGate": true,
   "gitStatus": "available",
   "currentHeadSource": "git",
   "toolingDegraded": false,

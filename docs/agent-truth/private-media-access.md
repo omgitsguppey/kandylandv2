@@ -1,6 +1,6 @@
 # Private Media Access
 
-Generated: 2026-07-14T16:05:50.609Z
+Generated: 2026-07-16T04:25:45.033Z
 
 Status: pass
 
@@ -15,7 +15,7 @@ Status: pass
 - Raw private URL/path telemetry protected: true
 - Production reads performed by validator: false
 - Provider calls performed by validator: false
-- Payment/GumDrop math changed: true
+- Payment/GumDrop math changed: false
 
 ## Debug Lane
 
@@ -59,31 +59,10 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
-| .env.example | unsafe_unknown |
-| agent/context/doctrine-cards.jsonl | unsafe_unknown |
-| agent/context/doctrine-conflicts.generated.json | unsafe_unknown |
-| agent/context/doctrine-registry.json | unsafe_unknown |
-| agent/context/doctrine.cards.jsonl | unsafe_unknown |
-| agent/context/doctrine.index.json | unsafe_unknown |
-| agent/context/file-size-budget.json | unsafe_unknown |
-| agent/context/legacy-registry.json | unsafe_unknown |
-| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
-| agent/context/task-pack.generated.json | unsafe_unknown |
-| agent/context/validator-authority.json | unsafe_unknown |
-| agent/context/validator-map.json | unsafe_unknown |
-| agent/index/blast-radius.json | unsafe_unknown |
-| agent/index/canonical-helpers.json | unsafe_unknown |
-| agent/index/dependency-graph.summary.json | unsafe_unknown |
-| agent/index/governance-truth.json | unsafe_unknown |
-| agent/index/known-pitfalls.json | unsafe_unknown |
-| agent/index/package-manager-truth.json | unsafe_unknown |
-| agent/state/private-media-access.generated.json | current_generated_artifact_to_commit |
-| docs/agent-truth/private-media-access.md | documentation_artifact_expected |
-| FULL_SCALE_CODEBASE_AUDIT.md | unsafe_unknown |
-| README.md | unsafe_unknown |
-| REPO_MEMORY_LEDGER.md | unsafe_unknown |
-| src/app/api/chat/attachments/complete/route.ts | real_source_change_needs_review |
-| src/app/api/creator/drops/assets/route.ts | real_source_change_needs_review |
+| agent/state/creator-discovery-relationship-funnel.generated.json | current_generated_artifact_to_commit |
+| agent/state/media-upload-lifecycle.generated.json | current_generated_artifact_to_commit |
+| docs/agent-truth/creator-discovery-relationship-funnel.md | documentation_artifact_expected |
+| docs/agent-truth/media-upload-lifecycle.md | documentation_artifact_expected |
 
 ## Validation Failures
 

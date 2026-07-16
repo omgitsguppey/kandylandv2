@@ -1,34 +1,34 @@
 {
   "reportKey": "settings-health-status-cleanup",
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
     "freshness": 59.38,
-    "costRisk": 42,
+    "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 63.18
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
     "freshness": 59.38,
-    "costRisk": 42,
+    "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 63.18
   },
   "scoreDimensions": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
     "freshness": 59.38,
-    "costRisk": 42,
+    "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 63.18
   },
-  "currentHead": "f1e140ac6a2827e40c4531ae47997d7312526f29",
-  "generatedAtUtc": "2026-06-08T04:11:05.893Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-07-16T04:27:20.722Z",
   "statusBefore": "live_stale",
   "statusAfter": "healthy_current",
   "components": [
@@ -43,9 +43,10 @@
   "refreshCommand": "npm run check:settings-debug-validator-authority",
   "duplicatedRawValidatorsDefaultOpen": false,
   "validationFailures": [],
-  "status": "healthy_current",
-  "evidenceClass": "source_snapshot",
-  "canClearSourceGate": true,
+  "status": "pass",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "evidenceClass": "historical_evidence_only",
+  "canClearSourceGate": false,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,

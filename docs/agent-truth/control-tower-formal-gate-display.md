@@ -4,9 +4,9 @@ Generated Control Tower cleanup evidence. Typed evidence gates remain visible bu
 
 ```json
 {
-  "generatedAtUtc": "2026-07-03T02:01:58.344Z",
+  "generatedAtUtc": "2026-07-16T04:30:00.565Z",
   "reportKey": "control-tower-formal-gate-display",
-  "currentHead": "d7c614ae84aafbf7c3465651d9ef96ce18754859",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "gates": {
     "runtimeProvider": {
       "gateId": "runtime_provider_smoke",

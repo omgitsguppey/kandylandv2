@@ -1,7 +1,7 @@
 {
   "reportKey": "auth-runtime-telemetry",
-  "generatedAtUtc": "2026-05-24T09:24:25.334Z",
-  "currentHead": "309d6b03",
+  "generatedAtUtc": "2026-07-16T04:23:55.495Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "status": "pass",
   "eventFamilies": [
     "auth_surface_viewed",
@@ -157,70 +157,76 @@
     "redactionPolicy": "metadata_stripped_and_email_hash_only"
   },
   "validationFailures": [],
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "passed": true,
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 63.18
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 63.18
   },
   "scoreDimensions": {
     "sourceHealth": {
+      "before": 83.6,
+      "after": 83.6,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth runtime-specific score action required."
+    },
+    "runtimeHealth": {
+      "before": 50.22,
+      "after": 50.22,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
+    },
+    "evidenceCompleteness": {
+      "before": 45,
+      "after": 45,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
+    },
+    "freshness": {
+      "before": 59.38,
+      "after": 59.38,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
+    },
+    "costRisk": {
       "before": 92.5,
       "after": 92.5,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth runtime-specific score action required."
     },
-    "runtimeHealth": {
-      "before": 84.2,
-      "after": 84.2,
-      "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No auth runtime-specific score action required."
-    },
-    "evidenceCompleteness": {
-      "before": 69.6,
-      "after": 69.6,
-      "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
-    },
-    "freshness": {
-      "before": 83.75,
-      "after": 83.75,
-      "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No auth runtime-specific score action required."
-    },
-    "costRisk": {
-      "before": 42,
-      "after": 42,
-      "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
-    },
     "regressionRisk": {
-      "before": 86,
-      "after": 86,
+      "before": 94,
+      "after": 94,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth runtime-specific score action required."
     },
     "overallHealthScore": {
-      "before": 79.25,
-      "after": 79.25,
+      "before": 63.18,
+      "after": 63.18,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
@@ -237,10 +243,6 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "agent/state/auth-persistence-stability.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -249,47 +251,7 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/auth-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/auth-runtime-telemetry.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/email-password-auth-refactor.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -301,84 +263,8 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/auth-readiness-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-runtime-telemetry.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/email-password-auth-refactor.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-persistence-stability.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-readiness-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-runtime-telemetry.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-email-password-auth-refactor.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/auth-readiness-lock.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "staleAuthTelemetryLogic": [

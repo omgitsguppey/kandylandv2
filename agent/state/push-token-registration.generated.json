@@ -1,13 +1,17 @@
 {
-  "generatedAtUtc": "2026-06-09T01:08:17.876Z",
-  "currentHead": "00b18bf22",
+  "reportKey": "push-token-registration",
+  "generatedAtUtc": "2026-07-16T04:26:08.764Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "status": "pass",
+  "passed": true,
+  "canClearSourceGate": true,
   "productionReadsRequired": false,
   "providerCallsRequired": false,
   "realPushNotificationsSent": false,
   "evidenceKind": "source_only",
   "livePushSmoke": "manual_external_required",
-  "dirtyWorktreeProofLimited": true,
+  "dirtyWorktreeProofLimited": false,
   "tokenRoute": "/api/notifications/push-token",
   "tokenStatuses": [
     "missing",
@@ -52,22 +56,22 @@
     "rawDetailsCollapsedByDefault": true
   },
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
     "freshness": 59.38,
-    "costRisk": 42,
+    "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 63.18
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
     "freshness": 59.38,
-    "costRisk": 42,
+    "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 63.18
   },
   "scoreDimensionImpact": {
     "sourceHealth": "Push token registration now has a source contract, caller-scoped route, telemetry events, and validator coverage.",
@@ -78,108 +82,24 @@
     "regressionRisk": "Unit and source validator checks cover auth scope, no arbitrary user binding, redaction, debug lane, and protected surface boundaries.",
     "overallHealthScore": "Improves notification readiness evidence without clearing formal runtime/provider gates."
   },
-  "dirtyFilesScannedCount": 282,
-  "dirtyFilesOmittedCount": 257,
+  "dirtyFilesScannedCount": 4,
+  "dirtyFilesOmittedCount": 0,
   "dirtyFiles": [
     {
-      "path": ".agent/workflows/auto-tasks.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/notification-permission-lifecycle.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": ".agent/workflows/pre-commit.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/notification-targeting-intent.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": ".env.example",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/notification-permission-lifecycle.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": ".gitignore",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/doctrine.cards.jsonl",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/doctrine.index.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/file-size-budget.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/legacy-registry.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/task-pack.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/validator-map.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/blast-radius.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/canonical-helpers.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/dependency-graph.summary.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/governance-truth.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/known-pitfalls.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/package-manager-truth.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/recent-passes.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/README.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-notification-permission-lifecycle.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-notification-return-loop.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-push-token-registration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "tests/unit/fcm-utils.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/notification-permission-lifecycle.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "docs/agent-truth/notification-targeting-intent.md",
+      "classification": "release_artifact_expected"
     }
   ],
   "validationFailures": []

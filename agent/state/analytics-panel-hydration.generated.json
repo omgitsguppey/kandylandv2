@@ -1,129 +1,131 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-07-02T15:09:07.296Z",
-  "currentHead": "25e5a1c71fad2d2f974c4de44c5079a4a7cce1de",
+  "generatedAtUtc": "2026-07-16T04:28:11.433Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
-    "sourceHealth": 98.6,
-    "runtimeHealth": 78.85,
-    "evidenceCompleteness": 92,
-    "freshness": 91.88,
-    "costRisk": 42,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
+    "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 85.93
+    "overallHealthScore": 63.18
   },
   "totalPanels": 41,
   "hydratedPanels": 0,
   "stalePanels": 0,
   "collectingPanels": 0,
-  "sourceReadyWaitingForActivityPanels": 9,
-  "notObservedButExpectedPanels": 25,
+  "sourceReadyWaitingForActivityPanels": 0,
+  "notObservedButExpectedPanels": 0,
   "sourceMissingPanels": 0,
   "materializerMissingPanels": 0,
   "bridgeMissingPanels": 0,
-  "runtimeEvidenceRequiredPanels": 2,
-  "adminTruthSourceRequiredPanels": 1,
+  "runtimeEvidenceRequiredPanels": 37,
+  "adminTruthSourceRequiredPanels": 0,
   "providerGatedPanels": 2,
-  "externalRequiredPanels": 4,
+  "protectedPaymentRequiredPanels": 1,
+  "externalRequiredPanels": 1,
   "permissionBlockedPanels": 0,
+  "hiddenByRolePanels": 0,
   "brokenPanels": 0,
   "panelsByGroup": {
     "traffic": {
       "total": 1,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "users": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 3,
+      "collecting": 0,
       "gaps": 0
     },
     "auth": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 3,
+      "collecting": 0,
       "gaps": 0
     },
     "creators": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 3,
+      "collecting": 0,
       "gaps": 0
     },
     "drops": {
       "total": 2,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "unlocks": {
       "total": 2,
       "hydrated": 0,
-      "collecting": 2,
+      "collecting": 0,
       "gaps": 0
     },
     "watch": {
       "total": 2,
       "hydrated": 0,
-      "collecting": 2,
+      "collecting": 0,
       "gaps": 0
     },
     "wallet": {
       "total": 2,
       "hydrated": 0,
-      "collecting": 2,
+      "collecting": 0,
       "gaps": 0
     },
     "payments": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "gumdrops": {
       "total": 2,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "tasks": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 3,
+      "collecting": 0,
       "gaps": 0
     },
     "chat": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 3,
+      "collecting": 0,
       "gaps": 0
     },
     "notifications": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 3,
+      "collecting": 0,
       "gaps": 0
     },
     "media": {
       "total": 1,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "search": {
       "total": 2,
       "hydrated": 0,
-      "collecting": 2,
+      "collecting": 0,
       "gaps": 0
     },
     "support": {
       "total": 1,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "errors": {
@@ -141,106 +143,126 @@
     "journeys": {
       "total": 1,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "realtime": {
       "total": 1,
       "hydrated": 0,
-      "collecting": 1,
+      "collecting": 0,
       "gaps": 0
     }
   },
   "panelStatus": {
-    "traffic_overview": "not_observed_but_expected",
-    "active_users": "not_observed_but_expected",
-    "new_users_signups": "not_observed_but_expected",
-    "returning_users": "not_observed_but_expected",
-    "guest_to_user_handoff": "not_observed_but_expected",
-    "creator_count": "not_observed_but_expected",
-    "creator_profile_views": "not_observed_but_expected",
-    "creator_follows": "source_ready_waiting_for_activity",
-    "drops_live": "admin_truth_source_required",
-    "drop_opens": "not_observed_but_expected",
-    "unlocks": "source_ready_waiting_for_activity",
-    "unwraps": "source_ready_waiting_for_activity",
-    "watch_time": "source_ready_waiting_for_activity",
-    "completion_rate": "source_ready_waiting_for_activity",
-    "wallet_opens": "not_observed_but_expected",
-    "package_selections": "source_ready_waiting_for_activity",
-    "checkout_starts": "source_ready_waiting_for_activity",
+    "traffic_overview": "runtime_evidence_required",
+    "active_users": "runtime_evidence_required",
+    "new_users_signups": "runtime_evidence_required",
+    "returning_users": "runtime_evidence_required",
+    "guest_to_user_handoff": "runtime_evidence_required",
+    "creator_count": "runtime_evidence_required",
+    "creator_profile_views": "runtime_evidence_required",
+    "creator_follows": "runtime_evidence_required",
+    "drops_live": "runtime_evidence_required",
+    "drop_opens": "runtime_evidence_required",
+    "unlocks": "runtime_evidence_required",
+    "unwraps": "runtime_evidence_required",
+    "watch_time": "runtime_evidence_required",
+    "completion_rate": "runtime_evidence_required",
+    "wallet_opens": "runtime_evidence_required",
+    "package_selections": "runtime_evidence_required",
+    "checkout_starts": "runtime_evidence_required",
     "payment_approvals": "provider_gated",
     "payment_failures": "provider_gated",
     "gumdrop_balances": "protected_payment_required",
-    "reward_gd_grants": "not_observed_but_expected",
-    "task_starts": "not_observed_but_expected",
-    "task_completions": "not_observed_but_expected",
-    "task_rewards": "not_observed_but_expected",
-    "chat_opens": "not_observed_but_expected",
-    "chat_messages": "not_observed_but_expected",
-    "chat_blocks_errors": "not_observed_but_expected",
-    "notification_prompts": "not_observed_but_expected",
-    "notification_tokens": "not_observed_but_expected",
-    "notification_intents": "not_observed_but_expected",
-    "auth_attempts_failures": "not_observed_but_expected",
-    "session_restores": "not_observed_but_expected",
-    "media_uploads_access_blocks": "not_observed_but_expected",
-    "search_queries": "not_observed_but_expected",
-    "search_zero_results_clicks": "source_ready_waiting_for_activity",
-    "support_account_actions": "source_ready_waiting_for_activity",
+    "reward_gd_grants": "runtime_evidence_required",
+    "task_starts": "runtime_evidence_required",
+    "task_completions": "runtime_evidence_required",
+    "task_rewards": "runtime_evidence_required",
+    "chat_opens": "runtime_evidence_required",
+    "chat_messages": "runtime_evidence_required",
+    "chat_blocks_errors": "runtime_evidence_required",
+    "notification_prompts": "runtime_evidence_required",
+    "notification_tokens": "runtime_evidence_required",
+    "notification_intents": "runtime_evidence_required",
+    "auth_attempts_failures": "runtime_evidence_required",
+    "session_restores": "runtime_evidence_required",
+    "media_uploads_access_blocks": "runtime_evidence_required",
+    "search_queries": "runtime_evidence_required",
+    "search_zero_results_clicks": "runtime_evidence_required",
+    "support_account_actions": "runtime_evidence_required",
     "error_rate_4xx": "runtime_evidence_required",
     "cost_risk": "external_required",
-    "journey_funnel": "not_observed_but_expected",
-    "realtime_health": "not_observed_but_expected",
+    "journey_funnel": "runtime_evidence_required",
+    "realtime_health": "runtime_evidence_required",
     "debug_backlog": "runtime_evidence_required"
   },
   "topPanelHydrationFailures": [
     {
+      "panelId": "traffic_overview",
+      "panelLabel": "Traffic overview",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for analytics_event_facts."
+    },
+    {
+      "panelId": "active_users",
+      "panelLabel": "Active users",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time."
+    },
+    {
+      "panelId": "new_users_signups",
+      "panelLabel": "New users/signups",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for first-party auth runtime telemetry event envelopes; no raw password, email, or Firebase token fields."
+    },
+    {
+      "panelId": "returning_users",
+      "panelLabel": "Returning users",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time."
+    },
+    {
+      "panelId": "guest_to_user_handoff",
+      "panelLabel": "Guest-to-user handoff",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time."
+    },
+    {
+      "panelId": "creator_count",
+      "panelLabel": "Creator count",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for settings surfaces and settings route telemetry."
+    },
+    {
+      "panelId": "creator_profile_views",
+      "panelLabel": "Creator profile views",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for analytics_event_facts and creator relationship funnel telemetry."
+    },
+    {
+      "panelId": "creator_follows",
+      "panelLabel": "Creator follows",
+      "hydrationStatus": "runtime_evidence_required",
+      "nextExactAction": "Produce bounded route/debug runtime evidence for creator relationship facts and relationship route telemetry."
+    },
+    {
       "panelId": "drops_live",
       "panelLabel": "Drops live",
-      "hydrationStatus": "admin_truth_source_required",
-      "nextExactAction": "Produce a redacted admin source activity sample for creator drop manager telemetry and canonical creator drop route facts."
-    },
-    {
-      "panelId": "payment_approvals",
-      "panelLabel": "Payment approvals",
-      "hydrationStatus": "provider_gated",
-      "nextExactAction": "Produce redacted source activity or external evidence for server purchase verification facts."
-    },
-    {
-      "panelId": "payment_failures",
-      "panelLabel": "Payment failures",
-      "hydrationStatus": "provider_gated",
-      "nextExactAction": "Produce redacted source activity or external evidence for payment failure telemetry."
-    },
-    {
-      "panelId": "gumdrop_balances",
-      "panelLabel": "GumDrop balances",
-      "hydrationStatus": "protected_payment_required",
-      "nextExactAction": "Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider evidence."
-    },
-    {
-      "panelId": "error_rate_4xx",
-      "panelLabel": "Error rate/4xx",
       "hydrationStatus": "runtime_evidence_required",
-      "nextExactAction": "Produce bounded route/debug runtime evidence for admin debug summary."
+      "nextExactAction": "Produce bounded route/debug runtime evidence for creator drop manager telemetry and canonical creator drop route facts."
     },
     {
-      "panelId": "cost_risk",
-      "panelLabel": "Cost risk",
-      "hydrationStatus": "external_required",
-      "nextExactAction": "Produce redacted source activity or external evidence for cost guard summaries plus external billing review."
-    },
-    {
-      "panelId": "debug_backlog",
-      "panelLabel": "Debug backlog",
+      "panelId": "drop_opens",
+      "panelLabel": "Drop opens",
       "hydrationStatus": "runtime_evidence_required",
-      "nextExactAction": "Produce bounded route/debug runtime evidence for debug backlog summary."
+      "nextExactAction": "Produce bounded route/debug runtime evidence for analytics_event_facts."
     }
   ],
   "liveEvidenceContribution": {
     "contributes": [],
-    "collecting": [
+    "collecting": [],
+    "blocked": [],
+    "runtimeEvidenceRequired": [
       "traffic_overview",
       "active_users",
       "new_users_signups",
@@ -249,6 +271,7 @@
       "creator_count",
       "creator_profile_views",
       "creator_follows",
+      "drops_live",
       "drop_opens",
       "unlocks",
       "unwraps",
@@ -273,17 +296,12 @@
       "search_queries",
       "search_zero_results_clicks",
       "support_account_actions",
-      "journey_funnel",
-      "realtime_health"
-    ],
-    "blocked": [],
-    "runtimeEvidenceRequired": [
       "error_rate_4xx",
+      "journey_funnel",
+      "realtime_health",
       "debug_backlog"
     ],
-    "adminTruthSourceRequired": [
-      "drops_live"
-    ],
+    "adminTruthSourceRequired": [],
     "externalRequired": [
       "payment_approvals",
       "payment_failures",
@@ -291,12 +309,46 @@
       "cost_risk"
     ],
     "formalEvidenceRequired": [
+      "traffic_overview",
+      "active_users",
+      "new_users_signups",
+      "returning_users",
+      "guest_to_user_handoff",
+      "creator_count",
+      "creator_profile_views",
+      "creator_follows",
       "drops_live",
+      "drop_opens",
+      "unlocks",
+      "unwraps",
+      "watch_time",
+      "completion_rate",
+      "wallet_opens",
+      "package_selections",
+      "checkout_starts",
       "payment_approvals",
       "payment_failures",
       "gumdrop_balances",
+      "reward_gd_grants",
+      "task_starts",
+      "task_completions",
+      "task_rewards",
+      "chat_opens",
+      "chat_messages",
+      "chat_blocks_errors",
+      "notification_prompts",
+      "notification_tokens",
+      "notification_intents",
+      "auth_attempts_failures",
+      "session_restores",
+      "media_uploads_access_blocks",
+      "search_queries",
+      "search_zero_results_clicks",
+      "support_account_actions",
       "error_rate_4xx",
       "cost_risk",
+      "journey_funnel",
+      "realtime_health",
       "debug_backlog"
     ]
   },
@@ -309,19 +361,60 @@
       "cost_risk"
     ],
     "blockedPanelIds": [
+      "traffic_overview",
+      "active_users",
+      "new_users_signups",
+      "returning_users",
+      "guest_to_user_handoff",
+      "creator_count",
+      "creator_profile_views",
+      "creator_follows",
       "drops_live",
-      "error_rate_4xx",
-      "debug_backlog"
+      "drop_opens"
     ],
-    "blockedPanelCount": 3
+    "blockedPanelCount": 37
   },
   "betaGateImpact": {
     "betaExitReadyBefore": false,
     "betaExitReadyAfter": false,
     "remainingBlockers": [
+      "traffic_overview: deployed route evidence required",
+      "active_users: deployed route evidence required",
+      "new_users_signups: deployed route evidence required",
+      "returning_users: deployed route evidence required",
+      "guest_to_user_handoff: deployed route evidence required",
+      "creator_count: deployed route evidence required",
+      "creator_profile_views: deployed route evidence required",
+      "creator_follows: deployed route evidence required",
+      "drops_live: deployed route evidence required",
+      "drop_opens: deployed route evidence required",
+      "unlocks: deployed route evidence required",
+      "unwraps: deployed route evidence required",
+      "watch_time: deployed route evidence required",
+      "completion_rate: deployed route evidence required",
+      "wallet_opens: deployed route evidence required",
+      "package_selections: deployed route evidence required",
+      "checkout_starts: deployed route evidence required",
+      "reward_gd_grants: deployed route evidence required",
+      "task_starts: deployed route evidence required",
+      "task_completions: deployed route evidence required",
+      "task_rewards: deployed route evidence required",
+      "chat_opens: deployed route evidence required",
+      "chat_messages: deployed route evidence required",
+      "chat_blocks_errors: deployed route evidence required",
+      "notification_prompts: deployed route evidence required",
+      "notification_tokens: deployed route evidence required",
+      "notification_intents: deployed route evidence required",
+      "auth_attempts_failures: deployed route evidence required",
+      "session_restores: deployed route evidence required",
+      "media_uploads_access_blocks: deployed route evidence required",
+      "search_queries: deployed route evidence required",
+      "search_zero_results_clicks: deployed route evidence required",
+      "support_account_actions: deployed route evidence required",
       "error_rate_4xx: deployed route evidence required",
+      "journey_funnel: deployed route evidence required",
+      "realtime_health: deployed route evidence required",
       "debug_backlog: deployed route evidence required",
-      "drops_live: admin source activity sample required",
       "payment_approvals: external source required",
       "payment_failures: external source required",
       "gumdrop_balances: external source required",
@@ -334,25 +427,30 @@
     "hydrated": 0,
     "stale": 0,
     "collecting": 0,
-    "sourceReadyWaitingForActivity": 9,
-    "notObservedButExpected": 25,
+    "sourceReadyWaitingForActivity": 0,
+    "notObservedButExpected": 0,
     "sourceMissing": 0,
     "materializerMissing": 0,
     "bridgeMissing": 0,
-    "runtimeEvidenceRequired": 2,
-    "adminTruthSourceRequired": 1,
+    "runtimeEvidenceRequired": 37,
+    "adminTruthSourceRequired": 0,
     "providerGated": 2,
-    "externalRequired": 4,
+    "protectedPaymentRequired": 1,
+    "externalRequired": 1,
+    "permissionBlocked": 0,
     "hiddenByRole": 0,
     "broken": 0,
     "topNextActions": [
-      "Drops live: Produce a redacted admin source activity sample for creator drop manager telemetry and canonical creator drop route facts.",
-      "Payment approvals: Produce redacted source activity or external evidence for server purchase verification facts.",
-      "Payment failures: Produce redacted source activity or external evidence for payment failure telemetry.",
-      "GumDrop balances: Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider evidence.",
-      "Error rate/4xx: Produce bounded route/debug runtime evidence for admin debug summary.",
-      "Cost risk: Produce redacted source activity or external evidence for cost guard summaries plus external billing review.",
-      "Debug backlog: Produce bounded route/debug runtime evidence for debug backlog summary."
+      "Traffic overview: Produce bounded route/debug runtime evidence for analytics_event_facts.",
+      "Active users: Produce bounded route/debug runtime evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time.",
+      "New users/signups: Produce bounded route/debug runtime evidence for first-party auth runtime telemetry event envelopes; no raw password, email, or Firebase token fields.",
+      "Returning users: Produce bounded route/debug runtime evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time.",
+      "Guest-to-user handoff: Produce bounded route/debug runtime evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time.",
+      "Creator count: Produce bounded route/debug runtime evidence for settings surfaces and settings route telemetry.",
+      "Creator profile views: Produce bounded route/debug runtime evidence for analytics_event_facts and creator relationship funnel telemetry.",
+      "Creator follows: Produce bounded route/debug runtime evidence for creator relationship facts and relationship route telemetry.",
+      "Drops live: Produce bounded route/debug runtime evidence for creator drop manager telemetry and canonical creator drop route facts.",
+      "Drop opens: Produce bounded route/debug runtime evidence for analytics_event_facts."
     ]
   },
   "dirtyFileSummary": {

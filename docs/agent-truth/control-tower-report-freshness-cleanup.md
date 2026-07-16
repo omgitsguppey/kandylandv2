@@ -1,15 +1,14 @@
 # Control Tower Report Freshness Cleanup
 
-Generated Control Tower cleanup evidence. Formal gates remain visible but are not source-code bugs.
+Generated Control Tower cleanup evidence. Typed evidence gates remain visible but are not source-code bugs.
 
 ```json
 {
-  "generatedAtUtc": "2026-06-19T05:23:47.922Z",
+  "generatedAtUtc": "2026-07-16T04:29:59.163Z",
   "reportKey": "control-tower-report-freshness-cleanup",
-  "currentHead": "2f9486ad65b037994ac7c6da4e9ddeb2cca63f95",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "requiredReports": 11,
   "staleReports": [
-    "agent/state/public-beta-score.generated.json",
     "agent/state/current-beta-exit-status.generated.json",
     "agent/state/admin-truth-sample-evidence.generated.json",
     "agent/state/final-launch-readiness-report.generated.json",
@@ -29,7 +28,6 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
     "agent/state/formal-evidence-bridge.generated.json"
   ],
   "staleAndRefreshable": [
-    "agent/state/public-beta-score.generated.json",
     "agent/state/current-beta-exit-status.generated.json",
     "agent/state/final-launch-readiness-report.generated.json",
     "agent/state/telemetry-parity-score.generated.json",
@@ -37,7 +35,9 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
     "agent/state/debug-operator-cockpit.generated.json",
     "agent/state/score-80-path-lock.generated.json"
   ],
-  "refreshedCurrent": [],
+  "refreshedCurrent": [
+    "agent/state/public-beta-score.generated.json"
+  ],
   "supersededRetired": [
     "agent/state/admin-truth-sample-evidence.generated.json",
     "agent/state/final-launch-readiness-report.generated.json",
@@ -45,15 +45,14 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
     "agent/state/score-80-path-lock.generated.json"
   ],
   "sourceBugArtifacts": [
-    "agent/state/public-beta-score.generated.json",
     "agent/state/current-beta-exit-status.generated.json",
     "agent/state/final-launch-readiness-report.generated.json",
     "agent/state/debug-cockpit-batch6-cleanup.generated.json",
     "agent/state/debug-operator-cockpit.generated.json"
   ],
-  "reportAverageDisplay": "Report evidence summary includes current/stale split: 0 current, 11 stale, 0 missing.",
-  "staleReportsBefore": 11,
-  "staleReportsAfter": 7,
+  "reportAverageDisplay": "Report evidence summary includes current/stale split: 1 current, 10 stale, 0 missing.",
+  "staleReportsBefore": 10,
+  "staleReportsAfter": 6,
   "requiredReportsBefore": 6,
   "requiredReportsAfter": 11
 }

@@ -5,8 +5,8 @@ Validator: `npm run check:release-rollback-incident-readiness`
 
 ## Summary
 
-- Generated: `2026-07-14T03:21:16.558Z`
-- Current head: `dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa`
+- Generated: `2026-07-16T04:27:13.279Z`
+- Current head: `621afada2aea0ef269a02c7ac68d4424bfce5214`
 - Status: `pass`
 
 ## Report
@@ -14,40 +14,40 @@ Validator: `npm run check:release-rollback-incident-readiness`
 ```json
 {
   "reportKey": "release-rollback-incident-readiness",
-  "generatedAtUtc": "2026-07-14T03:21:16.558Z",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "generatedAtUtc": "2026-07-16T04:27:13.279Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "releaseVersion": "1.6.15",
-  "readinessStatus": "source_ready_external_evidence_blocked",
+  "readinessStatus": "source_failure",
   "migrationStatus": "no_migration_detected",
   "currentHeadEvidence": {
     "gateId": "current-head-evidence",
     "label": "Current-head release artifacts",
     "evidenceKind": "generated_snapshot",
-    "status": "stale_evidence",
+    "status": "passed",
     "artifactPath": "agent/state/current-head-release-reconciliation.generated.json",
-    "currentHead": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-    "sourceCommit": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-    "generatedAtUtc": "2026-05-29T17:21:06.618Z",
+    "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+    "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+    "generatedAtUtc": "2026-07-14T10:38:51.888Z",
     "owner": "release readiness",
     "validator": "npm run check:current-head-release-reconciliation",
-    "nextExactAction": "Refresh current-head release artifacts through their owning validators before release signoff.",
+    "nextExactAction": "Keep current-head release artifacts fresh after this commit.",
     "doesNotProve": "Current-head source artifacts do not prove deployed runtime or provider health.",
-    "blocking": true
+    "blocking": false
   },
   "releaseNotesEvidence": {
     "gateId": "release-notes-integrity",
     "label": "Release notes integrity",
     "evidenceKind": "source",
-    "status": "passed",
+    "status": "source_failed",
     "artifactPath": "agent/state/release-notes-integrity.generated.json",
-    "currentHead": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-    "sourceCommit": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-    "generatedAtUtc": "2026-05-29T17:22:39.301Z",
+    "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+    "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+    "generatedAtUtc": "2026-07-14T16:07:07.315Z",
     "owner": "release notes",
     "validator": "npm run check:release-notes-integrity",
     "nextExactAction": "Keep public release notes free of beta-exit, provider-proof, and runtime-proof claims.",
     "doesNotProve": "Release notes do not prove deployed route health, provider-backed site activity, or rollback success.",
-    "blocking": false
+    "blocking": true
   },
   "envContractEvidence": {
     "gateId": "env-contract",
@@ -55,7 +55,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
     "evidenceKind": "source",
     "status": "passed",
     "artifactPath": "agent/state/config-env-contract.generated.json",
-    "generatedAtUtc": "2026-06-09T00:43:13.958Z",
+    "generatedAtUtc": "2026-07-14T16:06:49.856Z",
     "owner": "config/env contract",
     "validator": "npm run check:config-env-contract",
     "nextExactAction": "Keep env contract registered; provider presence remains external evidence.",
@@ -125,31 +125,31 @@ Validator: `npm run check:release-rollback-incident-readiness`
       "gateId": "current-head-evidence",
       "label": "Current-head release artifacts",
       "evidenceKind": "generated_snapshot",
-      "status": "stale_evidence",
+      "status": "passed",
       "artifactPath": "agent/state/current-head-release-reconciliation.generated.json",
-      "currentHead": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-      "sourceCommit": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-      "generatedAtUtc": "2026-05-29T17:21:06.618Z",
+      "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+      "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+      "generatedAtUtc": "2026-07-14T10:38:51.888Z",
       "owner": "release readiness",
       "validator": "npm run check:current-head-release-reconciliation",
-      "nextExactAction": "Refresh current-head release artifacts through their owning validators before release signoff.",
+      "nextExactAction": "Keep current-head release artifacts fresh after this commit.",
       "doesNotProve": "Current-head source artifacts do not prove deployed runtime or provider health.",
-      "blocking": true
+      "blocking": false
     },
     {
       "gateId": "release-notes-integrity",
       "label": "Release notes integrity",
       "evidenceKind": "source",
-      "status": "passed",
+      "status": "source_failed",
       "artifactPath": "agent/state/release-notes-integrity.generated.json",
-      "currentHead": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-      "sourceCommit": "f08ba9f972e549d051481cd3df0b36a5180771ad",
-      "generatedAtUtc": "2026-05-29T17:22:39.301Z",
+      "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+      "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+      "generatedAtUtc": "2026-07-14T16:07:07.315Z",
       "owner": "release notes",
       "validator": "npm run check:release-notes-integrity",
       "nextExactAction": "Keep public release notes free of beta-exit, provider-proof, and runtime-proof claims.",
       "doesNotProve": "Release notes do not prove deployed route health, provider-backed site activity, or rollback success.",
-      "blocking": false
+      "blocking": true
     },
     {
       "gateId": "env-contract",
@@ -157,7 +157,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
       "evidenceKind": "source",
       "status": "passed",
       "artifactPath": "agent/state/config-env-contract.generated.json",
-      "generatedAtUtc": "2026-06-09T00:43:13.958Z",
+      "generatedAtUtc": "2026-07-14T16:06:49.856Z",
       "owner": "config/env contract",
       "validator": "npm run check:config-env-contract",
       "nextExactAction": "Keep env contract registered; provider presence remains external evidence.",
@@ -304,6 +304,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
   ],
   "validationFailures": [],
   "status": "pass",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "evidenceClass": "source_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,

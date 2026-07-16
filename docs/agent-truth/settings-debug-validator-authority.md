@@ -1,10 +1,10 @@
 # Settings Debug Validator Authority
 
-Generated: 2026-07-14T16:10:24.557Z
+Generated: 2026-07-16T04:27:41.227Z
 
 ## Status
 
-failed
+passed
 
 ## Settings Health Lane
 
@@ -24,12 +24,14 @@ failed
 
 ## Superseded Validators
 
+- `check:settings-health-status-cleanup` superseded by `check:settings-debug-validator-authority`
 - `check:settings-creator-dashboard-split` superseded by `check:settings-connection-parity`, `check:settings-route-alias-cleanup`
 
 ## Deprecated Artifacts
 
+- `agent/state/settings-health-status-cleanup.generated.json` -> excluded_from_settings_health_score
 - `agent/state/settings-creator-dashboard-split.generated.json` -> excluded_from_settings_health_score
 
 ## Failures
 
-- protected surfaces changed: src/app/api/chat/attachments/cancel/route.ts, src/app/api/chat/attachments/complete/route.ts, src/app/api/chat/attachments/prepare/route.ts, src/app/api/chat/threads/[threadId]/messages/route.ts, src/app/api/paypal/capture/route.ts, src/app/api/paypal/create/route.ts, src/app/api/wallet/packages/route.ts, src/components/Chat/ChatExperience.tsx, src/components/Navigation/NotificationBell.tsx, src/components/Navigation/ProfileDropdown.tsx
+- None

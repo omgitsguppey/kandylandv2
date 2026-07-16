@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-07-02T15:09:07.296Z
-Current head: 25e5a1c71fad2d2f974c4de44c5079a4a7cce1de
+Generated: 2026-07-16T04:28:11.433Z
+Current head: 621afada2aea0ef269a02c7ac68d4424bfce5214
 Status: source_agreement_failed
 
 ## Source Order
@@ -15,8 +15,8 @@ Status: source_agreement_failed
 - Launch coverage input: in_process_source_agreement_detail
 - Launch coverage input mode: fixture_only_local_window
 - Usable launch coverage input found: no
-- Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json
-- Candidate input states: agent/evidence/launch-analytics/launch-history-coverage.local.json=missing; agent/evidence/launch-analytics/launch-history-coverage.export.json=missing; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json=present_without_launch_history_coverage
+- Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.redacted.json
+- Candidate input states: agent/evidence/launch-analytics/launch-history-coverage.local.json=missing; agent/evidence/launch-analytics/launch-history-coverage.export.json=missing; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.redacted.json=present_without_launch_history_coverage
 - Panel hydration input: agent/state/analytics-panel-hydration.generated.json
 - GA4 read mode: generated/local evidence only; no provider call performed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed
@@ -49,15 +49,15 @@ Status: source_agreement_failed
 
 ## Launch Coverage
 
-- Formal range: 2026-02-12 to 2026-07-02
+- Formal range: 2026-02-12 to 2026-07-16
 - Formal range state: formal_proof_missing
-- Formal expected days: 141
+- Formal expected days: 155
 - Local evidence days: 3
 - Approved coverage days: 0
-- Formal day rows: 141
-- Unproven formal days: 138
+- Formal day rows: 155
+- Unproven formal days: 152
 - Local evidence ranges: 2026-02-12..2026-02-14
-- Unproven formal ranges: 2026-02-12..2026-07-02
+- Unproven formal ranges: 2026-02-12..2026-07-16
 - Formal range reason: Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.
 - Range: 2026-02-12 to 2026-02-14
 - Range proof: fixture_only_local_window
@@ -103,7 +103,7 @@ Status: source_agreement_failed
 - 2026-02-23: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
 - 2026-02-24: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
 - 2026-02-25: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 127 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
+- 141 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
 
 ## Daily Recovery Rows
 
@@ -154,14 +154,14 @@ Status: source_agreement_failed
 - Stale legacy report inputs: none
 - Historical evidence-only inputs: none
 - Boundary: Legacy, historical snapshot, and GA4 evidence can explain gaps or seed manual review only. They cannot overwrite analytics_event_facts, wallet, GumDrop, unlock, purchase, creator revenue, or person metric truth.
-  - analytics_event_facts/fixture_evt_drop_click: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
-  - analytics_guest_batches/fixture_guest_batch: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
-  - transactions/fixture_txn_completed: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
-  - unlocks/fixture_unlock: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
-  - daily_task_events/fixture_task_complete: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
-  - task_lifecycle_logs/fixture_task_start: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - analytics_event_facts/fixture_evt_drop_click: weak; confidence=weak; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - analytics_guest_batches/fixture_guest_batch: weak; confidence=weak; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - transactions/fixture_txn_completed: weak; confidence=weak; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - unlocks/fixture_unlock: weak; confidence=weak; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - daily_task_events/fixture_task_complete: weak; confidence=weak; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - task_lifecycle_logs/fixture_task_start: weak; confidence=weak; currentTotalsEligible=no; action=manual_review_identity_bridge
   - notifications/fixture_notification_read: unknown; confidence=unknown; currentTotalsEligible=no; action=archive_as_debug_evidence
-  - onboarding_steps/fixture_onboarding_step: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - onboarding_steps/fixture_onboarding_step: weak; confidence=weak; currentTotalsEligible=no; action=manual_review_identity_bridge
   - 2 additional legacy rows omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
 - Legacy next steps: Refresh the legacy history reconciliation artifacts when legacy mapping files change. | Review weak/unknown purgatory rows with identity bridge evidence before any dry-run import candidate is promoted. | Keep currentTotalsEligibleCount and productTruthEligibleCount at 0 until strict first-party corroboration exists.
 
@@ -171,8 +171,8 @@ Status: source_agreement_failed
 - Source missing: 0
 - Materializer missing: 0
 - Bridge missing: 0
-- Runtime evidence required: 2
-- External evidence required: 4
+- Runtime evidence required: 37
+- External evidence required: 1
 - Source-agreement blocked consumers: 9
 - Source-agreement source missing: 3
 - Source-agreement second-source only: 3

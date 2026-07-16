@@ -1,6 +1,6 @@
 # Creator Discovery Relationship Funnel
 
-Generated: 2026-06-11T19:44:10.025Z
+Generated: 2026-07-16T04:25:41.030Z
 
 Status: pass
 
@@ -60,14 +60,7 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
-| agent/state/creator-discovery-relationship-funnel.generated.json | current_generated_artifact_to_commit |
-| docs/agent-truth/creator-discovery-relationship-funnel.md | documentation_artifact_expected |
-| scripts/agent/validate-creator-discovery-relationship-funnel.ts | validator_artifact_expected |
-| src/app/api/creator/relationships/route.ts | real_source_change_needs_review |
-| src/app/api/user/follow/route.ts | real_source_change_needs_review |
-| src/app/creators/[username]/CreatorProfileClient.tsx | real_source_change_needs_review |
-| src/components/CreatorDiscoveryRail.tsx | real_source_change_needs_review |
-| tests/unit/creator-discovery-rail.spec.tsx | test_artifact_expected |
+| none | none |
 
 ## Validation Failures
 

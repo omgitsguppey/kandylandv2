@@ -1,7 +1,14 @@
 {
   "reportKey": "auth-readiness-lock",
-  "generatedAtUtc": "2026-05-24T16:27:50.940Z",
-  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
+  "generatedAtUtc": "2026-07-16T04:24:34.759Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "status": "pass",
+  "passed": true,
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
   "productionReadsRequired": false,
   "providerCallsRequired": false,
   "deployRequired": false,
@@ -135,69 +142,69 @@
     "nextAction": "Run npm run check:person-metrics-hydration and fix auth_runtime_events hydration."
   },
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 63.18
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 63.18
   },
   "scoreDimensions": {
     "sourceHealth": {
+      "before": 83.6,
+      "after": 83.6,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth-readiness-specific score action required."
+    },
+    "runtimeHealth": {
+      "before": 50.22,
+      "after": 50.22,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
+    },
+    "evidenceCompleteness": {
+      "before": 45,
+      "after": 45,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
+    },
+    "freshness": {
+      "before": 59.38,
+      "after": 59.38,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
+    },
+    "costRisk": {
       "before": 92.5,
       "after": 92.5,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth-readiness-specific score action required."
     },
-    "runtimeHealth": {
-      "before": 84.2,
-      "after": 84.2,
-      "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No auth-readiness-specific score action required."
-    },
-    "evidenceCompleteness": {
-      "before": 69.6,
-      "after": 69.6,
-      "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
-    },
-    "freshness": {
-      "before": 83.75,
-      "after": 83.75,
-      "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No auth-readiness-specific score action required."
-    },
-    "costRisk": {
-      "before": 42,
-      "after": 42,
-      "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
-    },
     "regressionRisk": {
-      "before": 86,
-      "after": 86,
+      "before": 94,
+      "after": 94,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth-readiness-specific score action required."
     },
     "overallHealthScore": {
-      "before": 79.25,
-      "after": 79.25,
+      "before": 63.18,
+      "after": 63.18,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
@@ -220,19 +227,11 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/admin-summary-lane-status-classifier.generated.json",
+      "path": "agent/state/auth-persistence-stability.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/auth-lane-status-cleanup.generated.json",
+      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -240,71 +239,23 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
+      "path": "agent/state/auth-runtime-telemetry.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "path": "agent/state/email-password-auth-refactor.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/daily-task-lane-status-cleanup.generated.json",
+      "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/notification-lane-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/notification-pwa-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/settings-debug-validator-authority.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/settings-health-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/testing-coverage-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/user-management-refactor.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/user-management-status-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/admin-summary-lane-status-classifier.md",
+      "path": "docs/agent-truth/auth-persistence-stability.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/auth-lane-status-cleanup.md",
+      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -312,176 +263,12 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "path": "docs/agent-truth/auth-runtime-telemetry.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "path": "docs/agent-truth/email-password-auth-refactor.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lane-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-cockpit-batch4-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-lane-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-pwa-score-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/settings-debug-validator-authority.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/settings-health-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/testing-coverage-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-management-status-truth.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-admin-summary-lane-status-classifier.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-lane-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-readiness-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-daily-task-lane-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-debug-cockpit-batch4-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-notification-lane-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-settings-health-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-testing-coverage-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-user-management-status-truth.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/admin/user-management-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/admin-summary-lane-status-classifier.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/admin-summary-lane-status-classifier.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/auth-lane-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/daily-task-lane-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-cockpit-batch4-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/notification-lane-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/settings-health-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/testing-coverage-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/user-management-status-truth.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "oldLogicClassification": [

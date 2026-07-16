@@ -1,7 +1,11 @@
 {
   "reportKey": "media-discovery-score-lock",
-  "generatedAtUtc": "2026-07-05T00:50:11.391Z",
-  "currentHead": "6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a",
+  "generatedAtUtc": "2026-07-16T04:25:49.405Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "status": "pass",
+  "passed": true,
+  "canClearSourceGate": true,
   "mediaUploadStatus": "pass",
   "privateMediaAccessStatus": "pass",
   "creatorDiscoveryStatus": "pass",
@@ -102,8 +106,8 @@
     "scripts/agent/validate-search-discovery-cost.ts": "pass",
     "tests/unit/search-discovery-cost.spec.ts": "pass"
   },
-  "scoreBefore": 76.56,
-  "scoreAfter": 76.56,
+  "scoreBefore": 63.18,
+  "scoreAfter": 63.18,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -123,8 +127,40 @@
   ],
   "dirtyFiles": [
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/creator-discovery-relationship-funnel.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/media-upload-lifecycle.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/private-media-access.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/search-discovery-cost.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-discovery-relationship-funnel.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/media-upload-lifecycle.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/private-media-access.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/search-discovery-cost.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
   "validationFailures": []

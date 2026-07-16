@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-16T21:52:44.513Z",
+  "generatedAtUtc": "2026-07-16T04:27:43.366Z",
   "reportKey": "stale-client-preferences-cleanup",
   "status": "pass",
-  "currentHead": "074a3aaf434f7dc15c541caa14d51ca09331734e",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "classification": {
     "canonicalBackendBacked": [
       "guest_privacy_consent_snapshot",
@@ -29,12 +29,14 @@
     "sourceOfTruth": "src/lib/settings/client-preferences-contract.ts"
   },
   "changedFiles": [
-    "agent/state/stale-client-preferences-cleanup.generated.json",
-    "docs/agent-truth/stale-client-preferences-cleanup.md",
-    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-    "tests/unit/admin-analytics-audience-mobile.spec.ts",
-    "tests/unit/stale-client-preferences-cleanup.spec.ts"
+    "agent/state/account-settings-delete-flow.generated.json",
+    "agent/state/settings-connection-parity.generated.json",
+    "agent/state/settings-debug-validator-authority.generated.json",
+    "agent/state/settings-route-alias-cleanup.generated.json",
+    "docs/agent-truth/account-settings-delete-flow.md",
+    "docs/agent-truth/settings-connection-parity.md",
+    "docs/agent-truth/settings-debug-validator-authority.md",
+    "docs/agent-truth/settings-route-alias-cleanup.md"
   ],
   "protectedSurfaceChanges": [],
   "checks": {

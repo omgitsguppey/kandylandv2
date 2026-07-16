@@ -1,7 +1,7 @@
 {
   "reportKey": "bug-report-truth-terminal-state",
-  "generatedAtUtc": "2026-06-11T14:16:26.589Z",
-  "currentHead": "aa4c3fba304c8dd9ceb18a6db2ba015931fab937",
+  "generatedAtUtc": "2026-07-16T04:27:22.714Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "loadedEmpty": {
     "status": "loaded_empty",
     "reportCount": 0,
@@ -40,6 +40,7 @@
   },
   "validationFailures": [],
   "status": "pass",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "evidenceClass": "source_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -47,11 +48,11 @@
   "canClearAdminTruthGate": false,
   "nextExactSteps": [
     "Run npm run check:bug-report-truth-terminal-state after touching this debug/source validation lane.",
-    "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates."
+    "Use deployed route evidence and redacted admin source activity samples separately before clearing typed evidence gates."
   ],
   "doesNotProve": [
     "Does not prove live bug-report volume.",
-    "Does not prove provider/runtime behavior.",
-    "Does not prove current admin truth samples."
+    "Does not prove provider-backed site activity or deployed route behavior.",
+    "Does not prove current admin source activity samples."
   ]
 }

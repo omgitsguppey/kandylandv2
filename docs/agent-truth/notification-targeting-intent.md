@@ -1,7 +1,7 @@
 # Notification Targeting Intent
 
-Generated: 2026-05-24T07:36:20.914Z
-Current head: 8feac347
+Generated: 2026-07-16T04:26:07.357Z
+Current head: 621afada2aea0ef269a02c7ac68d4424bfce5214
 Status: pass
 
 ## Contract
@@ -40,49 +40,18 @@ Status: pass
 
 ## Score Impact
 
-- sourceHealth: before=92.5; after=92.5; Notification targeting now has explicit intent contracts for drops, broadcasts, chat, tasks, Fan Pass, wallet, system, and support notices.
-- runtimeHealth: before=84.2; after=84.2; Provider delivery remains unclaimed; this phase validates dry-run delivery intent only.
-- evidenceCompleteness: before=69.6; after=69.6; Targeting rules expose opt-out, missing-token, consent, audience-source, and dry-run eligibility states to debug evidence.
-- freshness: before=83.75; after=83.75; Notification targeting intent report is regenerated from current source.
-- costRisk: before=42; after=42; No production fanout, provider send, or push test execution is performed.
-- regressionRisk: before=86; after=86; Unit and source validators cover sender exclusion, creator audience settings, task eligibility, opt-out, token, consent, dedupe, and debug mapping.
-- overallHealthScore: before=79.25; after=79.25; Improves notification readiness evidence without clearing formal runtime/provider gates.
+- sourceHealth: before=83.6; after=83.6; Notification targeting now has explicit intent contracts for drops, broadcasts, chat, tasks, Fan Pass, wallet, system, and support notices.
+- runtimeHealth: before=50.22; after=50.22; Provider delivery remains unclaimed; this phase validates dry-run delivery intent only.
+- evidenceCompleteness: before=45; after=45; Targeting rules expose opt-out, missing-token, consent, audience-source, and dry-run eligibility states to debug evidence.
+- freshness: before=59.38; after=59.38; Notification targeting intent report is regenerated from current source.
+- costRisk: before=92.5; after=92.5; No production fanout, provider send, or push test execution is performed.
+- regressionRisk: before=94; after=94; Unit and source validators cover sender exclusion, creator audience settings, task eligibility, opt-out, token, consent, dedupe, and debug mapping.
+- overallHealthScore: before=63.18; after=63.18; Improves notification readiness evidence without clearing formal runtime/provider gates.
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/notification-permission-lifecycle.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/notification-pwa-score-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/notification-targeting-intent.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/push-token-registration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/pwa-service-worker-safety.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-tracking-simplification.md: release_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: release_artifact_expected
 - docs/agent-truth/notification-permission-lifecycle.md: release_artifact_expected
-- docs/agent-truth/notification-pwa-score-lock.md: release_artifact_expected
-- docs/agent-truth/notification-targeting-intent.md: release_artifact_expected
-- docs/agent-truth/person-metrics-hydration.md: release_artifact_expected
-- docs/agent-truth/push-token-registration.md: release_artifact_expected
-- docs/agent-truth/pwa-service-worker-safety.md: release_artifact_expected
-- docs/agent-truth/telemetry-trigger-test-matrix.md: release_artifact_expected
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-notification-permission-lifecycle.ts: validator_artifact_expected
-- scripts/agent/validate-notification-pwa-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-notification-targeting-intent.ts: validator_artifact_expected
-- scripts/agent/validate-push-token-registration.ts: validator_artifact_expected
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/notification-pwa-score-lock.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

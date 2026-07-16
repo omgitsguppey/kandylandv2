@@ -4,7 +4,7 @@ Status: source-only debug registry. No production reads, live backfills, payment
 
 ## Summary
 
-- Overall status: fail
+- Overall status: pass
 - Overall score: 80/100
 - Metrics tracked: 14
 - Fully linked metrics: 12

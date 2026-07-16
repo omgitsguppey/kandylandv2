@@ -4,26 +4,31 @@ Generated Control Tower cleanup evidence. Typed evidence gates remain visible bu
 
 ```json
 {
-  "generatedAtUtc": "2026-06-21T19:44:51.107Z",
+  "generatedAtUtc": "2026-07-16T04:30:03.436Z",
   "reportKey": "debug-cockpit-batch7-control-tower-cleanup",
-  "currentHead": "5e8e46d860bb6e85f12e764180b5fb6577f36a21",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "canonicalScoreBefore": {
     "score": 79,
     "status": "stale evidence",
     "source": "stale control tower display"
   },
   "canonicalScoreAfter": {
-    "score": 84,
-    "status": "Source evidence required",
+    "artifactPresent": true,
+    "artifactHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+    "headMatchesCurrent": true,
+    "score": 52.98,
+    "status": "Stale evidence",
     "source": "agent/state/public-beta-score.generated.json"
   },
   "evidenceScoreBefore": 65.7,
-  "evidenceScoreAfter": 67.04,
+  "evidenceScoreAfter": 46,
   "requiredReportsBefore": 6,
   "requiredReportsAfter": 11,
-  "staleReportsBefore": 11,
-  "staleReportsAfter": 7,
-  "refreshedReports": [],
+  "staleReportsBefore": 10,
+  "staleReportsAfter": 6,
+  "refreshedReports": [
+    "agent/state/public-beta-score.generated.json"
+  ],
   "retiredReports": [
     "agent/state/admin-truth-sample-evidence.generated.json",
     "agent/state/final-launch-readiness-report.generated.json",
@@ -68,13 +73,13 @@ Generated Control Tower cleanup evidence. Typed evidence gates remain visible bu
     "superseded-score-80-path-lock"
   ],
   "scoreDimensions": {
-    "sourceHealth": 97.2,
-    "runtimeHealth": 91.11,
-    "evidenceCompleteness": 95.2,
-    "freshness": 91.88,
-    "costRisk": 42,
-    "regressionRisk": 94,
-    "overallHealthScore": 89.31
+    "sourceHealth": 97.9,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 72.93,
+    "costRisk": 79.5,
+    "regressionRisk": 100,
+    "overallHealthScore": 52.98
   },
   "dirtyFileClassifications": [],
   "remainingGaps": [

@@ -1,8 +1,13 @@
 {
-  "generatedAt": "2026-07-14T07:07:51.043Z",
-  "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
-  "overallStatus": "fail",
+  "reportKey": "monolith-orphan-metric-registry",
+  "generatedAt": "2026-07-16T04:23:21.071Z",
+  "generatedAtUtc": "2026-07-16T04:23:21.071Z",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "status": "pass",
+  "overallStatus": "pass",
+  "passed": true,
+  "canClearSourceGate": true,
   "overallScore": 80,
   "metricSummary": {
     "total": 14,
@@ -103,9 +108,7 @@
       ]
     }
   ],
-  "validationFailures": [
-    "Protected chat/nav/payment/GumDrop files touched: agent/state/wallet-packages-route-repair.generated.json, scripts/agent/validate-payment-unlock-security.ts, src/app/api/paypal/capture/route.ts, src/app/api/paypal/create/route.ts, src/app/api/wallet/packages/route.ts, src/components/Chat/ChatExperience.tsx, src/lib/server/paypal.ts, tests/unit/paypal-capture-route.spec.ts, tests/unit/wallet-packages-route-repair.spec.ts"
-  ],
+  "validationFailures": [],
   "metricRegistry": [
     {
       "metricId": "page_views",

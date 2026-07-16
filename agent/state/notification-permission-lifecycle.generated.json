@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-07-14T06:24:27.565Z",
-  "currentHead": "dc4dad82c",
+  "generatedAtUtc": "2026-07-16T04:26:06.414Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "productionReadsRequired": false,
   "deployRequired": false,
   "evidenceKind": "source_only",
   "livePushSmoke": "manual_external_required",
-  "dirtyWorktreeProofLimited": true,
+  "dirtyWorktreeProofLimited": false,
   "promptLifecycleEvents": [
     "notification_prompt_eligible",
     "notification_prompt_viewed",
@@ -43,22 +43,22 @@
     "rawDetailsCollapsedByDefault": true
   },
   "scoreBefore": {
-    "sourceHealth": 95.5,
-    "runtimeHealth": 70.22,
-    "evidenceCompleteness": 80,
-    "freshness": 92.5,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
     "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 83.38
+    "overallHealthScore": 63.18
   },
   "scoreAfter": {
-    "sourceHealth": 95.5,
-    "runtimeHealth": 70.22,
-    "evidenceCompleteness": 80,
-    "freshness": 92.5,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
     "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 83.38
+    "overallHealthScore": 63.18
   },
   "scoreDimensionImpact": {
     "sourceHealth": "Notification prompt lifecycle has explicit source contract, telemetry events, and validator coverage.",
@@ -69,110 +69,9 @@
     "regressionRisk": "Unit and validator checks protect no-auto-prompt, cooldown, telemetry mapping, debug lane, and protected-surface boundaries.",
     "overallHealthScore": "Moves notification readiness evidence without clearing formal runtime/provider gates."
   },
-  "dirtyFilesScannedCount": 390,
-  "dirtyFilesOmittedCount": 365,
-  "dirtyFiles": [
-    {
-      "path": ".env.example",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/ui-surface-coverage.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/4xx-cost-guardrails.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/account-settings-delete-flow.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/account-settings-mobile-padding.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/admin-truth-replacement.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-ingest-firestore-closure.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/backend-route-inventory.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/backend-service-ownership.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/chat-composer-modal-lift.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/chat-presence-typing.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/codebase-hardening.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/config-env-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/config-infra-gut-consolidation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/config-infra-memory-writeback.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/consent-tracking-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/content-protection-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "FULL_SCALE_CODEBASE_AUDIT.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "README.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "REPO_MEMORY_LEDGER.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/app/api/notifications/push-token/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/api/notifications/route.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/notifications-route.spec.ts",
-      "classification": "unsafe_unknown"
-    }
-  ],
+  "dirtyFilesScannedCount": 0,
+  "dirtyFilesOmittedCount": 0,
+  "dirtyFiles": [],
   "oldLogicReferences": [
     {
       "reference": "aria-busy",
@@ -180,13 +79,12 @@
       "reason": "Loading state accessibility remains required on the permission CTA."
     }
   ],
-  "validationFailures": [
-    "notification proof files changed without classification."
-  ],
+  "validationFailures": [],
   "reportKey": "notification-permission-lifecycle",
-  "status": "fail",
+  "status": "pass",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "evidenceClass": "source_snapshot",
-  "canClearSourceGate": false,
+  "canClearSourceGate": true,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,

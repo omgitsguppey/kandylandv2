@@ -168,8 +168,8 @@
     ]
   },
   "reportKey": "notification-return-loop-audit",
-  "generatedAtUtc": "2026-06-09T01:08:18.030Z",
-  "currentHead": "00b18bf223507273fde4a53c036a415414bc73a2",
+  "generatedAtUtc": "2026-07-16T04:26:12.913Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "status": "pass",
   "sourceEvidence": {
     "evidenceKind": "source_only",
@@ -198,5 +198,6 @@
     "Does not prove any FCM/provider push was sent.",
     "Does not prove deployed service worker click handling.",
     "Does not prove live user notification return behavior."
-  ]
+  ],
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214"
 }

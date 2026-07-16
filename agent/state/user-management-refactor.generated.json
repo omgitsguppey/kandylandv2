@@ -1,7 +1,7 @@
 {
   "reportKey": "user-management-refactor",
-  "generatedAtUtc": "2026-07-02T02:48:18.951Z",
-  "currentHead": "d59bdde9863276d23e59cc2359712c76f2087d02",
+  "generatedAtUtc": "2026-07-16T04:23:30.235Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "status": "pass",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
@@ -46,14 +46,14 @@
         "source": "users.privacySettings.allowRecommendations+identifiedAnalyticsEnabled"
       },
       "activitySummary": {
-        "state": "partial",
-        "totalEvents": null,
-        "sessions": null,
-        "visits": null,
-        "activeDays": null,
-        "pageViews": null,
+        "state": "live",
+        "totalEvents": 8,
+        "sessions": 0,
+        "visits": 0,
+        "activeDays": 0,
+        "pageViews": 0,
         "provenZero": false,
-        "missingSource": "sessions: materializer_missing; Connect person_metrics.sessions before scoring sessions as user-level telemetry parity. visits: materializer_missing; Connect person_metrics.visits before scoring visits as user-level telemetry parity. active_days: materializer_missing; Connect person_metrics.active_days before scoring active_days as user-level telemetry parity. page_views: materializer_missing; Connect person_metrics.page_views before scoring page_views as user-level telemetry parity."
+        "missingSource": null
       },
       "personMetricConfidence": {
         "source": "person_metrics_hydration",
@@ -66,9 +66,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "semantic_page_viewed",
-            "missingBridge": "person_metrics.active_days",
-            "missingMaterializer": "person_metrics.active_days",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
           },
           {
@@ -77,9 +77,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "auth_surface_viewed",
-            "missingBridge": "person_metrics.auth_runtime_events",
-            "missingMaterializer": "person_metrics.auth_runtime_events",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for auth_runtime_events; expected producer event(s): auth_surface_viewed, auth_google_started, auth_google_completed, auth_google_failed, auth_email_login_started, auth_email_login_completed, auth_email_login_failed, auth_email_signup_started, auth_email_signup_completed, auth_email_signup_failed, auth_provider_conflict_detected, auth_password_reset_requested, auth_password_reset_failed, auth_navigation_session_started, auth_navigation_session_completed, auth_navigation_session_failed, auth_session_restored, auth_unexpected_session_drop, auth_logout_started, auth_logout_completed, auth_profile_bootstrap_started, auth_profile_bootstrap_completed, auth_profile_bootstrap_failed, auth_modal_opened, auth_google_sign_in_attempted, auth_google_sign_in_success, auth_google_sign_in_failed, auth_sign_in_attempted, auth_sign_in_success, auth_sign_in_failed, auth_sign_up_attempted, auth_sign_up_success, auth_sign_up_failed, password_reset_requested, password_reset_failed, auth_profile_snapshot_failed."
           },
           {
@@ -88,9 +88,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "creator_broadcast_cta_clicked",
-            "missingBridge": "person_metrics.broadcasts_clicked",
-            "missingMaterializer": "person_metrics.broadcasts_clicked",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for broadcasts_clicked; expected producer event(s): creator_broadcast_cta_clicked, notification_action_clicked."
           },
           {
@@ -99,9 +99,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "creator_broadcast_detail_viewed",
-            "missingBridge": "person_metrics.broadcasts_viewed",
-            "missingMaterializer": "person_metrics.broadcasts_viewed",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
           },
           {
@@ -110,9 +110,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "chat_surface_viewed",
-            "missingBridge": "person_metrics.chat_actions",
-            "missingMaterializer": "person_metrics.chat_actions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, media_upload_prepare_started, media_upload_prepare_completed, media_upload_prepare_failed, media_storage_upload_started, media_storage_upload_completed, media_storage_upload_failed, media_upload_complete_started, media_upload_complete_completed, media_upload_complete_failed, media_upload_cancelled, media_upload_orphaned, media_upload_recovered, media_upload_blocked_size, media_upload_blocked_type, media_access_allowed, media_access_blocked, media_access_failed, media_asset_missing, media_expired_blocked, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
           },
           {
@@ -121,9 +121,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "begin_checkout",
-            "missingBridge": "person_metrics.checkout_starts",
-            "missingMaterializer": "person_metrics.checkout_starts",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for checkout_starts; expected producer event(s): begin_checkout."
           },
           {
@@ -132,9 +132,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "creator_drop_submitted",
-            "missingBridge": "person_metrics.creator_drop_manager_actions",
-            "missingMaterializer": "person_metrics.creator_drop_manager_actions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
           },
           {
@@ -143,9 +143,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "creator_profile_viewed",
-            "missingBridge": "person_metrics.creator_profile_views",
-            "missingMaterializer": "person_metrics.creator_profile_views",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked, creator_discovery_surface_viewed, creator_card_viewed, creator_card_clicked, creator_profile_opened, creator_recommendation_viewed, creator_recommendation_clicked, creator_relationship_list_loaded, creator_relationship_list_failed."
           },
           {
@@ -154,9 +154,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_abandoned",
-            "missingBridge": "person_metrics.daily_task_abandonments",
-            "missingMaterializer": "person_metrics.daily_task_abandonments",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_abandonments; expected producer event(s): daily_task_abandoned."
           },
           {
@@ -165,9 +165,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_completed",
-            "missingBridge": "person_metrics.daily_task_average_duration",
-            "missingMaterializer": "person_metrics.daily_task_average_duration",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_average_duration; expected producer event(s): daily_task_completed, daily_task_failed, daily_task_abandoned."
           },
           {
@@ -176,9 +176,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_completed",
-            "missingBridge": "person_metrics.daily_task_completions",
-            "missingMaterializer": "person_metrics.daily_task_completions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_completions; expected producer event(s): daily_task_completed, task_completed, daily_checkin_claimed."
           },
           {
@@ -187,9 +187,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_failed",
-            "missingBridge": "person_metrics.daily_task_failures",
-            "missingMaterializer": "person_metrics.daily_task_failures",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_failures; expected producer event(s): daily_task_failed."
           },
           {
@@ -198,9 +198,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_guidance_opened",
-            "missingBridge": "person_metrics.daily_task_guidance_interactions",
-            "missingMaterializer": "person_metrics.daily_task_guidance_interactions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_guidance_interactions; expected producer event(s): daily_task_guidance_opened, task_guidance_viewed, task_guidance_tapped, task_guidance_dismissed, task_guidance_completed, task_card_expanded, task_help_opened."
           },
           {
@@ -209,9 +209,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_reset_locked",
-            "missingBridge": "person_metrics.daily_task_reset_locked_views",
-            "missingMaterializer": "person_metrics.daily_task_reset_locked_views",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_reset_locked_views; expected producer event(s): daily_task_reset_locked, daily_task_next_eligible_viewed."
           },
           {
@@ -220,9 +220,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_reward_granted",
-            "missingBridge": "person_metrics.daily_task_rewards_granted",
-            "missingMaterializer": "person_metrics.daily_task_rewards_granted",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_rewards_granted; expected producer event(s): daily_task_reward_granted, daily_task_claimed."
           },
           {
@@ -231,9 +231,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_started",
-            "missingBridge": "person_metrics.daily_task_starts",
-            "missingMaterializer": "person_metrics.daily_task_starts",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_starts; expected producer event(s): daily_task_started."
           },
           {
@@ -242,9 +242,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "daily_task_surface_viewed",
-            "missingBridge": "person_metrics.daily_task_views",
-            "missingMaterializer": "person_metrics.daily_task_views",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for daily_task_views; expected producer event(s): daily_task_surface_viewed, daily_task_card_viewed, daily_tasks_viewed."
           },
           {
@@ -253,9 +253,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "drop_preview_opened",
-            "missingBridge": "person_metrics.drop_opens",
-            "missingMaterializer": "person_metrics.drop_opens",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
           },
           {
@@ -264,9 +264,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "drop_unlocked",
-            "missingBridge": "person_metrics.drop_unlocks",
-            "missingMaterializer": "person_metrics.drop_unlocks",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for drop_unlocks; expected producer event(s): drop_unlocked, entitlement_granted, unlock_drop_success."
           },
           {
@@ -275,9 +275,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "creator_fan_pass_started",
-            "missingBridge": "person_metrics.fan_pass_purchases",
-            "missingMaterializer": "person_metrics.fan_pass_purchases",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed, fan_pass_purchase_attempted, fan_pass_purchase_succeeded, fan_pass_purchase_failed, fan_pass_access_granted, fan_pass_access_denied, fan_pass_cancelled, fan_pass_expired."
           },
           {
@@ -286,9 +286,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "creator_fan_pass_viewed",
-            "missingBridge": "person_metrics.fan_pass_views",
-            "missingMaterializer": "person_metrics.fan_pass_views",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed, fan_pass_surface_viewed, fan_pass_cta_clicked."
           },
           {
@@ -297,9 +297,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "creator_followed",
-            "missingBridge": "person_metrics.follows",
-            "missingMaterializer": "person_metrics.follows",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed, creator_follow_attempted, creator_follow_succeeded, creator_follow_failed, creator_unfollow_attempted, creator_unfollow_succeeded."
           },
           {
@@ -308,9 +308,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "notification_opened",
-            "missingBridge": "person_metrics.notification_interactions",
-            "missingMaterializer": "person_metrics.notification_interactions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_eligible, notification_prompt_viewed, notification_prompt_dismissed, notification_permission_requested, notification_permission_granted, notification_permission_denied, notification_permission_failed, notification_prompt_snoozed, notification_prompt_blocked, push_token_registration_started, push_token_registered, push_token_registration_failed, push_token_refreshed, push_token_revoked, push_device_scope_resolved, notification_intent_evaluated, notification_targeting_blocked, notification_targeting_dry_run_eligible."
           },
           {
@@ -319,9 +319,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "purchase_package_selected",
-            "missingBridge": "person_metrics.package_selections",
-            "missingMaterializer": "person_metrics.package_selections",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
           },
           {
@@ -330,9 +330,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "semantic_page_viewed",
-            "missingBridge": "person_metrics.page_views",
-            "missingMaterializer": "person_metrics.page_views",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for page_views; expected producer event(s): semantic_page_viewed, page_viewed."
           },
           {
@@ -341,9 +341,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "server_purchase_verified",
-            "missingBridge": "person_metrics.payment_approvals",
-            "missingMaterializer": "person_metrics.payment_approvals",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for payment_approvals; expected producer event(s): server_purchase_verified, purchase_verified, paypal_capture_completed, purchase_completed, gumdrops_purchase_completed."
           },
           {
@@ -352,9 +352,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "payment_canceled",
-            "missingBridge": "person_metrics.payment_cancels",
-            "missingMaterializer": "person_metrics.payment_cancels",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for payment_cancels; expected producer event(s): payment_canceled, paypal_checkout_canceled, wallet_closed_incomplete."
           },
           {
@@ -363,9 +363,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "gumdrops_purchase_failed",
-            "missingBridge": "person_metrics.payment_failures",
-            "missingMaterializer": "person_metrics.payment_failures",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for payment_failures; expected producer event(s): gumdrops_purchase_failed, paypal_capture_failed, payment_failed."
           },
           {
@@ -374,9 +374,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "watch_session_started",
-            "missingBridge": "person_metrics.runtime_watch_sessions",
-            "missingMaterializer": "person_metrics.runtime_watch_sessions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
           },
           {
@@ -385,9 +385,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "search_focused",
-            "missingBridge": "person_metrics.search_discovery_actions",
-            "missingMaterializer": "person_metrics.search_discovery_actions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for search_discovery_actions; expected producer event(s): search_focused, search_query_changed, search_submitted, search_results_loaded, search_zero_results, search_result_clicked, search_failed, search_cleared, drops_searched, drops_category_selected, search_query_submitted, filter_selected, sort_changed, category_clicked, creator_search_selected."
           },
           {
@@ -396,9 +396,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "session_started",
-            "missingBridge": "person_metrics.sessions",
-            "missingMaterializer": "person_metrics.sessions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for sessions; expected producer event(s): session_started, session_activity_tick, session_meaningful_interaction, session_closed, session_bounced, session_engaged, auth_session_established, auth_session_restored."
           },
           {
@@ -407,9 +407,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "user_settings_viewed",
-            "missingBridge": "person_metrics.settings_actions",
-            "missingMaterializer": "person_metrics.settings_actions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, creator_monetization_settings_viewed, creator_monetization_setting_changed, creator_monetization_save_succeeded, creator_monetization_save_failed, creator_monetization_user_surface_applied, creator_monetization_mismatch_detected, cookie_consent_updated."
           },
           {
@@ -418,9 +418,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "support_inbox_viewed",
-            "missingBridge": "person_metrics.support_account_actions",
-            "missingMaterializer": "person_metrics.support_account_actions",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
           },
           {
@@ -429,9 +429,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "drop_unwrapped",
-            "missingBridge": "person_metrics.unwraps",
-            "missingMaterializer": "person_metrics.unwraps",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, creator_drop_unwrapped."
           },
           {
@@ -440,9 +440,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "semantic_page_viewed",
-            "missingBridge": "person_metrics.visits",
-            "missingMaterializer": "person_metrics.visits",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for visits; expected producer event(s): semantic_page_viewed, page_viewed, home_page_viewed."
           },
           {
@@ -451,9 +451,9 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "wallet_closed_incomplete",
-            "missingBridge": "person_metrics.wallet_closes",
-            "missingMaterializer": "person_metrics.wallet_closes",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for wallet_closes; expected producer event(s): wallet_closed_incomplete."
           },
           {
@@ -462,32 +462,32 @@
             "state": "collecting",
             "count": 0,
             "provenZero": false,
-            "missingProducer": "wallet_opened",
-            "missingBridge": "person_metrics.wallet_opens",
-            "missingMaterializer": "person_metrics.wallet_opens",
+            "missingProducer": null,
+            "missingBridge": null,
+            "missingMaterializer": null,
             "explanation": "Missing producer activity for wallet_opens; expected producer event(s): wallet_opened."
           }
         ]
       },
       "walletPaymentConfidence": {
-        "walletOpens": null,
-        "packageSelections": null,
-        "checkoutStarts": null,
-        "paymentApprovals": null,
-        "paymentCancels": null,
-        "paymentFailures": null,
+        "walletOpens": 0,
+        "packageSelections": 0,
+        "checkoutStarts": 0,
+        "paymentApprovals": 0,
+        "paymentCancels": 0,
+        "paymentFailures": 0,
         "confidence": "unknown",
         "source": "server purchase verification facts"
       },
       "dropUnwrapMetrics": {
-        "dropOpens": null,
-        "unwraps": null,
-        "creatorProfileViews": null,
+        "dropOpens": 0,
+        "unwraps": 0,
+        "creatorProfileViews": 0,
         "source": "person_metrics_hydration+analytics_users_rollup"
       },
       "supportAccountSafety": {
         "status": "clean",
-        "supportAccountActions": null,
+        "supportAccountActions": 0,
         "securityFlags": 0,
         "source": "users.securityFlags+person_metrics_hydration"
       },
@@ -499,7 +499,7 @@
         "source": "src/lib/admin/user-management-contract.ts"
       },
       "lastActivity": {
-        "timestampMs": 1782960440389,
+        "timestampMs": 1784175751228,
         "source": "analytics_users_rollup",
         "freshness": "recent"
       },
@@ -563,34 +563,69 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/state/user-management-refactor.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/app/admin/user/[userId]/page.tsx",
-      "classification": "real_source_change_needs_review"
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/app/admin/users/page.tsx",
-      "classification": "real_source_change_needs_review"
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/admin/user-management-contract.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "tests/unit/admin-user-detail-fixture-boundary.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "agent/state/role-permission-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "tests/unit/user-management-refactor.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "agent/state/surface-state-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/monolith-orphan-metric-registry.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/role-permission-parity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/surface-state-parity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
   "oldUserManagementLogic": [],
-  "validationFailures": []
+  "validationFailures": [],
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "passed": true,
+  "canClearSourceGate": true
 }

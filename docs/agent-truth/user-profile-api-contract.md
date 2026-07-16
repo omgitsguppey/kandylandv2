@@ -1,10 +1,10 @@
 # User Profile API Contract
 
-Generated: 2026-07-14T16:11:01.216Z
+Generated: 2026-07-16T04:27:46.684Z
 
 ## Status
 
-failed
+passed
 
 ## Contract
 
@@ -23,4 +23,4 @@ failed
 
 ## Failures
 
-- protected surfaces changed: src/app/api/chat/attachments/cancel/route.ts, src/app/api/chat/attachments/complete/route.ts, src/app/api/chat/attachments/prepare/route.ts, src/app/api/chat/threads/[threadId]/messages/route.ts, src/app/api/creator/bookings/route.ts, src/app/api/creator/drops/assets/route.ts, src/app/api/creator/drops/route.ts, src/app/api/creator/messages/route.ts, src/app/api/creator/onboarding/application/route.ts, src/app/api/creator/onboarding/contract-signature/route.ts, src/app/api/creator/onboarding/id-submission/route.ts, src/app/api/creator/onboarding/intro/route.ts, src/app/api/creator/payouts/route.ts, src/app/api/creator/relationships/route.ts, src/app/api/creator/requests/route.ts, src/app/api/creator/settings/route.ts, src/app/api/creator/subscriptions/route.ts, src/app/api/paypal/capture/route.ts, src/app/api/paypal/create/route.ts, src/app/api/wallet/packages/route.ts, src/components/Chat/ChatExperience.tsx, src/components/Navigation/NotificationBell.tsx, src/components/Navigation/ProfileDropdown.tsx, src/lib/creator-settings/creator-settings-contract.ts
+- None

@@ -1,11 +1,14 @@
 # Final Parity Telemetry Lock
 
-Generated: 2026-07-05T00:51:38.074Z
-Head: 6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a
+Generated: 2026-07-16T04:26:33.626Z
+Head: 621afada2aea0ef269a02c7ac68d4424bfce5214
+Source commit: 621afada2aea0ef269a02c7ac68d4424bfce5214
 Head source: git
 Git status: available
 Tooling degraded: false
-Status: review
+Validator status: pass
+Validator passed: true
+Overall evidence status: review
 
 ## Summary
 
@@ -20,12 +23,12 @@ Status: review
 - Stale parity logic removed: true
 - Surfaces covered: 17
 - Surfaces missing: 0
-- Score: 82.47 -> 82.47
+- Score: 63.18 -> 63.18
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, costRisk, freshness, regressionRisk
 - Can clear source gate: true
 - Can clear runtime gate: false
 - Can clear provider gate: false
-- Can clear admin truth gate: true
+- Can clear admin truth gate: false
 
 ## Evidence Classes
 
@@ -34,7 +37,7 @@ Status: review
 | source_parity | present | source_only | true | Source parity is green; keep it separate from deployed route, provider-backed site activity, and admin source activity evidence. |
 | runtime_route_health | stale | runtime | true | Refresh deployed route-health evidence; source parity cannot clear runtime health. |
 | provider_smoke | stale | provider | true | Attach redacted provider-backed site activity evidence; operator reports do not clear this gate. |
-| admin_truth_sample | present | admin | true | Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts. |
+| admin_truth_sample | stale | admin | true | Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts. |
 
 ## Surface Locks
 
@@ -60,7 +63,7 @@ Status: review
 
 ## Remaining Gaps
 
-- Typed evidence classes still incomplete: runtime_route_health, provider_smoke.
+- Typed evidence classes still incomplete: runtime_route_health, provider_smoke, admin_truth_sample.
 - Source parity is source evidence only and does not clear deployed route health, provider-backed site activity, or admin source activity samples.
 - Public beta score must remain capped/review until current-head external/runtime/admin evidence gates are attached.
 
@@ -69,6 +72,7 @@ Status: review
 - Keep check:surface-parity-doctrine, check:surface-telemetry-parity, check:surface-state-parity, and check:role-permission-parity green before new surface work.
 - Refresh deployed route-health evidence; source parity cannot clear runtime health.
 - Attach redacted provider-backed site activity evidence; operator reports do not clear this gate.
+- Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts.
 - Run npm run check:final-parity-telemetry-lock after any parity, telemetry, state, role, or debug-lane change.
 
 ## Validation

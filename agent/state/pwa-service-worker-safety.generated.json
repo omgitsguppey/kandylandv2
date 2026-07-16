@@ -1,7 +1,11 @@
 {
-  "generatedAtUtc": "2026-06-03T14:19:29.979Z",
-  "currentHead": "6d259703",
+  "reportKey": "pwa-service-worker-safety",
+  "generatedAtUtc": "2026-07-16T04:26:11.547Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "status": "pass",
+  "passed": true,
+  "canClearSourceGate": true,
   "productionReadsRequired": false,
   "providerCallsRequired": false,
   "deployRequired": false,
@@ -110,22 +114,22 @@
     "pwa_install_prompt_dismissed"
   ],
   "scoreBefore": {
-    "sourceHealth": 100,
-    "runtimeHealth": 91.4,
-    "evidenceCompleteness": 91.4,
-    "freshness": 91.88,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
     "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 93.99
+    "overallHealthScore": 63.18
   },
   "scoreAfter": {
-    "sourceHealth": 100,
-    "runtimeHealth": 91.4,
-    "evidenceCompleteness": 91.4,
-    "freshness": 91.88,
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
     "costRisk": 92.5,
     "regressionRisk": 94,
-    "overallHealthScore": 93.99
+    "overallHealthScore": 63.18
   },
   "scoreDimensionImpact": {
     "sourceHealth": "PWA service worker safety now has an explicit source contract, forbidden cache policy, telemetry map, unit test, and validator.",
@@ -150,6 +154,31 @@
       "classification": "still_required_doctrine"
     }
   ],
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/notification-permission-lifecycle.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/notification-targeting-intent.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/push-token-registration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/notification-permission-lifecycle.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/notification-targeting-intent.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/push-token-registration.md",
+      "classification": "release_artifact_expected"
+    }
+  ],
   "validationFailures": []
 }

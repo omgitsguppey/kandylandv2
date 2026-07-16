@@ -1,6 +1,6 @@
 # Chat Gating Moderation
 
-Generated: 2026-06-03T04:31:20.510Z
+Generated: 2026-07-16T04:24:46.142Z
 
 ## Enforcement
 
@@ -39,12 +39,12 @@ Generated: 2026-06-03T04:31:20.510Z
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 100 | 100 | target_met | No score action needed for this dimension. |
-| runtimeHealth | 87.4 | 87.4 | target_met | No score action needed for this dimension. |
-| evidenceCompleteness | 84.6 | 84.6 | target_met | No score action needed for this dimension. |
-| freshness | 91.88 | 91.88 | target_met | No score action needed for this dimension. |
-| costRisk | 80.5 | 80.5 | target_met | No score action needed for this dimension. |
-| regressionRisk | 88 | 88 | target_met | No score action needed for this dimension. |
+| sourceHealth | 83.6 | 83.6 | target_met | No score action needed for this dimension. |
+| runtimeHealth | 50.22 | 50.22 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
+| evidenceCompleteness | 45 | 45 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
+| freshness | 59.38 | 59.38 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
+| costRisk | 92.5 | 92.5 | target_met | No score action needed for this dimension. |
+| regressionRisk | 94 | 94 | target_met | No score action needed for this dimension. |
 
 ## Old Logic Classification
 

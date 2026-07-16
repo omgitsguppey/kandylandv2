@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-07-02T15:09:07.296Z",
-  "currentHead": "25e5a1c71fad2d2f974c4de44c5079a4a7cce1de",
+  "generatedAtUtc": "2026-07-16T04:28:11.433Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -281,19 +281,19 @@
   },
   "formalLaunchRange": {
     "launchStartDayKey": "2026-02-12",
-    "expectedThroughDayKey": "2026-07-02",
-    "expectedDayCount": 141,
+    "expectedThroughDayKey": "2026-07-16",
+    "expectedDayCount": 155,
     "localEvidenceDayCount": 3,
     "approvedCoverageDayCount": 0,
     "localEvidenceRanges": [
       "2026-02-12..2026-02-14"
     ],
     "unprovenRanges": [
-      "2026-02-12..2026-07-02"
+      "2026-02-12..2026-07-16"
     ],
     "state": "formal_proof_missing",
     "reason": "Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.",
-    "unprovenDayCount": 138,
+    "unprovenDayCount": 152,
     "dayCoverage": [
       {
         "dayKey": "2026-02-12",
@@ -956,35 +956,35 @@
         "nextAction": "Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day."
       }
     ],
-    "dayCoverageCount": 141,
+    "dayCoverageCount": 155,
     "dayCoverageTruncated": true,
-    "omittedDayCoverageCount": 127,
+    "omittedDayCoverageCount": 141,
     "dayCoverageSummary": {
-      "dayCount": 141,
+      "dayCount": 155,
       "confidenceBandCounts": {
         "verified": 1,
         "directional": 2,
-        "missing": 138
+        "missing": 152
       },
       "evidenceKindCounts": {
         "observed": 1,
         "modeled": 2,
-        "missing": 138
+        "missing": 152
       },
       "sourceTruthCounts": {
         "first_party_event_fact": 1,
         "ga4_evidence_only": 2,
-        "source_missing": 138
+        "source_missing": 152
       },
       "freshnessStateCounts": {
         "source_current": 1,
         "external_evidence_required": 2,
-        "source_missing": 138
+        "source_missing": 152
       },
       "sourceTruthStateCounts": {
         "mixed_evidence": 1,
         "second_source_only": 2,
-        "source_missing": 138
+        "source_missing": 152
       },
       "productTruthRecoveredDayCount": 1,
       "sourceCountsKnownDayCount": 3,
@@ -1019,7 +1019,21 @@
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json",
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json",
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.json",
-      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json"
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260702T025747Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.redacted.json"
     ],
     "candidateLaunchCoverageInputStatuses": [
       {
@@ -1069,6 +1083,90 @@
         "state": "present_without_launch_history_coverage",
         "proofMode": "none",
         "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260703T072212Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T003031Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T005033Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T011625Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T012717Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T014124Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260705T020119Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
       }
     ],
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
@@ -1079,7 +1177,7 @@
     "displaySummary": {
       "sourceLabel": "Mixed",
       "confidenceLabel": "review",
-      "coverageLabel": "1/141 product-truth launch days (evidence window 3) - evidence present 3/3 days",
+      "coverageLabel": "1/155 product-truth launch days (evidence window 3) - evidence present 3/3 days",
       "sourceWindowLabel": "Launch evidence window since 2026-02-12",
       "coverageDenominatorKind": "formal_launch_range",
       "missingRangeCount": 1,
@@ -1147,11 +1245,11 @@
       "coverageWindowKind": "fixture_only_local_window",
       "allLaunchRangeProven": false,
       "formalRangeStartDayKey": "2026-02-12",
-      "formalRangeEndDayKey": "2026-07-02",
-      "formalExpectedDayCount": 141,
+      "formalRangeEndDayKey": "2026-07-16",
+      "formalExpectedDayCount": 155,
       "evidenceDayCount": 3,
       "unprovenRanges": [
-        "2026-02-12..2026-07-02"
+        "2026-02-12..2026-07-16"
       ],
       "reason": "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Convert a redacted all-range historical route export with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` or place a complete redacted admin truth sample with launchHistoryCoverage day rows."
     },
@@ -2229,8 +2327,8 @@
             "drop_unwrapped",
             "entitlement_granted"
           ],
-          "activeSourceReferenceCount": 41,
-          "materializerReferenceCount": 29,
+          "activeSourceReferenceCount": 40,
+          "materializerReferenceCount": 28,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "server_ledger",
           "freshnessState": "source_current",
@@ -2925,8 +3023,8 @@
     },
     "formalLaunchDayCoverage": {
       "status": "complete",
-      "rowCount": 141,
-      "completeRowCount": 141,
+      "rowCount": 155,
+      "completeRowCount": 155,
       "requiredFields": [
         "sourceTruth",
         "freshnessState",
@@ -3286,8 +3384,8 @@
       {
         "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
         "reportKey": "analytics-legacy-history-reconciliation",
-        "generatedAtUtc": "2026-06-21T01:13:55.576Z",
-        "currentHead": "d91439577f2bcbed2bf8e74f607d783cb33db5c4",
+        "generatedAtUtc": "2026-07-03T01:23:25.715Z",
+        "currentHead": "4c910dbaca3503499b0e77784efa99371a870536",
         "artifactVersionStatus": "current_by_impact",
         "versionReason": "agent/state/analytics-legacy-history-reconciliation.generated.json is older than HEAD but no owned source inputs changed.",
         "freshnessState": "current_by_impact",
@@ -3296,8 +3394,8 @@
       {
         "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
         "reportKey": "analytics-legacy-purgatory-queue",
-        "generatedAtUtc": "2026-06-21T01:13:55.576Z",
-        "currentHead": "d91439577f2bcbed2bf8e74f607d783cb33db5c4",
+        "generatedAtUtc": "2026-07-03T01:23:25.715Z",
+        "currentHead": "4c910dbaca3503499b0e77784efa99371a870536",
         "artifactVersionStatus": "current_by_impact",
         "versionReason": "agent/state/analytics-legacy-purgatory-queue.generated.json is older than HEAD but no owned source inputs changed.",
         "freshnessState": "current_by_impact",
@@ -3306,8 +3404,8 @@
       {
         "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
         "reportKey": "analytics-legacy-recovery-reconciliation",
-        "generatedAtUtc": "2026-06-21T01:13:55.635Z",
-        "currentHead": "d91439577f2bcbed2bf8e74f607d783cb33db5c4",
+        "generatedAtUtc": "2026-07-03T01:14:42.921Z",
+        "currentHead": "2898567cf6de9b154e9b33a8a2fda8bd34ce35f8",
         "artifactVersionStatus": "current_by_impact",
         "versionReason": "agent/state/analytics-legacy-recovery-reconciliation.generated.json is older than HEAD but no owned source inputs changed.",
         "freshnessState": "current_by_impact",
@@ -3350,9 +3448,9 @@
         {
           "legacySource": "analytics_event_facts",
           "legacyId": "fixture_evt_drop_click",
-          "targetTruthLayer": "product_truth",
-          "classification": "weak_match",
-          "identityConfidence": "weak_match",
+          "targetTruthLayer": "product_truth_eligible",
+          "classification": "weak",
+          "identityConfidence": "weak",
           "duplicateRisk": "low",
           "currentTotalsEligible": false,
           "manualReviewRequired": true,
@@ -3361,9 +3459,9 @@
         {
           "legacySource": "analytics_guest_batches",
           "legacyId": "fixture_guest_batch",
-          "targetTruthLayer": "product_truth",
-          "classification": "weak_match",
-          "identityConfidence": "weak_match",
+          "targetTruthLayer": "product_truth_eligible",
+          "classification": "weak",
+          "identityConfidence": "weak",
           "duplicateRisk": "low",
           "currentTotalsEligible": false,
           "manualReviewRequired": true,
@@ -3372,9 +3470,9 @@
         {
           "legacySource": "transactions",
           "legacyId": "fixture_txn_completed",
-          "targetTruthLayer": "product_truth",
-          "classification": "weak_match",
-          "identityConfidence": "weak_match",
+          "targetTruthLayer": "product_truth_eligible",
+          "classification": "weak",
+          "identityConfidence": "weak",
           "duplicateRisk": "low",
           "currentTotalsEligible": false,
           "manualReviewRequired": true,
@@ -3383,9 +3481,9 @@
         {
           "legacySource": "unlocks",
           "legacyId": "fixture_unlock",
-          "targetTruthLayer": "product_truth",
-          "classification": "weak_match",
-          "identityConfidence": "weak_match",
+          "targetTruthLayer": "product_truth_eligible",
+          "classification": "weak",
+          "identityConfidence": "weak",
           "duplicateRisk": "low",
           "currentTotalsEligible": false,
           "manualReviewRequired": true,
@@ -3394,9 +3492,9 @@
         {
           "legacySource": "daily_task_events",
           "legacyId": "fixture_task_complete",
-          "targetTruthLayer": "product_truth",
-          "classification": "weak_match",
-          "identityConfidence": "weak_match",
+          "targetTruthLayer": "product_truth_eligible",
+          "classification": "weak",
+          "identityConfidence": "weak",
           "duplicateRisk": "low",
           "currentTotalsEligible": false,
           "manualReviewRequired": true,
@@ -3405,9 +3503,9 @@
         {
           "legacySource": "task_lifecycle_logs",
           "legacyId": "fixture_task_start",
-          "targetTruthLayer": "product_truth",
-          "classification": "weak_match",
-          "identityConfidence": "weak_match",
+          "targetTruthLayer": "product_truth_eligible",
+          "classification": "weak",
+          "identityConfidence": "weak",
           "duplicateRisk": "low",
           "currentTotalsEligible": false,
           "manualReviewRequired": true,
@@ -3416,7 +3514,7 @@
         {
           "legacySource": "notifications",
           "legacyId": "fixture_notification_read",
-          "targetTruthLayer": "debug_truth",
+          "targetTruthLayer": "manual_review_required",
           "classification": "unknown",
           "identityConfidence": "unknown",
           "duplicateRisk": "unknown",
@@ -3427,9 +3525,9 @@
         {
           "legacySource": "onboarding_steps",
           "legacyId": "fixture_onboarding_step",
-          "targetTruthLayer": "product_truth",
-          "classification": "weak_match",
-          "identityConfidence": "weak_match",
+          "targetTruthLayer": "product_truth_eligible",
+          "classification": "weak",
+          "identityConfidence": "weak",
           "duplicateRisk": "low",
           "currentTotalsEligible": false,
           "manualReviewRequired": true,
@@ -3451,8 +3549,8 @@
     "sourceMissingPanels": 0,
     "materializerMissingPanels": 0,
     "bridgeMissingPanels": 0,
-    "runtimeEvidenceRequiredPanels": 2,
-    "externalRequiredPanels": 4,
+    "runtimeEvidenceRequiredPanels": 37,
+    "externalRequiredPanels": 1,
     "sourceAgreementBlockedConsumers": 9,
     "sourceAgreementSourceMissingConsumers": 3,
     "sourceAgreementSecondSourceConsumers": 3,

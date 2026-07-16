@@ -1,8 +1,8 @@
 # User Management Refactor
 
-Generated: 2026-07-02T02:48:18.951Z
+Generated: 2026-07-16T04:23:30.235Z
 Status: pass
-Current head: d59bdde9863276d23e59cc2359712c76f2087d02
+Current head: 621afada2aea0ef269a02c7ac68d4424bfce5214
 
 ## Contract
 
@@ -22,7 +22,7 @@ Current head: d59bdde9863276d23e59cc2359712c76f2087d02
 
 ## User Summaries
 
-- validator_user: identity=exact; account=active; role=creator; consent=full_behavioral; activity=partial; lowConfidence=37; lastActivity=analytics_users_rollup/recent
+- validator_user: identity=exact; account=active; role=creator; consent=full_behavioral; activity=live; lowConfidence=37; lastActivity=analytics_users_rollup/recent
 
 ## Score Impact
 
@@ -35,13 +35,21 @@ Current head: d59bdde9863276d23e59cc2359712c76f2087d02
 
 ## Dirty Files
 
-- agent/state/user-management-refactor.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/user-management-refactor.md: documentation_artifact_expected
-- src/app/admin/user/[userId]/page.tsx: real_source_change_needs_review
-- src/app/admin/users/page.tsx: real_source_change_needs_review
-- src/lib/admin/user-management-contract.ts: real_source_change_needs_review
-- tests/unit/admin-user-detail-fixture-boundary.spec.ts: test_artifact_expected
-- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
+- agent/state/activity-verification-engine.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/monolith-orphan-metric-registry.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/role-permission-parity.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/surface-state-parity.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/monolith-orphan-metric-registry.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/role-permission-parity.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/surface-state-parity.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-trigger-test-matrix.md: stale_generated_artifact_to_regenerate
 
 ## Old User Management Logic
 

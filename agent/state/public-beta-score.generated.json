@@ -1,69 +1,73 @@
 {
-  "generatedAt": "2026-07-14T16:08:37.090Z",
+  "generatedAt": "2026-07-16T04:29:33.071Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
-  "sourceHealthScore": 83.6,
-  "runtimeHealthScore": 50.22,
-  "evidenceCompletenessScore": 45,
-  "freshnessScore": 59.38,
-  "costRiskScore": 92.5,
-  "regressionRiskScore": 94,
+  "sourceHealthScore": 97.9,
+  "runtimeHealthScore": 0,
+  "evidenceCompletenessScore": 50,
+  "freshnessScore": 72.93,
+  "costRiskScore": 79.5,
+  "regressionRiskScore": 100,
   "quietFutureActivityCount": 25,
   "actionableSignalGroupCount": 12,
   "scoreDragSignalGroupCount": 12,
   "nonEventScorePenaltyCount": 0,
   "launchGateStatus": "source_ready",
   "launchBlockers": [
-    "Provider-backed source activity evidence: Source evidence required",
+    "Provider-backed source activity evidence: Stale evidence",
+    "Protected payment source-of-funds proof: Stale evidence",
     "Admin source activity evidence: Stale evidence",
-    "Report freshness and PR integrity: Stale evidence"
+    "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
+    "cloudSqlCostReadiness remains source-cost/external-review tracked (source_ready_no_runtime_usage_detected).",
+    "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining)."
   ],
-  "healthScore": 63.18,
+  "healthScore": 52.98,
   "healthScoreBreakdown": {
     "sourceHealth": {
       "weight": 18,
-      "score": 83.6,
+      "score": 97.9,
       "reasons": [
         "scannerScore=100",
-        "sourceGateCredit=45.33"
+        "sourceGateCredit=93"
       ]
     },
     "runtimeHealth": {
       "weight": 30,
-      "score": 50.22,
+      "score": 0,
       "reasons": [
         "Provider-backed source activity evidence runtimeCredit=0",
         "Admin source activity evidence runtimeCredit=0",
-        "Debug/runtime evidence runtimeCredit=75.56",
-        "Algorithmic non-UI evidence coverage runtimeCredit=75.56",
-        "Evidence bridge runtimeCredit=100",
         "Below-target runtime health reflects source-activity evidence requirements or broken connectivity, not future activity placeholders."
       ]
     },
     "evidenceCompleteness": {
       "weight": 25,
-      "score": 45,
+      "score": 50,
       "reasons": [
         "Deterministic UI surface coverage is source-owned and runs before any visual review.",
         "Quiet future activity does not reduce evidence completeness.",
         "Source safety evidenceCredit=100",
+        "UI source coverage evidenceCredit=100",
         "Provider-backed source activity evidence evidenceCredit=0",
+        "Protected payment source-of-funds proof evidenceCredit=0",
         "Admin source activity evidence evidenceCredit=0",
-        "Report freshness and PR integrity evidenceCredit=25",
-        "Evidence bridge evidenceCredit=100"
+        "Required report freshness evidenceCredit=100"
       ]
     },
     "freshness": {
       "weight": 10,
-      "score": 59.38,
+      "score": 72.93,
       "reasons": [
         "Source safety freshness=fresh",
-        "Targeted behavior tests freshness=stale",
-        "Provider-backed source activity evidence freshness=stale",
-        "Admin source activity evidence freshness=stale",
-        "Report freshness and PR integrity freshness=stale",
-        "Debug/runtime evidence freshness=stale",
+        "Targeted behavior tests freshness=fresh",
+        "UI source coverage freshness=fresh",
+        "Provider-backed source activity evidence freshness=head_mismatch",
+        "Protected payment source-of-funds proof freshness=head_mismatch",
+        "Admin source activity evidence freshness=head_mismatch",
+        "Required report freshness freshness=fresh",
+        "Debug/runtime evidence freshness=missing",
         "Algorithmic non-UI evidence coverage freshness=fresh",
         "Evidence bridge freshness=fresh",
         "Freshness penalties apply to stale score-impacting artifacts only, not non-events."
@@ -71,81 +75,132 @@
     },
     "costRisk": {
       "weight": 7,
-      "score": 92.5,
+      "score": 79.5,
       "reasons": [
-        "cloudRunCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining).",
+        "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
         "cloudSqlCostReadiness remains source-cost/external-review tracked (source_ready_no_runtime_usage_detected).",
         "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining)."
       ]
     },
     "regressionRisk": {
       "weight": 10,
-      "score": 94,
+      "score": 100,
       "reasons": [
-        "Current high-blast regression refresh covers analytics, debug, chat, task, settings, wallet, admin, score, and cost lanes.",
+        "No current regression freshness penalty.",
         "Regression risk is based on stale/high-blast evidence, not future activity that has not happened."
       ]
     }
   },
-  "studioDashboard": {
-    "status": "needs_attention",
-    "sections": [
-      {
-        "id": "audienceActivity",
-        "label": "Audience Activity",
-        "score": 50.22,
-        "status": "needs_attention",
-        "source": "runtimeHealthScore",
-        "detail": "Estimated from codebase-verifiable activity, telemetry, runtime substitute, and source-ready signals."
-      },
-      {
-        "id": "runtimeConfidence",
-        "label": "Runtime Confidence",
-        "score": 50.22,
-        "status": "needs_attention",
-        "source": "runtimeHealthScore",
-        "detail": "Shows source-backed runtime confidence without clearing typed deployed route evidence."
-      },
-      {
-        "id": "sourceQuality",
-        "label": "Source Quality",
-        "score": 83.6,
-        "status": "watching",
-        "source": "sourceHealthScore",
-        "detail": "Scanner and source-gate confidence using the existing source health dimension."
-      },
-      {
-        "id": "debugSignal",
-        "label": "Debug Signal",
-        "score": 75.56,
-        "status": "needs_attention",
-        "source": "debugRuntimeEvidence gate",
-        "detail": "source-backed debug/runtime evidence checked debug sources without clearing deployed route evidence."
-      },
-      {
-        "id": "adminHydration",
-        "label": "Admin Hydration",
-        "score": 0,
-        "status": "needs_attention",
-        "source": "adminTruthSamples gate",
-        "detail": "Keep the redacted first-party admin source activity JSON sample fresh."
-      },
-      {
-        "id": "needsProof",
-        "label": "Evidence Gates",
-        "score": 45,
-        "status": "needs_proof",
-        "source": "evidenceCompletenessScore",
-        "detail": "Open evidence gates: Source evidence required (1), Stale evidence (3). Source checks stay separate from provider-backed source activity, deployed route evidence, and admin source activity evidence."
-      }
-    ]
+  "operatorDecision": {
+    "version": "operator_decision_v1",
+    "sourceReadiness": {
+      "score": 97.9,
+      "status": "ready",
+      "detail": "Required source gates are ready; 2 optional advisory action(s) remain."
+    },
+    "releaseReadiness": {
+      "status": "source_ready",
+      "ready": false,
+      "blockerCount": 6,
+      "detail": "6 launch blocker(s) remain; missing proof stays separate from local source defects."
+    },
+    "primaryAction": {
+      "id": "gate:runtimeProviderSmoke:3",
+      "lane": "external_proof",
+      "title": "Provider-backed source activity evidence",
+      "action": "Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
+      "source": "evidenceGate:runtimeProviderSmoke",
+      "blocksLaunch": true
+    },
+    "actionQueues": {
+      "sourceFixes": [],
+      "sourceVerification": [
+        {
+          "id": "gate:targetedBehaviorTests:1",
+          "lane": "source_verification",
+          "title": "Targeted behavior tests",
+          "action": "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
+          "source": "evidenceGate:targetedBehaviorTests",
+          "blocksLaunch": false
+        },
+        {
+          "id": "gate:debugRuntimeEvidence:7",
+          "lane": "source_verification",
+          "title": "Debug/runtime evidence",
+          "action": "Do not treat empty debug evidence as source-backed evidence that no runtime issue exists.",
+          "source": "evidenceGate:debugRuntimeEvidence",
+          "blocksLaunch": false
+        }
+      ],
+      "evidenceRefresh": [],
+      "externalProof": [
+        {
+          "id": "gate:runtimeProviderSmoke:3",
+          "lane": "external_proof",
+          "title": "Provider-backed source activity evidence",
+          "action": "Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
+          "source": "evidenceGate:runtimeProviderSmoke",
+          "blocksLaunch": true
+        },
+        {
+          "id": "gate:paymentSourceOfFunds:4",
+          "lane": "external_proof",
+          "title": "Protected payment source-of-funds proof",
+          "action": "Attach a current redacted provider-backed artifact that validates payment and GumDrop source-of-funds checks.",
+          "source": "evidenceGate:paymentSourceOfFunds",
+          "blocksLaunch": true
+        },
+        {
+          "id": "gate:adminTruthSamples:5",
+          "lane": "external_proof",
+          "title": "Admin source activity evidence",
+          "action": "Require redacted admin source activity evidence before rendering zero/live/healthy as launch truth.",
+          "source": "evidenceGate:adminTruthSamples",
+          "blocksLaunch": true
+        }
+      ],
+      "ownerReview": [
+        {
+          "id": "cost:cloudRunCostReadiness",
+          "lane": "owner_review",
+          "title": "cloud Run Cost readiness",
+          "action": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
+          "source": "costReadiness:cloudRunCostReadiness",
+          "blocksLaunch": true
+        },
+        {
+          "id": "cost:cloudSqlCostReadiness",
+          "lane": "owner_review",
+          "title": "cloud Sql Cost readiness",
+          "action": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
+          "source": "costReadiness:cloudSqlCostReadiness",
+          "blocksLaunch": true
+        },
+        {
+          "id": "cost:geminiCloudAssistCostReadiness",
+          "lane": "owner_review",
+          "title": "gemini Cloud Assist Cost readiness",
+          "action": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
+          "source": "costReadiness:geminiCloudAssistCostReadiness",
+          "blocksLaunch": true
+        }
+      ]
+    },
+    "compositeConfidence": {
+      "score": 52.98,
+      "useAsWorkTarget": false,
+      "detail": "Backward-compatible composite confidence only. Do not chase this number; act on the typed queues and release gate."
+    }
   },
   "launchClearance": {
     "status": "source_ready",
     "blockers": [
-      "Provider-backed source activity evidence: Source evidence required",
+      "Provider-backed source activity evidence: Stale evidence",
+      "Protected payment source-of-funds proof: Stale evidence",
       "Admin source activity evidence: Stale evidence",
-      "Report freshness and PR integrity: Stale evidence"
+      "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
+      "cloudSqlCostReadiness remains source-cost/external-review tracked (source_ready_no_runtime_usage_detected).",
+      "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining)."
     ],
     "formalGates": {
       "providerSmoke": {
@@ -170,14 +225,14 @@
       },
       "paymentSourceOfFunds": {
         "cleared": false,
-        "status": "protected_not_evaluated_in_source_model",
-        "source": "protected lane: GumDrop source-of-funds and provider callbacks"
+        "status": "protected_payment_source_of_funds_outdated",
+        "source": "agent/state/provider-smoke-evidence.generated.json"
       }
     }
   },
   "scoreDimensionExplanations": {
     "sourceHealth": {
-      "after": 83.6,
+      "after": 97.9,
       "target": 80,
       "status": "meets_target",
       "blockerType": "source_connectivity",
@@ -185,7 +240,7 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "runtimeHealth": {
-      "after": 50.22,
+      "after": 0,
       "target": 80,
       "status": "below_target",
       "blockerType": "formal_runtime_evidence",
@@ -193,7 +248,7 @@
       "nextExactAction": "Produce approved runtime/provider/admin source evidence without promoting unrelated local validators to deployed truth."
     },
     "evidenceCompleteness": {
-      "after": 45,
+      "after": 50,
       "target": 80,
       "status": "below_target",
       "blockerType": "formal_runtime_evidence",
@@ -201,7 +256,7 @@
       "nextExactAction": "Complete the exact source evidence lanes listed in the beta score report."
     },
     "freshness": {
-      "after": 59.38,
+      "after": 72.93,
       "target": 80,
       "status": "below_target",
       "blockerType": "stale_score_evidence",
@@ -209,15 +264,15 @@
       "nextExactAction": "Refresh the stale score-impacting artifacts with targeted validators."
     },
     "costRisk": {
-      "after": 92.5,
+      "after": 79.5,
       "target": 80,
-      "status": "meets_target",
+      "status": "below_target",
       "blockerType": "cost_owner_review",
-      "reason": "Dimension meets target.",
-      "nextExactAction": "No score action needed for this dimension."
+      "reason": "Cost risk is below target because owner-review cost lanes remain open.",
+      "nextExactAction": "Resolve owner-review cost lanes without touching payment or GumDrop runtime math."
     },
     "regressionRisk": {
-      "after": 94,
+      "after": 100,
       "target": 80,
       "status": "meets_target",
       "blockerType": "stale_score_evidence",
@@ -225,7 +280,7 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "overallHealthScore": {
-      "after": 63.18,
+      "after": 52.98,
       "target": 80,
       "status": "below_target",
       "blockerType": "formal_runtime_evidence",
@@ -234,17 +289,17 @@
     }
   },
   "scoreDeltaDrivers": [
-    "sourceHealthScore=83.6",
-    "runtimeHealthScore=50.22",
-    "evidenceCompletenessScore=45",
-    "freshnessScore=59.38",
-    "costRiskScore=92.5",
-    "regressionRiskScore=94",
+    "sourceHealthScore=97.9",
+    "runtimeHealthScore=0",
+    "evidenceCompletenessScore=50",
+    "freshnessScore=72.93",
+    "costRiskScore=79.5",
+    "regressionRiskScore=100",
     "quietFutureActivityCount=25",
     "actionableSignalGroupCount=12",
     "scoreDragSignalGroupCount=12",
     "nonEventScorePenaltyCount=0",
-    "launchBlockers=3"
+    "launchBlockers=6"
   ],
   "nuancedScoreExplanation": [
     "Source-ready evidence earns source health credit without becoming deployed runtime truth.",
@@ -255,11 +310,11 @@
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes."
   ],
-  "overallScore": 63.18,
-  "overallStatus": "beta-risk",
+  "overallScore": 52.98,
+  "overallStatus": "fail",
   "readinessStatus": "Stale evidence",
-  "readinessStatusReason": "Stale evidence: Targeted behavior tests - Refresh the targeted source validator evidence.",
-  "evidenceScore": 25.26,
+  "readinessStatusReason": "Stale evidence: Provider-backed source activity evidence - Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
+  "evidenceScore": 46,
   "evidenceGates": [
     {
       "id": "sourceSafety",
@@ -278,7 +333,7 @@
       "gateRequiredForExit": true,
       "blocksLaunch": false,
       "status": "Ready",
-      "detail": "Deterministic source scanners did not find a critical blocker.",
+      "detail": "Deterministic source scanners found no scored source defect.",
       "evidence": [
         "scannerStatus=clean",
         "scannerScore=100"
@@ -289,29 +344,39 @@
       "id": "targetedBehaviorTests",
       "label": "Targeted behavior tests",
       "weight": 16,
-      "score": 1.76,
+      "score": 8.8,
       "maxScore": 16,
       "confidence": "medium",
       "evidenceQuality": "source_ready",
-      "freshness": "stale",
-      "sourceCredit": 11,
+      "freshness": "fresh",
+      "sourceCredit": 86,
       "runtimeCredit": 0,
-      "evidenceCredit": 11,
-      "riskPenalty": 89,
+      "evidenceCredit": 55,
+      "riskPenalty": 45,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
       "partialReason": "Source behavior evidence earns source credit; runtime, provider-backed, and admin truth lanes need matching site activity records before clearing.",
-      "status": "Stale evidence",
-      "detail": "Current implemented source behavior validators passed. This is targeted behavior evidence only; provider-backed source activity, deployed route, and admin source activity evidence remain separate.",
+      "status": "Source validation only",
+      "detail": "Targeted source behavior validators passed under the accepted generated-artifact version and source-only evidence contracts.",
       "evidence": [
         "artifactPath=agent/state/targeted-behavior-evidence.generated.json",
         "artifactStatus=passed",
         "artifactPassed=true",
-        "generatedAtUtc=2026-07-05T01:39:04.615Z",
-        "sourceCommit=609ec40f6f75a9e74911c0a6096762c6114d4a99",
-        "artifactDetail=Current implemented source behavior validators passed. This is targeted behavior evidence only; provider-backed source activity, deployed route, and admin source activity evidence remain separate.",
+        "generatedAtUtc=2026-07-16T04:28:52.820Z",
+        "sourceCommit=621afada2aea0ef269a02c7ac68d4424bfce5214",
+        "artifactDetail=Targeted source behavior validators passed under the accepted generated-artifact version and source-only evidence contracts.",
         "artifactExists=true",
+        "strictTargetedBehaviorSchema=true",
+        "reportKey=targeted-behavior-evidence",
+        "artifactHead=621afada2aea0ef269a02c7ac68d4424bfce5214",
+        "latestCodeVersion=621afada2aea0ef269a02c7ac68d4424bfce5214",
+        "artifactVersionStatus=current_head",
+        "formalEvidenceImpact=source_behavior_only",
+        "validationFailureCount=0",
+        "validatorSetMatches=true",
+        "childResultsStrict=true",
+        "aggregateValidationFailureCount=0",
         "artifactEvidence[0]=validatorCount=14",
         "artifactEvidence[1]=passedValidators=14",
         "artifactEvidence[2]=failedValidators=0",
@@ -329,12 +394,12 @@
         "artifactDetail=No behavior math verification artifact was supplied.",
         "artifactExists=true",
         "activityVerificationStatus=source_ready_activity_verification",
-        "activityVerificationSourceCredit=0",
+        "activityVerificationSourceCredit=86",
         "artifactPath=agent/state/activity-verification-engine.generated.json",
         "artifactStatus=source_ready_activity_verification",
         "artifactPassed=true",
-        "generatedAtUtc=2026-07-03T01:47:13.543Z",
-        "sourceCommit=10b6dc063ca13e825f3bc92b282be7872f3dc3d4",
+        "generatedAtUtc=2026-07-16T04:23:14.208Z",
+        "sourceCommit=621afada2aea0ef269a02c7ac68d4424bfce5214",
         "artifactDetail=Source-backed activity verification found score-eligible first-party activity; provider-backed source activity, deployed route evidence, and admin source activity gates remain separate.",
         "activityVerification.status=pass",
         "activityVerification.verifiedByActivity=6",
@@ -354,14 +419,58 @@
       "recommendedAction": "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata."
     },
     {
+      "id": "uiSourceCoverage",
+      "label": "UI source coverage",
+      "weight": 0,
+      "score": 0,
+      "maxScore": 0,
+      "confidence": "high",
+      "evidenceQuality": "source_ready",
+      "freshness": "fresh",
+      "sourceCredit": 100,
+      "runtimeCredit": 0,
+      "evidenceCredit": 100,
+      "riskPenalty": 0,
+      "capImpact": 0,
+      "gateRequiredForExit": true,
+      "blocksLaunch": false,
+      "status": "Ready",
+      "detail": "Deterministic UI source coverage passed for the current code version.",
+      "evidence": [
+        "uiSurfaceCoverageStatus=source_surface_checks_current",
+        "uiSurfaceCoveragePassed=true",
+        "artifactPath=agent/state/ui-visual-smoke-minimal.generated.json",
+        "artifactStatus=source_surface_checks_current",
+        "artifactPassed=true",
+        "generatedAtUtc=2026-07-16T04:29:29.983Z",
+        "sourceCommit=621afada2aea0ef269a02c7ac68d4424bfce5214",
+        "artifactDetail=Deterministic UI surface coverage is current. Browser viewing is optional follow-up only after a source/UI-surface check finds a visual issue. This is deterministic UI surface coverage; it does not clear provider, deployed runtime, production admin truth, or payment proof. Required surfaces: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile.",
+        "uiVisualSmoke.status=source_surface_checks_current",
+        "uiVisualSmoke.passed=true",
+        "uiVisualSmoke.sourceSurfaceChecksCurrent=true",
+        "uiVisualSmoke.requiredSurfaces=user_dashboard_mobile,wallet_mobile,creator_dashboard_mobile,creator_settings_mobile,creator_drop_manager_mobile,creator_profile_mobile,admin_debug_summary_mobile,admin_debug_summary_desktop,drops_user_library_mobile",
+        "uiVisualSmoke.missingSurfaces=",
+        "uiVisualSmoke.blocksScoreForUiOnly=false",
+        "uiVisualSmoke.codexScoreBlocking=false",
+        "uiVisualSmoke.nonUiLanesBlocked=false",
+        "uiVisualSmoke.clearsProviderSmoke=false",
+        "uiVisualSmoke.clearsDeployedRuntimeSmoke=false",
+        "uiVisualSmoke.artifactPath=agent/state/ui-visual-smoke-minimal.generated.json",
+        "uiVisualSmoke.artifactExists=true",
+        "uiVisualSmoke.requiredSurfaces=exact_surface_list_required",
+        "agent/state/ui-visual-smoke-minimal.generated.json:status=source_surface_checks_current:passed=true"
+      ],
+      "recommendedAction": "Run the deterministic UI source coverage validator for the current code version; use browser reproduction only when that source lane reports a concrete issue."
+    },
+    {
       "id": "runtimeProviderSmoke",
       "label": "Provider-backed source activity evidence",
       "weight": 24,
       "score": 0,
       "maxScore": 24,
-      "confidence": "medium",
+      "confidence": "low",
       "evidenceQuality": "missing",
-      "freshness": "stale",
+      "freshness": "head_mismatch",
       "sourceCredit": 0,
       "runtimeCredit": 0,
       "evidenceCredit": 0,
@@ -370,7 +479,7 @@
       "gateRequiredForExit": true,
       "blocksLaunch": true,
       "partialReason": "Provider-backed source activity: Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate. Provider-backed source activity evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed source activity evidence. Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate. Deployed route evidence: Keep deployed route/runtime evidence fresh. Evidence bridge source confidence is partial and does not clear provider-backed source activity or deployed runtime route evidence.",
-      "status": "Source evidence required",
+      "status": "Stale evidence",
       "detail": "Provider-backed source activity: Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate. Provider-backed source activity evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed source activity evidence. Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate. Deployed route evidence: Keep deployed route/runtime evidence fresh.",
       "evidence": [
         "providerArtifactStatus=missing_formal_evidence",
@@ -384,6 +493,7 @@
         "providerSmoke.status=missing_formal_evidence",
         "providerSmoke.passed=false",
         "readinessImpact.providerSmokeGatePassed=false",
+        "providerSmoke.validationFailures=0",
         "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke",
         "operatorRevenueSmoke.amountUsdConfirmed=50",
         "operatorRevenueSmoke.providerBackedSiteActivityPassed=false",
@@ -398,6 +508,7 @@
         "artifactDetail=Keep deployed route/runtime evidence fresh.",
         "runtimeDeploymentSmokePassed=true",
         "readinessImpact.runtimeGatePassed=true",
+        "runtimeSmoke.validationFailures=0",
         "runtimeEvidenceItems[0]=runtimeEvidence.status=complete",
         "runtimeEvidenceItems[1]=runtimeEvidence.completeArtifacts=1",
         "runtimeEvidenceItems[2]=runtimeEvidence.passingArtifacts=1",
@@ -424,7 +535,7 @@
         "artifactEvidence[8]=runtimeConfidenceScore=100",
         "artifactEvidence[9]=launchGateImpact=does_not_clear_runtime_smoke",
         "realUsageConfidenceStatus=source_ready_real_usage_confidence",
-        "realUsageConfidenceCredit=73.45",
+        "realUsageConfidenceCredit=0",
         "realUsageObservedSignals=0",
         "realUsageObservedActivityCredit=0",
         "artifactPath=agent/state/real-usage-confidence.generated.json",
@@ -437,7 +548,7 @@
         "artifactEvidence[3]=formalGatesCleared=false",
         "artifactEvidence[4]=productionReadsRequired=false",
         "realUsageConfidenceCalibrationStatus=source_ready_real_usage_confidence_calibrated",
-        "realUsageConfidenceCalibrationCredit=73.45",
+        "realUsageConfidenceCalibrationCredit=0",
         "artifactPath=agent/state/real-usage-confidence-calibration.generated.json",
         "artifactStatus=source_ready_real_usage_confidence_calibrated",
         "generatedAtUtc=2026-07-03T07:34:51.862Z",
@@ -454,7 +565,7 @@
         "artifactEvidence[8]=productionReadsRequired=false",
         "artifactEvidence[9]=fakeUsageCountsUsed=false",
         "runtimeSmokeSubstituteMatrixStatus=source_ready_runtime_smoke_substitute_matrix",
-        "runtimeSmokeSubstituteMatrixCredit=75.56",
+        "runtimeSmokeSubstituteMatrixCredit=0",
         "runtimeSmokeSubstituteMatrixActivityCredit=0",
         "artifactPath=agent/state/runtime-smoke-substitute-matrix.generated.json",
         "artifactStatus=source_ready_runtime_smoke_substitute_matrix",
@@ -470,7 +581,48 @@
         "artifactEvidence[7]=productionReadsRequired=false",
         "artifactEvidence[8]=deployRequired=false"
       ],
-      "recommendedAction": "Produce provider-backed source activity evidence; keep deployed route evidence current."
+      "recommendedAction": "Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version."
+    },
+    {
+      "id": "paymentSourceOfFunds",
+      "label": "Protected payment source-of-funds proof",
+      "weight": 0,
+      "score": 0,
+      "maxScore": 0,
+      "confidence": "none",
+      "evidenceQuality": "missing",
+      "freshness": "head_mismatch",
+      "sourceCredit": 0,
+      "runtimeCredit": 0,
+      "evidenceCredit": 0,
+      "riskPenalty": 100,
+      "capImpact": 0,
+      "gateRequiredForExit": true,
+      "blocksLaunch": true,
+      "partialReason": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate. Provider-backed source activity evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed site activity evidence. Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate.",
+      "status": "Stale evidence",
+      "detail": "Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate. Provider-backed source activity evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed source activity evidence. Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate.",
+      "evidence": [
+        "artifactPath=agent/state/provider-smoke-evidence.generated.json",
+        "artifactStatus=missing_formal_evidence",
+        "artifactPassed=false",
+        "generatedAtUtc=2026-07-05T02:02:02.533Z",
+        "sourceCommit=eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+        "artifactDetail=Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate. Provider-backed source activity evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed source activity evidence. Produce redacted provider-backed source activity evidence; product-context notes and screenshots do not clear this gate.",
+        "providerArtifactStatus=missing_formal_evidence",
+        "providerSmoke.status=missing_formal_evidence",
+        "providerSmoke.passed=false",
+        "readinessImpact.providerSmokeGatePassed=false",
+        "providerSmoke.validationFailures=0",
+        "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke",
+        "operatorRevenueSmoke.amountUsdConfirmed=50",
+        "operatorRevenueSmoke.providerBackedSiteActivityPassed=false",
+        "operatorRevenueSmoke.note=Operator-confirmed GumDrop revenue smoke was recorded. provider-backed source activity evidence is still separate.",
+        "paypalRefillSmoke.status=operator_reported_not_formal_provider_smoke",
+        "paypalRefillSmoke.note=Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed source activity evidence.",
+        "paypalRefillSmoke.providerBackedSourceArtifactAttached=false"
+      ],
+      "recommendedAction": "Attach a current redacted provider-backed artifact that validates payment and GumDrop source-of-funds checks."
     },
     {
       "id": "adminTruthSamples",
@@ -480,7 +632,7 @@
       "maxScore": 12,
       "confidence": "low",
       "evidenceQuality": "stale",
-      "freshness": "stale",
+      "freshness": "head_mismatch",
       "sourceCredit": 0,
       "runtimeCredit": 0,
       "evidenceCredit": 0,
@@ -538,31 +690,26 @@
     },
     {
       "id": "freshnessIntegrity",
-      "label": "Report freshness and PR integrity",
+      "label": "Required report freshness",
       "weight": 6,
-      "score": 1.5,
+      "score": 6,
       "maxScore": 6,
-      "confidence": "low",
-      "evidenceQuality": "stale",
-      "freshness": "stale",
-      "sourceCredit": 25,
-      "runtimeCredit": 0,
-      "evidenceCredit": 25,
-      "riskPenalty": 75,
-      "capImpact": 4.5,
+      "confidence": "high",
+      "evidenceQuality": "formal_passed",
+      "freshness": "fresh",
+      "sourceCredit": 100,
+      "runtimeCredit": 100,
+      "evidenceCredit": 100,
+      "riskPenalty": 0,
+      "capImpact": 0,
       "gateRequiredForExit": true,
-      "blocksLaunch": true,
-      "partialReason": "5 required generated report(s) are older than the freshness window.",
-      "status": "Stale evidence",
-      "detail": "5 required generated report(s) are older than the freshness window.",
+      "blocksLaunch": false,
+      "status": "Ready",
+      "detail": "Required generated reports are fresh for deterministic scoring.",
       "evidence": [
-        "agent/state/evidence-capture-status.generated.json (230.12h old)",
-        "agent/state/user-creator-ui-parity.generated.json (231.31h old)",
-        "agent/state/targeted-behavior-evidence.generated.json (230.49h old)",
-        "agent/state/final-parity-telemetry-lock.generated.json (231.28h old)",
-        "agent/state/media-discovery-score-lock.generated.json (231.31h old)"
+        "agent/state/targeted-behavior-evidence.generated.json"
       ],
-      "recommendedAction": "Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current."
+      "recommendedAction": "Refresh outdated required reports from the latest code version before treating readiness as current."
     },
     {
       "id": "debugRuntimeEvidence",
@@ -570,34 +717,41 @@
       "weight": 0,
       "score": 0,
       "maxScore": 0,
-      "confidence": "medium",
-      "evidenceQuality": "source_ready",
-      "freshness": "stale",
-      "sourceCredit": 11,
-      "runtimeCredit": 75.56,
-      "evidenceCredit": 11,
-      "riskPenalty": 89,
+      "confidence": "none",
+      "evidenceQuality": "missing",
+      "freshness": "missing",
+      "sourceCredit": 0,
+      "runtimeCredit": 0,
+      "evidenceCredit": 0,
+      "riskPenalty": 100,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "partialReason": "Source-backed debug/runtime confidence is counted for Studio health without clearing deployed route evidence.",
-      "status": "Ready",
-      "detail": "source-backed debug/runtime evidence checked debug sources without clearing deployed route evidence.",
+      "partialReason": "Debug evidence is empty, so absence of runtime issues is unknown.",
+      "status": "Source evidence required",
+      "detail": "Debug evidence is empty, so absence of runtime issues is unknown.",
       "evidence": [
-        "artifactPath=agent/state/user-management-refactor.generated.json",
-        "artifactStatus=source_ready_user_management_refactor",
+        "artifactPath=agent/state/debug-runtime-evidence.generated.json",
+        "artifactStatus=partial_debug_runtime_evidence",
         "artifactPassed=false",
-        "generatedAtUtc=2026-07-02T02:48:18.951Z",
-        "sourceCommit=d59bdde9863276d23e59cc2359712c76f2087d02",
-        "artifactDetail=User management is source-ready for compact identity, account, consent, activity, person metric confidence, debug lane, and summary-first route evidence without clearing deployed runtime truth.",
-        "userManagementRefactor.status=pass",
-        "userManagementRefactor.usersSummarized=1",
-        "userManagementRefactor.lowConfidenceMetrics=37",
-        "userManagementRefactor.rawDumpsBeforeSummary=false",
-        "userManagementRefactor.duplicateUserMetricSections=0",
-        "userManagementRefactor.summaryFirstRoute=true",
-        "launchGateImpact=does_not_clear_deployed_runtime_smoke",
-        "protectedRuntime=chat_nav_payment_gumdrop_untouched"
+        "generatedAtUtc=2026-06-21T19:16:51.544Z",
+        "sourceCommit=cbf48ed3419f240b49c9a2a17772476af2efd36c",
+        "artifactDetail=No source-backed debug/runtime evidence artifact was supplied.",
+        "artifactExists=true",
+        "artifactEvidence[0]=debugPanelSourceSnapshotStatus=stale",
+        "artifactEvidence[1]=routeDiagnosticsStatus=source_ready",
+        "artifactEvidence[2]=runtimeWarningStoreStatus=source_ready",
+        "artifactEvidence[3]=telemetryAdminDebugTruthStatus=stale",
+        "artifactEvidence[4]=adminDebugControlTowerStatus=source_ready",
+        "artifactEvidence[5]=precatchRuntimeIssueScanStatus=source_ready",
+        "artifactEvidence[6]=errorDictionaryMappingStatus=source_ready",
+        "artifactEvidence[7]=criticalRuntimeIssueCount=0",
+        "artifactEvidence[8]=unresolvedWarningCount=0",
+        "artifactEvidence[9]=unknownEvidenceCount=0",
+        "artifactEvidence[10]=sourceBackedRuntimeConfidence=100",
+        "artifactEvidence[11]=launchGateImpact=does_not_clear_deployed_runtime_smoke",
+        "artifactEvidence[12]=formalProviderSmokeCleared=false",
+        "artifactEvidence[13]=deployedRuntimeSmokeCleared=false"
       ],
       "recommendedAction": "Do not treat empty debug evidence as source-backed evidence that no runtime issue exists."
     },
@@ -610,10 +764,10 @@
       "confidence": "medium",
       "evidenceQuality": "formal_partial",
       "freshness": "fresh",
-      "sourceCredit": 48.17,
+      "sourceCredit": 49,
       "runtimeCredit": 75.56,
-      "evidenceCredit": 48.17,
-      "riskPenalty": 51.83,
+      "evidenceCredit": 49,
+      "riskPenalty": 51,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
@@ -621,7 +775,7 @@
       "status": "Ready",
       "detail": "Non-UI runtime, telemetry, admin source, provider signal, cost, and refresh confidence are scored separately from deterministic UI surface coverage.",
       "evidence": [
-        "nonUiAlgorithmicCoverageScore=48.17",
+        "nonUiAlgorithmicCoverageScore=49",
         "uiSourceCoverageBlocksNonUi=false",
         "uiVisualOperatorFinalChecklist=outside_codex_score",
         "deployedRuntimeSmokeCleared=false",
@@ -629,11 +783,11 @@
         "formalAdminRuntimeSampleCleared=false",
         "providerActivityGateCleared=false",
         "adminSourceActivityGateCleared=false",
-        "runtime_source_gate: confidence=partial; score=75.56; source=agent/state/user-management-refactor.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
+        "runtime_source_gate: confidence=partial; score=75.56; source=agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
         "telemetry_gate: confidence=partial; score=73.45; source=agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
         "admin_truth_gate: confidence=missing; score=0; source=agent/state/admin-truth-sample-evidence.generated.json; admin source sample earns partial confidence; clearing needs a matching source activity sample",
         "provider_gate: confidence=partial; score=40; source=agent/state/provider-smoke-evidence.generated.json; operator-confirmed revenue smoke is partial product confidence only",
-        "cost_gate: confidence=partial; score=25; source=agent/state/score-80-cost-readiness.generated.json; source cost readiness can improve cost confidence; external billing review remains separate",
+        "cost_gate: confidence=partial; score=30; source=agent/state/score-80-cost-readiness.generated.json; source cost readiness can improve cost confidence; external billing review remains separate",
         "refresh_gate: confidence=partial; score=75; source=agent/state/self-healing-refresh-queue.generated.json; current refresh queue can satisfy source freshness ordering without creating deployed runtime truth"
       ],
       "recommendedAction": "Use algorithmic evidence for non-UI confidence while keeping UI source coverage, provider-backed activity, runtime route, and admin truth lanes explicit."
@@ -644,49 +798,50 @@
       "weight": 0,
       "score": 0,
       "maxScore": 0,
-      "confidence": "medium",
+      "confidence": "high",
       "evidenceQuality": "formal_partial",
       "freshness": "fresh",
       "sourceCredit": 100,
-      "runtimeCredit": 100,
+      "runtimeCredit": 0,
       "evidenceCredit": 100,
       "riskPenalty": 0,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
       "status": "Ready",
-      "detail": "Evidence bridge is current; remaining source gap(s): provider_backed_site_activity, deployed_route_activity.",
+      "detail": "Evidence bridge is current; remaining source gap(s): provider_backed_site_activity, deployed_route_activity, admin_source_activity_sample.",
       "evidence": [
         "formalProviderGateCleared=false",
         "deployedRuntimeSmokeCleared=false",
-        "formalAdminTruthSampleCleared=true",
+        "formalAdminTruthSampleCleared=false",
         "providerActivityGateCleared=false",
-        "adminSourceActivitySampleCleared=true",
-        "runtimeProviderSmokeEvidenceCredit=75.56",
-        "adminTruthSamplesEvidenceCredit=100",
-        "debugRuntimeEvidenceCredit=75.56",
+        "adminSourceActivitySampleCleared=false",
+        "runtimeProviderSmokeEvidenceCredit=40",
+        "adminTruthSamplesEvidenceCredit=0",
+        "debugRuntimeEvidenceCredit=0",
         "evidenceClass=missing_formal_artifact",
-        "evidenceClass=production_admin_truth_artifact",
-        "evidenceClass=operator_confirmed_revenue",
-        "evidenceClass=source_backed_runtime_confidence",
-        "evidenceClass=real_usage_confidence",
-        "evidenceClass=runtime_substitute_matrix",
-        "evidenceClass=debug_runtime_source_evidence"
+        "evidenceClass=operator_confirmed_revenue"
       ],
       "recommendedAction": "Use bridge confidence for score clarity only; produce any remaining source activity records before clearing launch gates."
     }
   ],
   "evidenceCapsApplied": [
-    "Targeted behavior source validation: source evidence refresh due",
-    "Provider-backed source activity evidence: source activity evidence required",
-    "Admin source activity: source evidence refresh due",
-    "Report freshness and PR integrity: source evidence refresh due"
+    "Provider-backed source activity evidence: source evidence refresh due",
+    "Protected payment source-of-funds proof: source evidence refresh due",
+    "Admin source activity: source evidence refresh due"
   ],
   "evidenceCapDetails": [
-    "Stale evidence: Targeted behavior tests - Refresh the targeted source validator evidence.",
-    "Source activity evidence required: Provider-backed source activity evidence - Refresh provider-backed source activity and deployed runtime route evidence.",
-    "Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence.",
-    "Stale evidence: Report freshness and PR integrity - Refresh generated reports that are outside the freshness window."
+    "Stale evidence: Provider-backed source activity evidence - Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
+    "Stale evidence: Protected payment source-of-funds proof - Attach a current redacted provider-backed artifact that validates payment and GumDrop source-of-funds checks.",
+    "Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence."
+  ],
+  "evidenceAdvisories": [
+    "Targeted behavior source validation: source validation only",
+    "Debug/runtime source evidence: source evidence required"
+  ],
+  "evidenceAdvisoryDetails": [
+    "Source validation only: Targeted behavior tests - Source behavior passed; deployed route evidence, provider-backed source activity, and admin source activity lanes still need their matching records.",
+    "Source evidence required: Debug/runtime evidence - Do not treat empty debug evidence as source-backed evidence that no runtime issue exists."
   ],
   "evidenceWeights": {
     "sourceSafety": 22,
@@ -697,20 +852,19 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 25.26/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 63.18/100 currently maps to launch gate source_ready.",
+    "evidenceScoreMeaning": "Evidence score 46/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 52.98/100 currently maps to launch gate source_ready.",
+    "overallScoreMeaning": "Overall score is a backward-compatible composite confidence signal. It is diagnostic trend context, not a work target or launch decision; use operatorDecision.sourceReadiness and operatorDecision.releaseReadiness instead.",
     "missingEvidenceCaps": [
-      "Stale evidence: Targeted behavior tests - Refresh the targeted source validator evidence.",
-      "Source activity evidence required: Provider-backed source activity evidence - Refresh provider-backed source activity and deployed runtime route evidence.",
-      "Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence.",
-      "Stale evidence: Report freshness and PR integrity - Refresh generated reports that are outside the freshness window."
+      "Stale evidence: Provider-backed source activity evidence - Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
+      "Stale evidence: Protected payment source-of-funds proof - Attach a current redacted provider-backed artifact that validates payment and GumDrop source-of-funds checks.",
+      "Stale evidence: Admin source activity evidence - Refresh redacted admin source activity evidence."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
     "sourcePassConfidence": "Source-pass lanes increase confidence, but source passing does not clear provider-backed source activity, deployed route, admin source activity, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
     "betaExitBlockedBy": [
-      "Targeted behavior tests: Stale evidence",
-      "Provider-backed source activity evidence: Source evidence required",
-      "Admin source activity evidence: Stale evidence",
-      "Report freshness and PR integrity: Stale evidence"
+      "Provider-backed source activity evidence: Stale evidence",
+      "Protected payment source-of-funds proof: Stale evidence",
+      "Admin source activity evidence: Stale evidence"
     ]
   },
   "operatorFinalChecks": {
@@ -772,12 +926,12 @@
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
-      "status": "source_guarded_external_review_remaining",
-      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
+      "status": "cost_review_required",
+      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
       "evidence": [
         "finalCostCurrent=true",
         "globalCostSourceClean=true",
-        "cloudRunGuarded=true",
+        "cloudRunGuarded=false",
         "externalBillingReviewed=false",
         "owner=speed-security-cost",
         "externalReviewRequired=true",
@@ -909,11 +1063,14 @@
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
-    "Stale evidence: Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
-    "Source activity evidence required: Produce provider-backed source activity evidence; keep deployed route evidence current.",
-    "Stale evidence: Require redacted admin source activity evidence before rendering zero/live/healthy as launch truth.",
-    "Stale evidence: Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current.",
-    "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
+    "external_proof: Refresh provider-backed source activity evidence and deployed runtime route evidence for the current code version.",
+    "external_proof: Attach a current redacted provider-backed artifact that validates payment and GumDrop source-of-funds checks.",
+    "external_proof: Require redacted admin source activity evidence before rendering zero/live/healthy as launch truth.",
+    "owner_review: Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
+    "owner_review: Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
+    "owner_review: AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
+    "source_verification: Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
+    "source_verification: Do not treat empty debug evidence as source-backed evidence that no runtime issue exists."
   ],
   "minimalVerificationCommands": [
     "npm run score:beta",
@@ -944,7 +1101,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 63.18/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 4 evidence cap(s) applied.",
+  "summary": "Source readiness 97.9/100 (ready); launch gate source_ready with 6 blocker(s). Composite confidence 52.98/100 is diagnostic-only; 3 release cap(s) and 2 advisory item(s) remain (Stale evidence).",
   "debugEvidence": {
     "layout": [],
     "hydration": [],
@@ -963,7 +1120,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-07-14T16:08:37.090Z",
+      "generatedAtUtc": "2026-07-16T04:29:33.071Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -976,29 +1133,44 @@
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
       "label": "Current beta exit status",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-07-14T10:17:24.403Z",
-      "ageHours": 5.853524166666666,
+      "ageHours": 42.20240777777778,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Current beta exit status is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",
       "label": "Evidence capture status",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-07-05T02:01:35.582Z",
-      "ageHours": 230.11708555555555,
+      "ageHours": 266.46596916666664,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Evidence capture status is current because its owned source inputs did not change.",
+      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "formalEvidenceGateCanClear": false
+    },
+    {
+      "artifactPath": "agent/state/targeted-behavior-evidence.generated.json",
+      "reportKey": "targeted-behavior-evidence",
+      "label": "Targeted behavior evidence",
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-07-16T04:28:52.820Z",
+      "ageHours": 0.011180833333333333,
+      "refreshCommand": "npm run check:targeted-behavior-evidence",
+      "owner": "evidence",
+      "maxAgeHours": 24,
+      "message": "Targeted behavior evidence is current for the latest code version.",
       "nextAction": "No refresh needed.",
       "formalEvidenceGateCanClear": true
     },
@@ -1006,46 +1178,46 @@
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "reportKey": "source-truth-authority-map",
       "label": "Source truth authority map",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T14:02:46.213Z",
-      "ageHours": 554.0974658333333,
+      "ageHours": 590.4463494444444,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Source truth authority map is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
       "reportKey": "final-telemetry-closure-lock",
       "label": "Telemetry closure lock",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-07-05T01:10:04.092Z",
-      "ageHours": 230.97583277777778,
+      "ageHours": 267.3247163888889,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
-      "message": "Telemetry closure lock is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
       "reportKey": "mobile-ui-final-lock",
       "label": "Mobile UI final lock",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T18:39:12.859Z",
-      "ageHours": 549.4900641666667,
+      "ageHours": 585.8389477777778,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
-      "message": "Mobile UI final lock is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
@@ -1054,7 +1226,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-07-03T05:38:41.717Z",
-      "ageHours": 274.49871472222225,
+      "ageHours": 310.84759833333334,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1066,46 +1238,46 @@
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
       "reportKey": "creator-settings-control-plane",
       "label": "Creator settings control plane",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-07-14T16:06:07.532Z",
-      "ageHours": 0.04154388888888889,
+      "ageHours": 36.3904275,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
-      "message": "Creator settings control plane is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
       "reportKey": "creator-drop-status-metrics",
       "label": "Creator drop status metrics",
-      "status": "current_by_impact",
-      "needsRefresh": false,
-      "generatedAtUtc": "2026-06-19T07:56:14.715Z",
-      "ageHours": 608.2062152777778,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-07-14T17:06:25.225Z",
+      "ageHours": 35.38551277777778,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
-      "message": "Creator drop status metrics is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
       "reportKey": "operator-revenue-smoke",
       "label": "Operator revenue smoke",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T04:55:54.539Z",
-      "ageHours": 563.2118197222222,
+      "ageHours": 599.5607033333333,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Operator revenue smoke is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
@@ -1114,7 +1286,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-07-03T05:39:31.960Z",
-      "ageHours": 274.48475833333333,
+      "ageHours": 310.8336419444444,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1129,7 +1301,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-07-05T01:54:02.810Z",
-      "ageHours": 230.24285555555556,
+      "ageHours": 266.5917391666667,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1141,94 +1313,134 @@
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
       "reportKey": "beta-freshness-language",
       "label": "Beta freshness language",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-07-03T07:08:08.650Z",
-      "ageHours": 273.0079,
+      "ageHours": 309.3567836111111,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Beta freshness language is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
       "reportKey": "final-pr-stale-cleanup",
       "label": "Final PR stale cleanup",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:57:06.814Z",
-      "ageHours": 608.1917433333333,
+      "ageHours": 644.5406269444444,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
-      "message": "Final PR stale cleanup is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
       "reportKey": "overnight-wiring-integrity",
       "label": "Overnight wiring integrity",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:57:23.473Z",
-      "ageHours": 608.1871158333333,
+      "ageHours": 644.5359994444444,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
-      "message": "Overnight wiring integrity is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
       "reportKey": "existing-algorithm-refinement",
       "label": "Existing algorithm refinement",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:57:29.221Z",
-      "ageHours": 608.1855191666667,
+      "ageHours": 644.5344027777778,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
-      "message": "Existing algorithm refinement is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
       "reportKey": "user-loading-wallet-mobile-refinement",
       "label": "User loading and wallet mobile refinement",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-21T13:29:23.027Z",
-      "ageHours": 554.6539063888889,
+      "ageHours": 591.00279,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
-      "message": "User loading and wallet mobile refinement is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
       "reportKey": "global-marquee-truncated-titles",
       "label": "Global marquee title rollout",
-      "status": "current_by_impact",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:57:52.099Z",
-      "ageHours": 608.1791641666666,
+      "ageHours": 644.5280477777778,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,
-      "message": "Global marquee title rollout is current because its owned source inputs did not change.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "formalEvidenceGateCanClear": false
     }
   ],
   "staleArtifacts": [
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "reportKey": "current-beta-exit-status",
+      "status": "stale_source_version",
+      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "reportKey": "evidence-capture-status",
+      "status": "stale_source_version",
+      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "reportKey": "source-truth-authority-map",
+      "status": "stale_source_version",
+      "message": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+      "refreshCommand": "npm run check:source-truth-authority-map"
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "reportKey": "final-telemetry-closure-lock",
+      "status": "stale_source_version",
+      "message": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "reportKey": "mobile-ui-final-lock",
+      "status": "stale_source_version",
+      "message": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
       "reportKey": "overnight-final-integration-lock",
@@ -1236,6 +1448,30 @@
       "message": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version.",
       "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "reportKey": "creator-settings-control-plane",
+      "status": "stale_source_version",
+      "message": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "refreshCommand": "npm run check:creator-settings-control-plane"
+    },
+    {
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "reportKey": "creator-drop-status-metrics",
+      "status": "stale_source_version",
+      "message": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+      "refreshCommand": "npm run check:creator-drop-status-metrics"
+    },
+    {
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
+      "reportKey": "operator-revenue-smoke",
+      "status": "stale_source_version",
+      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+      "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
@@ -1252,10 +1488,57 @@
       "message": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
       "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
+    },
+    {
+      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "reportKey": "beta-freshness-language",
+      "status": "stale_source_version",
+      "message": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "refreshCommand": "npm run check:beta-freshness-language"
+    },
+    {
+      "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
+      "reportKey": "final-pr-stale-cleanup",
+      "status": "stale_source_version",
+      "message": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+      "refreshCommand": "npm run check:final-pr-stale-cleanup"
+    },
+    {
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "reportKey": "overnight-wiring-integrity",
+      "status": "stale_source_version",
+      "message": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "refreshCommand": "npm run check:overnight-wiring-integrity"
+    },
+    {
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "reportKey": "existing-algorithm-refinement",
+      "status": "stale_source_version",
+      "message": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "refreshCommand": "npm run check:existing-algorithm-refinement"
+    },
+    {
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "reportKey": "user-loading-wallet-mobile-refinement",
+      "status": "stale_source_version",
+      "message": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
+    },
+    {
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "reportKey": "global-marquee-truncated-titles",
+      "status": "stale_source_version",
+      "message": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "refreshCommand": "npm run check:global-marquee-truncated-titles"
     }
   ],
   "exactRefreshCommands": [
-    "npm run score:beta && npm run check:beta-score",
     "npm run check:current-beta-exit-status",
     "npm run check:evidence-capture-status",
     "npm run check:source-truth-authority-map",

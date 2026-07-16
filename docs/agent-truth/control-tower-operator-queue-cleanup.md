@@ -1,10 +1,10 @@
 # Control Tower Operator Queue Cleanup
 
-Generated Control Tower cleanup evidence. Formal gates remain visible but are not source-code bugs.
+Generated Control Tower cleanup evidence. Typed evidence gates remain visible but are not source-code bugs.
 
 ```json
 {
-  "currentHead": "cb50aba332612576f5d44fde41a1047e3b00db69",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "scoreImpactQueueBefore": [
     "runtime_provider_smoke",
     "debug_runtime_evidence",

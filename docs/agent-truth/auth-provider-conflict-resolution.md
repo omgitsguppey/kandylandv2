@@ -1,7 +1,7 @@
 # Auth Provider Conflict Resolution
 
-Generated: 2026-06-11T14:26:38.205Z
-Current head: 93d85913a
+Generated: 2026-07-16T04:23:51.886Z
+Current head: 621afada2aea0ef269a02c7ac68d4424bfce5214
 
 This source-only lock maps common Firebase auth provider conflicts to safe user guidance, telemetry, and debug evidence. It does not auto-link providers, expose raw passwords, expose raw email addresses in telemetry, mutate accounts outside the existing signup rollback flow, or run production reads.
 
@@ -28,20 +28,19 @@ This source-only lock maps common Firebase auth provider conflicts to safe user 
 
 ## Score
 
-- sourceHealth: 91.7 -> 91.7; target_met; next=No auth-provider-conflict action needed for this dimension.
-- runtimeHealth: 72.8 -> 72.8; below_target; next=Keep the owning beta score lane visible until formal blockers are resolved.
-- evidenceCompleteness: 43.4 -> 43.4; below_target; next=Attach formal provider/runtime/admin evidence; keep source-only auth conflict evidence separate.
+- sourceHealth: 83.6 -> 83.6; target_met; next=No auth-provider-conflict action needed for this dimension.
+- runtimeHealth: 50.22 -> 50.22; below_target; next=Keep the owning beta score lane visible until formal blockers are resolved.
+- evidenceCompleteness: 45 -> 45; below_target; next=Attach formal provider/runtime/admin evidence; keep source-only auth conflict evidence separate.
 - freshness: 59.38 -> 59.38; below_target; next=Keep the owning beta score lane visible until formal blockers are resolved.
-- costRisk: 42 -> 42; below_target; next=Complete external cost owner review; auth conflict source changes do not claim billing proof.
+- costRisk: 92.5 -> 92.5; target_met; next=No auth-provider-conflict action needed for this dimension.
 - regressionRisk: 94 -> 94; target_met; next=No auth-provider-conflict action needed for this dimension.
-- overallHealthScore: 68.67 -> 68.67; below_target; next=Keep the owning beta score lane visible until formal blockers are resolved.
+- overallHealthScore: 63.18 -> 63.18; below_target; next=Keep the owning beta score lane visible until formal blockers are resolved.
 
 ## Remaining Gaps
 
 - runtimeHealth: Keep the owning beta score lane visible until formal blockers are resolved.
 - evidenceCompleteness: Attach formal provider/runtime/admin evidence; keep source-only auth conflict evidence separate.
 - freshness: Keep the owning beta score lane visible until formal blockers are resolved.
-- costRisk: Complete external cost owner review; auth conflict source changes do not claim billing proof.
 - overallHealthScore: Keep the owning beta score lane visible until formal blockers are resolved.
 
 ## Next Exact Steps
@@ -49,5 +48,4 @@ This source-only lock maps common Firebase auth provider conflicts to safe user 
 - runtimeHealth: Keep the owning beta score lane visible until formal blockers are resolved.
 - evidenceCompleteness: Attach formal provider/runtime/admin evidence; keep source-only auth conflict evidence separate.
 - freshness: Keep the owning beta score lane visible until formal blockers are resolved.
-- costRisk: Complete external cost owner review; auth conflict source changes do not claim billing proof.
 - overallHealthScore: Keep the owning beta score lane visible until formal blockers are resolved.

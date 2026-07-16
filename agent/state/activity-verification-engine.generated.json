@@ -1,7 +1,7 @@
 {
   "reportKey": "activity-verification-engine",
-  "generatedAtUtc": "2026-07-03T01:47:13.543Z",
-  "currentHead": "10b6dc063ca13e825f3bc92b282be7872f3dc3d4",
+  "generatedAtUtc": "2026-07-16T04:23:14.208Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -515,16 +515,9 @@
     "unknownLegacy": 0
   },
   "validationFailures": [],
-  "changedFiles": [
-    "agent/state/activity-verification-engine.generated.json",
-    "agent/state/identity-chain-contract.generated.json",
-    "agent/state/user-tracking-live-evidence.generated.json",
-    "docs/agent-truth/identity-chain-contract.md",
-    "docs/agent-truth/user-tracking-live-evidence.md",
-    "scripts/agent/validate-activity-verification-engine.ts",
-    "src/lib/analytics/activity-verification-engine.ts",
-    "src/lib/testing/telemetry-trigger-test-matrix.ts",
-    "tests/unit/activity-verification-engine.spec.ts"
-  ],
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "passed": true,
+  "canClearSourceGate": true,
+  "changedFiles": [],
   "protectedChanges": []
 }

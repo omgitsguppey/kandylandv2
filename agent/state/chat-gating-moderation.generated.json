@@ -1,7 +1,14 @@
 {
   "reportKey": "chat-gating-moderation",
-  "generatedAtUtc": "2026-06-03T04:31:20.510Z",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "generatedAtUtc": "2026-07-16T04:24:46.142Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "status": "pass",
+  "passed": true,
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
   "deployRequired": false,
@@ -160,696 +167,55 @@
   },
   "scoreImpactByDimension": {
     "sourceHealth": {
-      "before": 100,
-      "after": 100,
+      "before": 83.6,
+      "after": 83.6,
       "target": 80,
       "status": "target_met",
       "reason": "Chat paid-GD gating, media blocking, bypass telemetry, and moderation status are source-ready; below-target movement still depends on existing formal/runtime evidence gates.",
       "nextExactAction": "No score action needed for this dimension."
     },
     "runtimeHealth": {
-      "before": 87.4,
-      "after": 87.4,
+      "before": 50.22,
+      "after": 50.22,
       "target": 80,
-      "status": "target_met",
+      "status": "below_target",
       "reason": "Chat paid-GD gating, media blocking, bypass telemetry, and moderation status are source-ready; below-target movement still depends on existing formal/runtime evidence gates.",
-      "nextExactAction": "No score action needed for this dimension."
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime."
     },
     "evidenceCompleteness": {
-      "before": 84.6,
-      "after": 84.6,
+      "before": 45,
+      "after": 45,
       "target": 80,
-      "status": "target_met",
+      "status": "below_target",
       "reason": "Chat paid-GD gating, media blocking, bypass telemetry, and moderation status are source-ready; below-target movement still depends on existing formal/runtime evidence gates.",
-      "nextExactAction": "No score action needed for this dimension."
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime."
     },
     "freshness": {
-      "before": 91.88,
-      "after": 91.88,
+      "before": 59.38,
+      "after": 59.38,
       "target": 80,
-      "status": "target_met",
+      "status": "below_target",
       "reason": "Chat gating hardening does not negatively affect this dimension.",
-      "nextExactAction": "No score action needed for this dimension."
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime."
     },
     "costRisk": {
-      "before": 80.5,
-      "after": 80.5,
+      "before": 92.5,
+      "after": 92.5,
       "target": 80,
       "status": "target_met",
       "reason": "Chat gating hardening does not negatively affect this dimension.",
       "nextExactAction": "No score action needed for this dimension."
     },
     "regressionRisk": {
-      "before": 88,
-      "after": 88,
+      "before": 94,
+      "after": 94,
       "target": 80,
       "status": "target_met",
       "reason": "Chat paid-GD gating, media blocking, bypass telemetry, and moderation status are source-ready; below-target movement still depends on existing formal/runtime evidence gates.",
       "nextExactAction": "No score action needed for this dimension."
     }
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/activity-verification-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/algorithmic-evidence-policy.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-hydration-consolidation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/beta-evidence-gap-map.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/beta-evidence-lane-prep.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/beta-freshness-language.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/chat-functionality-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/chat-gating-moderation.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/chat-realtime-cost-control.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/cost-owner-review-source-closure.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/cost-risk-exit-pass.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-drop-status-metrics.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-experience-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-settings-control-plane.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-reset-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-reward-ledger.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-panel-output-triage.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-runtime-evidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-score-impact-triage.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-signal-grouping.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/existing-algorithm-refinement.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-cost-audit-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-parity-telemetry-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-pr-stale-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-telemetry-closure-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/global-marquee-truncated-titles.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/media-discovery-score-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/mobile-ui-final-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/operator-revenue-smoke.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/overnight-wiring-integrity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/runtime-watch-time-v2.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-refresh-pass.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/settings-connection-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/source-backed-runtime-confidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/source-truth-authority-map.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-creator-ui-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-management-refactor.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/beta-evidence-gap-map.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/beta-freshness-language.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-functionality-score-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/chat-gating-moderation.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/chat-realtime-cost-control.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-exit-pass.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/creator-drop-status-metrics.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/creator-settings-control-plane.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reward-ledger.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-runtime-evidence.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-score-impact-triage.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-grouping.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-liveness-audit.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/existing-algorithm-refinement.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-cost-audit-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/media-discovery-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/mobile-ui-final-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/operator-revenue-smoke.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/overnight-wiring-integrity.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/post-economy-creator-flow-qa.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/runtime-watch-time-v2.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-cost-readiness.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-refresh-pass.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/settings-connection-parity.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/source-truth-authority-map.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-public-beta-score.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-score-80-refresh-pass.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/agent-score/evidence-quality.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/creator-experiences-panel.spec.tsx",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/post-economy-creator-flow-qa.spec.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/public-beta-score.spec.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/purchase-modal.spec.tsx",
-      "classification": "unsafe_unknown"
-    }
-  ],
+  "dirtyFiles": [],
   "oldLogicClassification": [
     {
       "reference": "ChatExperience paid-GD guidance card",
@@ -872,7 +238,5 @@
       "reason": "Send route accepts message fields only; server computes price and reads balance from canonical user records."
     }
   ],
-  "validationFailures": [
-    "dirty files are unclassified."
-  ]
+  "validationFailures": []
 }

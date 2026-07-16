@@ -1,6 +1,6 @@
 {
   "reportKey": "route-sample-freshness-classifier",
-  "generatedAtUtc": "2026-07-03T02:05:49.083Z",
+  "generatedAtUtc": "2026-07-16T04:27:19.093Z",
   "staleFailure": {
     "routeKey": "creator/bookings:POST",
     "method": "POST",
@@ -34,7 +34,8 @@
   "freshnessWindowMs": 86400000,
   "validationFailures": [],
   "status": "pass",
-  "currentHead": "d7c614ae84aafbf7c3465651d9ef96ce18754859",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "evidenceClass": "source_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,

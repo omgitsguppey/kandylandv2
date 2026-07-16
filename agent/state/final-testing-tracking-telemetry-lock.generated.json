@@ -1,71 +1,75 @@
 {
   "reportKey": "final-testing-tracking-telemetry-lock",
-  "generatedAtUtc": "2026-05-23T19:33:06.073Z",
-  "currentHead": "7436c77c58d8873952a130244cf8117ee99660db",
+  "generatedAtUtc": "2026-07-16T04:26:57.749Z",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "status": "pass",
+  "passed": true,
+  "canClearSourceGate": true,
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 70.25,
-    "evidenceCompleteness": 41.75,
-    "freshness": 62.86,
-    "costRisk": 42,
-    "regressionRisk": 42,
-    "overallHealthScore": 63.15
+    "sourceHealth": 95.5,
+    "runtimeHealth": 70.22,
+    "evidenceCompleteness": 80,
+    "freshness": 92.5,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 83.38
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 67.75,
-    "evidenceCompleteness": 39.25,
-    "freshness": 62.86,
-    "costRisk": 42,
-    "regressionRisk": 42,
-    "overallHealthScore": 62.15
+    "sourceHealth": 83.6,
+    "runtimeHealth": 50.22,
+    "evidenceCompleteness": 45,
+    "freshness": 59.38,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 63.18
   },
   "metrics": {
     "sourceHealth": {
-      "before": 91.7,
-      "after": 91.7,
+      "before": 95.5,
+      "after": 83.6,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "runtimeHealth": {
-      "before": 70.25,
-      "after": 67.75,
+      "before": 70.22,
+      "after": 50.22,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof."
     },
     "evidenceCompleteness": {
-      "before": 41.75,
-      "after": 39.25,
+      "before": 80,
+      "after": 45,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
     },
     "freshness": {
-      "before": 62.86,
-      "after": 62.86,
+      "before": 92.5,
+      "after": 59.38,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score."
     },
     "costRisk": {
-      "before": 42,
-      "after": 42,
+      "before": 92.5,
+      "after": 92.5,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "regressionRisk": {
-      "before": 42,
-      "after": 42,
+      "before": 94,
+      "after": 94,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "overallHealthScore": {
-      "before": 63.15,
-      "after": 62.15,
+      "before": 83.38,
+      "after": 63.18,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
@@ -79,14 +83,14 @@
   "waitingOnActivityLanes": {
     "scoreDragLanes": [],
     "actionableActivitySignalCount": 0,
-    "quietFutureActivityCount": 416,
+    "quietFutureActivityCount": 770,
     "brokenActivityPathCount": 0,
     "scoreDragActivityCount": 0
   },
   "activitySignalSummary": {
-    "totalSignalCount": 416,
+    "totalSignalCount": 770,
     "actionableActivitySignalCount": 0,
-    "quietFutureActivityCount": 416,
+    "quietFutureActivityCount": 770,
     "brokenActivityPathCount": 0,
     "scoreDragActivityCount": 0,
     "evidenceGateOnlyCount": 0
@@ -118,32 +122,22 @@
   "remainingGaps": [
     {
       "dimension": "runtimeHealth",
-      "reason": "runtimeHealth is 67.75, below the score-80 target.",
+      "reason": "runtimeHealth is 50.22, below the score-80 target.",
       "nextAction": "Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof."
     },
     {
       "dimension": "evidenceCompleteness",
-      "reason": "evidenceCompleteness is 39.25, below the score-80 target.",
+      "reason": "evidenceCompleteness is 45, below the score-80 target.",
       "nextAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
     },
     {
       "dimension": "freshness",
-      "reason": "freshness is 62.86, below the score-80 target.",
+      "reason": "freshness is 59.38, below the score-80 target.",
       "nextAction": "Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score."
     },
     {
-      "dimension": "costRisk",
-      "reason": "costRisk is 42, below the score-80 target.",
-      "nextAction": "Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads."
-    },
-    {
-      "dimension": "regressionRisk",
-      "reason": "regressionRisk is 42, below the score-80 target.",
-      "nextAction": "Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked."
-    },
-    {
       "dimension": "overallHealthScore",
-      "reason": "overallHealthScore is 62.15, below the score-80 target.",
+      "reason": "overallHealthScore is 63.18, below the score-80 target.",
       "nextAction": "Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
     }
   ],
@@ -151,21 +145,39 @@
     "runtimeHealth: Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof.",
     "evidenceCompleteness: Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity.",
     "freshness: Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score.",
-    "costRisk: Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads.",
-    "regressionRisk: Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked.",
     "overallHealthScore: Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
   ],
   "dirtyFiles": [
     {
-      "path": "agent/state/future-activity-signal-reclassification.generated.json",
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "refreshed_dependency_artifact"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "refreshed_dependency_artifact"
+    },
+    {
+      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
+      "classification": "refreshed_dependency_artifact"
     },
     {
-      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "refreshed_dependency_artifact"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "refreshed_dependency_artifact"
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "refreshed_dependency_artifact"
+    },
+    {
+      "path": "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
       "classification": "documentation_artifact_expected"
     }
   ],

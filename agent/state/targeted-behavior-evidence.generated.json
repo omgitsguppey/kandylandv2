@@ -1,12 +1,13 @@
 {
-  "generatedAtUtc": "2026-07-05T01:39:04.615Z",
+  "generatedAtUtc": "2026-07-16T04:28:52.820Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "609ec40f6f75a9e74911c0a6096762c6114d4a99",
-  "latestCodeVersion": "609ec40f6f75a9e74911c0a6096762c6114d4a99",
-  "currentHead": "609ec40f6f75a9e74911c0a6096762c6114d4a99",
+  "canClearSourceGate": true,
+  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "latestCodeVersion": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -20,6 +21,12 @@
       "command": "npm run check:final-parity-telemetry-lock",
       "status": "pass",
       "artifactPath": "agent/state/final-parity-telemetry-lock.generated.json",
+      "reportKey": "final-parity-telemetry-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:26:33.626Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "parity",
         "telemetry",
@@ -34,14 +41,19 @@
         "user-creator-ui-parity",
         "overnight-wiring-integrity",
         "mobile-ui-final-lock"
-      ],
-      "currentHead": "6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a"
+      ]
     },
     {
       "id": "media-discovery-score-lock",
       "command": "npm run check:media-discovery-score-lock",
       "status": "pass",
       "artifactPath": "agent/state/media-discovery-score-lock.generated.json",
+      "reportKey": "media-discovery-score-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:25:49.405Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "media_upload",
         "private_media_access",
@@ -55,14 +67,19 @@
       "replacementFor": [
         "creator-profile-mobile-timeline",
         "creator-broadcast-timeline-prep"
-      ],
-      "currentHead": "6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a"
+      ]
     },
     {
       "id": "creator-monetization-readiness-lock",
       "command": "npm run check:creator-monetization-readiness-lock",
       "status": "pass",
       "artifactPath": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "reportKey": "creator-monetization-readiness-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:26:30.930Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "creator_monetization",
         "fan_pass",
@@ -78,14 +95,19 @@
         "creator-settings-control-plane",
         "creator-pricing-wiring",
         "gumdrop-economy-accuracy"
-      ],
-      "currentHead": "158b369ea"
+      ]
     },
     {
       "id": "auth-readiness-lock",
       "command": "npm run check:auth-readiness-lock",
       "status": "pass",
       "artifactPath": "agent/state/auth-readiness-lock.generated.json",
+      "reportKey": "auth-readiness-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:24:34.759Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "auth",
         "session",
@@ -94,14 +116,19 @@
       "proves": "Authentication readiness is registered as the current source behavior validator when the auth phase has landed.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0"
+      "requiredForCurrentLane": true
     },
     {
       "id": "notification-pwa-score-lock",
       "command": "npm run check:notification-pwa-score-lock",
       "status": "pass",
       "artifactPath": "agent/state/notification-pwa-score-lock.generated.json",
+      "reportKey": "notification-pwa-score-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:26:13.907Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "notifications",
         "pwa",
@@ -113,14 +140,19 @@
       "requiredForCurrentLane": true,
       "replacementFor": [
         "creator-broadcast-timeline-prep"
-      ],
-      "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39"
+      ]
     },
     {
       "id": "daily-task-debug-score-lock",
       "command": "npm run check:daily-task-debug-score-lock",
       "status": "pass",
       "artifactPath": "agent/state/daily-task-debug-score-lock.generated.json",
+      "reportKey": "daily-task-debug-score-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:25:22.940Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "daily_tasks",
         "task_rewards",
@@ -129,14 +161,19 @@
       "proves": "Daily task lifecycle, reward, telemetry, and debug behavior are registered as the current task behavior validator when landed.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "225f9e53"
+      "requiredForCurrentLane": true
     },
     {
       "id": "chat-functionality-score-lock",
       "command": "npm run check:chat-functionality-score-lock",
       "status": "pass",
       "artifactPath": "agent/state/chat-functionality-score-lock.generated.json",
+      "reportKey": "chat-functionality-score-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:25:02.956Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "chat",
         "chat_gating",
@@ -145,14 +182,19 @@
       "proves": "Chat functionality score lock is registered as the current chat behavior validator when landed.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "c755f63fefff812038edb484ff5577fea601631c"
+      "requiredForCurrentLane": true
     },
     {
       "id": "final-testing-tracking-telemetry-lock",
       "command": "npm run check:final-testing-tracking-telemetry-lock",
       "status": "pass",
       "artifactPath": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "reportKey": "final-testing-tracking-telemetry-lock",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:26:57.749Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "testing",
         "tracking",
@@ -164,14 +206,19 @@
       "requiredForCurrentLane": true,
       "replacementFor": [
         "final-telemetry-closure-lock"
-      ],
-      "currentHead": "7436c77c58d8873952a130244cf8117ee99660db"
+      ]
     },
     {
       "id": "feature-registration-gate",
       "command": "npm run check:feature-registration-gate",
       "status": "pass",
       "artifactPath": "agent/state/feature-registration-gate.generated.json",
+      "reportKey": "feature-registration-gate",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:23:19.322Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "feature_registration",
         "routes",
@@ -180,14 +227,19 @@
       "proves": "Feature registration behavior is source-validated for registered routes and telemetry.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "7cf1ea434bab50842a223111f99d5e10c215b49e"
+      "requiredForCurrentLane": true
     },
     {
       "id": "activity-verification-engine",
       "command": "npm run check:activity-verification-engine",
       "status": "pass",
       "artifactPath": "agent/state/activity-verification-engine.generated.json",
+      "reportKey": "activity-verification-engine",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:23:14.208Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "activity_verification",
         "behavioral_intelligence",
@@ -196,14 +248,19 @@
       "proves": "Activity verification behavior is source-validated without provider or production reads.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "10b6dc063ca13e825f3bc92b282be7872f3dc3d4"
+      "requiredForCurrentLane": true
     },
     {
       "id": "event-translation-bridge",
       "command": "npm run check:event-translation-bridge",
       "status": "pass",
       "artifactPath": "agent/state/event-translation-bridge.generated.json",
+      "reportKey": "event-translation-bridge",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:23:17.518Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "event_translation",
         "telemetry",
@@ -212,14 +269,19 @@
       "proves": "Telemetry event translation behavior is source-validated.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "d7176cce1dfdf36c613f3cca14608b310f7dc2b9"
+      "requiredForCurrentLane": true
     },
     {
       "id": "person-metrics-hydration",
       "command": "npm run check:person-metrics-hydration",
       "status": "pass",
       "artifactPath": "agent/state/person-metrics-hydration.generated.json",
+      "reportKey": "person-metrics-hydration",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:23:32.846Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "person_metrics",
         "telemetry",
@@ -228,14 +290,19 @@
       "proves": "Person metrics hydration behavior is source-validated.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "157f27163820fed2713f830577dc1b555a9fa011"
+      "requiredForCurrentLane": true
     },
     {
       "id": "surface-state-parity",
       "command": "npm run check:surface-state-parity",
       "status": "pass",
       "artifactPath": "agent/state/surface-state-parity.generated.json",
+      "reportKey": "surface-state-parity",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:23:25.723Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "surface_state",
         "loading",
@@ -250,14 +317,19 @@
       "replacementFor": [
         "user-loading-wallet-mobile-refinement",
         "mobile-ui-final-lock"
-      ],
-      "currentHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8"
+      ]
     },
     {
       "id": "role-permission-parity",
       "command": "npm run check:role-permission-parity",
       "status": "pass",
       "artifactPath": "agent/state/role-permission-parity.generated.json",
+      "reportKey": "role-permission-parity",
+      "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+      "artifactGeneratedAtUtc": "2026-07-16T04:23:24.612Z",
+      "canClearSourceGate": true,
+      "childValidationFailures": [],
       "surfaces": [
         "role_permission",
         "user",
@@ -268,8 +340,7 @@
       "proves": "Role permission behavior is source-validated across user, creator, admin, guest, and system roles.",
       "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
-      "requiredForCurrentLane": true,
-      "currentHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8"
+      "requiredForCurrentLane": true
     }
   ],
   "commands": [
@@ -425,6 +496,7 @@
     "evidenceImpact=source_behavior_only",
     "supersededValidators=creator-settings-control-plane,creator-pricing-wiring,creator-broadcast-timeline-prep,creator-profile-mobile-timeline,global-marquee-truncated-titles,creator-drop-status-metrics,user-loading-wallet-mobile-refinement,existing-algorithm-refinement,overnight-wiring-integrity,final-telemetry-closure-lock,mobile-ui-final-lock,user-creator-ui-parity,source-truth-authority-map,gumdrop-economy-accuracy,creator-drop-management-approval,creator-drop-manager-mobile-refinement"
   ],
+  "validationFailures": [],
   "readinessImpact": {
     "targetedBehaviorGatePassed": true,
     "notes": [

@@ -1,8 +1,10 @@
 # Media Discovery Score Lock
 
-Generated: 2026-07-05T00:50:11.391Z
-Head: 6efbc0591b9d2ce26bbf40ec36494e0644b4ab7a
-Status: pass
+Generated: 2026-07-16T04:25:49.405Z
+Head: 621afada2aea0ef269a02c7ac68d4424bfce5214
+Source commit: 621afada2aea0ef269a02c7ac68d4424bfce5214
+Validator status: pass
+Validator passed: true
 
 ## Summary
 
@@ -16,7 +18,7 @@ Status: pass
 - Debug visibility: pass
 - Sensitive route access: pass
 - Raw sensitive telemetry protected: true
-- Score: 76.56 -> 76.56
+- Score: 63.18 -> 63.18
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk
 
 ## Event Spines
@@ -58,7 +60,15 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
-| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
+| agent/state/creator-discovery-relationship-funnel.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/media-upload-lifecycle.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/person-metrics-hydration.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/private-media-access.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/search-discovery-cost.generated.json | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/creator-discovery-relationship-funnel.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/media-upload-lifecycle.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/private-media-access.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/search-discovery-cost.md | stale_generated_artifact_to_regenerate |
 
 ## Remaining Gaps
 

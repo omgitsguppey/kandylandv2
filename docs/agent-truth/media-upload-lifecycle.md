@@ -1,6 +1,6 @@
 # Media Upload Lifecycle
 
-Generated: 2026-07-14T14:37:48.015Z
+Generated: 2026-07-16T04:25:43.433Z
 
 Status: pass
 
@@ -49,31 +49,8 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
-| .env.example | unsafe_unknown |
-| agent/context/doctrine-cards.jsonl | unsafe_unknown |
-| agent/context/doctrine-conflicts.generated.json | unsafe_unknown |
-| agent/context/doctrine-registry.json | unsafe_unknown |
-| agent/context/doctrine.cards.jsonl | unsafe_unknown |
-| agent/context/doctrine.index.json | unsafe_unknown |
-| agent/context/file-size-budget.json | unsafe_unknown |
-| agent/context/legacy-registry.json | unsafe_unknown |
-| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
-| agent/context/task-pack.generated.json | unsafe_unknown |
-| agent/context/validator-authority.json | unsafe_unknown |
-| agent/context/validator-map.json | unsafe_unknown |
-| agent/index/blast-radius.json | unsafe_unknown |
-| agent/index/canonical-helpers.json | unsafe_unknown |
-| agent/state/media-upload-lifecycle.generated.json | current_generated_artifact_to_commit |
-| docs/agent-truth/media-upload-lifecycle.md | documentation_artifact_expected |
-| FULL_SCALE_CODEBASE_AUDIT.md | unsafe_unknown |
-| README.md | unsafe_unknown |
-| REPO_MEMORY_LEDGER.md | unsafe_unknown |
-| scripts/agent/validate-media-upload-lifecycle.ts | validator_artifact_expected |
-| src/app/api/chat/attachments/cancel/route.ts | real_source_change_needs_review |
-| src/app/api/chat/attachments/complete/route.ts | real_source_change_needs_review |
-| src/app/api/chat/attachments/prepare/route.ts | real_source_change_needs_review |
-| src/components/Chat/ChatExperience.tsx | real_source_change_needs_review |
-| tests/unit/media-upload-lifecycle.spec.ts | test_artifact_expected |
+| agent/state/creator-discovery-relationship-funnel.generated.json | unsafe_unknown |
+| docs/agent-truth/creator-discovery-relationship-funnel.md | unsafe_unknown |
 
 ## Validation Failures
 

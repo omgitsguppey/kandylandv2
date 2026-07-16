@@ -1,7 +1,7 @@
 # Auth Runtime Telemetry
 
-Generated: 2026-05-24T09:24:25.334Z
-Current HEAD: 309d6b03
+Generated: 2026-07-16T04:23:55.495Z
+Current HEAD: 621afada2aea0ef269a02c7ac68d4424bfce5214
 
 ## Status
 
@@ -51,52 +51,22 @@ Current HEAD: 309d6b03
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 92.5 | 92.5 | target_met | No auth runtime-specific score action required. |
-| runtimeHealth | 84.2 | 84.2 | target_met | No auth runtime-specific score action required. |
-| evidenceCompleteness | 69.6 | 69.6 | below_target | Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired. |
-| freshness | 83.75 | 83.75 | target_met | No auth runtime-specific score action required. |
-| costRisk | 42 | 42 | below_target | Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired. |
-| regressionRisk | 86 | 86 | target_met | No auth runtime-specific score action required. |
-| overallHealthScore | 79.25 | 79.25 | below_target | Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired. |
+| sourceHealth | 83.6 | 83.6 | target_met | No auth runtime-specific score action required. |
+| runtimeHealth | 50.22 | 50.22 | below_target | Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired. |
+| evidenceCompleteness | 45 | 45 | below_target | Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired. |
+| freshness | 59.38 | 59.38 | below_target | Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired. |
+| costRisk | 92.5 | 92.5 | target_met | No auth runtime-specific score action required. |
+| regressionRisk | 94 | 94 | target_met | No auth runtime-specific score action required. |
+| overallHealthScore | 63.18 | 63.18 | below_target | Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired. |
 
 ## Dirty File Classification
 
-- CHANGELOG.md: release_artifact_expected
 - agent/state/auth-persistence-stability.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/auth-provider-conflict-resolution.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/auth-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/auth-runtime-telemetry.generated.json: current_generated_artifact_to_commit
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/email-password-auth-refactor.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/identity-handoff-spine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/auth-persistence-stability.md: documentation_artifact_expected
 - docs/agent-truth/auth-provider-conflict-resolution.md: documentation_artifact_expected
-- docs/agent-truth/auth-readiness-lock.md: documentation_artifact_expected
-- docs/agent-truth/auth-runtime-telemetry.md: documentation_artifact_expected
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/email-password-auth-refactor.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/identity-handoff-spine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-auth-persistence-stability.ts: validator_artifact_expected
-- scripts/agent/validate-auth-provider-conflict-resolution.ts: validator_artifact_expected
-- scripts/agent/validate-auth-readiness-lock.ts: validator_artifact_expected
-- scripts/agent/validate-auth-runtime-telemetry.ts: validator_artifact_expected
-- scripts/agent/validate-email-password-auth-refactor.ts: validator_artifact_expected
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/auth-readiness-lock.spec.ts: test_artifact_expected
 
 ## Stale Auth Telemetry Logic
 

@@ -1,8 +1,14 @@
 # Notification + PWA Score Lock
 
-Generated: 2026-05-26T04:49:24.223Z
+Generated: 2026-07-16T04:26:13.907Z
 
-Current head: a81cdb0b885f65dec63a582e4b9fe4cfdfeced39
+Current head: 621afada2aea0ef269a02c7ac68d4424bfce5214
+
+Source commit: 621afada2aea0ef269a02c7ac68d4424bfce5214
+
+Validator status: pass
+
+Validator passed: true
 
 ## Status
 
@@ -20,37 +26,33 @@ Current head: a81cdb0b885f65dec63a582e4b9fe4cfdfeced39
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 100 | 100 | target_met | No notification/PWA-specific score action needed. |
-| runtimeHealth | 84.2 | 84.2 | target_met | No notification/PWA-specific score action needed. |
-| evidenceCompleteness | 84.6 | 84.6 | target_met | No notification/PWA-specific score action needed. |
-| freshness | 91.88 | 91.88 | target_met | No notification/PWA-specific score action needed. |
-| costRisk | 80.5 | 80.5 | target_met | No notification/PWA-specific score action needed. |
-| regressionRisk | 86 | 86 | target_met | No notification/PWA-specific score action needed. |
-| overallHealthScore | 89.19 | 89.19 | target_met | No notification/PWA-specific score action needed. |
+| sourceHealth | 83.6 | 83.6 | target_met | No notification/PWA-specific score action needed. |
+| runtimeHealth | 50.22 | 50.22 | below_target | Run formal runtime smoke when allowed; source-side notification/PWA validators remain source evidence only. |
+| evidenceCompleteness | 45 | 45 | below_target | Attach formal provider/runtime/admin evidence; notification/PWA source wiring is locked but does not fake formal proof. |
+| freshness | 59.38 | 59.38 | below_target | Refresh stale score-impacting artifacts with targeted validators. |
+| costRisk | 92.5 | 92.5 | target_met | No notification/PWA-specific score action needed. |
+| regressionRisk | 94 | 94 | target_met | No notification/PWA-specific score action needed. |
+| overallHealthScore | 63.18 | 63.18 | below_target | Raise below-target component dimensions before treating the overall score as solved. |
 
 ## Remaining Gaps
 
-- None
+- runtimeHealth below 80: Run formal runtime smoke when allowed; source-side notification/PWA validators remain source evidence only.
+- evidenceCompleteness below 80: Attach formal provider/runtime/admin evidence; notification/PWA source wiring is locked but does not fake formal proof.
+- freshness below 80: Refresh stale score-impacting artifacts with targeted validators.
+- overallHealthScore below 80: Raise below-target component dimensions before treating the overall score as solved.
 
 ## Dirty File Classification
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/auth-readiness-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/cost-risk-exit-pass.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-monetization-readiness-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/final-parity-telemetry-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/freshness-window-repair.generated.json: current_generated_artifact_to_commit
-- agent/state/launch-blocker-evidence-closure.generated.json: current_generated_artifact_to_commit
-- agent/state/media-discovery-score-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/targeted-behavior-evidence-repair.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/auth-readiness-lock.md: documentation_artifact_expected
-- docs/agent-truth/cost-risk-exit-pass.md: documentation_artifact_expected
-- docs/agent-truth/creator-monetization-readiness-lock.md: documentation_artifact_expected
-- docs/agent-truth/final-parity-telemetry-lock.md: documentation_artifact_expected
-- docs/agent-truth/freshness-window-repair.md: documentation_artifact_expected
-- docs/agent-truth/launch-blocker-evidence-closure.md: documentation_artifact_expected
-- docs/agent-truth/media-discovery-score-lock.md: documentation_artifact_expected
-- docs/agent-truth/targeted-behavior-evidence-repair.md: documentation_artifact_expected
+- agent/state/notification-permission-lifecycle.generated.json: current_generated_artifact_to_commit
+- agent/state/notification-return-loop-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/notification-targeting-intent.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/push-token-registration.generated.json: current_generated_artifact_to_commit
+- agent/state/pwa-service-worker-safety.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/notification-permission-lifecycle.md: documentation_artifact_expected
+- docs/agent-truth/notification-targeting-intent.md: documentation_artifact_expected
+- docs/agent-truth/push-token-registration.md: documentation_artifact_expected
+- docs/agent-truth/pwa-service-worker-safety.md: documentation_artifact_expected
 
 ## Old Logic Classification
 
