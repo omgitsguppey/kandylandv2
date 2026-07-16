@@ -14,6 +14,7 @@ import {
 } from "@/lib/notifications/notification-prompt-telemetry";
 import {
   buildNotificationPermissionLifecycleReport,
+  renderNotificationPermissionLifecycleDoc,
   validateNotificationPermissionLifecycleReport,
 } from "../../scripts/agent/validate-notification-permission-lifecycle";
 
@@ -158,5 +159,18 @@ describe("notification permission lifecycle", () => {
       "debug lane missing.",
       "aria-busy lost.",
     ]));
+  });
+
+  it("renders an explicit empty dirty-file state without an extra blank line", () => {
+    const report = buildNotificationPermissionLifecycleReport({
+      currentHead: "0123456789abcdef0123456789abcdef01234567",
+      dirtyFiles: [],
+    });
+
+    const doc = renderNotificationPermissionLifecycleDoc(report);
+
+    expect(doc).toContain("## Dirty Files\n\n- none");
+    expect(doc.endsWith("- none\n")).toBe(true);
+    expect(doc.endsWith("- none\n\n")).toBe(false);
   });
 });

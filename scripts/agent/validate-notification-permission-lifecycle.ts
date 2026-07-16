@@ -323,14 +323,8 @@ export function validateNotificationPermissionLifecycleReport(report: Notificati
   return failures;
 }
 
-function writeReport(report: NotificationPermissionLifecycleReport) {
-  const reportPath = join(ROOT, REPORT_PATH);
-  mkdirSync(dirname(reportPath), { recursive: true });
-  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
-
-  const docPath = join(ROOT, DOC_PATH);
-  mkdirSync(dirname(docPath), { recursive: true });
-  writeFileSync(docPath, [
+export function renderNotificationPermissionLifecycleDoc(report: NotificationPermissionLifecycleReport) {
+  return [
     "# Notification Permission Lifecycle",
     "",
     `Generated: ${report.generatedAtUtc}`,
@@ -365,9 +359,21 @@ function writeReport(report: NotificationPermissionLifecycleReport) {
     "",
     "## Dirty Files",
     "",
-    ...report.dirtyFiles.map((entry) => `- ${entry.path}: ${entry.classification}`),
+    ...(report.dirtyFiles.length > 0
+      ? report.dirtyFiles.map((entry) => `- ${entry.path}: ${entry.classification}`)
+      : ["- none"]),
     "",
-  ].join("\n"));
+  ].join("\n");
+}
+
+function writeReport(report: NotificationPermissionLifecycleReport) {
+  const reportPath = join(ROOT, REPORT_PATH);
+  mkdirSync(dirname(reportPath), { recursive: true });
+  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+
+  const docPath = join(ROOT, DOC_PATH);
+  mkdirSync(dirname(docPath), { recursive: true });
+  writeFileSync(docPath, renderNotificationPermissionLifecycleDoc(report));
 }
 
 function main() {
