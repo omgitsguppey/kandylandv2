@@ -45,7 +45,16 @@ Required secret references:
 - `NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE`
 - `PAYPAL_CLIENT_SECRET_LIVE`
 - `GA_API_SECRET`
+- `CRON_SECRET`
 - `NAVIGATION_COOKIE_SECRET`
+
+App Hosting secret access must be granted through
+`firebase apphosting:secrets:grantaccess` or an equivalent IAM policy. The
+build/runtime service account needs `roles/secretmanager.secretAccessor`, the
+build service account needs `roles/secretmanager.viewer`, and the Firebase App
+Hosting service agent needs `roles/secretmanager.secretVersionManager` on the
+secret. `secretAccessor` alone does not satisfy App Hosting's build-time secret
+resolution contract.
 
 The tracked `backends.json` file is a generated deployment snapshot only. It must not contain raw override values; keep snapshot values redacted.
 
