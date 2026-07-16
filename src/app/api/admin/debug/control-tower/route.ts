@@ -9,7 +9,6 @@ import {
     normalizeAdminUiTestSessionCookieValue,
     resolveAdminUiTestSession,
 } from "@/lib/admin/admin-ui-test-session";
-import { buildAdminDebugControlTowerModel } from "@/lib/admin-debug-control-tower";
 import { loadAdminDebugControlTower } from "@/lib/server/admin-debug-control-tower-loader";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -40,8 +39,9 @@ async function GET_handler(request: NextRequest) {
 
     try {
         if (isLocalAdminUiTestSessionRequest(request)) {
-            const model = buildAdminDebugControlTowerModel({
-                debugEvidenceSource: "generated",
+            const model = await loadAdminDebugControlTower({
+                evidenceLimit: 60,
+                sourceReportsOnly: true,
             });
 
             return finalize(NextResponse.json(model, {

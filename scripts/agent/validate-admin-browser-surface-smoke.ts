@@ -172,7 +172,9 @@ function readSourceSmokeContracts(layoutSelectorContract: ReturnType<typeof read
       layoutSelectorContract.usesSurfaceResolver,
     controlTowerFixtureSourceReportsOnly:
       controlTowerRouteSource.includes("isLocalAdminUiTestSessionRequest") &&
-      controlTowerRouteSource.includes("buildAdminDebugControlTowerModel") &&
+      controlTowerRouteSource.includes("loadAdminDebugControlTower") &&
+      controlTowerRouteSource.includes("sourceReportsOnly: true") &&
+      !controlTowerRouteSource.includes("buildAdminDebugControlTowerModel") &&
       controlTowerRouteSource.includes("X-Admin-Ui-Test-Session") &&
       controlTowerRouteSource.includes("source-reports-only"),
     routeRuntimeHealthVerificationPresent:

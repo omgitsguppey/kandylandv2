@@ -281,6 +281,10 @@ export function LiveIssueCard({ issue }: { issue: AdminDebugLiveIssueCard }) {
                 <p className="mt-2 text-xs text-gray-200">{note}</p>
             ) : null}
             <p className="mt-2 text-xs text-gray-300">Fingerprint {issue.fingerprint} | {issue.occurrenceCount}x | {formatRelative(issue.lastSeenAt)}</p>
+            <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
+                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Evidence handling</summary>
+                <p className="mt-1">Raw support/user bodies stay redacted and collapsed.</p>
+            </details>
         </article>
     );
 }

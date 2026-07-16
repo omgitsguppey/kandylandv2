@@ -16,18 +16,25 @@ export async function loadAdminDebugControlTower(options?: {
   nowMs?: number;
   rootDir?: string;
   evidenceLimit?: number;
+  sourceReportsOnly?: boolean;
 }): Promise<AdminDebugControlTowerModel> {
   const nowMs = options?.nowMs ?? Date.now();
-  const debugEvidence = await listRecentDebugEvidence({ limit: options?.evidenceLimit ?? 60 });
-  const businessSnapshot = await readAdminUserTruthSnapshot({
-    db: adminDb,
-    generatedAt: nowMs,
-  });
+  const debugEvidence = options?.sourceReportsOnly
+    ? []
+    : await listRecentDebugEvidence({ limit: options?.evidenceLimit ?? 60 });
+  const businessSnapshot = options?.sourceReportsOnly
+    ? null
+    : await readAdminUserTruthSnapshot({
+        db: adminDb,
+        generatedAt: nowMs,
+      });
   const model = buildAdminDebugControlTowerModel({
     rootDir: options?.rootDir,
     nowMs,
     debugEvidence,
-    debugEvidenceSource: debugEvidence.length > 0 ? "firestore" : "generated",
+    debugEvidenceSource: options?.sourceReportsOnly || debugEvidence.length === 0
+      ? "generated"
+      : "firestore",
   });
 
   return {

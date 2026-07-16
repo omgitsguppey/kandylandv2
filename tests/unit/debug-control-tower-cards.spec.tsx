@@ -1,7 +1,8 @@
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { FILTERS, resolveReportDisplay } from "@/app/admin/debug/components/DebugControlTowerCards";
-import type { AdminDebugReportCard } from "@/lib/admin-debug-control-tower";
+import { FILTERS, LiveIssueCard, resolveReportDisplay } from "@/app/admin/debug/components/DebugControlTowerCards";
+import type { AdminDebugLiveIssueCard, AdminDebugReportCard } from "@/lib/admin-debug-control-tower";
 
 function report(overrides: Partial<AdminDebugReportCard>): AdminDebugReportCard {
   return {
@@ -169,5 +170,30 @@ describe("resolveReportDisplay", () => {
     expect(display.statusLabel).toBe("Refresh due");
     expect(display.badgeLabel).toBe("Refresh due");
     expect(display.sourceDetail).toBe("This evidence is older than its freshness window or current app version.");
+  });
+});
+
+describe("LiveIssueCard", () => {
+  it("keeps the raw-body redaction boundary behind collapsed disclosure", () => {
+    const issue: AdminDebugLiveIssueCard = {
+      id: "support-redaction",
+      source: "support",
+      severity: "warn",
+      category: "support_truth",
+      route: "/api/support",
+      fingerprint: "redacted-support-body",
+      message: "raw body omitted",
+      humanMessage: "Support evidence needs review.",
+      occurrenceCount: 1,
+      lastSeenAt: Date.UTC(2026, 5, 18),
+      truthState: "stale",
+    };
+
+    const markup = renderToStaticMarkup(<LiveIssueCard issue={issue} />);
+
+    expect(markup).toContain("<details");
+    expect(markup).not.toContain("<details open");
+    expect(markup).toContain("Raw support/user bodies stay redacted and collapsed.");
+    expect(markup).not.toContain(issue.message);
   });
 });
