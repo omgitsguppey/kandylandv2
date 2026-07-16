@@ -62,6 +62,23 @@ function hasYamlEnvSecret(text: string, variable: string) {
   return false;
 }
 
+function hasYamlEnvAvailability(text: string, variable: string, availability: string) {
+  const lines = text.split(/\r?\n/u);
+  const variableLine = lines.findIndex((line) => line.trim() === `- variable: ${variable}`);
+  if (variableLine === -1) return false;
+  let insideAvailability = false;
+  for (let index = variableLine + 1; index < lines.length; index += 1) {
+    const trimmed = lines[index]?.trim() ?? "";
+    if (trimmed.startsWith("- variable: ")) return false;
+    if (trimmed === "availability:") {
+      insideAvailability = true;
+      continue;
+    }
+    if (insideAvailability && trimmed === `- ${availability}`) return true;
+  }
+  return false;
+}
+
 function parseJson(path: string) {
   const text = readText(path);
   try {
@@ -86,7 +103,11 @@ const functionsPackageJson = parseJson("functions/package.json") as {
   engines?: { node?: unknown };
 } | null;
 const packageJson = parseJson("package.json") as {
+  engines?: { node?: unknown; npm?: unknown };
   scripts?: Record<string, string>;
+} | null;
+const tsconfigJson = parseJson("tsconfig.json") as {
+  exclude?: unknown[];
 } | null;
 const manifest = parseJson("public/manifest.json") as {
   scope?: unknown;
@@ -109,6 +130,22 @@ const backends = parseJson("backends.json") as {
     failures.push(`apphosting.yaml: ${variable} must be explicitly set to the production value`);
   }
 });
+
+[
+  ["CYPRESS_INSTALL_BINARY", "0"],
+  ["PUPPETEER_SKIP_DOWNLOAD", "true"],
+].forEach(([variable, value]) => {
+  if (!hasYamlEnvValue(apphosting, variable, value)) {
+    failures.push(`apphosting.yaml: ${variable} must skip browser binary downloads during provider builds`);
+  }
+  if (!hasYamlEnvAvailability(apphosting, variable, "BUILD")) {
+    failures.push(`apphosting.yaml: ${variable} must be build-only`);
+  }
+});
+
+if (apphosting.includes("- variable: NODE_OPTIONS")) {
+  failures.push("apphosting.yaml: NODE_OPTIONS must not impose a build-sized heap on the 2 GiB runtime");
+}
 
 [
   "NEXT_PUBLIC_FIREBASE_VAPID_KEY",
@@ -151,6 +188,17 @@ if (functionsPackageJson?.main !== "lib/functions/src/index.js") {
 if (functionsPackageJson?.engines?.node !== "22") {
   failures.push("functions/package.json: engines.node must be 22");
 }
+
+if (packageJson?.engines?.node !== "22" || packageJson.engines.npm !== "10") {
+  failures.push("package.json: engines must pin Node 22 and npm 10 for local/App Hosting parity");
+}
+
+const rootTypeScriptExcludes = new Set((tsconfigJson?.exclude ?? []).map(String));
+["functions", "scripts", "tests"].forEach((path) => {
+  if (!rootTypeScriptExcludes.has(path)) {
+    failures.push(`tsconfig.json: root production typecheck must exclude the separate ${path} tree`);
+  }
+});
 
 [
   "src/app/api/paypal/create/route.ts",

@@ -46,7 +46,8 @@
     "functions",
     "dataconnect",
     "cypress",
-    "tests/puppeteer",
+    "scripts",
+    "tests",
     ".storybook"
   ]
 }

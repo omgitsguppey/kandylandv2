@@ -9,6 +9,10 @@ export default defineConfig({
     tsconfigPaths: true,
     alias: [
       {
+        find: "@",
+        replacement: path.join(dirname, "src"),
+      },
+      {
         find: "@google-cloud/vertexai",
         replacement: path.join(dirname, "tests/support/google-cloud-vertexai.mock.ts"),
       },

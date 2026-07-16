@@ -6,8 +6,14 @@ runConfig:
   maxInstances: 2
 
 env:
-  - variable: NODE_OPTIONS
-    value: --max-old-space-size=16384
+  - variable: CYPRESS_INSTALL_BINARY
+    value: "0"
+    availability:
+      - BUILD
+  - variable: PUPPETEER_SKIP_DOWNLOAD
+    value: "true"
+    availability:
+      - BUILD
   - variable: NEXT_PUBLIC_SITE_ORIGIN
     value: https://kandydrops.com
   - variable: SITE_ORIGIN
