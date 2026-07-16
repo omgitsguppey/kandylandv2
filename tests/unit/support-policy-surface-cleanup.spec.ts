@@ -3,6 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 import { expectSourceValidatorWithDirtyTreeIsolation } from "./utils/source-validator-contract";
+import { isSupportPolicyProtectedChange } from "../../scripts/agent/validate-support-policy-surface-cleanup";
 
 const root = process.cwd();
 
@@ -11,6 +12,15 @@ function read(path: string) {
 }
 
 describe("support policy surface cleanup", () => {
+  it("does not classify generated or test evidence names as protected runtime changes", () => {
+    expect(isSupportPolicyProtectedChange("agent/state/account-settings-delete-flow.generated.json")).toBe(false);
+    expect(isSupportPolicyProtectedChange("docs/agent-truth/account-settings-delete-flow.md")).toBe(false);
+    expect(isSupportPolicyProtectedChange("tests/unit/account-settings-delete-flow.spec.ts")).toBe(false);
+    expect(isSupportPolicyProtectedChange("src/components/AccountDeleteFlow.tsx")).toBe(true);
+    expect(isSupportPolicyProtectedChange("src/app/api/paypal/capture/route.ts")).toBe(true);
+    expect(isSupportPolicyProtectedChange("src/components/Admin/AdminSupportQueue.tsx")).toBe(false);
+  });
+
   it("passes source checks or reports only the exact dirty-tree isolation blocker", () => {
     expectSourceValidatorWithDirtyTreeIsolation({
       command: "npm run check:support-policy-surface-cleanup",

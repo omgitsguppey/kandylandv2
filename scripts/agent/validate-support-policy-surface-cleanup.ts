@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
   getBrokenSupportPolicySurfaces,
@@ -55,6 +55,25 @@ function surfaceRouteExists(routeSource: string) {
   return existsSync(join(ROOT, routeSource));
 }
 
+export function isSupportPolicyProtectedChange(file: string, approvedChatErrorLanguageChange = false) {
+  const normalized = file.replace(/\\/gu, "/");
+  const isRuntimeSource = normalized.startsWith("src/");
+
+  return (/^src\/components\/Chat\//u.test(normalized)
+      && !(normalized === "src/components/Chat/ChatExperience.tsx" && approvedChatErrorLanguageChange))
+    || /^src\/app\/chat\//u.test(normalized)
+    || /^src\/app\/dashboard\/chat\//u.test(normalized)
+    || /(^|\/)(TopNav|BottomNav|Navbar|MobileBottomBar)\.(tsx|ts|jsx|js)$/u.test(normalized)
+    || /^src\/components\/Navigation\//u.test(normalized)
+    || /^src\/app\/api\/(paypal|wallet|payment|checkout)\b/iu.test(normalized)
+    || /^src\/lib\/(paypal|payment|wallet|gumdrop|gumdrops|gumdrop-)/iu.test(normalized)
+    || (isRuntimeSource && (
+      normalized.includes("Delete")
+      || normalized.includes("delete-flow")
+      || normalized.includes("mobile-padding")
+    ));
+}
+
 function main() {
   const generatedAtUtc = new Date().toISOString();
   const currentHead = git(["rev-parse", "HEAD"]) || "unknown";
@@ -80,16 +99,7 @@ function main() {
     && read("src/components/Chat/ChatExperience.tsx").includes("buildChatSafeError")
     && read("src/components/Chat/ChatExperience.tsx").includes("readChatDiagnosticCode");
   const protectedChanges = changed.filter((file) =>
-    (/^src\/components\/Chat\//u.test(file) && !(file === "src/components/Chat/ChatExperience.tsx" && approvedChatErrorLanguageChange))
-    || /^src\/app\/chat\//u.test(file)
-    || /^src\/app\/dashboard\/chat\//u.test(file)
-    || /(^|\/)(TopNav|BottomNav|Navbar|MobileBottomBar)\.(tsx|ts|jsx|js)$/u.test(file)
-    || /^src\/components\/Navigation\//u.test(file)
-    || /^src\/app\/api\/(paypal|wallet|payment|checkout)\b/iu.test(file)
-    || /^src\/lib\/(paypal|payment|wallet|gumdrop|gumdrops|gumdrop-)/iu.test(file)
-    || file.includes("Delete")
-    || file.includes("delete-flow")
-    || file.includes("mobile-padding"));
+    isSupportPolicyProtectedChange(file, approvedChatErrorLanguageChange));
 
   const brokenSurfaces = getBrokenSupportPolicySurfaces();
   const notConfiguredSurfaces = getNotConfiguredSupportPolicySurfaces();
@@ -225,4 +235,6 @@ function main() {
   console.log("Support policy surface cleanup validation passed.");
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
