@@ -200,7 +200,11 @@ export function classifyFinalGateDirtyFile(filePath: string): DirtyFileClassific
   }
   if (normalized === "package.json") return "package_script_wiring";
   if (normalized === "EVERY_FILE_FUNCTION_CHECKLIST.md") return "score_evidence_artifact";
-  if (normalized === "agent/index/repo-inventory.json" || normalized === "agent/index/retrieval-index.json") {
+  if (
+    normalized === "agent/index/repo-inventory.json"
+    || normalized === "agent/index/retrieval-index.json"
+    || normalized === "agent/index/ui-surface-coverage.json"
+  ) {
     return "score_evidence_artifact";
   }
   if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(normalized)

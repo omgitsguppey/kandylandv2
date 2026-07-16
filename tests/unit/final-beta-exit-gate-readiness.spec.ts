@@ -204,6 +204,7 @@ describe("final beta exit gate readiness", () => {
     expect(classifyFinalGateDirtyFile("tests/unit/final-beta-exit-gate-readiness.spec.ts")).toBe("final_gate_test");
     expect(classifyFinalGateDirtyFile("agent/state/final-beta-exit-gate-readiness.generated.json")).toBe("current_generated_artifact_to_commit");
     expect(classifyFinalGateDirtyFile("docs/agent-truth/final-beta-exit-gate-readiness.md")).toBe("current_generated_artifact_to_commit");
+    expect(classifyFinalGateDirtyFile("agent/index/ui-surface-coverage.json")).toBe("score_evidence_artifact");
     expect(classifyFinalGateDirtyFile("CHANGELOG.md")).toBe("release_artifact_expected");
     expect(classifyFinalGateDirtyFile("src/lib/gumdrop-ledger.ts")).toBe("unsafe_unknown");
   });
