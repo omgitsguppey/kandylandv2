@@ -12,7 +12,13 @@ describe("admin support fixture boundary", () => {
     expect(queueSource).toContain('data-admin-support-fixture-boundary="true"');
     expect(queueSource).toContain("source_missing: support source is not loaded in this fixture");
     expect(queueSource).toContain("Protected reads and writes stay blocked until verified admin access provides the source");
-    expect(queueSource).toContain('{isLocalAdminUiTestSession ? "No source" : "Verified"}');
+    expect(queueSource).toContain("<AdminStatusBadge");
+    expect(queueSource).toContain('const supportSourceState: AdminSurfaceState = isLocalAdminUiTestSession');
+    expect(queueSource).toContain('? "No source"');
+    expect(queueSource).toContain('? "API Failed"');
+    expect(queueSource).toContain('? "Checking API"');
+    expect(queueSource).toContain('? "API Partial"');
+    expect(queueSource).toContain(': "API Verified"');
     expect(queueSource).toContain('const supportQueueCountLabel = isLocalAdminUiTestSession ? "--" : summary.total');
     expect(queueSource).toContain("Queue ({supportQueueCountLabel})");
     expect(queueSource).toContain("{supportTurnCountLabel}");

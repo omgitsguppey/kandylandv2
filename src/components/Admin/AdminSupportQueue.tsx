@@ -8,10 +8,12 @@ import { toast } from "sonner";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useAdminSupportRealtime } from "@/hooks/useAdminSupportRealtime";
 import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
@@ -143,6 +145,33 @@ export function AdminSupportQueue() {
     const supportQueueCountLabel = isLocalAdminUiTestSession ? "--" : summary.total;
     const supportTurnCountLabel = isLocalAdminUiTestSession ? "--" : summary.openCount;
     const userTurnCountLabel = isLocalAdminUiTestSession ? "--" : summary.waitingOnUserCount;
+    const supportSourceState: AdminSurfaceState = isLocalAdminUiTestSession
+        ? "unavailable"
+        : threadsError
+            ? "failed"
+            : isLoadingThreads
+                ? "loading"
+                : messagesError
+                    ? "degraded"
+                    : "live";
+    const supportSourceLabel = isLocalAdminUiTestSession
+        ? "No source"
+        : threadsError
+            ? "API Failed"
+            : isLoadingThreads
+                ? "Checking API"
+                : messagesError
+                    ? "API Partial"
+                    : "API Verified";
+    const supportSourceDetail = isLocalAdminUiTestSession
+        ? "Local fixture mode does not load protected support routes."
+        : threadsError
+            ? "The protected admin support list route failed."
+            : isLoadingThreads
+                ? "Checking the protected admin support list route."
+                : messagesError
+                    ? "The support list loaded, but the selected thread detail failed."
+                    : "The protected admin support list route returned successfully.";
 
     async function handleReply() {
         if (!selectedThreadId) return;
@@ -215,9 +244,12 @@ export function AdminSupportQueue() {
                     title="Support Workspace"
                     compact
                     actions={(
-                        <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] ${isLocalAdminUiTestSession ? "border-amber-400/20 bg-amber-500/10 text-amber-100" : "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"}`}>
-                            {isLocalAdminUiTestSession ? "No source" : "Verified"}
-                        </span>
+                        <AdminStatusBadge
+                            state={supportSourceState}
+                            label={supportSourceLabel}
+                            title={supportSourceDetail}
+                            className="rounded-full px-3 py-1 text-[11px] font-bold"
+                        />
                     )}
                 />
                 {isLocalAdminUiTestSession ? (
