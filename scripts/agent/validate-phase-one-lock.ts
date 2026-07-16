@@ -100,6 +100,12 @@ function assertIncludes(source: string, expected: string, label: string) {
   assert(source.includes(expected), `${label} must include "${expected}".`);
 }
 
+function assertIncludesNormalized(source: string, expected: string, label: string) {
+  const normalizedSource = source.replace(/\s+/gu, " ").trim();
+  const normalizedExpected = expected.replace(/\s+/gu, " ").trim();
+  assert(normalizedSource.includes(normalizedExpected), `${label} must include "${normalizedExpected}".`);
+}
+
 function assertExcludes(source: string, forbidden: string, label: string) {
   assert(!source.includes(forbidden), `${label} must not include "${forbidden}".`);
 }
@@ -483,7 +489,9 @@ runSection("Generated reports cannot be imported by runtime", () => {
   assertIncludes(generatedReportContract, "GENERATED_REPORT_RUNTIME_FORBIDDEN_ROOTS", "Generated report contract");
   assertIncludes(generatedReportContract, "GENERATED_REPORT_SCAN_ROOTS", "Generated report contract");
   assertIncludes(generatedReportValidator, "Generated reports are evidence snapshots only and never runtime business truth.", "Generated report validator");
-  assertIncludes(generatedReportValidator, "Runtime src/app, src/components, and src/lib/server business logic must not import or read agent-generated report artifacts.", "Generated report validator");
+  assertIncludes(generatedReportValidator, "GENERATED_REPORT_RUNTIME_FORBIDDEN_ROOTS", "Generated report validator");
+  assertIncludes(generatedReportValidator, "findGeneratedReportRuntimeRead", "Generated report validator");
+  assertIncludes(generatedReportValidator, "runtimeViolations", "Generated report validator");
   assertIncludes(generatedReportAuthorityState, '"runtimeViolationCount": 0', "Generated report authority state");
   assertIncludes(generatedReportAuthorityState, '"doctrineOverrideViolationCount": 0', "Generated report authority state");
   const runtimeImportPattern = /\b(?:import\s*\(\s*|require\(\s*|from\s+|readFileSync\(\s*|readText\(\s*|readJsonFile\(\s*)["'][^"']*agent\/(?:state|index|context)\//u;
@@ -594,7 +602,7 @@ runSection("Chat paid-GD guidance is present and shell constants unchanged", () 
   assertIncludes(chatServer, "eligibleAgain", "Chat server");
   assertIncludes(paypalCapture, "chatPaidGdLowBalanceReminder", "PayPal capture");
   assertIncludes(paypalCapture, "chat_low_paid_gd_reminder_reset", "PayPal capture");
-  assertIncludes(paypalCapture, "sourceAwareBalance.purchased < 100 && nextSourceAwareBalance.purchased >= 100", "PayPal capture");
+  assertIncludesNormalized(paypalCapture, "sourceAwareBalance.purchased < 100 && nextSourceAwareBalance.purchased >= 100", "PayPal capture");
   assertIncludes(chatServer, 'errorCode: "insufficient_paid_gumdrops"', "Chat server");
   for (const eventName of [
     "chat_no_followed_creators_prompt_viewed",
