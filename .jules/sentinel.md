@@ -30,3 +30,8 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+
+## 2024-05-18 - Prevent Timing Attacks in Cron Secrets Validation
+**Vulnerability:** Simple equality operators (`!==`) were used to compare authentication headers to environment secrets in cron routes, which can expose the secret length and content to timing attacks.
+**Learning:** Node's standard string comparison exits early on a mismatch, creating observable timing differences based on how many characters match the secret. Since the secret is constant and known on the server, attackers can theoretically brute-force characters.
+**Prevention:** Always use `timingSafeEqual` from `node:crypto` for comparing API keys, authorization bearer tokens, or webhook signatures. Wrap the check to compare buffer lengths first, as `timingSafeEqual` throws if lengths differ: `const actualBytes = Buffer.from(actual); const expectedBytes = Buffer.from(expected); return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);`.

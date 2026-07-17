@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -29,6 +30,12 @@ const USER_PREFETCH_CONCURRENCY = 3;
 const CREATOR_SUBSCRIPTION_DUE_RENEWAL_LIMIT = 250;
 const CREATOR_SUBSCRIPTION_WARNING_LIMIT = 250;
 
+function matchesCronSecret(actual: string, expected: string) {
+    const actualBytes = Buffer.from(actual);
+    const expectedBytes = Buffer.from(expected);
+    return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);
+}
+
 type RenewalOutcome =
     | { status: "warned"; creatorId: string; userId: string }
     | { status: "renewed"; creatorId: string; userId: string; amount: number; creatorAccrualId: string }
@@ -43,8 +50,9 @@ async function GET_handler(request: NextRequest) {
 
         const cronSecret = process.env.CRON_SECRET?.trim();
         const authHeader = request.headers.get("authorization");
+        const actualSecret = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
 
-        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        if (!cronSecret || !actualSecret || !matchesCronSecret(actualSecret, cronSecret)) {
             if (!cronSecret) {
                 recordRouteWarning("cron/process-creator-subscriptions", "CRON_SECRET missing", {
                     routeName: "cron/process-creator-subscriptions",

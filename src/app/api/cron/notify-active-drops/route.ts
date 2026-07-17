@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
@@ -11,6 +12,12 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ROUTE_NAME = "cron/notify-active-drops";
 const STALE_AFTER_MS = 20 * 60 * 1000;
+
+function matchesCronSecret(actual: string, expected: string) {
+    const actualBytes = Buffer.from(actual);
+    const expectedBytes = Buffer.from(expected);
+    return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);
+}
 
 async function recordLegacyAdapterUse() {
     recordRouteWarning(ROUTE_NAME, "Legacy activation adapter invoked; Firebase scheduler is canonical.", undefined, {
@@ -40,8 +47,9 @@ async function GET_handler(request: NextRequest) {
         });
         const cronSecret = process.env.CRON_SECRET?.trim();
         const authHeader = request.headers.get("authorization");
+        const actualSecret = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
 
-        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        if (!cronSecret || !actualSecret || !matchesCronSecret(actualSecret, cronSecret)) {
             if (!cronSecret) {
                 recordRouteWarning(ROUTE_NAME, "CRON_SECRET is not configured", undefined, {
                     channel: "cron",
