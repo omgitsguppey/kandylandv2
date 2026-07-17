@@ -2598,14 +2598,31 @@ function buildRolloutRegistryPanelState(input: {
         explanation: "These are fixture contexts used to verify registry rules. They are not live user assignments.",
     };
 
+    // ⚡ Bolt: Single-pass iteration to avoid O(8*N) .filter() overhead and eliminate intermediate array allocations
+    let activeExperiments = 0;
+    let fullyRolledOutFeatures = 0;
+    let betaRelatedCount = 0;
+    let internalFeatures = 0;
+    let killSwitchReady = 0;
+    let staleRollouts = 0;
+
+    for (const item of rolloutItems) {
+        if (item.effectiveState === "active_experiment") activeExperiments++;
+        if (item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline") fullyRolledOutFeatures++;
+        if (item.stage === "beta") betaRelatedCount++;
+        if (item.effectiveState === "internal_feature") internalFeatures++;
+        if (item.killSwitchReady) killSwitchReady++;
+        if (item.stage === "alpha" && currentTrainFreshnessState === "historical") staleRollouts++;
+    }
+
     const registryStatus = buildExperimentRolloutRegistryStatus({
         configuredCount: rolloutItems.length,
-        activeCount: rolloutItems.filter((item) => item.effectiveState === "active_experiment").length,
-        completedCount: rolloutItems.filter((item) => item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline").length,
-        betaRelatedCount: rolloutItems.filter((item) => item.stage === "beta").length,
+        activeCount: activeExperiments,
+        completedCount: fullyRolledOutFeatures,
+        betaRelatedCount,
         actorResolutionStatus: actorRows.length > 0 ? "live" : "missing",
         assignmentSource: "src/lib/rollouts.ts representative evaluation",
-        exposureEventSource: rolloutItems.some((item) => item.effectiveState === "active_experiment") ? "analytics exposure events required for active experiments" : "not_required_without_active_experiment",
+        exposureEventSource: activeExperiments > 0 ? "analytics exposure events required for active experiments" : "not_required_without_active_experiment",
         sourceWindowStartUtc: declaredAtUtc === "unknown" ? null : declaredAtUtc,
         sourceWindowEndUtc: new Date(input.nowMs).toISOString(),
         generatedAtUtc: new Date(input.nowMs).toISOString(),
@@ -2639,11 +2656,11 @@ function buildRolloutRegistryPanelState(input: {
         summary: {
             configuredRollouts: rolloutItems.length,
             sampleActors: actorRows.length,
-            activeExperiments: rolloutItems.filter((item) => item.effectiveState === "active_experiment").length,
-            fullyRolledOutFeatures: rolloutItems.filter((item) => item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline").length,
-            internalFeatures: rolloutItems.filter((item) => item.effectiveState === "internal_feature").length,
-            killSwitchReady: rolloutItems.filter((item) => item.killSwitchReady).length,
-            staleRollouts: rolloutItems.filter((item) => item.stage === "alpha" && currentTrainFreshnessState === "historical").length,
+            activeExperiments,
+            fullyRolledOutFeatures,
+            internalFeatures,
+            killSwitchReady,
+            staleRollouts,
         },
         rollouts: rolloutItems,
         actorEvaluation,
