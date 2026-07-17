@@ -304,6 +304,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
             type="button"
             onClick={() => void mutate()}
             disabled={isLoading}
+            aria-busy={isLoading}
             aria-label="Refresh task snapshot"
             className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-gray-200 transition-colors hover:border-brand-purple/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -538,6 +539,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           type="button"
           onClick={handleCreateTask}
           disabled={submitting}
+          aria-busy={submitting}
           className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Plus className="h-4 w-4" />}
@@ -594,6 +596,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
                     <button
                       type="button"
                       disabled={updatingTaskId === task.id}
+                      aria-busy={updatingTaskId === task.id}
                       onClick={() => void toggleTaskState(task.id, !isActive)}
                       className={cn(
                         "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-opacity disabled:opacity-60",
