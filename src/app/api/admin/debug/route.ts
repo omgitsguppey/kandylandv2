@@ -2335,43 +2335,73 @@ function buildEstimatedWatchRecoveryGroups(repairs: Array<Record<string, unknown
     }
 
     return Array.from(grouped.values()).map((group) => {
-        const confidenceValues = group.rows.map((row) => row.confidence);
-        const recoveredValues = group.rows.map((row) => row.recoveredWatchSeconds);
-        const recoveredMode = recoveredValues.reduce<Record<number, number>>((accumulator, value) => {
-            accumulator[value] = (accumulator[value] || 0) + 1;
-            return accumulator;
-        }, {});
-        const modeSeconds = Object.entries(recoveredMode).sort((left, right) => {
-            if (right[1] !== left[1]) return right[1] - left[1];
-            return Number(left[0]) - Number(right[0]);
-        })[0];
-        const firstSeenAtUtc = group.rows
-            .map((row) => row.createdAtUtc)
-            .filter((value): value is string => Boolean(value))
-            .sort()[0] || null;
-        const lastSeenAtUtc = group.rows
-            .map((row) => row.createdAtUtc)
-            .filter((value): value is string => Boolean(value))
-            .sort()
-            .slice(-1)[0] || null;
-        const completionRepairCount = group.rows.reduce((sum, row) => sum + row.completionRepairCount, 0);
-        const confidenceAvg = confidenceValues.length > 0
-            ? Math.round((confidenceValues.reduce((sum, value) => sum + value, 0) / confidenceValues.length) * 10) / 10
+        let confidenceMin = Number.POSITIVE_INFINITY;
+        let confidenceMax = Number.NEGATIVE_INFINITY;
+        let confidenceSum = 0;
+
+        let recoveredMin = Number.POSITIVE_INFINITY;
+        let recoveredMax = Number.NEGATIVE_INFINITY;
+        let recoveredSum = 0;
+
+        let firstSeenAtUtc: string | null = null;
+        let lastSeenAtUtc: string | null = null;
+        let completionRepairCount = 0;
+
+        const recoveredMode: Record<number, number> = {};
+
+        for (const row of group.rows) {
+            if (row.confidence < confidenceMin) confidenceMin = row.confidence;
+            if (row.confidence > confidenceMax) confidenceMax = row.confidence;
+            confidenceSum += row.confidence;
+
+            if (row.recoveredWatchSeconds < recoveredMin) recoveredMin = row.recoveredWatchSeconds;
+            if (row.recoveredWatchSeconds > recoveredMax) recoveredMax = row.recoveredWatchSeconds;
+            recoveredSum += row.recoveredWatchSeconds;
+
+            recoveredMode[row.recoveredWatchSeconds] = (recoveredMode[row.recoveredWatchSeconds] || 0) + 1;
+
+            if (row.createdAtUtc) {
+                if (!firstSeenAtUtc || row.createdAtUtc < firstSeenAtUtc) {
+                    firstSeenAtUtc = row.createdAtUtc;
+                }
+                if (!lastSeenAtUtc || row.createdAtUtc > lastSeenAtUtc) {
+                    lastSeenAtUtc = row.createdAtUtc;
+                }
+            }
+
+            completionRepairCount += row.completionRepairCount;
+        }
+
+        const confidenceCount = group.rows.length;
+        // Bolt Optimization: replaced multiple map, filter, sort, and reduce passes with a single loop
+        const confidenceAvg = confidenceCount > 0
+            ? Math.round((confidenceSum / confidenceCount) * 10) / 10
             : 0;
+
+        let modeSecondsValue = 0;
+        let maxModeCount = 0;
+        for (const key in recoveredMode) {
+            const val = Number(key);
+            const count = recoveredMode[val]!;
+            if (count > maxModeCount || (count === maxModeCount && val < modeSecondsValue)) {
+                maxModeCount = count;
+                modeSecondsValue = val;
+            }
+        }
 
         return {
             recoveryKind: group.recoveryKind,
             provenance: group.provenance,
             layer: group.layer,
-            count: group.rows.length,
-            confidenceMin: confidenceValues.length > 0 ? Math.min(...confidenceValues) : 0,
-            confidenceMax: confidenceValues.length > 0 ? Math.max(...confidenceValues) : 0,
+            count: confidenceCount,
+            confidenceMin: confidenceCount > 0 ? confidenceMin : 0,
+            confidenceMax: confidenceCount > 0 ? confidenceMax : 0,
             confidenceAvg,
-            recoveredWatchSecondsTotal: recoveredValues.reduce((sum, value) => sum + value, 0),
+            recoveredWatchSecondsTotal: recoveredSum,
             recoveredWatchSecondsPerSession: {
-                min: recoveredValues.length > 0 ? Math.min(...recoveredValues) : 0,
-                max: recoveredValues.length > 0 ? Math.max(...recoveredValues) : 0,
-                mode: modeSeconds ? Number(modeSeconds[0]) : 0,
+                min: confidenceCount > 0 ? recoveredMin : 0,
+                max: confidenceCount > 0 ? recoveredMax : 0,
+                mode: modeSecondsValue,
             },
             completionRepairCount,
             firstSeenAtUtc,
