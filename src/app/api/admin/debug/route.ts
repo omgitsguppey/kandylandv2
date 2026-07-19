@@ -2436,6 +2436,19 @@ function buildRolloutRegistryPanelState(input: {
             ? `This train matches the current ${PUBLIC_RELEASE_NOTES_FALLBACK.channel} release notes context.`
             : "Current beta relationship is not documented in the loaded rollout registry.";
 
+    const holdoutRolloutIds = new Set<string>();
+    for (const sample of input.rolloutSamples) {
+        if (!Array.isArray(sample.assignments)) continue;
+        for (const assignment of sample.assignments) {
+            if (toOptionalString(assignment.reason) === "holdout") {
+                const id = toOptionalString(assignment.id);
+                if (id) {
+                    holdoutRolloutIds.add(id);
+                }
+            }
+        }
+    }
+
     const rolloutItems: RolloutRegistryItem[] = input.rollouts.map((rollout) => {
         const kindRaw = toOptionalString(rollout.kind)?.toLowerCase();
         const baseKind: RolloutRegistryItem["kind"] =
@@ -2456,11 +2469,7 @@ function buildRolloutRegistryPanelState(input: {
                     .filter((value): value is string => Boolean(value)),
             ))
             : [];
-        const sampleAssignments = input.rolloutSamples.flatMap((sample) => {
-            const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
-            return assignments.filter((assignment) => toOptionalString(assignment.id) === toOptionalString(rollout.id));
-        });
-        const hasHoldout = rolloutPct < 100 || sampleAssignments.some((assignment) => toOptionalString(assignment.reason) === "holdout");
+        const hasHoldout = rolloutPct < 100 || holdoutRolloutIds.has(toOptionalString(rollout.id) || "");
         const stage = owner === "admin" || toOptionalString(rollout.audience) === "admin" ? "internal" : normalizeRolloutStage(rollout.stage);
         let effectiveState: RolloutRegistryItem["effectiveState"] = "disabled";
         let kind: RolloutRegistryItem["kind"] = baseKind;
