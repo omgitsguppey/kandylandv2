@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2026-05-24 - Avoiding Array Allocations in Tallies
+**Learning:** Chaining `.filter(condition).length` creates temporary intermediate arrays in memory just to count elements matching a condition. When done sequentially on the same array in hot paths or large datasets (like debug/admin API routes processing analytics and runtime parity states), it results in multiple O(N) traversals and severe garbage collection pressure.
+**Action:** Use a single-pass `for...of` loop with independent tally counters to compute all required conditions simultaneously. This guarantees O(1) space complexity and O(N) time complexity across multiple distinct metrics.
