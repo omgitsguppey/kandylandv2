@@ -924,7 +924,7 @@
         "posthog-js": "^1.367.0",
         "react": "^19.2.5",
         "react-dom": "^19.2.5",
-        "react-easy-crop": "^5.5.7",
+        "react-easy-crop": "^6.2.2",
         "react-hook-form": "^7.72.1",
         "react-loading-skeleton": "^3.5.0",
         "recharts": "^3.8.1",
