@@ -30,3 +30,7 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+## 2024-05-27 - [Fix timing attack vulnerability in token checks]
+**Vulnerability:** Several cron and internal API endpoints (`src/app/api/tasks/materialize/route.ts`, `src/app/api/cron/process-queue/route.ts`, `src/app/api/cron/notify-active-drops/route.ts`, `src/app/api/cron/process-creator-subscriptions/route.ts`) were performing plain string equality checks (e.g. `authorization === \`Bearer \${internalToken}\`` or `authHeader !== \`Bearer \${cronSecret}\``) to validate incoming secrets. This makes them vulnerable to timing attacks, as plain string equality checks fail fast and their execution time correlates with the length of the matching prefix.
+**Learning:** String comparisons for authentication tokens and secrets should use `timingSafeEqual` to avoid leaking information about the expected token length and content.
+**Prevention:** Use `crypto.timingSafeEqual` (after verifying lengths are equal) to prevent timing attacks.
