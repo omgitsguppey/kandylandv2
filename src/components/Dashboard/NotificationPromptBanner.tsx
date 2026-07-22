@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bell, Smartphone, X } from "lucide-react";
+import { Bell, Smartphone, X, Loader2 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { getBrowserNotificationState } from "@/lib/firebase-messaging";
@@ -402,7 +402,14 @@ export function NotificationPromptBanner() {
                                 aria-busy={loading}
                                 className="inline-flex min-h-8 items-center justify-center rounded-2xl bg-brand-purple px-4 py-2 text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                             >
-                                {loading ? "Please wait" : "Turn on notifications"}
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                                        Please wait
+                                    </>
+                                ) : (
+                                    "Turn on notifications"
+                                )}
                             </button>
                         </div>
                     </div>
