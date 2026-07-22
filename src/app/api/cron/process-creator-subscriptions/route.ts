@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { handleApiError } from "@/lib/server/auth";
+import { handleApiError, verifyCronSecret } from "@/lib/server/auth";
 import { CRON } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorRole } from "@/lib/creator-experiences";
@@ -44,7 +44,7 @@ async function GET_handler(request: NextRequest) {
         const cronSecret = process.env.CRON_SECRET?.trim();
         const authHeader = request.headers.get("authorization");
 
-        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        if (!verifyCronSecret(authHeader, cronSecret)) {
             if (!cronSecret) {
                 recordRouteWarning("cron/process-creator-subscriptions", "CRON_SECRET missing", {
                     routeName: "cron/process-creator-subscriptions",

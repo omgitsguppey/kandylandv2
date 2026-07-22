@@ -1,9 +1,7 @@
-import { timingSafeEqual } from "node:crypto";
-
 import { NextRequest, NextResponse } from "next/server";
 
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
-import { handleApiError } from "@/lib/server/auth";
+import { handleApiError, verifyCronSecret } from "@/lib/server/auth";
 import { CRON } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -19,12 +17,6 @@ const MATERIALIZER_ROUTE_SECURITY_POLICY = {
   trustedOriginExemptionReason: "service_to_service_cron_bearer_secret",
 } as const;
 
-function matchesCronSecret(actual: string, expected: string) {
-  const actualBytes = Buffer.from(actual);
-  const expectedBytes = Buffer.from(expected);
-  return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);
-}
-
 async function POST_handler(request: NextRequest) {
   try {
     const configuredSecret = process.env.CRON_SECRET?.trim() ?? "";
@@ -36,9 +28,8 @@ async function POST_handler(request: NextRequest) {
       }, { status: 503 });
     }
     // The scheduled service has no browser Origin; authenticate its bearer secret in constant time instead.
-    const authorization = request.headers.get("authorization")?.trim() ?? "";
-    const actualSecret = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
-    if (!actualSecret || !matchesCronSecret(actualSecret, configuredSecret)) {
+    const authorization = request.headers.get("authorization")?.trim() ?? null;
+    if (!verifyCronSecret(authorization, configuredSecret)) {
       return NextResponse.json({
         success: false,
         error: "Unauthorized.",
