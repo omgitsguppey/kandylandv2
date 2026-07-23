@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -42,9 +43,13 @@ async function GET_handler(request: NextRequest) {
         });
 
         const cronSecret = process.env.CRON_SECRET?.trim();
-        const authHeader = request.headers.get("authorization");
+        const authHeader = request.headers.get("authorization")?.trim() ?? "";
 
-        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        const actualSecretBytes = Buffer.from(authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "");
+        const expectedSecretBytes = Buffer.from(cronSecret ?? "");
+        const isAuthorized = cronSecret && actualSecretBytes.length === expectedSecretBytes.length && timingSafeEqual(actualSecretBytes, expectedSecretBytes);
+
+        if (!isAuthorized) {
             if (!cronSecret) {
                 recordRouteWarning("cron/process-creator-subscriptions", "CRON_SECRET missing", {
                     routeName: "cron/process-creator-subscriptions",
