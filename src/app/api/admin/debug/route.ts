@@ -5144,36 +5144,64 @@ export async function GET(request: NextRequest) {
                 && toNumber(entry.timestampMs) >= weekAgoMs;
         });
 
+        // ⚡ Bolt: Consolidate multiple O(N) array filters/reduces into a single pass
+        // Impact: Eliminates redundant iterations over creatorSpendTransactions7d and reduces temporary array allocations
+        let totalPurchasedSpent = 0;
+        let totalRewardSpent = 0;
+        let missingLedgerSourceCount = 0;
+        let restrictedSpendViolationCount = 0;
+        let amountMismatchCount = 0;
+        let missingCreatorAccrualCount = 0;
+        const byTypeMap = new Map<string, { type: string; label: string; count: number; purchasedSpent: number; rewardSpent: number }>();
+
+        for (const entry of creatorSpendTransactions7d) {
+            const purchasedAmount = toNumber(entry.purchasedAmountSpent);
+            const rewardAmount = toNumber(entry.rewardAmountSpent);
+            const ledgerSource = toStringValue(entry.ledgerSource);
+            const spendTotal = purchasedAmount + rewardAmount;
+
+            totalPurchasedSpent += purchasedAmount;
+            totalRewardSpent += rewardAmount;
+
+            if (!ledgerSource) {
+                missingLedgerSourceCount += 1;
+            }
+            if (rewardAmount > 0 || ledgerSource === "reward" || ledgerSource === "mixed") {
+                restrictedSpendViolationCount += 1;
+            }
+            if (spendTotal > 0 && spendTotal !== Math.abs(toNumber(entry.amount))) {
+                amountMismatchCount += 1;
+            }
+            if (!toStringValue(entry.creatorAccrualId)) {
+                missingCreatorAccrualCount += 1;
+            }
+
+            const key = toStringValue(entry.type) || "unknown";
+            const current = byTypeMap.get(key) || {
+                type: key,
+                label: getTransactionBadgeLabel({
+                    type: key as Parameters<typeof getTransactionBadgeLabel>[0]["type"],
+                    rewardSource: undefined,
+                }),
+                count: 0,
+                purchasedSpent: 0,
+                rewardSpent: 0,
+            };
+            current.count += 1;
+            current.purchasedSpent += purchasedAmount;
+            current.rewardSpent += rewardAmount;
+            byTypeMap.set(key, current);
+        }
+
         const creatorSpendParity = {
             trackedTransactions: creatorSpendTransactions7d.length,
-            totalPurchasedSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.purchasedAmountSpent), 0),
-            totalRewardSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.rewardAmountSpent), 0),
-            missingLedgerSourceCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.ledgerSource)).length,
-            restrictedSpendViolationCount: creatorSpendTransactions7d.filter((entry) => toNumber(entry.rewardAmountSpent) > 0 || toStringValue(entry.ledgerSource) === "reward" || toStringValue(entry.ledgerSource) === "mixed").length,
-            amountMismatchCount: creatorSpendTransactions7d.filter((entry) => {
-                const spendTotal = toNumber(entry.purchasedAmountSpent) + toNumber(entry.rewardAmountSpent);
-                return spendTotal > 0 && spendTotal !== Math.abs(toNumber(entry.amount));
-            }).length,
-            missingCreatorAccrualCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.creatorAccrualId)).length,
-            byType: Array.from(creatorSpendTransactions7d.reduce((map, entry) => {
-                const key = toStringValue(entry.type) || "unknown";
-                const current = map.get(key) || {
-                    type: key,
-                    label: getTransactionBadgeLabel({
-                        type: key as Parameters<typeof getTransactionBadgeLabel>[0]["type"],
-                        rewardSource: undefined,
-                    }),
-                    count: 0,
-                    purchasedSpent: 0,
-                    rewardSpent: 0,
-                };
-                current.count += 1;
-                current.purchasedSpent += toNumber(entry.purchasedAmountSpent);
-                current.rewardSpent += toNumber(entry.rewardAmountSpent);
-                map.set(key, current);
-                return map;
-            }, new Map<string, { type: string; label: string; count: number; purchasedSpent: number; rewardSpent: number }>()).values())
-                .sort((left, right) => right.count - left.count),
+            totalPurchasedSpent,
+            totalRewardSpent,
+            missingLedgerSourceCount,
+            restrictedSpendViolationCount,
+            amountMismatchCount,
+            missingCreatorAccrualCount,
+            byType: Array.from(byTypeMap.values()).sort((left, right) => right.count - left.count),
             policies: Object.entries(CREATOR_SPEND_POLICIES).map(([key, policy]) => ({
                 key,
                 label: policy.label,
