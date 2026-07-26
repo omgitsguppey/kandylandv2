@@ -382,11 +382,21 @@ export default function AdminRosterPage() {
         creatorSettings: detail.user.creatorSettings,
         creatorRestrictions: detail.user.creatorRestrictions,
     } : null;
-    const entriesByDecision = useMemo(() => ({
-        needs_review: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "needs_review"),
-        waiting: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "waiting"),
-        approved: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "approved"),
-    }), [intakeEntries]);
+    // ⚡ Bolt: Single-pass iteration to categorize entries instead of multiple O(N) filters
+    const entriesByDecision = useMemo(() => {
+        const result = {
+            needs_review: [] as typeof intakeEntries,
+            waiting: [] as typeof intakeEntries,
+            approved: [] as typeof intakeEntries,
+        };
+        for (const entry of intakeEntries) {
+            const bucket = classifyRosterDecisionEntry(entry);
+            if (bucket === "needs_review") result.needs_review.push(entry);
+            else if (bucket === "waiting") result.waiting.push(entry);
+            else if (bucket === "approved") result.approved.push(entry);
+        }
+        return result;
+    }, [intakeEntries]);
     const approvedQueueIds = useMemo(() => new Set(entriesByDecision.approved.map((entry) => entry.uid)), [entriesByDecision.approved]);
     const approvedLiveCreators = liveCreators.filter((entry) => !approvedQueueIds.has(entry.uid));
     const visibleDecisionEntries = tab === "create" ? [] : entriesByDecision[tab];
