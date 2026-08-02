@@ -106,15 +106,39 @@ function buildMaintenanceResponse() {
 
 function isMaintenanceBypassPath(pathname: string) {
   return (
-    isInternalBypassPath(pathname)
-    || pathname === "/manifest.json"
+    pathname === "/manifest.json"
     || pathname === "/robots.txt"
-    || pathname.startsWith("/api/health")
+    || pathname === "/api/health"
+    || pathname.startsWith("/api/health/")
   );
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (KANDY_MAINTENANCE_MODE && !isMaintenanceBypassPath(pathname)) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json(
+        {
+          state: "maintenance",
+          message: "KandyDrops is upgrading. We will be back soon.",
+        },
+        {
+          status: 503,
+          headers: {
+            "cache-control": "no-store",
+            "retry-after": "120",
+            "content-security-policy": "default-src 'none';",
+            "x-frame-options": "DENY",
+            "referrer-policy": "no-referrer",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+          },
+        },
+      );
+    }
+
+    return buildMaintenanceResponse();
+  }
 
   if (isInternalBypassPath(pathname)) {
     return NextResponse.next();
@@ -139,30 +163,6 @@ export async function middleware(request: NextRequest) {
       class: "legacy_route",
       cacheTtlSeconds: 120,
     });
-  }
-
-  if (KANDY_MAINTENANCE_MODE && !isMaintenanceBypassPath(pathname)) {
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json(
-        {
-          state: "maintenance",
-          message: "KandyDrops is upgrading. We will be back soon.",
-        },
-        {
-          status: 503,
-          headers: {
-            "cache-control": "no-store",
-            "retry-after": "120",
-            "content-security-policy": "default-src 'none';",
-            "x-frame-options": "DENY",
-            "referrer-policy": "no-referrer",
-            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
-          },
-        },
-      );
-    }
-
-    return buildMaintenanceResponse();
   }
 
   const requestHost = request.nextUrl.host;
