@@ -2,7 +2,7 @@ runConfig:
   cpu: 1
   memoryMiB: 2048
   concurrency: 80
-  minInstances: 1
+  minInstances: 0
   maxInstances: 2
 
 env:
@@ -57,3 +57,5 @@ env:
     secret: CRON_SECRET
   - variable: NAVIGATION_COOKIE_SECRET
     secret: NAVIGATION_COOKIE_SECRET
+  - variable: KANDY_MAINTENANCE_MODE
+    value: "1"
