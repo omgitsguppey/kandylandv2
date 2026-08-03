@@ -274,6 +274,7 @@ export function ReportBugButton({
                         key={option.value}
                         type="button"
                         onClick={() => setIssueType(option.value)}
+                        aria-pressed={issueType === option.value}
                         className={cn(
                           "rounded-[1rem] border px-3 py-2.5 text-left text-[11px] transition-colors md:text-xs",
                           issueType === option.value
@@ -290,10 +291,11 @@ export function ReportBugButton({
 
 
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 md:text-[11px]">
+                  <label htmlFor="bug-report-note" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 md:text-[11px]">
                     Optional detail
                   </label>
                   <textarea
+                    id="bug-report-note"
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
                     rows={3}
@@ -306,6 +308,7 @@ export function ReportBugButton({
                   <button
                     type="button"
                     onClick={() => setShowAutoContext((current) => !current)}
+                    aria-expanded={showAutoContext}
                     className="flex w-full items-center justify-between gap-3 text-left"
                   >
                     <div>
@@ -314,7 +317,7 @@ export function ReportBugButton({
                         {snapshotPreview.diagnostics.length} diagnostics, {snapshotPreview.breadcrumbs.length} actions, {snapshotPreview.recentErrors.length} errors
                       </p>
                     </div>
-                    {showAutoContext ? <ChevronUp className="h-4 w-4 text-brand-purple" /> : <ChevronDown className="h-4 w-4 text-brand-purple" />}
+                    {showAutoContext ? <ChevronUp className="h-4 w-4 text-brand-purple" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-brand-purple" aria-hidden="true" />}
                   </button>
 
                   {showAutoContext ? (
