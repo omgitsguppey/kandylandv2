@@ -306,6 +306,7 @@ export function ReportBugButton({
                   <button
                     type="button"
                     onClick={() => setShowAutoContext((current) => !current)}
+                    aria-expanded={showAutoContext}
                     className="flex w-full items-center justify-between gap-3 text-left"
                   >
                     <div>
@@ -314,7 +315,7 @@ export function ReportBugButton({
                         {snapshotPreview.diagnostics.length} diagnostics, {snapshotPreview.breadcrumbs.length} actions, {snapshotPreview.recentErrors.length} errors
                       </p>
                     </div>
-                    {showAutoContext ? <ChevronUp className="h-4 w-4 text-brand-purple" /> : <ChevronDown className="h-4 w-4 text-brand-purple" />}
+                    {showAutoContext ? <ChevronUp className="h-4 w-4 text-brand-purple" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-brand-purple" aria-hidden="true" />}
                   </button>
 
                   {showAutoContext ? (
@@ -368,9 +369,10 @@ export function ReportBugButton({
                   type="button"
                   onClick={submitBugReport}
                   disabled={submitting}
+                  aria-busy={submitting}
                   className="flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
-                  {submitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <><Sparkles className="h-4 w-4" />Send report</>}
+                  {submitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <><Sparkles className="h-4 w-4" aria-hidden="true" />Send report</>}
                 </button>
               </div>
             </div>
