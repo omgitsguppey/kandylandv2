@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { handleApiError } from "@/lib/server/auth";
+import { handleApiError, secureCompareTokens } from "@/lib/server/auth";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -13,7 +13,7 @@ async function POST_handler(req: NextRequest) {
   try {
     const internalToken = process.env.TASK_MATERIALIZER_TOKEN;
     const authorization = req.headers.get("authorization") || "";
-    const hasSchedulerToken = Boolean(internalToken && authorization === `Bearer ${internalToken}`);
+    const hasSchedulerToken = Boolean(internalToken && secureCompareTokens(authorization, `Bearer ${internalToken}`));
     if (!hasSchedulerToken) {
       await guardApiRequest(req, {
         routeName: "tasks_materialize",

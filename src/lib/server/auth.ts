@@ -1,4 +1,5 @@
 import "server-only";
+import { timingSafeEqual } from "node:crypto";
 import { NextRequest } from "next/server";
 import { adminAuth, adminDb } from "./firebase-admin";
 import { buildNotFoundResponse, type ApiNotFoundResource } from "./not-found";
@@ -8,6 +9,13 @@ import { recordDebugEvidence } from "./debug-evidence-store";
 import { buildHumanApiErrorResponse } from "@/lib/errors/api-error-response";
 import { resolveHumanErrorFromCode } from "@/lib/errors/resolve-human-error";
 import type { HumanErrorKey } from "@/lib/errors/error-dictionary";
+
+export function secureCompareTokens(actual: string | null | undefined, expected: string): boolean {
+    if (!actual) return false;
+    const actualBytes = Buffer.from(actual);
+    const expectedBytes = Buffer.from(expected);
+    return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);
+}
 
 export interface AuthResult {
     uid: string;

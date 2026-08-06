@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { handleApiError } from "@/lib/server/auth";
+import { handleApiError, secureCompareTokens } from "@/lib/server/auth";
 import { processQueueLifecycleRuntime } from "@/lib/server/queue-runtime";
 import { CRON } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -41,7 +41,7 @@ async function GET_handler(request: NextRequest) {
         const cronSecret = process.env.CRON_SECRET?.trim();
         const authHeader = request.headers.get("authorization");
 
-        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        if (!cronSecret || !secureCompareTokens(authHeader, `Bearer ${cronSecret}`)) {
             if (!cronSecret) {
                 recordRouteWarning(ROUTE_NAME, "CRON_SECRET is not configured", undefined, {
                     channel: "cron",
