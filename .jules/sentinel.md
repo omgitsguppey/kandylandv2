@@ -30,3 +30,8 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+
+## 2024-05-28 - [Timing Attack Risk on Cron Authentication]
+**Vulnerability:** String equality comparison (`!==`) for `CRON_SECRET` validation instead of constant-time comparison.
+**Learning:** Checking secure tokens via standard string comparison allows timing attacks, potentially leaking the token byte-by-byte.
+**Prevention:** Use `crypto.timingSafeEqual()` from Node.js `node:crypto` to validate authorization bearer tokens on system-level/cron endpoints.

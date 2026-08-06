@@ -21,6 +21,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { timingSafeEqual } from "node:crypto";
 
 const SUBSCRIPTION_TERM_MS = 30 * 24 * 60 * 60 * 1000;
 const WARNING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -34,6 +35,13 @@ type RenewalOutcome =
     | { status: "renewed"; creatorId: string; userId: string; amount: number; creatorAccrualId: string }
     | { status: "failed"; creatorId: string; userId: string; amount: number };
 
+
+function matchesCronSecret(actual: string, expected: string) {
+    const actualBytes = Buffer.from(actual);
+    const expectedBytes = Buffer.from(expected);
+    return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);
+}
+
 async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -44,7 +52,8 @@ async function GET_handler(request: NextRequest) {
         const cronSecret = process.env.CRON_SECRET?.trim();
         const authHeader = request.headers.get("authorization");
 
-        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        const actualSecret = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+        if (!cronSecret || !actualSecret || !matchesCronSecret(actualSecret, cronSecret)) {
             if (!cronSecret) {
                 recordRouteWarning("cron/process-creator-subscriptions", "CRON_SECRET missing", {
                     routeName: "cron/process-creator-subscriptions",
