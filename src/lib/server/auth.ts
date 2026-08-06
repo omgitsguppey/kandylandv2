@@ -1,4 +1,5 @@
 import "server-only";
+import { timingSafeEqual } from "node:crypto";
 import { NextRequest } from "next/server";
 import { adminAuth, adminDb } from "./firebase-admin";
 import { buildNotFoundResponse, type ApiNotFoundResource } from "./not-found";
@@ -13,6 +14,25 @@ export interface AuthResult {
     uid: string;
     email: string | undefined;
     isAdmin?: boolean;
+}
+
+/**
+ * Securely verifies a cron secret from an Authorization header using constant-time comparison
+ * to prevent timing attacks.
+ */
+export function verifyCronSecret(authHeader: string | null, configuredSecret: string | undefined): boolean {
+    if (!configuredSecret) return false;
+
+    const actualSecret = authHeader?.startsWith("Bearer ")
+        ? authHeader.slice(7).trim()
+        : "";
+
+    if (!actualSecret) return false;
+
+    const actualBytes = Buffer.from(actualSecret);
+    const expectedBytes = Buffer.from(configuredSecret);
+
+    return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);
 }
 
 function sanitizeApiErrorLogValue(value: unknown) {
