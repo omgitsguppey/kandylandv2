@@ -25,3 +25,6 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+## 2026-04-03 - Replacing nested O(N*M) filters with O(1) Sets in payload mapping
+**Learning:** In payload transformations (e.g. `src/app/api/admin/debug/route.ts`), filtering a large array inside an active `.map()` loop creates an O(N*M) bottleneck, specifically when filtering arrays using `.flatMap` and `.filter` within the same cycle.
+**Action:** Always pre-compute relationships into an O(1) `Set` or `Map` using a single-pass `for...of` loop prior to the `.map()` step. This minimizes array allocations, garbage collection, and nested loops simultaneously.
