@@ -25,3 +25,6 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+## 2024-05-18 - Single pass iterations for O(N*M) lookups
+**Learning:** Found multiple instances where `.filter().length` and `.some()` were chained or called repeatedly on the same array to calculate distinct metrics. This inflates time complexity to O(N*M) and generates significant garbage collection overhead with intermediate array allocations.
+**Action:** Replace sequential array `.filter()`/`.map()` operations on the same data set with a single-pass `for...of` loop to tally all metrics simultaneously. Ensure variables perfectly map back to summary objects using property shorthand.
