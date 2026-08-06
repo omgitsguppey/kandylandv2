@@ -17,6 +17,7 @@ import { CREATOR_DROP_ROUTE_STATE } from "@/lib/creator-profile-routing";
 import { buildBugReportContext, getSafePreviousRoute, resolveClientActionError } from "@/lib/errors/client-error-adapter";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
 import type { CreatorApplication, UserProfile } from "@/types/db";
+import { CreatorWorkspaceFrame } from "./CreatorWorkspaceFrame";
 import { CreatorActionQueuePanel } from "./creator-workspace/CreatorActionQueuePanel";
 import { CreatorBroadcastCard } from "./creator-workspace/CreatorBroadcastCard";
 import { CreatorDashboardOverviewModule, type CreatorOverviewMetric } from "./creator-workspace/CreatorDashboardOverviewModule";
@@ -366,7 +367,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     };
 
     return (
-        <section
+        <CreatorWorkspaceFrame
             className="mb-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:pt-0 md:mb-8 md:pb-0"
             data-creator-dashboard-content-boundary="creator_only"
             data-creator-dashboard-landing-density="mobile_compact"
@@ -404,7 +405,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                             {typeof creatorApplication?.queuePosition === "number" && creatorApplication.queuePosition > 0 ? (
                                 <CreatorWorkspaceStatusPill label={`#${creatorApplication.queuePosition} in queue`} />
                             ) : null}
-                            <Link href="/creators/waitlist" className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold text-white">
+                            <Link href="/creators/waitlist" className="inline-flex min-h-11 items-center rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[11px] font-bold text-white">
                                 View app
                             </Link>
                         </div>
@@ -456,7 +457,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     </div>
                 </div>
             )}
-        </section>
+        </CreatorWorkspaceFrame>
     );
 }
 

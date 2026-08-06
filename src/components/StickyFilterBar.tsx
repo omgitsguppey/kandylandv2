@@ -72,7 +72,7 @@ export default function StickyFilterBar({
 
     return (
         <div
-            className="sticky top-[calc(env(safe-area-inset-top)+4.25rem)] z-40 -mx-1 rounded-[1.35rem] border border-white/8 bg-black/62 p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur-xl md:top-24 md:mx-0 md:rounded-[1.5rem]"
+            className="sticky top-[calc(env(safe-area-inset-top)+4.25rem)] z-40 -mx-1 rounded-[1.35rem] border border-brand-purple/20 bg-[linear-gradient(125deg,rgba(25,8,47,0.93),rgba(7,5,19,0.88))] p-1.5 shadow-[0_14px_38px_rgba(0,0,0,0.32)] backdrop-blur-xl md:top-24 md:mx-0 md:rounded-[1.5rem]"
             data-drops-filter-bar="compact"
             style={{ WebkitBackdropFilter: "blur(20px)" }}
         >
@@ -89,7 +89,7 @@ export default function StickyFilterBar({
                         value={localSearch}
                         onChange={handleSearchChange}
                         onFocus={onSearchFocus}
-                        className="h-11 w-full rounded-[1rem] border border-white/10 bg-white/[0.055] pl-9 pr-3 text-[13px] font-medium text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/55 focus:bg-white/[0.08]"
+                        className="h-11 w-full rounded-[1rem] border border-white/10 bg-white/[0.06] pl-9 pr-3 text-[13px] font-medium text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/65 focus:bg-brand-purple/[0.1] focus:ring-2 focus:ring-brand-purple/20"
                     />
                 </label>
 
@@ -113,10 +113,10 @@ export default function StickyFilterBar({
                                     }
                                 }}
                                 className={cn(
-                                    "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-[0.95rem] border px-3 text-[11px] font-bold transition-colors active:scale-[0.98]",
+                                    "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-[0.95rem] border px-3 text-[11px] font-bold transition-colors active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/55",
                                     isSelected
-                                        ? "border-brand-purple/45 bg-brand-purple/18 text-white"
-                                        : "border-white/8 bg-white/[0.045] text-gray-400 hover:bg-white/[0.075] hover:text-white",
+                                        ? "border-brand-purple/50 bg-brand-purple/22 text-white shadow-[0_8px_18px_rgba(124,58,237,0.18)]"
+                                        : "border-white/8 bg-white/[0.045] text-gray-400 hover:border-white/15 hover:bg-white/[0.075] hover:text-white",
                                 )}
                                 aria-pressed={isSelected}
                             >
@@ -133,7 +133,7 @@ export default function StickyFilterBar({
                                 triggerHaptic();
                                 setIsExpanded((current) => !current);
                             }}
-                            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.95rem] border border-white/8 bg-white/[0.045] text-gray-400 transition-colors hover:bg-white/[0.075] hover:text-white active:scale-[0.98]"
+                            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.95rem] border border-white/8 bg-white/[0.045] text-gray-400 transition-colors hover:border-white/15 hover:bg-white/[0.075] hover:text-white active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/55"
                             aria-label={isExpanded ? "Collapse Drop filters" : "Show all Drop filters"}
                             aria-expanded={isExpanded}
                         >

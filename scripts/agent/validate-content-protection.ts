@@ -57,6 +57,30 @@ function requireNotIncludes(source: string, forbidden: string, label: string) {
   }
 }
 
+function requireOrderedOccurrences(source: string, expected: readonly string[], label: string) {
+  let previousIndex = -1;
+  for (const marker of expected) {
+    const markerIndex = source.indexOf(marker, previousIndex + 1);
+    if (markerIndex === -1) {
+      failures.push(`${label} must include ordered marker "${marker}".`);
+      return;
+    }
+    previousIndex = markerIndex;
+  }
+}
+
+function requireExactOccurrences(source: string, expected: string, count: number, label: string) {
+  let occurrences = 0;
+  let markerIndex = source.indexOf(expected);
+  while (markerIndex !== -1) {
+    occurrences += 1;
+    markerIndex = source.indexOf(expected, markerIndex + expected.length);
+  }
+  if (occurrences !== count) {
+    failures.push(`${label} must include "${expected}" exactly ${count} time(s); found ${occurrences}.`);
+  }
+}
+
 function requireNumber(value: unknown, label: string, min: number, max: number) {
   if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) {
     failures.push(`${label} must be a number between ${min} and ${max}.`);
@@ -296,11 +320,46 @@ if (contentRoute.indexOf("if (!accessDecision.allowed)") > contentRoute.indexOf(
 }
 
 for (const expected of [
-  "const rawDrop = id ? await getDropRaw(id) : null",
-  "const drop = rawDrop ? sanitizeDropForClient(rawDrop) : null",
+  'export const dynamic = "force-dynamic";',
+  "export const revalidate = 0;",
 ]) {
-  requireIncludes(viewerPage, expected, "dashboard viewer page");
+  requireIncludes(viewerPage, expected, "dashboard viewer page cache boundary");
 }
+requireExactOccurrences(
+  viewerPage,
+  "const rawDrop = await getDropRaw(id);",
+  1,
+  "dashboard viewer raw Drop loading",
+);
+requireExactOccurrences(
+  viewerPage,
+  "const drop = sanitizeDropForClient(rawDrop);",
+  1,
+  "dashboard viewer Drop sanitation",
+);
+requireOrderedOccurrences(
+  viewerPage,
+  [
+    "const navigationSession = await verifyNavigationSessionCookieValue(",
+    "if (!navigationSession || !adminDb || !adminAuth) {",
+    "redirect(viewerPreviewHref);",
+    "const [viewerSnapshot, authUser] = await Promise.all([",
+    'adminDb.collection("users").doc(navigationSession.uid).get(),',
+    "adminAuth.getUser(navigationSession.uid).catch(() => null),",
+    "if (!viewerSnapshot.exists || !authUser || authUser.disabled) {",
+    "redirect(viewerPreviewHref);",
+    "const viewerData = viewerSnapshot.data() ?? {};",
+    'if (viewerData.status === "suspended" || viewerData.status === "banned") {',
+    "redirect(viewerPreviewHref);",
+    "const rawDrop = await getDropRaw(id);",
+    "const viewerAccess = resolveDropViewAccess({",
+    "if (!viewerAccess.allowed) {",
+    "redirect(viewerPreviewHref);",
+    "const drop = sanitizeDropForClient(rawDrop);",
+    "return <ViewerClient",
+  ],
+  "dashboard viewer server entitlement boundary",
+);
 for (const expected of [
   "resolveDropViewAccess",
   "const isAuthorized = accessState.allowed",

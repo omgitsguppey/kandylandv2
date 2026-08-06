@@ -89,7 +89,7 @@ describe("creator profile mobile timeline", () => {
     expect(notificationAction).toContain("if (isCurrentAction())");
   });
 
-  it("continues to exclude pending drops and draft broadcasts from public timelines", () => {
+  it("keeps public timelines limited to approved drops and ignores broadcasts", () => {
     const timeline = buildCreatorProfileTimeline({
       settings: {
         profileTimelineEnabled: true,
@@ -101,15 +101,15 @@ describe("creator profile mobile timeline", () => {
         { id: "drop_pending", title: "Pending drop", status: "pending_review", validFrom: 3_000 },
       ],
       broadcasts: [
-        { id: "broadcast_live", status: "published", timelineEligible: true, body: "Published update", createdAtMs: 4_000 },
-        { id: "broadcast_draft", status: "draft", timelineEligible: true, body: "Draft update", createdAtMs: 5_000 },
+        { id: "broadcast_followers", status: "published", timelineEligible: true, audience: "followers", body: "Private update", createdAtMs: 4_000 },
+        { id: "broadcast_public_like", status: "published", timelineEligible: true, audience: "public", body: "Synthetic public update", createdAtMs: 5_000 },
       ],
     });
 
-    expect(timeline.items.map((item) => item.id)).toEqual(["broadcast_live", "drop_live"]);
+    expect(timeline.items.map((item) => item.id)).toEqual(["drop_live"]);
     expect(timeline.excludedCounts).toEqual({
       pendingDrops: 1,
-      draftBroadcasts: 1,
+      draftBroadcasts: 0,
     });
   });
 

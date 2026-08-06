@@ -543,7 +543,7 @@ export function DailyTasksModule() {
     <div className="space-y-4">
       {showFeedbackModal ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-md rounded-[2rem] border border-white/10 p-5">
+          <div className="w-full max-w-md rounded-[2rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.2),rgba(18,18,24,0.96)_50%,rgba(255,110,199,0.1))] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
             <h2 className="text-xl font-bold text-white">Share feedback</h2>
             <p className="mt-1 text-sm leading-6 text-gray-400">Tell us what would make daily tasks more useful.</p>
 
@@ -558,7 +558,7 @@ export function DailyTasksModule() {
                       onClick={() => setFeedbackCategory(option.value)}
                       aria-pressed={feedbackCategory === option.value}
                       className={cn(
-                        "rounded-2xl border px-3 py-3 text-left text-sm font-semibold transition-colors",
+                        "min-h-11 rounded-2xl border px-3 py-3 text-left text-sm font-semibold transition-colors",
                         feedbackCategory === option.value
                           ? "border-brand-purple bg-brand-purple/15 text-white"
                           : "border-white/10 bg-white/5 text-gray-300",
@@ -598,7 +598,7 @@ export function DailyTasksModule() {
                 <textarea
                   value={feedbackMessage}
                   onChange={(event) => setFeedbackMessage(event.target.value)}
-                  className="h-32 w-full rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
+                  className="h-32 w-full rounded-[1.4rem] border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/25"
                   placeholder="What should we improve?"
                 />
               </div>
@@ -608,7 +608,7 @@ export function DailyTasksModule() {
               <button
                 type="button"
                 onClick={() => setShowFeedbackModal(false)}
-                className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
               >
                 Cancel
               </button>
@@ -616,7 +616,7 @@ export function DailyTasksModule() {
                 type="button"
                 onClick={submitFeedback}
                 disabled={feedbackLoading}
-                className="flex-1 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(178,140,255,0.28)] transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {feedbackLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Send feedback"}
               </button>
@@ -625,7 +625,7 @@ export function DailyTasksModule() {
         </div>
       ) : null}
 
-      <section id="daily-tasks" className="glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5">
+      <section id="daily-tasks" className="relative overflow-hidden rounded-[2rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.16),rgba(18,18,24,0.94)_52%,rgba(255,110,199,0.08))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.22)] sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
@@ -639,11 +639,11 @@ export function DailyTasksModule() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:min-w-[14rem]">
-            <div className="rounded-[1.4rem] border border-white/10 bg-black/30 px-3 py-3">
+            <div className="rounded-[1.4rem] border border-white/10 bg-black/35 px-3 py-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Completed</p>
               <p className="mt-1 text-2xl font-black text-white">{completedCount}/{expectedTaskCount}</p>
             </div>
-            <div className="rounded-[1.4rem] border border-white/10 bg-black/30 px-3 py-3">
+            <div className="rounded-[1.4rem] border border-white/10 bg-black/35 px-3 py-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{isCompleteForToday ? "Tasks reset at" : "Tasks reset in"}</p>
               <p className="mt-1 text-lg font-black text-brand-purple">{waitLabel}</p>
               {resetAtLabel ? (
@@ -656,7 +656,7 @@ export function DailyTasksModule() {
       </section>
 
       {shouldShowRepairCard ? (
-        <div className="glass-panel rounded-[2rem] border border-amber-400/20 bg-amber-400/8 p-5">
+        <div className="rounded-[2rem] border border-amber-400/20 bg-[linear-gradient(145deg,rgba(251,191,36,0.12),rgba(18,18,24,0.92))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
           <p className="text-sm font-semibold text-amber-200">Your daily tasks need a quick refresh.</p>
           <p className="mt-2 text-sm leading-6 text-gray-300">Reload the page to restore the current task set. Your progress stays tied to this daily window.</p>
           <button
@@ -670,14 +670,14 @@ export function DailyTasksModule() {
       ) : null}
 
       {rotating && activeTasks.length === 0 ? (
-        <div className="glass-panel rounded-[1.35rem] border border-white/10 p-4 text-center sm:p-5" data-mobile-residual-cleanup="score-impact">
+        <div className="rounded-[1.6rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.12),rgba(18,18,24,0.92))] p-4 text-center shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-5" data-mobile-residual-cleanup="score-impact">
           <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-purple" aria-hidden="true" />
           <p className="mt-3 text-sm text-gray-400">Preparing today&apos;s tasks...</p>
         </div>
       ) : null}
 
       {!rotating && activeTasks.length === 0 ? (
-        <div className="glass-panel rounded-[1.35rem] border border-white/10 p-4 text-center sm:p-5" data-mobile-residual-cleanup="score-impact">
+        <div className="rounded-[1.6rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.12),rgba(18,18,24,0.92))] p-4 text-center shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-5" data-mobile-residual-cleanup="score-impact">
           <Gift className="mx-auto h-8 w-8 text-brand-purple" />
           <p className="mt-3 text-sm text-gray-400">No tasks are ready right now.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -691,7 +691,7 @@ export function DailyTasksModule() {
                 });
                 router.push("/drops");
               }}
-              className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+              className="min-h-11 rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(178,140,255,0.28)] transition-opacity hover:opacity-90"
             >
               Unwrap now
             </button>
@@ -705,7 +705,7 @@ export function DailyTasksModule() {
                 });
                 router.push(USER_LIBRARY_ROUTE);
               }}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+              className="min-h-11 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
             >
               Open library
             </button>
@@ -717,7 +717,7 @@ export function DailyTasksModule() {
       ) : null}
 
       {isCompleteForToday ? (
-        <div className="glass-panel rounded-[2rem] border border-white/10 p-5">
+        <div className="rounded-[2rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.15),rgba(18,18,24,0.94))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
           <div className="rounded-[1.7rem] border border-brand-purple/25 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.22),rgba(18,18,24,0.94)_72%)] p-5 text-center">
             <CheckCircle2 className="mx-auto h-10 w-10 text-brand-purple" />
             <h3 className="mt-3 text-xl font-bold text-white">Today&apos;s tasks are complete</h3>
@@ -736,7 +736,7 @@ export function DailyTasksModule() {
                   });
                   router.push("/drops");
                 }}
-                className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="min-h-11 rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(178,140,255,0.28)] transition-opacity hover:opacity-90"
               >
                 Unwrap more drops
               </button>
@@ -750,7 +750,7 @@ export function DailyTasksModule() {
                   });
                   router.push(USER_LIBRARY_ROUTE);
                 }}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+                className="min-h-11 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
               >
                 Watch your library
               </button>
@@ -782,7 +782,7 @@ export function DailyTasksModule() {
               <article
                 key={task.id}
                 className={cn(
-                  "overflow-hidden rounded-[1.6rem] border p-3.5 transition-colors",
+                  "overflow-hidden rounded-[1.6rem] border bg-[linear-gradient(145deg,rgba(255,255,255,0.06),rgba(18,18,24,0.9))] p-3.5 shadow-[0_14px_40px_rgba(0,0,0,0.16)] transition-colors",
                   task.claimed
                     ? "border-brand-purple/25 bg-brand-purple/10"
                     : "border-white/10 bg-black/30",
@@ -791,7 +791,7 @@ export function DailyTasksModule() {
                 <button
                   type="button"
                   onClick={() => toggleTaskExpanded(task)}
-                  className="w-full text-left"
+                  className="min-h-11 w-full text-left"
                   aria-expanded={isExpanded}
                 >
                   <div className="flex items-start gap-3">

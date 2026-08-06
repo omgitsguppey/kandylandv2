@@ -372,7 +372,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
         return (
         <div
             className={cn(
-                "glass-panel rounded-3xl relative overflow-hidden animate-pulse",
+                "glass-panel relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(145deg,rgba(25,25,31,0.96),rgba(8,8,10,0.92))] shadow-[0_20px_44px_rgba(0,0,0,0.28)] animate-pulse",
                 isExperiencesVariant ? "min-h-[14rem] p-3.5 sm:p-5" : "min-h-[20rem] p-4 sm:p-6",
             )}
             data-daily-checkin-variant={variant}
@@ -403,7 +403,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
         <div
             id="daily-reward"
             className={cn(
-                "glass-panel rounded-3xl relative overflow-hidden",
+                "glass-panel relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(145deg,rgba(25,25,31,0.96),rgba(8,8,10,0.92))] shadow-[0_20px_44px_rgba(0,0,0,0.28)]",
                 isExperiencesVariant ? "p-3.5 sm:p-5" : "p-4 sm:p-6",
             )}
             data-onboarding-target="daily-reward"
@@ -422,21 +422,22 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 ) : null}
 
                 <div className={cn(
-                    "flex items-center justify-between rounded-2xl bg-black/20 border border-white/5 backdrop-blur-sm",
+                    "relative overflow-hidden flex items-center justify-between rounded-[1.35rem] border border-white/10 bg-black/30 shadow-inner shadow-black/20 backdrop-blur-sm",
                     isExperiencesVariant ? "mb-3 p-2.5 sm:px-4 sm:py-2.5" : "mb-5 p-3 sm:mb-6 sm:px-5 sm:py-3",
                 )}>
+                    <div aria-hidden="true" className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/55 to-transparent" />
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Reward GD</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Reward GD</span>
                         <CompactNumber value={userProfile?.gumDropsBalance || 0} className={cn("font-black text-brand-purple", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")} />
                     </div>
                     <div className="h-8 w-px bg-white/10" />
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Unwrapped</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Unwrapped</span>
                         <CompactNumber value={userProfile?.unlockedContent?.length || 0} className={cn("font-black text-white", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")} />
                     </div>
                     <div className="h-8 w-px bg-white/10" />
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Day Streak</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Day Streak</span>
                         <div className={cn("font-black text-brand-purple", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")}>
                             {displayedStreakCount}<span className="text-xs sm:text-sm font-semibold text-gray-500">/7</span>
                         </div>
@@ -444,7 +445,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 </div>
 
                 <div className={cn(isExperiencesVariant ? "mb-3" : "mb-5 sm:mb-6")}>
-                    <h2 className={cn("font-bold text-white flex items-center gap-2", isExperiencesVariant ? "text-lg sm:text-xl" : "text-xl sm:text-2xl")}>
+                    <h2 className={cn("flex items-center gap-2 font-black tracking-tight text-white", isExperiencesVariant ? "text-lg sm:text-xl" : "text-xl sm:text-2xl")}>
                         <Gift className={cn("text-brand-purple", isExperiencesVariant ? "h-5 w-5" : "w-5 h-5 sm:w-6 sm:h-6")} /> Daily Reward GD
                     </h2>
                 </div>
@@ -458,13 +459,13 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                             <div key={day} className={cn("flex flex-col items-center flex-1", isExperiencesVariant ? "gap-1.5" : "gap-2")}>
                                 <div
                                     className={cn(
-                                        "w-full h-1.5 rounded-full transition-all",
+                                        "h-2 w-full rounded-full transition-all",
                                         isActive ? "bg-brand-purple shadow-[0_0_10px_rgba(164,118,255,0.8)]" : "bg-white/10"
                                     )}
                                 />
                                 <span
                                     className={cn(
-                                        "text-xs font-bold",
+                                        "text-xs font-black",
                                         isActive ? "text-white" : "text-gray-600"
                                     )}
                                 >
@@ -484,8 +485,8 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
 
                 {!canCheckIn ? (
                     <div className={cn(
-                        "w-full rounded-2xl bg-white/5 border border-white/5 text-center text-gray-400 font-medium flex items-center justify-center gap-2",
-                        isExperiencesVariant ? "min-h-12 px-3 py-3 text-sm" : "py-4",
+                        "flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-3 text-center font-semibold text-gray-400",
+                        isExperiencesVariant ? "text-sm" : "text-base",
                     )}>
                         <CheckCircle className="w-5 h-5 text-brand-purple" />
                         Come back after reset for {nextRewardAmount} Reward GD.
@@ -498,8 +499,8 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                         data-onboarding-target="daily-reward-claim"
                         data-onboarding-radius="16"
                         className={cn(
-                            "w-full rounded-2xl text-white shadow-[0_0_20px_rgba(164,118,255,0.35)] hover:shadow-[0_0_30px_rgba(164,118,255,0.5)] transition-shadow",
-                            isExperiencesVariant ? "min-h-12 py-3 text-base" : "py-6 text-lg",
+                            "min-h-12 w-full rounded-2xl text-white shadow-[0_0_20px_rgba(164,118,255,0.35)] transition-shadow hover:shadow-[0_0_30px_rgba(164,118,255,0.5)]",
+                            isExperiencesVariant ? "py-3 text-base" : "py-6 text-lg",
                         )}
                     >
                         {loading ? (

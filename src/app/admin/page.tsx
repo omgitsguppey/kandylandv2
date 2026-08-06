@@ -23,13 +23,13 @@ export default function AdminDashboardPage() {
         error,
         isLoading: isLocalAdminUiTestSession ? false : isLoading,
     });
-    const fixtureFallbackClassName = "rounded-xl border border-amber-400/20 bg-amber-500/10 px-4 py-4 text-sm text-amber-100";
+    const fixtureFallbackClassName = "rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-4 text-sm text-amber-100 shadow-lg shadow-black/15";
     const overviewLoadState = pageData.fallbackState;
     const overviewFallbackClassName = overviewLoadState === "failed"
-        ? "rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100"
+        ? "rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-4 text-sm text-red-100 shadow-lg shadow-black/15"
         : overviewLoadState === "loading"
-            ? "rounded-xl border border-sky-400/20 bg-sky-500/10 px-4 py-4 text-sm text-sky-100"
-            : "rounded-xl border border-slate-400/20 bg-slate-500/10 px-4 py-4 text-sm text-slate-100";
+            ? "rounded-2xl border border-sky-400/25 bg-sky-500/10 px-4 py-4 text-sm text-sky-100 shadow-lg shadow-black/15"
+            : "rounded-2xl border border-slate-400/25 bg-slate-500/10 px-4 py-4 text-sm text-slate-100 shadow-lg shadow-black/15";
     const truthVariant = isLocalAdminUiTestSession ? "unavailable" : coerceAdminSurfaceState(pageData.truthState) ?? "unavailable";
     const sourceMissingPanel = (
         <div className={fixtureFallbackClassName}>
@@ -40,7 +40,7 @@ export default function AdminDashboardPage() {
 
 
     return (
-        <div className="space-y-3 md:space-y-4">
+        <div className="space-y-4 md:space-y-5">
             <PageViewEvent eventName="admin_dashboard_viewed" />
             <PageViewEvent eventName="admin_overview_viewed" />
             <AdminPageHeader
@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
 
             {isLocalAdminUiTestSession ? (
                 <div
-                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+                    className="rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 shadow-lg shadow-black/15"
                     data-admin-overview-fixture-boundary="true"
                     data-admin-overview-fixture-state="source_missing"
                 >
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
                 </div>
             ) : null}
 
-            <div className="grid gap-3 xl:grid-cols-12">
+            <div className="grid gap-4 md:gap-5 xl:grid-cols-12">
                 <div className="xl:col-span-12">
                     <AdminDashboardModule title="Platform pulse" defaultOpen={true}>
                         {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (

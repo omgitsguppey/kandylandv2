@@ -375,32 +375,33 @@ export function NotificationPromptBanner() {
 
     return (
         <div className="px-3 pb-3 pt-3 sm:px-4 sm:pb-4 sm:pt-4">
-            <div className="mx-auto max-w-5xl overflow-hidden rounded-[1.45rem] border border-white/10 bg-[#17171c]/90 shadow-[0_16px_36px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-                <div className="relative flex items-start px-3.5 py-3 sm:px-4 sm:py-3.5">
+            <section className="relative mx-auto max-w-5xl overflow-hidden rounded-[1.55rem] border border-white/10 bg-[linear-gradient(135deg,rgba(164,118,255,0.15),rgba(23,23,28,0.94)_42%,rgba(23,23,28,0.9))] shadow-[0_18px_42px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+                <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-16 h-40 w-40 rounded-full bg-brand-purple/20 blur-3xl" />
+                <div className="relative flex items-start px-4 py-4 sm:px-5 sm:py-4.5">
                     <div className="flex min-w-0 flex-1 flex-col">
                         <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] border border-brand-purple/25 bg-brand-purple/12 text-brand-purple">
+                            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/30 bg-brand-purple/15 text-brand-purple shadow-[0_0_22px_rgba(164,118,255,0.14)]">
                                 {needsStandaloneInstall ? <Smartphone className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
                             </div>
-                            <div className="min-w-0 pr-6">
-                                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                            <div className="min-w-0 pr-12">
+                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple/80">
                                     Task Alerts
                                 </p>
-                                <p className="mt-1 text-sm font-semibold leading-5 text-white">
+                                <p className="mt-1 text-sm font-black leading-5 text-white">
                                     Never miss a drop or experience!
                                 </p>
-                                <p className="mt-1 text-[12px] leading-5 text-gray-300">
+                                <p className="mt-1 text-[12px] leading-5 text-gray-300/90">
                                     Drops disappear fast, turn on notifications to make sure you don&apos;t miss out!
                                 </p>
                             </div>
                         </div>
-                        <div className="mt-3">
+                        <div className="mt-4">
                             <button
                                 type="button"
                                 onClick={() => void handleEnable()}
                                 disabled={loading}
                                 aria-busy={loading}
-                                className="inline-flex min-h-8 items-center justify-center rounded-2xl bg-brand-purple px-4 py-2 text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-brand-purple px-4 py-2 text-[13px] font-black text-white shadow-[0_0_24px_rgba(164,118,255,0.32)] transition hover:bg-brand-purple/90 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-[#17171c]"
                             >
                                 {loading ? "Please wait" : "Turn on notifications"}
                             </button>
@@ -410,13 +411,13 @@ export function NotificationPromptBanner() {
                     <button
                         type="button"
                         onClick={handleDismiss}
-                        className="absolute right-3 top-3 rounded-full border border-white/10 bg-white/5 p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+                        className="absolute right-3 top-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-0 text-gray-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-[#17171c]"
                         aria-label="Dismiss notification prompt"
                     >
                         <X className="h-4 w-4" />
                     </button>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }

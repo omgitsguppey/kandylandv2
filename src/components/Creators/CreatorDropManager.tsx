@@ -68,6 +68,8 @@ const REVIEW_STATUS_LABELS: Record<CreatorDropReviewStatus, string> = {
 
 const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "manager");
 const creatorDropListSkeletonClassName = getMobileSkeletonClass("creator", "list");
+const CREATOR_DROP_MANAGER_PANEL_CLASS_NAME = "rounded-[1.75rem] border border-white/10 bg-[#120a20]/85 shadow-2xl shadow-black/30 backdrop-blur-xl";
+const CREATOR_DROP_MANAGER_PRIMARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand-purple px-4 text-sm font-black text-white shadow-lg shadow-brand-purple/25 transition-transform hover:scale-[1.01]";
 
 function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
     const status = drop.statusResolution ?? resolveDropStatus(drop);
@@ -219,8 +221,8 @@ export function CreatorDropManager() {
             data-mobile-drilldown="true"
             data-desktop-flow-collapsed="true"
         >
-            <section className="mx-auto flex w-full max-w-5xl flex-col gap-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <section className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+                <div className={`${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between`}>
                     <div className="space-y-1">
                         <h1 className="text-2xl font-black tracking-normal text-white sm:text-3xl">Manage drops</h1>
                         <p className="text-sm leading-5 text-gray-300">Submit drops for review before they go live.</p>
@@ -229,7 +231,7 @@ export function CreatorDropManager() {
                         <button
                             type="button"
                             onClick={() => void loadDrops()}
-                            className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/10 bg-white/5 px-3 text-sm font-bold text-gray-100 transition-colors hover:bg-white/10"
+                            className="inline-flex min-h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-bold text-gray-100 transition-colors hover:bg-white/10"
                             aria-label="Refresh creator drops"
                         >
                             <RefreshCw className="h-4 w-4" />
@@ -237,7 +239,7 @@ export function CreatorDropManager() {
                         <button
                             type="button"
                             onClick={openSubmitForm}
-                            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand-purple px-4 text-sm font-black text-white shadow-lg shadow-brand-purple/25 transition-transform hover:scale-[1.01]"
+                            className={CREATOR_DROP_MANAGER_PRIMARY_ACTION_CLASS_NAME}
                         >
                             <Plus className="h-4 w-4" />
                             Submit drop
@@ -245,7 +247,7 @@ export function CreatorDropManager() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6" aria-label="Creator drop status filters" data-creator-drop-status-filter="all" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
+                <div className={`${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} grid grid-cols-2 gap-2 p-2 sm:grid-cols-3 lg:grid-cols-6`} aria-label="Creator drop status filters" data-creator-drop-status-filter="all" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
                     {REVIEW_TABS.map((tab) => {
                         const Icon = tab.icon;
                         const active = activeTab === tab.id;
@@ -255,7 +257,7 @@ export function CreatorDropManager() {
                                 type="button"
                                 onClick={() => setActiveTab(tab.id)}
                                 data-creator-drop-status-filter={tab.id}
-                                className={`flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition-colors ${active ? "border-brand-purple/60 bg-brand-purple/20" : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"}`}
+                                className={`flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition-colors ${active ? "border-brand-purple/60 bg-brand-purple/20 shadow-lg shadow-brand-purple/10" : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"}`}
                             >
                                 <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-gray-300">
                                     <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -267,7 +269,7 @@ export function CreatorDropManager() {
                     })}
                 </div>
 
-                <div className={creatorManagerModuleClassName} data-creator-drop-list-density="compact_rows" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                <div className={`${creatorManagerModuleClassName} ${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} p-3 sm:p-4`} data-creator-drop-list-density="compact_rows" data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     {showDropListSkeleton ? (
                         <div className="grid gap-2" data-mobile-skeleton="creator-drop-list" data-mobile-density="compact" data-mobile-sprawl-guard="true" aria-label="Loading creator drops">
                             {[0, 1, 2].map((item) => (
@@ -284,7 +286,7 @@ export function CreatorDropManager() {
                             <button
                                 type="button"
                                 onClick={openSubmitForm}
-                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-white/10 px-4 text-sm font-bold text-white transition-colors hover:bg-white/15"
+                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 text-sm font-bold text-white transition-colors hover:bg-white/[0.14]"
                             >
                                 <Plus className="h-4 w-4" />
                                 Submit drop
@@ -298,7 +300,7 @@ export function CreatorDropManager() {
                                 return (
                                     <article
                                         key={drop.id}
-                                        className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-2.5"
+                                        className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-lg shadow-black/10"
                                         data-creator-drop-card-status={status.creatorStatusKey}
                                         data-creator-drop-metrics-source={metrics.source}
                                         data-creator-drop-expired={String(status.isExpired)}
@@ -306,9 +308,9 @@ export function CreatorDropManager() {
                                     >
                                         {drop.imageUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={drop.imageUrl} alt="" className="h-14 w-14 rounded-lg object-cover" />
+                                            <img src={drop.imageUrl} alt="" className="h-16 w-16 rounded-xl object-cover" />
                                         ) : (
-                                            <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white/5">
+                                            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/[0.06]">
                                                 <Package className="h-5 w-5 text-gray-400" />
                                             </div>
                                         )}

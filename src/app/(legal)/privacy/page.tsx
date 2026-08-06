@@ -23,8 +23,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-3 rounded-[1.8rem] border border-white/10 bg-black/30 p-5">
-      <h2 className="text-lg font-bold text-white">{title}</h2>
+    <section className="space-y-3 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+      <h2 className="text-lg font-bold tracking-tight text-white">{title}</h2>
       <div className="space-y-3 text-sm leading-7 text-gray-300">{children}</div>
     </section>
   );
@@ -33,7 +33,7 @@ function Section({
 export default function PrivacyPage() {
   return (
     <div
-      className="w-full px-6 py-10 text-gray-300"
+      className="relative isolate w-full overflow-hidden px-4 py-8 text-gray-200 sm:px-6 sm:py-12"
       style={{ paddingTop: "calc(2.5rem + var(--kandy-cookie-offset, 0px))" }}
     >
       <PageViewEvent eventName="privacy_page_viewed" />

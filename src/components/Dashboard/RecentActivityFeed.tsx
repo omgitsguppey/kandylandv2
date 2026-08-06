@@ -1,5 +1,7 @@
 "use client";
 
+import { RecentActivityFeedFrame } from "./RecentActivityFeedFrame";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -7,10 +9,8 @@ import {
     ArrowDownLeft,
     ArrowUpRight,
     CheckCircle2,
-    ChevronDown,
     ChevronLeft,
     ChevronRight,
-    ChevronUp,
     Loader2,
     Search,
     TriangleAlert,
@@ -720,28 +720,7 @@ export function RecentActivityFeed() {
     };
 
     return (
-        <div className="glass-panel mt-4 rounded-[1.35rem] p-3.5 sm:p-5 lg:mt-8" data-mobile-residual-cleanup="score-impact">
-            <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                    <h3 className="flex items-center gap-2 text-lg font-bold text-white">
-                        <Activity className="h-5 w-5 text-brand-purple" /> Recent Activity
-                    </h3>
-                    <p className="mt-1 text-xs text-gray-400">
-                        {expanded ? "Search and browse your full activity without leaving the dashboard." : "Latest update from your account."}
-                    </p>
-                </div>
-                <button
-                    type="button"
-                    onClick={handleToggleExpanded}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10"
-                    aria-expanded={expanded}
-                    aria-label={expanded ? "Collapse recent activity" : "Expand recent activity"}
-                >
-                    {expanded ? "Collapse" : "View all"}
-                    {expanded ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
-                </button>
-            </div>
-
+        <RecentActivityFeedFrame expanded={expanded} onToggleExpanded={handleToggleExpanded}>
             {loadingSummary ? (
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" aria-hidden="true" />
@@ -781,6 +760,6 @@ export function RecentActivityFeed() {
                     ) : null}
                 </div>
             )}
-        </div>
+        </RecentActivityFeedFrame>
     );
 }

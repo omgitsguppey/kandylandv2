@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, FileText, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { CreatorPublicProfileFrame } from "@/components/Creators/CreatorPublicProfileFrame";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { CREATOR_WAITLIST_PATH } from "@/lib/creator-application";
@@ -42,13 +43,14 @@ export default function CreatorApplyPage() {
     };
 
     return (
-        <main className="min-h-screen bg-black px-4 pb-20 pt-28 text-white sm:px-6">
+        <main className="min-h-screen bg-[#08060d] pb-20 pt-28 text-white">
             <PageViewEvent
                 eventName="creator_apply_viewed"
                 eventParams={{ component_name: "creator_apply_page", creator_lane: "intake" }}
             />
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-                <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-6">
+            <CreatorPublicProfileFrame contentClassName="max-w-5xl pt-0 sm:pt-0">
+                <div className="flex w-full flex-col gap-5">
+                <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.1] via-[#171022]/95 to-[#08060d] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-7">
                     <div className="max-w-2xl">
                         <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
                             Creator application
@@ -78,7 +80,7 @@ export default function CreatorApplyPage() {
                             <button
                                 type="button"
                                 onClick={handleStartCreatorSignup}
-                                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-transform active:scale-[0.98]"
+                                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-transform active:scale-[0.98]"
                             >
                                 Start creator application
                                 <ArrowRight className="h-4 w-4" />
@@ -86,7 +88,7 @@ export default function CreatorApplyPage() {
                         ) : hasCreatorApplication ? (
                             <Link
                                 href={CREATOR_WAITLIST_PATH}
-                                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
+                                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
                             >
                                 Check application status
                                 <ArrowRight className="h-4 w-4" />
@@ -94,7 +96,7 @@ export default function CreatorApplyPage() {
                         ) : (
                             <Link
                                 href="/dashboard/support?category=creator_application&subject=Creator%20application%20support"
-                                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white"
+                                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white"
                             >
                                 Open creator support
                                 <ArrowRight className="h-4 w-4" />
@@ -103,7 +105,7 @@ export default function CreatorApplyPage() {
 
                         <Link
                             href="/faq"
-                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200 transition-colors hover:border-brand-purple/30 hover:text-white"
+                            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200 transition-colors hover:border-brand-purple/30 hover:text-white"
                         >
                             Learn about KandyDrops
                             <FileText className="h-4 w-4" />
@@ -121,7 +123,7 @@ export default function CreatorApplyPage() {
                     {CREATOR_STEPS.map((step, index) => {
                         const Icon = step.icon;
                         return (
-                            <article key={step.title} className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                            <article key={step.title} className="rounded-[1.75rem] border border-white/10 bg-white/[0.045] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-sm">
                                 <div className="flex items-center justify-between gap-3">
                                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-300">
                                         Step {index + 1}
@@ -136,7 +138,7 @@ export default function CreatorApplyPage() {
                 </section>
 
                 <section className="grid gap-4 md:grid-cols-2">
-                    <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                    <article className="rounded-[1.75rem] border border-white/10 bg-white/[0.045] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <BadgeCheck className="h-5 w-5 text-brand-purple" />
                             What happens next
@@ -146,7 +148,7 @@ export default function CreatorApplyPage() {
                         </p>
                     </article>
 
-                    <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                    <article className="rounded-[1.75rem] border border-white/10 bg-white/[0.045] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <ShieldCheck className="h-5 w-5 text-brand-purple" />
                             What you&apos;ll need
@@ -156,7 +158,8 @@ export default function CreatorApplyPage() {
                         </p>
                     </article>
                 </section>
-            </div>
+                </div>
+            </CreatorPublicProfileFrame>
         </main>
     );
 }

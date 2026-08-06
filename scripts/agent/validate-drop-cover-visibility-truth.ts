@@ -74,10 +74,12 @@ for (const expected of [
 }
 
 for (const expected of [
-  'trackServerEvent("drop_unwrapped"',
+  "buildServerUnlockTelemetryEvent",
+  "trackServerEvent(serverUnlockTelemetry.eventName",
+  "...serverUnlockTelemetry.params",
   '"unlock_drop_success"',
 ]) {
-  requireIncludes(dropUnlockRoute, expected, "Drop unlock route entitlement-truth path");
+  requireIncludes(dropUnlockRoute, expected, "Drop unlock route canonical telemetry path");
 }
 
 for (const expected of [

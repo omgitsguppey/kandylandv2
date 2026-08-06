@@ -6,6 +6,7 @@ import { CircleHelp, LifeBuoy, Loader2, MessageSquarePlus, RefreshCw, Send, Shie
 import { toast } from "sonner";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { SupportInboxFrame } from "@/components/Support/SupportInboxFrame";
 import { Button } from "@/components/ui/Button";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { authFetch } from "@/lib/authFetch";
@@ -396,28 +397,10 @@ export function SupportInbox() {
     }
 
     return (
-        <div className="mx-auto w-full max-w-7xl px-3 pb-20 pt-16 sm:px-4 md:pt-[4.5rem]">
+        <>
             <PageViewEvent eventName="support_inbox_viewed" />
-            <div className="mb-5 rounded-[1.85rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.18),rgba(0,0,0,0.2)_48%,rgba(0,0,0,0.96)_100%)] px-5 py-5 md:px-6">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-purple">Support</p>
-                        <h1 className="mt-2 text-3xl font-black tracking-tight text-white">In-site support inbox</h1>
-                        <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-300">Open tickets, track replies, and keep account or creator issues inside your dashboard.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
-                            {(threadList?.threads.length ?? 0)} thread{(threadList?.threads.length ?? 0) === 1 ? "" : "s"}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
-                            10s live poll
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
-                <section className="space-y-4 rounded-[1.5rem] border border-white/10 bg-black/35 p-4">
+            <SupportInboxFrame threadCount={threadList?.threads.length ?? 0}>
+                <section className="space-y-4 rounded-[1.5rem] border border-white/10 bg-black/45 p-4 shadow-[0_18px_50px_rgba(0,0,0,0.22)] backdrop-blur-md">
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <h2 className="text-sm font-bold text-white">Tickets</h2>
@@ -427,6 +410,7 @@ export function SupportInbox() {
                             type="button"
                             variant="brand"
                             size="sm"
+                            className="min-h-11"
                             onClick={() => setComposerOpen((current) => !current)}
                         >
                             <MessageSquarePlus className="mr-2 h-4 w-4" />
@@ -539,7 +523,7 @@ export function SupportInbox() {
                     </div>
                 </section>
 
-                <section className="rounded-[1.5rem] border border-white/10 bg-black/35 p-4">
+                <section className="rounded-[1.5rem] border border-white/10 bg-black/45 p-4 shadow-[0_18px_50px_rgba(0,0,0,0.22)] backdrop-blur-md">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                             <h2 className="text-sm font-bold text-white">Thread detail</h2>
@@ -547,7 +531,7 @@ export function SupportInbox() {
                                 Replies stay in this ticket and refresh every 10 seconds.
                             </p>
                         </div>
-                        <Button type="button" variant="glass" size="sm" onClick={() => void mutateSelectedThread()}>
+                        <Button type="button" variant="glass" size="sm" className="min-h-11" onClick={() => void mutateSelectedThread()}>
                             <RefreshCw className="mr-2 h-4 w-4" />
                             Refresh
                         </Button>
@@ -657,7 +641,7 @@ export function SupportInbox() {
                         </div>
                     )}
                 </section>
-            </div>
-        </div>
+            </SupportInboxFrame>
+        </>
     );
 }

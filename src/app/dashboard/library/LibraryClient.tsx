@@ -106,7 +106,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     if (authLoading) {
         return (
             <div
-                className="animate-pulse"
+                className="animate-pulse rounded-[1.75rem] border border-white/8 bg-[linear-gradient(135deg,rgba(39,9,68,0.7),rgba(9,5,22,0.76))] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.2)] md:p-6"
                 data-mobile-density="compact"
                 data-mobile-sprawl-guard="true"
                 data-mobile-skeleton="user-library-route"
@@ -115,11 +115,12 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 data-user-library-surface="my-kandydrops"
                 data-user-library-loading-stable="true"
             >
-                <div className="mb-3">
-                    <div className="h-7 w-44 bg-white/10 rounded mb-2" />
-                    <div className="h-4 w-56 max-w-full bg-white/5 rounded" />
+                <div className="mb-5">
+                    <div className="mb-2 h-3 w-20 rounded-full bg-brand-purple/20" />
+                    <div className="mb-2 h-8 w-48 rounded-xl bg-white/10" />
+                    <div className="h-4 w-56 max-w-full rounded-full bg-white/5" />
                 </div>
-                <div className="grid grid-cols-6 gap-2 md:gap-3">
+                <div className="grid grid-cols-6 gap-2.5 md:gap-4">
                     {[1, 2, 3, 4].map((i) => (
                         <div key={i} className={`col-span-3 ${userLibrarySkeletonClassName}`} />
                     ))}
@@ -131,33 +132,41 @@ export function LibraryClient({ drops }: LibraryClientProps) {
 
     return (
         <div
-            className="flex min-h-[calc(100dvh-var(--root-shell-top-spacing,6rem))] flex-col px-2 md:px-0"
+            className="relative flex min-h-[calc(100dvh-var(--root-shell-top-spacing,6rem))] flex-col overflow-hidden px-2 pb-4 md:px-0"
             data-mobile-density="compact"
             data-mobile-sprawl-guard="true"
             data-mobile-organization="summary-first"
             data-mobile-drilldown="true"
             data-user-library-surface="my-kandydrops"
         >
-            <header className="mb-4 md:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple mb-1">
+            <header className="relative mb-4 overflow-hidden rounded-[1.65rem] border border-brand-purple/20 bg-[linear-gradient(135deg,rgba(44,10,77,0.64),rgba(12,7,29,0.85)_58%,rgba(74,16,104,0.42))] px-4 py-5 shadow-[0_20px_60px_rgba(12,3,29,0.26)] md:mb-6 md:px-6 md:py-6">
+                <div className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-brand-purple/20 blur-3xl" aria-hidden="true" />
+                <div className="relative flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <p className="mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-brand-purple">Your collection</p>
+                        <h1 className="mb-1 bg-gradient-to-r from-white via-purple-100 to-brand-purple bg-clip-text text-2xl font-black text-transparent md:text-3xl">
                         My KandyDrops
-                    </h1>
-                    <p className="text-gray-400 text-xs md:text-sm">Your unwrapped library. ({unlockedDrops.length} total)</p>
+                        </h1>
+                        <p className="text-xs text-purple-100/65 md:text-sm">Your unwrapped library. ({unlockedDrops.length} total)</p>
+                    </div>
+                    <div className="inline-flex w-fit items-center rounded-full border border-white/12 bg-black/20 px-3 py-1.5 text-xs font-bold text-white shadow-inner shadow-white/5">
+                        {unlockedDrops.length} collected
+                    </div>
                 </div>
             </header>
 
             {unlockedDrops.length === 0 ? (
-                <div className={`${userLibraryModuleClassName} text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5 md:h-14 md:w-14">
-                        <Lock className="w-6 h-6 md:w-8 md:h-8 text-gray-500" />
+                <div className={`${userLibraryModuleClassName} relative overflow-hidden border border-brand-purple/20 bg-[radial-gradient(circle_at_top,rgba(143,55,255,0.18),transparent_42%),linear-gradient(145deg,rgba(27,10,48,0.86),rgba(8,5,20,0.94))] text-center shadow-[0_24px_70px_rgba(0,0,0,0.26)]`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.07] shadow-inner shadow-white/10 md:h-14 md:w-14">
+                        <Lock className="h-6 w-6 text-brand-purple md:h-8 md:w-8" />
                     </div>
-                    <h2 className="text-lg md:text-xl font-bold text-white mb-2">No Unwrapped Drops</h2>
-                    <p className="mx-auto mb-4 max-w-sm text-sm text-gray-400 md:max-w-md md:text-base">
+                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-brand-purple">Start your collection</p>
+                    <h2 className="mb-2 text-lg font-black text-white md:text-xl">No Unwrapped Drops</h2>
+                    <p className="mx-auto mb-5 max-w-sm text-sm text-purple-100/65 md:max-w-md md:text-base">
                         You haven&apos;t unwrapped any drops yet. Browse live drops to start building your collection.
                     </p>
                     <Link href="/drops">
-                        <Button variant="brand" className="rounded-full px-5 py-2.5 text-sm font-bold">
+                        <Button variant="brand" className="min-h-11 rounded-full px-5 py-2.5 text-sm font-bold shadow-[0_12px_28px_rgba(124,58,237,0.3)]">
                             Browse Drops
                         </Button>
                     </Link>
@@ -176,11 +185,14 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                                 setSearchQuery(q);
                             }}
                         />
-                        <div className="flex items-center justify-end mt-2 md:mt-3 px-2">
-                            <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-1">
+                        <div className="mt-2 flex items-center justify-end px-2 md:mt-3">
+                            <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-black/30 p-1.5 shadow-inner shadow-white/5">
                                 <button
+                                    type="button"
                                     onClick={() => setGridCols(2)}
-                                    className={`p-1.5 rounded-full transition-colors ${gridCols === 2 ? "bg-white/20 text-white" : "text-gray-500 hover:text-white"}`}
+                                    className={`inline-flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${gridCols === 2 ? "bg-brand-purple/25 text-white shadow-[0_8px_18px_rgba(124,58,237,0.22)]" : "text-gray-500 hover:bg-white/[0.07] hover:text-white"}`}
+                                    aria-label="Use comfortable library grid"
+                                    aria-pressed={gridCols === 2}
                                 >
                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
@@ -188,8 +200,11 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                                     </svg>
                                 </button>
                                 <button
+                                    type="button"
                                     onClick={() => setGridCols(3)}
-                                    className={`p-1.5 rounded-full transition-colors ${gridCols === 3 ? "bg-white/20 text-white" : "text-gray-500 hover:text-white"}`}
+                                    className={`inline-flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${gridCols === 3 ? "bg-brand-purple/25 text-white shadow-[0_8px_18px_rgba(124,58,237,0.22)]" : "text-gray-500 hover:bg-white/[0.07] hover:text-white"}`}
+                                    aria-label="Use compact library grid"
+                                    aria-pressed={gridCols === 3}
                                 >
                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/>
@@ -201,7 +216,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                         </div>
                     </div>
 
-                    <div id="library-grid" className="grid grid-cols-6 gap-2 md:gap-4 pb-20">
+                    <div id="library-grid" className="grid grid-cols-6 gap-2.5 pb-20 md:gap-4">
                         {filteredDrops.map((drop) => (
                             <div key={drop.id} className={gridCols === 3 ? "col-span-2" : getItemSpanClass(drop)}>
                                 <OwnedDropGalleryCard
@@ -215,8 +230,8 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                         ))}
                     </div>
                     {filteredDrops.length === 0 && (
-                        <div className="py-6 text-center" data-mobile-density="compact" data-mobile-sprawl-guard="true">
-                            <p className="text-gray-500">No items match your search or filter.</p>
+                        <div className="rounded-2xl border border-white/8 bg-white/[0.035] py-7 text-center" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                            <p className="text-sm text-purple-100/60">No items match your search or filter.</p>
                         </div>
                     )}
                 </>

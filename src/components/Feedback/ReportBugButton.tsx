@@ -177,7 +177,9 @@ export function ReportBugButton({
       }
 
       dispatchActivitySync();
-      toast.success("Bug report sent with runtime diagnostics attached.");
+      toast.success(snapshot
+        ? "Bug report sent with runtime diagnostics attached."
+        : "Bug report sent without runtime diagnostics.");
       closeComposer(true);
     } catch (error) {
       recordClientDiagnostic("feedback", "Bug report submission failed", {
@@ -193,13 +195,13 @@ export function ReportBugButton({
   };
 
   const buttonClassName = cn(
-    "transition-colors active:scale-95",
+    "min-h-11 min-w-11 transition-colors active:scale-95",
     variant === "floating"
-      ? "inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3.5 text-[11px] font-semibold text-gray-200 shadow-xl shadow-black/40 backdrop-blur-md hover:border-brand-purple/30 hover:text-white"
+      ? "inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3.5 text-[11px] font-semibold text-gray-200 shadow-xl shadow-black/40 backdrop-blur-md hover:border-brand-purple/30 hover:text-white"
       : variant === "pill"
         ? "inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-gray-300 hover:border-brand-purple/30 hover:text-white"
         : variant === "icon"
-          ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 hover:border-brand-purple/30 hover:text-white"
+          ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 hover:border-brand-purple/30 hover:text-white"
           : "inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-white",
     className,
   );
@@ -254,7 +256,7 @@ export function ReportBugButton({
                   onClick={() => {
                     closeComposer();
                   }}
-                  className="relative z-50 rounded-full border border-white/10 bg-white/5 p-3 text-gray-400 transition-colors hover:text-white"
+                  className="relative z-50 min-h-11 min-w-11 rounded-full border border-white/10 bg-white/5 p-3 text-gray-400 transition-colors hover:text-white"
                   aria-label="Close bug report"
                 >
                   <X className="h-5 w-5" />
@@ -275,7 +277,7 @@ export function ReportBugButton({
                         type="button"
                         onClick={() => setIssueType(option.value)}
                         className={cn(
-                          "rounded-[1rem] border px-3 py-2.5 text-left text-[11px] transition-colors md:text-xs",
+                          "min-h-11 min-w-11 rounded-[1rem] border px-3 py-2.5 text-left text-[11px] transition-colors md:text-xs",
                           issueType === option.value
                             ? "border-brand-purple/40 bg-brand-purple/15 text-white"
                             : "border-white/10 bg-white/5 text-gray-300 hover:border-brand-purple/30",
@@ -306,7 +308,7 @@ export function ReportBugButton({
                   <button
                     type="button"
                     onClick={() => setShowAutoContext((current) => !current)}
-                    className="flex w-full items-center justify-between gap-3 text-left"
+                    className="flex min-h-11 min-w-11 w-full items-center justify-between gap-3 text-left"
                   >
                     <div>
                       <p className="text-sm font-semibold text-white">Auto-captured context</p>
@@ -368,7 +370,7 @@ export function ReportBugButton({
                   type="button"
                   onClick={submitBugReport}
                   disabled={submitting}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
                   {submitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <><Sparkles className="h-4 w-4" />Send report</>}
                 </button>

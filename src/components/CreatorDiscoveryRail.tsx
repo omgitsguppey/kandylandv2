@@ -69,43 +69,54 @@ function initialsFor(name: string) {
 }
 
 function CreatorDiscoveryRailSkeleton({ compact, surface }: { compact: boolean; surface: CreatorDiscoveryRailProps["surface"] }) {
+    const isHomeSpotlight = surface === "home";
+
     return (
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
             data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
+                "relative overflow-hidden [content-visibility:auto]",
+                isHomeSpotlight
+                    ? "rounded-[2rem] border border-purple-200/20 bg-[radial-gradient(circle_at_14%_0%,rgba(192,132,252,0.28),transparent_35%),linear-gradient(145deg,rgba(20,12,35,0.94),rgba(5,4,12,0.98))] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.12)] [contain-intrinsic-size:360px] sm:rounded-[2.35rem] sm:p-6"
+                    : "glass-panel rounded-[1.7rem] border border-white/10 p-2 [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                    <div className={cn(
+                        "inline-flex items-center gap-2 text-[10px] font-bold uppercase text-white",
+                        isHomeSpotlight ? "tracking-[0.24em] text-purple-100/85" : "rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 tracking-[0.16em]",
+                    )}>
                         <Sparkles className="h-3.5 w-3.5" />
                         Creator spotlight
                     </div>
-                    <div className="mt-3 h-4 w-48 animate-pulse rounded bg-white/10" />
+                    <div className={cn("h-4 animate-pulse rounded bg-white/10", isHomeSpotlight ? "mt-4 w-56" : "mt-3 w-48")} />
                 </div>
             </div>
 
-            <div className="mt-2 overflow-x-auto pb-1">
-                <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
+            <div className={cn("overflow-x-auto", isHomeSpotlight ? "mt-2 pb-1.5" : "mt-2 pb-1")}>
+                <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : isHomeSpotlight ? "gap-4 pr-5" : "pr-4")}>
                     {Array.from({ length: 4 }).map((_, index) => (
                         <div
                             key={index}
                             className={cn(
-                                "flex flex-col items-center justify-between rounded-[1.45rem] border border-white/5 bg-white/5 animate-pulse motion-reduce:animate-none",
-                                compact
+                                "flex flex-col items-center justify-between animate-pulse border motion-reduce:animate-none",
+                                isHomeSpotlight
+                                    ? "min-h-[18rem] w-[14rem] rounded-[1.55rem] border-white/10 bg-white/[0.055] px-4 py-5"
+                                    : "rounded-[1.45rem] border-white/5 bg-white/5",
+                                !isHomeSpotlight && (compact
                                     ? "aspect-square w-[7.25rem] px-2.5 py-4"
-                                    : "aspect-square w-[8.75rem] px-3 py-5",
+                                    : "aspect-square w-[8.75rem] px-3 py-5"),
                             )}
                         >
-                            <div className={cn("rounded-full bg-white/10", compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]")} />
+                            <div className={cn("rounded-full bg-white/10", isHomeSpotlight ? "h-28 w-28" : compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]")} />
                             <div className="mt-auto flex w-full flex-col items-center gap-2">
                                 <div className="h-3 w-16 rounded bg-white/10" />
                                 <div className="h-2 w-12 rounded bg-white/10" />
                             </div>
-                            <div className="mt-2 h-7 w-16 rounded-full bg-white/10" />
+                            <div className={cn("mt-2 rounded-full bg-white/10", isHomeSpotlight ? "h-12 w-full" : "h-7 w-16")} />
                         </div>
                     ))}
                 </div>
@@ -123,6 +134,7 @@ function CreatorDiscoveryRailEmpty({
     surface: CreatorDiscoveryRailProps["surface"];
     title?: string;
 }) {
+    const isHomeSpotlight = surface === "home";
     const emptyTitle = surface === "dashboard"
         ? "Creator spotlight opens as creators go live"
         : surface === "drops"
@@ -143,15 +155,24 @@ function CreatorDiscoveryRailEmpty({
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
             data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
+                "relative overflow-hidden [content-visibility:auto]",
+                isHomeSpotlight
+                    ? "rounded-[2rem] border border-purple-200/20 bg-[radial-gradient(circle_at_14%_0%,rgba(192,132,252,0.28),transparent_35%),linear-gradient(145deg,rgba(20,12,35,0.94),rgba(5,4,12,0.98))] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.12)] [contain-intrinsic-size:360px] sm:rounded-[2.35rem] sm:p-6"
+                    : "glass-panel rounded-[1.7rem] border border-white/10 p-2 [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
-            <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+            <div className={cn(
+                "inline-flex items-center gap-2 text-[10px] font-bold uppercase text-white",
+                isHomeSpotlight ? "tracking-[0.24em] text-purple-100/85" : "rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 tracking-[0.16em]",
+            )}>
                 <Sparkles className="h-3.5 w-3.5" />
                 {title || "Creator spotlight"}
             </div>
-            <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-4 py-5 text-center sm:py-6">
+            <div className={cn(
+                "rounded-[1.7rem] border border-dashed px-4 py-5 text-center sm:py-6",
+                isHomeSpotlight ? "border-purple-200/15 bg-black/28 sm:px-6 sm:py-8" : "border-white/10 bg-black/25",
+            )}>
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400">
                     <Users className="h-6 w-6" />
                 </div>
@@ -294,15 +315,15 @@ function CreatorDiscoveryRailView({
             className={cn(
                 "relative overflow-hidden [content-visibility:auto]",
                 isHomeSpotlight
-                    ? "rounded-[2rem] border border-brand-purple/55 bg-[radial-gradient(circle_at_16%_0%,rgba(192,132,252,0.28),transparent_32%),linear-gradient(145deg,rgba(16,12,28,0.94),rgba(5,5,10,0.96)_58%,rgba(22,13,39,0.9))] p-4 shadow-[0_0_34px_rgba(168,85,247,0.32),inset_0_1px_0_rgba(255,255,255,0.12)] [contain-intrinsic-size:420px] sm:rounded-[2.35rem] sm:p-6"
+                    ? "rounded-[2rem] border border-purple-200/20 bg-[radial-gradient(circle_at_16%_0%,rgba(192,132,252,0.3),transparent_32%),linear-gradient(145deg,rgba(20,12,35,0.96),rgba(5,4,12,0.98)_58%,rgba(28,12,45,0.9))] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.38),0_0_42px_rgba(168,85,247,0.16),inset_0_1px_0_rgba(255,255,255,0.12)] [contain-intrinsic-size:420px] sm:rounded-[2.35rem] sm:p-6"
                     : "glass-panel rounded-[1.7rem] border border-white/10 p-2 [contain-intrinsic-size:300px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : isHomeSpotlight ? "space-y-5" : "space-y-3",
             )}
         >
             {isHomeSpotlight ? (
                 <>
-                    <div className="pointer-events-none absolute -left-10 -top-14 h-36 w-56 rounded-full bg-brand-purple/25 blur-3xl" />
-                    <div className="pointer-events-none absolute -right-16 top-8 h-40 w-40 rounded-full bg-fuchsia-500/15 blur-3xl" />
+                    <div className="pointer-events-none absolute -left-10 -top-14 h-36 w-56 rounded-full bg-brand-purple/25 blur-3xl motion-reduce:hidden" />
+                    <div className="pointer-events-none absolute -right-16 top-8 h-40 w-40 rounded-full bg-fuchsia-500/15 blur-3xl motion-reduce:hidden" />
                     <div className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10" />
                 </>
             ) : null}
@@ -311,10 +332,10 @@ function CreatorDiscoveryRailView({
                 <div>
                     <div
                         className={cn(
-                            "inline-flex items-center gap-2 rounded-full border font-black uppercase text-white",
+                            "inline-flex items-center gap-2 font-black uppercase text-white",
                             isHomeSpotlight
-                                ? "border-brand-purple/65 bg-black/45 px-4 py-2 text-[11px] tracking-[0.42em] shadow-[0_0_18px_rgba(192,132,252,0.38),inset_0_1px_0_rgba(255,255,255,0.16)]"
-                                : "border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] tracking-[0.16em]",
+                                ? "text-[11px] tracking-[0.24em] text-purple-100/85"
+                                : "rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] tracking-[0.16em]",
                         )}
                     >
                         <Sparkles className={cn(isHomeSpotlight ? "h-4.5 w-4.5 text-purple-200" : "h-3.5 w-3.5")} />
@@ -424,7 +445,7 @@ function CreatorDiscoveryRailView({
                                 className={cn(
                                     "group flex shrink-0 flex-col justify-between text-center",
                                     isHomeSpotlight
-                                        ? "min-h-[18rem] w-[14rem] rounded-[1.55rem] border border-white/10 bg-white/[0.055] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_14px_34px_rgba(0,0,0,0.38)]"
+                                        ? "min-h-[18rem] w-[14rem] rounded-[1.55rem] border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.09),rgba(255,255,255,0.035))] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_14px_34px_rgba(0,0,0,0.38)] transition-transform duration-300 hover:-translate-y-1 motion-reduce:transform-none"
                                         : "rounded-[1.45rem] border border-white/5 bg-white/[0.03]",
                                     !isHomeSpotlight && (compact
                                         ? "aspect-square w-[6.9rem] gap-1.5 px-2 py-2"
@@ -471,7 +492,10 @@ function CreatorDiscoveryRailView({
                                                 surface,
                                             }));
                                         }}
-                                        className={cn("flex w-full flex-col items-center", isHomeSpotlight ? "gap-4" : "gap-2")}
+                                        className={cn(
+                                            "flex w-full flex-col items-center rounded-[1.2rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10091e]",
+                                            isHomeSpotlight ? "gap-4" : "gap-2",
+                                        )}
                                         data-creator-profile-route-source="canonical-builder"
                                     >
                                         {profileContent}
@@ -493,7 +517,7 @@ function CreatorDiscoveryRailView({
                                         onClick={() => onFollowToggle(creator)}
                                         disabled={pendingCreatorId === creator.uid}
                                         className={cn(
-                                            "inline-flex items-center justify-center rounded-full border font-bold transition-colors",
+                                            "inline-flex items-center justify-center rounded-full border font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10091e] disabled:cursor-not-allowed disabled:opacity-60",
                                             isHomeSpotlight
                                                 ? "min-h-12 w-full px-5 py-3 text-base shadow-[0_0_22px_rgba(168,85,247,0.34),inset_0_1px_0_rgba(255,255,255,0.22)]"
                                                 : compact ? "min-h-7 px-3 py-1.5 text-[10px]" : "min-h-8 px-3.5 py-1.5 text-[11px]",

@@ -1,5 +1,7 @@
 "use client";
 
+import { CreatorSettingsHubFrame } from "./CreatorSettingsHubFrame";
+
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Loader2, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
@@ -906,7 +908,7 @@ export function CreatorDashboardSettingsHub() {
   }
 
   return (
-    <div
+    <CreatorSettingsHubFrame
       className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:space-y-4 sm:px-4 sm:pb-8"
       data-creator-dashboard-density="mobile_compact"
       data-bottom-nav-safe="true"
@@ -1125,6 +1127,6 @@ export function CreatorDashboardSettingsHub() {
         <p className="px-1 text-xs font-semibold text-gray-400">Open a section to load its manager.</p>
         {activeManager}
       </div>
-    </div>
+    </CreatorSettingsHubFrame>
   );
 }

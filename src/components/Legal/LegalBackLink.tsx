@@ -33,8 +33,8 @@ export function LegalBackLink({
             href={href}
             className={cn(
                 variant === "button"
-                    ? "inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple px-8 py-4 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-95 hover:text-white"
-                    : "inline-flex items-center gap-2 text-sm font-semibold text-brand-purple transition-colors hover:text-white",
+                    ? "inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-brand-purple/40 bg-gradient-to-r from-brand-purple to-brand-purple px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black active:scale-95"
+                    : "inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-brand-purple transition-colors hover:bg-brand-purple/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
                 className,
             )}
         >

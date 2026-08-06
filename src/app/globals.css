@@ -3,9 +3,34 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  /* Brand Color Palette */
-  --color-brand-dark: #000000;
+  /* KandyDrops brand palette and Creative Tim semantic surface tokens. */
+  --color-brand-dark: #08040f;
   --color-brand-purple: #b28cff;
+  --color-brand-pink: #ff6fcf;
+  --color-kandy-ink: #08040f;
+  --color-kandy-void: #12071f;
+  --color-kandy-glass: #1d1030;
+  --color-kandy-lilac: #d9cbff;
+
+  --color-background: #08040f;
+  --color-foreground: #fff9ff;
+  --color-card: #160b24;
+  --color-card-foreground: #fff9ff;
+  --color-popover: #1a0d29;
+  --color-popover-foreground: #fff9ff;
+  --color-primary: #b28cff;
+  --color-primary-foreground: #150822;
+  --color-secondary: #2a173d;
+  --color-secondary-foreground: #f7f0ff;
+  --color-muted: #21132f;
+  --color-muted-foreground: #cfc1da;
+  --color-accent: #ff6fcf;
+  --color-accent-foreground: #250616;
+  --color-destructive: #ff6b8a;
+  --color-destructive-foreground: #fff8fa;
+  --color-border: #ffffff1a;
+  --color-input: #ffffff1f;
+  --color-ring: #d9cbff;
 }
 
 html { overscroll-behavior-y: none; }
@@ -22,40 +47,57 @@ html { overscroll-behavior-y: none; }
 }
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #08040f;
+  --foreground: #fff9ff;
+  --surface: #160b24;
+  --surface-elevated: #1d1030;
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --focus-ring: #d9cbff;
   --admin-shell-gap: 1rem;
   --admin-shell-gap-md: 1.25rem;
-
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 8% -12%, rgba(178, 140, 255, 0.23), transparent 30rem),
+    radial-gradient(circle at 92% 0%, rgba(255, 111, 207, 0.12), transparent 25rem),
+    linear-gradient(150deg, #11091c 0%, var(--background) 46%, #06030a 100%);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--font-geist-sans), "Avenir Next", "Segoe UI Variable Display", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
 }
 
-/* Glassmorphism Utility - Static & Fast */
+::selection {
+  background: rgba(178, 140, 255, 0.38);
+  color: #fff9ff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Kandy glass utilities keep depth legible without hiding state. */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background: linear-gradient(135deg, rgba(41, 23, 62, 0.76), rgba(12, 7, 20, 0.68));
+  border: 1px solid var(--surface-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 42px rgba(4, 1, 9, 0.28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .glass-button {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.065);
+  border: 1px solid rgba(217, 203, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .glass-button:active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(178, 140, 255, 0.18);
 }
 
 /* Scrollbar - Thinner & Smoother */
@@ -74,12 +116,10 @@ body {
 }
 
 .app-bg {
-  background: #000000;
-}
-
-.glass-panel {
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(178, 140, 255, 0.14), transparent 28rem),
+    radial-gradient(circle at 88% 6%, rgba(255, 111, 207, 0.08), transparent 24rem),
+    var(--background);
 }
 @keyframes title-marquee-anim {
   0%, 10% { transform: translateX(0); }

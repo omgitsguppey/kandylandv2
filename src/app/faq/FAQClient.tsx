@@ -114,7 +114,8 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
     <div className="space-y-8 sm:space-y-14">
       <HowItWorksStory steps={steps} />
 
-      <section className="space-y-4 rounded-[2rem] border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <section className="relative space-y-5 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+        <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/50 to-transparent" />
         <div className="space-y-3">
           <div className="max-w-xl">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple">
@@ -135,7 +136,7 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
               placeholder="Search for answers..."
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="w-full rounded-[1.5rem] border border-white/10 bg-black/35 py-4 pl-12 pr-6 text-white placeholder-gray-500 transition-colors focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/25"
+              className="min-h-11 w-full rounded-[1.5rem] border border-white/10 bg-black/35 py-3 pl-12 pr-6 text-white placeholder-gray-500 shadow-inner shadow-black/30 transition-colors focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/25"
             />
           </div>
         </div>
@@ -157,7 +158,7 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
                     });
                   }}
                   className={cn(
-                    "shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition-all",
+                    "min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition-all",
                     isSelected
                       ? "border-brand-purple/40 bg-brand-purple/15 text-white shadow-[0_0_20px_rgba(164,118,255,0.14)]"
                       : "border-white/10 bg-white/[0.03] text-gray-400"
@@ -171,7 +172,7 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
               <button
                 type="button"
                 onClick={() => setShowAllFilters((current) => !current)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-bold text-gray-300 transition-colors hover:bg-white/[0.06]"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-bold text-gray-300 transition-colors hover:bg-white/[0.06]"
               >
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAllFilters ? "rotate-180" : "")} />
                 {showAllFilters ? "Fewer filters" : "More filters"}
@@ -195,7 +196,7 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
                       });
                     }}
                     className={cn(
-                      "rounded-full border px-4 py-2 text-xs font-bold transition-all",
+                      "min-h-11 rounded-full border px-4 py-2 text-xs font-bold transition-all",
                       isSelected
                         ? "border-brand-purple/40 bg-brand-purple/15 text-white shadow-[0_0_20px_rgba(164,118,255,0.14)]"
                         : "border-white/10 bg-white/[0.03] text-gray-400"

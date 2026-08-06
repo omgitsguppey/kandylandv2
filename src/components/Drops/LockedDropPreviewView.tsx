@@ -4,6 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Clock, Eye, Image as ImageIcon, Loader2, Lock, Share2, Unlock, Wallet } from "lucide-react";
 
+import { Badge } from "@/components/creative-tim/ui/badge";
+import { Card } from "@/components/creative-tim/ui/card";
+import { Separator } from "@/components/creative-tim/ui/separator";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import type {
@@ -59,7 +62,7 @@ export function LockedDropPreviewView({
 }: LockedDropPreviewViewProps) {
     return (
         <div
-            className="mx-auto flex min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px))] w-full max-w-5xl flex-col px-3 pb-4 pt-[calc(var(--kandy-cookie-offset,0px)+0.75rem)] selection:bg-brand-purple/30 sm:px-4 md:px-8 md:pb-8 md:pt-2"
+            className="relative isolate mx-auto flex min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px))] w-full max-w-5xl flex-col overflow-x-clip px-3 pb-4 pt-[calc(var(--kandy-cookie-offset,0px)+0.75rem)] selection:bg-brand-purple/30 sm:px-4 md:px-8 md:pb-8 md:pt-2"
             data-drop-preview-page="true"
             data-drop-preview-urgency-tier={truth.urgencyTier}
             data-drop-preview-cta-state={truth.ctaState}
@@ -67,15 +70,15 @@ export function LockedDropPreviewView({
             data-drop-preview-creator-cover-eligible={truth.creatorCoverPreviewEligible}
             data-safe-preview-fields-only="true"
         >
-            <div className="mb-3 flex items-center justify-between gap-3">
-                <Link href="/drops" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-gray-200 backdrop-blur-md transition-colors hover:text-white">
+            <div className="relative z-10 mb-4 flex items-center justify-between gap-3">
+                <Link href="/drops" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 text-sm font-semibold text-gray-100 shadow-[0_10px_28px_rgba(0,0,0,0.24)] backdrop-blur-xl transition-colors hover:border-brand-purple/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/70">
                     <ArrowLeft className="h-4 w-4" />
                     Drops
                 </Link>
                 <ReportBugButton context="drop-preview-page" variant="icon" label="Report a bug" />
             </div>
 
-            <section className="grid flex-1 gap-4 md:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)] md:items-center md:gap-7">
+            <section className="relative z-10 grid flex-1 gap-5 md:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)] md:items-center md:gap-8">
                 <CoverHero
                     drop={drop}
                     truth={truth}
@@ -115,7 +118,7 @@ function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel }: Pic
     const imagePolicy = getImageLoadingPolicy("drop_preview", { isLcpCandidate: true });
 
     return (
-        <div className="relative mx-auto w-[min(64vw,280px)] overflow-hidden rounded-[1.6rem] border border-white/10 bg-zinc-950 shadow-[0_24px_80px_rgba(0,0,0,0.42)] sm:w-[min(52vw,320px)] md:max-w-[320px] md:rounded-[2rem]" data-drop-preview-cover-treatment={truth.coverTreatment} data-drop-preview-cover-aspect="1:1">
+        <Card className="relative mx-auto w-[min(64vw,280px)] !gap-0 !overflow-hidden !rounded-[1.6rem] !border-white/15 !bg-zinc-950 !p-0 shadow-[0_28px_90px_rgba(0,0,0,0.5),0_0_0_1px_rgba(164,118,255,0.08)] sm:w-[min(52vw,320px)] md:max-w-[320px] md:!rounded-[2rem]" data-drop-preview-cover-treatment={truth.coverTreatment} data-drop-preview-cover-aspect="1:1">
             <div className="relative aspect-square w-full">
                 <Image
                     src={drop.imageUrl || "/placeholder.jpg"}
@@ -129,7 +132,8 @@ function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel }: Pic
                     className={cn("object-cover object-center", truth.shouldBlurCover && "blur-[6px] brightness-[0.76] saturate-[0.9]")}
                     {...getImagePolicyDataAttributes(imagePolicy)}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/15 to-black/25" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/18 to-black/20" />
+                <div className="absolute inset-x-0 top-0 h-2/5 bg-gradient-to-b from-brand-purple/18 to-transparent" aria-hidden="true" />
                 <div className="absolute left-3 right-3 top-3 flex flex-wrap items-start justify-between gap-2">
                     <PreviewChip label={drop.type === "promo" ? "Drop" : "Limited Release"} />
                     <PreviewTimerChip urgencyTier={truth.urgencyTier} label={timerLabel} fullLabel={timerFullLabel} />
@@ -139,59 +143,65 @@ function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel }: Pic
                     <TitleMarquee title={drop.title} delaySeed={drop.id.charCodeAt(0) % 6} className="text-xl font-black leading-[1.04] tracking-tight text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)] md:text-2xl" />
                 </div>
             </div>
-        </div>
+        </Card>
     );
 }
 
 function SummaryPanel({ drop, creator, socialProof, truth, onShare }: Pick<LockedDropPreviewViewProps, "drop" | "creator" | "socialProof" | "truth" | "onShare">) {
     return (
-        <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.035] p-4 backdrop-blur-md md:rounded-[1.6rem] md:p-5">
+        <Card className="!gap-0 !rounded-[1.35rem] !border-white/10 !bg-white/[0.045] !p-0 shadow-[0_18px_54px_rgba(0,0,0,0.2)] backdrop-blur-xl md:!rounded-[1.6rem]">
+            <div className="p-4 md:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">{creator?.displayName ?? "KandyDrops Creator"}</p>
                     {creator?.username ? <p className="mt-1 text-xs font-semibold text-gray-400">@{creator.username}</p> : null}
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                    <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-bold text-white/80" data-drop-preview-social-proof-type={socialProof.type}>
+                    <Badge className="flex h-9 items-center gap-1.5 rounded-full border-white/10 bg-black/35 px-3 text-xs font-bold text-white/80 shadow-none hover:bg-black/35" data-drop-preview-social-proof-type={socialProof.type}>
                         {socialProof.type === "unwraps" ? <Unlock className="h-3.5 w-3.5 text-brand-purple" /> : <Eye className="h-3.5 w-3.5 text-brand-purple" />}
                         {socialProof.label}
-                    </div>
-                    <button type="button" onClick={onShare} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-brand-purple/35 bg-brand-purple/12 px-3 text-xs font-black text-[#efe8ff] active:scale-[0.98]" data-drop-preview-share-button="true" data-drop-preview-creator-share-eligible={truth.creatorCoverPreviewEligible}>
+                    </Badge>
+                    <button type="button" onClick={onShare} className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-brand-purple/35 bg-brand-purple/12 px-3 text-xs font-black text-[#efe8ff] shadow-[0_8px_22px_rgba(164,118,255,0.12)] transition-colors hover:border-brand-purple/60 hover:bg-brand-purple/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/70 active:scale-[0.98]" data-drop-preview-share-button="true" data-drop-preview-creator-share-eligible={truth.creatorCoverPreviewEligible}>
                         <Share2 className="h-3.5 w-3.5" />
                         Share
                     </button>
                 </div>
             </div>
-            <p className="mt-4 text-sm leading-6 text-gray-300 md:text-base">{drop.description}</p>
-        </div>
+            <Separator className="my-4 bg-white/10" />
+            <p className="text-sm leading-6 text-gray-300 md:text-base">{drop.description}</p>
+            </div>
+        </Card>
     );
 }
 
 function UrgencyBand({ truth, timerLabel }: { truth: LockedDropPreviewTruth; timerLabel: string }) {
     const phrase = truth.urgencyTier === "critical" ? "Final minutes" : truth.urgencyTier === "urgent" ? "Window closing" : truth.urgencyTier === "warm" ? "Ends today" : truth.urgencyTier === "expired" ? "Unavailable" : "Available Now";
     return (
-        <div className={cn("rounded-[1.2rem] border p-3 text-sm font-semibold", truth.urgencyTier === "critical" ? "border-fuchsia-300/50 bg-fuchsia-500/14 text-fuchsia-100 motion-safe:animate-pulse" : truth.urgencyTier === "urgent" ? "border-fuchsia-300/35 bg-fuchsia-500/10 text-fuchsia-100" : truth.urgencyTier === "warm" ? "border-brand-purple/30 bg-brand-purple/10 text-[#e4d4ff]" : "border-white/10 bg-white/[0.035] text-gray-200")}>
-            <div className="flex items-center justify-between gap-3">
+        <Card className={cn("!gap-0 !rounded-[1.2rem] !p-0 text-sm font-semibold shadow-[0_12px_36px_rgba(0,0,0,0.16)]", truth.urgencyTier === "critical" ? "!border-fuchsia-300/50 !bg-fuchsia-500/14 text-fuchsia-100 motion-safe:animate-pulse" : truth.urgencyTier === "urgent" ? "!border-fuchsia-300/35 !bg-fuchsia-500/10 text-fuchsia-100" : truth.urgencyTier === "warm" ? "!border-brand-purple/30 !bg-brand-purple/10 text-[#e4d4ff]" : "!border-white/10 !bg-white/[0.045] text-gray-200")}>
+            <div className="flex items-center justify-between gap-3 p-3">
                 <span>{phrase}</span>
                 <span className="text-xs text-white/65">{timerLabel}</span>
             </div>
-        </div>
+        </Card>
     );
 }
 
 function SuccessPanel() {
     return (
-        <div className="rounded-[1.35rem] border border-brand-purple/25 bg-brand-purple/10 p-4 text-center md:rounded-[1.6rem]">
+        <Card className="!gap-0 !rounded-[1.35rem] !border-brand-purple/25 !bg-brand-purple/10 !p-0 text-center shadow-[0_16px_48px_rgba(164,118,255,0.12)] md:!rounded-[1.6rem]">
+            <div className="p-4">
             <CheckCircle2 className="mx-auto h-9 w-9 text-brand-purple" />
             <h2 className="mt-3 text-xl font-black text-white">Saved to your KandyDrops.</h2>
             <p className="mt-2 text-sm leading-6 text-gray-300">Open it now or keep browsing live Drops.</p>
-        </div>
+            </div>
+        </Card>
     );
 }
 
 function FeedbackStrip({ selectedReaction, onReact }: Pick<LockedDropPreviewViewProps, "selectedReaction" | "onReact">) {
     return (
-        <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-3">
+        <Card className="!gap-0 !rounded-[1.2rem] !border-white/10 !bg-white/[0.04] !p-0 shadow-[0_12px_36px_rgba(0,0,0,0.14)]">
+            <div className="p-3">
             <p className="mb-2 text-[10px] font-black uppercase tracking-[0.16em] text-gray-500">Vibe check</p>
             <div className="grid grid-cols-5 gap-1.5">
                 {FEEDBACK_REACTIONS.map((reaction) => (
@@ -200,7 +210,8 @@ function FeedbackStrip({ selectedReaction, onReact }: Pick<LockedDropPreviewView
                     </button>
                 ))}
             </div>
-        </div>
+            </div>
+        </Card>
     );
 }
 
@@ -210,7 +221,7 @@ function StickyPreviewCta({ truth, unlockCost, authLoading, unlocking, confirmin
 
     return (
         <div
-            className={cn("sticky bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)] z-30 mt-4 rounded-[1.35rem] border border-white/10 bg-black/78 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.52)] backdrop-blur-xl md:bottom-4", truth.shouldShowCreatorShareCta && "bg-black/70")}
+            className={cn("sticky bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)] z-30 mt-5 rounded-[1.35rem] border border-white/10 bg-black/82 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.52),0_0_0_1px_rgba(164,118,255,0.06)] backdrop-blur-xl md:bottom-4", truth.shouldShowCreatorShareCta && "bg-black/74")}
             data-drop-preview-sticky-cta-above-bottom-nav="true"
         >
             {truth.isUnlocked ? (
@@ -260,15 +271,15 @@ function getCoverCtaLabel({ truth, authLoading, unlocking, confirming, unlockCos
 }
 
 function PreviewChip({ label }: { label: string }) {
-    return <span className="rounded-[0.85rem] border border-white/20 bg-black/60 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-lg backdrop-blur-xl">{label}</span>;
+    return <Badge className="h-7 rounded-[0.85rem] border-white/20 bg-black/60 px-3 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-lg backdrop-blur-xl hover:bg-black/60">{label}</Badge>;
 }
 
 function PreviewTimerChip({ urgencyTier, label, fullLabel }: { urgencyTier: LockedDropPreviewTruth["urgencyTier"]; label: string; fullLabel: string }) {
     return (
-        <span className={cn("inline-flex max-w-[9rem] items-center gap-1.5 rounded-[0.85rem] border bg-black/62 px-3 py-1 text-[11px] font-black text-white shadow-lg backdrop-blur-xl", urgencyTier === "urgent" && "border-fuchsia-300/45 text-fuchsia-100", urgencyTier === "critical" && "border-fuchsia-300/60 text-fuchsia-100 motion-safe:animate-pulse")} aria-label={fullLabel} title={fullLabel}>
+        <Badge className={cn("inline-flex h-7 max-w-[9rem] items-center gap-1.5 rounded-[0.85rem] border bg-black/62 px-3 text-[11px] font-black text-white shadow-lg backdrop-blur-xl hover:bg-black/62", urgencyTier === "urgent" && "border-fuchsia-300/45 text-fuchsia-100", urgencyTier === "critical" && "border-fuchsia-300/60 text-fuchsia-100 motion-safe:animate-pulse")} aria-label={fullLabel} title={fullLabel}>
             <Clock className="h-3.5 w-3.5 text-brand-purple" />
             <span className="truncate">{label}</span>
-        </span>
+        </Badge>
     );
 }
 

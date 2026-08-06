@@ -90,7 +90,7 @@ function MobileBottomBarInner() {
         >
             <nav
                 aria-label="Mobile navigation"
-                className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-1.5 shadow-xl shadow-black/40 backdrop-blur-xl"
+                className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border border-kandy-lilac/20 bg-kandy-void/85 px-3.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_16px_40px_rgba(5,2,11,0.48)] backdrop-blur-2xl"
                 data-device-layout-surface="mobile-bottom-nav"
                 data-hydration-lane="critical"
                 data-bottom-nav-role="navigation"
@@ -117,8 +117,8 @@ function MobileBottomBarInner() {
                                 }}
                                 aria-label="Open wallet"
                                 className={cn(
-                                    "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
-                                    "text-gray-400"
+                                    "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[0.9rem] px-2 py-1 text-center transition-all duration-200 hover:bg-white/[0.04] hover:text-white active:scale-95",
+                                    "text-gray-300"
                                 )}
                             >
                                 <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -138,14 +138,16 @@ function MobileBottomBarInner() {
                                 trackEvent('navigation_click', { destination: item.href, route: pathname ?? "/", source: 'mobile_bottom_bar', source_component: "mobile_bottom_bar" });
                             }}
                             className={cn(
-                                "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
-                                isActive ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
+                                "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[0.9rem] px-2 py-1 text-center transition-all duration-200 hover:bg-white/[0.04] hover:text-white active:scale-95",
+                                isActive
+                                    ? "bg-gradient-to-br from-brand-purple/25 via-brand-purple/15 to-brand-pink/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_8px_18px_rgba(178,140,255,0.14)]"
+                                    : "text-gray-300"
                             )}
                         >
                             <div className="relative">
                                 <Icon className="h-3.5 w-3.5 shrink-0" />
                                 {item.label === "Chat" && hasUnreadMessages && (
-                                    <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-brand-purple ring-2 ring-black/55" />
+                                    <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-brand-purple ring-2 ring-kandy-ink/90" />
                                 )}
                             </div>
                             <span className="text-[9px] font-semibold leading-none">{item.label}</span>

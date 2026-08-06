@@ -66,39 +66,18 @@ function normalizeDropTimelineItem(raw: Record<string, unknown>): CreatorProfile
     };
 }
 
-function normalizeBroadcastTimelineItem(raw: Record<string, unknown>): CreatorProfileTimelineItem | null {
-    const status = readString(raw, "status") || "draft";
-    if (status !== "published" && status !== "sent") {
-        return null;
-    }
-    if (raw.timelineEligible === false || raw.removedAt !== undefined) {
-        return null;
-    }
-
-    const id = readString(raw, "broadcastId", "id");
-    if (!id) {
-        return null;
-    }
-
-    return {
-        id,
-        type: "broadcast",
-        title: readString(raw, "title") || "Creator update",
-        body: readString(raw, "body", "message"),
-        createdAtMs: readNumber(raw, "publishedAtMs", "createdAtMs", "sentAtMs"),
-        sourceTruth: "published_creator_broadcast",
-    };
-}
-
 export function buildCreatorProfileTimeline(input: {
     settings: unknown;
     drops: Array<Record<string, unknown>>;
-    broadcasts: Array<Record<string, unknown>>;
+    /**
+     * Retained only for legacy callers. Broadcasts are private delivery
+     * records and are deliberately ignored by this public timeline contract.
+     */
+    broadcasts?: Array<Record<string, unknown>>;
 }): CreatorProfileTimeline {
     const settings = normalizeCreatorSettings(input.settings);
     const timelineEnabled = settings.profileTimelineEnabled !== false;
     const includeDrops = timelineEnabled && settings.showApprovedDropsOnTimeline !== false;
-    const includeBroadcasts = timelineEnabled && settings.showBroadcastsOnTimeline !== false;
     const excludedCounts = {
         pendingDrops: 0,
         draftBroadcasts: 0,
@@ -123,17 +102,7 @@ export function buildCreatorProfileTimeline(input: {
             return [item];
         })
         : [];
-    const broadcastItems = includeBroadcasts
-        ? input.broadcasts.flatMap((broadcast) => {
-            const item = normalizeBroadcastTimelineItem(broadcast);
-            if (!item) {
-                excludedCounts.draftBroadcasts += 1;
-                return [];
-            }
-            return [item];
-        })
-        : [];
-    const items = [...dropItems, ...broadcastItems]
+    const items = [...dropItems]
         .sort((left, right) => right.createdAtMs - left.createdAtMs);
 
     return {

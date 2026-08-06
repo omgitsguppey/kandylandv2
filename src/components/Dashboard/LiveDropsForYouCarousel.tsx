@@ -10,6 +10,7 @@ import { useDrops } from "@/hooks/useDrops";
 import { useNow } from "@/hooks/useNow";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 import { trackEvent } from "@/lib/telemetry";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { Drop } from "@/types/db";
@@ -117,7 +118,7 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
             style={{ aspectRatio: getSupportedDropAspectRatio(drop).replace(":", " / ") }}
           >
             <NextImage
-              src={drop.imageUrl}
+              src={resolvePublicDropCoverSrc(drop.imageUrl)}
               alt={drop.title}
               fill
               loading={imagePolicy.loading}

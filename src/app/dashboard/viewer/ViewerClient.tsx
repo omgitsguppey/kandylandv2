@@ -25,6 +25,7 @@ import { ViewerSkeleton } from "./components/ViewerSkeleton";
 import { MediaViewer } from "./components/MediaViewer";
 import { ThumbnailsSlider } from "./components/ThumbnailsSlider";
 import { DropInfoOverlay } from "./components/DropInfoOverlay";
+import { ViewerFrame } from "./components/ViewerFrame";
 import { ContentSatisfactionPrompt } from "@/components/Feedback/ContentSatisfactionPrompt";
 
 interface ViewerClientProps {
@@ -253,118 +254,116 @@ export function ViewerClient({ drop, requestedDropId, initialCreatorProfile }: V
     const hasThumbnailRail = assetCount > 1;
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] pb-24 font-sans selection:bg-brand-purple/30 selection:text-white">
-            <section className="bg-black border-b border-white/5 relative z-10 sticky top-0 md:top-auto">
-                <div className="flex items-center justify-between px-4 py-3 md:py-4">
-                    <Link
-                        href={USER_LIBRARY_ROUTE}
-                        onClick={() => telemetry.flushSessionTelemetry()}
-                        className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors py-2 group"
-                    >
-                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5 group-hover:bg-white/10 group-hover:border-white/20 transition-all">
-                            <ArrowLeft className="w-4 h-4" />
-                        </div>
-                        <span className="font-medium hidden sm:inline">Back to Library</span>
-                        <span className="font-medium sm:hidden">Back</span>
-                    </Link>
-                </div>
-
-                <div className={`w-full ${viewerStageHeight} bg-[#050505] relative overflow-hidden transition-all duration-500`}>
-                    {/* Security Warning Mode */}
-                    {isSecurityTriggered && securityWarning && (
-                        <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-200">
-                            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                                <ShieldCheck className="w-10 h-10 text-red-500" />
-                            </div>
-                            <h2 className="text-2xl font-black text-white mb-3 uppercase tracking-wider">{securityWarning.label}</h2>
-                            <p className="text-gray-400 max-w-sm mb-8 text-sm md:text-base leading-relaxed">{securityWarning.message}</p>
-                            <div className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-xs font-mono text-gray-500 flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-                                Monitoring active session
-                            </div>
-                        </div>
-                    )}
-
-                    <div
-                        ref={viewerContentRef}
-                        data-watch-session-visibility-owner="intersection-observer"
-                        className={`absolute inset-0 z-10 transition-opacity duration-300 ${isSecurityTriggered ? 'opacity-0 select-none pointer-events-none blur-xl' : 'opacity-100'}`}
-                    >
-                        <MediaViewer
-                            drop={drop}
-                            contentBlobUrl={contentBlobUrl}
-                            resolvedContent={resolvedContent}
-                            activeIndex={activeIndex}
-                            contentLoading={contentLoading}
-                            preventContextMenu={preventContextMenu}
-                            reportWatchMediaPlay={() => telemetry.reportWatchMediaPlay()}
-                            reportWatchMediaPause={(t, d) => telemetry.reportWatchMediaPause(t, d)}
-                            reportWatchMediaSeeking={(s, e, d) => telemetry.reportWatchMediaSeeking(s, e, d)}
-                            reportWatchMediaWaiting={(s) => telemetry.reportWatchMediaWaiting(s)}
-                            reportWatchPlaybackState={(r, m) => telemetry.reportWatchPlaybackState(r, m)}
-                            handleMediaTimeUpdate={(c, d) => telemetry.handleMediaTimeUpdate(c, d)}
-                            trackAssetCompleted={(c, d) => {
-                                telemetry.trackAssetCompleted(c, d);
-                                const assetKey = `${drop.id}:${activeIndex}`;
-                                setSatisfactionPrompt({
-                                    key: `${assetKey}:completed:${Math.round(c)}`,
-                                    watchSeconds: c,
-                                    durationSeconds: d,
-                                    mediaIndex: activeIndex,
-                                    mediaType: resolvedContent.kind,
-                                    assetKey,
-                                });
-                            }}
-                            reportWatchMediaEnded={(t, d) => telemetry.reportWatchMediaEnded(t, d)}
-                        />
+        <ViewerFrame
+            viewerStageHeight={viewerStageHeight}
+            backBar={(
+                <Link
+                    href={USER_LIBRARY_ROUTE}
+                    onClick={() => telemetry.flushSessionTelemetry()}
+                    className="flex items-center gap-2 py-2 text-sm text-gray-400 transition-colors group hover:text-white"
+                >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/5 bg-white/5 transition-all group-hover:border-white/20 group-hover:bg-white/10">
+                        <ArrowLeft className="h-4 w-4" />
+                    </div>
+                    <span className="hidden font-medium sm:inline">Back to Library</span>
+                    <span className="font-medium sm:hidden">Back</span>
+                </Link>
+            )}
+            securityOverlay={isSecurityTriggered && securityWarning ? (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-8 text-center backdrop-blur-xl animate-in fade-in duration-200">
+                    <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 animate-pulse">
+                        <ShieldCheck className="h-10 w-10 text-red-500" />
+                    </div>
+                    <h2 className="mb-3 text-2xl font-black uppercase tracking-wider text-white">{securityWarning.label}</h2>
+                    <p className="mb-8 max-w-sm text-sm leading-relaxed text-gray-400 md:text-base">{securityWarning.message}</p>
+                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs text-gray-500">
+                        <div className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
+                        Monitoring active session
                     </div>
                 </div>
-
-                {hasThumbnailRail && (
-                    <ThumbnailsSlider
-                        assetCount={assetCount}
+            ) : null}
+            mediaStage={(
+                <div
+                    ref={viewerContentRef}
+                    data-watch-session-visibility-owner="intersection-observer"
+                    className={`absolute inset-0 z-10 transition-opacity duration-300 ${isSecurityTriggered ? "opacity-0 pointer-events-none select-none blur-xl" : "opacity-100"}`}
+                >
+                    <MediaViewer
+                        drop={drop}
+                        contentBlobUrl={contentBlobUrl}
+                        resolvedContent={resolvedContent}
                         activeIndex={activeIndex}
-                        thumbnailItems={thumbnailItems}
-                        setActiveIndex={setActiveIndex}
+                        contentLoading={contentLoading}
+                        preventContextMenu={preventContextMenu}
+                        reportWatchMediaPlay={() => telemetry.reportWatchMediaPlay()}
+                        reportWatchMediaPause={(t, d) => telemetry.reportWatchMediaPause(t, d)}
+                        reportWatchMediaSeeking={(s, e, d) => telemetry.reportWatchMediaSeeking(s, e, d)}
+                        reportWatchMediaWaiting={(s) => telemetry.reportWatchMediaWaiting(s)}
+                        reportWatchPlaybackState={(r, m) => telemetry.reportWatchPlaybackState(r, m)}
+                        handleMediaTimeUpdate={(c, d) => telemetry.handleMediaTimeUpdate(c, d)}
+                        trackAssetCompleted={(c, d) => {
+                            telemetry.trackAssetCompleted(c, d);
+                            const assetKey = `${drop.id}:${activeIndex}`;
+                            setSatisfactionPrompt({
+                                key: `${assetKey}:completed:${Math.round(c)}`,
+                                watchSeconds: c,
+                                durationSeconds: d,
+                                mediaIndex: activeIndex,
+                                mediaType: resolvedContent.kind,
+                                assetKey,
+                            });
+                        }}
+                        reportWatchMediaEnded={(t, d) => telemetry.reportWatchMediaEnded(t, d)}
                     />
-                )}
-            </section>
-
-            <DropInfoOverlay
-                drop={drop}
-                user={user}
-                userProfile={userProfile}
-                contentBlobUrl={contentBlobUrl}
-                activeIndex={activeIndex}
-                initialCreatorProfile={initialCreatorProfile}
-                following={following}
-                submittingFollow={submittingFollow}
-                handleFollow={handleFollow}
-                feedbackComplete={feedbackComplete}
-                submittingFeedback={submittingFeedback}
-                feedbackValue={feedbackValue}
-                handleFeedback={handleFeedback}
-                retentionDrops={retentionDrops}
-                handleRelatedDropClick={(d, t) => telemetry.handleRelatedDropClick(d, t)}
-                recordDownload={() => telemetry.recordDownload(activeIndex)}
-            />
-            <ContentSatisfactionPrompt
-                dropId={drop.id}
-                creatorId={drop.creatorId}
-                category={drop.type}
-                assetKey={satisfactionPrompt?.assetKey || `${drop.id}:${activeIndex}`}
-                mediaIndex={(satisfactionPrompt?.mediaIndex ?? activeIndex) + 1}
-                mediaType={satisfactionPrompt?.mediaType || resolvedContent.kind}
-                viewerSessionId={telemetry.watchSessionId ?? undefined}
-                meaningfulConsumptionKey={satisfactionPrompt?.key}
-                completionQuality={satisfactionPrompt?.durationSeconds
-                    ? Math.min(1, satisfactionPrompt.watchSeconds / Math.max(1, satisfactionPrompt.durationSeconds))
-                    : satisfactionPrompt
-                        ? 0.7
-                        : 0}
-                repeatCreatorInterest={following ? 1 : 0}
-                lowRefundRisk={1}
-            />
-        </div>
+                </div>
+            )}
+            thumbnailRail={hasThumbnailRail ? (
+                <ThumbnailsSlider
+                    assetCount={assetCount}
+                    activeIndex={activeIndex}
+                    thumbnailItems={thumbnailItems}
+                    setActiveIndex={setActiveIndex}
+                />
+            ) : null}
+            details={(
+                <DropInfoOverlay
+                    drop={drop}
+                    user={user}
+                    userProfile={userProfile}
+                    contentBlobUrl={contentBlobUrl}
+                    activeIndex={activeIndex}
+                    initialCreatorProfile={initialCreatorProfile}
+                    following={following}
+                    submittingFollow={submittingFollow}
+                    handleFollow={handleFollow}
+                    feedbackComplete={feedbackComplete}
+                    submittingFeedback={submittingFeedback}
+                    feedbackValue={feedbackValue}
+                    handleFeedback={handleFeedback}
+                    retentionDrops={retentionDrops}
+                    handleRelatedDropClick={(d, t) => telemetry.handleRelatedDropClick(d, t)}
+                    recordDownload={() => telemetry.recordDownload(activeIndex)}
+                />
+            )}
+            satisfaction={(
+                <ContentSatisfactionPrompt
+                    dropId={drop.id}
+                    creatorId={drop.creatorId}
+                    category={drop.type}
+                    assetKey={satisfactionPrompt?.assetKey || `${drop.id}:${activeIndex}`}
+                    mediaIndex={(satisfactionPrompt?.mediaIndex ?? activeIndex) + 1}
+                    mediaType={satisfactionPrompt?.mediaType || resolvedContent.kind}
+                    viewerSessionId={telemetry.watchSessionId ?? undefined}
+                    meaningfulConsumptionKey={satisfactionPrompt?.key}
+                    completionQuality={satisfactionPrompt?.durationSeconds
+                        ? Math.min(1, satisfactionPrompt.watchSeconds / Math.max(1, satisfactionPrompt.durationSeconds))
+                        : satisfactionPrompt
+                            ? 0.7
+                            : 0}
+                    repeatCreatorInterest={following ? 1 : 0}
+                    lowRefundRisk={1}
+                />
+            )}
+        />
     );
 }

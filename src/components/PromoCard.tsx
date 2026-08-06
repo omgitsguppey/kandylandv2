@@ -1,11 +1,16 @@
-import { Drop } from "@/types/db";
-import { authFetch } from "@/lib/authFetch";
-import { auth } from "@/lib/firebase";
+import NextImage from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
-import NextImage from "next/image";
-import { trackEvent } from "@/lib/telemetry";
+import { Badge } from "@/components/creative-tim/ui/badge";
+import { Card } from "@/components/creative-tim/ui/card";
+import { authFetch } from "@/lib/authFetch";
+import { auth } from "@/lib/firebase";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
+import { resolveDropLifecycleStatus } from "@/lib/drop-status";
+import { trackEvent } from "@/lib/telemetry";
+import { cn } from "@/lib/utils";
+import { Drop } from "@/types/db";
 
 interface PromoCardProps {
     drop: Drop;
@@ -53,7 +58,16 @@ export function getSafeUrl(url: string | undefined): string | undefined {
 
 export function PromoCard({ drop }: PromoCardProps) {
     const imagePolicy = getImageLoadingPolicy("drops_grid");
+    const safeActionUrl = getSafeUrl(drop.actionUrl);
+    const isPubliclyLive = resolveDropLifecycleStatus(drop, { audience: "public" }).publicVisible;
+    const isAvailable = Boolean(isPubliclyLive && safeActionUrl);
+    const coverSrc = resolvePublicDropCoverSrc(drop.imageUrl);
+
     const handleClick = () => {
+        if (!isAvailable || !safeActionUrl) {
+            return;
+        }
+
         trackEvent("promo_card_clicked", {
             drop_id: drop.id,
             action_url: drop.actionUrl,
@@ -77,71 +91,87 @@ export function PromoCard({ drop }: PromoCardProps) {
         request.catch(() => { });
     };
 
-    return (
-        <a
-            href={getSafeUrl(drop.actionUrl)}
-            onClick={handleClick}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative p-2 md:p-6 rounded-2xl md:rounded-3xl glass-panel transition-all duration-500 overflow-hidden flex flex-col h-full bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
-            style={{
-                borderColor: drop.accentColor ? `${drop.accentColor}40` : undefined
-            }}
-        >
-            {/* Promo Label */}
-            <div className="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-gray-300 uppercase tracking-widest border border-white/10">
-                Ad
-            </div>
+    const cardBody = (
+        <>
+            <Badge variant="outline" className={cn("absolute left-3 top-3 z-20 !rounded-md !border-white/10 !bg-black/60 !px-2 !py-0.5 !text-[10px] !font-bold uppercase tracking-widest !text-gray-300 backdrop-blur-md", !isAvailable && "!border-white/15 !bg-white/10 !text-white/70")}>
+                {isAvailable ? "Ad" : "Unavailable"}
+            </Badge>
 
-            {/* Image Container */}
-            <div className="relative w-full aspect-square bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-5 overflow-hidden group/image shadow-inner">
-                {drop.imageUrl ? (
-                    <NextImage
-                        src={drop.imageUrl}
-                        alt={drop.title}
-                        fill
-                        loading={imagePolicy.loading}
-                        preload={imagePolicy.preload}
-                        fetchPriority={imagePolicy.fetchPriority}
-                        quality={imagePolicy.quality}
-                        className="object-contain bg-black transition-transform duration-700 opacity-90"
-                        sizes={imagePolicy.sizes}
-                        {...getImagePolicyDataAttributes(imagePolicy)}
-                    />
-                ) : (
-                    <div className="w-full h-full bg-zinc-900" />
-                )}
+            <div className="group/image relative mb-2 aspect-square w-full overflow-hidden rounded-xl bg-black/40 shadow-inner md:mb-5 md:rounded-2xl">
+                <NextImage
+                    src={coverSrc}
+                    alt={drop.title}
+                    fill
+                    loading={imagePolicy.loading}
+                    preload={imagePolicy.preload}
+                    fetchPriority={imagePolicy.fetchPriority}
+                    quality={imagePolicy.quality}
+                    className={cn("bg-black object-contain opacity-90 transition-transform duration-700", isAvailable && "group-hover:scale-[1.03]")}
+                    sizes={imagePolicy.sizes}
+                    {...getImagePolicyDataAttributes(imagePolicy)}
+                />
 
-                {/* Overlay Icon */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px]">
-                    <div className="rounded-full bg-brand-purple p-3 text-white transform scale-50 transition-transform duration-300">
-                        <ArrowUpRight className="w-6 h-6" />
+                {isAvailable ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
+                        <div className="scale-50 rounded-full bg-brand-purple p-3 text-white transition-transform duration-300 group-hover:scale-100">
+                            <ArrowUpRight className="h-6 w-6" />
+                        </div>
                     </div>
-                </div>
+                ) : null}
             </div>
 
-            {/* Content */}
-            <div className="relative z-10 flex-1 flex flex-col">
-                <div className="mb-2 md:mb-4 flex-1">
-                    <h3 className="text-sm md:text-xl font-bold text-white mb-0.5 md:mb-1 leading-tight tracking-tight transition-colors">
+            <div className="relative z-10 flex flex-1 flex-col">
+                <div className="mb-2 flex-1 md:mb-4">
+                    <h3 className="mb-0.5 text-sm font-bold leading-tight tracking-tight text-white md:mb-1 md:text-xl">
                         {drop.title}
                     </h3>
-                    <p className="text-[10px] md:text-sm text-gray-400 line-clamp-2 font-medium leading-relaxed">
+                    <p className="line-clamp-2 text-[10px] font-medium leading-relaxed text-gray-400 md:text-sm">
                         {drop.description}
                     </p>
                 </div>
 
                 <div
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple py-2 text-xs font-bold text-white transition-opacity md:rounded-xl md:py-3 md:text-sm"
-                    style={{
-                        backgroundColor: drop.accentColor || "#a476ff",
-                        color: "white",
-                    }}
+                    className={cn(
+                        "flex min-h-11 w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-bold transition-opacity md:rounded-xl md:py-3 md:text-sm",
+                        isAvailable ? "bg-brand-purple text-white" : "border border-white/10 bg-white/[0.06] text-white/60",
+                    )}
+                    style={isAvailable ? { backgroundColor: drop.accentColor || "#a476ff", color: "white" } : undefined}
                 >
-                    {drop.ctaText || "Visit Now"}
-                    <ArrowUpRight className="w-3 h-3 md:w-4 md:h-4" />
+                    {isAvailable ? (
+                        <>
+                            {drop.ctaText || "Visit Now"}
+                            <ArrowUpRight className="h-3 w-3 md:h-4 md:w-4" />
+                        </>
+                    ) : (
+                        "Unavailable"
+                    )}
                 </div>
             </div>
-        </a>
+        </>
+    );
+
+    return (
+        <Card
+            className="relative h-full overflow-hidden rounded-2xl border-white/10 bg-gradient-to-br from-white/5 to-white/0 !gap-0 !p-0 shadow-[0_12px_30px_rgba(0,0,0,0.2)] md:rounded-3xl"
+            style={{
+                borderColor: drop.accentColor ? `${drop.accentColor}40` : undefined,
+            }}
+        >
+            {isAvailable && safeActionUrl ? (
+                <a
+                    href={safeActionUrl}
+                    onClick={handleClick}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex h-full flex-col p-2 transition-all duration-500 md:p-6"
+                >
+                    {cardBody}
+                </a>
+            ) : (
+                <div aria-disabled="true" className="relative flex h-full cursor-not-allowed flex-col p-2 opacity-80 md:p-6">
+                    {cardBody}
+                </div>
+            )}
+        </Card>
     );
 }

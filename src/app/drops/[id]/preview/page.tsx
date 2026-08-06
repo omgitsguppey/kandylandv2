@@ -20,16 +20,18 @@ export async function generateMetadata({ params }: Pick<DropPreviewPageProps, "p
         };
     }
 
+    const previewDrop = toLockedDropPreviewSafeDrop(drop);
+
     return {
-        title: `${drop.title} Preview`,
-        description: drop.description,
+        title: `${previewDrop.title} Preview`,
+        description: previewDrop.description,
         alternates: {
-            canonical: `/drops/${encodeURIComponent(drop.id)}/preview`,
+            canonical: `/drops/${encodeURIComponent(previewDrop.id)}/preview`,
         },
         openGraph: {
-            title: `${drop.title} Preview`,
-            description: drop.description,
-            images: drop.imageUrl ? [{ url: drop.imageUrl, alt: drop.title }] : undefined,
+            title: `${previewDrop.title} Preview`,
+            description: previewDrop.description,
+            images: previewDrop.imageUrl ? [{ url: previewDrop.imageUrl, alt: previewDrop.title }] : undefined,
         },
     };
 }

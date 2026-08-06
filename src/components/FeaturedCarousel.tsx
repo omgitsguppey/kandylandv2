@@ -6,13 +6,17 @@ import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
 import { Clock, Eye, Image as ImageIcon, Lock, Unlock } from "lucide-react";
 
+import { Badge } from "@/components/creative-tim/ui/badge";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
 import { DROP_COUNTDOWN_ONE_DAY_MS, DROP_COUNTDOWN_ONE_HOUR_MS, formatDropCountdown, type DropCountdownUrgency } from "@/lib/drop-countdown";
 import { getDropCardVisibilityTelemetryPayload, resolveDropCardVisibilityState, type DropCtaState } from "@/lib/drop-card-visibility";
 import { getDropViewCount } from "@/lib/drop-engagement";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { resolveDropLifecycleStatus } from "@/lib/drop-status";
+import { hasUnwrappedDrop } from "@/lib/drop-view-access";
 import {
     buildDiscoveryImpressionKey,
     createDiscoveryTrackingSessionId,
@@ -81,7 +85,13 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
     const [featuredTrackingSessionId] = useState(() => createDiscoveryTrackingSessionId("featured"));
     const [isCarouselVisible, setIsCarouselVisible] = useState(false);
 
-    const featuredDrops = useMemo(() => drops.slice(0, 5), [drops]);
+    const featuredDrops = useMemo(
+        () =>
+            drops
+                .filter((drop) => resolveDropLifecycleStatus(drop, { audience: "public" }).publicVisible)
+                .slice(0, 5),
+        [drops],
+    );
     const setCarouselViewportRef = useCallback((node: HTMLDivElement | null) => {
         carouselViewportRef.current = node;
         emblaRef(node);
@@ -251,7 +261,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                 </div>
             </div>
 
-            <div className="flex justify-center gap-1.5">
+            <div className="flex justify-center gap-0">
                 {featuredDrops.map((drop, index) => (
                     <button
                         key={drop.id}
@@ -261,12 +271,19 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                             startAutoAdvance();
                         }}
                         className={cn(
-                            "h-2 rounded-full transition-all",
-                            index === safeActiveIndex ? "w-6 bg-brand-purple" : "w-2 bg-white/25",
+                            "flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black",
                         )}
                         aria-label={`Go to featured Drop ${index + 1}`}
                         aria-current={index === safeActiveIndex}
-                    />
+                    >
+                        <span
+                            aria-hidden="true"
+                            className={cn(
+                                "block h-2 rounded-full transition-all",
+                                index === safeActiveIndex ? "w-6 bg-brand-purple" : "w-2 bg-white/25",
+                            )}
+                        />
+                    </button>
                 ))}
             </div>
         </section>
@@ -298,7 +315,7 @@ function FeaturedDropSlide({
     onSelectDrop: (drop: Drop, sourceComponent?: string) => void;
     trackingSessionId: string;
 }) {
-    const isUnlocked = Boolean(userProfile?.unlockedContent?.includes(drop.id));
+    const isUnlocked = hasUnwrappedDrop(userProfile, drop.id);
     const visibilityState = useMemo(
         () =>
             resolveDropCardVisibilityState({
@@ -319,6 +336,7 @@ function FeaturedDropSlide({
         [index],
     );
     const { images, videos } = getMediaCounts(drop);
+    const coverSrc = resolvePublicDropCoverSrc(drop.imageUrl);
 
     return (
         <div
@@ -351,7 +369,7 @@ function FeaturedDropSlide({
             >
                 <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_0%,rgba(164,118,255,0.30),transparent_44%)]" />
                 <NextImage
-                    src={drop.imageUrl || "/placeholder.jpg"}
+                    src={coverSrc}
                     alt={drop.title}
                     fill
                     loading={imagePolicy.loading}
@@ -366,9 +384,9 @@ function FeaturedDropSlide({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-transparent" />
 
                 <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 md:left-4 md:top-4 md:gap-2">
-                    <div className={cn("rounded-[0.75rem] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] md:text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}>
+                    <Badge variant="outline" className={cn("!rounded-[0.75rem] !px-2.5 !py-1 !text-[9px] !font-black uppercase tracking-[0.14em] !text-white md:!text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}>
                         Featured
-                    </div>
+                    </Badge>
 
                     {images > 0 || videos > 0 ? (
                         <div

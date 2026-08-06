@@ -5,8 +5,11 @@ import { memo, useMemo } from "react";
 
 import { DropCard } from "@/components/DropCard";
 import { PromoCard } from "@/components/PromoCard";
+import { Card } from "@/components/creative-tim/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { resolveDropLifecycleStatus } from "@/lib/drop-status";
+import { hasUnwrappedDrop } from "@/lib/drop-view-access";
 import { cn } from "@/lib/utils";
 import { Drop } from "@/types/db";
 
@@ -32,8 +35,13 @@ export const DropGrid = memo(function DropGrid({
     const { user, userProfile } = useAuth();
 
     const loading = propLoading ?? false;
-    const drops = useMemo(() => propDrops ?? EMPTY_DROPS, [propDrops]);
-    const unlockedDropIds = useMemo(() => new Set(userProfile?.unlockedContent ?? []), [userProfile?.unlockedContent]);
+    const drops = useMemo(
+        () =>
+            (propDrops ?? EMPTY_DROPS).filter((drop) =>
+                resolveDropLifecycleStatus(drop, { audience: "public" }).publicVisible,
+            ),
+        [propDrops],
+    );
 
     const dropEntries = useMemo(
         () =>
@@ -75,32 +83,34 @@ export const DropGrid = memo(function DropGrid({
     if (drops.length === 0) {
         return (
             <div className="w-full py-6 md:py-10" data-drops-grid-density="compact-mobile">
-                <div className="relative mx-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[0.035] px-5 py-6 text-center shadow-[0_12px_30px_rgba(0,0,0,0.18)] md:rounded-[1.6rem] md:px-6 md:py-8">
+                <Card className="relative mx-auto max-w-xl overflow-hidden rounded-[1.35rem] border-white/10 bg-white/[0.035] !gap-0 !p-0 text-center shadow-[0_12px_30px_rgba(0,0,0,0.18)] md:rounded-[1.6rem]">
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-purple/10 via-transparent to-white/[0.03]" />
 
-                    <div className="relative mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border border-white/10 bg-zinc-900/80 text-sm font-black text-white/45 shadow-inner">
-                        KD
+                    <div className="relative px-5 py-6 md:px-6 md:py-8">
+                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border border-white/10 bg-zinc-900/80 text-sm font-black text-white/45 shadow-inner">
+                            KD
+                        </div>
+
+                        <h3 className="mb-2 text-lg font-black tracking-tight text-white md:text-2xl">
+                            {isSearching ? "No matching Drops" : "No Drops right now"}
+                        </h3>
+
+                        <p className="mx-auto max-w-sm text-sm leading-relaxed text-gray-400 md:text-base">
+                            {isSearching
+                                ? "Try a shorter search or switch filters."
+                                : "Fresh drops are not available right now. Explore live experiences while the next batch lands."}
+                        </p>
+
+                        {!isSearching ? (
+                            <Link
+                                href="/experiences"
+                                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-[0.85rem] border border-brand-purple/40 bg-brand-purple px-4 text-sm font-bold text-white shadow-[0_8px_22px_rgba(164,118,255,0.2)] transition-transform active:scale-[0.98]"
+                            >
+                                Browse Experiences
+                            </Link>
+                        ) : null}
                     </div>
-
-                    <h3 className="relative mb-2 text-lg font-black tracking-tight text-white md:text-2xl">
-                        {isSearching ? "No matching Drops" : "No Drops right now"}
-                    </h3>
-
-                    <p className="relative mx-auto max-w-sm text-sm leading-relaxed text-gray-400 md:text-base">
-                        {isSearching
-                            ? "Try a shorter search or switch filters."
-                            : "Fresh drops are not available right now. Explore live experiences while the next batch lands."}
-                    </p>
-
-                    {!isSearching ? (
-                        <Link
-                            href="/experiences"
-                            className="relative mt-5 inline-flex min-h-10 items-center justify-center rounded-[0.85rem] border border-brand-purple/40 bg-brand-purple px-4 text-sm font-bold text-white shadow-[0_8px_22px_rgba(164,118,255,0.2)] transition-transform active:scale-[0.98]"
-                        >
-                            Browse Experiences
-                        </Link>
-                    ) : null}
-                </div>
+                </Card>
             </div>
         );
     }
@@ -111,7 +121,7 @@ export const DropGrid = memo(function DropGrid({
             data-drops-grid-density="compact-mobile"
         >
             {dropEntries.map(({ drop, aspectRatio }, index) => {
-                const isUnlocked = unlockedDropIds.has(drop.id);
+                const isUnlocked = hasUnwrappedDrop(userProfile, drop.id);
 
                 return (
                     <div key={drop.id} id={`drop-${drop.id}`} className={cn("h-full scroll-mt-32", getGridSpanClass(aspectRatio))}>

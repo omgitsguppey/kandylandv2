@@ -5,6 +5,7 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
+import { Card } from "@/components/creative-tim/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
@@ -75,7 +76,7 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
     if (loading || !userProfile) {
         return (
             <div
-                className="mx-auto w-full max-w-7xl px-3 sm:px-4"
+                className="relative isolate mx-auto w-full max-w-7xl overflow-x-clip px-3 sm:px-4"
                 data-mobile-density="compact"
                 data-mobile-sprawl-guard="true"
                 data-mobile-organization="summary-first"
@@ -84,7 +85,7 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
                 data-user-dashboard-loading-staged="true"
             >
 
-                <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
                     <div className="space-y-3 md:space-y-5">
                         <div className={userOverviewSkeletonClassName} data-mobile-skeleton="user-dashboard-overview" />
                         <div className={userListSkeletonClassName} data-mobile-skeleton="user-dashboard-list" />
@@ -108,9 +109,11 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
                 data-creator-dashboard-route-boundary="redirect_to_creator_dashboard"
                 data-user-dashboard-modules-rendered="false"
             >
-                <div className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white">
+                <Card className="!gap-0 !rounded-2xl !border-white/10 !bg-black/50 !p-0 text-sm text-white shadow-[0_16px_44px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+                  <div className="px-4 py-3">
                     Opening Creator Dashboard...
-                </div>
+                  </div>
+                </Card>
             </div>
         );
     }
@@ -121,7 +124,7 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
         <div
             id="dashboard-home"
             tabIndex={-1}
-            className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none"
+            className="relative isolate scroll-mt-24 mx-auto w-full max-w-7xl overflow-x-clip px-3 sm:px-4 outline-none"
             data-onboarding-page="dashboard"
             data-dashboard-surface="user_dashboard"
             data-mobile-density="compact"
@@ -131,7 +134,8 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
             data-desktop-flow-collapsed="true"
             data-user-dashboard-loading-staged="true"
         >
-            <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
+            <div className="pointer-events-none absolute inset-x-8 top-0 -z-10 h-72 rounded-full bg-brand-purple/10 blur-[110px] motion-reduce:hidden" aria-hidden="true" />
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
                 <div className="space-y-3 md:space-y-5">
                     <DailyCheckIn />
                     <CreatorDiscoveryRail surface="dashboard" compact initialCreators={creatorRailProfiles} />

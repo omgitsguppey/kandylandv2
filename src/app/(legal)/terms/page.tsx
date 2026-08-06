@@ -15,18 +15,18 @@ export const metadata: Metadata = {
 export default function TermsPage() {
     return (
         <div
-            className="w-full px-6 text-gray-300"
+            className="relative isolate w-full overflow-hidden px-4 py-8 text-gray-200 sm:px-6 sm:py-12"
             style={{ paddingTop: "calc(2.5rem + var(--kandy-cookie-offset, 0px))" }}
         >
             <PageViewEvent eventName="terms_page_viewed" />
-            <div className="max-w-3xl mx-auto space-y-8">
+            <div className="mx-auto max-w-3xl space-y-6">
                 <LegalBackLink />
 
-                <h1 className="text-4xl font-bold text-white mb-8">Terms of Service</h1>
-                <p className="text-sm text-gray-500">Last Updated: {TERMS_LAST_UPDATED_LABEL}</p>
+                <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Terms of Service</h1>
+                <p className="w-fit rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-400 shadow-lg shadow-black/10 backdrop-blur-xl">Last Updated: {TERMS_LAST_UPDATED_LABEL}</p>
 
-                <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">1. Introduction</h2>
+                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+                    <h2 className="text-xl font-bold tracking-tight text-white">1. Introduction</h2>
                     <p>
                         Welcome to KandyDrops. These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the KandyDrops platform.
                         By accessing or using the Service, you agree to be bound by these Terms.
@@ -36,16 +36,16 @@ export default function TermsPage() {
                     </p>
                 </section>
 
-                <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">2. Platform Nature</h2>
+                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+                    <h2 className="text-xl font-bold tracking-tight text-white">2. Platform Nature</h2>
                     <p>
                         KandyDrops is a <strong>digital access platform</strong>. We provide the infrastructure for Creators to share content with Users.
                         <strong>We do not create, sell, or own the content</strong> provided by Creators on the platform. We act solely as a facilitator for access.
                     </p>
                 </section>
 
-                <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">3. Virtual Currency (&ldquo;Gum Drops&rdquo;)</h2>
+                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+                    <h2 className="text-xl font-bold tracking-tight text-white">3. Virtual Currency (&ldquo;Gum Drops&rdquo;)</h2>
                     <p>
                         &ldquo;Gum Drops&rdquo; are a limited, non-transferable, revocable license to access digital content on our platform.
                         <strong>Gum Drops are NOT real currency</strong>, have no monetary value, and cannot be redeemed for cash or refunded once purchased.
@@ -55,29 +55,29 @@ export default function TermsPage() {
                     </p>
                 </section>
 
-                <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">4. User Conduct</h2>
+                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+                    <h2 className="text-xl font-bold tracking-tight text-white">4. User Conduct</h2>
                     <p>
                         You agree not to misuse the Service or help anyone else do so. You are solely responsible for your interactions with other users and Creators.
                     </p>
                 </section>
 
-                <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">5. Disclaimer of Warranties</h2>
+                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+                    <h2 className="text-xl font-bold tracking-tight text-white">5. Disclaimer of Warranties</h2>
                     <p>
                         The Service is provided &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo;. iKandy explicitly disclaims all warranties of any kind, whether express or implied.
                     </p>
                 </section>
 
-                <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">6. Limitation of Liability</h2>
+                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+                    <h2 className="text-xl font-bold tracking-tight text-white">6. Limitation of Liability</h2>
                     <p>
                         To the maximum extent permitted by law, iKandy and Dollars not Sense shall not be liable for any indirect, incidental, special, consequential, or punitive damages.
                     </p>
                 </section>
 
-                <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">7. Contact</h2>
+                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
+                    <h2 className="text-xl font-bold tracking-tight text-white">7. Contact</h2>
                     <p>
                         For legal inquiries, please contact us at legal@kandydrops.com.
                     </p>

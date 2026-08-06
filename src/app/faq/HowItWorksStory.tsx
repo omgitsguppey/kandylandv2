@@ -56,8 +56,8 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
   };
 
   return (
-    <section className="mb-8 space-y-3.5 sm:mb-14 sm:space-y-6">
-      <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2 sm:overflow-x-auto sm:pb-1 no-scrollbar">
+    <section className="relative mb-8 space-y-3.5 sm:mb-14 sm:space-y-6">
+      <div className="grid grid-cols-2 gap-2 rounded-[1.7rem] border border-white/10 bg-black/20 p-2 shadow-inner shadow-black/20 sm:flex sm:items-center sm:gap-2 sm:overflow-x-auto sm:p-2 sm:pb-2 no-scrollbar">
         {steps.map((step, index) => {
           const isActive = step.id === activeStep.id;
           const isLastOddItem = steps.length % 2 !== 0 && index === steps.length - 1;
@@ -68,7 +68,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
               type="button"
               onClick={() => setActiveStepId(step.id)}
               className={cn(
-                "relative min-w-0 rounded-[1.15rem] border px-3 py-2.5 text-left transition-all sm:shrink-0 sm:rounded-full sm:px-4 sm:py-2",
+                "relative min-h-11 min-w-0 rounded-[1.15rem] border px-3 py-2.5 text-left transition-all sm:shrink-0 sm:rounded-full sm:px-4 sm:py-2",
                 isLastOddItem && "col-span-2",
                 isActive
                   ? "border-brand-purple/40 bg-brand-purple/15 text-white shadow-[0_0_25px_rgba(164,118,255,0.18)]"
@@ -90,7 +90,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_52%)] bg-[#08080D] p-3 shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:rounded-[2rem] sm:p-4"
+          className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.22),transparent_52%)] bg-[#08080D] p-3 shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:rounded-[2rem] sm:p-4"
         >
           <StoryVisual stepId={activeStep.id} />
         </motion.div>
@@ -100,8 +100,9 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-3.5 shadow-xl shadow-black/25 sm:rounded-[2rem] sm:p-5"
+          className="relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-3.5 shadow-xl shadow-black/25 backdrop-blur-xl sm:rounded-[2rem] sm:p-5"
         >
+          <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/55 to-transparent" />
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple">{activeStep.eyebrow}</p>
           <h2 className="mt-3 text-[1.6rem] font-black tracking-tight text-white max-[360px]:text-[1.45rem] sm:text-3xl">{activeStep.title}</h2>
           <p className="mt-3 text-sm leading-6 text-gray-300 sm:text-base sm:leading-7">{activeStep.description}</p>
@@ -131,7 +132,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
               variant="brand"
               size="lg"
               onClick={handlePrimaryAction}
-              className="w-full rounded-2xl px-6 text-base font-extrabold shadow-[0_0_30px_rgba(164,118,255,0.35)] max-[360px]:min-h-12"
+              className="min-h-11 w-full rounded-2xl px-6 text-base font-extrabold shadow-[0_0_30px_rgba(164,118,255,0.35)] max-[360px]:min-h-12"
             >
               {SECONDARY_UNWRAP_CTA}
               <ArrowRight className="ml-2 h-4 w-4" />

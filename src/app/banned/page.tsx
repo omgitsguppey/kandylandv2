@@ -23,26 +23,27 @@ export default function BannedPage() {
     if (loading) return null;
 
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center z-50 relative">
-            <div className="glass-panel p-8 rounded-3xl max-w-md w-full border border-red-500/20 shadow-2xl shadow-brand-purple/10">
-                <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
-                    <Ban className="w-10 h-10 text-red-500" />
+        <div className="relative z-50 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black p-4 text-center">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-brand-purple/15 to-transparent blur-3xl" />
+            <div className="relative w-full max-w-md rounded-[2rem] border border-red-500/20 bg-black/55 p-6 shadow-2xl shadow-brand-purple/10 backdrop-blur-xl sm:p-8">
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 shadow-lg shadow-red-500/10">
+                    <Ban className="h-10 w-10 text-red-500" />
                 </div>
 
-                <h1 className="text-3xl font-bold text-white mb-2">
+                <h1 className="mb-2 text-3xl font-black tracking-tight text-white">
                     Account {userProfile?.status === 'suspended' ? 'Suspended' : 'Banned'}
                 </h1>
 
-                <p className="text-gray-400 mb-6">
+                <p className="mb-6 text-gray-400">
                     {userProfile?.status === 'suspended'
                         ? "Your account has been temporarily suspended."
                         : "Your account has been permanently banned from accessing KandyDrops."}
                 </p>
 
                 {userProfile?.statusReason && (
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-8 text-left">
-                        <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Reason</label>
-                        <p className="text-white text-sm">{userProfile.statusReason}</p>
+                    <div className="mb-8 rounded-2xl border border-white/10 bg-black/30 p-4 text-left">
+                        <label className="mb-1 block text-xs font-bold uppercase text-gray-500">Reason</label>
+                        <p className="text-sm text-white">{userProfile.statusReason}</p>
                     </div>
                 )}
 
@@ -50,14 +51,14 @@ export default function BannedPage() {
                     onClick={() => {
                         void logout();
                     }}
-                    className="w-full py-4 rounded-xl bg-white text-black font-bold transition-colors flex items-center justify-center gap-2"
+                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-black transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                 >
                     <LogOut className="w-5 h-5" />
                     Sign Out
                 </button>
             </div>
 
-            <p className="fixed bottom-8 text-gray-600 text-xs">
+            <p className="fixed bottom-8 text-xs text-gray-600">
                 KandyDrops Enforcement System
             </p>
         </div>

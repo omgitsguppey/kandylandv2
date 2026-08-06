@@ -36,7 +36,7 @@ export function DropCardCta({
             <Link
                 href={`/dashboard/viewer?id=${drop.id}`}
                 onClick={onHaptic}
-                className="flex min-h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.7rem] border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-[0_0_12px_rgba(164,118,255,0.24)] transition-all active:scale-95 md:px-4 md:py-2 md:text-xs"
+                className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.7rem] border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-[0_0_12px_rgba(164,118,255,0.24)] transition-all active:scale-95 md:px-4 md:py-2 md:text-xs"
             >
                 <Unlock className="h-3 w-3" />
                 View Content
@@ -51,7 +51,7 @@ export function DropCardCta({
             disabled={unlocking}
             aria-busy={unlocking}
             className={cn(
-                "relative flex min-h-10 w-full items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-[0.7rem] border px-2.5 py-1.5 text-[10px] font-bold shadow-lg transition-all active:scale-95 md:px-4 md:py-2 md:text-xs",
+                "relative flex min-h-11 w-full items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-[0.7rem] border px-2.5 py-1.5 text-[10px] font-bold shadow-lg transition-all active:scale-95 md:px-4 md:py-2 md:text-xs",
                 !canAfford
                     ? "border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 text-white shadow-[0_0_15px_rgba(164,118,255,0.3)] hover:opacity-95"
                     : confirming

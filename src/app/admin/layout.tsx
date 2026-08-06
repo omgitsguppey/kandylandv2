@@ -64,9 +64,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex-1 w-full bg-transparent">
+    <div className="relative isolate flex-1 w-full overflow-x-clip bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.16),_transparent_32rem)]">
       <main
-        className="w-full px-3 pb-8 md:px-8 md:pb-10"
+        className="relative z-10 w-full px-3 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-1 md:px-8 md:pb-10 md:pt-2"
         data-admin-shell-spacing="shared"
         data-admin-top-to-console-gap={ADMIN_SHELL_GAP_TOKEN}
         data-admin-console-to-content-gap={ADMIN_SHELL_GAP_TOKEN}
@@ -79,9 +79,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             data-admin-console-flow="normal"
             data-admin-shell-top-gap-class={ADMIN_TOP_TO_CONSOLE_GAP_CLASS}
           >
-            <div className="rounded-[1.75rem] border border-white/10 bg-black/75 p-2.5 backdrop-blur-xl shadow-xl shadow-black/25">
+            <div className="relative overflow-hidden rounded-[1.9rem] border border-brand-purple/20 bg-black/75 p-2.5 shadow-2xl shadow-black/35 backdrop-blur-xl">
+              <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/70 to-transparent" />
               <div className="mb-2 px-1 md:hidden">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Admin Console</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">Admin Console</p>
               </div>
               <div className="grid grid-cols-3 gap-2 md:hidden">
                 {NAV_ITEMS.map((item) => {
@@ -92,8 +93,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "rounded-2xl border px-3 py-3 text-left transition-colors",
-                        active ? "bg-brand-purple/15 border-brand-purple/40 text-white" : "bg-white/5 border-white/10 text-gray-300"
+                        "flex min-h-11 flex-col justify-center rounded-2xl border px-3 py-3 text-left transition-colors",
+                        active
+                          ? "border-brand-purple/60 bg-brand-purple/20 text-white shadow-lg shadow-brand-purple/10"
+                          : "border-white/10 bg-white/[0.035] text-gray-300 hover:border-white/20 hover:bg-white/[0.07]"
                       )}
                     >
                       <Icon className={cn("mb-2 h-4 w-4", active ? "text-brand-purple" : "text-gray-400")} />
@@ -109,11 +112,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     const active = pathname === item.href;
                     return (
                       <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                          "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs md:text-sm font-medium border",
-                          active ? "bg-brand-purple/20 border-brand-purple/40 text-white" : "bg-white/5 border-white/10 text-gray-300"
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                          "inline-flex min-h-11 items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-medium transition-colors md:text-sm",
+                          active
+                            ? "border-brand-purple/60 bg-brand-purple/20 text-white shadow-lg shadow-brand-purple/10"
+                            : "border-white/10 bg-white/[0.035] text-gray-300 hover:border-white/20 hover:bg-white/[0.07]"
                         )}
                       >
                         <Icon className="w-4 h-4" /> {item.label}
@@ -125,7 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
           <div
-            className={ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS}
+            className={cn(ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS, "relative")}
             data-admin-page-content="true"
             data-admin-browser-surface={browserSurface?.surfaceId ?? "unknown"}
             data-admin-browser-route={browserSurface?.route ?? pathname}

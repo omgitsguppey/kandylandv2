@@ -13,25 +13,27 @@ export const metadata: Metadata = {
 
 export default function FAQPage() {
   return (
-    <div className="w-full relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand-purple/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
+    <main className="relative w-full overflow-hidden">
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[28rem] w-[42rem] max-w-[130vw] -translate-x-1/2 rounded-full bg-brand-purple/20 blur-[130px] opacity-55" />
+      <div className="pointer-events-none absolute -right-28 top-72 h-64 w-64 rounded-full bg-fuchsia-500/10 blur-[110px]" />
 
       <div
-        className="relative z-10 mx-auto max-w-4xl px-4 pb-4 md:px-8 md:pb-0"
+        className="relative z-10 mx-auto max-w-5xl px-4 pb-6 pt-2 md:px-8 md:pb-10"
         style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
       >
-        <div className="mb-6 text-center sm:mb-10">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-brand-purple mb-3">How It Works</p>
-          <h1 className="mx-auto mb-3 max-w-[9rem] text-[clamp(2rem,10vw,3.25rem)] font-black leading-[0.98] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 min-[360px]:max-w-none md:text-5xl md:leading-[0.94]">
+        <header className="relative mb-6 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] px-5 py-8 text-center shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:mb-10 sm:px-10 sm:py-12">
+          <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/60 to-transparent" />
+          <p className="mb-3 text-[11px] font-black uppercase tracking-[0.26em] text-brand-purple">How It Works</p>
+          <h1 className="mx-auto mb-4 max-w-[9rem] text-[clamp(2rem,10vw,3.25rem)] font-black leading-[0.98] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-gray-400 min-[360px]:max-w-none md:text-5xl md:leading-[0.94]">
             How it works
           </h1>
-          <p className="mx-auto max-w-xl text-sm text-gray-400 sm:text-lg">
+          <p className="mx-auto max-w-xl text-sm leading-6 text-gray-300 sm:text-lg sm:leading-7">
             Tap through the five steps to see how KandyDrops works.
           </p>
-        </div>
+        </header>
 
         <FAQClient sections={FAQ_SECTIONS} steps={HOW_IT_WORKS_STEPS} />
       </div>
-    </div>
+    </main>
   );
 }

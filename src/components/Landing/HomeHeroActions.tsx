@@ -65,7 +65,7 @@ export function HomeHeroActions() {
                         variant="brand"
                         className={`${PRIMARY_HERO_BUTTON_CLASSNAME} sm:w-auto`}
                     >
-                        Unwrap Your KandyDrops <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+                        Unwrap your KandyDrops <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
                     </Button>
                 )}
             </div>

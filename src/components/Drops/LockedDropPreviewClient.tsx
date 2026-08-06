@@ -46,9 +46,12 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     const [successTransactionId, setSuccessTransactionId] = useState<string | null>(null);
     const [successEntitlementId, setSuccessEntitlementId] = useState<string | null>(null);
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
+    const isDocumentVisible = useDocumentVisible();
     const ctaViewedKeysRef = useRef<Set<string>>(new Set());
     const successStateViewedRef = useRef(false);
     const creatorCoverViewedKeyRef = useRef<string | null>(null);
+    const previewViewedDropIdRef = useRef<string | null>(null);
+    const idleReachedKeysRef = useRef<Set<string>>(new Set());
     const trackIncompleteOnUnmountRef = useRef(true);
     const latestTelemetryPayloadRef = useRef<ReturnType<typeof buildPreviewTelemetryPayload> | null>(null);
     const trackedAccessStatusRef = useRef<string | null>(null);
@@ -161,64 +164,77 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     }, [drop.id, previewAccessState]);
 
     useEffect(() => {
-        const timer = window.setTimeout(() => {
+        if (!isDocumentVisible || previewViewedDropIdRef.current === drop.id) return;
+
+        return scheduleAfterVisiblePreviewPaint(() => {
+            if (previewViewedDropIdRef.current === drop.id) return;
             const payload = latestTelemetryPayloadRef.current;
             if (!payload) return;
+            previewViewedDropIdRef.current = drop.id;
             trackEvent("drop_preview_page_viewed", payload);
             trackEvent("drop_preview_opened", payload);
-        }, 0);
-        return () => window.clearTimeout(timer);
-    }, [drop.id]);
+        });
+    }, [drop.id, isDocumentVisible]);
 
     useEffect(() => {
+        if (!isDocumentVisible) return;
         const key = `${drop.id}:${truth.ctaState}:${truth.shortfallGd}`;
         if (ctaViewedKeysRef.current.has(key)) return;
 
-        ctaViewedKeysRef.current.add(key);
-        const timer = window.setTimeout(() => {
+        return scheduleAfterVisiblePreviewPaint(() => {
+            if (ctaViewedKeysRef.current.has(key)) return;
             const payload = latestTelemetryPayloadRef.current;
-            if (payload) {
-                trackEvent("drop_preview_cta_viewed", payload);
-            }
+            if (!payload) return;
+            trackEvent("drop_preview_cta_viewed", payload);
             const stateEvent = getPreviewCtaEventName(truth, "viewed");
             if (stateEvent) {
                 trackEvent(stateEvent, getPreviewStateTelemetryPayload());
             }
-        }, 0);
-        return () => window.clearTimeout(timer);
-    }, [drop.id, getPreviewStateTelemetryPayload, truth, truth.ctaState, truth.shortfallGd]);
+            ctaViewedKeysRef.current.add(key);
+        });
+    }, [drop.id, getPreviewStateTelemetryPayload, isDocumentVisible, truth, truth.ctaState, truth.shortfallGd]);
 
     useEffect(() => {
-        if (!truth.creatorCoverPreviewEligible) return;
+        if (!isDocumentVisible || !truth.creatorCoverPreviewEligible) return;
 
         const key = `${drop.id}:${actorUserId ?? "unknown"}`;
         if (creatorCoverViewedKeyRef.current === key) return;
 
-        creatorCoverViewedKeyRef.current = key;
-        const timer = window.setTimeout(() => {
+        return scheduleAfterVisiblePreviewPaint(() => {
+            if (creatorCoverViewedKeyRef.current === key) return;
             trackEvent("drop_preview_creator_cover_viewed", getCreatorPreviewTelemetryPayload());
-        }, 0);
-        return () => window.clearTimeout(timer);
-    }, [actorUserId, drop.id, getCreatorPreviewTelemetryPayload, truth.creatorCoverPreviewEligible]);
+            creatorCoverViewedKeyRef.current = key;
+        });
+    }, [actorUserId, drop.id, getCreatorPreviewTelemetryPayload, isDocumentVisible, truth.creatorCoverPreviewEligible]);
 
     useEffect(() => {
-        const fiveSecondTimer = window.setTimeout(() => {
+        if (!isDocumentVisible) return;
+
+        let fiveSecondTimer: number | null = null;
+        let fifteenSecondTimer: number | null = null;
+        const emitIdleReached = (idleSeconds: 5 | 15) => {
+            const key = `${drop.id}:${idleSeconds}`;
+            if (document.visibilityState !== "visible" || idleReachedKeysRef.current.has(key)) return;
             const payload = latestTelemetryPayloadRef.current;
-            if (payload) {
-                trackEvent("drop_preview_idle_reached", { ...payload, idle_seconds: 5 });
-            }
-        }, 5_000);
-        const fifteenSecondTimer = window.setTimeout(() => {
-            const payload = latestTelemetryPayloadRef.current;
-            if (payload) {
-                trackEvent("drop_preview_idle_reached", { ...payload, idle_seconds: 15 });
-            }
-        }, 15_000);
-        return () => {
-            window.clearTimeout(fiveSecondTimer);
-            window.clearTimeout(fifteenSecondTimer);
+            if (!payload) return;
+            idleReachedKeysRef.current.add(key);
+            trackEvent("drop_preview_idle_reached", { ...payload, idle_seconds: idleSeconds });
         };
-    }, [drop.id]);
+        const cancelVisiblePaint = scheduleAfterVisiblePreviewPaint(() => {
+            if (!idleReachedKeysRef.current.has(`${drop.id}:5`)) {
+                fiveSecondTimer = window.setTimeout(() => emitIdleReached(5), 5_000);
+            }
+            if (!idleReachedKeysRef.current.has(`${drop.id}:15`)) {
+                fifteenSecondTimer = window.setTimeout(() => emitIdleReached(15), 15_000);
+            }
+        });
+
+        return () => {
+            cancelVisiblePaint();
+            if (fiveSecondTimer !== null) window.clearTimeout(fiveSecondTimer);
+            if (fifteenSecondTimer !== null) window.clearTimeout(fifteenSecondTimer);
+        };
+    }, [drop.id, isDocumentVisible]);
 
     useEffect(() => {
         return () => {
@@ -448,4 +464,27 @@ function getPreviewCtaEventName(truth: LockedDropPreviewTruth, action: "viewed" 
     if (truth.shouldShowTopUpCta) return `drop_preview_topup_cta_${action}` as const;
     if (truth.shouldShowUnwrapCta) return `drop_preview_unwrap_cta_${action}` as const;
     return null;
+}
+
+function useDocumentVisible() {
+    const [isDocumentVisible, setIsDocumentVisible] = useState(false);
+
+    useEffect(() => {
+        const syncVisibility = () => setIsDocumentVisible(document.visibilityState === "visible");
+        syncVisibility();
+        document.addEventListener("visibilitychange", syncVisibility);
+        return () => document.removeEventListener("visibilitychange", syncVisibility);
+    }, []);
+
+    return isDocumentVisible;
+}
+
+function scheduleAfterVisiblePreviewPaint(callback: () => void) {
+    let animationFrameId = window.requestAnimationFrame(() => {
+        animationFrameId = window.requestAnimationFrame(() => {
+            if (document.visibilityState === "visible") callback();
+        });
+    });
+
+    return () => window.cancelAnimationFrame(animationFrameId);
 }

@@ -64,7 +64,7 @@ describe("creator broadcast timeline prep", () => {
     });
   });
 
-  it("builds timeline items only from public drops and published eligible broadcasts", () => {
+  it("builds public timelines only from approved drops and ignores every broadcast audience", () => {
     const timeline = buildCreatorProfileTimeline({
       settings: {
         profileTimelineEnabled: true,
@@ -76,16 +76,18 @@ describe("creator broadcast timeline prep", () => {
         { id: "drop_pending", title: "Pending drop", status: "pending_review", validFrom: 3_000 },
       ],
       broadcasts: [
-        { id: "broadcast_1", broadcastId: "broadcast_1", title: "Published", body: "Ready", status: "published", timelineEligible: true, createdAtMs: 4_000 },
-        { id: "broadcast_2", broadcastId: "broadcast_2", title: "Draft", body: "Nope", status: "draft", timelineEligible: true, createdAtMs: 5_000 },
+        { id: "broadcast_followers", broadcastId: "broadcast_followers", title: "Followers only", body: "Must not reach the public timeline", audience: "followers", status: "published", timelineEligible: true, createdAtMs: 4_000 },
+        { id: "broadcast_subscribers", broadcastId: "broadcast_subscribers", title: "Subscribers only", body: "Must not reach the public timeline", audience: "fan_pass_subscribers", status: "published", timelineEligible: true, createdAtMs: 5_000 },
+        { id: "broadcast_unknown", broadcastId: "broadcast_unknown", title: "Unknown audience", body: "Must not reach the public timeline", audience: "unknown", status: "published", timelineEligible: true, createdAtMs: 6_000 },
+        { id: "broadcast_public_like", broadcastId: "broadcast_public_like", title: "Synthetic public audience", body: "Must not reach the public timeline", audience: "public", status: "published", timelineEligible: true, createdAtMs: 7_000 },
       ],
     });
 
     expect(timeline.sourceTruth).toBe("creator_profile_timeline_contract");
-    expect(timeline.items.map((item) => item.id)).toEqual(["broadcast_1", "drop_live"]);
-    expect(timeline.excludedCounts).toMatchObject({
-      draftBroadcasts: 1,
+    expect(timeline.items.map((item) => item.id)).toEqual(["drop_live"]);
+    expect(timeline.excludedCounts).toEqual({
       pendingDrops: 1,
+      draftBroadcasts: 0,
     });
   });
 

@@ -7,7 +7,7 @@ import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
-import { CREATOR_COLLECTIONS, isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { sanitizeDropForClient } from "@/lib/server/drops";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildCreatorProfileTimeline } from "@/lib/creator/profile/timeline-contract";
@@ -17,7 +17,6 @@ import {
 } from "@/lib/creator-monetization/creator-monetization-resolver";
 
 const CREATOR_PROFILE_DROP_LIMIT = 40;
-const CREATOR_PROFILE_BROADCAST_LIMIT = 20;
 const CREATOR_PROFILE_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=900";
 
 async function GET_handler(
@@ -102,19 +101,9 @@ async function GET_handler(
                 ? [sanitizeDropForClient(normalized)]
                 : [];
         }).sort((left, right) => right.validFrom - left.validFrom);
-        const broadcastsSnapshot = userFacingMonetization.timeline.visible && userFacingMonetization.broadcasts.visible
-            ? await adminDb.collection(CREATOR_COLLECTIONS.broadcasts)
-                .where("creatorId", "==", creator.uid)
-                .limit(CREATOR_PROFILE_BROADCAST_LIMIT)
-                .get()
-            : null;
         const timeline = buildCreatorProfileTimeline({
             settings: creatorSettings,
             drops: drops as unknown as Array<Record<string, unknown>>,
-            broadcasts: broadcastsSnapshot?.docs.map((doc) => ({
-                id: doc.id,
-                ...(doc.data() as Record<string, unknown>),
-            })) ?? [],
         });
 
         // Intentionally decouple and swallow the view-count increment to prevent blocking or failing the read path.

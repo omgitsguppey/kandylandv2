@@ -82,8 +82,8 @@ export function DropCardLayout({
 
     if (resolvedRatio === "9:16") {
         return (
-            <div ref={cardRef} className="group relative flex h-full flex-col overflow-hidden rounded-[1.15rem] border border-white/8 bg-white/[0.025] p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.22)] backdrop-blur-md md:rounded-[1.35rem] md:p-2.5" data-drop-card-density="compact-mobile" {...cardStateAttributes}>
-                <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black text-left md:rounded-[1rem]" style={ratioStyle}>
+            <div ref={cardRef} className="group relative flex h-full flex-col overflow-hidden rounded-[1.15rem] border border-white/8 bg-white/[0.025] p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.22)] backdrop-blur-md transition-colors duration-300 hover:border-brand-purple/30 hover:bg-white/[0.045] md:rounded-[1.35rem] md:p-2.5" data-drop-card-density="compact-mobile" {...cardStateAttributes}>
+                <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black md:rounded-[1rem]" style={ratioStyle}>
                     <NextImage
                         src={coverSrc}
                         alt={drop.title}
@@ -127,10 +127,10 @@ export function DropCardLayout({
     }
 
     return (
-        <div ref={cardRef} className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.15rem] border border-white/8 bg-white/[0.025] p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.22)] backdrop-blur-md md:rounded-[1.35rem] md:p-2.5" data-drop-card-density="compact-mobile" {...cardStateAttributes}>
+        <div ref={cardRef} className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.15rem] border border-white/8 bg-white/[0.025] p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.22)] backdrop-blur-md transition-colors duration-300 hover:border-brand-purple/30 hover:bg-white/[0.045] md:rounded-[1.35rem] md:p-2.5" data-drop-card-density="compact-mobile" {...cardStateAttributes}>
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5" />
 
-            <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative mb-1.5 w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/5 bg-black/40 text-left shadow-inner md:mb-2 md:rounded-[1rem]" style={ratioStyle}>
+            <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative mb-1.5 w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/5 bg-black/40 text-left shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black md:mb-2 md:rounded-[1rem]" style={ratioStyle}>
                 <NextImage
                     src={coverSrc}
                     alt={drop.title}

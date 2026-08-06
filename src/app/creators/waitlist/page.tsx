@@ -94,6 +94,12 @@ const CREATOR_LEGAL_STATUS_LABELS: Record<string, string> = {
     legal_signed: "Agreement complete",
 };
 
+const CREATOR_INTAKE_PANEL_CLASS_NAME = "rounded-[1.75rem] border border-white/10 bg-[#120a20]/85 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl";
+const CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-transform hover:scale-[1.01] disabled:opacity-50";
+const CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200 transition-colors hover:border-white/20 hover:bg-white/[0.06]";
+const CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-full bg-white px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-gray-100";
+const CREATOR_INTAKE_STATUS_PILL_CLASS_NAME = "rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-semibold text-gray-200";
+
 function formatStatusLabel(value: string | undefined) {
     if (!value) {
         return "Waiting";
@@ -520,14 +526,14 @@ export default function CreatorWaitlistPage() {
     };
 
     return (
-        <main className="min-h-screen bg-black px-4 pb-20 pt-28 text-white sm:px-6">
+        <main className="min-h-screen bg-[#0b0614] px-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-28 text-white sm:px-6">
             <PageViewEvent
                 eventName="creator_waitlist_viewed"
                 eventParams={{ component_name: "creator_waitlist_page", creator_lane: "waitlist" }}
             />
-            <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
-                <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
-                    <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+                <section className="overflow-hidden rounded-[2rem] border border-white/15 bg-[#160d28]/90 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
+                    <span className="inline-flex rounded-full border border-brand-purple/30 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-100">
                         Kreator Experiences
                     </span>
 
@@ -547,13 +553,13 @@ export default function CreatorWaitlistPage() {
                                 <button
                                     type="button"
                                     onClick={() => openAuthModal("creator_signup")}
-                                    className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
+                                    className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
                                 >
                                     Start creator application
                                 </button>
                                 <Link
                                     href="/faq"
-                                    className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
+                                    className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
                                 >
                                     Learn about KandyDrops
                                 </Link>
@@ -568,13 +574,13 @@ export default function CreatorWaitlistPage() {
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <Link
                                     href="/dashboard/support?category=creator_application&subject=Creator%20application%20support"
-                                    className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
+                                    className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
                                 >
                                     Open creator support
                                 </Link>
                                 <Link
                                     href={creatorSupportHref}
-                                    className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
+                                    className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
                                 >
                                     Contact creator support
                                 </Link>
@@ -590,22 +596,22 @@ export default function CreatorWaitlistPage() {
                             </p>
 
                             <div className="mt-5 flex flex-wrap gap-2">
-                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
                                     Stage: {statusSummary.stage}
                                 </span>
-                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
                                     Timeline: {CREATOR_REVIEW_TIMELINE_COPY}
                                 </span>
-                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
                                     Legal {formatStatusLabel(creatorApplication.legalStatus)}
                                 </span>
-                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
                                     ID {idPresentation.label}
                                 </span>
                             </div>
 
                             <div className="mt-6 grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
-                                <div className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-5">
+                                <div className="rounded-[1.75rem] border border-brand-purple/30 bg-brand-purple/10 p-5 shadow-lg shadow-brand-purple/10">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">What to do now</p>
                                     <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
                                         {currentAction?.title}
@@ -617,7 +623,7 @@ export default function CreatorWaitlistPage() {
                                         {statusSummary.stage === "Approved" ? (
                                             <Link
                                                 href="/dashboard/profile"
-                                                className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition-colors hover:bg-gray-100"
+                                                className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}
                                             >
                                                 Open creator dashboard
                                             </Link>
@@ -625,7 +631,7 @@ export default function CreatorWaitlistPage() {
                                         {!introAcknowledged ? (
                                             <a
                                                 href="#creator-intro"
-                                                className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition-colors hover:bg-gray-100"
+                                                className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}
                                             >
                                                 Review creator intro
                                             </a>
@@ -633,7 +639,7 @@ export default function CreatorWaitlistPage() {
                                         {contractReady && !creatorContractSigned ? (
                                             <a
                                                 href="#creator-contract"
-                                                className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition-colors hover:bg-gray-100"
+                                                className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}
                                             >
                                                 Review agreement
                                             </a>
@@ -641,7 +647,7 @@ export default function CreatorWaitlistPage() {
                                         {canSubmitId ? (
                                             <a
                                                 href="#creator-id-upload"
-                                                className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-white/20"
+                                                className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
                                             >
                                                 Go to ID upload
                                             </a>
@@ -649,14 +655,14 @@ export default function CreatorWaitlistPage() {
                                         {canEditApplication ? (
                                             <a
                                                 href="#creator-application-edit"
-                                                className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-white/20"
+                                                className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
                                             >
                                                 Revise application
                                             </a>
                                         ) : null}
                                         <Link
                                             href={creatorSupportHref}
-                                            className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-white/20"
+                                            className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
                                         >
                                             Contact creator support
                                         </Link>
@@ -676,7 +682,7 @@ export default function CreatorWaitlistPage() {
 
                 {creatorApplication ? (
                     <section className="grid gap-4 md:grid-cols-3">
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                        <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <FileText className="h-5 w-5 text-brand-purple" />
                                 Legal
@@ -701,7 +707,7 @@ export default function CreatorWaitlistPage() {
                             </p>
                         </article>
 
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                        <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <ShieldCheck className="h-5 w-5 text-brand-purple" />
                                 ID verification
@@ -712,7 +718,7 @@ export default function CreatorWaitlistPage() {
                             </p>
                         </article>
 
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                        <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <BadgeCheck className="h-5 w-5 text-brand-purple" />
                                 Creator access
@@ -736,7 +742,7 @@ export default function CreatorWaitlistPage() {
                 ) : null}
 
                 {creatorApplication ? (
-                    <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                    <section className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <h2 className="text-base font-bold text-white">Current checklist</h2>
@@ -768,7 +774,7 @@ export default function CreatorWaitlistPage() {
 
                 {creatorApplication ? (
                     <section className="grid gap-4 md:grid-cols-[0.95fr_1.05fr]">
-                        <article id="creator-intro" className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                        <article id="creator-intro" className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <Sparkles className="h-5 w-5 text-brand-purple" />
                                 Creator intro
@@ -796,7 +802,7 @@ export default function CreatorWaitlistPage() {
                                         Acknowledged on {new Date(creatorApplication.introAcknowledgedAt!).toLocaleString()}
                                     </span>
                                 ) : (
-                                    <button type="button" onClick={() => void handleIntroAcknowledgement()} disabled={acknowledgingIntro} className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-50">
+                                    <button type="button" onClick={() => void handleIntroAcknowledgement()} disabled={acknowledgingIntro} className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}>
                                         {acknowledgingIntro ? "Saving..." : "Acknowledge creator intro"}
                                     </button>
                                 )}
@@ -814,7 +820,7 @@ export default function CreatorWaitlistPage() {
                 ) : null}
 
                 {creatorApplication ? (
-                    <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                    <section className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                         <h2 className="text-base font-bold text-white">Stage history</h2>
                         <p className="mt-2 text-sm leading-6 text-gray-400">
                             Stage history only shows backend-backed milestones on this application.
@@ -833,7 +839,7 @@ export default function CreatorWaitlistPage() {
                 {creatorApplication && canEditApplication ? (
                     <section
                         id="creator-application-edit"
-                        className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm"
+                        className={CREATOR_INTAKE_PANEL_CLASS_NAME}
                     >
                         <div className="flex items-start gap-2 text-base font-bold text-white">
                             <PencilLine className="mt-0.5 h-5 w-5 text-brand-purple" />
@@ -852,7 +858,7 @@ export default function CreatorWaitlistPage() {
                                         ...current,
                                         creatorDisplayName: event.target.value,
                                     }))}
-                                    className="w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none"
+                                    className="min-h-11 w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none"
                                     placeholder="How should fans and reviewers know you?"
                                 />
                             </label>
@@ -865,7 +871,7 @@ export default function CreatorWaitlistPage() {
                                         ...current,
                                         creatorPrimaryPlatform: event.target.value,
                                     }))}
-                                    className="w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none"
+                                    className="min-h-11 w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none"
                                     placeholder="TikTok, YouTube, Instagram, Twitch, or similar"
                                 />
                             </label>
@@ -890,13 +896,13 @@ export default function CreatorWaitlistPage() {
                                 type="button"
                                 onClick={() => void handleApplicationSave()}
                                 disabled={savingApplication}
-                                className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-60"
+                                className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
                             >
                                 {savingApplication ? "Saving..." : "Save application changes"}
                             </button>
                             <Link
                                 href={creatorSupportHref}
-                                className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
+                                className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
                             >
                                 Contact creator support
                             </Link>
@@ -907,7 +913,7 @@ export default function CreatorWaitlistPage() {
                 {creatorApplication && canSubmitId ? (
                     <section
                         id="creator-id-upload"
-                        className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-4 backdrop-blur-sm"
+                        className="rounded-[1.75rem] border border-brand-purple/30 bg-brand-purple/10 p-5 shadow-lg shadow-brand-purple/10 backdrop-blur-xl"
                     >
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <UploadCloud className="h-5 w-5 text-brand-purple" />
@@ -951,7 +957,7 @@ export default function CreatorWaitlistPage() {
                                             type="file"
                                             accept={ID_UPLOAD_ACCEPT}
                                             onChange={(event) => handleSelectIdFile(card.side, event.target.files?.[0] ?? null)}
-                                            className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none file:mr-3 file:rounded-full file:border-0 file:bg-brand-purple file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                                            className="min-h-11 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none file:mr-3 file:rounded-full file:border-0 file:bg-brand-purple file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
                                         />
                                     </label>
 
@@ -978,7 +984,7 @@ export default function CreatorWaitlistPage() {
                                 type="button"
                                 onClick={() => void handleIdUpload()}
                                 disabled={uploadingId || !hasSelectedFiles}
-                                className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-50"
+                                className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
                             >
                                 {uploadingId ? "Uploading..." : uploadButtonLabel}
                             </button>
@@ -988,7 +994,7 @@ export default function CreatorWaitlistPage() {
 
                 {creatorApplication ? (
                     <section className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                        <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <h2 className="flex items-center gap-2 text-base font-bold text-white">
                                 <BadgeCheck className="h-5 w-5 text-brand-purple" />
                                 About Kreator Experiences
@@ -998,7 +1004,7 @@ export default function CreatorWaitlistPage() {
                             </p>
                         </article>
 
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                        <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <h2 className="flex items-center gap-2 text-base font-bold text-white">
                                 <LifeBuoy className="h-5 w-5 text-brand-purple" />
                                 Creator support
@@ -1009,13 +1015,13 @@ export default function CreatorWaitlistPage() {
                             <div className="mt-4 flex flex-wrap gap-3">
                                 <Link
                                     href={creatorSupportHref}
-                                    className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
+                                    className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
                                 >
                                     Open creator support
                                 </Link>
                                 <Link
                                     href="/dashboard/profile"
-                                    className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
+                                    className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
                                 >
                                     Open profile
                                 </Link>

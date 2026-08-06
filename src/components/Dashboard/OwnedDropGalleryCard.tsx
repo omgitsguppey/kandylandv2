@@ -43,12 +43,12 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                 trackEvent("owned_drop_clicked", { drop_id: drop.id, drop_category: drop.type });
                 if (onOpen) onOpen();
             }}
-            className="group relative text-left w-full"
+            className="group relative min-h-11 w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/75 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0618] disabled:cursor-default"
             disabled={!onOpen}
         >
             <div
                 className={cn(
-                    "relative overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 bg-black/40",
+                    "relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0617] shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition duration-300 group-hover:-translate-y-0.5 group-hover:border-brand-purple/45 group-hover:shadow-[0_20px_44px_rgba(92,34,153,0.3)] sm:rounded-[1.35rem]",
                     ratio === "16:9" ? "col-span-4" : ratio === "9:16" ? "col-span-2" : "col-span-3"
                 )}
                 style={ratioStyle}
@@ -61,15 +61,15 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                     preload={imagePolicy.preload}
                     fetchPriority={imagePolicy.fetchPriority}
                     quality={imagePolicy.quality}
-                    className="object-cover"
+                    className="object-cover transition duration-500 group-hover:scale-[1.035]"
                     sizes={imagePolicy.sizes}
-                        onError={() => setErroredImageUrl(drop.imageUrl ?? null)}
+                    onError={() => setErroredImageUrl(drop.imageUrl ?? null)}
                     {...getImagePolicyDataAttributes(imagePolicy)}
                 />
 
                 {/* File Count Chip */}
                 {(fileCounts.images > 0 || fileCounts.videos > 0) && (
-                    <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-bold text-white border border-white/20 z-30 shadow-xl" aria-label={fileCountLabel} title={fileCountLabel}>
+                    <div className="absolute right-2 top-2 z-30 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2 py-1 text-[9px] font-bold text-white shadow-xl backdrop-blur-md sm:text-[10px]" aria-label={fileCountLabel} title={fileCountLabel}>
                         {fileCounts.images > 0 && (
                             <div className="flex items-center gap-0.5">
                                 <ImageIcon aria-hidden="true" className="w-2.5 h-2.5" />
@@ -85,19 +85,19 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                     </div>
                 )}
 
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-2.5 sm:p-3">
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#08030f] via-[#10071d]/85 to-transparent p-2.5 sm:p-3">
                     <div className="relative overflow-hidden">
                         <TitleMarquee
                             title={drop.title}
                             delaySeed={drop.id.charCodeAt(0) % 6}
-                            className="text-[11px] sm:text-xs font-bold text-white leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"
+                            className="text-[11px] font-bold leading-tight text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] sm:text-xs"
                         />
                     </div>
                     <span className={cn(
-                        "mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-bold border shadow-sm",
+                        "mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold shadow-sm sm:text-[10px]",
                         isUnlocked
-                            ? "bg-white/20 text-white border-white/30"
-                            : "bg-white/10 text-gray-300 border-white/20"
+                            ? "border-brand-purple/40 bg-brand-purple/25 text-white"
+                            : "border-white/20 bg-white/10 text-gray-300"
                     )}>
                         {isUnlocked ? <Unlock className="w-3 h-3 drop-shadow-md" /> : <Lock className="w-3 h-3" />}
                         {isUnlocked ? "Unwrapped" : "Locked"}

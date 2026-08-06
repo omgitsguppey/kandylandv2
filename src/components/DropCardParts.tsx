@@ -2,6 +2,7 @@
 
 import { Clock, Image as ImageIcon } from "lucide-react";
 
+import { Badge } from "@/components/creative-tim/ui/badge";
 import { useNow } from "@/hooks/useNow";
 import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME, LAUNCH_STATIC_BADGE_CLASSNAME } from "@/lib/design-system";
 import { formatDropCountdown } from "@/lib/drop-countdown";
@@ -20,9 +21,10 @@ interface FileCountChipProps {
 
 export function DropCardBadge({ label, compact = false }: DropCardBadgeProps) {
     return (
-        <div
+        <Badge
+            variant="outline"
             className={cn(
-                "w-fit rounded-full border font-bold text-white shadow-lg backdrop-blur-md",
+                "!w-fit !rounded-full !border !font-bold !text-white shadow-lg backdrop-blur-md",
                 LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                 LAUNCH_STATIC_BADGE_CLASSNAME,
                 compact ? "px-2 py-0.5 text-[9px]" : "px-2.5 py-1 text-[10px] md:text-xs",
@@ -33,7 +35,7 @@ export function DropCardBadge({ label, compact = false }: DropCardBadgeProps) {
             )}
         >
             {label}
-        </div>
+        </Badge>
     );
 }
 
@@ -48,9 +50,10 @@ export function FileCountChip({ images, videos, compact = false }: FileCountChip
     ].filter(Boolean).join(", ");
 
     return (
-        <div
+        <Badge
+            variant="outline"
             className={cn(
-                "z-30 flex items-center rounded-full border border-white/20 bg-black/60 font-bold text-white shadow-xl backdrop-blur-md",
+                "z-30 !flex items-center !rounded-full !border-white/20 !bg-black/60 !font-bold !text-white shadow-xl backdrop-blur-md",
                 LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                 LAUNCH_STATIC_BADGE_CLASSNAME,
                 compact ? "gap-1.5 px-2 py-0.5 text-[9px]" : "gap-2 px-3 py-1 text-[10px] md:text-xs",
@@ -70,7 +73,7 @@ export function FileCountChip({ images, videos, compact = false }: FileCountChip
                     <span>{videos}</span>
                 </div>
             ) : null}
-        </div>
+        </Badge>
     );
 }
 
@@ -79,9 +82,10 @@ export function DropCardTimer({ validUntil }: { validUntil?: number }) {
     const { visibleLabel, fullLabel, urgencyState, isCountdownOnly } = formatDropCountdown(validUntil, nowMs);
 
     return (
-        <div
+        <Badge
+            variant="outline"
             className={cn(
-                "inline-flex max-w-[6.75rem] items-center justify-center gap-1 rounded-[0.65rem] border px-1.5 py-0.5 text-[9px] font-bold transition-colors md:max-w-[7.5rem] md:px-2 md:text-[10px]",
+                "!inline-flex max-w-[6.75rem] items-center justify-center gap-1 !rounded-[0.65rem] !border px-1.5 py-0.5 text-[9px] !font-bold transition-colors md:max-w-[7.5rem] md:px-2 md:text-[10px]",
                 LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                 isCountdownOnly && "min-w-[4.9rem] whitespace-nowrap",
                 urgencyState === "critical"
@@ -105,6 +109,6 @@ export function DropCardTimer({ validUntil }: { validUntil?: number }) {
                 )}
             />
             <span aria-live="off" className={cn("truncate", isCountdownOnly && "text-center")}>{visibleLabel}</span>
-        </div>
+        </Badge>
     );
 }

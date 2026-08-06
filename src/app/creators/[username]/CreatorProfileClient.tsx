@@ -4,12 +4,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     Loader2,
-    Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { DropGrid } from "@/components/DropGrid";
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
+import { CreatorPublicProfileFrame } from "@/components/Creators/CreatorPublicProfileFrame";
 import { CreatorProfileHeader } from "@/components/Creators/CreatorProfileHeader";
 import { CreatorProfileTimelineFeed } from "@/components/Creators/CreatorProfileTimelineFeed";
 import { NotFoundSurface } from "@/components/ui/NotFoundSurface";
@@ -1339,8 +1339,8 @@ export default function CreatorProfileClient() {
     ].filter((entry): entry is { key: string; label: string; message: string } => Boolean(entry));
 
     return (
-        <div className="min-h-screen bg-black pb-6 pt-8 sm:pt-10" data-testid="creator-profile-shell">
-            <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <CreatorPublicProfileFrame className="min-h-screen pb-6" contentClassName="relative z-10 pt-8 sm:pt-10">
+            <div data-testid="creator-profile-shell">
                 <CreatorProfileHeader
                     canMessageCreator={canMessageCreator}
                     creator={creator}
@@ -1382,28 +1382,40 @@ export default function CreatorProfileClient() {
                     </div>
                 ) : null}
 
-                <div className="mb-6 mt-5 flex items-center gap-6 border-b border-white/10 px-1 sm:px-2">
+                <div
+                    aria-label="Creator profile sections"
+                    className="mb-6 mt-5 flex items-center gap-1 rounded-2xl border border-white/10 bg-black/20 p-1.5 sm:gap-2"
+                    role="tablist"
+                >
                     <button
+                        aria-controls="creator-profile-drops-panel"
+                        aria-selected={activeTab === "drops"}
+                        id="creator-profile-drops-tab"
+                        role="tab"
                         type="button"
                         onClick={() => setActiveTab("drops")}
                         className={cn(
-                            "pb-4 text-sm font-bold uppercase tracking-widest transition-colors",
+                            "min-h-11 flex-1 rounded-xl px-4 text-sm font-bold uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple",
                             activeTab === "drops"
-                                ? "border-b-2 border-brand-purple text-white"
-                                : "border-b-2 border-transparent text-gray-500 hover:text-white",
+                                ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"
+                                : "text-gray-500 hover:bg-white/[0.06] hover:text-white",
                         )}
                     >
                         Drops
                     </button>
                     {hasExperiences ? (
                         <button
+                            aria-controls="creator-profile-experiences-panel"
+                            aria-selected={activeTab === "experiences"}
+                            id="creator-profile-experiences-tab"
+                            role="tab"
                             type="button"
                             onClick={() => setActiveTab("experiences")}
                             className={cn(
-                                "pb-4 text-sm font-bold uppercase tracking-widest transition-colors",
+                                "min-h-11 flex-1 rounded-xl px-4 text-sm font-bold uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple",
                                 activeTab === "experiences"
-                                    ? "border-b-2 border-brand-purple text-white"
-                                    : "border-b-2 border-transparent text-gray-500 hover:text-white",
+                                    ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"
+                                    : "text-gray-500 hover:bg-white/[0.06] hover:text-white",
                             )}
                         >
                             Experiences
@@ -1411,46 +1423,57 @@ export default function CreatorProfileClient() {
                     ) : null}
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                     {activeTab === "experiences" && hasExperiences ? (
-                        <CreatorExperiencesPanel
-                            bookingDurationMinutes={bookingDurationMinutes}
-                            bookingServiceType={bookingServiceType}
-                            bookingStartAt={bookingStartAt}
-                            creatingBooking={creatingBooking}
-                            creatingRequest={creatingRequest}
-                            creatorId={creator.uid}
-                            creatorFirstName={creatorFirstName}
-                            creatorUsername={creator.username || username}
-                            currentUser={currentUserProfile ?? currentUser}
-                            existingBookings={bookings}
-                            experienceWarnings={experienceWarnings}
-                            latestBooking={latestBooking}
-                            messages={messages}
-                            onBookingDurationMinutesChange={setBookingDurationMinutes}
-                            onBookingServiceTypeChange={setBookingServiceType}
-                            onBookingStartAtChange={setBookingStartAt}
-                            onCreateBooking={() => void handleCreateBooking()}
-                            onCreateRequest={() => void handleCreateRequest()}
-                            onOpenAuth={() => openAuthModal("signup")}
-                            onOpenChat={openChatExperience}
-                            onSelectedExperienceChange={setSelectedExperience}
-                            onStartSubscription={() => void handleSubscription()}
-                            requestCategories={requestCategories}
-                            requestCategoryId={requestCategoryId}
-                            requestDetails={requestDetails}
-                            selectedExperience={selectedExperience}
-                            settings={creatorSettings}
-                            setRequestCategoryId={setRequestCategoryId}
-                            setRequestDetails={setRequestDetails}
-                            subscriptionActive={subscriptionActive}
-                            subscriptionHydrated={!moduleState.subscriptions.warning}
-                            subscribeLoading={subscribeLoading}
-                        />
+                        <div
+                            aria-labelledby="creator-profile-experiences-tab"
+                            id="creator-profile-experiences-panel"
+                            role="tabpanel"
+                        >
+                            <CreatorExperiencesPanel
+                                bookingDurationMinutes={bookingDurationMinutes}
+                                bookingServiceType={bookingServiceType}
+                                bookingStartAt={bookingStartAt}
+                                creatingBooking={creatingBooking}
+                                creatingRequest={creatingRequest}
+                                creatorId={creator.uid}
+                                creatorFirstName={creatorFirstName}
+                                creatorUsername={creator.username || username}
+                                currentUser={currentUserProfile ?? currentUser}
+                                existingBookings={bookings}
+                                experienceWarnings={experienceWarnings}
+                                latestBooking={latestBooking}
+                                messages={messages}
+                                onBookingDurationMinutesChange={setBookingDurationMinutes}
+                                onBookingServiceTypeChange={setBookingServiceType}
+                                onBookingStartAtChange={setBookingStartAt}
+                                onCreateBooking={() => void handleCreateBooking()}
+                                onCreateRequest={() => void handleCreateRequest()}
+                                onOpenAuth={() => openAuthModal("signup")}
+                                onOpenChat={openChatExperience}
+                                onSelectedExperienceChange={setSelectedExperience}
+                                onStartSubscription={() => void handleSubscription()}
+                                requestCategories={requestCategories}
+                                requestCategoryId={requestCategoryId}
+                                requestDetails={requestDetails}
+                                selectedExperience={selectedExperience}
+                                settings={creatorSettings}
+                                setRequestCategoryId={setRequestCategoryId}
+                                setRequestDetails={setRequestDetails}
+                                subscriptionActive={subscriptionActive}
+                                subscriptionHydrated={!moduleState.subscriptions.warning}
+                                subscribeLoading={subscribeLoading}
+                            />
+                        </div>
                     ) : null}
 
                     {activeTab === "drops" ? (
-                        <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
+                        <div
+                            aria-labelledby="creator-profile-drops-tab"
+                            className="space-y-5 animate-in fade-in zoom-in-95 duration-300"
+                            id="creator-profile-drops-panel"
+                            role="tabpanel"
+                        >
                             {experienceWarnings.length > 0 ? (
                                 <UiContinuityNotice
                                     title="Some creator features are loading slowly"
@@ -1472,41 +1495,11 @@ export default function CreatorProfileClient() {
                                 data-creator-profile-broadcasts-visible={String(profileBroadcastsVisible)}
                             >
                                 {profileDropsVisible && drops.length > 0 ? (
-                                    <div className="relative">
-                                        {!authLoading && !currentUser ? (
-                                            <div className="glass-panel absolute inset-0 z-50 m-2 flex items-center justify-center border border-white/5 !bg-black/70 px-4 py-8 backdrop-blur-md">
-                                                <div className="flex max-w-sm flex-col items-center text-center">
-                                                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-brand-purple/30 bg-brand-purple/20">
-                                                        <Lock className="h-7 w-7 text-brand-purple" />
-                                                    </div>
-                                                    <h3 className="mb-2 text-xl font-black tracking-tight text-white">Sign in to browse drops</h3>
-                                                    <p className="mb-5 text-sm leading-6 text-gray-400">
-                                                        Sign in to browse drops, follow this creator, and unlock private fan experiences.
-                                                    </p>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => openAuthModal("signup")}
-                                                        className="w-full rounded-xl bg-brand-purple px-6 py-3 text-sm font-black text-white transition-opacity hover:opacity-90"
-                                                    >
-                                                        Sign Up / Sign In
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : null}
-
-                                        <div
-                                            data-drop-visibility-scope="own_creator_drops"
-                                            className={
-                                                !authLoading && !currentUser
-                                                    ? "pointer-events-none select-none grayscale opacity-30 transition-all duration-500"
-                                                    : ""
-                                            }
-                                        >
-                                            <DropGrid drops={drops} onSelectDrop={handleCreatorDropPreview} />
-                                        </div>
+                                    <div data-drop-visibility-scope="own_creator_drops">
+                                        <DropGrid drops={drops} onSelectDrop={handleCreatorDropPreview} />
                                     </div>
                                 ) : (
-                                    <div className="rounded-[1.35rem] border border-dashed border-white/10 bg-white/5 px-4 py-8 text-center sm:py-10" data-mobile-residual-cleanup="score-impact">
+                                    <div className="rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.045] px-4 py-8 text-center shadow-[0_16px_40px_rgba(0,0,0,0.16)] sm:py-10" data-mobile-residual-cleanup="score-impact">
                                         <p className="text-gray-300">{profileDropsVisible ? "This creator is live, but the first drop has not landed yet." : "Drops are hidden on this creator profile right now."}</p>
                                     </div>
                                 )}
@@ -1515,7 +1508,7 @@ export default function CreatorProfileClient() {
                     ) : null}
                 </div>
             </div>
-        </div>
+        </CreatorPublicProfileFrame>
     );
 }
 
