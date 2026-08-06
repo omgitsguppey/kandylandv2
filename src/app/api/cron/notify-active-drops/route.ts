@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
@@ -39,9 +40,13 @@ async function GET_handler(request: NextRequest) {
             rateLimit: CRON,
         });
         const cronSecret = process.env.CRON_SECRET?.trim();
-        const authHeader = request.headers.get("authorization");
+        const authHeader = request.headers.get("authorization")?.trim() ?? "";
 
-        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        const actualSecretBytes = Buffer.from(authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "");
+        const expectedSecretBytes = Buffer.from(cronSecret ?? "");
+        const isAuthorized = cronSecret && actualSecretBytes.length === expectedSecretBytes.length && timingSafeEqual(actualSecretBytes, expectedSecretBytes);
+
+        if (!isAuthorized) {
             if (!cronSecret) {
                 recordRouteWarning(ROUTE_NAME, "CRON_SECRET is not configured", undefined, {
                     channel: "cron",

@@ -30,3 +30,7 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+## 2024-05-28 - [Timing Attack Risk on CRON_SECRET]
+**Vulnerability:** Comparing `CRON_SECRET` to the provided `Authorization` bearer token using standard string equality (`!==`) exposes the application to timing attacks. An attacker could theoretically guess the secret character by character.
+**Learning:** String comparisons in V8 short-circuit on the first mismatch. The time difference can be measured over a network (though difficult), leading to secret extraction.
+**Prevention:** Always use `timingSafeEqual` from `node:crypto` to compare authentication secrets or tokens. Ensure strings are converted to `Buffer` and lengths are compared in constant time (or short-circuited safely) before passing to `timingSafeEqual`.
