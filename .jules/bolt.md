@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2024-05-18 - Replacing chained map/filter/reduce with a single O(N) loop
+**Learning:** In heavily used admin routes like `src/app/api/admin/debug/route.ts`, calculating statistics across grouped arrays using sequentially chained `group.rows.map(...)`, `filter(...)`, `sort()`, and `reduce(...)` causes excessive intermediate array memory allocations and extremely slow execution due to `O(N log N)` sorting (e.g. `modeSeconds`).
+**Action:** Replace sequential `.map().filter().reduce()` operations with a single, unified `for...of` iteration that dynamically aggregates max, min, sum, mode occurrences, and parses string date bounds simultaneously in a single `O(N)` pass without array allocations.
