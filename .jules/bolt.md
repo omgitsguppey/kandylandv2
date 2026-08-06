@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2024-05-20 - Multi-filter array categorization in React useMemo
+**Learning:** Found an instance in `src/app/admin/roster/page.tsx` where an array of entities (`intakeEntries`) was filtered three separate times inside a `useMemo` block to categorize the data into different buckets. This scales poorly (O(3*N)) and repeatedly runs the categorization logic for every item.
+**Action:** Replace multiple `.filter()` calls that bucket data with a single-pass `for...of` loop or `.reduce()`. This guarantees exactly O(N) traversal and eliminates redundant processing logic per item in React renders.
