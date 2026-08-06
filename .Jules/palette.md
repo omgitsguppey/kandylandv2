@@ -12,3 +12,7 @@
 ## 2024-05-09 - Added aria-busy to Button component
 **Learning:** The core Button component visually indicated loading states with a spinner, but did not properly announce this asynchronous loading state to screen readers.
 **Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state to ensure screen readers are informed of the asynchronous process.
+
+## 2024-05-10 - Adding loading state to NotificationPromptBanner
+**Learning:** Found a specific UX opportunity on the "Turn on notifications" button in `NotificationPromptBanner`. While it correctly disabled the button and changed text to "Please wait", it lacked a visual loading spinner which is standard across other similar components in the application.
+**Action:** When adding async states to custom UI elements that don't use the core Button component, ensure they maintain parity by including both the text change and a visual spinner (with `aria-hidden="true"`) for consistency.
