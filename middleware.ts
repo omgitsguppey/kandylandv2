@@ -14,7 +14,11 @@ import { isInternalBypassPath, isKnownBotProbePath, isKnownLegacyPath } from "@/
 const KANDY_MAINTENANCE_MODE = process.env.KANDY_MAINTENANCE_MODE === "1"
   || process.env.KANDY_MAINTENANCE_MODE === "true";
 
-function buildMaintenanceResponse() {
+function buildMaintenanceResponse(showAdminAccess = false) {
+  const adminAccess = showAdminAccess
+    ? '<p class="admin-access"><a href="/admin">Open Admin Control Tower</a></p>'
+    : "";
+
   const body = `
     <!doctype html>
     <html lang="en">
@@ -77,6 +81,22 @@ function buildMaintenanceResponse() {
             font-size: 1.05rem;
             color: #e6def3;
           }
+
+          .admin-access {
+            margin-top: 1.5rem;
+          }
+
+          .admin-access a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0 1rem;
+            border-radius: 999px;
+            background: #f2a4ff;
+            color: #1f0b2a;
+            font-weight: 800;
+            text-decoration: none;
+          }
         </style>
       </head>
       <body>
@@ -85,6 +105,7 @@ function buildMaintenanceResponse() {
           <h1>KandyDrops is upgrading!</h1>
           <p>We&rsquo;ll be back soon.</p>
           <p>Your KandyDrops and GumDrops are safe!</p>
+          ${adminAccess}
         </main>
       </body>
     </html>
@@ -113,10 +134,32 @@ function isMaintenanceBypassPath(pathname: string) {
   );
 }
 
+function isAdminMaintenanceBypassTarget(pathname: string) {
+  return pathname === "/admin" || pathname.startsWith("/admin/") || pathname.startsWith("/api/");
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  let navigationSession: Awaited<ReturnType<typeof verifyNavigationSessionCookieValue>> | undefined;
+  const getNavigationSession = async () => {
+    if (navigationSession === undefined) {
+      navigationSession = await verifyNavigationSessionCookieValue(
+        request.cookies.get(NAV_SESSION_COOKIE)?.value,
+      );
+    }
+
+    return navigationSession;
+  };
 
   if (KANDY_MAINTENANCE_MODE && !isMaintenanceBypassPath(pathname)) {
+    const maintenanceSession = await getNavigationSession();
+    const hasAdminMaintenanceBypass = maintenanceSession?.role === "admin"
+      && isAdminMaintenanceBypassTarget(pathname);
+
+    if (hasAdminMaintenanceBypass) {
+      return NextResponse.next();
+    }
+
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
         {
@@ -137,7 +180,7 @@ export async function middleware(request: NextRequest) {
       );
     }
 
-    return buildMaintenanceResponse();
+    return buildMaintenanceResponse(maintenanceSession?.role === "admin");
   }
 
   if (isInternalBypassPath(pathname)) {
@@ -175,9 +218,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl, 308);
   }
 
-  const navigationSession = await verifyNavigationSessionCookieValue(
-    request.cookies.get(NAV_SESSION_COOKIE)?.value,
-  );
+  navigationSession = await getNavigationSession();
   if (!navigationSession) {
     return NextResponse.next();
   }
