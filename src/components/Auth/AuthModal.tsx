@@ -982,6 +982,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                 <button
                                     onClick={handleGoogleSignIn}
                                     disabled={isLoading}
+                                    aria-busy={isLoading}
                                     className="flex w-full items-center justify-center gap-3 rounded-xl border border-brand-purple/40 bg-gradient-to-r from-brand-purple to-purple-500 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors disabled:opacity-50 sm:py-3 sm:text-base"
                                 >
                                     {isLoading ? (
@@ -1052,6 +1053,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     <button
                                         type="submit"
                                         disabled={isLoading}
+                                        aria-busy={isLoading}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
                                         {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Send Reset Link"}
@@ -1240,6 +1242,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     <button
                                         type="submit"
                                         disabled={isLoading || emailSignInBlocked}
+                                        aria-busy={isLoading}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
                                         {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Sign In"}
@@ -1250,6 +1253,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     <button
                                         type="submit"
                                         disabled={isLoading}
+                                        aria-busy={isLoading}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
                                         {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : SECONDARY_UNWRAP_CTA}
@@ -1285,6 +1289,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                             <button
                                                 type="submit"
                                                 disabled={isLoading}
+                                                aria-busy={isLoading}
                                                 className="flex-[1.25] rounded-xl bg-brand-purple py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                             >
                                                 {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Submit creator application"}
@@ -1294,6 +1299,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                                 type="button"
                                                 onClick={() => void handleAdvanceCreatorStep()}
                                                 disabled={isLoading}
+                                                aria-busy={isLoading}
                                                 className="flex-[1.25] rounded-xl bg-brand-purple py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                             >
                                                 Continue
