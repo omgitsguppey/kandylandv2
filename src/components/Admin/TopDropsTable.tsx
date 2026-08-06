@@ -257,9 +257,10 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                             type="button"
                             disabled={safePage === 0}
                             onClick={() => handlePageChange("prev")}
+                            aria-label="Previous page"
                             className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-black/35 text-gray-400 transition-colors hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                            <ChevronLeft className="h-3 w-3" />
+                            <ChevronLeft className="h-3 w-3" aria-hidden="true" />
                         </button>
                         <span className="min-w-[3rem] text-center text-[10px] font-semibold text-gray-400">
                             {safePage + 1} / {totalPages}
@@ -268,9 +269,10 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                             type="button"
                             disabled={safePage >= totalPages - 1}
                             onClick={() => handlePageChange("next")}
+                            aria-label="Next page"
                             className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-black/35 text-gray-400 transition-colors hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                            <ChevronRight className="h-3 w-3" />
+                            <ChevronRight className="h-3 w-3" aria-hidden="true" />
                         </button>
                     </div>
                 </div>
