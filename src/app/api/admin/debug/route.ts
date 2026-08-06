@@ -5370,10 +5370,17 @@ export async function GET(request: NextRequest) {
                 explanation: explainRuntimeTaskSourceParity(rowBase),
             } satisfies RuntimeTaskSourceParityRow;
         });
-        const alignedRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "aligned").length;
-        const partialRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "partial").length;
-        const mismatchRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "mismatch").length;
-        const unknownRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "unknown").length;
+        // Bolt optimization: Single-pass iteration to tally parity states, avoiding 4 O(N) filters and temporary array allocations
+        let alignedRuntimeTaskCount = 0;
+        let partialRuntimeTaskCount = 0;
+        let mismatchRuntimeTaskCount = 0;
+        let unknownRuntimeTaskCount = 0;
+        for (const entry of runtimeTaskSourceParityRows) {
+            if (entry.sourceParityState === "aligned") alignedRuntimeTaskCount++;
+            else if (entry.sourceParityState === "partial") partialRuntimeTaskCount++;
+            else if (entry.sourceParityState === "mismatch") mismatchRuntimeTaskCount++;
+            else if (entry.sourceParityState === "unknown") unknownRuntimeTaskCount++;
+        }
         const sharedEventGroups: SharedTaskEventGroup[] = runtimeTaskAudit.ambiguousEventMappings.map((entry) => {
             const mappedDefinitions = entry.taskIds
                 .map((taskId) => taskDefinitionsById.get(taskId))
