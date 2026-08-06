@@ -1,11 +1,14 @@
 export const NAV_SESSION_COOKIE = "kandydrops_nav_session";
 export const NAV_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+export const MAINTENANCE_ADMIN_SESSION_COOKIE = "kandydrops_maintenance_admin";
+export const MAINTENANCE_ADMIN_SESSION_MAX_AGE_SECONDS = 15 * 60;
 export type NavigationSessionRole = "admin" | "creator" | "user";
 export type NavigationSessionState = "default" | "creator_waitlist";
 
 const VALID_NAV_ROLES = new Set<NavigationSessionRole>(["admin", "creator", "user"]);
 const VALID_NAV_STATES = new Set<NavigationSessionState>(["default", "creator_waitlist"]);
 const UID_COOKIE_PATTERN = /^[A-Za-z0-9:_-]{8,128}$/u;
+const MAINTENANCE_ADMIN_SESSION_PURPOSE = "maintenance_admin";
 
 function getNavigationSessionSecret() {
   const secret = process.env.NAVIGATION_COOKIE_SECRET;
@@ -74,6 +77,29 @@ async function signNavigationSessionPayload(payload: string) {
   return bytesToBase64Url(new Uint8Array(signature));
 }
 
+async function verifyNavigationSessionPayload(payload: string, signature: string) {
+  const key = await getNavigationSessionKey();
+  if (!key) {
+    return false;
+  }
+
+  try {
+    const signatureBytes = base64UrlToBytes(signature);
+    if (bytesToBase64Url(signatureBytes) !== signature) {
+      return false;
+    }
+
+    return await crypto.subtle.verify(
+      "HMAC",
+      key,
+      signatureBytes,
+      new TextEncoder().encode(payload),
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function createNavigationSessionCookieValue(
   uid: string,
   role: NavigationSessionRole,
@@ -108,6 +134,10 @@ export async function verifyNavigationSessionCookieValue(value: string | null | 
     return null;
   }
 
+  if (encodeBase64Url(payload) !== encodedPayload) {
+    return null;
+  }
+
   const [uid, role, state, expiresAtRaw] = payload.split(".");
   if (!uid || !role || !state || !expiresAtRaw) {
     return null;
@@ -126,19 +156,7 @@ export async function verifyNavigationSessionCookieValue(value: string | null | 
     return null;
   }
 
-  const key = await getNavigationSessionKey();
-  if (!key) {
-    return null;
-  }
-
-  const isValid = await crypto.subtle.verify(
-    "HMAC",
-    key,
-    base64UrlToBytes(signature),
-    new TextEncoder().encode(payload),
-  );
-
-  if (!isValid) {
+  if (!(await verifyNavigationSessionPayload(payload, signature))) {
     return null;
   }
 
@@ -148,4 +166,62 @@ export async function verifyNavigationSessionCookieValue(value: string | null | 
     state: state as NavigationSessionState,
     expiresAtMs,
   };
+}
+
+export async function createMaintenanceAdminSessionCookieValue(uid: string): Promise<string | null> {
+  if (!UID_COOKIE_PATTERN.test(uid)) {
+    return null;
+  }
+
+  const expiresAt = Date.now() + (MAINTENANCE_ADMIN_SESSION_MAX_AGE_SECONDS * 1000);
+  const payload = `${MAINTENANCE_ADMIN_SESSION_PURPOSE}.${uid}.${expiresAt}`;
+  const signature = await signNavigationSessionPayload(payload);
+  if (!signature) {
+    return null;
+  }
+
+  return `${encodeBase64Url(payload)}.${signature}`;
+}
+
+export async function verifyMaintenanceAdminSessionCookieValue(
+  value: string | undefined,
+): Promise<{ uid: string; expiresAt: number } | null> {
+  if (!value) {
+    return null;
+  }
+
+  const parts = value.split(".");
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const [encodedPayload, signature] = parts;
+  if (!encodedPayload || !signature) {
+    return null;
+  }
+
+  const payload = decodeBase64Url(encodedPayload);
+  if (!payload) {
+    return null;
+  }
+
+  const [purpose, uid, expiresAtRaw] = payload.split(".");
+  if (purpose !== MAINTENANCE_ADMIN_SESSION_PURPOSE || !uid || !expiresAtRaw) {
+    return null;
+  }
+
+  if (!UID_COOKIE_PATTERN.test(uid)) {
+    return null;
+  }
+
+  const expiresAt = Number(expiresAtRaw);
+  if (!Number.isSafeInteger(expiresAt) || expiresAt <= Date.now()) {
+    return null;
+  }
+
+  if (!(await verifyNavigationSessionPayload(payload, signature))) {
+    return null;
+  }
+
+  return { uid, expiresAt };
 }

@@ -308,7 +308,11 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         </div>
     );
 
-    return (
+  if (pathname === "/maintenance/admin") {
+    return <>{children}</>;
+  }
+
+  return (
         <>
             <Navbar />
             <AdminViewAsBanner />

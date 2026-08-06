@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { NavigationRole } from "@/lib/navigation-persistence";
-import { createNavigationSessionCookieValue, NAV_SESSION_COOKIE, NAV_SESSION_MAX_AGE_SECONDS } from "@/lib/navigation-session";
+import {
+  createMaintenanceAdminSessionCookieValue,
+  createNavigationSessionCookieValue,
+  MAINTENANCE_ADMIN_SESSION_COOKIE,
+  MAINTENANCE_ADMIN_SESSION_MAX_AGE_SECONDS,
+  NAV_SESSION_COOKIE,
+  NAV_SESSION_MAX_AGE_SECONDS,
+} from "@/lib/navigation-session";
+import { isMaintenanceModeEnabled } from "@/lib/maintenance-mode";
 import { getCreatorNavigationState, normalizeCreatorApplication } from "@/lib/creator-application";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -34,6 +42,17 @@ async function POST_handler(request: NextRequest) {
     const profileSnapshot = await adminDb.collection("users").doc(userId).get();
     const profileData = profileSnapshot.data() ?? {};
     const role = (profileData.role || "user") as NavigationRole;
+    const maintenanceModeEnabled = isMaintenanceModeEnabled();
+    if (maintenanceModeEnabled && role !== "admin") {
+      return NextResponse.json(
+        {
+          success: false,
+          sourceState: "forbidden",
+          reason: "maintenance_admin_access_required",
+        },
+        { status: 403 },
+      );
+    }
     const creatorNavigationState = getCreatorNavigationState(
       normalizeCreatorApplication(profileData.creatorApplication),
       role,
@@ -62,6 +81,20 @@ async function POST_handler(request: NextRequest) {
       });
     }
 
+    const maintenanceAdminCookieValue = maintenanceModeEnabled
+      ? await createMaintenanceAdminSessionCookieValue(userId)
+      : null;
+    if (maintenanceModeEnabled && !maintenanceAdminCookieValue) {
+      return NextResponse.json(
+        {
+          success: false,
+          sourceState: "unavailable",
+          reason: "maintenance_admin_session_signing_unavailable",
+        },
+        { status: 503 },
+      );
+    }
+
     const response = NextResponse.json({ success: true, role, state: creatorNavigationState ?? "default" });
     response.cookies.set({
       name: NAV_SESSION_COOKIE,
@@ -72,6 +105,17 @@ async function POST_handler(request: NextRequest) {
       path: "/",
       maxAge: NAV_SESSION_MAX_AGE_SECONDS,
     });
+    if (maintenanceAdminCookieValue) {
+      response.cookies.set({
+        name: MAINTENANCE_ADMIN_SESSION_COOKIE,
+        value: maintenanceAdminCookieValue,
+        httpOnly: true,
+        sameSite: "strict",
+        secure: request.nextUrl.protocol === "https:",
+        path: "/",
+        maxAge: MAINTENANCE_ADMIN_SESSION_MAX_AGE_SECONDS,
+      });
+    }
 
     return response;
   } catch (error) {
@@ -93,6 +137,15 @@ async function DELETE_handler(request: NextRequest) {
       value: "",
       httpOnly: true,
       sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
+      path: "/",
+      maxAge: 0,
+    });
+    response.cookies.set({
+      name: MAINTENANCE_ADMIN_SESSION_COOKIE,
+      value: "",
+      httpOnly: true,
+      sameSite: "strict",
       secure: request.nextUrl.protocol === "https:",
       path: "/",
       maxAge: 0,

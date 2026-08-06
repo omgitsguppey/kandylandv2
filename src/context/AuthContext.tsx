@@ -681,6 +681,11 @@ export function AuthProvider({
             return;
         }
 
+        if (pathname === "/maintenance/admin") {
+            setLoading(false);
+            return;
+        }
+
         if (adminUiTestSessionActive) {
             setLoading(false);
             return;
@@ -901,7 +906,7 @@ export function AuthProvider({
             autoRegisterInFlight.delete(currentUserId);
             observerControl.cleanup();
         };
-    }, [adminUiTestSessionActive, authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, router, user]);
+    }, [adminUiTestSessionActive, authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, pathname, router, user]);
 
     useEffect(() => {
         if (!user) {
@@ -910,6 +915,11 @@ export function AuthProvider({
         }
 
         if (adminUiTestSessionActive) {
+            navigationSessionSyncKeyRef.current = null;
+            return;
+        }
+
+        if (pathname === "/maintenance/admin") {
             navigationSessionSyncKeyRef.current = null;
             return;
         }
@@ -928,7 +938,7 @@ export function AuthProvider({
                 navigationSessionSyncKeyRef.current = null;
             });
         }
-    }, [adminUiTestSessionActive, user, userProfile]);
+    }, [adminUiTestSessionActive, pathname, user, userProfile]);
 
     const signInWithGoogle = useCallback(async (telemetry?: AuthFlowTelemetryInput) => {
         if (!auth || !firebaseClientConfigured) {

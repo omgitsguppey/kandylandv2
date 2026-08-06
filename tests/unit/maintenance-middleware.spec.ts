@@ -1,69 +1,97 @@
 import { NextRequest } from "next/server";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { NAV_SESSION_COOKIE } from "@/lib/navigation-session";
+const {
+  isMaintenanceModeEnabledMock,
+  verifyMaintenanceAdminSessionCookieValueMock,
+  verifyNavigationSessionCookieValueMock,
+} = vi.hoisted(() => ({
+  isMaintenanceModeEnabledMock: vi.fn(),
+  verifyMaintenanceAdminSessionCookieValueMock: vi.fn(),
+  verifyNavigationSessionCookieValueMock: vi.fn(),
+}));
 
-const originalMaintenanceMode = process.env.KANDY_MAINTENANCE_MODE;
-const originalNavigationSecret = process.env.NAVIGATION_COOKIE_SECRET;
+vi.mock("@/lib/maintenance-mode", () => ({
+  isMaintenanceModeEnabled: isMaintenanceModeEnabledMock,
+}));
 
-function restoreEnv(name: "KANDY_MAINTENANCE_MODE" | "NAVIGATION_COOKIE_SECRET", value: string | undefined) {
-  if (value === undefined) {
-    delete process.env[name];
-    return;
-  }
+vi.mock("@/lib/navigation-session", () => ({
+  MAINTENANCE_ADMIN_SESSION_COOKIE: "kandydrops_maintenance_admin",
+  NAV_SESSION_COOKIE: "kandydrops_nav_session",
+  verifyMaintenanceAdminSessionCookieValue: verifyMaintenanceAdminSessionCookieValueMock,
+  verifyNavigationSessionCookieValue: verifyNavigationSessionCookieValueMock,
+}));
 
-  process.env[name] = value;
+import { middleware } from "../../middleware";
+
+function request(pathname: string, cookie?: string, method = "GET"): NextRequest {
+  return new NextRequest("https://kandydrops.test" + pathname, {
+    method,
+    headers: cookie ? { cookie } : undefined,
+  });
 }
 
-function createRequest(pathname: string, sessionCookie?: string) {
-  return new NextRequest(`https://kandydrops.test${pathname}`, {
-    headers: sessionCookie
-      ? { cookie: `${NAV_SESSION_COOKIE}=${sessionCookie}` }
-      : undefined,
-  });
+function expectNext(response: Response) {
+  expect(response.headers.get("x-middleware-next")).toBe("1");
 }
 
 describe("maintenance middleware", () => {
   beforeEach(() => {
-    vi.resetModules();
-    process.env.KANDY_MAINTENANCE_MODE = "1";
-    process.env.NAVIGATION_COOKIE_SECRET = "maintenance-middleware-test-secret";
+    vi.clearAllMocks();
+    isMaintenanceModeEnabledMock.mockReturnValue(true);
+    verifyMaintenanceAdminSessionCookieValueMock.mockResolvedValue(null);
+    verifyNavigationSessionCookieValueMock.mockResolvedValue(null);
   });
 
-  afterEach(() => {
-    restoreEnv("KANDY_MAINTENANCE_MODE", originalMaintenanceMode);
-    restoreEnv("NAVIGATION_COOKIE_SECRET", originalNavigationSecret);
+  it("preserves normal routing when maintenance is disabled", async () => {
+    isMaintenanceModeEnabledMock.mockReturnValue(false);
+
+    expectNext(await middleware(request("/drops")));
   });
 
-  it("shows a signed admin the control-tower exit and limits maintenance bypass to admin targets", async () => {
-    const navigationSession = await import("@/lib/navigation-session");
-    const { middleware } = await import("../../middleware");
-    const adminCookie = await navigationSession.createNavigationSessionCookieValue("admin_12345", "admin");
-    const userCookie = await navigationSession.createNavigationSessionCookieValue("user_123456", "user");
+  it("serves the public gate with an always-visible admin recovery link", async () => {
+    const response = await middleware(request("/drops/featured"));
 
-    expect(adminCookie).toBeTruthy();
-    expect(userCookie).toBeTruthy();
-
-    const adminScreen = await middleware(createRequest("/", adminCookie!));
-    expect(adminScreen.status).toBe(503);
-    await expect(adminScreen.text()).resolves.toContain('href="/admin"');
-
-    const adminConsole = await middleware(createRequest("/admin", adminCookie!));
-    expect(adminConsole.headers.get("x-middleware-next")).toBe("1");
-
-    const adminApi = await middleware(createRequest("/api/admin/debug", adminCookie!));
-    expect(adminApi.headers.get("x-middleware-next")).toBe("1");
-
-    const userConsole = await middleware(createRequest("/admin", userCookie!));
-    expect(userConsole.status).toBe(503);
-  });
-
-  it("fails closed when the signed navigation session cannot be verified", async () => {
-    delete process.env.NAVIGATION_COOKIE_SECRET;
-    vi.resetModules();
-    const { middleware } = await import("../../middleware");
-
-    const response = await middleware(createRequest("/admin", "forged.admin.cookie"));
     expect(response.status).toBe(503);
+    expect(response.headers.get("cache-control")).toContain("no-store");
+    expect(await response.text()).toContain('href="/maintenance/admin"');
+  });
+
+  it("allows only the exact maintenance bootstrap requests without a ticket", async () => {
+    expectNext(await middleware(request("/maintenance/admin")));
+    expectNext(await middleware(request("/api/auth/navigation-session", undefined, "POST")));
+
+    expect((await middleware(request("/api/auth/navigation-session"))).status).toBe(503);
+    expect((await middleware(request("/api/auth/navigation-session-extra", undefined, "POST"))).status).toBe(503);
+  });
+
+  it("does not accept the old long-lived navigation cookie", async () => {
+    const response = await middleware(request("/admin", "kandydrops_nav_session=legacy-admin-session"));
+
+    expect(response.status).toBe(503);
+    expect(verifyMaintenanceAdminSessionCookieValueMock).toHaveBeenCalledWith(undefined);
+  });
+
+  it("allows a valid short-lived ticket only to reviewed administrator paths", async () => {
+    verifyMaintenanceAdminSessionCookieValueMock.mockResolvedValue({
+      uid: "admin-user",
+      expiresAt: Date.now() + 15 * 60 * 1000,
+    });
+
+    expectNext(await middleware(request("/admin/debug", "kandydrops_maintenance_admin=valid-ticket")));
+    expectNext(await middleware(request("/api/admin/debug", "kandydrops_maintenance_admin=valid-ticket")));
+    expectNext(
+      await middleware(request("/api/drops/duplicate-filenames", "kandydrops_maintenance_admin=valid-ticket")),
+    );
+
+    expect((await middleware(request("/api/users/me", "kandydrops_maintenance_admin=valid-ticket"))).status).toBe(503);
+    expect((await middleware(request("/api/administrator/debug", "kandydrops_maintenance_admin=valid-ticket"))).status).toBe(503);
+  });
+
+  it("fails closed for invalid or expired maintenance tickets", async () => {
+    verifyMaintenanceAdminSessionCookieValueMock.mockResolvedValue(null);
+
+    expect((await middleware(request("/admin", "kandydrops_maintenance_admin=expired-ticket"))).status).toBe(503);
+    expect((await middleware(request("/api/admin/debug", "kandydrops_maintenance_admin=expired-ticket"))).status).toBe(503);
   });
 });

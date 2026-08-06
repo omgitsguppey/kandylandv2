@@ -6,18 +6,24 @@ import {
   resolvePreferredAuthenticatedPath,
 } from "@/lib/navigation-persistence";
 import { CREATOR_WAITLIST_PATH } from "@/lib/creator-application";
-import { verifyNavigationSessionCookieValue, NAV_SESSION_COOKIE } from "@/lib/navigation-session";
+import {
+  MAINTENANCE_ADMIN_SESSION_COOKIE,
+  NAV_SESSION_COOKIE,
+  verifyMaintenanceAdminSessionCookieValue,
+  verifyNavigationSessionCookieValue,
+} from "@/lib/navigation-session";
+import { isMaintenanceModeEnabled } from "@/lib/maintenance-mode";
 import { getCanonicalSiteHost } from "@/lib/site-origin";
 import { cheap4xxResponse } from "@/lib/server/cheap-4xx-response";
 import { isInternalBypassPath, isKnownBotProbePath, isKnownLegacyPath } from "@/lib/server/route-4xx-classifier";
 
-const KANDY_MAINTENANCE_MODE = process.env.KANDY_MAINTENANCE_MODE === "1"
-  || process.env.KANDY_MAINTENANCE_MODE === "true";
+const MAINTENANCE_ADMIN_BOOTSTRAP_PATH = "/maintenance/admin";
+const NAVIGATION_SESSION_PATH = "/api/auth/navigation-session";
+const ADMIN_API_PATH = "/api/admin";
+const ADMIN_DROP_PREFLIGHT_PATH = "/api/drops/duplicate-filenames";
 
-function buildMaintenanceResponse(showAdminAccess = false) {
-  const adminAccess = showAdminAccess
-    ? '<p class="admin-access"><a href="/admin">Open Admin Control Tower</a></p>'
-    : "";
+function buildMaintenanceResponse() {
+  const adminAccess = '<p class="admin-access"><a href="/maintenance/admin">Admin access</a></p>';
 
   const body = `
     <!doctype html>
@@ -125,17 +131,18 @@ function buildMaintenanceResponse(showAdminAccess = false) {
   });
 }
 
-function isMaintenanceBypassPath(pathname: string) {
-  return (
-    pathname === "/manifest.json"
-    || pathname === "/robots.txt"
-    || pathname === "/api/health"
-    || pathname.startsWith("/api/health/")
-  );
+function isAdminPagePath(pathname: string) {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
 }
 
-function isAdminMaintenanceBypassTarget(pathname: string) {
-  return pathname === "/admin" || pathname.startsWith("/admin/") || pathname.startsWith("/api/");
+function isReviewedAdminApiPath(pathname: string) {
+  return pathname === ADMIN_API_PATH
+    || pathname.startsWith(ADMIN_API_PATH + "/")
+    || pathname === ADMIN_DROP_PREFLIGHT_PATH;
+}
+
+function isMaintenanceTicketPath(pathname: string) {
+  return isAdminPagePath(pathname) || isReviewedAdminApiPath(pathname);
 }
 
 export async function middleware(request: NextRequest) {
@@ -151,13 +158,22 @@ export async function middleware(request: NextRequest) {
     return navigationSession;
   };
 
-  if (KANDY_MAINTENANCE_MODE && !isMaintenanceBypassPath(pathname)) {
-    const maintenanceSession = await getNavigationSession();
-    const hasAdminMaintenanceBypass = maintenanceSession?.role === "admin"
-      && isAdminMaintenanceBypassTarget(pathname);
-
-    if (hasAdminMaintenanceBypass) {
+  if (isMaintenanceModeEnabled()) {
+    if (
+      pathname === MAINTENANCE_ADMIN_BOOTSTRAP_PATH
+      || (pathname === NAVIGATION_SESSION_PATH && request.method === "POST")
+    ) {
       return NextResponse.next();
+    }
+
+    if (isMaintenanceTicketPath(pathname)) {
+      const ticket = await verifyMaintenanceAdminSessionCookieValue(
+        request.cookies.get(MAINTENANCE_ADMIN_SESSION_COOKIE)?.value,
+      );
+
+      if (ticket) {
+        return NextResponse.next();
+      }
     }
 
     if (pathname.startsWith("/api/")) {
@@ -180,7 +196,7 @@ export async function middleware(request: NextRequest) {
       );
     }
 
-    return buildMaintenanceResponse(maintenanceSession?.role === "admin");
+    return buildMaintenanceResponse();
   }
 
   if (isInternalBypassPath(pathname)) {
@@ -270,5 +286,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json).*)"],
 };
