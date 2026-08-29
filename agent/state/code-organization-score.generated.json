@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T04:21:28.583Z",
+  "generatedAt": "2026-08-29T04:37:48.835Z",
   "doctrine": {
     "note": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves.",
     "agentTruthDoc": "docs/agent-truth/code-organization-doctrine.md",
@@ -37,8 +37,8 @@
       "weight": 20,
       "score": 0,
       "status": "fail",
-      "findingCount": 244,
-      "criticalCount": 136,
+      "findingCount": 243,
+      "criticalCount": 135,
       "reviewRequiredCount": 108
     },
     "agentContextEfficiency": {
@@ -838,15 +838,6 @@
       "severity": "critical"
     },
     {
-      "normalizedFormula": "const deltaMs = Math.max(#, Date.now() - value);",
-      "files": [
-        "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx",
-        "src/app/admin/debug/components/DebugControlTowerCards.tsx",
-        "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx"
-      ],
-      "severity": "critical"
-    },
-    {
       "normalizedFormula": "data-admin-analytics-snapshot-priority=\"s\"",
       "files": [
         "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
@@ -861,6 +852,14 @@
         "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
         "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx",
         "src/app/admin/debug/components/DebugAdvancedTruth.tsx"
+      ],
+      "severity": "critical"
+    },
+    {
+      "normalizedFormula": "<Pill label=\"s\" value=\"s\" tone=\"s\" truthState=\"s\" badgeLabel=\"s\" />",
+      "files": [
+        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+        "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx"
       ],
       "severity": "critical"
     }
@@ -1450,5 +1449,5 @@
     "cypress",
     "lighthouse"
   ],
-  "summary": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves. Current report scored 10/100 with 1472 organization findings; report arrays are capped for compact agent loading."
+  "summary": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves. Current report scored 10/100 with 1471 organization findings; report arrays are capped for compact agent loading."
 }
