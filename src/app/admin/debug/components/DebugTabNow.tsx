@@ -2,8 +2,7 @@
 
 import { buildAdminDebugSystemHealthNowModel } from "@/lib/admin-debug-summary-cards";
 import { resolveControlTowerBusinessTruthState } from "@/lib/admin/debug/control-tower-truth";
-import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
-import { Pill, Section } from "./DebugPrimitives";
+import { Pill, Section, labelForPanelStatus, toneForPanelStatus, truthStateForPanelStatus } from "./DebugPrimitives";
 import { DebugCreatorLane } from "./DebugCreatorLane";
 import { DebugControlTower } from "./DebugControlTower";
 import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
@@ -12,21 +11,6 @@ import { DebugTelemetryHealthSummary } from "./DebugTelemetryHealthSummary";
 import { DebugTrackingSummaryPanel } from "./DebugTrackingSummaryPanel";
 import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc } from "./DebugTime";
 
-/* ─── Helpers ─── */
-function toneForPanelStatus(status?: string) {
-    if (status === "healthy") return "good" as const;
-    if (status === "warn") return "warn" as const;
-    if (status === "fail" || status === "failed") return "bad" as const;
-    return "neutral" as const;
-}
-function truthStateForPanelStatus(status?: string): AdminSurfaceState {
-    if (status === "warn") return "degraded";
-    if (status === "fail" || status === "failed") return "failed";
-    return coerceAdminSurfaceState(status);
-}
-function labelForPanelStatus(status?: string) {
-    return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
-}
 /* ─── Props ─── */
 export interface DebugTabNowProps {
     data: any;

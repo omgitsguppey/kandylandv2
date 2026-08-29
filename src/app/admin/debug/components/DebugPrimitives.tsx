@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminDebugCardCopy } from "@/lib/admin-debug-summary-cards";
-import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import {
     resolveAdminInputTruthState as resolveAdminTruthState,
     type AdminTruthState,
@@ -14,6 +14,23 @@ import { cn } from "@/lib/utils";
 
 /* ─── Shared Tone Type ─── */
 export type PillTone = "neutral" | "good" | "warn" | "bad";
+
+export function toneForPanelStatus(status?: string): PillTone {
+    if (status === "healthy") return "good" as const;
+    if (status === "warn") return "warn" as const;
+    if (status === "fail" || status === "failed") return "bad" as const;
+    return "neutral" as const;
+}
+
+export function truthStateForPanelStatus(status?: string): AdminSurfaceState {
+    if (status === "warn") return "degraded";
+    if (status === "fail" || status === "failed") return "failed";
+    return coerceAdminSurfaceState(status);
+}
+
+export function labelForPanelStatus(status?: string) {
+    return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
+}
 
 export function toneForSourceStatus(status?: string): PillTone {
     if (status === "loaded_with_data" || status === "loaded_empty_with_source_window") return "good";

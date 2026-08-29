@@ -7,7 +7,7 @@ import {
     classifyNoSampleStatus,
 } from "@/lib/debug/no-sample-status-classifier";
 import { DebugPanelStatusBySection } from "./DebugPanelStatusBySection";
-import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
+import { Pill, Section, ScrollWrap, labelForPanelStatus, toneForPanelStatus, truthStateForPanelStatus } from "./DebugPrimitives";
 import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc, formatWindowHours } from "./DebugTime";
 
 /* ─── Helpers ─── */
@@ -88,21 +88,6 @@ function channelTruth(channel: any, activeWindowMs?: number, recentWindowMs?: nu
         explanation: "Current, recent, and loaded sample windows are separated.",
     };
 }
-function toneForPanelStatus(status?: string) {
-    if (status === "healthy") return "good" as const;
-    if (status === "warn") return "warn" as const;
-    if (status === "fail" || status === "failed") return "bad" as const;
-    return "neutral" as const;
-}
-function truthStateForPanelStatus(status?: string): AdminSurfaceState {
-    if (status === "warn") return "degraded";
-    if (status === "fail" || status === "failed") return "failed";
-    return coerceAdminSurfaceState(status);
-}
-function labelForPanelStatus(status?: string) {
-    return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
-}
-
 /* ─── Props ─── */
 export interface DebugNowDiagnosticsProps {
     data: any;
