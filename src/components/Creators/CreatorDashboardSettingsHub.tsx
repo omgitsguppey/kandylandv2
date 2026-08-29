@@ -1,6 +1,8 @@
 "use client";
 
 import { CreatorSettingsHubFrame } from "./CreatorSettingsHubFrame";
+import { CreatorSettingsControlDeck } from "@/components/creative-tim/kandydrops/creator/CreatorSettingsControlDeck";
+import type { CreatorSettingsRunwayScope } from "@/components/creative-tim/kandydrops/creator/CreatorSettingsWorkstreamRail";
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -161,7 +163,7 @@ function SectionCard({
 }) {
   return (
     <section
-      className={cn(creatorOverviewModuleClassName, "sm:min-h-[112px] sm:rounded-2xl sm:p-4")}
+      className={cn(creatorOverviewModuleClassName, "rounded-[1.75rem] border border-white/10 bg-[#120b20]/90 p-4 shadow-[0_18px_44px_rgba(0,0,0,0.22)] sm:min-h-[132px] sm:p-5")}
       data-creator-section-key={id}
       data-creator-section-state={state}
       data-creator-dashboard-card-density="mobile_compact"
@@ -176,26 +178,26 @@ function SectionCard({
       data-creator-earnings-source={creatorEarningsSource}
       data-creator-earnings-attribution={creatorEarningsAttribution}
     >
-      <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex w-full items-start justify-between gap-3 text-left">
-        <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
-          <div className={cn("mt-0.5 rounded-xl border p-1.5 sm:rounded-2xl sm:p-2", sectionTone(state))}>{icon}</div>
+      <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex min-h-11 w-full items-start justify-between gap-3 text-left">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className={cn("mt-0.5 rounded-2xl border p-2", sectionTone(state))}>{icon}</div>
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <h3 className="text-sm font-bold text-white">{title}</h3>
-              <span className={cn("rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] sm:px-2 sm:text-[10px] sm:tracking-[0.16em]", sectionTone(state))}>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-base font-black text-white">{title}</h3>
+              <span className={cn("rounded-xl border px-2.5 py-1 text-xs font-bold", sectionTone(state))}>
                 {state.replaceAll("_", " ")}
               </span>
             </div>
-            <p className="mt-1 text-xs leading-5 text-gray-300 sm:text-sm">{summary}</p>
+            <p className="mt-2 text-sm leading-6 text-gray-300">{summary}</p>
           </div>
         </div>
         <ArrowRight aria-hidden="true" className={cn("h-4 w-4 shrink-0 text-gray-400 transition-transform", expanded && "rotate-90")} />
       </button>
       {expanded ? (
-        <div className="mt-2.5 border-t border-white/10 pt-2.5 text-xs leading-5 text-gray-400 sm:mt-3 sm:pt-3 sm:text-sm">
+        <div className="mt-4 border-t border-white/10 pt-4 text-sm leading-6 text-gray-400">
           <p>{detail}</p>
           {href ? (
-            <Link href={href} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/10 px-3 py-2.5 text-sm font-semibold text-brand-purple transition hover:bg-brand-purple/15">
+            <Link href={href} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-2.5 text-sm font-semibold text-purple-100 transition hover:bg-brand-purple/20">
               {actionLabel ?? "Open"}
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -233,7 +235,7 @@ function ToggleControl({
   disabled?: boolean;
 }) {
   return (
-    <label className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-gray-200">
+    <label className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-gray-200">
       <span className="font-semibold">{label}</span>
       <input
         type="checkbox"
@@ -260,7 +262,7 @@ function NumberControl({
   disabled?: boolean;
 }) {
   return (
-    <label className="grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
+    <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
       {label}
       <input
         type="number"
@@ -268,7 +270,7 @@ function NumberControl({
         value={Number.isFinite(value) ? value : min}
         disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="min-h-11 rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
+        className="min-h-11 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm font-semibold normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
       />
     </label>
   );
@@ -286,6 +288,7 @@ export function CreatorDashboardSettingsHub() {
   const [draftSettings, setDraftSettings] = useState<CreatorSettingsControlPlane | null>(null);
   const [savingSection, setSavingSection] = useState<CreatorSettingsSectionId | null>(null);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [activeControlDeck, setActiveControlDeck] = useState<CreatorSettingsSectionId>("profile_basics");
   const [reloadNonce, setReloadNonce] = useState(0);
   const dashboardRequestIdRef = useRef(0);
   const savingSectionRef = useRef<CreatorSettingsSectionId | null>(null);
@@ -843,13 +846,62 @@ export function CreatorDashboardSettingsHub() {
       broadcastsRestricted={creatorRestrictions.broadcastsRestricted === true}
     />
   ) : null;
+  const settingScopes: CreatorSettingsRunwayScope[] = [
+    { id: "setting:profile_basics", kind: "setting", title: "Profile", state: settingsState === "configured" ? "live" : "needs_setup", summary: "Name and public bio.", detail: "Set the public basics fans see before they follow or unlock.", sourceTruth: statsEvidence?.sourceTruth, sourceFreshness: statsEvidence?.sourceFreshness },
+    { id: "setting:fan_pass", kind: "setting", title: "Fan Pass", state: fanPassEnabled ? "live" : "needs_setup", summary: "Membership access and paid-source price.", detail: "Set Fan Pass access, price, and welcome copy in one save scope.", sourceTruth: statsEvidence?.sourceTruth, sourceFreshness: statsEvidence?.sourceFreshness, fanPassManagementState },
+    { id: "setting:gumdrop_experiences", kind: "setting", title: "Experiences", state: requestsEnabled || bookingsEnabled ? "live" : "needs_setup", summary: "Requests and live-time pricing.", detail: "Set creator requests and booking availability rules without changing their operational managers.", sourceTruth: statsEvidence?.sourceTruth, sourceFreshness: statsEvidence?.sourceFreshness },
+    { id: "setting:broadcasts", kind: "setting", title: "Broadcasts", state: creatorSettings.broadcastsEnabled === true ? "live" : "needs_setup", summary: "Audience announcements.", detail: "Set who hears creator broadcasts before working in the broadcast manager.", sourceTruth: statsEvidence?.sourceTruth, sourceFreshness: statsEvidence?.sourceFreshness },
+    { id: "setting:timeline", kind: "setting", title: "Timeline", state: controlPlaneSettings?.profileTimelineEnabled ? "live" : "needs_setup", summary: "What reaches your profile.", detail: "Set timeline visibility without exposing admin-only publication controls.", sourceTruth: statsEvidence?.sourceTruth, sourceFreshness: statsEvidence?.sourceFreshness },
+  ];
+  const operationScopes: CreatorSettingsRunwayScope[] = sections.map((section) => ({
+    id: `operation:${section.id}`,
+    kind: "operation",
+    title: section.title,
+    state: section.state,
+    summary: section.summary,
+    detail: section.detail,
+    href: section.href,
+    actionLabel: section.actionLabel,
+    sourceTruth: section.sourceTruth,
+    sourceFreshness: section.sourceFreshness,
+    sampleCount: section.sampleCount,
+    fanPassManagementState: section.fanPassManagementState,
+    bookingsManagementState: section.bookingsManagementState,
+    chatRouteConnected: section.chatRouteConnected,
+    creatorEarningsSource: section.creatorEarningsSource,
+    creatorEarningsAttribution: section.creatorEarningsAttribution,
+  }));
+  const runwayScopes = [...settingScopes, ...operationScopes];
+  const activeScopeId = openSection ? `operation:${openSection}` : `setting:${activeControlDeck}`;
+  const activeScope = runwayScopes.find((scope) => scope.id === activeScopeId) ?? settingScopes[0];
+  const selectRunwayScope = (scopeId: string) => {
+    const selectedScope = runwayScopes.find((scope) => scope.id === scopeId);
+    if (!selectedScope) return;
+
+    if (selectedScope.kind === "setting") {
+      setActiveControlDeck(selectedScope.id.replace("setting:", "") as CreatorSettingsSectionId);
+      setOpenSection(null);
+      return;
+    }
+
+    const sectionId = selectedScope.id.replace("operation:", "");
+    setOpenSection(sectionId);
+    trackEvent("creator_settings_section_opened", {
+      actor_role: userProfile?.role || "creator",
+      creator_id: creatorId,
+      target_creator_id: creatorId,
+      section: sectionId,
+      source_component: "CreatorDashboardSettingsHub",
+      truth_state: selectedScope.state,
+    });
+  };
 
   if (!isCreatorOrProjection) {
     return (
-      <section className={cn("mx-auto max-w-4xl text-white", creatorManagerModuleClassName)} data-mobile-density="compact" data-mobile-sprawl-guard="true">
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-gray-400">Creator dashboard</p>
+      <section className={cn("mx-auto max-w-6xl rounded-[1.75rem] border border-white/10 bg-[#120b20]/90 p-6 text-white shadow-[0_18px_44px_rgba(0,0,0,0.22)]", creatorManagerModuleClassName)} data-mobile-density="compact" data-mobile-sprawl-guard="true">
+        <p className="text-xs font-bold uppercase tracking-widest text-purple-200">Creator studio</p>
         <h2 className="mt-2 text-2xl font-black">Creator tools are not available on this account.</h2>
-        <p className="mt-2 text-sm text-gray-300">Creator settings are only available to creator-role accounts.</p>
+        <p className="mt-2 text-sm leading-6 text-gray-300">Creator settings are only available to creator-role accounts.</p>
       </section>
     );
   }
@@ -857,7 +909,7 @@ export function CreatorDashboardSettingsHub() {
   if (loading || !settingsBelongToCurrentSurface) {
     return (
       <div
-        className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
+        className="mx-auto w-full max-w-6xl space-y-4 px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
         data-mobile-density="compact"
         data-mobile-sprawl-guard="true"
         data-mobile-skeleton="creator-settings-route"
@@ -875,14 +927,14 @@ export function CreatorDashboardSettingsHub() {
   if (settingsError || !currentSurfaceSettings) {
     return (
       <div
-        className="mx-auto w-full max-w-4xl px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
+        className="mx-auto w-full max-w-6xl px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
         data-creator-settings-source-state="unavailable"
         data-mobile-density="compact"
         data-mobile-sprawl-guard="true"
       >
-        <div className={cn(creatorManagerModuleClassName, "bg-black/50")}>
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Creator dashboard settings</p>
-          <h1 className="mt-1 text-xl font-black text-white sm:text-2xl">Manage creator operations</h1>
+        <div className={cn(creatorManagerModuleClassName, "rounded-[1.75rem] border border-white/10 bg-[#120b20]/90 p-5 shadow-[0_18px_44px_rgba(0,0,0,0.22)]")}>
+          <p className="text-xs font-black uppercase tracking-widest text-purple-200">Creator studio settings</p>
+          <h1 className="mt-2 text-2xl font-black text-white">Manage creator operations</h1>
           {settingsError ? (
             <HumanErrorNotice
               descriptor={settingsError.descriptor}
@@ -909,7 +961,7 @@ export function CreatorDashboardSettingsHub() {
 
   return (
     <CreatorSettingsHubFrame
-      className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:space-y-4 sm:px-4 sm:pb-8"
+      className="w-full px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
       data-creator-dashboard-density="mobile_compact"
       data-bottom-nav-safe="true"
       data-report-issue-safe-offset="bottom-nav"
@@ -919,35 +971,33 @@ export function CreatorDashboardSettingsHub() {
       data-mobile-drilldown="true"
       data-desktop-flow-collapsed="true"
     >
-      <div className={cn(creatorManagerModuleClassName, "bg-black/50")} data-mobile-density="compact" data-mobile-sprawl-guard="true">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Creator dashboard settings</p>
-            <h1 className="mt-1 text-xl font-black text-white sm:text-2xl">Manage creator operations</h1>
-            <p className="mt-2 max-w-2xl text-sm text-gray-300">Broadcasts, Fan Pass, bookings, requests, earnings, and public profile tools live here. The page stays read-only in admin projection mode.</p>
-          </div>
-          {isReadOnlyProjection ? (
-            <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Read-only projection</span>
+      <CreatorSettingsControlDeck
+          activeScope={activeScope}
+          completionLabel={settingsCompletion ? (settingsCompletion.complete ? "Setup complete" : String(settingsCompletion.missingSetupItems.length) + " left") : undefined}
+          isReadOnly={isReadOnlyProjection}
+          notice={!settingsError && sourceReviewNotice ? (
+            <div
+              className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100 sm:text-sm"
+              data-creator-settings-source-state={settingsState}
+              data-creator-settings-source-review={sourceReviewNotice.tone}
+            >
+              <p className="font-bold text-amber-50">{sourceReviewNotice.title}</p>
+              <p className="mt-0.5 text-amber-100/85">{sourceReviewNotice.body}</p>
+              {settingsCompletion?.missingSetupItems?.length ? (
+                <p className="mt-1 text-amber-100/80" data-creator-settings-setup-control-map="true">
+                  Setup controls: {settingsCompletion.items.filter((item) => !item.complete).map((item) => item.label).join(", ")}.
+                </p>
+              ) : null}
+            </div>
           ) : null}
-        </div>
-        {!settingsError && sourceReviewNotice ? (
-          <div
-            className="mt-3 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100 sm:text-sm"
-            data-creator-settings-source-state={settingsState}
-            data-creator-settings-source-review={sourceReviewNotice.tone}
-          >
-            <p className="font-bold text-amber-50">{sourceReviewNotice.title}</p>
-            <p className="mt-0.5 text-amber-100/85">{sourceReviewNotice.body}</p>
-            {settingsCompletion?.missingSetupItems?.length ? (
-              <p className="mt-1 text-amber-100/80" data-creator-settings-setup-control-map="true">
-                Setup controls: {settingsCompletion.items.filter((item) => !item.complete).map((item) => item.label).join(", ")}.
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-
-      {controlPlaneSettings ? (
+          onSelectScope={selectRunwayScope}
+          saveError={openSection ? null : settingsSaveError}
+          scopes={runwayScopes}
+          sourceFreshness={statsEvidence?.sourceFreshness}
+          sourceState={settingsState}
+          sourceTruth={statsEvidence?.sourceTruth}
+        >
+          {openSection ? activeManager : controlPlaneSettings ? (
         <section
           className={cn(creatorManagerModuleClassName, "space-y-3")}
           data-creator-settings-control-plane="true"
@@ -955,29 +1005,12 @@ export function CreatorDashboardSettingsHub() {
           data-mobile-density="compact"
           data-mobile-sprawl-guard="true"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">Setup controls</p>
-              <h2 className="text-base font-black text-white">Public creator behavior</h2>
-            </div>
-            {settingsCompletion ? (
-              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-bold text-gray-300">
-                {settingsCompletion.complete ? "Setup complete" : `${settingsCompletion.missingSetupItems.length} left`}
-              </span>
-            ) : null}
-          </div>
-
-          {settingsSaveError ? (
-            <div className="rounded-2xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs leading-5 text-red-100">
-              {settingsSaveError}
-            </div>
-          ) : null}
-
-          <div className="grid gap-2.5 md:grid-cols-2" data-mobile-organization="summary-first" data-mobile-drilldown="true">
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="profile-basics">
+          <div className="space-y-4" data-mobile-organization="single_scope" data-mobile-drilldown="true">
+            {activeControlDeck === "profile_basics" ? (
+              <div className="min-w-0" data-creator-settings-section="profile-basics">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-black text-white">Profile basics</h3>
-                <span className="text-[11px] font-semibold text-gray-500">Profile</span>
+                <span className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-semibold text-gray-400">Profile</span>
               </div>
               <label className="mt-3 grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
                 Display name
@@ -998,15 +1031,17 @@ export function CreatorDashboardSettingsHub() {
                   className="min-h-20 resize-y rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
                 />
               </label>
-              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-60">
                 {savingSection === "profile_basics" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save profile"}
               </button>
-            </div>
+              </div>
+            ) : null}
 
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="fan-pass">
+            {activeControlDeck === "fan_pass" ? (
+              <div className="min-w-0" data-creator-settings-section="fan-pass">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-black text-white">Fan Pass</h3>
-                <span className="text-[11px] font-semibold text-gray-500" data-creator-price-source={creatorPricing.fanPass.source}>Paid GD - {creatorPricing.fanPass.source === "creator_settings" ? "Custom" : "Default"}</span>
+                <span className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-semibold text-gray-400" data-creator-price-source={creatorPricing.fanPass.source}>Paid GD - {creatorPricing.fanPass.source === "creator_settings" ? "Custom" : "Default"}</span>
               </div>
               <div className="mt-3 space-y-2">
                 <ToggleControl label="Enable Fan Pass" checked={controlPlaneSettings.fanPassEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("fanPassEnabled", value)} />
@@ -1021,15 +1056,17 @@ export function CreatorDashboardSettingsHub() {
                   />
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-60">
                 {savingSection === "fan_pass" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save Fan Pass"}
               </button>
-            </div>
+              </div>
+            ) : null}
 
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="gumdrop-experiences">
+            {activeControlDeck === "gumdrop_experiences" ? (
+              <div className="min-w-0" data-creator-settings-section="gumdrop-experiences">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-black text-white">GumDrop experiences</h3>
-                <span className="text-[11px] font-semibold text-gray-500" data-creator-price-source={creatorPricing.selectedRequest?.source ?? creatorPricing.booking?.source ?? "unavailable"}>Requests + calls</span>
+                <span className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-semibold text-gray-400" data-creator-price-source={creatorPricing.selectedRequest?.source ?? creatorPricing.booking?.source ?? "unavailable"}>Requests + calls</span>
               </div>
               <div className="mt-3 grid gap-2">
                 <ToggleControl label="Enable requests" checked={controlPlaneSettings.creatorRequestsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("creatorRequestsEnabled", value)} />
@@ -1037,15 +1074,17 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Enable live time" checked={controlPlaneSettings.callsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callsEnabled", value)} />
                 <NumberControl label="Call price per minute GD" value={controlPlaneSettings.callPriceGd} min={500} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callPriceGd", value)} />
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-60">
                 {savingSection === "gumdrop_experiences" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save experiences"}
               </button>
-            </div>
+              </div>
+            ) : null}
 
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="broadcasts">
+            {activeControlDeck === "broadcasts" ? (
+              <div className="min-w-0" data-creator-settings-section="broadcasts">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-black text-white">Broadcasts</h3>
-                <span className="text-[11px] font-semibold text-gray-500">Audience</span>
+                <span className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-semibold text-gray-400">Audience</span>
               </div>
               <div className="mt-3 space-y-2">
                 <ToggleControl label="Enable broadcasts" checked={controlPlaneSettings.broadcastsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("broadcastsEnabled", value)} />
@@ -1063,15 +1102,17 @@ export function CreatorDashboardSettingsHub() {
                   </select>
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-60">
                 {savingSection === "broadcasts" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save broadcasts"}
               </button>
-            </div>
+              </div>
+            ) : null}
 
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-3 md:col-span-2" data-creator-settings-section="timeline">
+            {activeControlDeck === "timeline" ? (
+              <div className="min-w-0" data-creator-settings-section="timeline">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-black text-white">Timeline</h3>
-                <span className="text-[11px] font-semibold text-gray-500">Approved only</span>
+                <span className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-semibold text-gray-400">Approved only</span>
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-3">
                 <ToggleControl label="Show profile timeline" checked={controlPlaneSettings.profileTimelineEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("profileTimelineEnabled", value)} />
@@ -1079,54 +1120,15 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Show broadcasts" checked={controlPlaneSettings.showBroadcastsOnTimeline} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("showBroadcastsOnTimeline", value)} />
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-400">Drop approval, public discovery, and rotation stay admin-only.</p>
-              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" disabled={isReadOnlyProjection || savingSection !== null} aria-busy={savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-60">
                 {savingSection === "timeline" ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Saving...</> : "Save timeline"}
               </button>
-            </div>
+              </div>
+            ) : null}
           </div>
         </section>
-      ) : null}
-
-      <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2" data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-        {sections.map((section) => (
-          <SectionCard
-            key={section.id}
-            id={section.id}
-            title={section.title}
-            state={section.state}
-            summary={section.summary}
-            detail={section.detail}
-            href={section.href}
-            actionLabel={section.actionLabel}
-            icon={section.icon}
-            sourceTruth={section.sourceTruth}
-            sourceFreshness={section.sourceFreshness}
-            sampleCount={section.sampleCount}
-            fanPassManagementState={section.fanPassManagementState}
-            bookingsManagementState={section.bookingsManagementState}
-            chatRouteConnected={section.chatRouteConnected}
-            creatorEarningsSource={section.creatorEarningsSource}
-            creatorEarningsAttribution={section.creatorEarningsAttribution}
-            expanded={openSection === section.id}
-            onToggle={() => {
-              setOpenSection((current) => current === section.id ? null : section.id);
-              trackEvent("creator_settings_section_opened", {
-                actor_role: userProfile?.role || "creator",
-                creator_id: creatorId,
-                target_creator_id: creatorId,
-                section: section.id,
-                source_component: "CreatorDashboardSettingsHub",
-                truth_state: section.state,
-              });
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="space-y-2" data-creator-active-manager={openSection ?? "none"} data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-        <p className="px-1 text-xs font-semibold text-gray-400">Open a section to load its manager.</p>
-        {activeManager}
-      </div>
+          ) : null}
+        </CreatorSettingsControlDeck>
     </CreatorSettingsHubFrame>
   );
 }

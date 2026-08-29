@@ -7,7 +7,6 @@ import { createAutoHealingObserver, createCompactInteractionRecoveryGuard } from
 import {
     ArrowLeft,
     Check,
-    ChevronRight,
     Circle,
     ImageIcon,
     MessageSquare,
@@ -24,6 +23,12 @@ import { onDisconnect, onValue, ref, remove, set } from "firebase/database";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
+import { ChatComposerFrame } from "@/components/creative-tim/kandydrops/chat/ChatComposerSurface";
+import { ChatConversationCanvas } from "@/components/creative-tim/kandydrops/chat/ChatConversationCanvas";
+import { ChatConversationEmptyState } from "@/components/creative-tim/kandydrops/chat/ChatConversationEmptyState";
+import { ChatNewMessageModal } from "@/components/creative-tim/kandydrops/chat/ChatNewMessageModal";
+import { ChatCompactThreadRows, ChatDesktopThreadRows } from "@/components/creative-tim/kandydrops/chat/ChatThreadListSurface";
+import { ChatTranscriptSurface } from "@/components/creative-tim/kandydrops/chat/ChatTranscriptSurface";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
@@ -1059,7 +1064,7 @@ export function ChatExperience() {
     const shouldStickToBottomRef = useRef(true);
     const initialBottomAnchoredThreadRef = useRef<string | null>(null);
     const chatViewportShellRef = useRef<HTMLDivElement | null>(null);
-    const compactThreadListPanelRef = useRef<HTMLElement | null>(null);
+    const compactThreadListPanelRef = useRef<HTMLDivElement | null>(null);
     const compactThreadListScrollRef = useRef<HTMLDivElement | null>(null);
     const compactThreadListControlsRef = useRef<HTMLDivElement | null>(null);
     const compactThreadListFloatingActionRef = useRef<HTMLButtonElement | null>(null);
@@ -4298,18 +4303,19 @@ export function ChatExperience() {
             data-chat-diagnostics-deferred="true"
             data-chat-tap-path="nonblocking"
         >
-            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
-                <div className="grid h-full min-h-0 flex-1 grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)]">
-                    {(!isCompactViewport || !selectedThreadId) ? (
-                        <aside ref={compactThreadListPanelRef} className={cn(
-                            "min-h-0 bg-[#050505]",
+            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 shadow-2xl shadow-black/30 backdrop-blur-xl">
+                <ChatConversationCanvas
+                    switcherExpanded={showCompactThreadListOnly}
+                    threadSwitcher={(!isCompactViewport || !selectedThreadId) ? (
+                        <div ref={compactThreadListPanelRef} className={cn(
+                            "min-h-0 bg-slate-950/95",
                             showCompactThreadListOnly
                                 ? "relative h-full overflow-hidden"
                                 : "flex min-h-0 flex-col border-b border-white/10 lg:border-b-0 lg:border-r lg:border-r-white/10",
                         )}>
                             {showCompactThreadListOnly ? (
                                 <div className={CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME}>
-                                    <div className="px-5 pb-3 pt-3">
+                                    <div className="border-b border-white/10 bg-white/[0.025] px-5 pb-4 pt-4">
                                         <div className="flex items-center justify-between">
                                             <div ref={threadEditMenuRef} className="relative">
                                                 {threadSelectionMode ? (
@@ -4326,7 +4332,7 @@ export function ChatExperience() {
                                                         <button
                                                             type="button"
                                                             onClick={() => setThreadEditMenuOpen((current) => !current)}
-                                                            className="rounded-full bg-[#141417] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/8 transition hover:bg-[#1b1c20]"
+                                                            className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                                                             aria-expanded={threadEditMenuOpen}
                                                             aria-haspopup="menu"
                                                         >
@@ -4336,13 +4342,13 @@ export function ChatExperience() {
                                                             <div
                                                                 role="menu"
                                                                 aria-label="Edit message list"
-                                                                className="absolute left-0 top-full z-20 mt-3 w-52 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#141417]/95 p-2 shadow-[0_24px_48px_rgba(0,0,0,0.5)] backdrop-blur"
+                                                                className="absolute left-0 top-full z-20 mt-3 w-52 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
                                                             >
                                                                 <button
                                                                     type="button"
                                                                     role="menuitem"
                                                                     onClick={enterThreadSelectionMode}
-                                                                    className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-white transition hover:bg-white/5"
+                                                                    className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-white transition hover:bg-white/5"
                                                                 >
                                                                     <Circle className="h-4 w-4" />
                                                                     <span>Select chats</span>
@@ -4354,7 +4360,7 @@ export function ChatExperience() {
                                             </div>
                                         </div>
                                         <div className="mt-3">
-                                            <p className="text-3xl font-black tracking-tight text-white">Messages</p>
+                                            <p className="text-2xl font-semibold tracking-tight text-white">Messages</p>
                                             <p className="mt-1 text-sm text-[#8f9097]">
                                                 {threadsLoading ? "Loading your conversations..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                             </p>
@@ -4368,7 +4374,7 @@ export function ChatExperience() {
                                     >
                                         {threadsLoading && visibleThreads.length === 0 ? (
                                             <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
-                                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
+                                                <div className="rounded-2xl border border-brand-purple/30 bg-brand-purple/10 p-4 text-brand-purple">
                                                     <MessageSquare className="h-8 w-8" />
                                                 </div>
                                                 <p className="mt-5 text-2xl font-black text-white">Loading conversations</p>
@@ -4377,54 +4383,28 @@ export function ChatExperience() {
                                                 </p>
                                             </div>
                                         ) : filteredThreads.length > 0 ? (
-                                            <div className="min-h-full space-y-1">
-                                                {filteredThreads.map((thread) => (
-                                                    <button
-                                                        key={thread.id}
-                                                        type="button"
-                                                        onClick={() => openThreadFromList(thread)}
-                                                        className="flex w-full items-center gap-3 rounded-[1.35rem] px-1 py-3 text-left transition hover:bg-white/[0.03]"
-                                                    >
-                                                        {threadSelectionMode ? (
-                                                            <span className={cn(
-                                                                "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition",
-                                                                selectedThreadIdSet.has(thread.id)
-                                                                    ? "border-[#4d9cff] bg-[#4d9cff] text-white"
-                                                                    : "border-white/20 bg-transparent text-transparent",
-                                                            )}>
-                                                                <Check className="h-3.5 w-3.5" />
-                                                            </span>
-                                                        ) : null}
-                                                        <ChatAvatar
-                                                            photoURL={thread.counterpartPhotoURL}
-                                                            label={thread.counterpartDisplayName}
-                                                            sizeClassName="h-12 w-12"
-                                                            textClassName="text-sm"
-                                                        />
-                                                        <div className="min-w-0 flex-1 border-b border-white/6 pb-3">
-                                                            <div className="flex items-start justify-between gap-3">
-                                                                <div className="min-w-0">
-                                                                    <p className="truncate text-[15px] font-semibold text-white">{thread.counterpartDisplayName}</p>
-                                                                    <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[#8f9097]">
-                                                                        {thread.lastMessagePreview || "No messages yet"}
-                                                                    </p>
-                                                                </div>
-                                                                <div className="flex shrink-0 items-center gap-2 pl-2">
-                                                                    <span className="text-[11px] font-medium text-[#7f8087]">
-                                                                        {formatThreadListTime(thread.lastMessageAt)}
-                                                                    </span>
-                                                                    {thread.unreadCount > 0 ? (
-                                                                        <span className="inline-flex h-2.5 w-2.5 rounded-full bg-brand-purple" />
-                                                                    ) : null}
-                                                                    {!threadSelectionMode ? (
-                                                                        <ChevronRight className="h-4 w-4 text-[#63646b]" />
-                                                                    ) : null}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </div>
+                                            <ChatCompactThreadRows
+                                                rows={filteredThreads.map((thread) => ({
+                                                    id: thread.id,
+                                                    displayName: thread.counterpartDisplayName,
+                                                    username: thread.counterpartUsername,
+                                                    photoURL: thread.counterpartPhotoURL,
+                                                    lastMessagePreview: thread.lastMessagePreview,
+                                                    timeLabel: formatThreadListTime(thread.lastMessageAt),
+                                                    unreadCount: thread.unreadCount,
+                                                    selected: selectedThreadIdSet.has(thread.id),
+                                                    onOpen: () => openThreadFromList(thread),
+                                                }))}
+                                                selectionMode={threadSelectionMode}
+                                                renderAvatar={({ photoURL, label, sizeClassName, textClassName }) => (
+                                                    <ChatAvatar
+                                                        photoURL={photoURL}
+                                                        label={label}
+                                                        sizeClassName={sizeClassName}
+                                                        textClassName={textClassName}
+                                                    />
+                                                )}
+                                            />
                                         ) : visibleThreads.length > 0 ? (
                                             <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
                                                 <p className="text-lg font-semibold text-white">No conversations match that search.</p>
@@ -4434,7 +4414,7 @@ export function ChatExperience() {
                                             </div>
                                         ) : canComposeFromFollowedCreators ? (
                                             <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
-                                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
+                                                <div className="rounded-2xl border border-brand-purple/30 bg-brand-purple/10 p-4 text-brand-purple">
                                                     <MessageSquare className="h-8 w-8" />
                                                 </div>
                                                 <p className="mt-5 text-2xl font-black text-white">Start a creator chat</p>
@@ -4444,40 +4424,40 @@ export function ChatExperience() {
                                                 <button
                                                     type="button"
                                                     onClick={() => openComposePicker("chat_empty_state_compose")}
-                                                    className="mt-5 rounded-full bg-brand-purple px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8457ff]"
+                                                    className="mt-5 min-h-11 rounded-xl bg-brand-purple px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600"
                                                 >
                                                     New message
                                                 </button>
                                             </div>
                                         ) : (
                                             <div className="flex min-h-full flex-1 flex-col justify-center">
-                                                <div className="mx-auto w-full max-w-md rounded-[1.7rem] border border-white/10 bg-[linear-gradient(160deg,rgba(31,23,52,0.96),rgba(11,11,13,0.98))] p-5 text-center shadow-[0_28px_70px_rgba(0,0,0,0.34)]">
+                                                <div className="mx-auto w-full max-w-md rounded-3xl border border-white/10 bg-slate-950/85 p-5 text-center shadow-2xl shadow-black/25">
                                                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple ring-1 ring-white/8">
                                                         <MessageSquare className="h-6 w-6" />
                                                     </div>
-                                                    <p className="mt-4 text-xl font-black text-white">Follow a creator first</p>
+                                                    <p className="mt-4 text-xl font-semibold text-white">Follow a creator first</p>
                                                     <p className="mt-2 text-sm leading-6 text-[#a9a9b1]">
-                                                        Follow creators to start chatting. Follow a creator to start a private chat.
+                                                        Follow creators to start a private chat.
                                                     </p>
                                                     <div className="mt-4 flex flex-wrap justify-center gap-2">
                                                         <Link
                                                             href="/experiences"
                                                             onClick={() => handleNoFollowCreatorsCtaClick("find_creators")}
-                                                            className="rounded-full bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8457ff]"
+                                                            className="min-h-11 rounded-xl bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600"
                                                         >
                                                             Find creators
                                                         </Link>
                                                         <Link
                                                             href="/drops"
                                                             onClick={() => handleNoFollowCreatorsCtaClick("browse_drops")}
-                                                            className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                                                            className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                                                         >
                                                             Browse drops
                                                         </Link>
                                                     </div>
                                                     {recommendedCreators.length > 0 ? (
                                                         <div className="mt-4 text-left">
-                                                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8f9097]">Available creators</p>
+                                                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Available creators</p>
                                                             <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
                                                                 {recommendedCreators.slice(0, 6).map((creator) => {
                                                                     const creatorHref = buildCreatorPublicHref({
@@ -4490,7 +4470,7 @@ export function ChatExperience() {
                                                                         <Link
                                                                             key={creator.uid}
                                                                             href={creatorHref}
-                                                                            className="min-w-[9.75rem] rounded-[1.2rem] border border-white/10 bg-white/[0.04] px-3 py-3 transition hover:bg-white/[0.08]"
+                                                                            className="min-w-40 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 transition hover:border-brand-purple/35 hover:bg-brand-purple/10"
                                                                         >
                                                                             <div className="flex items-center gap-3">
                                                                                 <ChatAvatar
@@ -4563,7 +4543,7 @@ export function ChatExperience() {
                                                 data-chat-list-controls-above-bottom-nav="true"
                                             >
                                                 <div className={cn(
-                                                    "pointer-events-auto h-12 rounded-full bg-[#121214] px-4 ring-1 ring-white/8",
+                                                    "pointer-events-auto h-12 rounded-2xl border border-white/10 bg-slate-950/90 px-4 shadow-inner shadow-white/5",
                                                     canComposeFromFollowedCreators ? "mr-[4.25rem]" : "mx-auto max-w-md",
                                                 )}>
                                                     <div className="flex h-full items-center gap-3">
@@ -4594,7 +4574,7 @@ export function ChatExperience() {
                                                     ref={compactThreadListFloatingActionRef}
                                                     type="button"
                                                     onClick={() => openComposePicker("chat_list_floating_compose")}
-                                                    className="pointer-events-auto absolute right-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.34)] transition hover:bg-[#8457ff]"
+                                                    className="pointer-events-auto absolute right-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-purple text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600"
                                                     style={compactThreadListFloatingActionStyle}
                                                     aria-label="Compose message"
                                                     data-chat-list-controls-above-bottom-nav="true"
@@ -4607,50 +4587,37 @@ export function ChatExperience() {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="border-b border-white/10 px-4 py-4 sm:px-5">
+                                    <div className="border-b border-white/10 bg-white/[0.025] px-4 py-4 sm:px-5">
                                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7f7f86]">Chat</p>
                                         <p className="mt-1 text-sm text-[#b6b6bc]">
                                             {threadsLoading ? "Loading live threads..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                         </p>
                                     </div>
                                     <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
-                                        {visibleThreads.length > 0 ? visibleThreads.map((thread) => (
-                                            <button
-                                                key={thread.id}
-                                                type="button"
-                                                onClick={() => openThreadFromList(thread)}
-                                                className={cn(
-                                                    "flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors sm:px-5",
-                                                    selectedThreadId === thread.id
-                                                        ? "bg-[linear-gradient(90deg,rgba(123,63,255,0.18)_0%,rgba(255,255,255,0)_85%)]"
-                                                        : "hover:bg-white/[0.03]",
+                                        {visibleThreads.length > 0 ? (
+                                            <ChatDesktopThreadRows
+                                                rows={visibleThreads.map((thread) => ({
+                                                    id: thread.id,
+                                                    displayName: thread.counterpartDisplayName,
+                                                    username: thread.counterpartUsername,
+                                                    secondaryLabel: thread.counterpartId,
+                                                    photoURL: thread.counterpartPhotoURL,
+                                                    lastMessagePreview: thread.lastMessagePreview,
+                                                    timeLabel: thread.lastMessageAt ? formatRelativeTime(thread.lastMessageAt) : "New",
+                                                    unreadCount: thread.unreadCount,
+                                                    selected: selectedThreadId === thread.id,
+                                                    onOpen: () => openThreadFromList(thread),
+                                                }))}
+                                                renderAvatar={({ photoURL, label, sizeClassName, textClassName }) => (
+                                                    <ChatAvatar
+                                                        photoURL={photoURL}
+                                                        label={label}
+                                                        sizeClassName={sizeClassName}
+                                                        textClassName={textClassName}
+                                                    />
                                                 )}
-                                            >
-                                                <ChatAvatar
-                                                    photoURL={thread.counterpartPhotoURL}
-                                                    label={thread.counterpartDisplayName}
-                                                    sizeClassName="h-11 w-11"
-                                                    textClassName="text-sm"
-                                                />
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <div className="min-w-0">
-                                                            <p className="truncate text-sm font-semibold text-white">{thread.counterpartDisplayName}</p>
-                                                            <p className="truncate text-xs text-[#7e7f87]">
-                                                                {thread.counterpartUsername ? `@${thread.counterpartUsername}` : thread.counterpartId}
-                                                            </p>
-                                                        </div>
-                                                        <div className="flex shrink-0 flex-col items-end gap-1">
-                                                            <span className="text-[11px] text-[#6b6c73]">{thread.lastMessageAt ? formatRelativeTime(thread.lastMessageAt) : "New"}</span>
-                                                            {thread.unreadCount > 0 ? (
-                                                                <span className="rounded-full bg-brand-purple px-2 py-0.5 text-[10px] font-semibold text-white">{thread.unreadCount}</span>
-                                                            ) : null}
-                                                        </div>
-                                                    </div>
-                                                    <p className="mt-1 line-clamp-1 text-sm text-[#b6b6bc]">{thread.lastMessagePreview || "No messages yet"}</p>
-                                                </div>
-                                            </button>
-                                        )) : (
+                                            />
+                                        ) : (
                                             <div className="px-4 py-10 text-sm text-[#8f9097] sm:px-5">
                                                 No chat threads yet. Start from a creator page to open the first one.
                                             </div>
@@ -4658,20 +4625,20 @@ export function ChatExperience() {
                                     </div>
                                 </>
                             )}
-                        </aside>
-                    ) : null}
+                        </div>
+                    ) : null}>
 
                     {!showCompactThreadListOnly ? (
-                        <section className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#000000]" style={chatThreadSectionStyle}>
+                        <section className="relative flex h-full min-h-0 flex-col overflow-hidden bg-slate-950/90" style={chatThreadSectionStyle}>
                         {selectedThread ? (
                             <>
-                                <div className="border-b border-white/10 px-4 pb-3 pt-4 sm:px-6">
+                                <div className="border-b border-white/10 bg-white/[0.025] px-4 pb-3 pt-4 sm:px-6">
                                     <div className={cn("relative flex items-center justify-center")}>
                                         {isCompactViewport ? (
                                             <button
                                                 type="button"
                                                 onClick={returnToThreadList}
-                                                className="absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#161618] text-white transition hover:bg-[#202024]"
+                                                className="absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
                                                 aria-label="Back to chat list"
                                             >
                                                 <ArrowLeft className="h-[18px] w-[18px]" />
@@ -4719,91 +4686,44 @@ export function ChatExperience() {
                                     </div>
                                 </div>
 
-                                <div
-                                    ref={messageListRef}
+                                <ChatTranscriptSurface
+                                    scrollRef={messageListRef}
                                     onScroll={handleMessageListScroll}
-                                    className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-black px-4 pt-4 sm:px-6"
                                     style={chatTranscriptStyle}
-                                >
-                                    {threadLoading && !selectedDetail ? (
-                                        <div className="text-sm text-[#b6b6bc]">Loading thread...</div>
-                                    ) : selectedDetail?.messages.length ? selectedDetail.messages.map((message, index) => {
-                                        const previousMessage = selectedDetail.messages[index - 1];
+                                    loading={threadLoading && !selectedDetail}
+                                    messages={(selectedDetail?.messages || []).map((message, index, messages) => {
+                                        const previousMessage = messages[index - 1];
                                         const isOutgoing = message.senderRole === selectedThread.viewerRole;
                                         const isLatestOutgoing = message.id === latestOutgoingMessageId;
                                         const isOptimistic = message.id.startsWith("optimistic-");
                                         const showTimelineMarker = shouldRenderTimelineMarker(message, previousMessage);
                                         const showStatus = isOutgoing && (isLatestOutgoing || isOptimistic);
                                         const safeAttachment = resolveSafeChatAttachment(message);
-                                        const isAttachmentOnlyMessage = Boolean(safeAttachment && !message.text?.trim());
                                         const readState = isOptimistic
                                             ? "Sending..."
                                             : isLatestOutgoing && selectedThread.counterpartReadAt >= message.createdAt
                                                 ? "Read"
                                                 : "Sent";
 
-                                        return (
-                                            <div key={message.id} className={cn(index === 0 ? "" : "mt-1")}>
-                                                {showTimelineMarker ? (
-                                                    <div className="mb-4 flex justify-center">
-                                                        <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-[#6b6c73]">
-                                                            {formatTimelineLabel(message.createdAt)}
-                                                        </span>
-                                                    </div>
-                                                ) : null}
-                                                <div className={cn("flex", isOutgoing ? "justify-end" : "justify-start")}>
-                                                    <div
-                                                        className={cn(
-                                                            "min-w-0",
-                                                            isAttachmentOnlyMessage
-                                                                ? "w-fit max-w-[78vw] sm:max-w-[28rem]"
-                                                                : safeAttachment
-                                                                    ? "max-w-[65%]"
-                                                                    : "max-w-[84%] sm:max-w-[72%]",
-                                                        )}
-                                                        data-chat-media-density="compact-v2"
-                                                    >
-                                                        <div className={cn(
-                                                            "overflow-hidden text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
-                                                            isOutgoing
-                                                                ? "rounded-[1.45rem] rounded-br-[0.5rem] bg-[linear-gradient(135deg,rgba(178,140,255,.96),rgba(126,87,255,.94))] text-white"
-                                                                : "rounded-[1.45rem] rounded-bl-[0.5rem] bg-[#26262a] text-white",
-                                                            isAttachmentOnlyMessage ? "inline-block p-1.5" : "px-4 py-2.5",
-                                                            isOptimistic ? "opacity-75" : "",
-                                                        )}>
-                                                            {message.text ? <p className="whitespace-pre-wrap break-words">{message.text}</p> : null}
-                                                            {safeAttachment ? (
-                                                                <div className={cn(message.text ? "mt-3" : "")}>
-                                                                    <div className={cn(
-                                                                        "w-fit max-w-full overflow-hidden rounded-[1.15rem]",
-                                                                        isOutgoing ? "bg-[#5b2fdd]" : "bg-[#1a1a1d]",
-                                                                    )} style={CHAT_MEDIA_PREVIEW_STYLE}>
-                                                                        {safeAttachment.kind === "image" ? (
-                                                                            // eslint-disable-next-line @next/next/no-img-element
-                                                                            <img src={safeAttachment.url} alt={message.assetName || "Chat image attachment"} className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="image" />
-                                                                        ) : (
-                                                                            <video src={safeAttachment.url} controls aria-label={message.assetName || "Chat video attachment"} className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="video" />
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            ) : message.assetUrl ? (
-                                                                <p className={cn(message.text ? "mt-3" : "", "rounded-xl bg-black/20 px-3 py-2 text-sm text-white/75")}>
-                                                                    Attachment unavailable.
-                                                                </p>
-                                                            ) : null}
-                                                        </div>
-                                                        {showStatus ? (
-                                                            <div className="mt-1 px-3 text-right text-[11px] font-medium text-[#7f8087]">
-                                                                {readState}
-                                                            </div>
-                                                        ) : null}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    }) : (
+                                        return {
+                                            id: message.id,
+                                            text: message.text,
+                                            assetName: message.assetName,
+                                            attachment: safeAttachment
+                                                ? { kind: safeAttachment.kind, url: safeAttachment.url }
+                                                : null,
+                                            assetUnavailable: Boolean(message.assetUrl && !safeAttachment),
+                                            isOutgoing,
+                                            isOptimistic,
+                                            showTimelineMarker,
+                                            timelineLabel: showTimelineMarker ? formatTimelineLabel(message.createdAt) : "",
+                                            statusLabel: showStatus ? readState : null,
+                                        };
+                                    })}
+                                    mediaPreviewStyle={CHAT_MEDIA_PREVIEW_STYLE}
+                                    emptyState={(
                                         <div className="flex h-full min-h-[320px] items-center justify-center">
-                                            <div className="w-full max-w-md rounded-[1.4rem] bg-[#121214] px-4 py-4 text-sm text-[#b6b6bc] ring-1 ring-white/8">
+                                            <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] px-5 py-5 text-sm text-slate-300 shadow-xl shadow-black/15">
                                                 <p className="text-base font-semibold text-white">Say hey to {selectedThreadCreatorFirstName}</p>
                                                 <p className="mt-1 leading-6 text-[#8f9097]">Start simple or use a quick ice breaker.</p>
                                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -4812,7 +4732,7 @@ export function ChatExperience() {
                                                             key={iceBreaker}
                                                             type="button"
                                                             onClick={() => handleIceBreakerInsert(iceBreaker)}
-                                                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/10"
+                                                            className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-white/10"
                                                         >
                                                             {iceBreaker}
                                                         </button>
@@ -4821,15 +4741,11 @@ export function ChatExperience() {
                                             </div>
                                         </div>
                                     )}
-                                </div>
+                                />
 
-                                <div
-                                    ref={chatThreadComposerRef}
-                                    className="shrink-0 min-w-0 border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-2 pt-1.5 sm:px-6 sm:pb-4"
-                                    style={chatThreadComposerStyle}
-                                    data-chat-composer-above-bottom-nav="true"
-                                    data-chat-density="public-beta-compact"
-                                    data-chat-composer-chin="compact"
+                                <ChatComposerFrame
+                                    composerRef={chatThreadComposerRef}
+                                    composerStyle={chatThreadComposerStyle}
                                 >
                                     {(hasFullComposerTray || hasSummaryOnlyComposerTray) ? (
                                         <div className={cn("mb-2.5 space-y-2", CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME)}>
@@ -4891,7 +4807,7 @@ export function ChatExperience() {
                                                 />
                                             ) : null}
                                             {composerFile ? (
-                                                <div className="flex items-center justify-between rounded-[1.1rem] bg-[#121214] px-4 py-3 text-sm text-white ring-1 ring-white/8">
+                                                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white">
                                                     <div className="min-w-0">
                                                         <p className="truncate font-medium">{composerFile.name}</p>
                                                         <p className="truncate text-xs text-[#8f9097]">
@@ -4906,7 +4822,7 @@ export function ChatExperience() {
                                                             setComposerKind("text");
                                                             updateCurrentComposerRecovery({ file: null, messageKind: "text" });
                                                         }}
-                                                        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
+                                                        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white"
                                                         aria-label="Remove attachment"
                                                     >
                                                         <X className="h-4 w-4" />
@@ -4985,7 +4901,7 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className={cn("flex min-h-12 max-h-12 min-w-0 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] ring-1 ring-white/8", isIosPwaChatShell ? "py-0.5 pl-3 pr-0.5" : "py-1 pl-4 pr-1")}>
+                                        <div className={cn("flex min-h-12 max-h-12 min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] shadow-inner shadow-white/5", isIosPwaChatShell ? "py-0.5 pl-3 pr-0.5" : "py-1 pl-4 pr-1")}>
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
@@ -5019,102 +4935,44 @@ export function ChatExperience() {
                                             </button>
                                         </div>
                                     </div>
-                                </div>
+                                </ChatComposerFrame>
                             </>
                         ) : (
-                            <div className="flex h-full min-h-0 flex-col items-center justify-center px-6 text-center">
-                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
-                                    <MessageSquare className="h-8 w-8" />
-                                </div>
-                                <h2 className="mt-5 text-2xl font-black text-white">Open a creator conversation</h2>
-                                <p className="mt-2 max-w-md text-sm leading-6 text-[#8f9097]">
-                                    Start from a creator page, follow them, then open Chat to keep the conversation in one place.
-                                </p>
-                                <div className="mt-6 flex flex-wrap justify-center gap-2">
+                            <ChatConversationEmptyState
+                                primaryAction={(
                                     <Link href="/experiences" className="rounded-full bg-[#141417] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/8">
                                         Browse creators
                                     </Link>
+                                )}
+                                secondaryAction={(
                                     <Link href="/dashboard/support" className="rounded-full bg-[#141417] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/8">
                                         Support stays separate
                                     </Link>
-                                </div>
-                            </div>
+                                )}
+                            />
                         )}
                         </section>
                     ) : null}
-                </div>
+                </ChatConversationCanvas>
             </div>
-            {composePickerOpen ? (
-                <div
-                    className="fixed inset-0 z-40 bg-black/72 px-4 pt-6 backdrop-blur-[2px]"
-                    data-chat-new-message-modal="true"
-                    data-chat-modal-above-bottom-nav="true"
-                    data-chat-modal-glass-skin="true"
-                    data-chat-functions-unchanged="true"
-                    data-new-message-sheet-platform={isIosPwaChatShell ? "ios-pwa" : "default"}
-                    data-new-message-sheet-safe="above-bottom-nav"
-                >
-                    <div ref={composePickerRef} className="mx-auto flex h-full w-full max-w-md flex-col justify-end" style={newMessageSheetStyle}>
-                        <div className="overflow-hidden rounded-[2rem] border border-white/12 bg-black/88 shadow-[0_32px_90px_rgba(0,0,0,0.68)] backdrop-blur-2xl supports-[backdrop-filter]:bg-black/78">
-                            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-5 py-4">
-                                <div>
-                                    <p className="text-base font-semibold text-white">New message</p>
-                                    <p className="mt-1 text-sm text-[#8f9097]">Choose a creator you already follow.</p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setComposePickerOpen(false)}
-                                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
-                                    aria-label="Close new message picker"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
-                            </div>
-                            <div
-                                className={cn("overflow-y-auto px-3 pt-3 overscroll-contain", isIosPwaChatShell ? "max-h-[52vh]" : "max-h-[56vh]")}
-                                style={newMessageListStyle}
-                                data-chat-modal-list-bottom-padding="true"
-                            >
-                                {followedCreators.length > 0 ? followedCreators.map((creator) => (
-                                    <button
-                                        key={creator.uid}
-                                        type="button"
-                                        onClick={() => openThreadComposer(creator.uid)}
-                                        className="flex w-full items-center gap-3 rounded-[1.2rem] px-3 py-3 text-left transition hover:bg-white/[0.04]"
-                                    >
-                                        <ChatAvatar
-                                            photoURL={creator.photoURL}
-                                            label={creator.displayName}
-                                            sizeClassName="h-11 w-11"
-                                            textClassName="text-sm"
-                                        />
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-semibold text-white">{creator.displayName}</p>
-                                            <p className="truncate text-xs text-[#8f9097]">
-                                                {creator.username ? `@${creator.username}` : creator.uid}
-                                            </p>
-                                        </div>
-                                        <ChevronRight className="h-4 w-4 text-[#63646b]" />
-                                    </button>
-                                )) : (
-                                    <div className="px-3 py-10 text-center">
-                                        <p className="text-base font-semibold text-white">No followed creators yet</p>
-                                        <p className="mt-2 text-sm leading-6 text-[#8f9097]">
-                                            Follow creators first, then come back here to start a new message.
-                                        </p>
-                                        <Link
-                                            href="/experiences"
-                                            className="mt-5 inline-flex rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-[#e8e8ea]"
-                                        >
-                                            Follow creators
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
+            <ChatNewMessageModal
+                open={composePickerOpen}
+                sheetRef={composePickerRef}
+                sheetStyle={newMessageSheetStyle}
+                listStyle={newMessageListStyle}
+                iosPwa={isIosPwaChatShell}
+                creators={followedCreators}
+                onClose={() => setComposePickerOpen(false)}
+                onSelectCreator={openThreadComposer}
+                renderAvatar={({ photoURL, label, sizeClassName, textClassName }) => (
+                    <ChatAvatar
+                        photoURL={photoURL}
+                        label={label}
+                        sizeClassName={sizeClassName}
+                        textClassName={textClassName}
+                    />
+                )}
+            />
         </div>
     );
 }

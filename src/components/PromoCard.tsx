@@ -1,8 +1,6 @@
 import NextImage from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
 import { authFetch } from "@/lib/authFetch";
 import { auth } from "@/lib/firebase";
 import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
@@ -93,54 +91,54 @@ export function PromoCard({ drop }: PromoCardProps) {
 
     const cardBody = (
         <>
-            <Badge variant="outline" className={cn("absolute left-3 top-3 z-20 !rounded-md !border-white/10 !bg-black/60 !px-2 !py-0.5 !text-[10px] !font-bold uppercase tracking-widest !text-gray-300 backdrop-blur-md", !isAvailable && "!border-white/15 !bg-white/10 !text-white/70")}>
-                {isAvailable ? "Ad" : "Unavailable"}
-            </Badge>
-
-            <div className="group/image relative mb-2 aspect-square w-full overflow-hidden rounded-xl bg-black/40 shadow-inner md:mb-5 md:rounded-2xl">
-                <NextImage
-                    src={coverSrc}
-                    alt={drop.title}
-                    fill
-                    loading={imagePolicy.loading}
-                    preload={imagePolicy.preload}
-                    fetchPriority={imagePolicy.fetchPriority}
-                    quality={imagePolicy.quality}
-                    className={cn("bg-black object-contain opacity-90 transition-transform duration-700", isAvailable && "group-hover:scale-[1.03]")}
-                    sizes={imagePolicy.sizes}
-                    {...getImagePolicyDataAttributes(imagePolicy)}
-                />
-
-                {isAvailable ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
-                        <div className="scale-50 rounded-full bg-brand-purple p-3 text-white transition-transform duration-300 group-hover:scale-100">
-                            <ArrowUpRight className="h-6 w-6" />
-                        </div>
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
+                    <NextImage
+                        src={coverSrc}
+                        alt={drop.title}
+                        fill
+                        loading={imagePolicy.loading}
+                        preload={imagePolicy.preload}
+                        fetchPriority={imagePolicy.fetchPriority}
+                        quality={imagePolicy.quality}
+                        className={cn("bg-black object-contain opacity-95 transition-transform duration-700", isAvailable && "group-hover:scale-[1.04]")}
+                        sizes={imagePolicy.sizes}
+                        {...getImagePolicyDataAttributes(imagePolicy)}
+                    />
+                    <div className="absolute inset-0 bg-black/30" />
+                    <div className="absolute left-3 top-3 flex items-center gap-1.5">
+                        <span className={cn(
+                            "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.15em]",
+                            isAvailable
+                                ? "border-brand-purple/40 bg-brand-purple/15 text-[#efe8ff]"
+                                : "border-white/15 bg-black/55 text-white/60",
+                        )}>
+                            <Sparkles className="h-3 w-3" aria-hidden="true" />
+                            {isAvailable ? "Partner drop" : "Unavailable"}
+                        </span>
                     </div>
-                ) : null}
+                    {isAvailable ? (
+                        <div className="absolute bottom-3 right-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                        </div>
+                    ) : null}
             </div>
 
-            <div className="relative z-10 flex flex-1 flex-col">
-                <div className="mb-2 flex-1 md:mb-4">
-                    <h3 className="mb-0.5 text-sm font-bold leading-tight tracking-tight text-white md:mb-1 md:text-xl">
-                        {drop.title}
-                    </h3>
-                    <p className="line-clamp-2 text-[10px] font-medium leading-relaxed text-gray-400 md:text-sm">
-                        {drop.description}
-                    </p>
-                </div>
-
+            <div className="relative flex flex-1 flex-col p-3 sm:p-4">
+                <p className="text-[9px] font-black uppercase tracking-[0.16em] text-brand-purple">Partner KandyDrop</p>
+                <h3 className="mt-2 text-base font-black leading-[1.04] tracking-[-0.025em] text-white sm:text-lg">{drop.title}</h3>
+                <p className="mt-2 line-clamp-2 text-xs leading-5 text-gray-400 sm:text-sm">{drop.description}</p>
                 <div
                     className={cn(
-                        "flex min-h-11 w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-bold transition-opacity md:rounded-xl md:py-3 md:text-sm",
-                        isAvailable ? "bg-brand-purple text-white" : "border border-white/10 bg-white/[0.06] text-white/60",
+                        "mt-auto flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border px-4 py-2 text-xs font-black transition-colors sm:text-sm",
+                        isAvailable
+                            ? "border-brand-purple/45 bg-brand-purple/15 text-white group-hover:bg-brand-purple/23"
+                            : "border-white/10 bg-white/[0.04] text-white/50",
                     )}
-                    style={isAvailable ? { backgroundColor: drop.accentColor || "#a476ff", color: "white" } : undefined}
                 >
                     {isAvailable ? (
                         <>
                             {drop.ctaText || "Visit Now"}
-                            <ArrowUpRight className="h-3 w-3 md:h-4 md:w-4" />
+                            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                         </>
                     ) : (
                         "Unavailable"
@@ -151,11 +149,10 @@ export function PromoCard({ drop }: PromoCardProps) {
     );
 
     return (
-        <Card
-            className="relative h-full overflow-hidden rounded-2xl border-white/10 bg-gradient-to-br from-white/5 to-white/0 !gap-0 !p-0 shadow-[0_12px_30px_rgba(0,0,0,0.2)] md:rounded-3xl"
-            style={{
-                borderColor: drop.accentColor ? `${drop.accentColor}40` : undefined,
-            }}
+        <article
+            className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.09] bg-[#121214] transition-colors duration-300 hover:border-brand-purple/45"
+            data-promo-card-layout="creative-tim-editorial"
+            data-promo-card-available={isAvailable}
         >
             {isAvailable && safeActionUrl ? (
                 <a
@@ -163,15 +160,15 @@ export function PromoCard({ drop }: PromoCardProps) {
                     onClick={handleClick}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative flex h-full flex-col p-2 transition-all duration-500 md:p-6"
+                    className="relative flex h-full flex-col"
                 >
                     {cardBody}
                 </a>
             ) : (
-                <div aria-disabled="true" className="relative flex h-full cursor-not-allowed flex-col p-2 opacity-80 md:p-6">
+                <div aria-disabled="true" className="relative flex h-full cursor-not-allowed flex-col opacity-75">
                     {cardBody}
                 </div>
             )}
-        </Card>
+        </article>
     );
 }

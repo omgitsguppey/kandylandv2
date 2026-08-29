@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from "react";
 
-import { CreatorDashboardGlassFrame } from "@/components/Creators/CreatorDashboardGlassFrame";
+import { CreatorStudioCanvas } from "@/components/creative-tim/kandydrops/creator/CreatorStudioCanvas";
 
 type CreatorWorkspaceFrameProps = ComponentPropsWithoutRef<"section">;
 
@@ -11,7 +11,7 @@ export function CreatorWorkspaceFrame({ children, className, ...props }: Creator
             className={["relative isolate", className].filter(Boolean).join(" ")}
             data-creator-workspace-frame="true"
         >
-            <CreatorDashboardGlassFrame>{children}</CreatorDashboardGlassFrame>
+            <CreatorStudioCanvas>{children}</CreatorStudioCanvas>
         </section>
     );
 }

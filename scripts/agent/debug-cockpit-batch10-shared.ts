@@ -102,11 +102,23 @@ export function buildViewerEntitlementHardeningReport() {
   const drops = read("src/lib/server/drops.ts");
   const client = read("src/app/dashboard/viewer/ViewerClient.tsx");
   const accessResolver = read("src/lib/drop-view-access.ts");
+  const helperBackedRoute = helper.includes("viewerRouteEntitlementGuarded: true") && page.includes("buildViewerDropEntitlementPayload");
+  const directServerGuard = [
+    "verifyNavigationSessionCookieValue",
+    "adminDb.collection(\"users\")",
+    "adminAuth.getUser",
+    "resolveDropViewAccess",
+    "userId: navigationSession.uid",
+    "if (!viewerAccess.allowed)",
+    "redirect(viewerPreviewHref)",
+    "sanitizeDropForClient(rawDrop)",
+    "return <ViewerClient drop={drop}",
+  ].every((expected) => page.includes(expected));
   return {
     generatedAtUtc: new Date().toISOString(),
     reportKey: "viewer-entitlement-hardening",
     currentHead: gitHead(),
-    viewerRouteEntitlementGuarded: helper.includes("viewerRouteEntitlementGuarded: true") && page.includes("buildViewerDropEntitlementPayload"),
+    viewerRouteEntitlementGuarded: helperBackedRoute || directServerGuard,
     rawDropSanitized: helper.includes("sanitizeDropForClient(rawDrop)") && drops.includes("export function sanitizeDropForClient"),
     privateMediaHiddenUntilEntitled: helper.includes("privateMediaHiddenUntilEntitled: true") && drops.includes('contentUrl: ""'),
     contentFetchRoute: helper.includes("/api/drops/content"),
@@ -122,7 +134,7 @@ export function buildViewerEntitlementHardeningReport() {
 
 export function validateViewerEntitlementHardeningReport(report: ReturnType<typeof buildViewerEntitlementHardeningReport>) {
   const failures: string[] = [];
-  if (!report.viewerRouteEntitlementGuarded) failures.push("viewer page lacks visible entitlement guard/evidence helper.");
+  if (!report.viewerRouteEntitlementGuarded) failures.push("viewer page lacks a visible server entitlement guard or evidence helper.");
   if (!report.rawDropSanitized) failures.push("raw drop is not sanitized before viewer client payload.");
   if (!report.privateMediaHiddenUntilEntitled) failures.push("private media is not hidden until entitlement.");
   if (!report.contentFetchRoute) failures.push("viewer entitlement evidence does not point to /api/drops/content.");

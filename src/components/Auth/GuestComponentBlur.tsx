@@ -32,28 +32,35 @@ export function GuestComponentBlur({
 
     if (!user) {
         return (
-            <div className={cn("relative w-full h-full overflow-hidden rounded-3xl group", className)}>
-                <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.18),transparent_55%)] bg-black/55 backdrop-blur-md transition-all duration-300 group-hover:bg-black/70 group-hover:backdrop-blur-xl flex flex-col items-center justify-center p-4">
-                    <div className="max-w-[240px] rounded-[1.75rem] border border-white/10 bg-black/75 px-4 py-5 shadow-[0_0_30px_rgba(164,118,255,0.15)] flex flex-col items-center justify-center gap-3 text-center transform transition-transform duration-300 group-hover:scale-[1.02]">
-                        <div className="w-11 h-11 bg-brand-purple/20 rounded-full flex items-center justify-center border border-brand-purple/30 shadow-[0_0_20px_rgba(164,118,255,0.15)]">
-                            <Lock className="w-5 h-5 text-brand-purple" />
-                        </div>
-                        <span className="text-white font-bold text-sm text-center px-2">{actionText}</span>
-                        <p className="text-xs leading-relaxed text-gray-400">{supportText}</p>
-                    </div>
-                </div>
-
-                <div className="pointer-events-none select-none opacity-50 blur-[10px] scale-[1.01] transition-all duration-300 group-hover:blur-[14px]">
+            <div className={cn("group relative h-full w-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#140720]", className)}>
+                <div className="pointer-events-none select-none opacity-45 blur-[10px] scale-[1.01] transition-all duration-300 group-hover:blur-[14px]">
                     {children}
                 </div>
 
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_12%,rgba(244,114,182,0.28),transparent_30%),linear-gradient(180deg,rgba(17,3,31,0.18),rgba(10,2,18,0.92))]" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 sm:p-6">
+                    <div className="border-t border-pink-100/20 pt-4">
+                        <div className="flex items-end justify-between gap-4">
+                            <div className="min-w-0">
+                                <p className="text-xs font-bold uppercase tracking-[0.16em] text-pink-100/75">Sealed for members</p>
+                                <p className="mt-2 text-lg font-black tracking-tight text-white">{actionText}</p>
+                                <p className="mt-1 max-w-md text-sm leading-6 text-purple-100/72">{supportText}</p>
+                            </div>
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-pink-100/25 bg-pink-300/10 text-pink-100 shadow-[0_0_24px_rgba(236,72,153,0.22)]">
+                                <Lock className="h-5 w-5" aria-hidden="true" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button
+                    type="button"
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         openAuthModal("signup");
                     }}
-                    className="absolute inset-0 z-20 w-full h-full cursor-pointer focus:outline-none"
+                    className="absolute inset-0 z-20 h-full w-full cursor-pointer rounded-[2rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-100 focus-visible:ring-inset"
                     aria-label={actionText}
                 />
             </div>

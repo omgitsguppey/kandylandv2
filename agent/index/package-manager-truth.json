@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T16:00:11.708Z",
+  "generatedAt": "2026-08-29T02:33:44.611Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -21,11 +21,11 @@
   "toolchain": {
     "gitStatus": "available",
     "sourceFileDiscovery": "git",
-    "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+    "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
     "currentHeadSource": "git",
     "toolingDegraded": false,
     "degradationReason": null,
-    "dirtyFileCount": 681
+    "dirtyFileCount": 189
   },
   "stable_id": "pkgtruth__root-functions",
   "root": {

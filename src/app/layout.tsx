@@ -18,6 +18,7 @@ import {
   isAdminUiTestSessionRuntimeEnabled,
   normalizeAdminUiTestSessionCookieValue,
 } from "@/lib/admin/admin-ui-test-session";
+import { isKandyLocalPublicPreview } from "@/lib/server/local-public-preview";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -92,20 +93,43 @@ async function readInitialAdminUiTestSessionValue() {
   return normalizeAdminUiTestSessionCookieValue(cookieStore.get(ADMIN_UI_TEST_SESSION_COOKIE_KEY)?.value);
 }
 
+function RootTelemetryBoundary({
+  children,
+  isLocalPublicPreview,
+}: Readonly<{
+  children: React.ReactNode;
+  isLocalPublicPreview: boolean;
+}>) {
+  if (isLocalPublicPreview) {
+    return <>{children}</>;
+  }
+
+  return <CSPostHogProvider>{children}</CSPostHogProvider>;
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const initialAdminUiTestSessionValue = await readInitialAdminUiTestSessionValue();
+  const isLocalPublicPreview = isKandyLocalPublicPreview();
 
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      data-kandy-local-preview={isLocalPublicPreview ? "true" : undefined}
+      suppressHydrationWarning
+    >
       <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
-        <UIDebug />
-        <Ga4EvidenceTracker />
-        <CSPostHogProvider>
-          <AuthProvider initialAdminUiTestSessionValue={initialAdminUiTestSessionValue}>
+        {!isLocalPublicPreview ? <UIDebug /> : null}
+        {!isLocalPublicPreview ? <Ga4EvidenceTracker /> : null}
+        <RootTelemetryBoundary isLocalPublicPreview={isLocalPublicPreview}>
+          <AuthProvider
+            initialAdminUiTestSessionValue={initialAdminUiTestSessionValue}
+            isLocalPublicPreview={isLocalPublicPreview}
+          >
             <AdminViewAsProvider>
               <RolloutProvider>
                 <SWRProvider>
@@ -126,7 +150,7 @@ export default async function RootLayout({
               </RolloutProvider>
             </AdminViewAsProvider>
           </AuthProvider>
-        </CSPostHogProvider>
+        </RootTelemetryBoundary>
       </body>
     </html>
   );

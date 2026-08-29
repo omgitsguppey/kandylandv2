@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T16:00:02.131Z",
+  "generatedAt": "2026-08-29T02:33:37.845Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -24,6 +24,12 @@
       "likelySharedHelper": true
     },
     {
+      "path": "src/types/db.ts",
+      "inboundCount": 134,
+      "runtimeCritical": false,
+      "likelySharedHelper": false
+    },
+    {
       "path": "src/lib/server/rate-limit.ts",
       "inboundCount": 133,
       "runtimeCritical": true,
@@ -42,12 +48,6 @@
       "likelySharedHelper": true
     },
     {
-      "path": "src/types/db.ts",
-      "inboundCount": 124,
-      "runtimeCritical": false,
-      "likelySharedHelper": false
-    },
-    {
       "path": "src/lib/server/route-runtime-health.ts",
       "inboundCount": 122,
       "runtimeCritical": true,
@@ -55,19 +55,19 @@
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 90,
+      "inboundCount": 113,
+      "runtimeCritical": true,
+      "likelySharedHelper": true
+    },
+    {
+      "path": "src/lib/telemetry.ts",
+      "inboundCount": 87,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/server/route-diagnostics.ts",
       "inboundCount": 87,
-      "runtimeCritical": true,
-      "likelySharedHelper": true
-    },
-    {
-      "path": "src/lib/telemetry.ts",
-      "inboundCount": 85,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
@@ -85,13 +85,13 @@
     },
     {
       "path": "src/context/AuthContext.tsx",
-      "inboundCount": 75,
+      "inboundCount": 78,
       "runtimeCritical": false,
       "likelySharedHelper": false
     },
     {
       "path": "src/lib/authFetch.ts",
-      "inboundCount": 70,
+      "inboundCount": 71,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
@@ -103,19 +103,19 @@
     },
     {
       "path": "src/lib/telemetry-catalog.ts",
-      "inboundCount": 58,
+      "inboundCount": 59,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/agent-score/core.ts",
-      "inboundCount": 57,
+      "inboundCount": 59,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/admin-parity.ts",
-      "inboundCount": 54,
+      "inboundCount": 57,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
@@ -132,8 +132,8 @@
       "likelySharedHelper": false
     },
     {
-      "path": "src/lib/server/analytics.ts",
-      "inboundCount": 40,
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "inboundCount": 41,
       "runtimeCritical": true,
       "likelySharedHelper": true
     }
@@ -166,17 +166,17 @@
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 90,
+      "inboundCount": 113,
+      "reason": "Runtime-critical shared helper with multiple inbound references."
+    },
+    {
+      "path": "src/lib/telemetry.ts",
+      "inboundCount": 87,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/server/route-diagnostics.ts",
       "inboundCount": 87,
-      "reason": "Runtime-critical shared helper with multiple inbound references."
-    },
-    {
-      "path": "src/lib/telemetry.ts",
-      "inboundCount": 85,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
@@ -186,7 +186,7 @@
     },
     {
       "path": "src/lib/authFetch.ts",
-      "inboundCount": 70,
+      "inboundCount": 71,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
@@ -196,7 +196,7 @@
     },
     {
       "path": "src/lib/telemetry-catalog.ts",
-      "inboundCount": 58,
+      "inboundCount": 59,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     }
   ],
@@ -228,17 +228,17 @@
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 90,
+      "inboundCount": 113,
+      "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
+    },
+    {
+      "path": "src/lib/telemetry.ts",
+      "inboundCount": 87,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/server/route-diagnostics.ts",
       "inboundCount": 87,
-      "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
-    },
-    {
-      "path": "src/lib/telemetry.ts",
-      "inboundCount": 85,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
@@ -253,7 +253,7 @@
     },
     {
       "path": "src/lib/authFetch.ts",
-      "inboundCount": 70,
+      "inboundCount": 71,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
@@ -517,11 +517,11 @@
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/server/route-diagnostics.ts",
+      "path": "src/lib/telemetry.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/telemetry.ts",
+      "path": "src/lib/server/route-diagnostics.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
@@ -549,11 +549,11 @@
       "marker": "runtime_critical_blast_radius"
     },
     {
-      "path": "src/lib/server/route-diagnostics.ts",
+      "path": "src/lib/telemetry.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {
-      "path": "src/lib/telemetry.ts",
+      "path": "src/lib/server/route-diagnostics.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {

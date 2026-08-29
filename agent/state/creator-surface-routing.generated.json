@@ -1,18 +1,18 @@
 {
-  "generatedAtUtc": "2026-07-14T09:35:53.163Z",
+  "generatedAtUtc": "2026-08-09T23:34:32.567Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
     "userSettingsRoute": "/settings",
-    "sidebarRoutesChecked": true,
+    "sidebarRoutesChecked": false,
     "navPillsChecked": true,
     "rawErrorLeaks": 0,
     "mobileLayoutFixes": 2,
     "p0Count": 0,
-    "p1Count": 0,
-    "p2Count": 0
+    "p1Count": 3,
+    "p2Count": 2
   },
   "routes": [
     {
@@ -51,41 +51,6 @@
       "severity": "p1",
       "file": "src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx",
       "summary": "The landing dashboard Manage drops CTA points to the creator drop submission manager."
-    },
-    {
-      "id": "sidebar-separate-routes",
-      "status": "fixed",
-      "severity": "p1",
-      "file": "src/components/Navigation/ProfileSidebar.tsx",
-      "summary": "Sidebar keeps Creator Dashboard for the landing route and adds Creator Settings for operations."
-    },
-    {
-      "id": "dropdown-separate-routes",
-      "status": "fixed",
-      "severity": "p1",
-      "file": "src/components/Navigation/ProfileDropdown.tsx",
-      "summary": "Profile dropdown keeps separate creator landing and creator settings destinations."
-    },
-    {
-      "id": "account-settings-labels",
-      "status": "fixed",
-      "severity": "p2",
-      "file": "src/components/Navigation/ProfileSidebar.tsx",
-      "summary": "Account settings links use Account Settings, not ambiguous Settings, while creator operations use Creator Settings."
-    },
-    {
-      "id": "user-settings-not-creator-operations",
-      "status": "fixed",
-      "severity": "p1",
-      "file": "src/components/Settings/UserSettingsPage.tsx",
-      "summary": "User settings stays account-only and routes creator operations to Creator Settings."
-    },
-    {
-      "id": "legacy-profile-creator-settings-route",
-      "status": "fixed",
-      "severity": "p2",
-      "file": "src/app/dashboard/profile/creator/page.tsx",
-      "summary": "Legacy creator settings notice points to Creator Settings, not the dashboard landing route."
     }
   ],
   "mobileFindings": [

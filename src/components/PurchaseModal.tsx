@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { FUNDING, PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
-import { X, Candy, Minus, Plus } from "lucide-react";
+import { X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-import { motion, AnimatePresence } from "framer-motion";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
@@ -27,7 +26,6 @@ import { getPaymentProblemCopy } from "@/lib/problem-state-copy";
 import {
   resolveBundlePromoOffer,
   resolvePurchaseBonusPromoOffer,
-  type PurchasePromoOffer,
 } from "@/lib/wallet/purchase-promo-contract";
 import {
   buildBugReportContext,
@@ -35,6 +33,18 @@ import {
   resolveClientActionError,
   type ResolvedClientActionError,
 } from "@/lib/errors/client-error-adapter";
+import {
+  KandyWalletCheckoutProvider,
+  KandyWalletCheckoutReview,
+  KandyWalletPurchaseSequence,
+} from "@/components/creative-tim/kandydrops/wallet/KandyWalletCheckoutPanel";
+import { KandyWalletModalFrame } from "@/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame";
+import {
+  KandyWalletBundleStepper,
+  KandyWalletHeader,
+  KandyWalletPackageOption,
+} from "@/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker";
+import { KandyWalletSuccessState } from "@/components/creative-tim/kandydrops/wallet/KandyWalletSuccessState";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -51,159 +61,6 @@ const PACKAGES: PurchasePackage[] = FIXED_GUMDROP_PACKAGES.map((entry) => ({
 
 const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim()?.length ?? 0) > 0;
 const CHECKOUT_FLOW_KEY = "wallet_checkout";
-
-type PurchasePackageRowProps = {
-  amount: number;
-  label: string;
-  price: number;
-  promo: PurchasePromoOffer | null;
-  selected: boolean;
-  onSelect: () => void;
-  ariaLabel?: string;
-  children?: ReactNode;
-};
-
-function PurchasePromoBadge({ promo }: { promo: PurchasePromoOffer | null }) {
-  if (!promo || !promo.shouldShowOnMobile) {
-    return (
-      <span
-        aria-hidden="true"
-        className="mt-1 block h-[1.05rem] min-w-[4.8rem]"
-        data-purchase-promo-slot="reserved"
-      />
-    );
-  }
-
-  return (
-    <span
-      className={cn(
-        "mt-1 inline-flex h-[1.05rem] max-w-[6.4rem] items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap rounded-md border border-brand-purple/25 bg-brand-purple/[0.12] px-1.5 text-[8px] font-bold leading-none tracking-normal text-[#d7c4ff]",
-        promo.maxWidthClassName,
-      )}
-      data-purchase-promo-slot="reserved"
-      title={promo.label}
-    >
-      {promo.compactLabel}
-    </span>
-  );
-}
-
-function PurchasePriceBlock({ price, promo, selected }: { price: number; promo: PurchasePromoOffer | null; selected: boolean }) {
-  return (
-    <div className="flex w-[6.6rem] shrink-0 flex-col items-end justify-center" data-purchase-row-zone="price">
-      <span className={cn("text-[14px] font-bold leading-none", selected ? "text-brand-purple" : "text-white")}>
-        ${price.toFixed(2)}
-      </span>
-      <PurchasePromoBadge promo={promo} />
-    </div>
-  );
-}
-
-function PurchasePackageRow({
-  amount,
-  label,
-  price,
-  promo,
-  selected,
-  onSelect,
-  ariaLabel,
-  children,
-}: PurchasePackageRowProps) {
-  const className = cn(
-    "relative grid min-h-[3.45rem] w-full grid-cols-[2rem_minmax(0,1fr)_6.6rem] items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all",
-    selected
-      ? "border-brand-purple/55 bg-brand-purple/[0.12] ring-1 ring-brand-purple/25"
-      : "border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer",
-  );
-  const rowContent = (
-    <>
-      <div
-        className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
-          selected ? "bg-white/10" : "bg-black/40",
-        )}
-        data-purchase-row-zone="icon"
-      >
-        <Candy className="h-[1.125rem] w-[1.125rem] text-gray-300" />
-      </div>
-      <div className="min-w-0" data-purchase-row-zone="copy">
-        <div className="flex min-w-0 items-baseline gap-1.5">
-          <span className="truncate text-[14px] font-bold leading-none text-white">{amount.toLocaleString()}</span>
-          <span className="shrink-0 text-[9px] font-bold leading-none text-gray-500">Paid GD</span>
-        </div>
-        <p className="mt-0.5 truncate text-[10.5px] font-medium leading-tight text-gray-400">{label}</p>
-      </div>
-      <PurchasePriceBlock price={price} promo={promo} selected={selected} />
-    </>
-  );
-
-  if (children) {
-    return (
-      <div
-        data-wallet-mobile-density="compact"
-        data-payment-module-density="compact-v2"
-        className={className}
-      >
-        <button
-          type="button"
-          onClick={onSelect}
-          aria-pressed={selected}
-          aria-label={ariaLabel}
-          className="col-span-3 grid min-h-11 w-full cursor-pointer grid-cols-[2rem_minmax(0,1fr)_6.6rem] items-center gap-2.5 text-left"
-        >
-          {rowContent}
-        </button>
-        {children}
-      </div>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
-      aria-label={ariaLabel}
-      data-wallet-mobile-density="compact"
-      data-payment-module-density="compact-v2"
-      className={className}
-    >
-      {rowContent}
-    </button>
-  );
-}
-
-function PurchaseModalHeader({
-  hasUserProfile,
-  freeGd,
-  paidGd,
-}: {
-  hasUserProfile: boolean;
-  freeGd: number;
-  paidGd: number;
-}) {
-  return (
-    <div className="text-center mb-2 pt-0.5" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
-      <div className="w-9 h-9 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-[0.9rem] mx-auto mb-1.5 flex items-center justify-center shadow-lg shadow-brand-purple/15 sm:h-11 sm:w-11 sm:rounded-2xl">
-        <Candy className="h-[1.125rem] w-[1.125rem] text-white drop-shadow-md sm:h-5 sm:w-5" />
-      </div>
-      <h2 id="purchase-wallet-title" className="text-lg font-bold text-white mb-0.5 tracking-tight">Kandy Shop Wallet</h2>
-      <p className="text-gray-400 text-[11px] font-medium mb-1.5 leading-snug">Refill GumDrops for your next unwrap.</p>
-      {hasUserProfile ? (
-        <div
-          className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full"
-          data-wallet-mobile-density="compact"
-          aria-label={`Wallet balance: ${formatCompactGd(freeGd)} reward GD, ${formatCompactGd(paidGd)} paid GD`}
-        >
-          <Candy className="w-3.5 h-3.5 text-brand-purple" />
-          <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(freeGd)} reward GD</span>
-          <span className="text-[11px] font-bold text-white/25" aria-hidden="true">|</span>
-          <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(paidGd)} paid GD</span>
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user, userProfile, setUserProfile } = useAuth();
@@ -652,44 +509,36 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => closeModal("wallet_backdrop")} aria-hidden="true" />
-          <div className="fixed inset-0 z-50 overflow-y-auto pointer-events-none">
-            <div className="flex min-h-full items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                ref={modalRef}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="purchase-wallet-title"
-                data-wallet-density="public-beta-compact"
-                data-wallet-balance-chip="split-source"
-                data-wallet-package-subcopy="removed"
-                data-wallet-bonus-chip-theme="brand-purple"
-                data-wallet-mobile-density="compact"
-                data-wallet-loading-stable="true"
-                data-wallet-runtime-logic-unchanged="true"
-                className="relative w-full max-w-[23rem] bg-black/45 backdrop-blur-xl rounded-[1.35rem] p-3.5 shadow-2xl border border-white/10 pointer-events-auto sm:max-w-md sm:rounded-[1.6rem] sm:p-4 md:p-5"
-              >
-                <button ref={closeButtonRef} aria-label="Close modal" onClick={() => closeModal("wallet_close_button")} className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors z-30">
-                  <X className="w-5 h-5" />
-                </button>
-
-                <GuestComponentBlur
+    <KandyWalletModalFrame
+      isOpen={isOpen}
+      onBackdropClick={() => closeModal("wallet_backdrop")}
+      dialogRef={modalRef}
+      closeControl={(
+        <button
+          ref={closeButtonRef}
+          aria-label="Close modal"
+          onClick={() => closeModal("wallet_close_button")}
+          className={cn(
+            "absolute right-3 top-3 z-30 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-violet-100 shadow-inner shadow-white/10 transition hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-200/70",
+          )}
+        >
+          <X className="h-5 w-5" />
+        </button>
+      )}
+    >
+      <GuestComponentBlur
                   actionText={SECONDARY_UNWRAP_CTA}
                   supportText="Create a free profile before adding Gum Drops to your stash."
                 >
                   {!success ? (
                     <div data-payment-module-density="compact-v2">
-                      <PurchaseModalHeader
+                                            <KandyWalletPurchaseSequence
+                        selection={(
+                          <>
+                            <KandyWalletHeader
                         hasUserProfile={Boolean(userProfile)}
-                        freeGd={walletBalanceSplit.freeGd}
-                        paidGd={walletBalanceSplit.paidGd}
+                        rewardBalanceLabel={formatCompactGd(walletBalanceSplit.freeGd)}
+                        paidBalanceLabel={formatCompactGd(walletBalanceSplit.paidGd)}
                       />
 
                       <div className="flex flex-col gap-1.5 mb-2" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
@@ -697,7 +546,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           const isSelected = selectedPackage.drops === pkg.drops;
                           const pkgEconomics = deriveGumdropEconomics(pkg.drops, pkg.price);
                           return (
-                            <PurchasePackageRow
+                            <KandyWalletPackageOption
                               key={pkg.drops}
                               amount={pkgEconomics.paidGumDrops}
                               label={pkg.label}
@@ -721,7 +570,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         })}
                       </div>
 
-                      <PurchasePackageRow
+                      <KandyWalletPackageOption
                         amount={deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops}
                         label="King Size Bundle"
                         price={(customDrops / 1000) * 5}
@@ -732,53 +581,27 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           selectBundlePackage(customDrops);
                         }}
                       >
-                        {isBundleSelected && (
-                           <div className="col-span-3 mt-1 flex items-center justify-between gap-3 border-t border-white/5 pt-1.5">
-                             <span className="text-[10px] text-gray-400 font-medium tracking-wide">Configure:</span>
-                             <div className="flex w-[142px] shrink-0 items-center justify-between rounded-lg border border-white/10 bg-black/40 p-0.5">
-                                <button
-                                  aria-label="Decrease bundle size"
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateBundleDrops(-1000);
-                                  }}
-                                  disabled={!canDecreaseBundle}
-                                  className={cn(
-                                    "flex h-11 w-11 flex-col items-center justify-center rounded-md text-white transition-colors cursor-pointer",
-                                    !canDecreaseBundle ? "opacity-30 cursor-not-allowed bg-transparent" : "bg-white/10 hover:bg-white/20"
-                                  )}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </button>
-                                <div className="text-center text-[11px] font-bold text-gray-100 px-1">{customDrops / 1000}k</div>
-                                <button
-                                  aria-label="Increase bundle size"
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateBundleDrops(1000);
-                                  }}
-                                  disabled={!canIncreaseBundle}
-                                  className={cn(
-                                    "flex h-11 w-11 items-center justify-center rounded-md text-white transition-colors cursor-pointer",
-                                    !canIncreaseBundle ? "opacity-30 cursor-not-allowed bg-brand-purple/30" : "bg-brand-purple/80 hover:bg-brand-purple text-white"
-                                  )}
-                                >
-                                  <Plus className="h-4 w-4 font-bold" />
-                                </button>
-                             </div>
-                           </div>
+                        {isBundleSelected ? (
+                          <KandyWalletBundleStepper
+                            sizeLabel={String(customDrops / 1000) + "k"}
+                            canDecrease={canDecreaseBundle}
+                            canIncrease={canIncreaseBundle}
+                            onDecrease={() => updateBundleDrops(-1000)}
+                            onIncrease={() => updateBundleDrops(1000)}
+                          />
+                        ) : null}
+                            </KandyWalletPackageOption>
+                          </>
                         )}
-                      </PurchasePackageRow>
-
-                      <div className="w-full relative z-10 mt-2 pt-1.5 pb-0.5 border-t border-white/10 select-none">
-                        <div className="mb-2 text-[9px] font-bold text-gray-500 tracking-widest uppercase text-center flex items-center gap-2.5">
-                           <div className="flex-1 h-[1px] bg-white/5"></div>
-                           <span>Secure Checkout</span>
-                           <div className="flex-1 h-[1px] bg-white/5"></div>
-                        </div>
-                        {!networkOnline ? (
+                        review={(
+                          <KandyWalletCheckoutReview
+                            selectedAmount={selectedPackage.drops}
+                            selectedPriceLabel={"$" + selectedPackage.price.toFixed(2)}
+                          />
+                        )}
+                        provider={(
+                          <KandyWalletCheckoutProvider>
+{!networkOnline ? (
                           <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-3 text-xs text-orange-200 text-center font-medium">
                             You are offline. Please check your network to complete the purchase.
                           </div>
@@ -912,7 +735,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             />
                           </div>
                         )}
-                      </div>
+                          </KandyWalletCheckoutProvider>
+                        )}
+                      />
 
                       {humanPaymentError ? (
                         <HumanErrorNotice
@@ -943,53 +768,17 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       ) : null}
                     </div>
                   ) : (
-                    <div className="text-center py-6 pt-3" data-wallet-mobile-density="compact">
-                      <div className="w-14 h-14 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_24px_rgba(164,118,255,0.28)] sm:h-16 sm:w-16">
-                        <Candy className="w-7 h-7 text-brand-purple drop-shadow-md sm:h-8 sm:w-8" />
-                      </div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">Wallet refilled</p>
-                      <h3 className="mt-2 text-xl font-bold text-white tracking-tight sm:text-2xl">Your Gum Drops are ready</h3>
-                        <p className="mt-2 text-sm text-gray-300 max-w-[260px] mx-auto leading-5">
-                          You just added <strong>{creditedDropsValue} Gum Drops</strong>. Your next unwrap is one tap away.
-                        </p>
-                        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                          <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
-                            +{selectedEconomics.paidGumDrops} GD
-                          </span>
-                        {selectedEconomics.bonusGumDrops > 0 ? (
-                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
-                             +{selectedEconomics.bonusGumDrops} bonus GD
-                          </span>
-                        ) : null}
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
-                          ${selectedPackage.price.toFixed(2)} secured
-                        </span>
-                      </div>
-                      <div className="mt-5 grid gap-2">
-                        <button
-                          onClick={() => continueFromSuccess("/drops", "wallet_success_unwrap")}
-                          className="w-full rounded-xl border border-brand-purple bg-brand-purple px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
-                        >
-                          Unwrap now
-                        </button>
-                        <button
-                          onClick={() => continueFromSuccess("/experiences", "wallet_success_experiences")}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
-                        >
-                          Keep the streak going
-                        </button>
-                      </div>
-                      <div className="mt-4 flex justify-center">
-                        <ReportBugButton context="wallet-success" />
-                      </div>
-                    </div>
+                    <KandyWalletSuccessState
+                      creditedDrops={creditedDropsValue}
+                      paidDrops={selectedEconomics.paidGumDrops}
+                      bonusDrops={selectedEconomics.bonusGumDrops}
+                      securedPriceLabel={"$" + selectedPackage.price.toFixed(2)}
+                      onUnwrap={() => continueFromSuccess("/drops", "wallet_success_unwrap")}
+                      onExploreExperiences={() => continueFromSuccess("/experiences", "wallet_success_experiences")}
+                      reportBugControl={<ReportBugButton context="wallet-success" />}
+                    />
                   )}
-                </GuestComponentBlur>
-              </motion.div>
-            </div>
-          </div>
-        </>
-      )}
-    </AnimatePresence>
+      </GuestComponentBlur>
+    </KandyWalletModalFrame>
   );
 }

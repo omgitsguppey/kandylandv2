@@ -2,13 +2,13 @@
 
 import { ArrowDownRight, ArrowRight, ArrowUpRight, DollarSign, ShoppingBag, Users, Zap } from "lucide-react";
 
-import type { AdminOverviewIssueDetail, AdminOverviewResponse, PlatformPulseMetric } from "@/lib/admin-overview";
-import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
-import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
-import { resolveAdminMetricTruthState, type AdminTruthState } from "@/lib/admin-truth-state";
+import type { AdminOverviewIssueDetail, AdminOverviewResponse, PlatformPulseMetric } from "@/lib/admin-overview";
 import { calculatePlatformPulseDelta, classifyPlatformPulseTrend, formatPlatformPulseDelta } from "@/lib/admin/platform-pulse-window";
+import type { AdminTruthState } from "@/lib/admin-truth-state";
+import { resolveAdminMetricTruthState } from "@/lib/admin-truth-state";
+import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
 import { cn } from "@/lib/utils";
 
 type AdminStatsBarProps = {
@@ -21,79 +21,33 @@ function DeltaBadge({ metric }: { metric: PlatformPulseMetric }) {
     const delta = calculatePlatformPulseDelta(metric.current30dValue, metric.prior30dValue);
     const trend = classifyPlatformPulseTrend(delta);
     const formatted = formatPlatformPulseDelta(delta);
-    const tone = trend === "up" || trend === "new"
-        ? "text-emerald-300"
-        : trend === "down"
-            ? "text-rose-300"
-            : "text-gray-300";
-    const Icon = trend === "up" || trend === "new"
-        ? ArrowUpRight
-        : trend === "down"
-            ? ArrowDownRight
-            : ArrowRight;
-
-    return (
-        <span
-            className={cn("inline-flex items-center gap-1 text-[11px] font-semibold", tone)}
-            title={formatted.title}
-            aria-label={formatted.ariaLabel}
-        >
-            <Icon className="h-3.5 w-3.5" />
-            {formatted.text}
-        </span>
-    );
+    const tone = trend === "up" || trend === "new" ? "text-emerald-300" : trend === "down" ? "text-rose-300" : "text-gray-300";
+    const Icon = trend === "up" || trend === "new" ? ArrowUpRight : trend === "down" ? ArrowDownRight : ArrowRight;
+    return <span className={cn("inline-flex items-center gap-1 text-xs font-semibold", tone)} title={formatted.title} aria-label={formatted.ariaLabel}><Icon className="h-3.5 w-3.5" />{formatted.text}</span>;
 }
 
 function getMetricIcon(metricId: PlatformPulseMetric["id"]) {
     if (metricId === "accounts") return Users;
     if (metricId === "purchases30d") return ShoppingBag;
     if (metricId === "revenue") return DollarSign;
-    if (metricId === "supportBugs30d") return Zap;
-    if (metricId === "gumdropsCirculation30d") return Zap;
     return Zap;
 }
 
 function formatPrimaryValue(value: PlatformPulseMetric["primaryValue"]) {
-    if (typeof value === "number") {
-        return value.toLocaleString();
-    }
-
-    return value;
+    return typeof value === "number" ? value.toLocaleString() : value;
 }
 
 function hasMetricValue(value: PlatformPulseMetric["primaryValue"]) {
-    if (typeof value === "number") return Number.isFinite(value);
-    return value.trim().length > 0;
-}
-
-function buildIssueSummary(issues: AdminOverviewIssueDetail[] | undefined) {
-    if (!issues || issues.length === 0) {
-        return [];
-    }
-
-    return issues.map((issue) => `${issue.source}: ${issue.summary}`);
+    return typeof value === "number" ? Number.isFinite(value) : value.trim().length > 0;
 }
 
 function metricNeedsIssueBadge(metric: PlatformPulseMetric) {
-    return Boolean(
-        metric.warnings.length > 0
-        || (metric.issueState && metric.issueState !== "ok")
-        || metric.freshnessState === "review"
-        || metric.freshnessState === "stale"
-        || metric.freshnessState === "unknown"
-        || metric.freshnessState === "blocked"
-        || metric.freshnessState === "unavailable",
-    );
+    return Boolean(metric.warnings.length > 0 || (metric.issueState && metric.issueState !== "ok") || ["review", "stale", "unknown", "blocked", "unavailable"].includes(metric.freshnessState));
 }
 
 function resolveIssueTruthState(metric: PlatformPulseMetric): AdminTruthState {
-    const truthState =
-        metric.issueState === "error" ? "failed" :
-            metric.issueState && metric.issueState !== "ok" ? metric.issueState :
-                metric.freshnessState;
-
     return resolveAdminMetricTruthState({
-        truthState,
+        truthState: metric.issueState === "error" ? "failed" : metric.issueState && metric.issueState !== "ok" ? metric.issueState : metric.freshnessState,
         value: metric.primaryValue,
         reviewRequired: metric.issueState === "review" || metric.warnings.length > 0,
     });
@@ -101,83 +55,47 @@ function resolveIssueTruthState(metric: PlatformPulseMetric): AdminTruthState {
 
 export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: AdminStatsBarProps) {
     const metrics = (platformPulse ?? []).filter(Boolean);
-    const issueSummary = buildIssueSummary(overviewIssues);
-    const reviewSummary = issueSummary.length > 0 ? `${issueSummary.length} overview source issue${issueSummary.length === 1 ? "" : "s"}` : undefined;
-    const showOverallTruthBadge = Boolean(truthState && truthState !== "live");
+    const issueSummary = (overviewIssues ?? []).map((issue: AdminOverviewIssueDetail) => `${issue.source}: ${issue.summary}`);
 
     return (
-        <div className="space-y-3">
-            {showOverallTruthBadge ? (
-                <div className="flex items-center justify-end">
-                    <AdminTruthBadge
-                        state={truthState as AdminTruthState}
-                        className="py-0.5"
-                        hasUsableValue={metrics.length > 0}
-                    />
-                </div>
-            ) : null}
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-3" data-admin-platform-pulse-grid="compact-six">
+        <div className="space-y-3" data-admin-platform-pulse-grid="soft-ui-matrix">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">Platform signals</p>
+                {truthState && truthState !== "live" ? <AdminTruthBadge state={truthState} hasUsableValue={metrics.length > 0} /> : null}
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {metrics.map((metric) => {
                     const Icon = getMetricIcon(metric.id);
-                    const shouldRenderIssue = metricNeedsIssueBadge(metric);
+                    const needsReview = metricNeedsIssueBadge(metric);
                     const metricTruthState = resolveIssueTruthState(metric);
-                    const reviewDecision = shouldRenderIssue
-                        ? buildAdminReviewBadge({
-                            truthState: metricTruthState,
-                            missingRequiredData: metric.issueState === "unavailable",
-                            sourceDisagreement: metric.warnings.length > 0 || metric.issueState === "review",
-                            staleCriticalSource: metric.freshnessState === "stale" || metric.issueState === "stale",
-                            reviewSummary: metric.warnings[0] ?? reviewSummary ?? `${metric.label} needs review.`,
-                        })
-                        : null;
-
+                    const reviewDecision = needsReview ? buildAdminReviewBadge({
+                        truthState: metricTruthState,
+                        missingRequiredData: metric.issueState === "unavailable",
+                        sourceDisagreement: metric.warnings.length > 0 || metric.issueState === "review",
+                        staleCriticalSource: metric.freshnessState === "stale" || metric.issueState === "stale",
+                        reviewSummary: metric.warnings[0] ?? `${metric.label} needs review.`,
+                    }) : null;
                     return (
-                        <div
+                        <article
                             key={metric.id}
-                            data-admin-metric-id={metric.id}
                             data-admin-metric-freshness={metric.freshnessState}
-                            data-admin-metric-scope={metric.primaryScope}
+                            data-admin-metric-id={metric.id}
                             data-admin-metric-issue-state={metric.issueState ?? "ok"}
-                            className="min-w-0"
+                            data-admin-metric-scope={metric.primaryScope}
+                            className="min-w-0 rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-black/25 p-3 shadow-inner shadow-black/15"
                         >
-                            <AdminMetricCard
-                                label={metric.label}
-                                value={formatPrimaryValue(metric.primaryValue)}
-                                meta={(
-                                    <div className="space-y-1">
-                                        <DeltaBadge metric={metric} />
-                                        {reviewDecision ? (
-                                            <div className="min-w-0">
-                                                <AdminReviewBadge decision={reviewDecision} className="max-w-full truncate py-0.5" />
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                )}
-                                truthState={metricTruthState}
-                                hasUsableValue={hasMetricValue(metric.primaryValue)}
-                                showTruthBadge={shouldRenderIssue}
-                                icon={<Icon className="h-3.5 w-3.5 shrink-0 text-brand-purple" />}
-                                className="rounded-xl border-white/8 bg-black/35 p-2.5"
-                                valueClassName={cn("truncate text-lg leading-none md:text-[1.45rem]", metric.id === "revenue" ? "font-mono" : "")}
-                            />
-                        </div>
+                            <div className="flex items-start justify-between gap-2">
+                                <div className="flex min-w-0 items-center gap-2"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-brand-purple/25 bg-brand-purple/10"><Icon className="h-4 w-4 text-kandy-lilac" /></span><p className="truncate text-xs font-bold uppercase tracking-[0.12em] text-gray-400">{metric.label}</p></div>
+                                {needsReview ? <AdminTruthBadge state={metricTruthState} hasUsableValue={hasMetricValue(metric.primaryValue)} /> : null}
+                            </div>
+                            <p className={cn("mt-4 truncate text-2xl font-black tracking-tight text-white", metric.id === "revenue" ? "font-mono" : "")}>{formatPrimaryValue(metric.primaryValue)}</p>
+                            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2"><DeltaBadge metric={metric} /><span className="text-xs font-medium text-gray-500">{metric.primaryScope} / {metric.freshnessState}</span></div>
+                            {reviewDecision ? <AdminReviewBadge decision={reviewDecision} className="mt-3 max-w-full" /> : null}
+                        </article>
                     );
                 })}
             </div>
-
-            {issueSummary.length > 0 ? (
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
-                    {issueSummary.map((issue) => (
-                        <span
-                            key={issue}
-                            className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2.5 py-1 text-amber-200"
-                            title={issue}
-                        >
-                            {issue}
-                        </span>
-                    ))}
-                </div>
-            ) : null}
+            {issueSummary.length > 0 ? <aside className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100"><p className="font-bold">Source issues require review</p><div className="mt-2 grid gap-1">{issueSummary.map((issue) => <p key={issue} className="text-xs leading-5 text-amber-100/85">{issue}</p>)}</div></aside> : null}
         </div>
     );
 }

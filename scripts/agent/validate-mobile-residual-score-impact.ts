@@ -85,9 +85,11 @@ const protectedChatPatterns = [
   /^src\/app\/dashboard\/chat\//u,
 ];
 
+const recentActivityPresentationPath = "src/components/creative-tim/kandydrops/activity/KandyRecentActivityExperience.tsx";
+
 const highImpactFiles = [
   "src/app/admin/debug/page.tsx",
-  "src/components/Dashboard/RecentActivityFeed.tsx",
+  recentActivityPresentationPath,
   "src/components/Dashboard/DailyTasksModule.tsx",
   "src/components/Dashboard/CollectionList.tsx",
   "src/app/creators/[username]/CreatorProfileClient.tsx",
@@ -147,7 +149,7 @@ export function buildMobileResidualScoreImpactReport(inputs: MobileResidualScore
   const hardcodedCssCleanupPresent = inputs.existingReports.hardcodedCssCleanup.includes("mobile-hardcoded-css-cleanup");
 
   const adminDebugSource = inputs.sourceFiles["src/app/admin/debug/page.tsx"] ?? "";
-  const recentActivitySource = inputs.sourceFiles["src/components/Dashboard/RecentActivityFeed.tsx"] ?? "";
+  const recentActivitySource = inputs.sourceFiles[recentActivityPresentationPath] ?? "";
   const dailyTasksSource = inputs.sourceFiles["src/components/Dashboard/DailyTasksModule.tsx"] ?? "";
   const collectionListSource = inputs.sourceFiles["src/components/Dashboard/CollectionList.tsx"] ?? "";
   const creatorProfileSource = inputs.sourceFiles["src/app/creators/[username]/CreatorProfileClient.tsx"] ?? "";
@@ -169,7 +171,7 @@ export function buildMobileResidualScoreImpactReport(inputs: MobileResidualScore
       id: "user-dashboard-recent-activity-density",
       category: "user-critical route",
       surfaceOwner: "user",
-      path: "src/components/Dashboard/RecentActivityFeed.tsx",
+      path: recentActivityPresentationPath,
       scoreImpact: "P1",
       status: hasHighImpactResidual(recentActivitySource) ? "missing_dependency" : "fixed",
       sourceFixable: true,

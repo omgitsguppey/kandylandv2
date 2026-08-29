@@ -84,6 +84,15 @@ describe("maintenance middleware", () => {
       await middleware(request("/api/drops/duplicate-filenames", "kandydrops_maintenance_admin=valid-ticket")),
     );
 
+    expect(
+      (await middleware(request("/api/admin/analytics/refresh", "kandydrops_maintenance_admin=valid-ticket"))).status,
+    ).toBe(503);
+    expect(
+      (await middleware(request("/api/admin/analytics/realtime", "kandydrops_maintenance_admin=valid-ticket"))).status,
+    ).toBe(503);
+    expect(
+      (await middleware(request("/api/admin/ai/drop-covers/generate", "kandydrops_maintenance_admin=valid-ticket"))).status,
+    ).toBe(503);
     expect((await middleware(request("/api/users/me", "kandydrops_maintenance_admin=valid-ticket"))).status).toBe(503);
     expect((await middleware(request("/api/administrator/debug", "kandydrops_maintenance_admin=valid-ticket"))).status).toBe(503);
   });

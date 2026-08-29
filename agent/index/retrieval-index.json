@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T16:00:19.161Z",
+  "generatedAt": "2026-08-29T02:33:48.912Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -17,9 +17,9 @@
     "agent/index/recent-passes.json"
   ],
   "reportCompleteness": "capped",
-  "totalFindingCount": 4960,
+  "totalFindingCount": 5065,
   "emittedFindingCount": 12,
-  "omittedFindingCount": 4948,
+  "omittedFindingCount": 5053,
   "capReason": "Retrieval candidates are derived live by active consumers; the tracked artifact retains bounded examples from each source type plus complete aggregate counts.",
   "capStrategy": "grouped_examples",
   "capLimit": 12,
@@ -37,10 +37,10 @@
   "gitStatus": "available",
   "toolingDegraded": false,
   "degradationReason": null,
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
   "currentHeadSource": "git",
-  "generatedAtUtc": "2026-07-14T16:00:19.161Z",
-  "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "generatedAtUtc": "2026-08-29T02:33:48.912Z",
+  "sourceCommit": "d64358ffc282360f679ddde98a1fdfe97ce65505",
   "freshness": "fresh",
   "baselineStatus": "current",
   "owner": "scripts/agent/build-agent-indexes.ts",
@@ -150,7 +150,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1784003349860:8080448f324f",
+      "recency": "1786317598521:667e485eca19",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -380,19 +380,19 @@
     }
   ],
   "counts": {
-    "total": 4960,
+    "total": 5065,
     "emitted": 12,
-    "omitted": 4948,
+    "omitted": 5053,
     "bySourceType": {
-      "file": 4917,
+      "file": 5022,
       "helper": 20,
       "pitfall": 15,
       "recent_pass": 8
     },
     "byContextTier": {
-      "warm": 2703,
+      "warm": 2712,
       "cold": 26,
-      "hot": 2231
+      "hot": 2327
     }
   }
 }

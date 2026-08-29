@@ -2,6 +2,8 @@ import {logger} from "firebase-functions"
 import {onSchedule} from "firebase-functions/v2/scheduler"
 
 import {REGION} from "./firebase-runtime.js"
+import {runIfMaintenanceAllows} from "./maintenance-job-guard.js"
+import {MAINTENANCE_SCHEDULES} from "../../shared/runtime/maintenance-mode-contract.js"
 import {
   hasExactKeys,
   isCanonicalCode,
@@ -56,7 +58,6 @@ const USER_INDEX_MAX_FACTS_PER_REQUEST = 200
 const USER_INDEX_MATERIALIZER_VERSION = "2026.07.user-index-materializer.v3"
 const USER_INDEX_WINDOW_RETENTION_MS = 90 * 24 * 60 * 60 * 1000
 const USER_INDEX_MATERIALIZER_PATH = "/api/internal/analytics/materialize-user-index"
-const USER_INDEX_SCHEDULE = "every 5 minutes"
 const USER_INDEX_TIMEOUT_SECONDS = 300
 
 const USER_INDEX_RECEIPT_KEYS = [
@@ -199,25 +200,27 @@ export async function runUserIndexMaterializerSchedule(
 }
 
 export async function handleUserIndexMaterializerSchedule() {
-  const dispatchMode = resolveUserIndexMaterializerDispatchMode(process.env.USER_INDEX_MATERIALIZER_MODE)
-  if (dispatchMode === "off") {
-    logger.info("user index materializer skipped; USER_INDEX_MATERIALIZER_MODE=off")
-    return
-  }
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 240_000)
-  try {
-    await runUserIndexMaterializerSchedule({signal: controller.signal}, dispatchMode)
-  } finally {
-    clearTimeout(timeout)
-  }
+  await runIfMaintenanceAllows(async () => {
+    const dispatchMode = resolveUserIndexMaterializerDispatchMode(process.env.USER_INDEX_MATERIALIZER_MODE)
+    if (dispatchMode === "off") {
+      logger.info("user index materializer skipped; USER_INDEX_MATERIALIZER_MODE=off")
+      return
+    }
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 240_000)
+    try {
+      await runUserIndexMaterializerSchedule({signal: controller.signal}, dispatchMode)
+    } finally {
+      clearTimeout(timeout)
+    }
+  })
 }
 
 export const materializeUserTrackingIndexes = onSchedule({
-  schedule: USER_INDEX_SCHEDULE,
+  schedule: MAINTENANCE_SCHEDULES.materializeUserTrackingIndexes.schedule,
   region: REGION,
   timeoutSeconds: USER_INDEX_TIMEOUT_SECONDS,
-  maxInstances: 1,
+  maxInstances: MAINTENANCE_SCHEDULES.materializeUserTrackingIndexes.maxInstances,
   retryCount: 0,
   secrets: ["CRON_SECRET"],
 }, handleUserIndexMaterializerSchedule)

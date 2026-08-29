@@ -1,8 +1,8 @@
 # Support Policy Surface Cleanup
 
-Generated: 2026-07-16T04:27:44.579Z
-Status: pass
-Head: 621afada2aea0ef269a02c7ac68d4424bfce5214
+Generated: 2026-08-09T23:35:12.934Z
+Status: fail
+Head: d64358ffc282360f679ddde98a1fdfe97ce65505
 
 ## Canonical Trust Surface Map
 
@@ -43,8 +43,8 @@ Head: 621afada2aea0ef269a02c7ac68d4424bfce5214
 - pass: featureRegistrationPresent
 - pass: debugVisibilityPresent
 - pass: noBrokenOrDishonestSurfaces
-- pass: protectedSurfacesUntouched
+- fail: protectedSurfacesUntouched
 
 ## Validation Failures
 
-- none
+- protectedSurfacesUntouched failed.

@@ -49,6 +49,7 @@ const bookingsRoute = readRequired("src/app/api/creator/bookings/route.ts");
 const subscriptionRenewalRoute = readRequired("src/app/api/cron/process-creator-subscriptions/route.ts");
 const dropsUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const walletPackagePicker = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
 const packageCatalog = readRequired("src/lib/gumdrops-packages.ts");
 const ledgerTest = readRequired("tests/unit/gumdrop-ledger.spec.ts");
 const paypalTest = readRequired("tests/unit/paypal-capture-route.spec.ts");
@@ -144,7 +145,7 @@ requireRegex(
   /amount=\{deriveGumdropEconomics\(customDrops, \(customDrops \/ 1000\) \* 5\)\.paidGumDrops\}/,
   "PurchaseModal custom package visible paid headline",
 );
-requireIncludes(purchaseModal, "Paid GD", "PurchaseModal visible paid label");
+requireIncludes(walletPackagePicker, "Paid GD", "Canonical wallet package picker visible paid label");
 requireIncludes(purchaseModal, "resolvePurchaseBonusPromoOffer(pkgEconomics.bonusGumDrops)", "PurchaseModal fixed package bonus display");
 requireIncludes(purchaseModal, "resolveBundlePromoOffer(customDrops >= 5000)", "PurchaseModal bundle bonus display");
 requireIncludes(purchaseModal, "selectedPackage.drops", "PurchaseModal delivered total checkout framing");
@@ -175,6 +176,7 @@ for (const expected of [
   "keeps visible package headlines framed around paid GD plus explicit bonus display",
   "amount={pkgEconomics.paidGumDrops}",
   "amount={deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops}",
+  "KandyWalletPackagePicker.tsx",
   "expectedDrops: selectedPackage.drops",
 ]) {
   requireIncludes(purchaseModalStaticTest, expected, "PurchaseModal visible display guard test");

@@ -4,6 +4,11 @@ import { ExternalLink, FileText, Lock, ShieldCheck } from "lucide-react";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
+import {
+  KandyLegalDocument,
+  KandyLegalHero,
+  KandyLegalSection,
+} from "@/components/creative-tim/kandydrops/legal/KandyLegalDocument";
 import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/platform-config";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 
@@ -15,42 +20,18 @@ export const metadata: Metadata = {
   },
 };
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-3 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-      <h2 className="text-lg font-bold tracking-tight text-white">{title}</h2>
-      <div className="space-y-3 text-sm leading-7 text-gray-300">{children}</div>
-    </section>
-  );
-}
-
 export default function PrivacyPage() {
   return (
-    <div
-      className="relative isolate w-full overflow-hidden px-4 py-8 text-gray-200 sm:px-6 sm:py-12"
-      style={{ paddingTop: "calc(2.5rem + var(--kandy-cookie-offset, 0px))" }}
-    >
+    <KandyLegalDocument className="max-w-5xl">
       <PageViewEvent eventName="privacy_page_viewed" />
-      <div className="mx-auto max-w-4xl space-y-6">
-        <LegalBackLink />
+      <LegalBackLink />
 
-        <div className="space-y-4 rounded-[2rem] border border-white/10 bg-black/35 p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-brand-purple">Privacy Policy</p>
-              <h1 className="mt-2 text-3xl font-black text-white md:text-4xl">How KandyDrops handles your data</h1>
-            </div>
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-400">
-              Last updated {PRIVACY_POLICY_LAST_UPDATED}
-            </span>
-          </div>
-
+      <KandyLegalHero
+        eyebrow="Privacy Policy"
+        title="How KandyDrops handles your data"
+        updatedLabel={"Last updated " + PRIVACY_POLICY_LAST_UPDATED}
+        icon={Lock}
+      >
           <p className="max-w-3xl text-sm leading-7 text-gray-300">
             This notice explains what KandyDrops collects, why we use it, when data is optional, and what controls you have.
             Optional analytics and recommendation features stay off until you turn them on. Core security, sign-in, payment, and service-storage functions remain enabled because the site cannot operate safely without them.
@@ -84,9 +65,9 @@ export default function PrivacyPage() {
               </p>
             </div>
           </div>
-        </div>
+      </KandyLegalHero>
 
-        <Section title="1. Who this notice covers">
+        <KandyLegalSection title="1. Who this notice covers">
           <p>
             This notice applies to KandyDrops websites, authenticated dashboard experiences, creator drop browsing, purchases, support interactions, and related services available at{" "}
             <a href={SITE_ORIGIN} className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">
@@ -96,9 +77,9 @@ export default function PrivacyPage() {
           <p>
             KandyDrops is intended for adults only. Registration checks age eligibility before an account can be activated.
           </p>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="2. Data we collect">
+        <KandyLegalSection title="2. Data we collect">
           <ul className="list-disc space-y-2 pl-5">
             <li><strong>Account data:</strong> email address, display name, username, avatar, date of birth if provided, role, and profile settings.</li>
             <li><strong>Service activity:</strong> unlocked drops, balances, check-ins, task progress, referrals, notifications, and content-viewing activity.</li>
@@ -107,9 +88,9 @@ export default function PrivacyPage() {
             <li><strong>Security data:</strong> abuse-prevention events, protection warnings, fraud signals, and session-related records needed to protect creators and the platform.</li>
             <li><strong>Notification data:</strong> browser permission state, push-token data, and notification preference settings when reminders are enabled.</li>
           </ul>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="3. Why we use the data">
+        <KandyLegalSection title="3. Why we use the data">
           <ul className="list-disc space-y-2 pl-5">
             <li><strong>To perform the service:</strong> create accounts, authenticate users, deliver drops, maintain balances, process check-ins, and support creator content access.</li>
             <li><strong>To process purchases:</strong> verify Gum Drop transactions, record completed orders, and prevent duplicate or fraudulent payment captures.</li>
@@ -118,9 +99,9 @@ export default function PrivacyPage() {
             <li><strong>To personalize optional features:</strong> improve recommendations or aggregated trend reporting only when the related privacy toggles are enabled.</li>
             <li><strong>To meet legal and accounting obligations:</strong> retain records required for tax, payment, fraud, or dispute handling.</li>
           </ul>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="4. Legal bases and consent">
+        <KandyLegalSection title="4. Legal bases and consent">
           <p>
             Some processing is necessary to provide the service you request, such as authentication, core security, payment verification, and required session storage.
           </p>
@@ -136,18 +117,18 @@ export default function PrivacyPage() {
           <p>
             You can withdraw optional consent at any time in <Link href="/settings" className="text-brand-purple hover:underline">Account Settings</Link>. Withdrawing consent does not turn off strictly necessary security and service-storage functions.
           </p>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="5. Cookies, local storage, and similar technologies">
+        <KandyLegalSection title="5. Cookies, local storage, and similar technologies">
           <p>
             KandyDrops uses essential storage for sign-in, session continuity, fraud prevention, and security controls. Optional analytics cookies or storage are used only when analytics consent is granted.
           </p>
           <p>
             The guest privacy banner lets visitors choose between essential-only use and optional analytics. Signed-in users can later review or change those choices in settings.
           </p>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="6. Third parties and service providers">
+        <KandyLegalSection title="6. Third parties and service providers">
           <ul className="list-disc space-y-2 pl-5">
             <li><strong>Firebase / Google Cloud:</strong> authentication, Firestore data storage, hosting, storage, and messaging infrastructure.</li>
             <li><strong>Google Analytics 4:</strong> optional analytics measurement when enabled.</li>
@@ -157,9 +138,9 @@ export default function PrivacyPage() {
           <p>
             We do not sell your personal data. We share data only as needed to run the service, process payments, protect the platform, or comply with legal obligations.
           </p>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="7. Retention">
+        <KandyLegalSection title="7. Retention">
           <p>
             We keep account, transaction, and security information for as long as needed to operate the service, resolve disputes, prevent fraud, and satisfy legal or accounting obligations.
           </p>
@@ -169,9 +150,9 @@ export default function PrivacyPage() {
           <p>
             If you delete your account, KandyDrops removes or de-identifies data that is no longer required for fraud prevention, legal compliance, payment reconciliation, or recordkeeping.
           </p>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="8. Your rights and choices">
+        <KandyLegalSection title="8. Your rights and choices">
           <ul className="list-disc space-y-2 pl-5">
             <li><strong>Access and portability:</strong> use the &ldquo;Download My Data&rdquo; action in Account Settings.</li>
             <li><strong>Correction:</strong> update your profile details and settings from your dashboard.</li>
@@ -185,9 +166,9 @@ export default function PrivacyPage() {
             </li>
             <li><strong>Supervisory authority:</strong> if you believe your data has been handled unlawfully, you may also raise a complaint with your local data protection authority.</li>
           </ul>
-        </Section>
+        </KandyLegalSection>
 
-        <Section title="9. Contact">
+        <KandyLegalSection title="9. Contact">
           <p>
             For privacy, data-rights, or account-security questions, use{" "}
             <Link href="/dashboard/support" className="text-brand-purple hover:underline">
@@ -197,9 +178,9 @@ export default function PrivacyPage() {
           <p>
             If you are contacting us about a data request, include the email address tied to your account so we can verify the request safely before acting on it.
           </p>
-        </Section>
+        </KandyLegalSection>
 
-        <div className="rounded-[1.8rem] border border-white/10 bg-black/30 p-5 text-sm text-gray-400">
+        <div className="rounded-[1.7rem] border border-white/10 bg-black/25 p-5 text-sm leading-7 text-white/58 shadow-[0_16px_42px_rgba(0,0,0,0.16)] backdrop-blur-xl">
           <p>
             Operational pages:
             {" "}
@@ -221,7 +202,6 @@ export default function PrivacyPage() {
             </a>
           </p>
         </div>
-      </div>
-    </div>
+    </KandyLegalDocument>
   );
 }

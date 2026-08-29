@@ -719,6 +719,8 @@
         "score:google-cost": "tsx scripts/agent/score-google-cost-bleed.ts",
         "check:google-cost": "tsx scripts/agent/validate-google-cost-bleed.ts",
         "score:cloud-cost": "tsx scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
+        "check:maintenance-config": "tsx scripts/check-maintenance-config.ts",
+        "check:maintenance-config:live": "tsx scripts/check-maintenance-provider-drift.ts --live",
         "score:4xx-cost": "tsx scripts/agent/score-4xx-cost-guardrails.ts",
         "check:4xx-cost": "npm run score:4xx-cost && tsx scripts/agent/validate-4xx-cost-guardrails.ts",
         "score:billing-spikes": "tsx scripts/agent/score-billing-spike-radar.ts",

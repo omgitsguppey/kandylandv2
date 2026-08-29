@@ -2,7 +2,6 @@
 
 import { Clock, Image as ImageIcon } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
 import { useNow } from "@/hooks/useNow";
 import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME, LAUNCH_STATIC_BADGE_CLASSNAME } from "@/lib/design-system";
 import { formatDropCountdown } from "@/lib/drop-countdown";
@@ -21,21 +20,20 @@ interface FileCountChipProps {
 
 export function DropCardBadge({ label, compact = false }: DropCardBadgeProps) {
     return (
-        <Badge
-            variant="outline"
+        <span
             className={cn(
-                "!w-fit !rounded-full !border !font-bold !text-white shadow-lg backdrop-blur-md",
+                "inline-flex w-fit items-center rounded-full border font-black text-white shadow-[0_10px_22px_rgba(0,0,0,0.26)] backdrop-blur-xl",
                 LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                 LAUNCH_STATIC_BADGE_CLASSNAME,
-                compact ? "px-2 py-0.5 text-[9px]" : "px-2.5 py-1 text-[10px] md:text-xs",
-                "border-white/10 bg-brand-purple/80",
-                label === "Sweet" && "bg-brand-purple/90",
-                label === "Spicy" && "border-white/20 bg-white/18",
-                label === "RAW" && "border-white/20 bg-zinc-800/80",
+                compact ? "px-2.5 py-1 text-[9px] uppercase tracking-[0.13em]" : "px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] md:text-xs",
+                "border-brand-purple/35 bg-brand-purple/18",
+                label === "Sweet" && "border-brand-purple/45 bg-brand-purple/28",
+                label === "Spicy" && "border-fuchsia-300/35 bg-fuchsia-500/18",
+                label === "RAW" && "border-white/20 bg-zinc-900/75",
             )}
         >
             {label}
-        </Badge>
+        </span>
     );
 }
 
@@ -50,13 +48,12 @@ export function FileCountChip({ images, videos, compact = false }: FileCountChip
     ].filter(Boolean).join(", ");
 
     return (
-        <Badge
-            variant="outline"
+        <span
             className={cn(
-                "z-30 !flex items-center !rounded-full !border-white/20 !bg-black/60 !font-bold !text-white shadow-xl backdrop-blur-md",
+                "z-30 inline-flex items-center rounded-full border border-white/18 bg-black/58 font-black text-white shadow-[0_10px_22px_rgba(0,0,0,0.28)] backdrop-blur-xl",
                 LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                 LAUNCH_STATIC_BADGE_CLASSNAME,
-                compact ? "gap-1.5 px-2 py-0.5 text-[9px]" : "gap-2 px-3 py-1 text-[10px] md:text-xs",
+                compact ? "gap-1.5 px-2.5 py-1 text-[9px]" : "gap-2 px-3 py-1.5 text-[10px] md:text-xs",
             )}
             aria-label={fileCountLabel}
             title={fileCountLabel}
@@ -73,7 +70,7 @@ export function FileCountChip({ images, videos, compact = false }: FileCountChip
                     <span>{videos}</span>
                 </div>
             ) : null}
-        </Badge>
+        </span>
     );
 }
 
@@ -82,10 +79,9 @@ export function DropCardTimer({ validUntil }: { validUntil?: number }) {
     const { visibleLabel, fullLabel, urgencyState, isCountdownOnly } = formatDropCountdown(validUntil, nowMs);
 
     return (
-        <Badge
-            variant="outline"
+        <span
             className={cn(
-                "!inline-flex max-w-[6.75rem] items-center justify-center gap-1 !rounded-[0.65rem] !border px-1.5 py-0.5 text-[9px] !font-bold transition-colors md:max-w-[7.5rem] md:px-2 md:text-[10px]",
+                "inline-flex max-w-[7.5rem] items-center justify-center gap-1 rounded-full border px-2 py-1 text-[9px] font-black shadow-[0_10px_22px_rgba(0,0,0,0.24)] backdrop-blur-xl transition-colors md:max-w-[8.5rem] md:px-2.5 md:text-[10px]",
                 LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                 isCountdownOnly && "min-w-[4.9rem] whitespace-nowrap",
                 urgencyState === "critical"
@@ -109,6 +105,6 @@ export function DropCardTimer({ validUntil }: { validUntil?: number }) {
                 )}
             />
             <span aria-live="off" className={cn("truncate", isCountdownOnly && "text-center")}>{visibleLabel}</span>
-        </Badge>
+        </span>
     );
 }

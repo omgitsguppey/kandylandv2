@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T14:58:57.637Z",
+  "generatedAt": "2026-08-29T02:33:54.445Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -240,12 +240,16 @@
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
     "Mode resolved as audit.",
-    "Ranking considered 4914 repo files and 20 canonical helper entries.",
+    "Ranking considered 5022 repo files and 20 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
   "do_not_read_unless_needed": [],
   "excludedContext": [
+    {
+      "path": "scripts/agent/validate-generated-report-authority.ts",
+      "why_not_selected": "generated_penalty"
+    },
     {
       "path": "REPO_MEMORY_LEDGER.md",
       "why_not_selected": "evidence_only"
@@ -280,10 +284,6 @@
     },
     {
       "path": "agent/state/bug-report-truth-source-cleanup.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/bug-report-truth-terminal-state.generated.json",
       "why_not_selected": "generated_penalty"
     }
   ],

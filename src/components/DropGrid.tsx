@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { memo, useMemo } from "react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 
 import { DropCard } from "@/components/DropCard";
 import { PromoCard } from "@/components/PromoCard";
-import { Card } from "@/components/creative-tim/ui/card";
+import { KandyEditorialPromotionInterlude, KandyEditorialReleaseCollection } from "@/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCollection";
 import { useAuth } from "@/context/AuthContext";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { resolveDropLifecycleStatus } from "@/lib/drop-status";
@@ -51,30 +52,23 @@ export const DropGrid = memo(function DropGrid({
             })),
         [drops],
     );
-
-    const getGridSpanClass = (ratio: "1:1" | "16:9" | "9:16") => {
-        if (ratio === "16:9") {
-            return "col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4";
-        }
-
-        if (ratio === "9:16") {
-            return "col-span-1";
-        }
-
-        return "col-span-1 md:col-span-1 lg:col-span-2";
-    };
+    const getGridSpanClass = (_ratio: "1:1" | "16:9" | "9:16") => "min-w-0";
 
     if (loading) {
         return (
             <div
-                className="grid grid-cols-2 gap-2 pb-6 sm:gap-3 md:grid-cols-3 md:gap-5 md:pb-0 lg:grid-cols-4"
+                className="grid grid-cols-2 gap-3 pb-6 sm:gap-4 md:grid-cols-3 md:gap-5 md:pb-0 lg:grid-cols-4 lg:gap-6"
                 data-drops-grid-density="compact-mobile"
             >
                 {Array.from({ length: 8 }).map((_, idx) => (
                     <div
                         key={idx}
-                        className="col-span-1 h-[190px] animate-pulse rounded-[1.15rem] bg-white/5 md:h-[330px] md:rounded-[1.35rem]"
-                    />
+                        className="relative min-h-[220px] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#121214] md:min-h-[280px]"
+                    >
+                        <div className="absolute inset-x-3 top-3 h-[58%] animate-pulse rounded-[1.1rem] bg-white/[0.07] md:inset-x-4 md:top-4 md:rounded-[1.4rem]" />
+                        <div className="absolute bottom-7 left-3 h-3 w-2/3 animate-pulse rounded-full bg-white/[0.08] md:left-4" />
+                        <div className="absolute bottom-3 left-3 h-10 w-[calc(100%_-_1.5rem)] animate-pulse rounded-[0.85rem] bg-brand-purple/10 md:bottom-4 md:left-4 md:w-[calc(100%_-_2rem)]" />
+                    </div>
                 ))}
             </div>
         );
@@ -82,42 +76,43 @@ export const DropGrid = memo(function DropGrid({
 
     if (drops.length === 0) {
         return (
-            <div className="w-full py-6 md:py-10" data-drops-grid-density="compact-mobile">
-                <Card className="relative mx-auto max-w-xl overflow-hidden rounded-[1.35rem] border-white/10 bg-white/[0.035] !gap-0 !p-0 text-center shadow-[0_12px_30px_rgba(0,0,0,0.18)] md:rounded-[1.6rem]">
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-purple/10 via-transparent to-white/[0.03]" />
-
-                    <div className="relative px-5 py-6 md:px-6 md:py-8">
-                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border border-white/10 bg-zinc-900/80 text-sm font-black text-white/45 shadow-inner">
-                            KD
+            <div className="w-full py-4 md:py-8" data-drops-grid-density="compact-mobile">
+                <section className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-[#121214] px-5 py-8 text-center md:px-10 md:py-10">
+                    <div>
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-purple/35 bg-brand-purple/10 text-brand-purple">
+                            <Sparkles className="h-5 w-5" aria-hidden="true" />
                         </div>
 
-                        <h3 className="mb-2 text-lg font-black tracking-tight text-white md:text-2xl">
-                            {isSearching ? "No matching Drops" : "No Drops right now"}
+                        <p className="mt-5 text-[10px] font-black uppercase tracking-[0.2em] text-brand-purple">KandyDrop shelf</p>
+                        <h3 className="mt-3 text-xl font-black tracking-[-0.035em] text-white md:text-3xl">
+                            {isSearching ? "Nothing matches that flavor yet." : "The shelf is being restocked."}
                         </h3>
 
-                        <p className="mx-auto max-w-sm text-sm leading-relaxed text-gray-400 md:text-base">
+                        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-400 md:text-base md:leading-7">
                             {isSearching
-                                ? "Try a shorter search or switch filters."
-                                : "Fresh drops are not available right now. Explore live experiences while the next batch lands."}
+                                ? "Try a shorter search or choose another collection filter."
+                                : "There are no public Drops available right now. Explore what else is happening while the next release lands."}
                         </p>
 
                         {!isSearching ? (
                             <Link
                                 href="/experiences"
-                                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-[0.85rem] border border-brand-purple/40 bg-brand-purple px-4 text-sm font-bold text-white shadow-[0_8px_22px_rgba(164,118,255,0.2)] transition-transform active:scale-[0.98]"
+                            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/45 bg-brand-purple/15 px-5 text-sm font-black text-white transition-colors hover:bg-brand-purple/24 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/70"
                             >
                                 Browse Experiences
+                                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                             </Link>
                         ) : null}
                     </div>
-                </Card>
+                </section>
             </div>
         );
     }
 
     return (
+        <KandyEditorialReleaseCollection>
         <div
-            className="grid grid-cols-2 items-start gap-2 pb-6 sm:gap-3 md:grid-cols-3 md:gap-5 md:pb-0 lg:grid-cols-4"
+            className="contents"
             data-drops-grid-density="compact-mobile"
         >
             {dropEntries.map(({ drop, aspectRatio }, index) => {
@@ -126,10 +121,13 @@ export const DropGrid = memo(function DropGrid({
                 return (
                     <div key={drop.id} id={`drop-${drop.id}`} className={cn("h-full scroll-mt-32", getGridSpanClass(aspectRatio))}>
                         {drop.type === "promo" || drop.type === "external" ? (
-                            <PromoCard drop={drop} />
+                            <KandyEditorialPromotionInterlude>
+                                <PromoCard drop={drop} />
+                            </KandyEditorialPromotionInterlude>
                         ) : (
                             <DropCard
                                 drop={drop}
+                                presentation="shelf"
                                 user={user}
                                 isUnlocked={isUnlocked}
                                 onPreview={onSelectDrop}
@@ -143,5 +141,6 @@ export const DropGrid = memo(function DropGrid({
                 );
             })}
         </div>
+        </KandyEditorialReleaseCollection>
     );
 });

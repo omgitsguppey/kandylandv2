@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { FileText } from "lucide-react";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
+import {
+    KandyLegalDocument,
+    KandyLegalHero,
+    KandyLegalSection,
+} from "@/components/creative-tim/kandydrops/legal/KandyLegalDocument";
 import { TERMS_LAST_UPDATED_LABEL } from "@/lib/platform-config";
 
 export const metadata: Metadata = {
@@ -14,19 +20,18 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
     return (
-        <div
-            className="relative isolate w-full overflow-hidden px-4 py-8 text-gray-200 sm:px-6 sm:py-12"
-            style={{ paddingTop: "calc(2.5rem + var(--kandy-cookie-offset, 0px))" }}
-        >
+        <KandyLegalDocument className="max-w-4xl">
             <PageViewEvent eventName="terms_page_viewed" />
-            <div className="mx-auto max-w-3xl space-y-6">
-                <LegalBackLink />
+            <LegalBackLink />
 
-                <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Terms of Service</h1>
-                <p className="w-fit rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-400 shadow-lg shadow-black/10 backdrop-blur-xl">Last Updated: {TERMS_LAST_UPDATED_LABEL}</p>
+            <KandyLegalHero
+                eyebrow="Terms of Service"
+                title="Terms of Service"
+                updatedLabel={"Last Updated: " + TERMS_LAST_UPDATED_LABEL}
+                icon={FileText}
+            />
 
-                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-                    <h2 className="text-xl font-bold tracking-tight text-white">1. Introduction</h2>
+            <KandyLegalSection title="1. Introduction">
                     <p>
                         Welcome to KandyDrops. These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the KandyDrops platform.
                         By accessing or using the Service, you agree to be bound by these Terms.
@@ -34,18 +39,16 @@ export default function TermsPage() {
                     <p>
                         <strong>KandyDrops is operated by iKandy</strong>, a wholly-owned subsidiary of <strong>Dollars not Sense</strong>. Throughout these Terms, &ldquo;we&rdquo;, &ldquo;us&rdquo;, and &ldquo;our&rdquo; refer to iKandy.
                     </p>
-                </section>
+            </KandyLegalSection>
 
-                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-                    <h2 className="text-xl font-bold tracking-tight text-white">2. Platform Nature</h2>
+            <KandyLegalSection title="2. Platform Nature">
                     <p>
                         KandyDrops is a <strong>digital access platform</strong>. We provide the infrastructure for Creators to share content with Users.
                         <strong>We do not create, sell, or own the content</strong> provided by Creators on the platform. We act solely as a facilitator for access.
                     </p>
-                </section>
+            </KandyLegalSection>
 
-                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-                    <h2 className="text-xl font-bold tracking-tight text-white">3. Virtual Currency (&ldquo;Gum Drops&rdquo;)</h2>
+            <KandyLegalSection title="3. Virtual Currency (&ldquo;Gum Drops&rdquo;)">
                     <p>
                         &ldquo;Gum Drops&rdquo; are a limited, non-transferable, revocable license to access digital content on our platform.
                         <strong>Gum Drops are NOT real currency</strong>, have no monetary value, and cannot be redeemed for cash or refunded once purchased.
@@ -53,36 +56,31 @@ export default function TermsPage() {
                     <p>
                         We reserve the right to modify, suspend, or terminate the Gum Drops system at any time without liability.
                     </p>
-                </section>
+            </KandyLegalSection>
 
-                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-                    <h2 className="text-xl font-bold tracking-tight text-white">4. User Conduct</h2>
+            <KandyLegalSection title="4. User Conduct">
                     <p>
                         You agree not to misuse the Service or help anyone else do so. You are solely responsible for your interactions with other users and Creators.
                     </p>
-                </section>
+            </KandyLegalSection>
 
-                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-                    <h2 className="text-xl font-bold tracking-tight text-white">5. Disclaimer of Warranties</h2>
+            <KandyLegalSection title="5. Disclaimer of Warranties">
                     <p>
                         The Service is provided &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo;. iKandy explicitly disclaims all warranties of any kind, whether express or implied.
                     </p>
-                </section>
+            </KandyLegalSection>
 
-                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-                    <h2 className="text-xl font-bold tracking-tight text-white">6. Limitation of Liability</h2>
+            <KandyLegalSection title="6. Limitation of Liability">
                     <p>
                         To the maximum extent permitted by law, iKandy and Dollars not Sense shall not be liable for any indirect, incidental, special, consequential, or punitive damages.
                     </p>
-                </section>
+            </KandyLegalSection>
 
-                <section className="space-y-4 rounded-[1.8rem] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-                    <h2 className="text-xl font-bold tracking-tight text-white">7. Contact</h2>
+            <KandyLegalSection title="7. Contact">
                     <p>
                         For legal inquiries, please contact us at legal@kandydrops.com.
                     </p>
-                </section>
-            </div>
-        </div>
+            </KandyLegalSection>
+        </KandyLegalDocument>
     );
 }

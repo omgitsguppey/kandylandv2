@@ -10,27 +10,27 @@ export function AdminEvidenceMediaPreview({ message }: { message: AdminModeratio
 
     return (
         <article
-            className="rounded-xl border border-white/10 bg-black/25 p-3"
+            className="relative flex min-h-[4.75rem] items-center gap-3 overflow-hidden border-l-2 border-fuchsia-300/45 bg-white/[0.035] px-3 py-3"
             data-admin-evidence-media-preview="metadata-only"
             data-evidence-raw-url-rendered="false"
         >
-            <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/10">
-                    <LockKeyhole className="h-5 w-5 text-brand-purple" />
+            <span aria-hidden="true" className="absolute inset-y-0 left-0 w-px bg-fuchsia-200/70" />
+            <span className="grid h-11 w-11 shrink-0 place-items-center border border-fuchsia-300/20 bg-fuchsia-400/[0.1]">
+                <LockKeyhole className="h-5 w-5 text-fuchsia-100/80" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p className="truncate text-sm font-black text-white">{fileName}</p>
+                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-fuchsia-100/65">Metadata only</span>
                 </div>
-                <div className="min-w-0">
-                    <p className="text-sm font-bold text-white">{fileName}</p>
-                    <p className="mt-1 text-xs leading-5 text-gray-400">
-                        Safe admin evidence preview. Raw locked asset URLs are hidden unless a backed admin preview route exists.
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-300">
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{fileType}</span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{message.senderRole}</span>
-                        {message.costGd > 0 ? <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{message.costGd} GD</span> : null}
-                    </div>
+                <p className="mt-1 text-xs leading-5 text-gray-400">Safe admin evidence preview. Raw locked asset URLs are hidden unless a backed admin preview route exists.</p>
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] font-bold text-gray-300">
+                    <span>{fileType}</span>
+                    <span>{message.senderRole}</span>
+                    {message.costGd > 0 ? <span>{message.costGd} GD</span> : null}
                 </div>
-                <FileText className="mt-1 h-4 w-4 shrink-0 text-gray-500" />
             </div>
+            <FileText className="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
         </article>
     );
 }

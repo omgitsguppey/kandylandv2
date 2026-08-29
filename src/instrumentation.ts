@@ -1,3 +1,5 @@
+import { isKandyLocalPublicPreview } from "@/lib/server/local-public-preview";
+
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     return;
@@ -20,6 +22,10 @@ export async function onRequestError(
   },
 ) {
   if (process.env.NEXT_RUNTIME !== "nodejs") {
+    return;
+  }
+
+  if (isKandyLocalPublicPreview()) {
     return;
   }
 

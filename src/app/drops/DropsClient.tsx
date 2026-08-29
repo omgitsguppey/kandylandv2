@@ -20,6 +20,7 @@ import {
     createDiscoveryTrackingSessionId,
 } from "@/lib/discovery-telemetry";
 import { useDropsSearchTelemetry } from "@/hooks/useDropsSearchTelemetry";
+import { DropsDiscoveryExperience } from "@/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience";
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
@@ -150,13 +151,12 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
     }, [selectedCategory, trackCategorySelected]);
 
     return (
-        <div
-            className="mx-auto w-full max-w-7xl px-3 pt-[calc(var(--kandy-cookie-offset,0px)+0.75rem)] pb-4 selection:bg-brand-purple/30 sm:px-4 md:px-8 md:pt-0 md:pb-8"
-            data-onboarding-page="drops"
-            data-drops-page-density="compact-mobile"
-            data-drop-visibility-scope="public_discovery"
-        >
-            <div className="mb-2 md:mb-5">
+        <DropsDiscoveryExperience
+            activeDropCount={sourceDrops.length}
+            visibleDropCount={filteredDrops.length}
+            selectedCategory={selectedCategory}
+            deferredSearchQuery={deferredSearchQuery}
+            accountOverview={(
                 <KandyDropsAccountOverview
                     state={accountOverview.state}
                     displayName={accountOverview.displayName}
@@ -179,59 +179,41 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
                         openPurchaseModal();
                     }}
                 />
-            </div>
-
-            <CreatorDiscoveryRail surface="drops" compact initialCreators={creatorRailProfiles} />
-
-            {!searchQuery && selectedCategory === "All" && (
-                <div className="mt-3">
-                    <FeaturedCarousel drops={sourceDrops} onSelectDrop={handleSelectDrop} />
+            )}
+            featuredRelease={(!searchQuery && selectedCategory === "All") ? (
+                <FeaturedCarousel drops={sourceDrops} onSelectDrop={handleSelectDrop} />
+            ) : null}
+            creatorRail={<CreatorDiscoveryRail surface="drops" compact initialCreators={creatorRailProfiles} />}
+            filters={(
+                <StickyFilterBar
+                    categories={CATEGORIES}
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={handleSelectCategory}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onSearchFocus={trackSearchFocus}
+                />
+            )}
+            collection={(
+                <DropGrid
+                    drops={filteredDrops}
+                    loading={false}
+                    isSearching={!!deferredSearchQuery}
+                    onSelectDrop={handleSelectDrop}
+                    impressionTrackingSurface="drops_page"
+                    impressionTrackingSessionId={impressionTrackingSessionId}
+                />
+            )}
+            pagination={(
+                <div ref={observerRef} className="mt-4 flex h-8 items-center justify-center md:mt-8 md:h-10">
+                    {isLoadingMore && (
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent md:h-6 md:w-6" />
+                    )}
+                    {isReachingEnd && filteredDrops.length > 0 && (
+                        <p className="text-xs font-medium text-gray-500 md:text-sm">You&apos;ve reached the end.</p>
+                    )}
                 </div>
             )}
-
-            <div id="live-drops" className="mt-3 md:mt-6">
-                <div className="mb-2 flex flex-row items-center justify-between gap-2 px-1 md:mb-4 md:px-0">
-                    <div className="min-w-0">
-                        <h2 className="truncate text-lg font-black tracking-tight text-white md:text-2xl">
-                            {deferredSearchQuery ? `Results: "${deferredSearchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
-                        </h2>
-                    </div>
-                    <span className="shrink-0 rounded-[0.7rem] border border-white/10 bg-white/[0.035] px-2 py-1 text-[11px] font-bold text-gray-400 md:text-sm">
-                        {filteredDrops.length}
-                    </span>
-                </div>
-                
-                <div className="mb-2 md:mb-4">
-                    <StickyFilterBar
-                        categories={CATEGORIES}
-                        selectedCategory={selectedCategory}
-                        onSelectCategory={handleSelectCategory}
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                        onSearchFocus={trackSearchFocus}
-                    />
-                </div>
-
-                <div className="relative rounded-[1.45rem] border border-white/5 bg-white/[0.01] p-1.5 md:rounded-[2rem] md:p-6">
-                    <DropGrid
-                        drops={filteredDrops}
-                        loading={false}
-                        isSearching={!!deferredSearchQuery}
-                        onSelectDrop={handleSelectDrop}
-                        impressionTrackingSurface="drops_page"
-                        impressionTrackingSessionId={impressionTrackingSessionId}
-                    />
-
-                    <div ref={observerRef} className="mt-4 flex h-8 items-center justify-center md:mt-8 md:h-10">
-                        {isLoadingMore && (
-                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent md:h-6 md:w-6" />
-                        )}
-                        {isReachingEnd && filteredDrops.length > 0 && (
-                            <p className="text-xs font-medium text-gray-500 md:text-sm">You&apos;ve reached the end.</p>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
+        />
     );
 }

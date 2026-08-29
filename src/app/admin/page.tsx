@@ -1,16 +1,17 @@
 "use client";
+
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
 import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { AdminDropsAtGlancePanel } from "@/components/Admin/AdminDropsAtGlancePanel";
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
+import { AdminControlTowerLanding } from "@/components/creative-tim/kandydrops/admin/AdminControlTowerLanding";
 import { useAuth } from "@/context/AuthContext";
-import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { coerceAdminSurfaceState } from "@/lib/admin-parity";
 import { buildAdminOverviewPageData } from "@/lib/server/admin-page-data-loader";
 
@@ -37,114 +38,106 @@ export default function AdminDashboardPage() {
             <div>source_missing: overview source is not loaded in this fixture.</div>
         </div>
     );
-
+    const fixtureNotice = isLocalAdminUiTestSession ? (
+        <div
+            className="rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 shadow-lg shadow-black/15"
+            data-admin-overview-fixture-boundary="true"
+            data-admin-overview-fixture-state="source_missing"
+        >
+            <p className="font-bold">source_missing fixture.</p>
+            <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                source_missing: layout is visible; verified overview data remains unavailable in this fixture.
+            </p>
+        </div>
+    ) : null;
 
     return (
-        <div className="space-y-4 md:space-y-5">
+        <>
             <PageViewEvent eventName="admin_dashboard_viewed" />
             <PageViewEvent eventName="admin_overview_viewed" />
-            <AdminPageHeader
-                eyebrow={null}
-                title="Admin Overview"
+            <AdminControlTowerLanding
                 subtitle={isLocalAdminUiTestSession ? "source_missing fixture. Verified overview data is not loaded." : pageData.serverUpdateLabel}
-                compact
-                actions={(
-                    <div className="flex items-center gap-2">
-                        <AdminStatusBadge state={truthVariant} label={isLocalAdminUiTestSession ? "No source" : undefined} />
-                        <span className="text-[11px] font-semibold text-gray-400">{isLocalAdminUiTestSession ? "Local fixture only" : pageData.truthLabel}</span>
-                    </div>
+                truthLabel={isLocalAdminUiTestSession ? "Local fixture only" : pageData.truthLabel}
+                fixtureNotice={fixtureNotice}
+                evidenceStatus={(
+                    <AdminStatusBadge state={truthVariant} label={isLocalAdminUiTestSession ? "No source" : undefined} />
                 )}
-            />
+            >
+                <div className="grid gap-3 md:gap-4 xl:grid-cols-12">
+                    <div className="xl:col-span-12">
+                        <AdminDashboardModule title="Platform pulse" defaultOpen={true}>
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
+                                <AdminStatsBar
+                                    platformPulse={pageData.platformPulse}
+                                    overviewIssues={data.overviewIssues}
+                                    truthState={pageData.truthState}
+                                />
+                            ) : (
+                                <div className={overviewFallbackClassName}>
+                                    <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                    <div>{pageData.fallbackMessage}</div>
+                                </div>
+                            )}
+                        </AdminDashboardModule>
+                    </div>
 
-            {isLocalAdminUiTestSession ? (
-                <div
-                    className="rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 shadow-lg shadow-black/15"
-                    data-admin-overview-fixture-boundary="true"
-                    data-admin-overview-fixture-state="source_missing"
-                >
-                    <p className="font-bold">source_missing fixture.</p>
-                    <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        source_missing: layout is visible; verified overview data remains unavailable in this fixture.
-                    </p>
-                </div>
-            ) : null}
+                    <div className="xl:col-span-7">
+                        <AdminDashboardModule title="Drops at a glance" defaultOpen={false}>
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : <AdminDropsAtGlancePanel />}
+                        </AdminDashboardModule>
+                    </div>
 
-            <div className="grid gap-4 md:gap-5 xl:grid-cols-12">
-                <div className="xl:col-span-12">
-                    <AdminDashboardModule title="Platform pulse" defaultOpen={true}>
-                        {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
-                            <AdminStatsBar
-                                platformPulse={pageData.platformPulse}
-                                overviewIssues={data.overviewIssues}
-                                truthState={pageData.truthState}
-                            />
-                        ) : (
-                            <div className={overviewFallbackClassName}>
-                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
-                                <div>{pageData.fallbackMessage}</div>
-                            </div>
-                        )}
-                    </AdminDashboardModule>
-                </div>
+                    <div className="xl:col-span-7">
+                        <AdminDashboardModule title="Revenue + Unwraps" defaultOpen={false}>
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
+                                <AdminAnalyticsCharts
+                                    chartData={data.chartData || []}
+                                    trendSummary={data.trendSummary}
+                                    topDrops={data.topDrops || []}
+                                    truthLabel={pageData.truthLabel}
+                                    truthVariant={truthVariant}
+                                    loading={isLoading && !data}
+                                />
+                            ) : (
+                                <div className={overviewFallbackClassName}>
+                                    <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                    <div>{error?.message ?? (isLoading ? "Loading revenue chart source." : "Revenue chart source has no verified snapshot yet.")}</div>
+                                </div>
+                            )}
+                        </AdminDashboardModule>
+                    </div>
 
-                <div className="xl:col-span-7">
-                    <AdminDashboardModule title="Drops at a glance" defaultOpen={false}>
-                        {isLocalAdminUiTestSession ? sourceMissingPanel : <AdminDropsAtGlancePanel />}
-                    </AdminDashboardModule>
-                </div>
+                    <div className="xl:col-span-5">
+                        <AdminDashboardModule title="Recent transactions" defaultOpen={false}>
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
+                                <RecentTransactionsPanel transactions={data.recentTransactions} />
+                            ) : (
+                                <div className={overviewFallbackClassName}>
+                                    <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                    <div>{error?.message ?? (isLoading ? "Loading recent transactions source." : "Recent transactions source has no verified snapshot yet.")}</div>
+                                </div>
+                            )}
+                        </AdminDashboardModule>
+                    </div>
 
-                <div className="xl:col-span-7">
-                    <AdminDashboardModule title="Revenue + Unwraps" defaultOpen={false}>
-                        {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
-                            <AdminAnalyticsCharts
-                                chartData={data?.chartData || []}
-                                trendSummary={data.trendSummary}
-                                topDrops={data?.topDrops || []}
-                                truthLabel={pageData.truthLabel}
-                                truthVariant={truthVariant}
-                                loading={isLoading && !data}
-                            />
-                        ) : (
-                            <div className={overviewFallbackClassName}>
-                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
-                                <div>{error?.message ?? (isLoading ? "Loading revenue chart source." : "Revenue chart source has no verified snapshot yet.")}</div>
-                            </div>
-                        )}
-                    </AdminDashboardModule>
+                    <div className="xl:col-span-12">
+                        <AdminDashboardModule title="Admin activity" defaultOpen={false}>
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
+                                <AdminActivityLogPanel
+                                    activity={data.adminActivity}
+                                    lastAdminActivityAt={data.freshness.lastAdminActivityAt}
+                                    truthNote={data.truthNotes?.adminActivity}
+                                />
+                            ) : (
+                                <div className={overviewFallbackClassName}>
+                                    <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                    <div>{error?.message ?? (isLoading ? "Loading admin activity source." : "Admin activity source has no verified snapshot yet.")}</div>
+                                </div>
+                            )}
+                        </AdminDashboardModule>
+                    </div>
                 </div>
-
-                <div className="xl:col-span-5">
-                    <AdminDashboardModule title="Recent transactions" defaultOpen={false}>
-                        {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
-                            <RecentTransactionsPanel
-                                transactions={data.recentTransactions}
-                            />
-                        ) : (
-                            <div className={overviewFallbackClassName}>
-                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
-                                <div>{error?.message ?? (isLoading ? "Loading recent transactions source." : "Recent transactions source has no verified snapshot yet.")}</div>
-                            </div>
-                        )}
-                    </AdminDashboardModule>
-                </div>
-
-                <div className="xl:col-span-12">
-                    <AdminDashboardModule title="Admin activity" defaultOpen={false}>
-                        {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
-                            <AdminActivityLogPanel
-                                activity={data.adminActivity}
-                                lastAdminActivityAt={data.freshness.lastAdminActivityAt}
-                                truthNote={data.truthNotes?.adminActivity}
-                            />
-                        ) : (
-                            <div className={overviewFallbackClassName}>
-                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
-                                <div>{error?.message ?? (isLoading ? "Loading admin activity source." : "Admin activity source has no verified snapshot yet.")}</div>
-                            </div>
-                        )}
-                    </AdminDashboardModule>
-                </div>
-            </div>
-        </div>
+            </AdminControlTowerLanding>
+        </>
     );
 }

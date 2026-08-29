@@ -73,17 +73,14 @@ export function CreatorIntakeFlow({
     };
 
     return (
-        <section
+        <div
             data-creator-intake-step={currentStep.key}
-            className="space-y-4 rounded-[1.4rem] border border-white/10 bg-black/30 p-4 sm:p-5"
+            className="space-y-5"
         >
-            <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
-                    Step {step + 1} of {CREATOR_INTAKE_STEPS.length}
-                </p>
+            <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg font-black leading-tight text-white">{currentStep.title}</h3>
                 {"copy" in currentStep && currentStep.copy ? (
-                    <p className="text-sm leading-6 text-zinc-300">{currentStep.copy}</p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-300">{currentStep.copy}</p>
                 ) : null}
             </div>
 
@@ -299,6 +296,6 @@ export function CreatorIntakeFlow({
                     </div>
                 </div>
             ) : null}
-        </section>
+        </div>
     );
 }

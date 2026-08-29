@@ -1,7 +1,7 @@
 # Mobile Residual Score Impact
 
-Generated: 2026-05-21T02:36:34.230Z
-Current code version: d21c3e879ee17c77af614c0d4843f6044cc19259
+Generated: 2026-08-29T02:45:49.978Z
+Current code version: d64358ffc282360f679ddde98a1fdfe97ce65505
 
 ## Summary
 
@@ -10,8 +10,8 @@ Current code version: d21c3e879ee17c77af614c0d4843f6044cc19259
 - High-impact residuals ranked: yes
 - High-impact residuals fixed/already compact: 6
 - Deferred low-impact residuals: 1
-- Chat untouched: yes
-- Navigation untouched: yes
+- Chat untouched: no
+- Navigation untouched: no
 - Blocking findings: P0=0, P1=0, P2=0
 
 ## Impact Ranking
@@ -19,7 +19,7 @@ Current code version: d21c3e879ee17c77af614c0d4843f6044cc19259
 | ID | Category | Surface | Impact | Status | Path |
 | --- | --- | --- | --- | --- | --- |
 | admin-debug-loading-density | admin debug/truth route | admin | P1 | fixed | src/app/admin/debug/page.tsx |
-| user-dashboard-recent-activity-density | user-critical route | user | P1 | fixed | src/components/Dashboard/RecentActivityFeed.tsx |
+| user-dashboard-recent-activity-density | user-critical route | user | P1 | fixed | src/components/creative-tim/kandydrops/activity/KandyRecentActivityExperience.tsx |
 | user-dashboard-daily-task-empty-density | user-critical route | user | P1 | fixed | src/components/Dashboard/DailyTasksModule.tsx |
 | user-library-empty-state-density | profile/drop route | user | P1 | fixed | src/components/Dashboard/CollectionList.tsx |
 | creator-profile-empty-timeline-density | creator-critical route | creator | P1 | fixed | src/app/creators/[username]/CreatorProfileClient.tsx |
@@ -41,7 +41,13 @@ Current code version: d21c3e879ee17c77af614c0d4843f6044cc19259
 
 ## Protected File Diffs
 
-- None.
+- src/app/dashboard/chat/page.tsx
+- src/components/Chat/ChatExperience.tsx
+- src/components/Navbar.tsx
+- src/components/Navigation/AdminDropdown.tsx
+- src/components/Navigation/MobileBottomBar.tsx
+- src/components/Navigation/ProfileDropdown.tsx
+- src/components/Navigation/ProfileSidebar.tsx
 
 ## Next Exact Steps
 

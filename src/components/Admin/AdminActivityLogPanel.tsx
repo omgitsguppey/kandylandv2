@@ -146,96 +146,19 @@ export function AdminActivityLogPanel({
 
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
-        <div className="space-y-2" data-debug-admin-activity={JSON.stringify(debugMeta)}>
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
-                <AdminStatusBadge state={truthState} />
-                {freshnessLabel && (
-                    <span className={`text-[10px] ${freshnessLabel.stale ? "text-amber-400/70" : "text-gray-500"}`}>
-                        {freshnessLabel.text}
-                    </span>
-                )}
-            </div>
-            {activity.length === 0 ? (
-                <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400">
-                        No admin actions found in the current window.
-                    </p>
-                </div>
-            ) : (
+        <div className="space-y-3" data-debug-admin-activity={JSON.stringify(debugMeta)}>
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Activity evidence</p>{freshnessLabel ? <p className={`mt-1 text-xs ${freshnessLabel.stale ? "text-amber-300" : "text-gray-400"}`}>{freshnessLabel.text}</p> : null}</div><AdminStatusBadge state={truthState} /></div>
+            {activity.length === 0 ? <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-8 text-center"><p className="text-sm font-semibold text-gray-400">No admin actions were found in the current source window.</p></div> : (
                 <>
-                    <div className="divide-y divide-white/6 rounded-xl border border-white/8 bg-black/20 overflow-hidden">
+                    <div className="divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                         {paginated.items.map((item) => {
-                            const relativeLabel = item.timestamp > 0
-                                ? formatDistanceToNow(item.timestamp, { addSuffix: true })
-                                : "Unknown time";
-
+                            const relativeLabel = item.timestamp > 0 ? formatDistanceToNow(item.timestamp, { addSuffix: true }) : "Unknown time";
                             const sourceLabel = item.source === "transactions" ? "Adjustment" : "Admin event";
                             const sourceBadgeStyle = SOURCE_BADGE_STYLES[item.source] ?? "border-white/10 bg-white/5 text-gray-300";
-
-                            return (
-                                <div
-                                    key={item.id}
-                                    className="flex items-center gap-2 px-3 py-2 min-h-[36px]"
-                                >
-                                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${sourceBadgeStyle}`}>
-                                        {sourceLabel}
-                                    </span>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-baseline gap-1.5 text-[12px]">
-                                            <span className="truncate font-medium text-white">
-                                                {item.label}
-                                            </span>
-                                            <span className="shrink-0 text-[10px] text-gray-400">
-                                                {item.actorLabel}
-                                            </span>
-                                        </div>
-                                        {(item.targetLabel || item.detail) && (
-                                            <div className="flex items-baseline gap-1.5 text-[10px] text-gray-500 mt-0.5">
-                                                {item.targetLabel && (
-                                                    <span className="text-purple-300/70">
-                                                        → {item.targetLabel}
-                                                    </span>
-                                                )}
-                                                {item.detail && (
-                                                    <span className="truncate">{item.detail}</span>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <span className="hidden shrink-0 text-[10px] text-gray-500 sm:block">
-                                        {relativeLabel}
-                                    </span>
-                                </div>
-                            );
+                            return <div key={item.id} className="grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 md:px-4"><span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${sourceBadgeStyle}`}>{sourceLabel}</span><div className="min-w-0"><div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1"><span className="truncate text-sm font-bold text-white">{item.label}</span><span className="shrink-0 text-xs text-gray-400">{item.actorLabel}</span></div>{(item.targetLabel || item.detail) ? <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 text-xs text-gray-500">{item.targetLabel ? <span className="text-kandy-lilac/80">Target: {item.targetLabel}</span> : null}{item.detail ? <span className="truncate">{item.detail}</span> : null}</div> : null}</div><span className="hidden shrink-0 text-xs text-gray-500 sm:block">{relativeLabel}</span></div>;
                         })}
                     </div>
-                    {paginated.totalPages > 1 && (
-                        <div className="flex items-center justify-between px-1 text-[11px] text-gray-400">
-                            <span>
-                                Showing {paginated.startIndex + 1}-{paginated.endIndex} of {activity.length}
-                            </span>
-                            <div className="flex items-center gap-1">
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.max(0, c - 1))}
-                                    disabled={paginated.page === 0}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Previous page"
-                                >
-                                    <ChevronLeft size={14} />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))}
-                                    disabled={paginated.page >= paginated.totalPages - 1}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Next page"
-                                >
-                                    <ChevronRight size={14} />
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    {paginated.totalPages > 1 ? <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-400"><span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {activity.length}</span><div className="flex items-center gap-2"><button type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Previous page"><ChevronLeft size={14} /></button><button type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Next page"><ChevronRight size={14} /></button></div></div> : null}
                 </>
             )}
         </div>

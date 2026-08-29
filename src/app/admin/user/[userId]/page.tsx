@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import { format, formatDistanceToNow } from "date-fns";
 import {
     Activity,
     AlertCircle,
     ArrowLeft,
-    CalendarDays,
     Eye,
     History,
     LifeBuoy,
@@ -20,11 +18,11 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { BehavioralVerdictCard } from "@/components/Admin/BehavioralVerdictCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { AdminUserDetailMasthead, AdminUsersOperations } from "@/components/creative-tim/kandydrops/admin-users/AdminUsersOperations";
 import {
     buildEngagementBehavioralExplanation,
     buildRecommendationBehavioralExplanation,
@@ -778,75 +776,19 @@ export default function AdminUserAnalyticsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-5xl space-y-4 pb-20 md:space-y-5">
+        <AdminUsersOperations
+            mode="dossier"
+            eyebrow="User dossier"
+            title="Focused account evidence"
+            description="Review the selected account as one connected record: money, history, behavior, support, security, and the source state behind every conclusion."
+            className="mx-auto max-w-5xl pb-20"
+        >
             <PageViewEvent eventName="admin_user_detail_viewed" />
-            <AdminPageHeader
-                eyebrow="Admin Roster"
-                topSlot={(
-                    <button
-                        onClick={() => router.back()}
-                        className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
-                    >
-                        <ArrowLeft className="h-4 w-4" /> Back to Roster
-                    </button>
-                )}
-                title={(
-                    <span className="inline-flex flex-wrap items-center justify-center gap-2">
-                        <span>{targetUser.displayName || targetUser.email || "User"}</span>
-                        {targetUser.status !== "active" ? (
-                            <span className="rounded-full border border-red-500/20 bg-red-500/20 px-2 py-0.5 text-[10px] uppercase text-red-400">
-                                {targetUser.status}
-                            </span>
-                        ) : null}
-                    </span>
-                )}
-                compact
-                subtitle={(
-                    <span className="flex flex-col items-center gap-1 text-center sm:flex-row sm:flex-wrap sm:justify-center">
-                        <span className="font-mono text-xs text-gray-400">{targetUser.email || "No email"}</span>
-                        <span className="hidden text-gray-600 sm:inline">|</span>
-                        <span className="break-all font-mono text-xs text-gray-500">{targetUser.uid}</span>
-                        <span className="hidden text-gray-600 sm:inline">|</span>
-                        <span className="inline-flex items-center gap-1 text-xs text-brand-purple/80">
-                            <CalendarDays className="h-3 w-3" />
-                            Joined {format(targetUser.createdAt, "PPP")}
-                        </span>
-                    </span>
-                )}
-                actions={(
-                    <div className="flex w-full max-w-2xl flex-col gap-3 sm:flex-row sm:items-stretch">
-                        <div className="flex min-h-[5.75rem] flex-1 items-center justify-center gap-4 rounded-[1.6rem] border border-white/10 bg-black/35 px-5 py-4">
-                            <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-brand-purple/30 bg-zinc-800">
-                                {targetUser.photoURL ? (
-                                    <Image src={targetUser.photoURL} alt="Avatar" fill sizes="64px" className="object-cover" />
-                                ) : (
-                                    <div className="flex h-full w-full items-center justify-center bg-black text-2xl font-black text-white">
-                                        {targetUser.displayName?.charAt(0) || "U"}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="text-left">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Profile Snapshot</p>
-                                <p className="mt-1 text-sm font-semibold text-white">
-                                    {targetUser.username ? `@${targetUser.username}` : "No public username"}
-                                </p>
-                                <p className="mt-1 text-xs text-gray-500">Behavior and protection details for this account.</p>
-                            </div>
-                        </div>
-                        <div className="grid flex-1 grid-cols-2 gap-3">
-                            <div className="rounded-[1.6rem] border border-white/10 bg-black/35 px-4 py-4 text-center">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Current Balance</p>
-                                <p className="mt-2 text-2xl font-black text-brand-purple">{formatProfileMetricLabel(targetUser.gumDropsBalance)}</p>
-                            </div>
-                            <div className="rounded-[1.6rem] border border-white/10 bg-black/35 px-4 py-4 text-center">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Total Drops</p>
-                                <p className="mt-2 text-2xl font-black text-white">{formatProfileMetricLabel(targetUser.unlockedContent?.length)}</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
+            <AdminUserDetailMasthead
+                user={targetUser}
+                joinedLabel={format(targetUser.createdAt, "PPP")}
+                onBack={() => router.back()}
             />
-
             {isLocalAdminUserDetailFixture ? (
                 <div
                     className="rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
@@ -856,7 +798,7 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             ) : null}
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-4">
                 <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
                         <Activity className="h-4 w-4 text-brand-purple" /> Account Summary
@@ -1447,7 +1389,7 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             </details>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-4">
                 <div className="glass-panel rounded-3xl border border-white/5 p-6">
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
                         <Play className="h-4 w-4 text-brand-purple" /> Top Viewed Drops
@@ -1623,7 +1565,7 @@ export default function AdminUserAnalyticsPage() {
                     ) : null}
                 </details>
             </div>
-        </div>
+        </AdminUsersOperations>
     );
 }
 

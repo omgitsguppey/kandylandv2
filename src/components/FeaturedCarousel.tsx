@@ -4,9 +4,8 @@ import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
-import { Clock, Eye, Image as ImageIcon, Lock, Unlock } from "lucide-react";
+import { ArrowUpRight, Clock, Eye, Image as ImageIcon, Lock, Sparkles, Unlock } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
@@ -38,39 +37,39 @@ type DropTimingUrgency = DropCountdownUrgency;
 type FeaturedCoverAccentName = "cherry" | "watermelon" | "honey" | "lemon" | "peach" | "bubblegum" | "chocolate" | "brand";
 type FeaturedSocialProofType = "unwraps" | "views";
 
-const FEATURED_CHIP_BASE_CLASSNAME = "border text-white shadow-[0_8px_24px_rgba(0,0,0,0.38)] backdrop-blur-xl";
+const FEATURED_CHIP_BASE_CLASSNAME = "border border-white/16 bg-black/64 text-white";
 const FEATURED_COVER_ACCENTS: Record<FeaturedCoverAccentName, { ctaGradientClass: string; chipGlassClass: string }> = {
     cherry: {
-        ctaGradientClass: "border-rose-200/45 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 shadow-[0_0_18px_rgba(244,63,94,0.30)]",
-        chipGlassClass: "border-rose-100/25 bg-black/70 ring-1 ring-rose-500/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
     watermelon: {
-        ctaGradientClass: "border-emerald-100/45 bg-gradient-to-r from-emerald-500 via-rose-500 to-fuchsia-500 shadow-[0_0_18px_rgba(16,185,129,0.24)]",
-        chipGlassClass: "border-emerald-100/25 bg-black/70 ring-1 ring-emerald-500/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
     honey: {
-        ctaGradientClass: "border-amber-100/50 bg-gradient-to-r from-amber-500 via-orange-400 to-purple-500 shadow-[0_0_18px_rgba(245,158,11,0.28)]",
-        chipGlassClass: "border-amber-100/25 bg-stone-950/72 ring-1 ring-amber-500/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
     lemon: {
-        ctaGradientClass: "border-yellow-100/55 bg-gradient-to-r from-yellow-400 via-amber-500 to-purple-500 shadow-[0_0_18px_rgba(250,204,21,0.26)]",
-        chipGlassClass: "border-yellow-100/25 bg-stone-950/72 ring-1 ring-yellow-400/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
     peach: {
-        ctaGradientClass: "border-orange-100/50 bg-gradient-to-r from-orange-400 via-pink-400 to-purple-500 shadow-[0_0_18px_rgba(251,146,60,0.25)]",
-        chipGlassClass: "border-orange-100/25 bg-black/68 ring-1 ring-orange-400/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
     bubblegum: {
-        ctaGradientClass: "border-pink-100/45 bg-gradient-to-r from-pink-400 via-fuchsia-500 to-purple-500 shadow-[0_0_18px_rgba(236,72,153,0.28)]",
-        chipGlassClass: "border-pink-100/25 bg-black/68 ring-1 ring-pink-500/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
     chocolate: {
-        ctaGradientClass: "border-amber-100/35 bg-gradient-to-r from-stone-800 via-amber-800 to-purple-600 shadow-[0_0_18px_rgba(120,53,15,0.32)]",
-        chipGlassClass: "border-amber-100/20 bg-stone-950/76 ring-1 ring-amber-700/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
     brand: {
-        ctaGradientClass: "border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 shadow-[0_0_15px_rgba(164,118,255,0.24)]",
-        chipGlassClass: "border-white/25 bg-black/65 ring-1 ring-black/20",
+        ctaGradientClass: "border-brand-purple/50 bg-brand-purple/18",
+        chipGlassClass: "border-white/16 bg-black/64",
     },
 };
 
@@ -228,19 +227,16 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
     } as CSSProperties;
 
     return (
-        <section className="mb-4 w-full space-y-2 md:mb-7 md:space-y-4" data-featured-drops-density="compact-mobile">
-            <div className="flex items-center gap-2 px-1 md:px-0">
-                <h2 className="text-base font-black tracking-tight text-white md:text-2xl">Featured Drops</h2>
-                <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
-            </div>
-
-            <div
+        <section className="w-full" data-featured-drops-density="creative-tim-editorial">
+            <div className="min-w-0">
+                <div className="min-w-0">
+                    <div
                 className={cn(
-                    "group relative mx-auto block w-full overflow-hidden rounded-[1.35rem] border border-white/10 shadow-[0_14px_34px_rgba(164,118,255,0.16)] md:rounded-[2rem]",
+                    "group relative mx-auto block w-full overflow-hidden rounded-[1.6rem] border border-white/12 bg-black/30 shadow-[0_26px_80px_rgba(0,0,0,0.34)] md:rounded-[2rem]",
                     "[aspect-ratio:16/10] sm:[aspect-ratio:var(--featured-drop-ratio)]",
-                    activeAspectRatio === "16:9" && "max-w-[590px]",
-                    activeAspectRatio === "1:1" && "max-w-[500px]",
-                    activeAspectRatio === "9:16" && "max-w-[348px]",
+                    activeAspectRatio === "16:9" && "max-w-[760px]",
+                    activeAspectRatio === "1:1" && "max-w-[590px]",
+                    activeAspectRatio === "9:16" && "max-w-[390px]",
                 )}
                 style={aspectStyle}
                 ref={setCarouselViewportRef}
@@ -259,9 +255,9 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                         />
                     ))}
                 </div>
-            </div>
+                    </div>
 
-            <div className="flex justify-center gap-0">
+                    <div className="mt-2 flex justify-center gap-1.5 md:mt-3">
                 {featuredDrops.map((drop, index) => (
                     <button
                         key={drop.id}
@@ -271,20 +267,19 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                             startAutoAdvance();
                         }}
                         className={cn(
-                            "flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black",
+                            "flex min-h-11 min-w-11 items-center justify-center rounded-full border text-xs font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black",
+                            index === safeActiveIndex
+                                ? "border-brand-purple/55 bg-brand-purple/20 text-white"
+                                : "border-white/10 bg-black/25 text-white/55 hover:border-white/25 hover:text-white",
                         )}
                         aria-label={`Go to featured Drop ${index + 1}`}
                         aria-current={index === safeActiveIndex}
                     >
-                        <span
-                            aria-hidden="true"
-                            className={cn(
-                                "block h-2 rounded-full transition-all",
-                                index === safeActiveIndex ? "w-6 bg-brand-purple" : "w-2 bg-white/25",
-                            )}
-                        />
+                        <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                     </button>
                 ))}
+                    </div>
+                </div>
             </div>
         </section>
     );
@@ -367,7 +362,7 @@ function FeaturedDropSlide({
                 className="absolute inset-0 block h-full w-full text-left"
                 tabIndex={isActive ? 0 : -1}
             >
-                <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_0%,rgba(164,118,255,0.30),transparent_44%)]" />
+                <div className="absolute inset-0 z-0 bg-brand-purple/10" />
                 <NextImage
                     src={coverSrc}
                     alt={drop.title}
@@ -381,16 +376,16 @@ function FeaturedDropSlide({
                     {...getImagePolicyDataAttributes(imagePolicy)}
                 />
                 {visibilityState.shouldBlurCover ? <div className="absolute inset-0 bg-black/20" aria-hidden="true" /> : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-black/45" />
 
-                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 md:left-4 md:top-4 md:gap-2">
-                    <Badge variant="outline" className={cn("!rounded-[0.75rem] !px-2.5 !py-1 !text-[9px] !font-black uppercase tracking-[0.14em] !text-white md:!text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}>
-                        Featured
-                    </Badge>
+                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 md:left-5 md:top-5 md:gap-2">
+                    <span className={cn("border-b px-0 py-1 text-[9px] font-black uppercase tracking-[0.16em] md:text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}>
+                        Live release
+                    </span>
 
                     {images > 0 || videos > 0 ? (
                         <div
-                            className={cn("flex items-center gap-1.5 rounded-[0.75rem] px-2.5 py-1 text-[9px] font-bold md:text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}
+                            className={cn("flex items-center gap-1.5 border-b px-0 py-1 text-[9px] font-bold md:text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}
                             aria-label={`${images > 0 ? `${images} ${images === 1 ? "image" : "images"}` : ""}${images > 0 && videos > 0 ? ", " : ""}${videos > 0 ? `${videos} ${videos === 1 ? "video" : "videos"}` : ""}`}
                         >
                             {images > 0 ? (
@@ -409,44 +404,54 @@ function FeaturedDropSlide({
                     ) : null}
                 </div>
 
-                <div className="absolute right-3 top-3 z-20 md:right-4 md:top-4">
+                <div className="absolute right-3 top-3 z-20 md:right-5 md:top-5">
                     <TimerWithProgress validUntil={drop.validUntil} coverAccent={coverAccent} />
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 space-y-1.5 p-4 md:space-y-2 md:p-6">
-                    <div className="w-full max-w-full overflow-hidden">
-                        <TitleMarquee
-                            title={drop.title}
-                            delaySeed={drop.id.charCodeAt(0) % 6}
-                            className="text-lg font-black leading-tight text-white md:text-2xl"
-                        />
-                    </div>
-                    <p className="line-clamp-2 text-xs leading-relaxed text-gray-300 md:text-sm">{drop.description}</p>
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(12rem,0.45fr)] md:items-end">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/55">
+                                <span>Drop {String(index + 1).padStart(2, "0")}</span>
+                                <span className="h-px w-8 bg-brand-purple/70" aria-hidden="true" />
+                                <span>Limited</span>
+                            </div>
+                            <div className="w-full max-w-full overflow-hidden">
+                                <TitleMarquee
+                                    title={drop.title}
+                                    delaySeed={drop.id.charCodeAt(0) % 6}
+                                    className="text-2xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-4xl"
+                                />
+                            </div>
+                            <p className="line-clamp-2 max-w-xl text-xs leading-relaxed text-gray-200 md:text-sm">{drop.description}</p>
+                            <div
+                                className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-white/80 md:text-xs"
+                                data-featured-social-proof-type={socialProof.type}
+                            >
+                                {socialProof.type === "unwraps" ? (
+                                    <Unlock className="h-3.5 w-3.5 text-brand-purple" />
+                                ) : (
+                                    <Eye className="h-3.5 w-3.5 text-brand-purple" />
+                                )}
+                                <span>{socialProof.label}</span>
+                            </div>
+                        </div>
 
-                    <div
-                        className="flex items-center gap-1.5 pb-0.5 text-[11px] font-semibold text-white/80 md:text-xs"
-                        data-featured-social-proof-type={socialProof.type}
-                    >
-                        {socialProof.type === "unwraps" ? (
-                            <Unlock className="h-3.5 w-3.5 text-brand-purple" />
-                        ) : (
-                            <Eye className="h-3.5 w-3.5 text-brand-purple" />
-                        )}
-                        <span>{socialProof.label}</span>
-                    </div>
-
-                    <div className="w-full max-w-[230px] pt-1 md:max-w-[260px] md:pt-2">
-                        <div
-                            className={cn(
-                                "flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.9rem] border px-3 py-2 text-xs font-black text-white transition-transform active:scale-[0.98] md:rounded-xl md:px-4 md:py-2.5 md:text-sm",
-                                "drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]",
-                                coverAccent.ctaGradientClass,
-                            )}
-                            data-featured-cta-accent={coverAccent.accentName}
-                            data-featured-cta-cover-aware="true"
-                        >
-                            {visibilityState.ctaState === "view" ? <Unlock className="h-3.5 w-3.5 md:h-4 md:w-4" /> : <Lock className="h-3.5 w-3.5 md:h-4 md:w-4" />}
-                            {ctaLabel}
+                        <div className="flex flex-col items-start gap-3 md:items-stretch">
+                            <span className="text-xs font-bold text-white/65">{drop.unlockCost.toLocaleString()} GD</span>
+                            <div
+                                className={cn(
+                                    "flex min-h-11 w-full items-center justify-center gap-2 rounded-[1rem] border px-4 py-2 text-xs font-black text-white transition-transform active:scale-[0.98] md:text-sm",
+                                    "drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]",
+                                    coverAccent.ctaGradientClass,
+                                )}
+                                data-featured-cta-accent={coverAccent.accentName}
+                                data-featured-cta-cover-aware="true"
+                            >
+                                {visibilityState.ctaState === "view" ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                                {ctaLabel}
+                                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                            </div>
                         </div>
                     </div>
                 </div>

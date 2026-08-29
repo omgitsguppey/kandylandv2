@@ -2,6 +2,7 @@
 
 import { Section, Pill } from "./DebugPrimitives";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream";
 
 export interface DebugTabInfrastructureProps {
     data: any;
@@ -42,7 +43,11 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
     const inventory = data?.infrastructure;
 
     return (
-        <div className="space-y-4">
+        <AdminDebugWorkstream
+            eyebrow="Infrastructure"
+            title="Runtime and dependency evidence"
+            subtitle="Declared inventory and observed connectivity remain separate so package presence is never treated as runtime proof."
+        >
             <Section
                 title="Infrastructure Health & Dependencies"
                 subtitle="Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use."
@@ -55,8 +60,8 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                                <div className="rounded border border-white/5 bg-black/20 p-4" data-debug-dependency-generated-at-utc={inventory.generatedAtUtc}>
+                            <div className="grid gap-3 2xl:grid-cols-2">
+                                <div className="rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(178,140,255,0.1),rgba(8,7,16,0.78))] p-4" data-debug-dependency-generated-at-utc={inventory.generatedAtUtc}>
                                     <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Environment & runtime checks</h3>
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between gap-3">
@@ -83,7 +88,7 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                     <p className="mt-3 text-xs text-gray-400">Declared package versions are inventory truth. Runtime connectivity is shown separately and does not imply every dependency is active in-process.</p>
                                 </div>
 
-                                <div className="rounded border border-white/5 bg-black/20 p-4">
+                                <div className="rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.06),rgba(8,7,16,0.78))] p-4">
                                     <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Inventory counts</h3>
                                     <div className="flex flex-wrap gap-2">
                                         <Pill label="Runtime deps" value={inventory.totals?.runtimeDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
@@ -102,7 +107,7 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                 </div>
                             </div>
 
-                            <div className="rounded border border-white/5 bg-black/20 p-4">
+                            <div className="rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.06),rgba(8,7,16,0.78))] p-4">
                                 <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Dependency groups</h3>
                                 <div className="space-y-3" data-debug-dependency-group-count={inventory.groups?.length ?? 0}>
                                     {(inventory.groups || []).map((group: any) => (
@@ -247,6 +252,6 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                     </div>
                 )}
             </Section>
-        </div>
+        </AdminDebugWorkstream>
     );
 }

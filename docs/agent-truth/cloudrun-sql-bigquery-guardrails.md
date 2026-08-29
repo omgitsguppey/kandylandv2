@@ -62,6 +62,8 @@ Forbidden runtime paths without an explicit owner-approved SQL/Data Connect cont
 
 Cloud SQL can bill while provisioned/running. Confirm `kandydrops-db` status in Cloud Console. Source config does not prove whether the instance is active, paused, deleted, or billed. Current source-only status is `source_configured_provider_state_unverified`.
 
+The maintenance contract at `docs/agent-truth/maintenance-mode-cost-contract.md` is the canonical maintenance decision: stop Cloud SQL compute and retain storage unless an explicitly approved capability needs it. Provider inventory also identified `kandydrops-by-ikandy-instance`; no checked-in product consumer was found, so it is classified as a legacy/external candidate, not safe to delete from source evidence alone. Its connector, unique data, retention, export, and rollback ownership must be verified before decommissioning.
+
 Provider fields that must be manually recorded before treating the mirror as cost-safe:
 
 - active/paused/deleted status
@@ -118,6 +120,7 @@ The current import status is `runtime_import_blocked`; `importBackToRuntimeAllow
 - Check Cloud Run max instances for each deployed service
 - Check Cloud Run concurrency
 - Check Cloud SQL instance `kandydrops-db` active/paused/deleted
+- Check Cloud SQL instance `kandydrops-by-ikandy-instance` active/paused/deleted and its Data Connect connector owner
 - Check Cloud SQL tier/storage/backups/HA/read replicas
 - Check Data Connect operation usage
 - Check BigQuery linked Firebase exports

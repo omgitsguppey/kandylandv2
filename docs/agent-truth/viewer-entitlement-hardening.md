@@ -4,9 +4,9 @@ Generated source-only Batch 10 evidence. No production reads, deploys, provider 
 
 ```json
 {
-  "generatedAtUtc": "2026-07-14T07:18:21.807Z",
+  "generatedAtUtc": "2026-08-29T01:48:37.683Z",
   "reportKey": "viewer-entitlement-hardening",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
   "viewerRouteEntitlementGuarded": true,
   "rawDropSanitized": true,
   "privateMediaHiddenUntilEntitled": true,

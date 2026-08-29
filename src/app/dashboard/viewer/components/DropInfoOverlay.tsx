@@ -1,197 +1,226 @@
+import { useMemo } from "react";
 import Link from "next/link";
 import NextImage from "next/image";
-import { CheckCircle2, ShoppingBag, Download, Eye, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
-import { Drop } from "@/types/db";
-import { formatUnwrappedLabel, sanitizeDropTags } from "../ViewerHelpers";
-import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { CheckCircle2, Download, Eye, Loader2, ShoppingBag, ThumbsDown, ThumbsUp } from "lucide-react";
+
+import { Card, CardContent } from "@/components/creative-tim/ui/card";
+import { ViewerDetailCanvas } from "@/components/creative-tim/kandydrops/viewer/ViewerDetailCanvas";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
+import { cn } from "@/lib/utils";
+import type { Drop } from "@/types/db";
+
+import { formatUnwrappedLabel, sanitizeDropTags } from "../ViewerHelpers";
 
 interface DropInfoOverlayProps {
-    drop: Drop;
-    user: any;
-    userProfile: any;
-    contentBlobUrl: string | null;
-    activeIndex: number;
-    initialCreatorProfile?: { uid: string; displayName: string; username: string; photoURL: string | null; isVerified: boolean; } | null;
-    following: boolean;
-    submittingFollow: boolean;
-    handleFollow: () => void;
-    feedbackComplete: boolean;
-    submittingFeedback: boolean;
-    feedbackValue: boolean | null;
-    handleFeedback: (val: boolean) => void;
-    retentionDrops: Drop[];
-    handleRelatedDropClick: (destination: string, type: string) => void;
-    recordDownload: () => void;
+  drop: Drop;
+  user: any;
+  userProfile: any;
+  contentBlobUrl: string | null;
+  activeIndex: number;
+  initialCreatorProfile?: { uid: string; displayName: string; username: string; photoURL: string | null; isVerified: boolean; } | null;
+  following: boolean;
+  submittingFollow: boolean;
+  handleFollow: () => void;
+  feedbackComplete: boolean;
+  submittingFeedback: boolean;
+  feedbackValue: boolean | null;
+  handleFeedback: (val: boolean) => void;
+  retentionDrops: Drop[];
+  handleRelatedDropClick: (destination: string, type: string) => void;
+  recordDownload: () => void;
 }
 
 export function DropInfoOverlay({
-    drop,
-    user,
-    userProfile,
-    contentBlobUrl,
-    activeIndex,
-    initialCreatorProfile,
-    following,
-    submittingFollow,
-    handleFollow,
-    feedbackComplete,
-    submittingFeedback,
-    feedbackValue,
-    handleFeedback,
-    retentionDrops,
-    handleRelatedDropClick,
-    recordDownload,
+  drop,
+  user,
+  userProfile,
+  contentBlobUrl,
+  activeIndex,
+  initialCreatorProfile,
+  following,
+  submittingFollow,
+  handleFollow,
+  feedbackComplete,
+  submittingFeedback,
+  feedbackValue,
+  handleFeedback,
+  retentionDrops,
+  handleRelatedDropClick,
+  recordDownload,
 }: DropInfoOverlayProps) {
-    const unwrappedAt = useMemo(() => {
-        if (!userProfile?.unlockedContentTimestamps) return null;
-        const raw = userProfile.unlockedContentTimestamps[drop.id];
-        return Number.isFinite(raw) ? Math.floor(raw) : null;
-    }, [drop.id, userProfile?.unlockedContentTimestamps]);
+  const unwrappedAt = useMemo(() => {
+    if (!userProfile?.unlockedContentTimestamps) return null;
+    const raw = userProfile.unlockedContentTimestamps[drop.id];
+    return Number.isFinite(raw) ? Math.floor(raw) : null;
+  }, [drop.id, userProfile?.unlockedContentTimestamps]);
 
-    const previewTags = useMemo(() => sanitizeDropTags(drop.tags), [drop.tags]);
-    const totalUnlocks = useMemo(() => Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0, [drop.totalUnlocks]);
-    const retentionImagePolicy = getImageLoadingPolicy("dashboard_collection");
+  const previewTags = useMemo(() => sanitizeDropTags(drop.tags), [drop.tags]);
+  const totalUnlocks = useMemo(
+    () => (Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0),
+    [drop.totalUnlocks],
+  );
+  const retentionImagePolicy = getImageLoadingPolicy("dashboard_collection");
 
-    return (
-        <div className="max-w-4xl mx-auto px-4 mt-6 md:mt-8">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                <div className="flex-1">
-                    {initialCreatorProfile && (
-                        <div className="flex items-center gap-3 mb-4 p-3 bg-white/5 border border-white/10 rounded-2xl w-full max-w-sm">
-                            <NextImage
-                                src={initialCreatorProfile.photoURL || "/avatars/default.png"}
-                                alt={initialCreatorProfile.displayName}
-                                width={40} height={40} unoptimized
-                                className="rounded-full bg-black border border-white/20 object-cover w-10 h-10"
-                            />
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1">
-                                    <h3 className="text-sm font-bold text-white truncate">{initialCreatorProfile.displayName}</h3>
-                                    {initialCreatorProfile.isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-brand-purple shrink-0" />}
-                                </div>
-                                <p className="text-xs text-gray-400 truncate">@{initialCreatorProfile.username}</p>
-                            </div>
-                            <button
-                                onClick={handleFollow} disabled={submittingFollow}
-                                className={cn("px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 border",
-                                    following ? "bg-white/10 text-white border-white/20" : "bg-white text-black border-transparent hover:bg-gray-200"
-                                )}
-                            >
-                                {submittingFollow ? <Loader2 className="w-3 h-3 animate-spin"/> : following ? "Following" : "Follow"}
-                            </button>
-                        </div>
-                    )}
-                    <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-gray-400 mb-2">
-                        <span className="px-2 py-0.5 rounded bg-white/10 border border-white/5 text-brand-purple font-mono uppercase tracking-wider">#{drop.id.slice(0, 4)}</span>
-                        {previewTags.map((tag) => (
-                            <span key={tag} className={cn("px-2 py-0.5 rounded border text-[11px] font-semibold uppercase tracking-wide",
-                                tag === "Sweet" && "bg-brand-purple/20 text-brand-purple border-brand-purple/30",
-                                tag === "Spicy" && "bg-white/10 text-white border-white/20",
-                                tag === "RAW" && "bg-zinc-800/80 text-white border-white/20"
-                            )}>{tag}</span>
-                        ))}
-                        <span className="opacity-50">•</span>
-                        <span>{formatUnwrappedLabel(unwrappedAt)}</span>
-                        <span className="opacity-50">•</span>
-                        <div className="flex items-center gap-1.5 text-white/80 font-medium bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
-                            <Eye className="w-3.5 h-3.5 text-brand-purple" />
-                            <span>{totalUnlocks.toLocaleString()} unwrapped</span>
-                        </div>
-                    </div>
-                    <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">{drop.title}</h1>
-                    <div className="prose prose-invert prose-purple max-w-2xl">
-                        <p className="text-gray-400 leading-relaxed text-sm md:text-base">{drop.description}</p>
-                    </div>
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-6">
+      <ViewerDetailCanvas
+        actions={(
+          <>
+            {user.uid === drop.creatorId && contentBlobUrl ? (
+              <a
+                href={contentBlobUrl}
+                download={drop.title}
+                onClick={recordDownload}
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/75 sm:flex-none"
+              >
+                <Download className="h-4 w-4" />
+                Download Source
+              </a>
+            ) : null}
+            <Link
+              href="/drops"
+              onClick={() => handleRelatedDropClick("/drops", "browse_more")}
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:flex-none"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              Browse Drops
+            </Link>
+          </>
+        )}
+      >
+        <div>
+            {initialCreatorProfile ? (
+              <div className="mb-6 flex items-center gap-3">
+                <NextImage
+                  src={initialCreatorProfile.photoURL || "/avatars/default.png"}
+                  alt={initialCreatorProfile.displayName}
+                  width={44}
+                  height={44}
+                  unoptimized
+                  className="h-11 w-11 rounded-2xl border border-brand-purple/30 bg-brand-purple/10 object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <h2 className="truncate text-sm font-semibold text-white">{initialCreatorProfile.displayName}</h2>
+                    {initialCreatorProfile.isVerified ? <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-purple" aria-label="Verified Creator" /> : null}
+                  </div>
+                  {initialCreatorProfile.username ? <p className="truncate text-sm text-slate-400">@{initialCreatorProfile.username}</p> : null}
                 </div>
+                <button
+                  type="button"
+                  onClick={handleFollow}
+                  disabled={submittingFollow}
+                  className={cn(
+                    "inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/75 disabled:cursor-not-allowed disabled:opacity-60",
+                    following ? "border border-white/15 bg-white/5 text-white hover:bg-white/10" : "bg-brand-purple text-white shadow-lg shadow-brand-purple/25 hover:bg-fuchsia-600",
+                  )}
+                >
+                  {submittingFollow ? <Loader2 className="h-4 w-4 animate-spin" /> : following ? "Following" : "Follow"}
+                </button>
+              </div>
+            ) : null}
 
-                <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
-                    {user.uid === drop.creatorId && contentBlobUrl && (
-                        <a href={contentBlobUrl} download={drop.title} onClick={recordDownload}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm mt-1 hover:bg-white/10"
-                        >
-                            <Download className="w-4 h-4" /><span>Download Source</span>
-                        </a>
-                    )}
-                    <Link href="/drops" onClick={() => handleRelatedDropClick("/drops", "browse_more")}
-                        className="w-full px-4 py-3 rounded-xl bg-white text-black font-black text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-1"
-                    >
-                        <ShoppingBag className="w-4 h-4" /><span>Browse More Drops</span>
-                    </Link>
-                </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-400">
+              <span>{formatUnwrappedLabel(unwrappedAt)}</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Eye className="h-4 w-4 text-brand-purple" aria-hidden="true" />
+                {totalUnlocks.toLocaleString()} unwrapped
+              </span>
+              {previewTags.map((tag) => <span key={tag} className="font-medium text-fuchsia-200">{tag}</span>)}
             </div>
-
-            {user.uid !== drop.creatorId && (
-                <div className="mt-8 md:mt-12 border border-white/10 rounded-2xl bg-gradient-to-br from-white/5 to-black p-6 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 blur-3xl rounded-full" />
-                    <div className="relative z-10 flex-1 text-center sm:text-left">
-                        <h3 className="text-lg font-bold text-white mb-1">Did you enjoy this KandyDrop?</h3>
-                        <p className="text-sm text-gray-400">Share feedback to earn <span className="font-bold text-brand-purple">10 GumDrops</span> 🍬</p>
-                    </div>
-                    <div className="relative z-10 flex items-center gap-3 w-full sm:w-auto">
-                        {feedbackComplete ? (
-                            <div className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 border border-brand-purple/30 rounded-xl text-brand-purple font-bold">
-                                <CheckCircle2 className="w-4 h-4" /><span>Reward Claimed</span>
-                            </div>
-                        ) : (
-                            <>
-                                <button onClick={() => handleFeedback(true)} disabled={submittingFeedback}
-                                    className={cn("flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl border font-bold transition-all disabled:opacity-50",
-                                        feedbackValue === true ? "bg-white text-black border-white" : "bg-white/5 text-white border-white/10 hover:bg-white/10 hover:scale-105")}
-                                >
-                                    <ThumbsUp className="w-4 h-4" /><span>Yes</span>
-                                </button>
-                                <button onClick={() => handleFeedback(false)} disabled={submittingFeedback}
-                                    className={cn("flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl border font-bold transition-all disabled:opacity-50",
-                                        feedbackValue === false ? "bg-white text-black border-white" : "bg-white/5 text-white border-white/10 hover:bg-white/10 hover:scale-105")}
-                                >
-                                    <ThumbsDown className="w-4 h-4" /><span>No</span>
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {retentionDrops.length > 0 && (
-                <div className="mt-8 md:mt-12 border-t border-white/5 pt-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <h3 className="text-lg font-bold text-white">Continue Unwrapping</h3>
-                        <div className="h-px bg-white/10 flex-1" />
-                    </div>
-                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-                        {retentionDrops.map((retentionDrop) => (
-                            <Link key={retentionDrop.id} href={`/dashboard/viewer?id=${retentionDrop.id}`} onClick={() => handleRelatedDropClick(retentionDrop.id, "library_related")} className="group block w-40 md:w-48 shrink-0 snap-start">
-                                <div className="aspect-[3/4] bg-zinc-900 rounded-xl border border-white/10 overflow-hidden relative mb-3 shadow-lg">
-                                    {retentionDrop.imageUrl ? (
-                                        <NextImage
-                                            src={retentionDrop.imageUrl}
-                                            alt={retentionDrop.title}
-                                            fill
-                                            loading={retentionImagePolicy.loading}
-                                            preload={retentionImagePolicy.preload}
-                                            fetchPriority={retentionImagePolicy.fetchPriority}
-                                            quality={retentionImagePolicy.quality}
-                                            sizes={retentionImagePolicy.sizes}
-                                            className="object-cover bg-black group-hover:scale-105 transition-transform duration-700 ease-out"
-                                            {...getImagePolicyDataAttributes(retentionImagePolicy)}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-3xl">🍬</div>
-                                    )}
-                                    <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black via-black/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-                                </div>
-                                <p className="text-sm font-bold text-white line-clamp-1 group-hover:text-brand-purple transition-colors leading-tight drop-shadow-sm">{retentionDrop.title}</p>
-                                <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-400 font-medium">
-                                    <Eye className="w-3 h-3 text-brand-purple opacity-80" />
-                                    <span>{(retentionDrop.totalUnlocks || 0).toLocaleString()} unwrapped</span>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{drop.title}</h1>
+            {drop.description ? <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">{drop.description}</p> : null}
         </div>
-    );
+      </ViewerDetailCanvas>
+
+      {user.uid !== drop.creatorId ? (
+        <Card className="relative overflow-hidden rounded-3xl border-brand-purple/20 bg-slate-950/80 py-0 text-white shadow-xl shadow-black/15">
+          <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-brand-purple/20 blur-3xl" aria-hidden="true" />
+          <CardContent className="relative flex flex-col items-center justify-between gap-5 px-5 py-6 text-center sm:flex-row sm:px-7 sm:text-left">
+            <div>
+              <h2 className="text-xl font-semibold text-white">Did you enjoy this KandyDrop?</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-300">Share feedback to earn 10 GumDrops.</p>
+            </div>
+            <div className="flex w-full gap-3 sm:w-auto">
+              {feedbackComplete ? (
+                <div className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-purple/15 px-5 text-sm font-semibold text-fuchsia-200 sm:w-auto">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Reward claimed
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleFeedback(true)}
+                    disabled={submittingFeedback}
+                    className={cn(
+                      "inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/75 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none",
+                      feedbackValue === true ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/25" : "border border-white/15 bg-white/5 text-white hover:bg-white/10",
+                    )}
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleFeedback(false)}
+                    disabled={submittingFeedback}
+                    className={cn(
+                      "inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/75 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none",
+                      feedbackValue === false ? "bg-white text-slate-950" : "border border-white/15 bg-white/5 text-white hover:bg-white/10",
+                    )}
+                  >
+                    <ThumbsDown className="h-4 w-4" />
+                    No
+                  </button>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {retentionDrops.length > 0 ? (
+        <section className="pt-2">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-brand-purple">Keep exploring</p>
+              <h2 className="mt-1 text-2xl font-semibold text-white">Continue unwrapping</h2>
+            </div>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-3">
+            {retentionDrops.map((retentionDrop) => (
+              <Link
+                key={retentionDrop.id}
+                href={`/dashboard/viewer?id=${retentionDrop.id}`}
+                onClick={() => handleRelatedDropClick(retentionDrop.id, "library_related")}
+                className="group w-44 shrink-0 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-lg shadow-black/10 transition hover:-translate-y-1 hover:border-brand-purple/50 sm:w-52"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-900">
+                  {retentionDrop.imageUrl ? (
+                    <NextImage
+                      src={retentionDrop.imageUrl}
+                      alt={retentionDrop.title}
+                      fill
+                      loading={retentionImagePolicy.loading}
+                      preload={retentionImagePolicy.preload}
+                      fetchPriority={retentionImagePolicy.fetchPriority}
+                      quality={retentionImagePolicy.quality}
+                      sizes={retentionImagePolicy.sizes}
+                      className="object-cover transition duration-500 group-hover:scale-105"
+                      {...getImagePolicyDataAttributes(retentionImagePolicy)}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-brand-purple/10 text-2xl text-brand-purple">K</div>
+                  )}
+                </div>
+                <p className="mt-3 truncate text-sm font-semibold text-white group-hover:text-fuchsia-200">{retentionDrop.title}</p>
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-400"><Eye className="h-3.5 w-3.5 text-brand-purple" />{(retentionDrop.totalUnlocks || 0).toLocaleString()} unwrapped</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
 }

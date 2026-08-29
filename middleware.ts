@@ -16,11 +16,15 @@ import { isMaintenanceModeEnabled } from "@/lib/maintenance-mode";
 import { getCanonicalSiteHost } from "@/lib/site-origin";
 import { cheap4xxResponse } from "@/lib/server/cheap-4xx-response";
 import { isInternalBypassPath, isKnownBotProbePath, isKnownLegacyPath } from "@/lib/server/route-4xx-classifier";
+import {
+  MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH,
+  MAINTENANCE_ADMIN_API_PATH,
+  MAINTENANCE_ADMIN_BOOTSTRAP_PATH,
+  MAINTENANCE_ADMIN_DROP_PREFLIGHT_PATH,
+  MAINTENANCE_NAVIGATION_SESSION_PATH,
+  isMaintenanceBlockedAdminApiPath,
+} from "./shared/runtime/maintenance-mode-contract";
 
-const MAINTENANCE_ADMIN_BOOTSTRAP_PATH = "/maintenance/admin";
-const NAVIGATION_SESSION_PATH = "/api/auth/navigation-session";
-const ADMIN_API_PATH = "/api/admin";
-const ADMIN_DROP_PREFLIGHT_PATH = "/api/drops/duplicate-filenames";
 
 function buildMaintenanceResponse() {
   const adminAccess = '<p class="admin-access"><a href="/maintenance/admin">Admin access</a></p>';
@@ -131,14 +135,34 @@ function buildMaintenanceResponse() {
   });
 }
 
+function buildMaintenanceApiResponse() {
+  return NextResponse.json(
+    {
+      state: "maintenance",
+      message: "KandyDrops is upgrading. We will be back soon.",
+    },
+    {
+      status: 503,
+      headers: {
+        "cache-control": "no-store",
+        "retry-after": "120",
+        "content-security-policy": "default-src 'none';",
+        "x-frame-options": "DENY",
+        "referrer-policy": "no-referrer",
+        "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      },
+    },
+  );
+}
+
 function isAdminPagePath(pathname: string) {
   return pathname === "/admin" || pathname.startsWith("/admin/");
 }
 
 function isReviewedAdminApiPath(pathname: string) {
-  return pathname === ADMIN_API_PATH
-    || pathname.startsWith(ADMIN_API_PATH + "/")
-    || pathname === ADMIN_DROP_PREFLIGHT_PATH;
+  return pathname === MAINTENANCE_ADMIN_API_PATH
+    || pathname.startsWith(MAINTENANCE_ADMIN_API_PATH + "/")
+    || pathname === MAINTENANCE_ADMIN_DROP_PREFLIGHT_PATH;
 }
 
 function isMaintenanceTicketPath(pathname: string) {
@@ -161,12 +185,20 @@ export async function middleware(request: NextRequest) {
   if (isMaintenanceModeEnabled()) {
     if (
       pathname === MAINTENANCE_ADMIN_BOOTSTRAP_PATH
-      || (pathname === NAVIGATION_SESSION_PATH && request.method === "POST")
+      || (pathname === MAINTENANCE_NAVIGATION_SESSION_PATH && request.method === "POST")
     ) {
       return NextResponse.next();
     }
 
+    if (isMaintenanceBlockedAdminApiPath(pathname)) {
+      return buildMaintenanceApiResponse();
+    }
+
     if (isMaintenanceTicketPath(pathname)) {
+      if (pathname === MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH) {
+        return buildMaintenanceApiResponse();
+      }
+
       const ticket = await verifyMaintenanceAdminSessionCookieValue(
         request.cookies.get(MAINTENANCE_ADMIN_SESSION_COOKIE)?.value,
       );
@@ -177,23 +209,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json(
-        {
-          state: "maintenance",
-          message: "KandyDrops is upgrading. We will be back soon.",
-        },
-        {
-          status: 503,
-          headers: {
-            "cache-control": "no-store",
-            "retry-after": "120",
-            "content-security-policy": "default-src 'none';",
-            "x-frame-options": "DENY",
-            "referrer-policy": "no-referrer",
-            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
-          },
-        },
-      );
+      return buildMaintenanceApiResponse();
     }
 
     return buildMaintenanceResponse();

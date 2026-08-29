@@ -35,6 +35,7 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const walletFrame = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx");
 const paypalProvider = readRequired("src/components/PayPalProvider.tsx");
 const paypalCreate = readRequired("src/app/api/paypal/create/route.ts");
 const paypalCapture = readRequired("src/app/api/paypal/capture/route.ts");
@@ -66,12 +67,13 @@ for (const expected of [
   "data-wallet-paypal-funding-source=\"paypal\"",
   "data-wallet-paypal-buttons-visible=\"1\"",
   "data-wallet-checkout-density=\"single-button\"",
-  "data-wallet-density=\"public-beta-compact\"",
   "h-[45px] w-full bg-white/10 rounded-full animate-pulse",
   "max-h-[58px]",
 ]) {
   requireIncludes(purchaseModal, expected, "PurchaseModal compact checkout markers");
 }
+
+requireIncludes(walletFrame, "data-wallet-density=\"public-beta-compact\"", "Canonical wallet modal density marker");
 
 for (const expected of [
   "stage: \"paypal_single_button_render\"",

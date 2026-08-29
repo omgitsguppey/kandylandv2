@@ -1,10 +1,10 @@
 # User Profile API Contract
 
-Generated: 2026-07-16T04:27:46.684Z
+Generated: 2026-08-09T23:36:09.978Z
 
 ## Status
 
-passed
+failed
 
 ## Contract
 
@@ -23,4 +23,4 @@ passed
 
 ## Failures
 
-- None
+- protected surfaces changed: src/app/dashboard/chat/page.tsx, src/components/Chat/ChatExperience.tsx, src/components/Navbar.tsx, src/components/Navigation/AdminDropdown.tsx, src/components/Navigation/MobileBottomBar.tsx, src/components/Navigation/ProfileDropdown.tsx, src/components/Navigation/ProfileSidebar.tsx

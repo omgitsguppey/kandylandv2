@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-15T04:04:11.897Z",
+  "generatedAt": "2026-08-29T02:33:49.088Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 815,
+  "validatorCount": 817,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -212,6 +212,8 @@
       "check:integrity-demotions",
       "check:inventory",
       "check:lost-data-recovery-dry-run",
+      "check:maintenance-config",
+      "check:maintenance-config:live",
       "check:manual-qa-readiness-gate",
       "check:manual-utility-separation",
       "check:march-first-event-recovery",
@@ -1398,6 +1400,8 @@
     "check:legal-payment-copy": "wallet",
     "check:live-evidence-gate-replacement": "admin-debug",
     "check:lost-data-recovery-dry-run": "repo-governance",
+    "check:maintenance-config": "repo-governance",
+    "check:maintenance-config:live": "repo-governance",
     "check:manual-qa-readiness-gate": "repo-governance",
     "check:manual-utility-separation": "repo-governance",
     "check:march-first-event-recovery": "repo-governance",

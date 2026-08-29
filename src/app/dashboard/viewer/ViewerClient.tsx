@@ -27,6 +27,7 @@ import { ThumbnailsSlider } from "./components/ThumbnailsSlider";
 import { DropInfoOverlay } from "./components/DropInfoOverlay";
 import { ViewerFrame } from "./components/ViewerFrame";
 import { ContentSatisfactionPrompt } from "@/components/Feedback/ContentSatisfactionPrompt";
+import { ViewerAccessState } from "@/components/creative-tim/kandydrops/viewer/ViewerAccessState";
 
 interface ViewerClientProps {
     drop: Drop | null;
@@ -201,52 +202,60 @@ export function ViewerClient({ drop, requestedDropId, initialCreatorProfile }: V
 
     if (accessState.status === "denied_not_logged_in") {
         return (
-            <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
-                <Lock className="w-12 h-12 text-white/50 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-white mb-2">Sign in Required</h1>
-                <p className="text-gray-400 mb-6">You must be signed in to view this content.</p>
-                <Link href="/auth" className="px-6 py-3 bg-white text-black font-bold rounded-full">Sign In</Link>
-            </div>
+            <ViewerAccessState
+                eyebrow="Private Drop"
+                icon={<Lock className="h-7 w-7" />}
+                title="Sign in to continue"
+                message="Sign in to view this Drop in your collection."
+            >
+                <Link href="/auth" className="inline-flex min-h-11 items-center rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600">
+                    Sign in
+                </Link>
+            </ViewerAccessState>
         );
     }
 
     if (accessState.status === "denied_drop_missing" || !drop) {
         return (
-            <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
-                <ShieldCheck className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-white mb-2">Drop unavailable</h1>
-                <p className="text-gray-400 mb-6">This drop could not be found.</p>
-                <button onClick={() => router.push(USER_LIBRARY_ROUTE)} className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20">Back to Library</button>
-            </div>
+            <ViewerAccessState
+                eyebrow="Viewing room"
+                icon={<ShieldCheck className="h-7 w-7" />}
+                title="This Drop is unavailable"
+                message="This Drop could not be found in your collection."
+            >
+                <button type="button" onClick={() => router.push(USER_LIBRARY_ROUTE)} className="inline-flex min-h-11 items-center rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600">
+                    Back to library
+                </button>
+            </ViewerAccessState>
         );
     }
 
     if (accessState.status === "error" || contentError) {
         return (
-            <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
-                <ShieldCheck className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-white mb-2">Drop access is still loading</h1>
-                <p className="text-gray-400 mb-6">We could not confirm access for this drop. Refresh the page or report the issue so we can inspect the access state.</p>
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                    <button onClick={() => router.refresh()} className="px-6 py-3 bg-white text-black font-bold rounded-full">Refresh</button>
+            <ViewerAccessState
+                eyebrow="Viewing room"
+                icon={<ShieldCheck className="h-7 w-7" />}
+                title="Drop access needs attention"
+                message="We could not confirm access for this Drop. Refresh the page or report the issue."
+            >
+                    <button type="button" onClick={() => router.refresh()} className="inline-flex min-h-11 items-center rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600">Refresh</button>
                     <ReportBugButton context={`drop-view-access:${accessState.status}`} variant="pill" label="Report access issue" />
-                </div>
-            </div>
+            </ViewerAccessState>
         );
     }
 
     if (!isAuthorized) {
         return (
-            <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
-                <ShieldCheck className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-white mb-2">Not Authorized</h1>
-                <p className="text-gray-400 mb-6">You do not have access to this drop.</p>
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                    <button onClick={() => router.push("/drops")} className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20">Go Back</button>
-                    <button onClick={() => router.push("/dashboard/library")} className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20">Open Library</button>
+            <ViewerAccessState
+                eyebrow="Private Drop"
+                icon={<Lock className="h-7 w-7" />}
+                title="This Drop is not in your collection"
+                message="Return to your library or browse Drops to find something new to unwrap."
+            >
+                    <button type="button" onClick={() => router.push("/drops")} className="inline-flex min-h-11 items-center rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">Browse Drops</button>
+                    <button type="button" onClick={() => router.push("/dashboard/library")} className="inline-flex min-h-11 items-center rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition hover:bg-fuchsia-600">Open library</button>
                     <ReportBugButton context={`drop-view-access:${accessState.status}`} variant="pill" label="Report access issue" />
-                </div>
-            </div>
+            </ViewerAccessState>
         );
     }
 
@@ -260,9 +269,9 @@ export function ViewerClient({ drop, requestedDropId, initialCreatorProfile }: V
                 <Link
                     href={USER_LIBRARY_ROUTE}
                     onClick={() => telemetry.flushSessionTelemetry()}
-                    className="flex items-center gap-2 py-2 text-sm text-gray-400 transition-colors group hover:text-white"
+                    className="group flex min-h-11 items-center gap-2 rounded-xl px-2 py-2 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white"
                 >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/5 bg-white/5 transition-all group-hover:border-white/20 group-hover:bg-white/10">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-brand-purple/40 group-hover:bg-brand-purple/10">
                         <ArrowLeft className="h-4 w-4" />
                     </div>
                     <span className="hidden font-medium sm:inline">Back to Library</span>
@@ -270,15 +279,14 @@ export function ViewerClient({ drop, requestedDropId, initialCreatorProfile }: V
                 </Link>
             )}
             securityOverlay={isSecurityTriggered && securityWarning ? (
-                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-8 text-center backdrop-blur-xl animate-in fade-in duration-200">
-                    <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 animate-pulse">
-                        <ShieldCheck className="h-10 w-10 text-red-500" />
+                <div className="absolute inset-0 z-50 grid place-items-center bg-black/90 p-6 text-center backdrop-blur-xl">
+                    <div className="max-w-md rounded-3xl border border-red-400/25 bg-slate-950/90 p-7 shadow-2xl shadow-black/40">
+                    <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
+                        <ShieldCheck className="h-8 w-8 text-red-300" />
                     </div>
-                    <h2 className="mb-3 text-2xl font-black uppercase tracking-wider text-white">{securityWarning.label}</h2>
-                    <p className="mb-8 max-w-sm text-sm leading-relaxed text-gray-400 md:text-base">{securityWarning.message}</p>
-                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs text-gray-500">
-                        <div className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
-                        Monitoring active session
+                    <p className="text-sm font-semibold text-red-200">Viewing paused</p>
+                    <h2 className="mt-2 text-2xl font-semibold text-white">{securityWarning.label}</h2>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">{securityWarning.message}</p>
                     </div>
                 </div>
             ) : null}

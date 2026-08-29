@@ -1,21 +1,29 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import NextImage from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Plus, Sparkles, Wallet } from "lucide-react";
 
+import { BetaBadge } from "@/components/ReleaseNotes/BetaBadge";
+import {
+    KandyBrandLockup,
+    KandyDesktopNavigation,
+    KandyTopNavigationFrame,
+    type KandyDesktopNavigationItem,
+} from "@/components/creative-tim/kandydrops/navigation/KandyNavigationPrimitives";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { trackEvent } from "@/lib/telemetry";
+import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
-import { BetaBadge } from "@/components/ReleaseNotes/BetaBadge";
+import { trackEvent } from "@/lib/telemetry";
 
 const ProfileDropdown = dynamic(
     () => import("@/components/Navigation/ProfileDropdown").then((mod) => mod.ProfileDropdown),
 );
 const ProfileSidebar = dynamic(
-    () => import("@/components/Navigation/ProfileSidebar").then((mod) => mod.ProfileSidebar),
+    () => import("@/components/Navigation/ProfileSidebar").then((mod) => mod.default),
 );
 const AdminDropdown = dynamic(
     () => import("@/components/Navigation/AdminDropdown").then((mod) => mod.AdminDropdown),
@@ -28,6 +36,7 @@ const AnimateBalance = dynamic(
 );
 
 export function Navbar() {
+    const pathname = usePathname();
     const { user, userProfile, loading } = useAuth();
     const authSettled = !loading;
     const {
@@ -43,57 +52,92 @@ export function Navbar() {
             : "/dashboard"
         : "/";
     const isAdmin = userProfile?.role === "admin";
+    const desktopNavigationItems: KandyDesktopNavigationItem[] = user
+        ? isAdmin
+            ? [{ label: "Control tower", href: "/admin" }]
+            : userProfile?.role === "creator"
+                ? [
+                    { label: "Studio", href: CREATOR_DASHBOARD_ROUTE },
+                    { label: "Drops", href: "/drops" },
+                    { label: "Experiences", href: "/experiences" },
+                    { label: "Chat", href: "/dashboard/chat" },
+                ]
+                : [
+                    { label: "My KandyDrops", href: "/dashboard" },
+                    { label: "Drops", href: "/drops" },
+                    { label: "Experiences", href: "/experiences" },
+                    { label: "Chat", href: "/dashboard/chat" },
+                ]
+        : [
+            { label: "Discover", href: "/drops" },
+            { label: "Experiences", href: "/experiences" },
+        ];
 
     return (
         <>
             <nav
-                className="fixed left-0 right-0 top-0 z-50 px-3 py-3 transition-all sm:px-6 sm:py-4"
+                className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0b]/98 px-4 py-1.5 backdrop-blur-md sm:px-6"
+                data-device-layout-contract="2026-05-public-beta"
                 data-device-layout-surface="top-nav"
                 data-hydration-lane="critical"
-                data-top-nav-behavior="fixed-floating-glass"
-                style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top))" }}
+                data-top-nav-behavior="stable-route-bar"
+                style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.375rem)" }}
             >
-                <div
-                    className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border border-kandy-lilac/20 bg-kandy-void/85 px-3.5 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_18px_48px_rgba(5,2,11,0.52)] backdrop-blur-2xl sm:px-5 sm:py-2.5"
-                    style={{ WebkitBackdropFilter: "blur(20px)" }}
-                >
-                    <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                <KandyTopNavigationFrame>
+                    <div className="flex shrink-0 items-center gap-2">
                         <Link
                             href={homeHref}
                             onClick={() => {
                                 trackEvent("navigation_click", { destination: homeHref, source: "navbar_logo" });
                             }}
                             aria-label="KandyDrops home"
-                            className="inline-flex min-h-11 shrink-0 items-center bg-gradient-to-r from-white via-kandy-lilac to-brand-pink bg-clip-text text-base font-black tracking-[-0.06em] text-transparent drop-shadow-[0_0_18px_rgba(178,140,255,0.28)] sm:text-2xl"
+                            className="inline-flex min-h-10 items-center rounded-md outline-none transition-opacity duration-200 hover:opacity-85 focus-visible:ring-2 focus-visible:ring-kandy-lilac"
                         >
-                            KandyDrops
+                            <KandyBrandLockup />
                         </Link>
                         <BetaBadge />
                     </div>
 
-                    <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+                    {authSettled ? (
+                        <KandyDesktopNavigation
+                            items={desktopNavigationItems}
+                            pathname={pathname}
+                            onNavigate={(destination) => {
+                                trackEvent("navigation_click", {
+                                    destination,
+                                    source: "navbar_primary_navigation",
+                                    source_component: "navbar",
+                                });
+                            }}
+                        />
+                    ) : (
+                        <div className="hidden flex-1 lg:block" />
+                    )}
+
+                    <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
                         {!authSettled ? (
-                            <div className="flex items-center gap-2 sm:gap-4">
-                                <div className="hidden h-11 w-24 rounded-[0.9rem] border border-white/10 bg-white/[0.04] md:block" />
-                                <div className="h-11 w-11 rounded-[0.9rem] border border-white/10 bg-white/[0.04]" />
+                            <div className="flex items-center gap-2">
+                                <div className="hidden h-10 w-28 border border-white/10 bg-white/[0.03] md:block" />
+                                <div className="h-10 w-10 border border-white/10 bg-white/[0.03]" />
                             </div>
                         ) : user ? (
                             <>
                                 {isAdmin ? <AdminDropdown /> : null}
                                 <NotificationBell />
 
-                                <div className="hidden h-11 items-center gap-2 rounded-[1rem] border border-kandy-lilac/15 bg-white/[0.035] px-2 pl-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] md:flex">
-                                    <div className="flex items-center gap-2">
-                                        <Wallet className="h-4 w-4 text-brand-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]" />
+                                <div className="hidden min-h-10 items-center gap-2 border-l border-white/10 pl-3 md:flex">
+                                    <div className="flex min-w-0 items-center gap-2">
+                                        <Wallet className="h-4 w-4 shrink-0 text-white/65" />
                                         <AnimateBalance
                                             balance={userProfile?.gumDropsBalance || 0}
-                                            className="relative font-mono font-bold tracking-wider text-brand-purple"
+                                            className="relative font-mono text-sm font-bold tracking-wider text-white"
                                         />
                                     </div>
 
                                     <button
+                                        type="button"
                                         onClick={() => openPurchaseModal()}
-                                        className="flex h-11 w-11 items-center justify-center rounded-[0.85rem] bg-gradient-to-br from-brand-purple to-brand-pink text-white shadow-[0_8px_20px_rgba(178,140,255,0.3)] transition-all duration-200 hover:brightness-110 active:scale-95"
+                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-white transition-colors hover:bg-white/[0.14] active:scale-95"
                                         title="Buy Gum Drops"
                                         aria-label="Buy Gum Drops"
                                     >
@@ -106,9 +150,10 @@ export function Navbar() {
                                 </div>
 
                                 <button
+                                    type="button"
                                     onClick={openProfileSidebar}
                                     aria-label="Open profile menu"
-                                    className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-[0.95rem] border border-kandy-lilac/20 bg-white/[0.05] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:hidden"
+                                    className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-white/15 bg-white/[0.03] text-white transition-colors hover:bg-white/[0.08] md:hidden"
                                 >
                                     {user.photoURL ? (
                                         <NextImage
@@ -119,7 +164,7 @@ export function Navbar() {
                                             sizes="44px"
                                         />
                                     ) : (
-                                        <span className="bg-gradient-to-tr from-brand-purple to-brand-purple bg-clip-text text-sm font-bold text-transparent">
+                                        <span className="text-sm font-bold text-white">
                                             {user.displayName?.charAt(0)?.toUpperCase() || "U"}
                                         </span>
                                     )}
@@ -132,13 +177,14 @@ export function Navbar() {
                                     onClick={() => {
                                         trackEvent("navigation_click", { destination: "/creators/apply", source: "navbar_creator_apply" });
                                     }}
-                                    className="inline-flex min-h-11 items-center rounded-[0.9rem] border border-white/10 bg-white/[0.04] px-3 text-[11px] font-semibold text-gray-200 transition-colors hover:border-brand-purple/40 hover:bg-brand-purple/10 hover:text-white sm:px-4 sm:text-xs"
+                                    className="inline-flex min-h-10 items-center rounded-md border border-white/15 px-3 text-xs font-semibold text-gray-200 transition-colors hover:border-white/40 hover:text-white sm:px-4 sm:text-sm"
                                 >
                                     For creators
                                 </Link>
                                 <button
+                                    type="button"
                                     onClick={() => openAuthModal("signup")}
-                                    className="flex min-h-11 max-w-[8.5rem] shrink items-center justify-center gap-1.5 rounded-[0.9rem] bg-gradient-to-r from-brand-purple to-brand-pink px-3 text-[11px] font-bold tracking-wide text-white shadow-[0_10px_26px_rgba(178,140,255,0.32)] transition-all duration-300 hover:brightness-110 active:scale-[0.98] sm:max-w-none sm:gap-2 sm:px-6 sm:text-sm"
+                                    className="flex min-h-10 max-w-36 shrink items-center justify-center gap-1.5 rounded-md border border-white/15 bg-white/[0.08] px-3 text-xs font-bold tracking-wide text-white transition-colors hover:bg-white/[0.14] active:scale-[0.98] sm:max-w-none sm:gap-2 sm:px-5 sm:text-sm"
                                 >
                                     <Sparkles className="h-4 w-4" />
                                     <span className="truncate sm:hidden">Unwrap</span>
@@ -147,7 +193,7 @@ export function Navbar() {
                             </>
                         )}
                     </div>
-                </div>
+                </KandyTopNavigationFrame>
             </nav>
 
             {isProfileSidebarOpen ? (

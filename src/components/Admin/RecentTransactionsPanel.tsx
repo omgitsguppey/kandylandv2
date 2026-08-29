@@ -392,101 +392,22 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
 
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
-        <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
-                <AdminStatusBadge state={truthState} />
-                {debugMeta.resolvedUserCount > 0 && (
-                    <span className="text-[10px] text-gray-500">
-                        {debugMeta.resolvedUserCount}/{transactions.length} users resolved
-                    </span>
-                )}
-            </div>
-            {transactions.length === 0 ? (
-                <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400">No recent transactions available.</p>
-                </div>
-            ) : (
+        <div className="space-y-3" data-admin-transaction-listener={debugMeta.listenerStatus} data-admin-transaction-snapshot={debugMeta.snapshotSource} data-admin-transaction-source={debugMeta.transactionSource}>
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Transaction ledger</p>{debugMeta.resolvedUserCount > 0 ? <p className="mt-1 text-xs text-gray-400">{debugMeta.resolvedUserCount}/{transactions.length} user identities resolved</p> : null}</div><AdminStatusBadge state={truthState} /></div>
+            {transactions.length === 0 ? <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-8 text-center"><p className="text-sm font-semibold text-gray-400">No recent transactions are available from the current source.</p></div> : (
                 <>
-                    <div className="divide-y divide-white/6 rounded-xl border border-white/8 bg-black/20 overflow-hidden">
+                    <div className="divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                         {paginated.items.map((transaction) => {
-                            const timestamp = typeof transaction.timestamp === "number" && transaction.timestamp > 0
-                                ? transaction.timestamp
-                                : toTimestampNumber(transaction.timestamp);
-                            const relativeLabel = timestamp > 0 && nowMs > 0
-                                ? formatDistance(timestamp, nowMs, { addSuffix: true })
-                                : "Unknown time";
-
+                            const timestamp = typeof transaction.timestamp === "number" && transaction.timestamp > 0 ? transaction.timestamp : toTimestampNumber(transaction.timestamp);
+                            const relativeLabel = timestamp > 0 && nowMs > 0 ? formatDistance(timestamp, nowMs, { addSuffix: true }) : "Unknown time";
                             const { label: displayName, resolved: nameResolved } = resolveDisplayName(transaction, identityMap, enableRealtime);
                             const badge = getTransactionBadgeLabel(transaction);
                             const badgeColor = BADGE_COLORS[transaction.type] ?? "border-white/10 bg-white/5 text-gray-300";
                             const { primary, secondary, color } = formatAmountDelta(transaction);
-
-                            return (
-                                <div
-                                    key={transaction.id}
-                                    className="flex items-center gap-2 px-3 py-2 min-h-[36px]"
-                                >
-                                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${badgeColor}`}>
-                                        {badge}
-                                    </span>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-baseline gap-1.5 text-[12px]">
-                                            <span className="truncate font-medium text-white">
-                                                {transaction.description}
-                                            </span>
-                                            {nameResolved ? (
-                                                <span className="shrink-0 text-[11px] text-gray-400">
-                                                    {displayName}
-                                                </span>
-                                            ) : (
-                                                <span className="shrink-0 h-2.5 w-14 animate-pulse rounded bg-white/8" />
-                                            )}
-                                        </div>
-                                    </div>
-                                    <span className="hidden shrink-0 text-[10px] text-gray-500 sm:block">
-                                        {relativeLabel}
-                                    </span>
-                                    <div className="shrink-0 text-right">
-                                        <span className={`text-[12px] font-semibold tabular-nums ${color}`}>
-                                            {primary}
-                                        </span>
-                                        {secondary && (
-                                            <span className="ml-1 text-[10px] text-gray-500">
-                                                {secondary}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            );
+                            return <div key={transaction.id} className="grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 md:px-4"><span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${badgeColor}`}>{badge}</span><div className="min-w-0"><div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1"><span className="truncate text-sm font-bold text-white">{transaction.description}</span>{nameResolved ? <span className="shrink-0 text-xs text-gray-400">{displayName}</span> : <span className="shrink-0 h-2.5 w-14 animate-pulse rounded bg-white/8" />}</div></div><div className="shrink-0 text-right"><span className={`block text-sm font-bold tabular-nums ${color}`}>{primary}</span>{secondary ? <span className="text-xs text-gray-500">{secondary}</span> : null}<span className="mt-1 hidden text-xs text-gray-500 sm:block">{relativeLabel}</span></div></div>;
                         })}
                     </div>
-                    {paginated.totalPages > 1 && (
-                        <div className="flex items-center justify-between px-1 text-[11px] text-gray-400">
-                            <span>
-                                Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}
-                            </span>
-                            <div className="flex items-center gap-1">
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.max(0, c - 1))}
-                                    disabled={paginated.page === 0}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Previous page"
-                                >
-                                    <ChevronLeft size={14} />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))}
-                                    disabled={paginated.page >= paginated.totalPages - 1}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Next page"
-                                >
-                                    <ChevronRight size={14} />
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    {paginated.totalPages > 1 ? <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-400"><span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}</span><div className="flex items-center gap-2"><button type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Previous page"><ChevronLeft size={14} /></button><button type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Next page"><ChevronRight size={14} /></button></div></div> : null}
                 </>
             )}
         </div>

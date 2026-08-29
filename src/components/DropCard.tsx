@@ -3,9 +3,11 @@
 import { Drop } from "@/types/db";
 import { useEffect, useState, memo, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import NextImage from "next/image";
 
 import { toast } from "sonner";
 import { User } from "firebase/auth";
+
 import { authFetch } from "@/lib/authFetch";
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useUserProfile } from "@/context/AuthContext";
@@ -18,12 +20,18 @@ import { getDropViewCount } from "@/lib/drop-engagement";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { DropCardCta } from "@/components/DropCardCta";
-import { DropCardLayout } from "@/components/DropCardLayout";
+import { KandyEditorialReleaseCard } from "@/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCard";
+
+
 import { DROPS_MOBILE_UI_DENSITY, useDropCardImpression } from "@/hooks/useDropCardImpression";
 import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
+import { cn } from "@/lib/utils";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 
 interface DropCardProps {
+    presentation?: "feature" | "shelf";
     drop: Drop;
     user: User | null;
     isUnlocked?: boolean;
@@ -37,6 +45,7 @@ interface DropCardProps {
 const CATEGORY_TAGS = new Set(["Sweet", "Spicy", "RAW"]);
 
 function DropCardBase({
+    presentation = "shelf",
     drop,
     user,
     isUnlocked = false,
@@ -266,26 +275,65 @@ function DropCardBase({
         />
     );
 
+    const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
+    const hasProductCoverBlur = visibilityState.shouldBlurCover;
+    const imagePolicy = getImageLoadingPolicy("drops_grid", {
+        dropGridLayout: resolvedRatio === "16:9" ? "wide" : "standard",
+    });
+    const imageTreatmentClassName = cn(
+        imageLoaded ? "scale-100" : "scale-105 blur-md",
+        imageLoaded && hasProductCoverBlur ? "blur-[10px] brightness-[0.72] saturate-[0.86]" : imageLoaded ? "blur-0" : null,
+    );
+    const cardStateAttributes = {
+        "data-drop-cover-treatment": visibilityState.coverTreatment,
+        "data-drop-cta-state": visibilityState.ctaState,
+        "data-drop-affordability-reason": visibilityState.reasonCode,
+        "data-drop-card-auth-state": visibilityState.authState,
+        "data-drop-card-brand-fallback": "KD",
+        "data-drop-card-should-blur-cover": visibilityState.shouldBlurCover,
+        "data-drop-card-owner-or-creator": visibilityState.isOwnerOrCreator,
+    };
+    const isPortrait = resolvedRatio === "9:16";
+
+    const editorialCover = (
+        <>
+            <NextImage
+                src={coverSrc}
+                alt={`${drop.title} public cover`}
+                fill
+                sizes={imagePolicy.sizes}
+                preload={imagePolicy.preload}
+                loading={imagePolicy.loading}
+                fetchPriority={imagePolicy.fetchPriority}
+                className={cn("bg-black object-cover object-center transition-all duration-700", imageTreatmentClassName)}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+                {...getImagePolicyDataAttributes(imagePolicy)}
+            />
+            {imageLoaded && hasProductCoverBlur ? <div className="absolute inset-0 bg-black/22" aria-hidden="true" /> : null}
+            {!imageLoaded ? (
+                <div className="absolute inset-0 overflow-hidden bg-zinc-900/90">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                </div>
+            ) : null}
+        </>
+    );
+
     return (
-        <DropCardLayout
-            cardRef={cardRef}
+        <KandyEditorialReleaseCard
+            rootRef={cardRef}
             drop={drop}
-            resolvedRatio={resolvedRatio}
+            presentation={presentation}
             ratioStyle={ratioStyle}
-            fileCounts={fileCounts}
-            displayedTags={displayedTags}
+            cover={editorialCover}
+            onPreview={handlePreviewOpen}
+            files={fileCounts}
+            tags={displayedTags}
             totalViews={totalViews}
-            visibilityState={visibilityState}
-            ctaButton={ctaButton}
+            cta={ctaButton}
             error={error}
-            imageLoaded={imageLoaded}
-            imageError={imageError}
-            onImageLoaded={() => setImageLoaded(true)}
-            onImageError={() => {
-                setImageError(true);
-                setImageLoaded(true);
-            }}
-            onPreviewOpen={handlePreviewOpen}
+            isPortrait={isPortrait}
+            stateAttributes={cardStateAttributes}
         />
     );
 }

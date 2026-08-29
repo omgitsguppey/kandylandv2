@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { useState, useRef, useEffect, useId, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LogOut, ShieldCheck, LifeBuoy, ShieldAlert } from "lucide-react";
-
-import { cn } from "@/lib/utils";
+import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LifeBuoy, ShieldAlert } from "lucide-react";
+import { KandyAdminMenuSurface } from "@/components/creative-tim/kandydrops/navigation/KandyAdminMenuSurface";
 
 export function AdminDropdown() {
     const { logout, userProfile, loading } = useAuth();
@@ -14,6 +12,9 @@ export function AdminDropdown() {
     const authSettled = !loading;
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const menuId = useId();
 
     // Strict Admin Check
     const isAdmin = userProfile?.role === "admin";
@@ -29,6 +30,40 @@ export function AdminDropdown() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!isOpen) return;
+
+        menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+
+        function handleMenuKeyDown(event: KeyboardEvent) {
+            if (event.key !== "Escape") return;
+            event.preventDefault();
+            setIsOpen(false);
+            triggerRef.current?.focus();
+        }
+
+        document.addEventListener("keydown", handleMenuKeyDown);
+        return () => document.removeEventListener("keydown", handleMenuKeyDown);
+    }, [isOpen]);
+
+    function handleMenuNavigation(event: ReactKeyboardEvent<HTMLDivElement>) {
+        if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+
+        const items = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+        if (items.length === 0) return;
+
+        event.preventDefault();
+        const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+        const targetIndex = event.key === "Home"
+            ? 0
+            : event.key === "End"
+                ? items.length - 1
+                : event.key === "ArrowUp"
+                    ? (currentIndex <= 0 ? items.length - 1 : currentIndex - 1)
+                    : (currentIndex + 1) % items.length;
+        items[targetIndex]?.focus();
+    }
+
     if (!authSettled || !isAdmin) return null;
 
     const navItems = [
@@ -43,71 +78,21 @@ export function AdminDropdown() {
     ];
 
     return (
-        <div className="relative" ref={dropdownRef}>
-            <button
-                aria-label="Admin menu"
-                title="Admin Console"
-                aria-expanded={isOpen}
-                aria-haspopup="menu"
-                onClick={() => setIsOpen(!isOpen)}
-                className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black",
-                    isOpen
-                        ? "bg-brand-purple/20 text-brand-purple border-brand-purple/30 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                        : "bg-white/5 text-gray-400 border-white/5  "
-                )}
-            >
-                <ShieldCheck className="w-4 h-4" />
-                <span className="text-xs font-bold hidden md:inline-block">Admin</span>
-            </button>
-
-            {/* Dropdown Menu */}
-            <div
-                className={cn(
-                    "absolute right-0 top-full mt-2 w-56 bg-zinc-950 border border-white/10 rounded-2xl p-2 shadow-2xl backdrop-blur-3xl overflow-hidden origin-top-right transition-all duration-200 z-50",
-                    isOpen
-                        ? "opacity-100 scale-100 translate-y-0"
-
-                        : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-                )}
-            >
-                <div className="px-4 py-2 border-b border-white/10 mb-2">
-                    <p className="text-xs font-bold text-brand-purple uppercase tracking-wider">Admin Console</p>
-                </div>
-
-                <nav className="space-y-1" aria-label="Admin navigation">
-                    {navItems.map((item) => {
-                        const isActive = item.href === "/admin"
-                            ? pathname === item.href
-                            : pathname === item.href || pathname?.startsWith(`${item.href}/`);
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setIsOpen(false)}
-                                aria-current={isActive ? "page" : undefined}
-                                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 rounded-xl transition-all group"
-                            >
-                                <item.icon className="w-4 h-4 text-gray-400 transition-colors" />
-                                {item.label}
-                            </Link>
-                        );
-                    })}
-                </nav>
-
-                <div className="mt-2 pt-2 border-t border-white/10">
-                    <button
-                        onClick={() => {
-                            logout();
-                            setIsOpen(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 rounded-xl transition-colors"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                    </button>
-                </div>
-            </div>
-        </div>
+        <KandyAdminMenuSurface
+            containerRef={dropdownRef}
+            triggerRef={triggerRef}
+            menuRef={menuRef}
+            menuId={menuId}
+            isOpen={isOpen}
+            pathname={pathname}
+            navigationItems={navItems}
+            onToggle={() => setIsOpen((current) => !current)}
+            onMenuKeyDown={handleMenuNavigation}
+            onNavigate={() => setIsOpen(false)}
+            onLogout={() => {
+                logout();
+                setIsOpen(false);
+            }}
+        />
     );
 }

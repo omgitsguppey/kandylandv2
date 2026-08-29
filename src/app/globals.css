@@ -58,10 +58,7 @@ html { overscroll-behavior-y: none; }
 }
 
 body {
-  background:
-    radial-gradient(circle at 8% -12%, rgba(178, 140, 255, 0.23), transparent 30rem),
-    radial-gradient(circle at 92% 0%, rgba(255, 111, 207, 0.12), transparent 25rem),
-    linear-gradient(150deg, #11091c 0%, var(--background) 46%, #06030a 100%);
+  background: #0b0a0d;
   color: var(--foreground);
   font-family: var(--font-geist-sans), "Avenir Next", "Segoe UI Variable Display", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   -webkit-font-smoothing: antialiased;
@@ -116,10 +113,7 @@ body {
 }
 
 .app-bg {
-  background:
-    radial-gradient(circle at 12% 0%, rgba(178, 140, 255, 0.14), transparent 28rem),
-    radial-gradient(circle at 88% 6%, rgba(255, 111, 207, 0.08), transparent 24rem),
-    var(--background);
+  background: #0b0a0d;
 }
 @keyframes title-marquee-anim {
   0%, 10% { transform: translateX(0); }

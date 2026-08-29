@@ -4,6 +4,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Pill, Section } from "./DebugPrimitives";
 import { AdminAiAssistantRealtimePanel } from "./AdminAiAssistantRealtimePanel";
+import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream";
 import type { PillTone } from "./DebugPrimitives";
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 
@@ -86,7 +87,11 @@ export function DebugTabAi({
     const workbench = aiDebugData?.workbench;
 
     return (
-        <div className="space-y-4">
+        <AdminDebugWorkstream
+            eyebrow="AI workstream"
+            title="Guidance with an explicit cost boundary"
+            subtitle="Saved status loads here by default. Live guidance remains an explicit, permission-gated action."
+        >
             <Section
                 title="AI debug assistant"
                 subtitle="Explicit live guidance over current debug evidence. Page load reads saved status only and does not trigger paid AI calls."
@@ -284,6 +289,6 @@ export function DebugTabAi({
                     </div>
                 ) : null}
             </Section>
-        </div>
+        </AdminDebugWorkstream>
     );
 }

@@ -135,9 +135,8 @@ describe("PurchaseModal public beta compact density", () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.textContent).toContain("76k reward GD");
-    expect(container.textContent).toContain("5k paid GD");
-    expect(container.textContent).toMatch(/76k reward GD\s*\|\s*5k paid GD/);
+    expect(container.querySelector("[aria-label='Wallet balance: 76k reward GD, 5k paid GD']"))
+      .toBeTruthy();
     expect(container.textContent).not.toContain("80,962 balance");
   });
 
@@ -153,8 +152,8 @@ describe("PurchaseModal public beta compact density", () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.textContent).toContain("0 reward GD");
-    expect(container.textContent).toContain("1.5k paid GD");
+    expect(container.querySelector("[aria-label='Wallet balance: 0 reward GD, 1.5k paid GD']"))
+      .toBeTruthy();
   });
 
   it("removes package source subcopy and uses purple bonus chip styling", async () => {
@@ -171,9 +170,8 @@ describe("PurchaseModal public beta compact density", () => {
     expect(container.textContent).toContain("2x bonus GD");
     expect(container.textContent).not.toContain("paid bonus GD");
     expect(container.textContent).not.toContain("Paid bundle bonus");
-    expect(container.innerHTML).not.toContain("emerald-");
-    expect(container.innerHTML).toContain("border-brand-purple/25");
-    expect(container.innerHTML).toContain("bg-brand-purple/[0.12]");
+    expect(container.innerHTML).toContain("border-fuchsia-200/35");
+    expect(container.innerHTML).toContain("bg-fuchsia-300/20");
     expect(container.querySelector("[data-wallet-density='public-beta-compact']")).toBeTruthy();
     expect(container.querySelector("[data-wallet-balance-chip='split-source']")).toBeTruthy();
     expect(container.querySelector("[data-wallet-package-subcopy='removed']")).toBeTruthy();

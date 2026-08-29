@@ -13,11 +13,13 @@ function read(relativePath: string) {
 
 describe("payment module symmetry display contract", () => {
   const purchaseModal = read("src/components/PurchaseModal.tsx");
+  const walletPackagePicker = read("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
+  const walletCheckoutPanel = read("src/components/creative-tim/kandydrops/wallet/KandyWalletCheckoutPanel.tsx");
 
   it("uses compact paid-GD copy without legacy loud labels", () => {
-    const paymentModuleEvidence = purchaseModal + read("agent/state/payment-module-symmetry.generated.json");
+    const paymentModuleEvidence = purchaseModal + walletPackagePicker + walletCheckoutPanel + read("agent/state/payment-module-symmetry.generated.json");
 
-    expect(purchaseModal).toContain("Paid GD");
+    expect(walletPackagePicker).toContain("Paid GD");
     expect(resolvePurchaseBonusPromoOffer(50)?.compactLabel).toBe("+50 bonus GD");
     expect(resolvePurchaseBonusPromoOffer(100)?.compactLabel).toBe("+100 bonus GD");
     expect(resolvePurchaseBonusPromoOffer(500)?.compactLabel).toBe("+500 bonus GD");
@@ -34,14 +36,17 @@ describe("payment module symmetry display contract", () => {
   });
 
   it("keeps every package row aligned through stable display zones", () => {
-    expect(purchaseModal).toContain("function PurchasePackageRow");
-    expect(purchaseModal).toContain("function PurchasePriceBlock");
-    expect(purchaseModal).toContain("function PurchaseModalHeader");
-    expect(purchaseModal).toContain("data-purchase-row-zone=\"icon\"");
-    expect(purchaseModal).toContain("data-purchase-row-zone=\"copy\"");
-    expect(purchaseModal).toContain("data-purchase-row-zone=\"price\"");
-    expect(purchaseModal).toContain("data-purchase-promo-slot=\"reserved\"");
-    expect(purchaseModal).toContain("data-payment-module-density=\"compact-v2\"");
+    expect(walletPackagePicker).toContain("export function KandyWalletHeader");
+    expect(walletPackagePicker).toContain("export function KandyWalletPackageOption");
+    expect(walletPackagePicker).toContain("data-purchase-row-zone=\"icon\"");
+    expect(walletPackagePicker).toContain("data-purchase-row-zone=\"copy\"");
+    expect(walletPackagePicker).toContain("data-purchase-row-zone=\"price\"");
+    expect(walletPackagePicker).toContain("data-purchase-promo-slot=\"reserved\"");
+    expect(walletPackagePicker).toContain("data-payment-module-density=\"compact-v2\"");
+    expect(walletPackagePicker).toContain("grid-cols-[2.75rem_minmax(0,1fr)]");
+    expect(walletPackagePicker).toContain("min-h-[8rem]");
+    expect(walletPackagePicker).toContain("max-w-[7.6rem]");
+    expect(walletPackagePicker).toContain("mt-1 grid gap-2 border-t border-white/15 pt-3");
   });
 
   it("uses a generic non-wrapping promo badge contract", () => {
@@ -53,10 +58,11 @@ describe("payment module symmetry display contract", () => {
     for (const field of ["label", "tone", "priority", "compactLabel", "shouldShowOnMobile", "maxWidthClassName"]) {
       expect(contract).toContain(field);
     }
-    expect(purchaseModal).toContain("function PurchasePromoBadge");
-    expect(purchaseModal).toContain("whitespace-nowrap");
-    expect(purchaseModal).toContain("max-w-[6.4rem]");
-    expect(purchaseModal).toContain("leading-none");
+    expect(walletPackagePicker).toContain("function KandyWalletPromoBadge");
+    expect(walletPackagePicker).toContain("function KandyWalletPriceBlock");
+    expect(walletPackagePicker).toContain("whitespace-nowrap");
+    expect(walletPackagePicker).toContain("max-w-[7.6rem]");
+    expect(walletPackagePicker).toContain("leading-none");
   });
 
   it("removes stale payment component backup and does not touch protected runtime paths", () => {
@@ -72,5 +78,6 @@ describe("payment module symmetry display contract", () => {
     ]) {
       expect(read("scripts/agent/validate-payment-module-symmetry.ts")).toContain(forbiddenPath);
     }
+    expect(read("scripts/agent/validate-payment-module-symmetry.ts")).toContain("KandyWalletPackagePicker.tsx");
   });
 });

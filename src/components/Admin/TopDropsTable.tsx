@@ -159,20 +159,47 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
 
     if (drops.length === 0) {
         return (
-            <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-5 text-center">
-                <p className="text-[11px] font-semibold text-gray-400">No drop activity in this range.</p>
-            </div>
+            <section
+                data-admin-top-drops-table="true"
+                className="rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(24,14,39,0.92),rgba(8,10,24,0.94))] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.2)]"
+                aria-labelledby="top-drops-title"
+            >
+                <div className="border-b border-white/8 pb-3">
+                    <p id="top-drops-title" className="text-xs font-black uppercase tracking-[0.18em] text-white">
+                        Top drops in this range
+                    </p>
+                    <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.12em] text-gray-500">
+                        Ranked by all-time unwraps
+                    </p>
+                </div>
+                <div className="mt-3 flex min-h-24 items-center justify-center rounded-xl border border-dashed border-white/10 bg-black/20 px-4 text-center">
+                    <p className="text-xs font-semibold text-gray-400">No drop activity in this range.</p>
+                </div>
+            </section>
         );
     }
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
-                    Top drops in this range
-                </p>
-                <div className="relative w-40 sm:w-48">
-                    <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-gray-500" />
+        <section
+            data-admin-top-drops-table="true"
+            className="space-y-3 rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(24,14,39,0.92),rgba(8,10,24,0.94))] p-3 shadow-[0_18px_50px_rgba(0,0,0,0.2)] sm:p-4"
+            aria-labelledby="top-drops-title"
+        >
+            <div className="flex flex-col gap-3 border-b border-white/8 pb-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                    <p id="top-drops-title" className="text-xs font-black uppercase tracking-[0.18em] text-white">
+                        Top drops in this range
+                    </p>
+                    <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.12em] text-gray-500">
+                        Ranked by all-time unwraps
+                    </p>
+                </div>
+                <label className="relative block w-full sm:w-56">
+                    <span className="sr-only">Search top drops</span>
+                    <Search
+                        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+                        aria-hidden="true"
+                    />
                     <input
                         type="text"
                         value={searchInput}
@@ -181,100 +208,130 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                             trackEvent("admin_top_drops_search", { query: e.target.value.slice(0, 40) });
                         }}
                         placeholder="Search drops"
-                        className="w-full rounded-lg border border-white/10 bg-black/40 py-1.5 pl-7 pr-2 text-[11px] text-white placeholder-gray-500 outline-none focus:border-brand-purple/40 focus:ring-1 focus:ring-brand-purple/20"
+                        className="h-11 w-full rounded-xl border border-white/10 bg-black/35 pl-10 pr-3 text-xs font-medium text-white placeholder:text-gray-500 outline-none transition-colors focus:border-brand-purple/50 focus:bg-black/50 focus:ring-2 focus:ring-brand-purple/20"
                     />
-                </div>
+                </label>
             </div>
+
             {filtered.length === 0 ? (
-                <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-5 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400">No drops match this search.</p>
+                <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-white/10 bg-black/20 px-4 text-center">
+                    <p className="text-xs font-semibold text-gray-400">No drops match this search.</p>
                 </div>
             ) : (
-                <div className="overflow-x-auto rounded-xl border border-white/8 bg-black/30">
-                    <div className="grid grid-cols-[1.5rem,28px,minmax(0,1fr),auto,auto,auto,auto] items-center gap-x-2 border-b border-white/6 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">
-                        <span>#</span>
-                        <span />
-                        <span>Title</span>
-                        <span className="text-right">Status</span>
-                        <span className="text-right">Unwraps</span>
-                        <span className="hidden text-right sm:block">Clicks</span>
-                        <span className="text-right">Price</span>
-                    </div>
-                    {pageSlice.map((drop, idx) => {
-                        const rank = startIdx + idx + 1;
-                        const statusKey = drop.approvalStatus === "pending_review" ? "pending_review" : drop.status;
-                        const statusLabel = STATUS_LABEL[statusKey] || drop.status;
-                        const pillStyle = STATUS_PILL_STYLES[statusKey] || STATUS_PILL_STYLES.expired;
+                <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/25">
+                    <table className="min-w-[620px] w-full table-fixed border-collapse text-left">
+                        <caption className="sr-only">Top drops in this range, ranked by all-time unwraps.</caption>
+                        <thead className="border-b border-white/8 bg-white/[0.035] text-[10px] font-black uppercase tracking-[0.14em] text-gray-500">
+                            <tr>
+                                <th scope="col" className="w-14 px-3 py-3">Rank</th>
+                                <th scope="col" className="px-3 py-3">Drop</th>
+                                <th scope="col" className="w-28 px-3 py-3">Status</th>
+                                <th scope="col" className="w-24 px-3 py-3 text-right">Unwraps</th>
+                                <th scope="col" className="hidden w-20 px-3 py-3 text-right sm:table-cell">Clicks</th>
+                                <th scope="col" className="w-24 px-3 py-3 text-right">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.055]">
+                            {pageSlice.map((drop, idx) => {
+                                const rank = startIdx + idx + 1;
+                                const statusKey = drop.approvalStatus === "pending_review" ? "pending_review" : drop.status;
+                                const statusLabel = STATUS_LABEL[statusKey] || drop.status;
+                                const pillStyle = STATUS_PILL_STYLES[statusKey] || STATUS_PILL_STYLES.expired;
 
-                        return (
-                            <div
-                                key={drop.id}
-                                className="grid grid-cols-[1.5rem,28px,minmax(0,1fr),auto,auto,auto,auto] items-center gap-x-2 border-b border-white/4 px-2.5 py-1.5 last:border-b-0 transition-colors hover:bg-white/[0.03]"
-                            >
-                                <span className="text-[10px] font-black text-gray-500">{rank}</span>
-                                <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/40">
-                                    {drop.imageUrl ? (
-                                        <img
-                                            src={drop.imageUrl}
-                                            alt=""
-                                            className="h-full w-full object-cover"
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full w-full items-center justify-center text-[8px] text-gray-600">No image</div>
-                                    )}
-                                </div>
-                                <MarqueeText
-                                    as="p"
-                                    title={drop.title}
-                                    className="text-[11px] font-semibold text-white"
-                                    ariaLabel={drop.title}
-                                />
-                                <span className={`rounded-full border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] ${pillStyle}`}>
-                                    {statusLabel}
-                                </span>
-                                <span className="text-right text-[11px] font-semibold tabular-nums text-gray-300">
-                                    {(drop.totalUnlocks || 0).toLocaleString()}
-                                </span>
-                                <span className="hidden text-right text-[11px] font-semibold tabular-nums text-gray-400 sm:block">
-                                    {(drop.totalClicks || 0).toLocaleString()}
-                                </span>
-                                <span className="text-right text-[11px] font-bold tabular-nums text-brand-purple">
-                                    {drop.unlockCost} GD
-                                </span>
-                            </div>
-                        );
-                    })}
+                                return (
+                                    <tr key={drop.id} className="group transition-colors hover:bg-white/[0.035]">
+                                        <td className="px-3 py-3 align-middle">
+                                            <span className="inline-flex min-w-7 items-center justify-center rounded-lg border border-white/8 bg-black/30 px-1.5 py-1 text-[10px] font-black tabular-nums text-gray-400">
+                                                {rank}
+                                            </span>
+                                        </td>
+                                        <td className="min-w-0 px-3 py-3 align-middle">
+                                            <div className="flex min-w-0 items-center gap-3">
+                                                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-[0_8px_20px_rgba(0,0,0,0.18)]">
+                                                    {drop.imageUrl ? (
+                                                        <img
+                                                            src={drop.imageUrl}
+                                                            alt=""
+                                                            className="h-full w-full object-cover"
+                                                            loading="lazy"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex h-full w-full items-center justify-center text-[8px] font-semibold text-gray-600">
+                                                            No image
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <MarqueeText
+                                                        as="p"
+                                                        title={drop.title}
+                                                        className="text-sm font-bold text-white"
+                                                        ariaLabel={drop.title}
+                                                    />
+                                                    <p className="mt-0.5 truncate font-mono text-[9px] font-medium uppercase tracking-[0.08em] text-gray-600">
+                                                        {drop.id}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-3 py-3 align-middle">
+                                            <span className={`inline-flex rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] ${pillStyle}`}>
+                                                {statusLabel}
+                                            </span>
+                                        </td>
+                                        <td className="px-3 py-3 text-right align-middle">
+                                            <span className="text-sm font-bold tabular-nums text-white">
+                                                {(drop.totalUnlocks || 0).toLocaleString()}
+                                            </span>
+                                        </td>
+                                        <td className="hidden px-3 py-3 text-right align-middle sm:table-cell">
+                                            <span className="text-sm font-semibold tabular-nums text-gray-400">
+                                                {(drop.totalClicks || 0).toLocaleString()}
+                                            </span>
+                                        </td>
+                                        <td className="px-3 py-3 text-right align-middle">
+                                            <span className="inline-flex rounded-lg border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-xs font-black tabular-nums text-brand-purple">
+                                                {drop.unlockCost} GD
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             )}
+
             {filtered.length > PAGE_SIZE && (
-                <div className="flex items-center justify-between pt-0.5">
-                    <p className="text-[10px] text-gray-500">
+                <nav aria-label="Top drops pagination" className="flex items-center justify-between gap-3 border-t border-white/8 pt-3">
+                    <p className="text-xs font-medium text-gray-500" aria-live="polite">
                         Showing {startIdx + 1}-{endIdx} of {filtered.length}
                     </p>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                         <button
                             type="button"
                             disabled={safePage === 0}
                             onClick={() => handlePageChange("prev")}
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-black/35 text-gray-400 transition-colors hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                            aria-label="Previous top drops page"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/35 text-gray-400 transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                         >
-                            <ChevronLeft className="h-3 w-3" />
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <span className="min-w-[3rem] text-center text-[10px] font-semibold text-gray-400">
+                        <span className="min-w-[4.5rem] text-center text-xs font-bold tabular-nums text-gray-400">
                             {safePage + 1} / {totalPages}
                         </span>
                         <button
                             type="button"
                             disabled={safePage >= totalPages - 1}
                             onClick={() => handlePageChange("next")}
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-black/35 text-gray-400 transition-colors hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                            aria-label="Next top drops page"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/35 text-gray-400 transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                         >
-                            <ChevronRight className="h-3 w-3" />
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
                         </button>
                     </div>
-                </div>
+                </nav>
             )}
-        </div>
+        </section>
     );
 }

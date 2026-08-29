@@ -256,185 +256,55 @@ export function AdminDropsAtGlancePanel() {
     }, [mutateQueueConfig]);
 
     return (
-        <div className="space-y-2.5">
-                {/* Action buttons */}
+        <div className="space-y-3" data-admin-drops-at-glance="true">
+            <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                        href="/admin/drops"
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-brand-purple px-3.5 text-xs font-bold text-white transition-transform hover:scale-[1.01]"
-                    >
-                        <Package className="h-3.5 w-3.5" />
-                        Manage drops
-                    </Link>
-                    <Link
-                        href="/admin/queue"
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-3.5 text-xs font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
-                    >
-                        <Settings2 className="h-3.5 w-3.5" />
-                        Queue
-                    </Link>
+                    <Link href="/admin/drops" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink px-4 text-sm font-bold text-white shadow-lg shadow-brand-purple/25 transition-transform hover:scale-[1.01]"><Package className="h-4 w-4" />Manage drops</Link>
+                    <Link href="/admin/queue" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-gray-200 transition-colors hover:border-kandy-lilac/35 hover:bg-white/[0.07] hover:text-white"><Settings2 className="h-4 w-4" />Queue</Link>
                 </div>
+                <AdminStatusBadge state={truthState} />
+            </div>
 
-                {/* Search bar + source state */}
-                <div className="flex items-center gap-2">
-                    <div className="relative flex-1 min-w-0">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
-                        <input
-                            type="text"
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            placeholder="Search drops…"
-                            className="h-9 w-full rounded-full border border-white/8 bg-black/40 pl-8 pr-3 text-xs text-white placeholder:text-gray-500 focus:border-brand-purple/40 focus:outline-none focus:ring-1 focus:ring-brand-purple/30"
-                        />
+            <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto]">
+                <label className="relative block min-w-0"><span className="sr-only">Search drops</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" /><input type="text" value={searchText} onChange={(event) => setSearchText(event.target.value)} placeholder="Search drops..." className="h-11 w-full rounded-xl border border-white/10 bg-black/35 pl-10 pr-3 text-sm text-white placeholder:text-gray-500 outline-none transition-colors focus:border-kandy-lilac/45 focus:ring-2 focus:ring-brand-purple/15" /></label>
+                <div className="flex items-center rounded-xl border border-white/10 bg-black/20 px-3 text-xs font-medium text-gray-400">{isFiltered ? `${filteredRows.length} matching drops` : `${summary.total} drops in current source`}</div>
+            </div>
+
+            <dl className="grid grid-cols-5 gap-2 rounded-2xl border border-white/10 bg-black/20 p-2">
+                {[
+                    { label: "Total", value: summary.total },
+                    { label: "Live", value: summary.live },
+                    { label: "Scheduled", value: summary.scheduled },
+                    { label: "Queued", value: summary.queued },
+                    { label: "Review", value: summary.pending },
+                ].map((item) => <div key={item.label} className="min-w-0 rounded-xl bg-white/[0.035] px-2 py-2 text-center"><dt className="truncate text-xs font-bold uppercase tracking-[0.12em] text-gray-500">{item.label}</dt><dd className="mt-1 text-lg font-black text-white">{item.value}</dd></div>)}
+            </dl>
+
+            {loadError ? (
+                <div className="rounded-2xl border border-red-400/25 bg-red-500/10 p-4 text-sm text-red-100"><AdminStatusBadge state="failed" className="mb-2" /><p>{loadError}</p></div>
+            ) : loading ? (
+                <div className="grid gap-2 sm:grid-cols-2" aria-busy="true">{Array.from({ length: PAGE_SIZE }).map((_, index) => <div key={index} className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/[0.035]" />)}</div>
+            ) : filteredRows.length === 0 ? (
+                <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-8 text-center"><Package className="mx-auto h-8 w-8 text-gray-600" /><p className="mt-3 text-sm font-bold text-white">{isFiltered ? `No drops match "${searchText.trim()}".` : "No drops exist in the current source."}</p>{isFiltered ? <button type="button" onClick={() => setSearchText("")} className="mt-2 min-h-11 rounded-xl px-3 text-sm font-semibold text-kandy-lilac hover:bg-white/[0.05]">Clear search</button> : null}</div>
+            ) : (
+                <>
+                    <div className="divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                        {paginatedRows.items.map((row) => {
+                            const isBusy = queueingDropId === row.drop.id;
+                            return (
+                                <article key={row.drop.id} className="grid gap-3 p-3 transition-colors hover:bg-white/[0.035] md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:px-4">
+                                    <div className="flex min-w-0 gap-3">
+                                        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/50">{row.drop.imageUrl ? <Image src={row.drop.imageUrl} alt={row.drop.title} fill sizes="44px" className="object-contain bg-black" /> : <span className="grid h-full place-items-center text-xs font-black text-gray-400">KD</span>}</div>
+                                        <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="truncate text-sm font-bold text-white">{row.drop.title}</p><span className={cn("shrink-0 rounded-full border px-2.5 py-1 text-xs font-bold", row.statusClassName)}>{row.statusLabel}</span></div><div className="mt-2 grid gap-1 text-xs text-gray-400 sm:grid-cols-3"><span>{row.queueLabel ?? row.scheduleLabel}</span><span>{row.drop.unlockCost} GD</span><span>{(row.drop.totalUnlocks || 0).toLocaleString()} unwraps</span></div></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 md:flex"><Link href={`/admin/drops?dropId=${encodeURIComponent(row.drop.id)}`} aria-label={`Open ${row.drop.title}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 text-xs font-bold text-white transition-colors hover:border-kandy-lilac/35 hover:text-kandy-lilac"><Edit className="h-4 w-4" />Open</Link><button type="button" onClick={() => void handleQueueToggle(row.drop.id)} disabled={isBusy} aria-label={row.isQueued ? "Unqueue drop" : "Queue drop"} aria-busy={isBusy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 text-xs font-bold text-white transition-colors hover:border-kandy-lilac/35 hover:text-kandy-lilac disabled:opacity-60">{isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Repeat className="h-4 w-4" />}{row.isQueued ? "Unqueue" : "Queue"}</button></div>
+                                </article>
+                            );
+                        })}
                     </div>
-                    <AdminStatusBadge state={truthState} />
-                </div>
-
-                {/* Search result count */}
-                {isFiltered ? (
-                    <p className="text-[10px] font-semibold text-gray-500">
-                        {filteredRows.length} result{filteredRows.length !== 1 ? "s" : ""} for &ldquo;{searchText.trim()}&rdquo;
-                    </p>
-                ) : null}
-
-                {/* Summary counters */}
-                <div className="grid grid-cols-5 gap-1.5">
-                    {[
-                        { label: "Total", value: summary.total },
-                        { label: "Live", value: summary.live },
-                        { label: "Scheduled", value: summary.scheduled },
-                        { label: "Queued", value: summary.queued },
-                        { label: "Pending", value: summary.pending },
-                    ].map((item) => (
-                        <div key={item.label} className="rounded-xl border border-white/8 bg-black/30 px-2 py-2 text-center">
-                            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-gray-500">{item.label}</p>
-                            <p className="mt-0.5 text-sm font-black text-white">{item.value}</p>
-                        </div>
-                    ))}
-                </div>
-
-                
-
-                {loadError ? (
-                    <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2.5 text-xs text-red-100">
-                        {loadError}
-                    </div>
-                ) : loading ? (
-                    <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
-                        {Array.from({ length: PAGE_SIZE }).map((_, index) => (
-                            <div key={index} className="h-[6.5rem] animate-pulse rounded-xl border border-white/8 bg-white/5" />
-                        ))}
-                    </div>
-                ) : filteredRows.length === 0 ? (
-                    <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                        <Package className="mx-auto h-8 w-8 text-gray-600" />
-                        {isFiltered ? (
-                            <>
-                                <p className="mt-2 text-xs font-semibold text-white">No drops match &ldquo;{searchText.trim()}&rdquo;</p>
-                                <button
-                                    type="button"
-                                    onClick={() => setSearchText("")}
-                                    className="mt-1.5 text-xs font-medium text-brand-pink hover:underline"
-                                >
-                                    Clear search
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <p className="mt-2 text-xs font-semibold text-white">No drops exist yet.</p>
-                                <p className="mt-1 text-[11px] text-gray-400">Create the first drop or open the full manager.</p>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <>
-                        {/* 2×2 compact card grid (mobile: 2 cols, xl: 4 cols) */}
-                        <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
-                            {paginatedRows.items.map((row) => {
-                                const delaySeed = getDelaySeed(row.drop.id);
-
-                                return (
-                                    <article
-                                        key={row.drop.id}
-                                        className="group flex flex-col gap-2 rounded-xl border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-2.5"
-                                    >
-                                        {/* Thumbnail + status pill row */}
-                                        <div className="flex items-start gap-2">
-                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/55">
-                                                {row.drop.imageUrl ? (
-                                                    <Image src={row.drop.imageUrl} alt={row.drop.title} fill sizes="40px" className="object-contain bg-black" />
-                                                ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-white">KD</div>
-                                                )}
-                                            </div>
-                                            <span className={cn("mt-0.5 shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em]", row.statusClassName)}>
-                                                {row.statusLabel}
-                                            </span>
-                                        </div>
-
-                                        {/* Title */}
-                                        <TitleMarquee title={row.drop.title} delaySeed={delaySeed} className="text-xs font-semibold text-white leading-tight" />
-
-                                        {/* Metrics line */}
-                                        <div className="flex flex-wrap items-center gap-x-2 text-[10px] text-gray-400">
-                                            <span>{row.drop.unlockCost} GD</span>
-                                            <span>{(row.drop.totalUnlocks || 0).toLocaleString()} unwraps</span>
-                                        </div>
-
-                                        {/* Action icons */}
-                                        <div className="mt-auto flex items-center gap-1.5">
-                                            <Link
-                                                href={`/admin/drops?dropId=${encodeURIComponent(row.drop.id)}`}
-                                                aria-label="Edit drop"
-                                                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 text-[10px] font-semibold text-white transition-colors hover:border-brand-purple/35 hover:text-brand-pink"
-                                            >
-                                                <Edit className="h-3 w-3" />
-                                                <span className="hidden md:inline">Open</span>
-                                            </Link>
-                                            <button
-                                                type="button"
-                                                onClick={() => void handleQueueToggle(row.drop.id)}
-                                                disabled={queueingDropId === row.drop.id}
-                                                aria-label={row.isQueued ? "Unqueue drop" : "Queue drop"}
-                                                aria-busy={queueingDropId === row.drop.id}
-                                                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 text-[10px] font-semibold text-white transition-colors hover:border-brand-purple/35 hover:text-brand-pink disabled:opacity-60"
-                                            >
-                                                {queueingDropId === row.drop.id ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : <Repeat className="h-3 w-3" />}
-                                                <span className="hidden md:inline">{row.isQueued ? "Unqueue" : "Queue"}</span>
-                                            </button>
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </div>
-
-                        {paginatedRows.totalPages > 1 ? (
-                            <div className="flex items-center justify-between text-[10px] text-gray-400">
-                                <p>
-                                    {paginatedRows.startIndex + 1}–{paginatedRows.endIndex} of {filteredRows.length}
-                                </p>
-                                <div className="flex items-center gap-1.5">
-                                    <button
-                                        type="button"
-                                        onClick={() => setPage((current) => Math.max(0, current - 1))}
-                                        disabled={paginatedRows.page === 0}
-                                        className="rounded-full border border-white/10 px-2.5 py-1 text-white disabled:opacity-40"
-                                    >
-                                        Prev
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setPage((current) => Math.min(paginatedRows.totalPages - 1, current + 1))}
-                                        disabled={paginatedRows.page >= paginatedRows.totalPages - 1}
-                                        className="rounded-full border border-white/10 px-2.5 py-1 text-white disabled:opacity-40"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                        ) : null}
-                    </>
-                )}
+                    {paginatedRows.totalPages > 1 ? <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-400"><p>{paginatedRows.startIndex + 1}-{paginatedRows.endIndex} of {filteredRows.length}</p><div className="flex gap-2"><button type="button" onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={paginatedRows.page === 0} className="min-h-11 rounded-xl border border-white/10 px-3 text-xs font-bold text-white disabled:opacity-40">Previous</button><button type="button" onClick={() => setPage((current) => Math.min(paginatedRows.totalPages - 1, current + 1))} disabled={paginatedRows.page >= paginatedRows.totalPages - 1} className="min-h-11 rounded-xl border border-white/10 px-3 text-xs font-bold text-white disabled:opacity-40">Next</button></div></div> : null}
+                </>
+            )}
         </div>
     );
 }

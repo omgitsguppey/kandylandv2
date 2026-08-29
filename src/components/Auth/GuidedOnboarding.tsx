@@ -1,13 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { Gift, BellRing, ChevronRight, Compass, CalendarCheck2 } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
+import { GuidedOnboardingSurface } from "@/components/creative-tim/kandydrops/onboarding/GuidedOnboardingSurface";
 import { buildOnboardingCompletionStorageKey } from "@/hooks/client-runtime";
 import { db } from "@/lib/firebase-data";
 import { trackEvent } from "@/lib/telemetry";
@@ -22,7 +21,6 @@ import {
     type OnboardingStepMetric,
     DASHBOARD_ONBOARDING_PATH,
     STEP_DEFINITIONS,
-    FLAVOR_OPTIONS,
     hasClaimedToday,
     focusDashboardHome,
 } from "./OnboardingHelpers";
@@ -653,213 +651,25 @@ export function GuidedOnboarding() {
     }
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 py-6">
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={`onboarding-step-${currentStep}`}
-                    initial={{ opacity: 0, y: 18, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -14, scale: 0.98 }}
-                    transition={{ duration: 0.22 }}
-                    className="w-full max-w-md rounded-[2rem] border border-white/10 bg-[#0b0b11] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.5)] sm:p-6"
-                >
-                    <div className="mb-5">
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-purple">
-                                Step {currentStep + 1} of {STEP_DEFINITIONS.length}
-                            </span>
-                            <span className="text-xs font-medium text-gray-500">
-                                {STEP_DEFINITIONS[currentStep]?.title}
-                            </span>
-                        </div>
-                        <div className="h-2 rounded-full bg-white/8">
-                            <div
-                                className="h-full rounded-full bg-brand-purple transition-all duration-300"
-                                style={{ width: `${progressPercent}%` }}
-                            />
-                        </div>
-                    </div>
-
-                    {currentStep === 0 ? (
-                        <>
-                            <div className="mb-5 text-center">
-                                <h2 className="text-2xl font-bold text-white">Choose your flavor</h2>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Set the tone for what you want to see first. You can change it later anytime.
-                                </p>
-                            </div>
-
-                            <div className="space-y-3">
-                                {FLAVOR_OPTIONS.map((option) => {
-                                    const Icon = option.icon;
-                                    const active = flavorPreference === option.value;
-
-                                    return (
-                                        <button
-                                            key={option.value}
-                                            type="button"
-                                            onClick={() => setFlavorPreference(option.value)}
-                                            className={`flex w-full items-center gap-4 rounded-[1.5rem] border px-4 py-4 text-left transition-all ${
-                                                active
-                                                    ? option.activeClass
-                                                    : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"
-                                            }`}
-                                        >
-                                            <div className={`flex h-11 w-11 items-center justify-center rounded-full ${active ? option.iconClass : "bg-white/10 text-gray-400"}`}>
-                                                <Icon className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <p className={`text-sm font-bold ${active ? option.accentClass : "text-white"}`}>{option.label}</p>
-                                                <p className="mt-0.5 text-xs text-gray-400">{option.description}</p>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => completeStepAndAdvance("selected_flavor", {
-                                    selected_flavor: flavorPreference || "Sweet",
-                                })}
-                                disabled={!flavorPreference}
-                                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                Save flavor <ChevronRight className="h-4 w-4" />
-                            </button>
-                        </>
-                    ) : null}
-
-                    {currentStep === 1 ? (
-                        <>
-                            <div className="mb-5 text-center">
-                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
-                                    <CalendarCheck2 className="h-7 w-7" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-white">Claim today&apos;s Gum Drops</h2>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Start your streak now so your first unwrap is closer right away.
-                                </p>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={handleCheckInAndContinue}
-                                disabled={isCheckingIn}
-                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {isCheckingIn ? "Checking in..." : hasCheckedInToday ? "Keep going" : "Claim today’s drops"}
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
-                        </>
-                    ) : null}
-
-                    {currentStep === 2 ? (
-                        <>
-                            <div className="mb-5 text-center">
-                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
-                                    <Gift className="h-7 w-7" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-white">Live drops move fast</h2>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    If a live drop matters to you, unwrap it before the timer ends so it stays in your library.
-                                </p>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => completeStepAndAdvance("continued_from_drops")}
-                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
-                            >
-                                I&apos;ll watch the timer <ChevronRight className="h-4 w-4" />
-                            </button>
-                        </>
-                    ) : null}
-
-                    {currentStep === 3 ? (
-                        <>
-                            <div className="mb-5 text-center">
-                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
-                                    <Compass className="h-7 w-7" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-white">Daily experiences keep you stocked</h2>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Use your daily loop to keep Gum Drops coming in without leaving the dashboard rhythm.
-                                </p>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => completeStepAndAdvance("continued_from_experiences")}
-                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
-                            >
-                                Show me the routine <ChevronRight className="h-4 w-4" />
-                            </button>
-                        </>
-                    ) : null}
-
-                    {currentStep === 4 ? (
-                        <>
-                            <div className="mb-5 text-center">
-                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
-                                    <BellRing className="h-7 w-7" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-white">Get the heads-up first</h2>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Turn on alerts and we&apos;ll nudge you when drops go live or your daily loop resets.
-                                </p>
-                            </div>
-
-                            <div className="space-y-3">
-                                <button
-                                    type="button"
-                                    onClick={handleEnableNotifications}
-                                    disabled={isEnablingNotifications}
-                                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    {isNotificationStepCompleted
-                                        ? "Alerts already on"
-                                        : isEnablingNotifications
-                                            ? "Turning on..."
-                                            : "Turn on alerts"}
-                                    <ChevronRight className="h-4 w-4" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => completeStepAndAdvance("skipped_notifications")}
-                                    className="w-full rounded-full border border-white/12 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-white/8"
-                                >
-                                    Maybe later
-                                </button>
-                            </div>
-                        </>
-                    ) : null}
-
-                    {currentStep === 5 ? (
-                        <>
-                            <div className="mb-5 text-center">
-                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
-                                    <Gift className="h-8 w-8" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-white">You&apos;re ready</h2>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Your dashboard is set. You now have <span className="font-bold text-white">100 Gum Drops</span> ready for your first unwrap, and we&apos;ll keep you right here to start.
-                                </p>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={completeOnboarding}
-                                disabled={isCompleting}
-                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {isCompleting ? "Finishing..." : "Enter dashboard"}
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
-                        </>
-                    ) : null}
-                </motion.div>
-            </AnimatePresence>
-        </div>
+        <GuidedOnboardingSurface
+            currentStep={currentStep}
+            flavorPreference={flavorPreference}
+            onFlavorPreferenceChange={(value) => setFlavorPreference(value)}
+            progressPercent={progressPercent}
+            hasCheckedInToday={hasCheckedInToday}
+            isCheckingIn={isCheckingIn}
+            isNotificationStepCompleted={isNotificationStepCompleted}
+            isEnablingNotifications={isEnablingNotifications}
+            isCompleting={isCompleting}
+            onSaveFlavor={() => completeStepAndAdvance("selected_flavor", {
+                selected_flavor: flavorPreference || "Sweet",
+            })}
+            onCheckIn={handleCheckInAndContinue}
+            onContinueDrops={() => completeStepAndAdvance("continued_from_drops")}
+            onContinueExperiences={() => completeStepAndAdvance("continued_from_experiences")}
+            onEnableNotifications={handleEnableNotifications}
+            onSkipNotifications={() => completeStepAndAdvance("skipped_notifications")}
+            onComplete={completeOnboarding}
+        />
     );
 }

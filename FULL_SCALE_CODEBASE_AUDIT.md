@@ -1,5 +1,19 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-08-28 KD-RECOVERY-CHECKPOINT-01] Recovery checkpoint and atomic cleanup
+
+Scope started:
+- User authorized a recovery checkpoint of the current non-ignored dirty worktree, followed by continued source-owned atomic cleanup.
+- `selectedIssueIdOrFingerprint`: `KD-RECOVERY-CHECKPOINT-01`
+- `affectedSurface`: repository recovery boundary and subsequent multi-surface cleanup; production data, purchased content, account state, providers, and deployment are excluded.
+- `expectedUserImpact`: preserve every current source/config/evidence change before cleanup, then improve one proven owner at a time without losing entitlement, purchase, or account behavior.
+- `filesAllowed`: this audit ledger, the ignored local incident record, the checkpoint branch/tag/bundle managed by the lead, and later separately approved atomic slices.
+- `filesForbidden`: production/provider/IAM/data mutations, deploys, broad dependency upgrades, destructive deletes/resets/stashes, and unproven cross-surface consolidation.
+- `validatorToRun`: recovery preflight, exact checkpoint/ref/tag/bundle verification, then focused owner validators per later slice; no full suite/browser/provider lanes by default.
+- `releaseNoteImpact`: none; a local recovery checkpoint does not create a public beta release.
+- `rollbackNote`: retain the recovery branch, tag, and ignored offline bundle before touching any inherited slice.
+- `sourceEvidenceBoundary`: the checkpoint proves local Git recovery only; it does not prove runtime, provider, payment, entitlement, account-data, admin, or production behavior.
+
 ## [2026-07-13 #191] Release-Gate Normalization And Source-First Remediation
 
 Scope started:

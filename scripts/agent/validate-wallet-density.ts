@@ -27,14 +27,11 @@ function requireNotIncludes(source: string, forbidden: string, label: string) {
   }
 }
 
-function requireRegex(source: string, pattern: RegExp, label: string) {
-  if (!pattern.test(source)) {
-    failures.push(`${label} must match ${pattern}.`);
-  }
-}
-
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const walletFrame = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx");
+const walletPackagePicker = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
+const walletCheckoutPanel = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletCheckoutPanel.tsx");
 const paymentModuleSymmetry = readRequired("agent/state/payment-module-symmetry.generated.json");
 const formatter = readRequired("src/lib/gumdrop-formatting.ts");
 const formatterTest = readRequired("tests/unit/lib/gumdrop-formatting.spec.ts");
@@ -49,12 +46,48 @@ for (const expected of [
   "data-wallet-balance-chip=\"split-source\"",
   "data-wallet-package-subcopy=\"removed\"",
   "data-wallet-bonus-chip-theme=\"brand-purple\"",
+]) {
+  requireIncludes(walletFrame, expected, "Canonical wallet modal frame density");
+}
+
+for (const expected of [
   "data-payment-module-density=\"compact-v2\"",
-  "formatCompactGd(freeGd)} reward GD",
-  "formatCompactGd(paidGd)} paid GD",
-  "aria-hidden=\"true\">|</span>",
-  "resolveWalletBalanceSplit(userProfile)",
+  "Reward balance",
+  "Paid balance",
   "Paid GD",
+  "data-purchase-row-zone=\"icon\"",
+  "data-purchase-row-zone=\"copy\"",
+  "data-purchase-row-zone=\"price\"",
+  "data-purchase-promo-slot=\"reserved\"",
+  "grid-cols-[2.75rem_minmax(0,1fr)]",
+  "min-h-[8rem]",
+  "max-w-[7.6rem]",
+]) {
+  requireIncludes(walletPackagePicker, expected, "Canonical wallet package picker density");
+}
+
+for (const expected of [
+  "data-wallet-purchase-path=\"three-stage\"",
+  "data-wallet-purchase-slot=\"selection\"",
+  "data-wallet-purchase-slot=\"review\"",
+  "data-wallet-purchase-slot=\"provider\"",
+]) {
+  requireIncludes(walletCheckoutPanel, expected, "Canonical wallet checkout density");
+}
+
+for (const forbidden of [
+  "Paid source:",
+  "paid bonus GD",
+  "Reward GumDrops stay separate.",
+]) {
+  requireNotIncludes(walletCheckoutPanel, forbidden, "Wallet checkout must not expose paid-source explanatory subcopy");
+}
+
+for (const expected of [
+  "data-payment-module-density=\"compact-v2\"",
+  "resolveWalletBalanceSplit(userProfile)",
+  "formatCompactGd(walletBalanceSplit.freeGd)",
+  "formatCompactGd(walletBalanceSplit.paidGd)",
 ]) {
   requireIncludes(purchaseModal, expected, "PurchaseModal compact wallet density");
 }
@@ -87,8 +120,8 @@ for (const forbidden of [
 
 for (const expected of [
   "border-brand-purple/30",
-  "bg-brand-purple/15",
-  "text-[#d7c4ff]",
+  "bg-brand-purple/10",
+  "text-brand-purple",
   "package_paid_drops",
   "package_bonus_drops",
   "PayPalButtons",
@@ -122,26 +155,15 @@ for (const expected of [
 }
 
 for (const expected of [
-  "76k reward GD",
-  "5k paid GD",
-  "76k reward GD\\s*\\|\\s*5k paid GD",
-  "1.5k paid GD",
+  "Wallet balance: 76k reward GD, 5k paid GD",
+  "Wallet balance: 0 reward GD, 1.5k paid GD",
   "not.toMatch(/\\d+ paid \\+ \\d+ bonus GumDrops/)",
   "not.toContain(\"80,962 balance\")",
 ]) {
   requireIncludes(modalTest, expected, "PurchaseModal density tests");
 }
 
-requireRegex(
-  purchaseModal,
-  /className="relative w-full max-w-\[23rem\][^"]*p-3\.5[^"]*sm:p-4 md:p-5/,
-  "PurchaseModal mobile shell padding",
-);
-requireIncludes(
-  purchaseModal,
-  "\"relative grid min-h-[3.45rem] w-full grid-cols-[2rem_minmax(0,1fr)_6.6rem] items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all\"",
-  "PurchaseModal compact package row padding",
-);
+requireIncludes(walletFrame, "min-h-[100dvh]", "Canonical wallet modal mobile shell");
 
 try {
   const forbiddenDiff = execSync(

@@ -372,24 +372,27 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
         return (
         <div
             className={cn(
-                "glass-panel relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(145deg,rgba(25,25,31,0.96),rgba(8,8,10,0.92))] shadow-[0_20px_44px_rgba(0,0,0,0.28)] animate-pulse",
-                isExperiencesVariant ? "min-h-[14rem] p-3.5 sm:p-5" : "min-h-[20rem] p-4 sm:p-6",
+                "relative isolate overflow-hidden rounded-[1.85rem] border border-pink-100/12 bg-[linear-gradient(145deg,rgba(60,15,75,0.84),rgba(13,5,24,0.96)_58%,rgba(25,8,40,0.94))] shadow-[0_24px_64px_rgba(0,0,0,0.32)] animate-pulse",
+                isExperiencesVariant ? "min-h-[12rem] p-3.5 sm:p-5" : "min-h-[19rem] p-5 sm:p-7",
             )}
             data-daily-checkin-variant={variant}
         >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
-            <div className="relative z-10 h-full flex flex-col">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-fuchsia-300/12 blur-[54px]" />
+            <div className="relative z-10 flex h-full flex-col">
                 {!isExperiencesVariant ? (
-                <div className="mb-5 sm:mb-6">
-                    <div className="h-8 w-3/4 sm:w-1/2 bg-white/10 rounded-lg mb-2" />
-                    <div className="h-4 w-1/2 sm:w-1/3 bg-white/5 rounded-md" />
-                </div>
+                    <div className="mb-6 sm:mb-7">
+                        <div className="mb-3 h-3 w-28 rounded-full bg-pink-100/10" />
+                        <div className="mb-2 h-9 w-3/4 rounded-2xl bg-white/10 sm:w-1/2" />
+                        <div className="h-4 w-1/2 rounded-full bg-white/5 sm:w-1/3" />
+                    </div>
                 ) : null}
-                <div className={cn("h-16 sm:h-20 w-full bg-white/5 rounded-2xl", isExperiencesVariant ? "mb-3" : "mb-5 sm:mb-6")} />
-                <div className={cn("h-6 w-1/3 bg-white/5 rounded-lg", isExperiencesVariant ? "mb-3" : "mb-4")} />
-                <div className={cn("flex justify-between gap-1", isExperiencesVariant ? "mb-3" : "")}>
+                <div className={cn("flex flex-wrap items-center gap-2 border-b border-white/8 pb-3", isExperiencesVariant ? "mb-3" : "mb-5 sm:mb-6")}>
+                    {[...Array(3)].map((_, i) => <div key={i} className="h-7 w-20 rounded-full bg-white/5 sm:w-24" />)}
+                </div>
+                <div className={cn("h-5 w-28 rounded-full bg-pink-100/10", isExperiencesVariant ? "mb-3" : "mb-4")} />
+                <div className={cn("flex justify-between gap-1.5", isExperiencesVariant ? "mb-3" : "")}>
                     {[...Array(7)].map((_, i) => (
-                        <div key={i} className={cn("flex-1 bg-white/5 rounded-2xl", isExperiencesVariant ? "h-11 sm:h-14" : "h-16 sm:h-20")} />
+                        <div key={i} className={cn("flex-1 rounded-xl bg-white/5", isExperiencesVariant ? "h-10 sm:h-12" : "h-14 sm:h-16")} />
                     ))}
                 </div>
             </div>
@@ -403,92 +406,89 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
         <div
             id="daily-reward"
             className={cn(
-                "glass-panel relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(145deg,rgba(25,25,31,0.96),rgba(8,8,10,0.92))] shadow-[0_20px_44px_rgba(0,0,0,0.28)]",
-                isExperiencesVariant ? "p-3.5 sm:p-5" : "p-4 sm:p-6",
+                "relative isolate overflow-hidden rounded-[1.85rem] border border-pink-100/14 bg-[linear-gradient(145deg,rgba(73,18,82,0.86),rgba(15,5,27,0.98)_56%,rgba(29,8,48,0.94))] shadow-[0_26px_74px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.1)]",
+                isExperiencesVariant ? "p-3.5 sm:p-5" : "p-5 sm:p-7",
             )}
             data-onboarding-target="daily-reward"
             data-daily-checkin-variant={variant}
         >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
+            <div className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-fuchsia-300/15 blur-[64px]" />
+            <div className="pointer-events-none absolute -bottom-20 left-1/3 h-40 w-40 rounded-full bg-brand-purple/18 blur-[64px]" />
 
             <div className="relative z-10">
                 {!isExperiencesVariant ? (
-                <header className="mb-5 sm:mb-6">
-                    <h1 className="text-xl md:text-2xl font-bold leading-tight tracking-tight text-white/90">
-                        Welcome back to the Kandy Shop, {firstName}
-                    </h1>
-                    <p className="mt-1 text-sm text-gray-400">Claim your streak and stay ready to unwrap</p>
-                </header>
+                    <header className="mb-6 sm:mb-7">
+                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-pink-100/70">Daily Kandy</p>
+                        <h1 className="mt-2 text-2xl font-black tracking-[-0.045em] text-white sm:text-3xl">
+                            Welcome back, {firstName}.
+                        </h1>
+                        <p className="mt-2 text-sm leading-6 text-white/62">Your streak is ready when you are.</p>
+                    </header>
                 ) : null}
 
-                <div className={cn(
-                    "relative overflow-hidden flex items-center justify-between rounded-[1.35rem] border border-white/10 bg-black/30 shadow-inner shadow-black/20 backdrop-blur-sm",
-                    isExperiencesVariant ? "mb-3 p-2.5 sm:px-4 sm:py-2.5" : "mb-5 p-3 sm:mb-6 sm:px-5 sm:py-3",
-                )}>
-                    <div aria-hidden="true" className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/55 to-transparent" />
-                    <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Reward GD</span>
-                        <CompactNumber value={userProfile?.gumDropsBalance || 0} className={cn("font-black text-brand-purple", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")} />
-                    </div>
-                    <div className="h-8 w-px bg-white/10" />
-                    <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Unwrapped</span>
-                        <CompactNumber value={userProfile?.unlockedContent?.length || 0} className={cn("font-black text-white", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")} />
-                    </div>
-                    <div className="h-8 w-px bg-white/10" />
-                    <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Day Streak</span>
-                        <div className={cn("font-black text-brand-purple", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")}>
-                            {displayedStreakCount}<span className="text-xs sm:text-sm font-semibold text-gray-500">/7</span>
-                        </div>
-                    </div>
+                <div
+                    aria-label="Your daily status"
+                    className={cn(
+                        "flex flex-wrap items-baseline gap-x-4 gap-y-2 border-b border-white/10 pb-3 text-sm",
+                        isExperiencesVariant ? "mb-4" : "mb-6 sm:mb-7",
+                    )}
+                >
+                    <span className="inline-flex items-baseline gap-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/42">Reward GD</span>
+                        <CompactNumber value={userProfile?.gumDropsBalance || 0} className={cn("font-black text-pink-100", isExperiencesVariant ? "text-base" : "text-lg")} />
+                    </span>
+                    <span className="inline-flex items-baseline gap-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/42">Unwrapped</span>
+                        <CompactNumber value={userProfile?.unlockedContent?.length || 0} className={cn("font-black text-white", isExperiencesVariant ? "text-base" : "text-lg")} />
+                    </span>
+                    <span className="inline-flex items-baseline gap-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/42">Streak</span>
+                        <span className={cn("font-black text-pink-100", isExperiencesVariant ? "text-base" : "text-lg")}>
+                            {displayedStreakCount}<span className="text-xs font-semibold text-white/40">/7</span>
+                        </span>
+                    </span>
                 </div>
 
                 <div className={cn(isExperiencesVariant ? "mb-3" : "mb-5 sm:mb-6")}>
-                    <h2 className={cn("flex items-center gap-2 font-black tracking-tight text-white", isExperiencesVariant ? "text-lg sm:text-xl" : "text-xl sm:text-2xl")}>
-                        <Gift className={cn("text-brand-purple", isExperiencesVariant ? "h-5 w-5" : "w-5 h-5 sm:w-6 sm:h-6")} /> Daily Reward GD
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-pink-100/66">Seven-day reward path</p>
+                    <h2 className={cn("mt-1 flex items-center gap-2 font-black tracking-[-0.04em] text-white", isExperiencesVariant ? "text-lg sm:text-xl" : "text-xl sm:text-2xl")}>
+                        <Gift className={cn("text-pink-200", isExperiencesVariant ? "h-5 w-5" : "w-5 h-5 sm:w-6 sm:h-6")} /> Your next Reward GD
                     </h2>
                 </div>
 
-                <div className={cn("flex justify-between gap-1", isExperiencesVariant ? "mb-3" : "mb-4")}>
+                <div className={cn("grid grid-cols-7 gap-1.5", isExperiencesVariant ? "mb-4" : "mb-5")}>
                     {DAILY_CHECK_IN_REWARD_LADDER.map((reward, index) => {
                         const day = index + 1;
                         const isActive = day <= Math.min(checkInProgress.activeStreak, 7);
 
                         return (
-                            <div key={day} className={cn("flex flex-col items-center flex-1", isExperiencesVariant ? "gap-1.5" : "gap-2")}>
+                            <div key={day} className={cn("rounded-xl border px-1 py-2 text-center transition-colors", isActive ? "border-pink-100/30 bg-pink-200/12 text-white shadow-[0_0_18px_rgba(236,72,153,0.12)]" : "border-white/8 bg-black/18 text-white/35")}>
                                 <div
                                     className={cn(
-                                        "h-2 w-full rounded-full transition-all",
-                                        isActive ? "bg-brand-purple shadow-[0_0_10px_rgba(164,118,255,0.8)]" : "bg-white/10"
+                                        "mx-auto h-1.5 w-1.5 rounded-full transition-all",
+                                        isActive ? "bg-pink-200 shadow-[0_0_10px_rgba(249,168,212,0.9)]" : "bg-white/15"
                                     )}
                                 />
-                                <span
-                                    className={cn(
-                                        "text-xs font-black",
-                                        isActive ? "text-white" : "text-gray-600"
-                                    )}
-                                >
-                                    {reward}
-                                </span>
+                                <span className="mt-1.5 block text-[9px] font-black uppercase tracking-[0.12em]">D{day}</span>
+                                <span className="mt-0.5 block text-xs font-black">{reward}</span>
                             </div>
                         );
                     })}
                 </div>
 
-                <p className={cn("text-sm font-medium text-gray-300", isExperiencesVariant ? "mb-3" : "mb-6")}>
+                <p className={cn("rounded-xl border border-white/8 bg-black/16 px-3 py-2.5 text-sm leading-6 text-white/68", isExperiencesVariant ? "mb-4" : "mb-6")}>
                     {canCheckIn
                         ? "You can check in now for Reward GD."
                         : `Locked until the Central-time daily reset. Next check-in available in ${formatCountdown(remainingMs)}.`}
-                    <span className="block pt-1 text-xs text-gray-500">{resetExplanation}</span>
+                    <span className="block pt-1 text-xs text-white/42">{resetExplanation}</span>
                 </p>
 
                 {!canCheckIn ? (
                     <div className={cn(
-                        "flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-3 text-center font-semibold text-gray-400",
+                        "flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-3 text-center font-semibold text-white/64",
                         isExperiencesVariant ? "text-sm" : "text-base",
                     )}>
-                        <CheckCircle className="w-5 h-5 text-brand-purple" />
+                        <CheckCircle className="h-5 w-5 text-pink-200" />
                         Come back after reset for {nextRewardAmount} Reward GD.
                     </div>
                 ) : (
@@ -499,7 +499,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                         data-onboarding-target="daily-reward-claim"
                         data-onboarding-radius="16"
                         className={cn(
-                            "min-h-12 w-full rounded-2xl text-white shadow-[0_0_20px_rgba(164,118,255,0.35)] transition-shadow hover:shadow-[0_0_30px_rgba(164,118,255,0.5)]",
+                            "min-h-12 w-full rounded-2xl bg-[linear-gradient(135deg,#f9a8d4,#d946ef_38%,#9333ea)] text-white shadow-[0_14px_34px_rgba(217,70,239,0.34),inset_0_1px_0_rgba(255,255,255,0.36)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(217,70,239,0.44)]",
                             isExperiencesVariant ? "py-3 text-base" : "py-6 text-lg",
                         )}
                     >

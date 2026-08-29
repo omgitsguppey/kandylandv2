@@ -88,20 +88,22 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
   }
 
   return (
-    <section className="glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <section className="relative isolate overflow-hidden rounded-[1.9rem] border border-pink-100/14 bg-[linear-gradient(135deg,rgba(74,18,84,0.82),rgba(13,5,24,0.98)_58%,rgba(36,10,52,0.92))] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] sm:p-6">
+      <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-fuchsia-300/14 blur-[64px]" aria-hidden="true" />
+      <div className="relative mb-5 flex items-end justify-between gap-3">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-            <Sparkles className="h-3.5 w-3.5" />
-            Live Drops For You
+          <div className="inline-flex items-center gap-2 rounded-full border border-pink-100/20 bg-white/[0.08] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-pink-50">
+            <Sparkles className="h-3.5 w-3.5 text-pink-200" />
+            Live Drop lineup
           </div>
-          <p className="mt-2 text-sm leading-6 text-gray-400">
-            Tap any live cover to jump straight into the drop lineup.
+          <h3 className="mt-3 text-2xl font-black tracking-[-0.04em] text-white">Pick your next unwrap.</h3>
+          <p className="mt-1 text-sm leading-6 text-white/62">
+            Open any live cover to explore the full Drop shelf.
           </p>
         </div>
       </div>
 
-      <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+      <div className="relative -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
         {activeDrops.map((drop) => (
           <button
             key={drop.id}
@@ -114,7 +116,7 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
               });
               router.push("/drops");
             }}
-            className="group relative flex-[0_0_12rem] snap-start overflow-hidden rounded-[1.6rem] border border-white/10 bg-zinc-950 text-left"
+            className="group relative flex-[0_0_13.5rem] snap-start overflow-hidden rounded-[1.65rem] border border-white/14 bg-zinc-950 text-left shadow-[0_16px_35px_rgba(0,0,0,0.28)] transition-transform hover:-translate-y-1"
             style={{ aspectRatio: getSupportedDropAspectRatio(drop).replace(":", " / ") }}
           >
             <NextImage
@@ -126,15 +128,17 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
               fetchPriority={imagePolicy.fetchPriority}
               quality={imagePolicy.quality}
               sizes={imagePolicy.sizes}
-              className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+              className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.06]"
               {...getImagePolicyDataAttributes(imagePolicy)}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,2,18,0.12),rgba(10,2,18,0.18)_32%,rgba(5,2,9,0.96)_100%)]" />
 
-            <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-              <Images className="mr-1 inline h-3.5 w-3.5 text-brand-purple" />
+            <div className="absolute left-3 top-3 rounded-full border border-pink-100/18 bg-black/55 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
+              <Images className="mr-1 inline h-3.5 w-3.5 text-pink-200" />
               {(drop.mediaCounts?.images ?? 0) + (drop.mediaCounts?.videos ?? 0)} files
             </div>
+
+            <span className="absolute right-3 top-3 rounded-full border border-emerald-100/18 bg-emerald-400/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-emerald-50">Live</span>
 
             <div className="absolute inset-x-0 bottom-0 p-3">
               <TitleMarquee
@@ -142,8 +146,8 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
                 delaySeed={drop.id.charCodeAt(0) % 6}
                 className="text-sm font-extrabold leading-5 text-white"
               />
-              <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
-                Unwrap
+              <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-[0.14em] text-pink-100">
+                Open lineup
                 <ArrowRight className="h-3.5 w-3.5" />
               </div>
             </div>

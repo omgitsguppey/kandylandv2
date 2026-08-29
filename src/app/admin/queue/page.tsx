@@ -13,7 +13,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import { toast } from "sonner";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminQueueTriageCanvas } from "@/components/creative-tim/kandydrops/admin-queue/AdminQueueTriageCanvas";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
 import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
@@ -268,32 +268,31 @@ export default function ManageQueuePage() {
 
     if (loading) {
         return (
-            <div
-                className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+6.5rem)]"
-                data-mobile-density="compact"
-                data-mobile-sprawl-guard="true"
-                data-mobile-skeleton="admin-queue-route"
-            >
-                <div className={adminQueueSkeletonClassName} />
-                <div className="grid gap-3 lg:grid-cols-[1.05fr_1.95fr]">
-                    <div className={adminQueueSkeletonClassName} data-mobile-skeleton="admin-queue-schedule" />
-                    <div className={adminQueueSkeletonClassName} data-mobile-skeleton="admin-queue-lineup" />
-                </div>
-            </div>
+            <AdminQueueTriageCanvas
+                eyebrow="Queue control"
+                title="Preparing triage"
+                subtitle="Loading the current queue source and schedule." 
+                stateContent={(
+                    <div className="space-y-3" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-skeleton="admin-queue-route">
+                        <div className={adminQueueSkeletonClassName} />
+                        <div className="flex flex-col gap-3 2xl:flex-row">
+                            <div className={adminQueueSkeletonClassName} data-mobile-skeleton="admin-queue-schedule" />
+                            <div className={adminQueueSkeletonClassName} data-mobile-skeleton="admin-queue-lineup" />
+                        </div>
+                    </div>
+                )}
+            />
         );
     }
 
     if (!config) {
         return (
-            <div className="mx-auto max-w-4xl pb-32">
-                <PageViewEvent eventName="admin_queue_viewed" />
-                <AdminPageHeader
-                    eyebrow="Admin Queue"
-                    title="Manage Queue"
-                    subtitle="Configure automated drop rotation and schedule."
-                    compact
-                />
-                {isLocalAdminUiTestSession ? (
+            <AdminQueueTriageCanvas
+                eyebrow="Queue control"
+                title="Queue unavailable"
+                subtitle="Configure automated drop rotation and schedule."
+                beforeContent={<PageViewEvent eventName="admin_queue_viewed" />}
+                stateContent={isLocalAdminUiTestSession ? (
                     <div
                         className={`${adminQueueModuleClassName} border-amber-400/20 bg-amber-400/10 text-center text-amber-100`}
                         data-admin-queue-fixture-boundary="true"
@@ -319,45 +318,34 @@ export default function ManageQueuePage() {
                         </button>
                     </div>
                 )}
-            </div>
+            />
         );
     }
 
     return (
-        <div
-            className="mx-auto max-w-4xl pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-28"
-            data-mobile-density="compact"
-            data-mobile-sprawl-guard="true"
-            data-mobile-organization="summary-first"
-            data-mobile-drilldown="true"
-            data-desktop-flow-collapsed="true"
-        >
-            <PageViewEvent eventName="admin_queue_viewed" />
-            <AdminPageHeader
-                eyebrow="Admin Queue"
-                topSlot={(
+        <AdminQueueTriageCanvas
+            eyebrow="Queue control"
+            title="Release Triage"
+            subtitle="Keep automated rotation readable by default and switch to edit mode only when needed."
+            beforeContent={<PageViewEvent eventName="admin_queue_viewed" />}
+            backLink={(
                     <Link href="/admin/drops" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition-colors hover:text-white">
                         <ArrowLeft className="h-4 w-4" /> Back to Drops
                     </Link>
-                )}
-                title="Manage Queue"
-                subtitle="Keep automated rotation readable by default and switch to edit mode only when needed."
-                compact
-                actions={(
+            )}
+            action={(
                     <button
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
-                        className="hidden min-h-11 items-center gap-2 rounded-full bg-brand-purple px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-[#d946ef] disabled:opacity-50 md:inline-flex"
+                        className="hidden min-h-11 items-center gap-2 rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-[#d946ef] disabled:opacity-50 md:inline-flex"
                     >
                         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         Save Settings
                     </button>
-                )}
-            />
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6" data-mobile-organization="summary-first">
-                <section className={`${adminQueueModuleClassName} bg-white/[0.02] shadow-xl shadow-black/20`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
+            )}
+        >
+                <section className={`${adminQueueModuleClassName} relative overflow-hidden border-kandy-lilac/20 bg-[linear-gradient(160deg,rgba(178,140,255,0.13),rgba(12,8,25,0.88)_48%,rgba(236,72,153,0.08))] shadow-[0_24px_54px_rgba(0,0,0,0.24)]`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     <div className="flex items-start justify-between gap-3">
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Schedule Summary</p>
@@ -451,7 +439,7 @@ export default function ManageQueuePage() {
                     ) : null}
                 </section>
 
-                <section className={`${adminQueueModuleClassName} bg-white/[0.02] shadow-xl shadow-black/20`} data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true">
+                <section className={`${adminQueueModuleClassName} relative overflow-hidden border-kandy-lilac/20 bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(12,8,25,0.9)_52%,rgba(91,44,132,0.18))] shadow-[0_24px_54px_rgba(0,0,0,0.24)]`} data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true">
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-4">
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Queue Lineup</p>
@@ -578,19 +566,17 @@ export default function ManageQueuePage() {
                         )}
                     </div>
                 </section>
-            </div>
-
             <div className="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-20 md:hidden">
                 <button
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 text-sm font-bold text-white shadow-[0_18px_40px_rgba(236,72,153,0.28)] transition-colors hover:bg-[#d946ef] disabled:opacity-50"
+                    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 text-sm font-bold text-white shadow-[0_18px_40px_rgba(236,72,153,0.28)] transition-colors hover:bg-[#d946ef] disabled:opacity-50"
                 >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     Save Queue Settings
                 </button>
             </div>
-        </div>
+        </AdminQueueTriageCanvas>
     );
 }

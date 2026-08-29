@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { badgeForSourceStatus, Pill, Section, ScrollWrap, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 import { DebugMonitoringRoutes, type DebugMonitoringRoutesProps } from "./DebugMonitoringRoutes";
+import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream";
 import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
 import { buildRouteRuntimeDisplayStatus, type RouteRuntimeDisplayBadgeState } from "@/lib/debug/route-runtime-display-status";
 import { buildRouteRuntimeRollup } from "@/lib/debug/route-runtime-rollup-engine";
@@ -386,7 +387,11 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     );
 
     return (
-        <div className="space-y-4">
+        <AdminDebugWorkstream
+            eyebrow="Monitoring"
+            title="Runtime evidence ledger"
+            subtitle="Open a workstream only when its current source, freshness, or route state requires action."
+        >
             <Section
                 title="Tracked route runtime"
                 subtitle="Canonical route rollups for debug, overview, support, chat, creator relationships, and AI flows."
@@ -790,7 +795,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                     </ScrollWrap>
                 </div>
             </Section>
-        </div>
+        </AdminDebugWorkstream>
     );
 }
 
