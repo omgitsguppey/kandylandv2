@@ -1,7 +1,7 @@
 # Mobile Residual Score Impact
 
-Generated: 2026-08-29T02:45:49.978Z
-Current code version: d64358ffc282360f679ddde98a1fdfe97ce65505
+Generated: 2026-08-29T04:08:31.300Z
+Current code version: fde24e265d1a33a3915e59b7af74af5113ddfde3
 
 ## Summary
 
@@ -10,8 +10,8 @@ Current code version: d64358ffc282360f679ddde98a1fdfe97ce65505
 - High-impact residuals ranked: yes
 - High-impact residuals fixed/already compact: 6
 - Deferred low-impact residuals: 1
-- Chat untouched: no
-- Navigation untouched: no
+- Chat untouched: yes
+- Navigation untouched: yes
 - Blocking findings: P0=0, P1=0, P2=0
 
 ## Impact Ranking
@@ -41,13 +41,7 @@ Current code version: d64358ffc282360f679ddde98a1fdfe97ce65505
 
 ## Protected File Diffs
 
-- src/app/dashboard/chat/page.tsx
-- src/components/Chat/ChatExperience.tsx
-- src/components/Navbar.tsx
-- src/components/Navigation/AdminDropdown.tsx
-- src/components/Navigation/MobileBottomBar.tsx
-- src/components/Navigation/ProfileDropdown.tsx
-- src/components/Navigation/ProfileSidebar.tsx
+- None.
 
 ## Next Exact Steps
 
