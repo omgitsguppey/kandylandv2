@@ -13,6 +13,10 @@ function readRequired(relativePath: string) {
   return readFileSync(fullPath, "utf8");
 }
 
+function readAggregate(...relativePaths: string[]) {
+  return relativePaths.map((relativePath) => readRequired(relativePath)).join("\n");
+}
+
 function parseJson(relativePath: string) {
   const source = readRequired(relativePath);
   try {
@@ -61,21 +65,43 @@ const audit = parseJson("agent/state/accessibility-tap-target-audit.generated.js
 const surfaces = requireArray(audit.surfaces, "audit.surfaces", 14);
 const docs = readRequired("docs/agent-truth/accessibility-tap-targets.md");
 const packageJson = readRequired("package.json");
-const mobileBottomBar = readRequired("src/components/Navigation/MobileBottomBar.tsx");
+const mobileBottomBar = readAggregate(
+  "src/components/Navigation/MobileBottomBar.tsx",
+  "src/components/creative-tim/kandydrops/navigation/KandyNavigationPrimitives.tsx",
+);
 const navbar = readRequired("src/components/Navbar.tsx");
-const adminDropdown = readRequired("src/components/Navigation/AdminDropdown.tsx");
-const profileDropdown = readRequired("src/components/Navigation/ProfileDropdown.tsx");
+const adminDropdown = readAggregate(
+  "src/components/Navigation/AdminDropdown.tsx",
+  "src/components/creative-tim/kandydrops/navigation/KandyAdminMenuSurface.tsx",
+);
+const profileDropdown = readAggregate(
+  "src/components/Navigation/ProfileDropdown.tsx",
+  "src/components/creative-tim/kandydrops/navigation/KandyProfileMenuSurface.tsx",
+);
 const notificationBell = readRequired("src/components/Navigation/NotificationBell.tsx");
 const stickyFilterBar = readRequired("src/components/StickyFilterBar.tsx");
 const dropCardParts = readRequired("src/components/DropCardParts.tsx");
 const dropCardLayout = readRequired("src/components/DropCardLayout.tsx");
 const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
-const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const purchaseModal = readAggregate(
+  "src/components/PurchaseModal.tsx",
+  "src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx",
+  "src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx",
+);
 const humanErrorNotice = readRequired("src/components/errors/HumanErrorNotice.tsx");
 const thumbnailsSlider = readRequired("src/app/dashboard/viewer/components/ThumbnailsSlider.tsx");
-const chatExperience = readRequired("src/components/Chat/ChatExperience.tsx");
-const adminAnalytics = readRequired("src/app/admin/analytics/page.tsx");
-const adminDebug = readRequired("src/app/admin/debug/page.tsx");
+const chatExperience = readAggregate(
+  "src/components/Chat/ChatExperience.tsx",
+  "src/components/creative-tim/kandydrops/chat/ChatNewMessageModal.tsx",
+);
+const adminAnalytics = readAggregate(
+  "src/app/admin/analytics/page.tsx",
+  "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
+);
+const adminDebug = readAggregate(
+  "src/app/admin/debug/page.tsx",
+  "src/app/admin/debug/components/DebugControlTower.tsx",
+);
 const adminDashboardModule = readRequired("src/components/Admin/AdminDashboardModule.tsx");
 const notFoundSurface = readRequired("src/components/ui/NotFoundSurface.tsx");
 const testFile = readRequired("tests/unit/accessibility-tap-targets.spec.ts");
@@ -138,7 +164,8 @@ for (const expected of [
   "aria-expanded={isOpen}",
   "aria-haspopup=\"menu\"",
   "aria-current={isActive ? \"page\" : undefined}",
-  "aria-label=\"Admin navigation\"",
+  "aria-label=\"Open admin workspace\"",
+  "aria-label=\"Admin workspace menu\"",
 ]) {
   requireIncludes(adminDropdown, expected, "Admin dropdown accessibility contract");
 }
@@ -207,8 +234,9 @@ requireIncludes(humanErrorNotice, "role=\"alert\"", "Shared human error accessib
 requireIncludes(humanErrorNotice, "min-h-11", "Shared human error action touch targets");
 
 for (const expected of [
-  "aria-label={`Show asset ${idx + 1} of ${assetCount}`}",
-  "aria-current={activeIndex === idx ? \"true\" : undefined}",
+  "aria-label={`Show asset ${index + 1} of ${assetCount}`}",
+  "const isActive = activeIndex === index",
+  "aria-current={isActive ? \"true\" : undefined}",
   "aria-label=\"Scroll thumbnails left\"",
   "aria-label=\"Scroll thumbnails right\"",
 ]) {
