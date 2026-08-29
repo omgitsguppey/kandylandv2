@@ -1299,7 +1299,8 @@ for (const expected of [
   "entry.userIdRedacted || entry.shortUserId || \"redacted_uid\"",
   "identity_missing",
   "User profile could not be resolved from loaded admin sample.",
-  "UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}",
+  "formatUtcTimestamp as formatUtc",
+  "UTC: {entry.createdAtUtc || formatUtc(entry.timestamp, \"unknown\")}",
   "Admin drilldown UID: {entry.userId}",
   "entry.continuityLabel",
 ]) {
@@ -2499,6 +2500,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTowerEvidenceCopy\.ts$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTowerBusinessTruth\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugTime\.ts$/u,
     /^src\/app\/admin\/debug\/components\/DebugBugIntakePanel\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabAi\.tsx$/u,

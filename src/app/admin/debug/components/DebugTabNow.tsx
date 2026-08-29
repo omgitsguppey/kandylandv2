@@ -10,12 +10,9 @@ import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
 import { DebugRecoveryEvidenceSummary } from "./DebugRuntimeEvidenceGroups";
 import { DebugTelemetryHealthSummary } from "./DebugTelemetryHealthSummary";
 import { DebugTrackingSummaryPanel } from "./DebugTrackingSummaryPanel";
-import { formatRecentActivity as formatRelative } from "./DebugTime";
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc } from "./DebugTime";
 
 /* ─── Helpers ─── */
-function formatUtc(timestamp?: number) {
-    return timestamp ? new Date(timestamp).toISOString() : "unavailable";
-}
 function toneForPanelStatus(status?: string) {
     if (status === "healthy") return "good" as const;
     if (status === "warn") return "warn" as const;

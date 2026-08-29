@@ -2,11 +2,7 @@
 
 import { toCreatorLaneParityMismatch, type CreatorLaneParityMismatch } from "@/lib/creator-lane-debug-parity";
 import { Pill, Section } from "./DebugPrimitives";
-import { formatRecentActivity as formatRelative } from "./DebugTime";
-
-function formatUtc(timestamp?: number | null) {
-    return timestamp ? new Date(timestamp).toISOString() : "Not recorded";
-}
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc } from "./DebugTime";
 
 export function DebugCreatorLane({ data }: { data: any }) {
     const creatorLaneDebug = data?.creatorOnboardingDiagnostics?.creatorLaneDebug;
@@ -68,7 +64,7 @@ export function DebugCreatorLane({ data }: { data: any }) {
                     <p className="mt-1 text-sm text-gray-400">
                         {materializationState === "not_recorded"
                             ? "Materializer has no recorded completion timestamp. Source snapshots loaded, but queue materializer completion was not recorded."
-                            : `lastMaterializedAtUtc ${lastMaterializedAtUtc ?? formatUtc(creatorLaneDebug?.lastMaterializedAt)}`}
+                            : `lastMaterializedAtUtc ${lastMaterializedAtUtc ?? formatUtc(creatorLaneDebug?.lastMaterializedAt, "Not recorded")}`}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">{creatorLaneDebug?.recommendedFix ?? "No action needed."}</p>
                 </div>

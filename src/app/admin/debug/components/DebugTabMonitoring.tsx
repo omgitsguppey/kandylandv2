@@ -7,7 +7,7 @@ import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin
 import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
 import { buildRouteRuntimeDisplayStatus, type RouteRuntimeDisplayBadgeState } from "@/lib/debug/route-runtime-display-status";
 import { buildRouteRuntimeRollup } from "@/lib/debug/route-runtime-rollup-engine";
-import { formatRecentActivity as formatRelative } from "./DebugTime";
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc } from "./DebugTime";
 
 const DEBUG_MONITORING_NOT_LOADED = "Not loaded";
 
@@ -41,10 +41,6 @@ function countValueForSampleArray(value: unknown, sourceLoaded: boolean): string
 function formatTimestamp(timestamp?: number) {
     if (!timestamp) return "Not recorded";
     return new Date(timestamp).toLocaleString();
-}
-function formatUtc(timestamp?: number) {
-    if (!timestamp) return "unknown";
-    return new Date(timestamp).toISOString();
 }
 function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current";
@@ -409,7 +405,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                             <article
                                 key={entry.id}
                                 className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-3"
-                                data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp)}
+                                data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp, "unknown")}
                                 data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}
                             >
                                 <div className="flex items-start justify-between gap-3">
@@ -431,7 +427,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                 <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
                                     <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Transaction details</summary>
                                     <p className="mt-2">Local time: {entry.timestampLabel}</p>
-                                    <p>UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}</p>
+                                    <p>UTC: {entry.createdAtUtc || formatUtc(entry.timestamp, "unknown")}</p>
                                     <p data-full-uid-default-visible="false">Admin drilldown UID: {entry.userId}</p>
                                     {entry.userIdentityState !== "resolved" ? <p>User profile could not be resolved from loaded admin sample.</p> : null}
                                 </details>
@@ -444,8 +440,8 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                         </thead>
                         <tbody className="divide-y divide-white/10">
                             {recentTransactions.map((entry: any) => (
-                                <tr key={entry.id} data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp)} data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}>
-                                    <td className="px-3 py-3 text-gray-400" title={entry.createdAtUtc || formatUtc(entry.timestamp)}>{entry.timestampLabel}</td>
+                                <tr key={entry.id} data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp, "unknown")} data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}>
+                                    <td className="px-3 py-3 text-gray-400" title={entry.createdAtUtc || formatUtc(entry.timestamp, "unknown")}>{entry.timestampLabel}</td>
                                     <td className="px-3 py-3 text-brand-purple">{entry.typeLabel || entry.type}</td>
                                     <td className="px-3 py-3 text-white">{entry.amountDisplay || `${entry.amount} GD`}</td>
                                     <td className="px-3 py-3 text-gray-300">
@@ -579,7 +575,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                             <p className="mt-2">Drop ID: {entry.dropId || entry.shortDropId || "unknown"}</p>
                                             <p>Scheduler key: {entry.schedulerKey || entry.activationKey || "unknown"}</p>
                                             <p>Scheduled UTC: {entry.scheduledForUtc || "unknown"}</p>
-                                            <p>Last outcome UTC: {entry.lastOutcomeAtUtc || formatUtc(entry.updatedAt)}</p>
+                                            <p>Last outcome UTC: {entry.lastOutcomeAtUtc || formatUtc(entry.updatedAt, "unknown")}</p>
                                             <p>Raw timestamp: {entry.updatedAt || 0}</p>
                                             {entry.dropMetadataWarning ? <p>{entry.dropMetadataWarning || "drop_metadata_missing"}: {entry.dropMetadataMissingReason || "metadata_missing_with_drop_id"}</p> : null}
                                             {entry.schedulerKeyParseError ? <p>scheduler_key_parse_error: {entry.schedulerKeyParseError}</p> : null}
@@ -683,14 +679,14 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                             {(data?.recentTaskEvents || []).map((event: any) => (
                                 <div key={event.id} className="space-y-2 px-4 py-3" data-daily-task-window-id={event.dailyTaskWindowId || "unknown"} data-daily-task-reason-code={event.reasonCode || event.reason || "unknown"} data-daily-task-source={event.source || "unknown"}>
                                     <div className="flex flex-wrap items-start justify-between gap-2">
-                                        <div><p className="font-semibold text-white">{event.title || event.taskId}</p><p className="text-xs text-gray-400">{event.triggerEvent} | {event.updatedAtUtc || formatUtc(event.timestamp)}</p></div>
+                                        <div><p className="font-semibold text-white">{event.title || event.taskId}</p><p className="text-xs text-gray-400">{event.triggerEvent} | {event.updatedAtUtc || formatUtc(event.timestamp, "unknown")}</p></div>
                                         <Pill label="Status" value={event.type || "unknown"} tone={event.type === "failed" ? "warn" : event.type === "completed" ? "good" : "neutral"} truthState={event.type === "failed" ? "degraded" : "live"} badgeLabel={(event.type || "loaded").toUpperCase()} />
                                     </div>
                                     <div className="flex flex-wrap gap-2"><Pill label="User" value={event.username || event.userId || "unknown"} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Paid reward" value={`${event.creditedRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Potential reward" value={`${event.potentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Forfeited potential" value={`${event.forfeitedPotentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Window" value={event.dailyTaskWindowId || "unknown"} truthState={event.dailyTaskWindowId ? "live" : "unavailable"} badgeLabel={event.dailyTaskWindowId ? "WINDOW" : "MISSING"} /><Pill label="Reason" value={event.reasonCode || event.reason || "unknown"} tone={(event.reasonCode || event.reason) === "daily_window_expired" ? "warn" : "neutral"} /><Pill label="Source" value={event.source || "unknown"} truthState={event.source ? "live" : "unavailable"} badgeLabel="SOURCE" /></div>
                                     <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
                                         <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Task event timing</summary>
-                                        <p className="mt-2">assignedAtUtc: {event.assignedAtUtc || formatUtc(event.assignedAt)}</p>
-                                        <p>updatedAtUtc: {event.updatedAtUtc || formatUtc(event.timestamp)}</p>
+                                        <p className="mt-2">assignedAtUtc: {event.assignedAtUtc || formatUtc(event.assignedAt, "unknown")}</p>
+                                        <p>updatedAtUtc: {event.updatedAtUtc || formatUtc(event.timestamp, "unknown")}</p>
                                         <p>expiresAtUtc: {event.expiresAtUtc || "unknown"}</p>
                                         <p>rewardEventState: {event.rewardEventState || "unknown"}</p>
                                         <p>rewardCreditIdempotencyKey: {event.rewardCreditIdempotencyKey || "n/a"}</p>

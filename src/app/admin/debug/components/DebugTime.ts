@@ -12,3 +12,7 @@ export function formatRelative(value?: number | null, fallback = "Not generated"
 export function formatRecentActivity(timestamp?: number) {
     return formatRelative(timestamp, "No recent activity");
 }
+
+export function formatUtcTimestamp(timestamp?: number | null, fallback = "unavailable") {
+    return timestamp ? new Date(timestamp).toISOString() : fallback;
+}
