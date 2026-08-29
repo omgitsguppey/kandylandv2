@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T05:10:39.119Z",
+  "generatedAt": "2026-08-29T05:35:24.211Z",
   "version": 1,
   "surface": "code-organization",
   "researchBasis": [
@@ -281,7 +281,7 @@
       },
       {
         "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
-        "lines": 3041,
+        "lines": 3043,
         "classification": "validator",
         "severity": "critical"
       },

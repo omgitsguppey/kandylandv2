@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T05:10:39.119Z",
+  "generatedAt": "2026-08-29T05:35:24.211Z",
   "doctrine": {
     "note": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves.",
     "agentTruthDoc": "docs/agent-truth/code-organization-doctrine.md",
@@ -138,12 +138,12 @@
       "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
       "title": "validator exceeds code organization size budget",
       "evidence": [
-        "scripts/agent/validate-admin-debug-control-tower.ts is 3041 LOC."
+        "scripts/agent/validate-admin-debug-control-tower.ts is 3043 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "validator 3041 LOC",
+      "actualPattern": "validator 3043 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_1xj6w0a"
+      "id": "code_org_nih15k"
     },
     {
       "bucket": "fileSizeHealth",
@@ -400,12 +400,12 @@
       "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
       "title": "validator exceeds code organization size budget",
       "evidence": [
-        "scripts/agent/validate-admin-debug-control-tower.ts is 3041 LOC."
+        "scripts/agent/validate-admin-debug-control-tower.ts is 3043 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "validator 3041 LOC",
+      "actualPattern": "validator 3043 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_1xj6w0a"
+      "id": "code_org_nih15k"
     },
     {
       "bucket": "fileSizeHealth",
@@ -493,7 +493,7 @@
     },
     {
       "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "lines": 3041,
+      "lines": 3043,
       "classification": "validator",
       "severity": "critical"
     },
@@ -567,7 +567,7 @@
     },
     {
       "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "lines": 3041,
+      "lines": 3043,
       "classification": "validator",
       "severity": "critical"
     },
