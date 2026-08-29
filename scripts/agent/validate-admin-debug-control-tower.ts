@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { collectAdminDebugControlTowerActionsStaticProbeFailures } from "./admin-debug-control-tower-actions-static-probe";
 import { collectAdminDebugControlTowerSystemHealthContractFailures } from "./admin-debug-control-tower-system-health-contract";
 
 const root = process.cwd();
@@ -1137,40 +1138,9 @@ for (const expected of [
 ]) {
   requireIncludes(`${adminOrchestration}\n${adminOrchestrationRepairs}`, expected, "Debug repair proposals must be deduped and grouped with source context truth");
 }
-for (const expected of [
-  "Expected source",
-  "Found source",
-  "Issue type",
-  "Freshness",
-  "Eligible",
-  "canSelfHeal",
-]) {
-  requireIncludes(debugTabActions, expected, "Task Issues Attribution panel must show source-truth classification");
+for (const message of collectAdminDebugControlTowerActionsStaticProbeFailures({ debugTabActions })) {
+  fail(message);
 }
-for (const expected of [
-  "Actionable repairs",
-  "Inspect-only",
-  "Duplicates collapsed",
-  "data-debug-repair-dedupe-key",
-  "data-debug-repair-canonical-source-path",
-  "data-debug-repair-actionability",
-  "data-debug-repair-source-context-state",
-  "data-debug-repair-duplicate-count",
-  "data-debug-repair-source-collection",
-  "data-debug-repair-visible-count",
-  "data-debug-repair-actionable-count",
-  "data-debug-repair-inspect-only-count",
-  "Source collection",
-  "Affected records",
-  "Show source records",
-  "Show more",
-  "proposal.actionability === \"actionable\"",
-  "Apply",
-  "Inspect",
-]) {
-  requireIncludes(debugTabActions, expected, "Repairs panel must separate actionable, inspect-only, and deduped proposals");
-}
-requireNotIncludes(debugTabActions, "proposal.actionType !== \"rebuild_projection\"", "Repairs panel must not decide actionability from raw actionType in the UI");
 for (const expected of [
   "routeRuntimeSummaryTruth",
   "buildRouteRuntimeSummaryTruth",
@@ -2637,6 +2607,7 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-actions-static-probe\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-system-health-contract\.ts$/u,
     /^scripts\/agent\/debug-cockpit-batch28-bug-validation-shared\.ts$/u,
     /^scripts\/agent\/validate-analytics-validation-semantics\.ts$/u,
