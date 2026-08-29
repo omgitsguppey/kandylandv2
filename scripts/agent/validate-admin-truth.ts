@@ -34,6 +34,7 @@ const debugNow = read("src/app/admin/debug/components/DebugTabNow.tsx");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const audienceSnapshot = read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
 const operationsTab = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const eventMixSection = read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
 const commerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const displayStateHelper = read("src/lib/analytics/admin-analytics-display-state.ts");
 
@@ -84,7 +85,7 @@ for (const expected of [
 
 for (const [label, source] of [
   ["Admin Analytics Audience module", `${audienceTab}\n${audienceSnapshot}`],
-  ["Admin Analytics Operations module", operationsTab],
+  ["Admin Analytics Operations module", `${operationsTab}\n${eventMixSection}`],
   ["Admin Analytics Commerce module", commerceTab],
 ] as const) {
   requireIncludes(source, "data-admin-analytics-snapshot-priority=\"analytics_admin_metric_snapshots\"", label);

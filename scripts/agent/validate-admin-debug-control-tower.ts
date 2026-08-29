@@ -139,6 +139,7 @@ const topDropConversionHelper = readRequired("src/lib/admin-analytics-top-drop-c
 const recentCommerceFeedHelper = readRequired("src/lib/admin-analytics-recent-commerce-feed.ts");
 const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
@@ -2213,7 +2214,7 @@ for (const expected of [
   "Route: missing",
   "missing verified surface context",
 ]) {
-  requireIncludes(adminAnalyticsOperationsTab, expected, "Event mix analytics panel");
+  requireIncludes(adminAnalyticsEventMixSection, expected, "Event mix analytics panel");
 }
 for (const expected of [
   "generatedAtUtc",
@@ -2489,6 +2490,7 @@ try {
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsAudienceTab\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsAudienceSnapshotSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsOperationsTab\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsEventMixSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsCommerceTab\.tsx$/u,
     /^src\/app\/admin\/privacy\/page\.tsx$/u,
     /^src\/app\/admin\/AdminPrivacyPreflight\.tsx$/u,
@@ -2604,6 +2606,10 @@ try {
     /^scripts\/agent\/validate-admin-pages-cutover\.ts$/u,
     /^scripts\/agent\/validate-human-readable-admin-copy\.ts$/u,
     /^scripts\/agent\/validate-phase-one-lock\.ts$/u,
+    /^scripts\/check-admin-analytics-event-mix\.ts$/u,
+    /^scripts\/check-admin-analytics-guest-bounce-quality\.ts$/u,
+    /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-operations-mobile\.spec\.ts$/u,
     /^docs\/agent-truth\/admin-analytics-audience-snapshot\.md$/u,
     /^src\/lib\/server\/admin-privacy-console\.ts$/u,
     /^src\/lib\/server\/creator-onboarding\.ts$/u,

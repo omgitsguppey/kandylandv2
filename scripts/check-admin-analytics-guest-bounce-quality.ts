@@ -40,7 +40,7 @@ const debugRoute = read("src/app/api/admin/debug/route.ts");
 const doc = read("docs/agent-truth/admin-analytics-guest-bounce-quality.md");
 const section = component.slice(
   component.indexOf('title="Guest Quality"'),
-  component.indexOf('title="Event Mix"'),
+  component.indexOf("<AdminAnalyticsEventMixSection"),
 );
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "guestBounceQualityModel");

@@ -13,6 +13,10 @@ const source = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
   "utf8",
 );
+const eventMixSource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
+  "utf8",
+);
 
 describe("Admin analytics operations mobile consolidation", () => {
   it("renders Activity Snapshot as one compact mobile view mode at a time", () => {
@@ -133,15 +137,15 @@ describe("Admin analytics operations mobile consolidation", () => {
   });
 
   it("renders Event Mix as one compact mobile view mode at a time", () => {
-    expect(source).toContain("eventMixViewMode");
-    expect(source).toContain("setEventMixViewMode");
-    expect(source).toContain("data-admin-analytics-mobile-view-mode={eventMixViewMode}");
-    expect(source).toContain('data-event-mix-table="compact"');
-    expect(source).toContain("data-event-mix-source-mode={eventMixModel.eventMixSourceMode}");
-    expect(source).toContain("data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}");
-    expect(source).toContain('eventMixViewMode === "chart"');
-    expect(source).toContain('eventMixViewMode === "table"');
-    expect(source).toContain('eventMixViewMode === "cards"');
+    expect(eventMixSource).toContain("eventMixViewMode");
+    expect(eventMixSource).toContain("setEventMixViewMode");
+    expect(eventMixSource).toContain("data-admin-analytics-mobile-view-mode={eventMixViewMode}");
+    expect(eventMixSource).toContain('data-event-mix-table="compact"');
+    expect(eventMixSource).toContain("data-event-mix-source-mode={eventMixModel.eventMixSourceMode}");
+    expect(eventMixSource).toContain("data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}");
+    expect(eventMixSource).toContain('eventMixViewMode === "chart"');
+    expect(eventMixSource).toContain('eventMixViewMode === "table"');
+    expect(eventMixSource).toContain('eventMixViewMode === "cards"');
   });
 
   it("uses shared source-truth labels instead of raw source keys in visible rows", () => {
