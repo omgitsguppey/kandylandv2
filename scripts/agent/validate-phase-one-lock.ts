@@ -154,6 +154,7 @@ const adminAnalyticsPage = readRequired("src/app/admin/analytics/page.tsx");
 const adminAnalyticsHelpers = readRequired("src/app/admin/analytics/AnalyticsHelpers.tsx");
 const adminAnalyticsState = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const adminAnalyticsAudienceSnapshot = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminOverviewContract = readRequired("src/lib/admin-overview.ts");
@@ -232,6 +233,7 @@ const canonicalUiFiles = [
   adminAnalyticsHelpers,
   adminAnalyticsState,
   adminAnalyticsAudienceTab,
+  adminAnalyticsAudienceSnapshot,
   adminAnalyticsCommerceTab,
   adminAnalyticsOperationsTab,
   adminOverviewContract,

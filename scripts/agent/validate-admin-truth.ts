@@ -32,6 +32,7 @@ const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const recoveryEvidenceComponent = read("src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx");
 const debugNow = read("src/app/admin/debug/components/DebugTabNow.tsx");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const audienceSnapshot = read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
 const operationsTab = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const commerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const displayStateHelper = read("src/lib/analytics/admin-analytics-display-state.ts");
@@ -82,7 +83,7 @@ for (const expected of [
 }
 
 for (const [label, source] of [
-  ["Admin Analytics Audience module", audienceTab],
+  ["Admin Analytics Audience module", `${audienceTab}\n${audienceSnapshot}`],
   ["Admin Analytics Operations module", operationsTab],
   ["Admin Analytics Commerce module", commerceTab],
 ] as const) {

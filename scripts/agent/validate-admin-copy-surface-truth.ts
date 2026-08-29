@@ -8,6 +8,7 @@ const files = [
   "src/lib/deterministic-admin-truth.ts",
   "src/app/admin/analytics/AnalyticsHelpers.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
   "src/app/admin/debug/page.tsx",

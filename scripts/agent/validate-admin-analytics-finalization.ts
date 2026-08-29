@@ -57,6 +57,7 @@ const analyticsComponents = [
   analyticsHook,
   analyticsOperations,
   read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
   read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"),
   read("src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx"),

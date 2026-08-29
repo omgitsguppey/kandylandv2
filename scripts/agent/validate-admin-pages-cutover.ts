@@ -29,6 +29,7 @@ const files = {
   analyticsHelpers: read("src/app/admin/analytics/AnalyticsHelpers.tsx"),
   analyticsState: read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
   analyticsAudienceTab: read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx"),
+  analyticsAudienceSnapshot: read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   analyticsCommerceTab: read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
   analyticsOperationsTab: read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
 };
@@ -85,7 +86,7 @@ assert(
 assert(files.analyticsPage.includes("useAdminAnalyticsState"), "Analytics page must render through the shared analytics state.", failures);
 for (const [label, source] of [
   ["Analytics helpers", files.analyticsHelpers],
-  ["Audience tab", files.analyticsAudienceTab],
+  ["Audience tab", `${files.analyticsAudienceTab}\n${files.analyticsAudienceSnapshot}`],
   ["Commerce tab", files.analyticsCommerceTab],
   ["Operations tab", files.analyticsOperationsTab],
 ] as const) {

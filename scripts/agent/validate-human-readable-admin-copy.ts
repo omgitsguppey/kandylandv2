@@ -113,6 +113,7 @@ for (const field of ["operatorSummary", "technicalEvidence", "recommendedNextChe
 const mainUiFiles = [
   "src/app/admin/analytics/page.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
   "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
