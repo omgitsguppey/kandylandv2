@@ -32,7 +32,7 @@ export const SECTION_COPY: Record<AdminDebugControlTowerSection, { title: string
     support_creator: { title: "Support + Creator Monetization", subtitle: "Support access, creator status, and paid-GD surface checks.", icon: LifeBuoy },
 };
 
-export function toBadgeState(state: AdminDebugTruthState): AdminSurfaceState {
+export function toBadgeState(state: AdminDebugTruthState) {
     if (state === "live") return "live";
     if (state === "stale") return "stale";
     if (state === "failed") return "failed";
