@@ -16,3 +16,8 @@ export function formatRecentActivity(timestamp?: number) {
 export function formatUtcTimestamp(timestamp?: number | null, fallback = "unavailable") {
     return timestamp ? new Date(timestamp).toISOString() : fallback;
 }
+
+export function formatWindowHours(windowMs?: number) {
+    if (!windowMs) return "current";
+    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
+}

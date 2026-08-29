@@ -24,7 +24,7 @@ import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 
 import { DebugTabNow } from "./components/DebugTabNow";
-import { formatRecentActivity as formatRelative } from "./components/DebugTime";
+import { formatRecentActivity as formatRelative, formatWindowHours } from "./components/DebugTime";
 import { DebugTabActions } from "./components/DebugTabActions";
 import { DebugTabMonitoring } from "./components/DebugTabMonitoring";
 import { DebugTabInfrastructure } from "./components/DebugTabInfrastructure";
@@ -75,11 +75,6 @@ const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }
 ];
 
 const ADMIN_DEBUG_PREFERENCES_REFRESH_INTERVAL_MS = 0;
-
-function formatWindowHours(windowMs?: number) {
-    if (!windowMs) return "current";
-    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
-}
 
 function getAdminDebugSafeErrorMessage(error: unknown, fallback: string) {
     const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");

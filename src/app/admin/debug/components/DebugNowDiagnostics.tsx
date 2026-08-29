@@ -8,13 +8,9 @@ import {
 } from "@/lib/debug/no-sample-status-classifier";
 import { DebugPanelStatusBySection } from "./DebugPanelStatusBySection";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
-import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc } from "./DebugTime";
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc, formatWindowHours } from "./DebugTime";
 
 /* ─── Helpers ─── */
-function formatWindowHours(windowMs?: number) {
-    if (!windowMs) return "current";
-    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
-}
 function toneForChannelState(state?: string) {
     if (state === "error" || state === "expired") return "bad" as const;
     if (state === "review" || state === "stale" || state === "sample_error_history" || state === "sample_has_history") return "warn" as const;

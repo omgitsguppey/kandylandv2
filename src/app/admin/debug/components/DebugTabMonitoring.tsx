@@ -7,7 +7,7 @@ import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin
 import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
 import { buildRouteRuntimeDisplayStatus, type RouteRuntimeDisplayBadgeState } from "@/lib/debug/route-runtime-display-status";
 import { buildRouteRuntimeRollup } from "@/lib/debug/route-runtime-rollup-engine";
-import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc } from "./DebugTime";
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc, formatWindowHours } from "./DebugTime";
 
 const DEBUG_MONITORING_NOT_LOADED = "Not loaded";
 
@@ -41,10 +41,6 @@ function countValueForSampleArray(value: unknown, sourceLoaded: boolean): string
 function formatTimestamp(timestamp?: number) {
     if (!timestamp) return "Not recorded";
     return new Date(timestamp).toLocaleString();
-}
-function formatWindowHours(windowMs?: number) {
-    if (!windowMs) return "current";
-    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
 }
 function formatRuntimeStatus(status?: string) {
     if (status === "failed") return "Failed";
