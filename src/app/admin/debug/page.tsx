@@ -24,6 +24,7 @@ import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 
 import { DebugTabNow } from "./components/DebugTabNow";
+import { formatRecentActivity as formatRelative } from "./components/DebugTime";
 import { DebugTabActions } from "./components/DebugTabActions";
 import { DebugTabMonitoring } from "./components/DebugTabMonitoring";
 import { DebugTabInfrastructure } from "./components/DebugTabInfrastructure";
@@ -74,17 +75,6 @@ const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }
 ];
 
 const ADMIN_DEBUG_PREFERENCES_REFRESH_INTERVAL_MS = 0;
-
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
 
 function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current";

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T04:58:19.937Z",
+  "generatedAt": "2026-08-29T05:10:39.119Z",
   "doctrine": {
     "note": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves.",
     "agentTruthDoc": "docs/agent-truth/code-organization-doctrine.md",
