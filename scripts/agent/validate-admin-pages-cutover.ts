@@ -31,9 +31,11 @@ const files = {
   analyticsAudienceTab: read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx"),
   analyticsAudienceSnapshot: read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   analyticsCommerceTab: read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
+  analyticsContentConversionSection: read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
   analyticsOperationsTab: read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
   analyticsEventMixSection: read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
 };
+const analyticsCommerceModule = `${files.analyticsCommerceTab}\n${files.analyticsContentConversionSection}`;
 
 const failures: string[] = [];
 
@@ -88,7 +90,7 @@ assert(files.analyticsPage.includes("useAdminAnalyticsState"), "Analytics page m
 for (const [label, source] of [
   ["Analytics helpers", files.analyticsHelpers],
   ["Audience tab", `${files.analyticsAudienceTab}\n${files.analyticsAudienceSnapshot}`],
-  ["Commerce tab", files.analyticsCommerceTab],
+  ["Commerce tab", analyticsCommerceModule],
   ["Operations tab", `${files.analyticsOperationsTab}\n${files.analyticsEventMixSection}`],
 ] as const) {
   assert(!source.includes("const conversionRate ="), `${label} must not define conversion formulas inline.`, failures);

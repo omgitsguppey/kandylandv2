@@ -155,7 +155,10 @@ const adminAnalyticsHelpers = readRequired("src/app/admin/analytics/AnalyticsHel
 const adminAnalyticsState = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsAudienceSnapshot = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
-const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const adminAnalyticsCommerceTab = [
+  readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
+  readRequired("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+].join("\n");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
 const adminAnalyticsOperationsModule = `${adminAnalyticsOperationsTab}\n${adminAnalyticsEventMixSection}`;

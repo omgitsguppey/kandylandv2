@@ -142,6 +142,7 @@ const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/compon
 const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const adminAnalyticsContentConversionSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
@@ -2319,6 +2320,10 @@ requireIncludes(deterministicTruth, "\"<0.1%\"", "Deterministic top-drop rate pr
     "data-content-conversion-generated-at-utc",
     "data-content-conversion-grouping",
     "No preview/unwrap/drop metadata source available for this range.",
+  ]) {
+    requireIncludes(adminAnalyticsContentConversionSection, expected, "Content Conversion analytics panel");
+  }
+  for (const expected of [
     "Top Drop Conversion",
     "Drops with enough views to evaluate unwrap conversion.",
     "data-top-drop-conversion-source-truth",
@@ -2492,6 +2497,7 @@ try {
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsOperationsTab\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsEventMixSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsCommerceTab\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsContentConversionSection\.tsx$/u,
     /^src\/app\/admin\/privacy\/page\.tsx$/u,
     /^src\/app\/admin\/AdminPrivacyPreflight\.tsx$/u,
     /^src\/app\/admin\/ai\/components\/AdminAiOptimizerhealthSection\.tsx$/u,

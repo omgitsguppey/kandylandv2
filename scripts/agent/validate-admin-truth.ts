@@ -35,7 +35,10 @@ const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudie
 const audienceSnapshot = read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
 const operationsTab = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const eventMixSection = read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
-const commerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const commerceTab = [
+  read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+].join("\n");
 const displayStateHelper = read("src/lib/analytics/admin-analytics-display-state.ts");
 
 requireIncludes(packageJson, "\"check:admin-truth\"", "package.json");

@@ -11,6 +11,10 @@ const utilitySource = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.utils.ts"),
   "utf8",
 );
+const contentConversionSource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  "utf8",
+);
 
 describe("Admin analytics commerce mobile consolidation", () => {
   it("keeps the large commerce snapshot drilldown collapsed by default", () => {
@@ -68,15 +72,16 @@ describe("Admin analytics commerce mobile consolidation", () => {
   });
 
   it("renders Content Conversion as one compact mobile view mode at a time", () => {
-    expect(source).toContain("contentConversionViewMode");
-    expect(source).toContain("setContentConversionViewMode");
-    expect(source).toContain('data-admin-analytics-mobile-view-mode={contentConversionViewMode}');
-    expect(source).toContain('data-content-conversion-table="compact"');
-    expect(source).toContain('contentConversionViewMode === "chart"');
-    expect(source).toContain('contentConversionViewMode === "table"');
-    expect(source).toContain('contentConversionViewMode === "cards"');
-    expect(source).toContain("data-content-conversion-source-truth={contentConversionModel.sourceTruth}");
-    expect(source).toContain("data-content-conversion-source-state={contentConversionModel.sourceState}");
+    expect(source).toContain("AdminAnalyticsContentConversionSection");
+    expect(contentConversionSource).toContain("contentConversionViewMode");
+    expect(contentConversionSource).toContain("setContentConversionViewMode");
+    expect(contentConversionSource).toContain('data-admin-analytics-mobile-view-mode={contentConversionViewMode}');
+    expect(contentConversionSource).toContain('data-content-conversion-table="compact"');
+    expect(contentConversionSource).toContain('contentConversionViewMode === "chart"');
+    expect(contentConversionSource).toContain('contentConversionViewMode === "table"');
+    expect(contentConversionSource).toContain('contentConversionViewMode === "cards"');
+    expect(contentConversionSource).toContain("data-content-conversion-source-truth={contentConversionModel.sourceTruth}");
+    expect(contentConversionSource).toContain("data-content-conversion-source-state={contentConversionModel.sourceState}");
   });
 
   it("labels missing top-drop conversion samples without raw zero summaries", () => {
