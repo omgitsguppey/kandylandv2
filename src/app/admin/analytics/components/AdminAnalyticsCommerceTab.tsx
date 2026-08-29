@@ -35,6 +35,52 @@ import {
 
 type RecentCommerceFeedViewMode = "cards" | "table" | "timeline";
 
+type AdminAnalyticsCommerceTabProps = Pick<
+  AdminAnalyticsState,
+  | "renderSectionRangeControl"
+  | "liveResponse"
+  | "liveLoading"
+  | "nowMs"
+  | "formatCompactNumber"
+  | "formatDuration"
+  | "formatPercent"
+  | "formatRelativeTime"
+  | "commerceSnapshotModel"
+  | "packagePerformanceRange"
+  | "packagePerformanceItems"
+  | "packagePerformancePanelState"
+  | "contentConversionModel"
+  | "topDropConversionModel"
+  | "topDropConversionPage"
+  | "setTopDropConversionPage"
+  | "topDropConversionPageSize"
+  | "setTopDropConversionPageSize"
+  | "recentCommerceFeedRange"
+  | "recentCommerceFeedModel"
+  | "formatAbsoluteDateTime"
+  | "viewerDrilldownRange"
+  | "viewerDrilldownGeneratedAtMs"
+  | "viewerDrilldownFilter"
+  | "viewerDrilldownOverview"
+  | "viewerUserDraft"
+  | "setViewerUserDraft"
+  | "applyViewerFilter"
+  | "clearViewerFilter"
+  | "viewerDrilldownUsers"
+  | "setViewerUserFilter"
+  | "viewerDrilldownCaptureHealth"
+  | "liveWatchCaptureHealth"
+  | "formatMoney"
+  | "getJourneyStateClasses"
+  | "topExperienceContexts"
+  | "viewerDrilldownInsights"
+  | "viewerJourneyRange"
+  | "viewerJourneyItems"
+  | "watchDepthTagsRange"
+  | "watchDepthTagBuckets"
+  | "watchDepthTagDemand"
+>;
+
 const RECENT_COMMERCE_FEED_VIEW_MODES: Array<{
   id: RecentCommerceFeedViewMode;
   label: string;
@@ -44,41 +90,50 @@ const RECENT_COMMERCE_FEED_VIEW_MODES: Array<{
   { id: "timeline", label: "Timeline" },
 ];
 
-export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
+export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps) {
   const {
-    renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
-    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries,
-    journeyFunnelMetrics,
-    authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
-    authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
-    formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    topEvents,
-    
-    // Audience Tab
-    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange,
-    returnCadenceSegments,
-    navigationDestinationsRange, destinationMix,
-    deviceMixRange, devices, getDeviceIcon,
-    topPathsRange, pages,
-    regionsRange, geo,
-
-    // Commerce Tab
-    commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel,
-    packagePerformanceRange, packagePerformanceItems, packagePerformancePanelState,
+    renderSectionRangeControl,
+    liveResponse,
+    liveLoading,
+    nowMs,
+    formatCompactNumber,
+    formatDuration,
+    formatPercent,
+    formatRelativeTime,
+    commerceSnapshotModel,
+    packagePerformanceRange,
+    packagePerformanceItems,
+    packagePerformancePanelState,
     contentConversionModel,
-    contentConversionRange,
-    topDropConversionRange, topDropConversionModel, topDropConversionPage, setTopDropConversionPage, topDropConversionPageSize, setTopDropConversionPageSize,
-    recentCommerceFeedRange, recentCommerceFeedModel, describeEvent, formatAbsoluteDateTime,
-    
-    // Viewer drilldown
-    viewerDrilldownRange, viewerDrilldownGeneratedAtMs, viewerDrilldownFilter, viewerDrilldownOverview, viewerUserDraft, setViewerUserDraft, applyViewerFilter,
-    clearViewerFilter, viewerDrilldownUsers, setViewerUserFilter, viewerDrilldownCaptureHealth,
-    liveWatchCaptureHealth, viewerDrilldownJourneys,
-    
-    // Added remaining
-    clearAllFilters, formatMoney, activeViewerFilter, viewerUserFilter,
-    getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, viewerDropChartData,
-    viewerDrilldownInsights, viewerJourneyRange, viewerJourneyItems, watchDepthTagsRange, watchDepthTagBuckets, watchDepthTagDemand
+    topDropConversionModel,
+    topDropConversionPage,
+    setTopDropConversionPage,
+    topDropConversionPageSize,
+    setTopDropConversionPageSize,
+    recentCommerceFeedRange,
+    recentCommerceFeedModel,
+    formatAbsoluteDateTime,
+    viewerDrilldownRange,
+    viewerDrilldownGeneratedAtMs,
+    viewerDrilldownFilter,
+    viewerDrilldownOverview,
+    viewerUserDraft,
+    setViewerUserDraft,
+    applyViewerFilter,
+    clearViewerFilter,
+    viewerDrilldownUsers,
+    setViewerUserFilter,
+    viewerDrilldownCaptureHealth,
+    liveWatchCaptureHealth,
+    formatMoney,
+    getJourneyStateClasses,
+    topExperienceContexts,
+    viewerDrilldownInsights,
+    viewerJourneyRange,
+    viewerJourneyItems,
+    watchDepthTagsRange,
+    watchDepthTagBuckets,
+    watchDepthTagDemand,
   } = props;
   const liveCaptureTruthState = liveResponse?.liveTruthLabel
     ? coerceAdminSurfaceState(liveResponse.liveTruthLabel)
