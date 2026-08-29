@@ -15,7 +15,7 @@ import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth
 import { DebugOperatorCockpit, DebugPublicBetaDecisionDetails, DebugPublicBetaDecisionStrip, formatPublicBetaDecisionStatus, resolvePublicBetaOperatorPresentation } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
 import { formatPublicBetaCapDetailForAdmin, formatPublicBetaReadinessStatusForAdmin, resolvePublicBetaCapDetailForAdmin, summarizePublicBetaCapDisplays } from "./DebugControlTowerEvidenceCopy";
-import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, resolveReportDisplay } from "./DebugControlTowerCards";
+import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, resolveReportDisplay, toBadgeState } from "./DebugControlTowerCards";
 import { formatRelative } from "./DebugTime";
 export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: { businessSnapshot?: AdminUserTruthSnapshot | null; isLocalAdminUiTestSession?: boolean }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
@@ -85,9 +85,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     const controlTruthState = model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
     const resolvedBusinessSnapshot = model?.businessSnapshot ?? businessSnapshot ?? null;
     const canonicalBusinessTruthState = model?.businessTruthState ?? resolveControlTowerBusinessTruthState(resolvedBusinessSnapshot);
-    const controlTowerBadgeState = controlTruthState === "missing" || controlTruthState === "unknown"
-        ? "unavailable"
-        : controlTruthState;
+    const controlTowerBadgeState = toBadgeState(controlTruthState);
     const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails) ? model.canonicalPublicBetaCapDetails : [];
     const canonicalBetaCapDisplays = canonicalBetaCapDetails.map(resolvePublicBetaCapDetailForAdmin);
     const canonicalBetaCapSummary = summarizePublicBetaCapDisplays(canonicalBetaCapDisplays);
