@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T00:56:39.265Z",
+  "generatedAt": "2026-08-29T04:21:28.583Z",
   "doctrine": {
     "note": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves.",
     "agentTruthDoc": "docs/agent-truth/code-organization-doctrine.md",
@@ -13,7 +13,7 @@
       "weight": 20,
       "score": 0,
       "status": "fail",
-      "findingCount": 189,
+      "findingCount": 500,
       "criticalCount": 1,
       "reviewRequiredCount": 0
     },
@@ -21,9 +21,9 @@
       "weight": 15,
       "score": 0,
       "status": "fail",
-      "findingCount": 133,
-      "criticalCount": 14,
-      "reviewRequiredCount": 52
+      "findingCount": 217,
+      "criticalCount": 30,
+      "reviewRequiredCount": 65
     },
     "featureOwnership": {
       "weight": 15,
@@ -37,23 +37,23 @@
       "weight": 20,
       "score": 0,
       "status": "fail",
-      "findingCount": 187,
-      "criticalCount": 114,
-      "reviewRequiredCount": 73
+      "findingCount": 244,
+      "criticalCount": 136,
+      "reviewRequiredCount": 108
     },
     "agentContextEfficiency": {
       "weight": 10,
       "score": 0,
       "status": "fail",
-      "findingCount": 37,
-      "criticalCount": 9,
-      "reviewRequiredCount": 5
+      "findingCount": 145,
+      "criticalCount": 4,
+      "reviewRequiredCount": 44
     },
     "legacyPhaseOut": {
       "weight": 10,
       "score": 0,
       "status": "fail",
-      "findingCount": 174,
+      "findingCount": 354,
       "criticalCount": 11,
       "reviewRequiredCount": 0
     },
@@ -73,90 +73,25 @@
       "filePath": "agent/context/validator-authority.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/context/validator-authority.json is 7099 lines and is not JSONL/sharded."
+        "agent/context/validator-authority.json is 23649 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 7099 lines",
+      "actualPattern": "generated JSON 23649 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1a0w1xn"
+      "id": "code_org_1b7fgp4"
     },
     {
       "bucket": "agentContextEfficiency",
       "severity": "critical",
-      "filePath": "agent/index/blast-radius.json",
+      "filePath": "agent/state/event-translation-bridge.generated.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/index/blast-radius.json is 18020 lines and is not JSONL/sharded."
+        "agent/state/event-translation-bridge.generated.json is 5468 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 18020 lines",
+      "actualPattern": "generated JSON 5468 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_4pzw47"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/index/repo-inventory.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/index/repo-inventory.json is 32119 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 32119 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_hn31hi"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/index/retrieval-index.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/index/retrieval-index.json is 53145 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 53145 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1gjb154"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/index/verification-commands.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/index/verification-commands.json is 5618 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 5618 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1mq825h"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/state/codebase-junk-cleanup.generated.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/state/codebase-junk-cleanup.generated.json is 10356 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 10356 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1m3mh0c"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/state/event-catalog-telemetry-audit.generated.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/state/event-catalog-telemetry-audit.generated.json is 6809 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 6809 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1xukmue"
+      "id": "code_org_1bodr80"
     },
     {
       "bucket": "agentContextEfficiency",
@@ -164,12 +99,12 @@
       "filePath": "agent/state/google-cost-bleed.generated.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/state/google-cost-bleed.generated.json is 6769 lines and is not JSONL/sharded."
+        "agent/state/google-cost-bleed.generated.json is 7423 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 6769 lines",
+      "actualPattern": "generated JSON 7423 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1bie00h"
+      "id": "code_org_xk54z"
     },
     {
       "bucket": "agentContextEfficiency",
@@ -177,12 +112,12 @@
       "filePath": "agent/state/speed-security-hardening.generated.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/state/speed-security-hardening.generated.json is 9776 lines and is not JSONL/sharded."
+        "agent/state/speed-security-hardening.generated.json is 6043 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 9776 lines",
+      "actualPattern": "generated JSON 6043 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1i6yh31"
+      "id": "code_org_r1m3fj"
     },
     {
       "bucket": "fileSizeHealth",
@@ -190,12 +125,12 @@
       "filePath": "functions/src/behavioral-intelligence-runtime.ts",
       "title": "serverHelper exceeds code organization size budget",
       "evidence": [
-        "functions/src/behavioral-intelligence-runtime.ts is 2381 LOC."
+        "functions/src/behavioral-intelligence-runtime.ts is 2564 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "serverHelper 2381 LOC",
+      "actualPattern": "serverHelper 2564 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_s64i4e"
+      "id": "code_org_cq4ylx"
     },
     {
       "bucket": "fileSizeHealth",
@@ -203,12 +138,51 @@
       "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
       "title": "validator exceeds code organization size budget",
       "evidence": [
-        "scripts/agent/validate-admin-debug-control-tower.ts is 2581 LOC."
+        "scripts/agent/validate-admin-debug-control-tower.ts is 3041 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "validator 2581 LOC",
+      "actualPattern": "validator 3041 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_1bzjflg"
+      "id": "code_org_1xj6w0a"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "title": "validator exceeds code organization size budget",
+      "evidence": [
+        "scripts/agent/validate-analytics-panel-hydration.ts is 2047 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "validator 2047 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_10rrgzq"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "scripts/agent/validate-repo-spring-cleaning-rewire.ts",
+      "title": "validator exceeds code organization size budget",
+      "evidence": [
+        "scripts/agent/validate-repo-spring-cleaning-rewire.ts is 1711 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "validator 1711 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1bwoqv4"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx is 1545 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1545 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1mm9fjz"
     },
     {
       "bucket": "fileSizeHealth",
@@ -216,12 +190,25 @@
       "filePath": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
       "title": "component exceeds code organization size budget",
       "evidence": [
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx is 1664 LOC."
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx is 2320 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "component 1664 LOC",
+      "actualPattern": "component 2320 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_o31q6c"
+      "id": "code_org_juerak"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx is 1939 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1939 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_yp340k"
     },
     {
       "bucket": "fileSizeHealth",
@@ -229,12 +216,12 @@
       "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
       "title": "component exceeds code organization size budget",
       "evidence": [
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx is 2865 LOC."
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx is 3292 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "component 2865 LOC",
+      "actualPattern": "component 3292 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_h4pw4y"
+      "id": "code_org_oy5k1j"
     },
     {
       "bucket": "fileSizeHealth",
@@ -242,12 +229,25 @@
       "filePath": "src/app/admin/roster/page.tsx",
       "title": "component exceeds code organization size budget",
       "evidence": [
-        "src/app/admin/roster/page.tsx is 1550 LOC."
+        "src/app/admin/roster/page.tsx is 1608 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "component 1550 LOC",
+      "actualPattern": "component 1608 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_1bxfnhe"
+      "id": "code_org_1vdn5ry"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/user/[userId]/page.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/user/[userId]/page.tsx is 1572 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1572 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1sh6xh1"
     },
     {
       "bucket": "fileSizeHealth",
@@ -255,12 +255,12 @@
       "filePath": "src/app/admin/users/page.tsx",
       "title": "component exceeds code organization size budget",
       "evidence": [
-        "src/app/admin/users/page.tsx is 1608 LOC."
+        "src/app/admin/users/page.tsx is 1509 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "component 1608 LOC",
+      "actualPattern": "component 1509 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_13at643"
+      "id": "code_org_ee2lv1"
     },
     {
       "bucket": "fileSizeHealth",
@@ -268,12 +268,12 @@
       "filePath": "src/app/api/admin/analytics/historical/route.ts",
       "title": "routeHandler exceeds code organization size budget",
       "evidence": [
-        "src/app/api/admin/analytics/historical/route.ts is 1762 LOC."
+        "src/app/api/admin/analytics/historical/route.ts is 2229 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "routeHandler 1762 LOC",
+      "actualPattern": "routeHandler 2229 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_mpzpau"
+      "id": "code_org_b5dweb"
     },
     {
       "bucket": "fileSizeHealth",
@@ -281,12 +281,12 @@
       "filePath": "src/app/api/admin/debug/route.ts",
       "title": "routeHandler exceeds code organization size budget",
       "evidence": [
-        "src/app/api/admin/debug/route.ts is 6361 LOC."
+        "src/app/api/admin/debug/route.ts is 7062 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "routeHandler 6361 LOC",
+      "actualPattern": "routeHandler 7062 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_1e2rk7o"
+      "id": "code_org_54n2bh"
     },
     {
       "bucket": "fileSizeHealth",
@@ -294,12 +294,25 @@
       "filePath": "src/app/api/admin/users/route.ts",
       "title": "routeHandler exceeds code organization size budget",
       "evidence": [
-        "src/app/api/admin/users/route.ts is 3148 LOC."
+        "src/app/api/admin/users/route.ts is 3145 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "routeHandler 3148 LOC",
+      "actualPattern": "routeHandler 3145 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_m2rklv"
+      "id": "code_org_18ger4c"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/components/Admin/CreateDropModal.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/components/Admin/CreateDropModal.tsx is 1601 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1601 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_djtzqr"
     },
     {
       "bucket": "fileSizeHealth",
@@ -307,25 +320,12 @@
       "filePath": "src/components/Chat/ChatExperience.tsx",
       "title": "component exceeds code organization size budget",
       "evidence": [
-        "src/components/Chat/ChatExperience.tsx is 3523 LOC."
+        "src/components/Chat/ChatExperience.tsx is 4980 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "component 3523 LOC",
+      "actualPattern": "component 4980 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_1bag35n"
-    },
-    {
-      "bucket": "fileSizeHealth",
-      "severity": "critical",
-      "filePath": "src/lib/creator-onboarding.ts",
-      "title": "source exceeds code organization size budget",
-      "evidence": [
-        "src/lib/creator-onboarding.ts is 1947 LOC."
-      ],
-      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "source 1947 LOC",
-      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_63e4yp"
+      "id": "code_org_1sxm6r7"
     }
   ],
   "criticalFindings": [
@@ -335,90 +335,25 @@
       "filePath": "agent/context/validator-authority.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/context/validator-authority.json is 7099 lines and is not JSONL/sharded."
+        "agent/context/validator-authority.json is 23649 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 7099 lines",
+      "actualPattern": "generated JSON 23649 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1a0w1xn"
+      "id": "code_org_1b7fgp4"
     },
     {
       "bucket": "agentContextEfficiency",
       "severity": "critical",
-      "filePath": "agent/index/blast-radius.json",
+      "filePath": "agent/state/event-translation-bridge.generated.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/index/blast-radius.json is 18020 lines and is not JSONL/sharded."
+        "agent/state/event-translation-bridge.generated.json is 5468 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 18020 lines",
+      "actualPattern": "generated JSON 5468 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_4pzw47"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/index/repo-inventory.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/index/repo-inventory.json is 32119 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 32119 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_hn31hi"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/index/retrieval-index.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/index/retrieval-index.json is 53145 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 53145 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1gjb154"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/index/verification-commands.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/index/verification-commands.json is 5618 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 5618 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1mq825h"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/state/codebase-junk-cleanup.generated.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/state/codebase-junk-cleanup.generated.json is 10356 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 10356 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1m3mh0c"
-    },
-    {
-      "bucket": "agentContextEfficiency",
-      "severity": "critical",
-      "filePath": "agent/state/event-catalog-telemetry-audit.generated.json",
-      "title": "Generated JSON exceeds compact context budget",
-      "evidence": [
-        "agent/state/event-catalog-telemetry-audit.generated.json is 6809 lines and is not JSONL/sharded."
-      ],
-      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 6809 lines",
-      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1xukmue"
+      "id": "code_org_1bodr80"
     },
     {
       "bucket": "agentContextEfficiency",
@@ -426,12 +361,12 @@
       "filePath": "agent/state/google-cost-bleed.generated.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/state/google-cost-bleed.generated.json is 6769 lines and is not JSONL/sharded."
+        "agent/state/google-cost-bleed.generated.json is 7423 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 6769 lines",
+      "actualPattern": "generated JSON 7423 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1bie00h"
+      "id": "code_org_xk54z"
     },
     {
       "bucket": "agentContextEfficiency",
@@ -439,12 +374,12 @@
       "filePath": "agent/state/speed-security-hardening.generated.json",
       "title": "Generated JSON exceeds compact context budget",
       "evidence": [
-        "agent/state/speed-security-hardening.generated.json is 9776 lines and is not JSONL/sharded."
+        "agent/state/speed-security-hardening.generated.json is 6043 lines and is not JSONL/sharded."
       ],
       "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
-      "actualPattern": "generated JSON 9776 lines",
+      "actualPattern": "generated JSON 6043 lines",
       "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
-      "id": "code_org_1i6yh31"
+      "id": "code_org_r1m3fj"
     },
     {
       "bucket": "fileSizeHealth",
@@ -452,257 +387,322 @@
       "filePath": "functions/src/behavioral-intelligence-runtime.ts",
       "title": "serverHelper exceeds code organization size budget",
       "evidence": [
-        "functions/src/behavioral-intelligence-runtime.ts is 2381 LOC."
+        "functions/src/behavioral-intelligence-runtime.ts is 2564 LOC."
       ],
       "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
-      "actualPattern": "serverHelper 2381 LOC",
+      "actualPattern": "serverHelper 2564 LOC",
       "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
-      "id": "code_org_s64i4e"
+      "id": "code_org_cq4ylx"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "title": "validator exceeds code organization size budget",
+      "evidence": [
+        "scripts/agent/validate-admin-debug-control-tower.ts is 3041 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "validator 3041 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1xj6w0a"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "title": "validator exceeds code organization size budget",
+      "evidence": [
+        "scripts/agent/validate-analytics-panel-hydration.ts is 2047 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "validator 2047 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_10rrgzq"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "scripts/agent/validate-repo-spring-cleaning-rewire.ts",
+      "title": "validator exceeds code organization size budget",
+      "evidence": [
+        "scripts/agent/validate-repo-spring-cleaning-rewire.ts is 1711 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "validator 1711 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1bwoqv4"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx is 1545 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1545 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1mm9fjz"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx is 2320 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 2320 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_juerak"
     }
   ],
   "topRefactorTargets": [
     {
       "filePath": "src/app/api/admin/debug/route.ts",
-      "lines": 6361,
+      "lines": 7062,
       "classification": "routeHandler",
       "severity": "critical"
     },
     {
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "lines": 3523,
+      "lines": 4980,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/lib/analytics/recovery-timeline-spine.ts",
+      "lines": 4402,
+      "classification": "source",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "lines": 3292,
       "classification": "component",
       "severity": "critical"
     },
     {
       "filePath": "src/app/api/admin/users/route.ts",
-      "lines": 3148,
+      "lines": 3145,
       "classification": "routeHandler",
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/lib/server/ai-drop-covers.ts",
-      "lines": 2874,
-      "classification": "serverHelper",
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "lines": 2865,
-      "classification": "component",
       "severity": "critical"
     },
     {
       "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "lines": 2581,
+      "lines": 3041,
       "classification": "validator",
       "severity": "critical"
     },
     {
-      "filePath": "functions/src/behavioral-intelligence-runtime.ts",
-      "lines": 2381,
+      "filePath": "src/lib/server/ai-drop-covers.ts",
+      "lines": 2865,
       "classification": "serverHelper",
       "severity": "critical"
     },
     {
-      "filePath": "src/lib/creator-onboarding.ts",
-      "lines": 1947,
+      "filePath": "functions/src/behavioral-intelligence-runtime.ts",
+      "lines": 2564,
+      "classification": "serverHelper",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/lib/agent-score/core.ts",
+      "lines": 2500,
       "classification": "source",
       "severity": "critical"
     },
     {
-      "filePath": "src/lib/server/daily-tasks.ts",
-      "lines": 1867,
-      "classification": "serverHelper",
+      "filePath": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+      "lines": 2320,
+      "classification": "component",
       "severity": "critical"
     },
     {
       "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
-      "lines": 1808,
+      "lines": 2260,
       "classification": "serverHelper",
       "severity": "critical"
     },
     {
-      "filePath": "src/app/api/admin/analytics/historical/route.ts",
-      "lines": 1762,
-      "classification": "routeHandler",
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-      "lines": 1664,
-      "classification": "component",
+      "filePath": "src/lib/release-notes/public-release-notes.ts",
+      "lines": 2239,
+      "classification": "source",
       "severity": "critical"
     }
   ],
   "largestSourceFiles": [
     {
       "filePath": "src/app/api/admin/debug/route.ts",
-      "lines": 6361,
+      "lines": 7062,
       "classification": "routeHandler",
       "severity": "critical"
     },
     {
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "lines": 3523,
+      "lines": 4980,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/lib/analytics/recovery-timeline-spine.ts",
+      "lines": 4402,
+      "classification": "source",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "lines": 3292,
       "classification": "component",
       "severity": "critical"
     },
     {
       "filePath": "src/app/api/admin/users/route.ts",
-      "lines": 3148,
+      "lines": 3145,
       "classification": "routeHandler",
       "severity": "critical"
     },
     {
-      "filePath": "src/lib/server/ai-drop-covers.ts",
-      "lines": 2874,
-      "classification": "serverHelper",
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "lines": 2865,
-      "classification": "component",
-      "severity": "critical"
-    },
-    {
       "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "lines": 2581,
+      "lines": 3041,
       "classification": "validator",
       "severity": "critical"
     },
     {
-      "filePath": "functions/src/behavioral-intelligence-runtime.ts",
-      "lines": 2381,
+      "filePath": "src/lib/server/ai-drop-covers.ts",
+      "lines": 2865,
       "classification": "serverHelper",
       "severity": "critical"
     },
     {
-      "filePath": "src/lib/creator-onboarding.ts",
-      "lines": 1947,
-      "classification": "source",
+      "filePath": "functions/src/behavioral-intelligence-runtime.ts",
+      "lines": 2564,
+      "classification": "serverHelper",
       "severity": "critical"
     }
   ],
   "largestDocs": [
     {
       "filePath": "REPO_MEMORY_LEDGER.md",
-      "lines": 3275,
+      "lines": 3517,
       "classification": "markdown",
       "severity": "review_required"
     },
     {
-      "filePath": "AGENTS.md",
-      "lines": 498,
+      "filePath": "docs/agent-truth/debug-cockpit-batch10-cleanup.md",
+      "lines": 2184,
       "classification": "markdown",
-      "severity": "warning"
+      "severity": "review_required"
     },
     {
-      "filePath": "docs/agent-truth/analytics-file-inventory.md",
-      "lines": 442,
+      "filePath": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "lines": 1414,
       "classification": "markdown",
-      "severity": "warning"
+      "severity": "review_required"
     },
     {
-      "filePath": "docs/agent-truth/behavioral-math-calibration.md",
-      "lines": 368,
+      "filePath": "docs/agent-truth/mega-legacy-pipeline-hardening.md",
+      "lines": 936,
       "classification": "markdown",
-      "severity": "warning"
+      "severity": "review_required"
     },
     {
-      "filePath": "docs/agent-truth/rollback-incident-response.md",
-      "lines": 368,
+      "filePath": "docs/agent-truth/claim-truth-audit.md",
+      "lines": 875,
       "classification": "markdown",
-      "severity": "warning"
+      "severity": "review_required"
     }
   ],
   "largestGeneratedStateFiles": [
     {
-      "filePath": "agent/index/retrieval-index.json",
-      "lines": 53145,
+      "filePath": "agent/context/validator-authority.json",
+      "lines": 23649,
       "classification": "generatedJson",
       "severity": "critical"
     },
     {
-      "filePath": "agent/index/repo-inventory.json",
-      "lines": 32119,
-      "classification": "generatedJson",
-      "severity": "critical"
-    },
-    {
-      "filePath": "agent/index/blast-radius.json",
-      "lines": 18020,
-      "classification": "generatedJson",
-      "severity": "critical"
-    },
-    {
-      "filePath": "agent/state/codebase-junk-cleanup.generated.json",
-      "lines": 10356,
+      "filePath": "agent/state/google-cost-bleed.generated.json",
+      "lines": 7423,
       "classification": "generatedJson",
       "severity": "critical"
     },
     {
       "filePath": "agent/state/speed-security-hardening.generated.json",
-      "lines": 9776,
+      "lines": 6043,
       "classification": "generatedJson",
       "severity": "critical"
+    },
+    {
+      "filePath": "agent/state/event-translation-bridge.generated.json",
+      "lines": 5468,
+      "classification": "generatedJson",
+      "severity": "critical"
+    },
+    {
+      "filePath": "agent/state/signal-telemetry-graph.generated.json",
+      "lines": 4559,
+      "classification": "generatedJson",
+      "severity": "review_required"
     }
   ],
   "vagueHelperFiles": [],
   "misplacedFeatureLogicInSrcLib": [
     {
-      "filePath": "src/lib/telemetry-catalog.ts",
-      "lines": 1415,
-      "classification": "src/lib feature logic: analytics",
+      "filePath": "src/lib/analytics/recovery-timeline-spine.ts",
+      "lines": 4402,
+      "classification": "src/lib feature logic: wallet, viewer, analytics",
       "severity": "warning"
     },
     {
       "filePath": "src/lib/release-notes/public-release-notes.ts",
-      "lines": 1399,
+      "lines": 2239,
       "classification": "src/lib feature logic: analytics",
       "severity": "warning"
     },
     {
-      "filePath": "src/lib/route-runtime-health.ts",
-      "lines": 1363,
+      "filePath": "src/lib/telemetry-catalog.ts",
+      "lines": 1967,
+      "classification": "src/lib feature logic: analytics",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/admin-debug-control-tower.ts",
+      "lines": 1958,
+      "classification": "src/lib feature logic: analytics",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/release-readiness/final-release-readiness.ts",
+      "lines": 1655,
+      "classification": "src/lib feature logic: analytics",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "lines": 1510,
       "classification": "src/lib feature logic: moderation, analytics",
       "severity": "warning"
     },
     {
-      "filePath": "src/lib/ai-drop-covers.ts",
-      "lines": 1260,
-      "classification": "src/lib feature logic: creator-profile",
+      "filePath": "src/lib/math/canonical-math-authority-ledger.ts",
+      "lines": 1380,
+      "classification": "src/lib feature logic: wallet, viewer, analytics",
       "severity": "warning"
     },
     {
-      "filePath": "src/lib/tasks/task-observability.ts",
-      "lines": 1173,
-      "classification": "src/lib feature logic: wallet, analytics",
-      "severity": "warning"
-    },
-    {
-      "filePath": "src/lib/device-layout-score.ts",
-      "lines": 1124,
-      "classification": "src/lib feature logic: wallet, drops, chat",
-      "severity": "warning"
-    },
-    {
-      "filePath": "src/lib/device-ui-dry-audit.ts",
-      "lines": 1098,
-      "classification": "src/lib feature logic: wallet, drops",
-      "severity": "warning"
-    },
-    {
-      "filePath": "src/lib/doctrine/doctrine-retrieval-optimizer.ts",
-      "lines": 743,
-      "classification": "src/lib feature logic: wallet",
+      "filePath": "src/lib/route-runtime-health.ts",
+      "lines": 1369,
+      "classification": "src/lib feature logic: moderation, analytics",
       "severity": "warning"
     }
   ],
   "routeHandlersWithTooManyResponsibilities": [
     {
       "filePath": "src/app/api/admin/debug/route.ts",
-      "lines": 6361,
+      "lines": 7062,
       "responsibilities": [
         "auth",
         "validation",
@@ -717,7 +717,7 @@
     },
     {
       "filePath": "src/app/api/admin/users/route.ts",
-      "lines": 3148,
+      "lines": 3145,
       "responsibilities": [
         "auth",
         "validation",
@@ -732,7 +732,7 @@
     },
     {
       "filePath": "src/app/api/admin/analytics/historical/route.ts",
-      "lines": 1762,
+      "lines": 2229,
       "responsibilities": [
         "auth",
         "validation",
@@ -747,7 +747,7 @@
     },
     {
       "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "lines": 270,
+      "lines": 284,
       "responsibilities": [
         "auth",
         "validation",
@@ -762,7 +762,7 @@
     },
     {
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "lines": 1366,
+      "lines": 1388,
       "responsibilities": [
         "auth",
         "validation",
@@ -775,8 +775,8 @@
       "severity": "critical"
     },
     {
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "lines": 859,
+      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
+      "lines": 668,
       "responsibilities": [
         "auth",
         "validation",
@@ -784,27 +784,27 @@
         "scoring",
         "formatting",
         "telemetry",
-        "cache"
-      ],
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "lines": 667,
-      "responsibilities": [
-        "auth",
-        "validation",
-        "firestore",
-        "scoring",
-        "formatting",
-        "telemetry",
-        "cache"
+        "external"
       ],
       "severity": "critical"
     },
     {
       "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "lines": 601,
+      "lines": 665,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "external"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/creator-agreements/route.ts",
+      "lines": 618,
       "responsibilities": [
         "auth",
         "validation",
@@ -829,20 +829,11 @@
       "severity": "critical"
     },
     {
-      "normalizedFormula": "<Pill label=\"s\" value={\"s\"} tone=\"s\" truthState=\"s\" badgeLabel=\"s\" />",
-      "files": [
-        "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
-        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
-        "src/app/admin/debug/components/DebugAdvancedTruth.tsx"
-      ],
-      "severity": "critical"
-    },
-    {
       "normalizedFormula": "<Pill label=\"s\" value={\"s\"} truthState=\"s\" badgeLabel=\"s\" />",
       "files": [
         "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
-        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
-        "src/app/admin/debug/components/DebugAdvancedExperiments.tsx"
+        "src/app/admin/debug/components/DebugAdvancedExperiments.tsx",
+        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx"
       ],
       "severity": "critical"
     },
@@ -852,6 +843,15 @@
         "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx",
         "src/app/admin/debug/components/DebugControlTowerCards.tsx",
         "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx"
+      ],
+      "severity": "critical"
+    },
+    {
+      "normalizedFormula": "data-admin-analytics-snapshot-priority=\"s\"",
+      "files": [
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"
       ],
       "severity": "critical"
     },
@@ -868,50 +868,50 @@
   "componentSplitCandidates": [
     {
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "lines": 3523,
-      "classification": "21 domain imports",
+      "lines": 4980,
+      "classification": "35 domain imports",
       "severity": "critical"
     },
     {
       "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "lines": 2865,
-      "classification": "36 domain imports",
+      "lines": 3292,
+      "classification": "39 domain imports",
       "severity": "critical"
     },
     {
-      "filePath": "src/app/admin/users/page.tsx",
-      "lines": 1608,
-      "classification": "18 domain imports",
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/app/admin/roster/page.tsx",
-      "lines": 1550,
-      "classification": "23 domain imports",
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/app/admin/user/[userId]/page.tsx",
-      "lines": 1437,
-      "classification": "20 domain imports",
-      "severity": "critical"
-    },
-    {
-      "filePath": "src/components/Admin/AssetUploader.tsx",
-      "lines": 1328,
+      "filePath": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+      "lines": 1939,
       "classification": "9 domain imports",
       "severity": "critical"
     },
     {
-      "filePath": "src/app/admin/drops/page.tsx",
-      "lines": 1189,
-      "classification": "14 domain imports",
+      "filePath": "src/app/admin/roster/page.tsx",
+      "lines": 1608,
+      "classification": "25 domain imports",
       "severity": "critical"
     },
     {
-      "filePath": "src/components/Auth/AuthModal.tsx",
-      "lines": 1147,
-      "classification": "11 domain imports",
+      "filePath": "src/components/Admin/CreateDropModal.tsx",
+      "lines": 1601,
+      "classification": "13 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/user/[userId]/page.tsx",
+      "lines": 1572,
+      "classification": "22 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/users/page.tsx",
+      "lines": 1509,
+      "classification": "21 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "lines": 1487,
+      "classification": "21 domain imports",
       "severity": "critical"
     }
   ],
@@ -922,9 +922,9 @@
       "exists": false,
       "candidateFiles": [
         "functions/src/analytics-core.ts",
+        "functions/src/analytics-event-facts.ts",
         "functions/src/analytics-timeline.ts",
-        "functions/src/analytics-transactions.ts",
-        "functions/src/analytics-truth-runtime.ts"
+        "functions/src/analytics-transactions.ts"
       ],
       "missingChildren": [
         "components",
@@ -984,7 +984,7 @@
         "functions/src/analytics-timeline.ts",
         "functions/src/behavioral-intelligence-runtime.ts",
         "functions/src/orchestration-identity.ts",
-        "scripts/agent/score-ai-cover-learning.ts"
+        "scripts/agent/debug-cockpit-batch10-shared.ts"
       ],
       "missingChildren": [
         "components",
@@ -1021,10 +1021,10 @@
       "targetPath": "src/features/chat",
       "exists": false,
       "candidateFiles": [
+        "scripts/agent/chat-cost-status-cleanup-shared.ts",
         "scripts/agent/run-ast-grep-rules.ts",
         "scripts/agent/score-code-organization.ts",
-        "scripts/agent/score-codebase-hardening.ts",
-        "scripts/agent/score-orphaned-logic.ts"
+        "scripts/agent/score-codebase-hardening.ts"
       ],
       "missingChildren": [
         "components",
@@ -1041,10 +1041,10 @@
       "targetPath": "src/features/support",
       "exists": false,
       "candidateFiles": [
+        "scripts/agent/debug-cockpit-batch12-shared.ts",
         "scripts/agent/inject-debug-evidence.ts",
         "scripts/agent/precatch-runtime-issues.ts",
-        "scripts/agent/score-code-organization.ts",
-        "scripts/agent/validate-admin-moderation-real-risk.ts"
+        "scripts/agent/score-code-organization.ts"
       ],
       "missingChildren": [
         "components",
@@ -1082,9 +1082,9 @@
       "exists": false,
       "candidateFiles": [
         "scripts/agent/score-code-organization.ts",
-        "scripts/agent/score-telemetry-identified-parity.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
-        "scripts/agent/validate-event-fact-truth.ts"
+        "scripts/agent/validate-event-fact-truth.ts",
+        "scripts/agent/validate-evidence-readiness-checklists.ts"
       ],
       "missingChildren": [
         "components",
@@ -1101,10 +1101,10 @@
       "targetPath": "src/features/admin-users",
       "exists": false,
       "candidateFiles": [
+        "scripts/agent/debug-cockpit-batch19-shared.ts",
         "scripts/agent/validate-admin-pages-cutover.ts",
         "scripts/agent/validate-admin-realtime-cutover.ts",
-        "scripts/agent/validate-admin-user-behavior-truth.ts",
-        "scripts/agent/validate-admin-user-metrics-snapshot.ts"
+        "scripts/agent/validate-admin-user-behavior-truth.ts"
       ],
       "missingChildren": [
         "components",
@@ -1159,8 +1159,26 @@
   ],
   "legacyFilesWithoutPhaseOut": [
     {
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "lines": 7062,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/analytics/recovery-timeline-spine.ts",
+      "lines": 4402,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    },
+    {
       "filePath": "functions/src/behavioral-intelligence-runtime.ts",
-      "lines": 2381,
+      "lines": 2564,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/telemetry-catalog.ts",
+      "lines": 1967,
       "classification": "legacy candidate",
       "severity": "warning"
     },
@@ -1169,56 +1187,38 @@
       "lines": 1947,
       "classification": "legacy candidate",
       "severity": "warning"
-    },
-    {
-      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
-      "lines": 1808,
-      "classification": "legacy candidate",
-      "severity": "warning"
-    },
-    {
-      "filePath": "src/app/admin/roster/page.tsx",
-      "lines": 1550,
-      "classification": "legacy candidate",
-      "severity": "warning"
-    },
-    {
-      "filePath": "src/lib/telemetry-catalog.ts",
-      "lines": 1415,
-      "classification": "legacy candidate",
-      "severity": "warning"
     }
   ],
   "docsLackingCompactCards": [
     {
-      "filePath": "docs/agent-truth/analytics-file-inventory.md",
-      "lines": 442,
+      "filePath": "docs/agent-truth/debug-cockpit-batch10-cleanup.md",
+      "lines": 2184,
       "classification": "markdown without compact card",
-      "severity": "warning"
+      "severity": "review_required"
     },
     {
-      "filePath": "docs/agent-truth/behavioral-math-calibration.md",
-      "lines": 368,
+      "filePath": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "lines": 1414,
       "classification": "markdown without compact card",
-      "severity": "warning"
+      "severity": "review_required"
     },
     {
-      "filePath": "docs/agent-truth/rollback-incident-response.md",
-      "lines": 368,
+      "filePath": "docs/agent-truth/mega-legacy-pipeline-hardening.md",
+      "lines": 936,
       "classification": "markdown without compact card",
-      "severity": "warning"
+      "severity": "review_required"
     },
     {
-      "filePath": "docs/agent-truth/kandydrops-billing-runtime-audit.md",
-      "lines": 246,
+      "filePath": "docs/agent-truth/claim-truth-audit.md",
+      "lines": 875,
       "classification": "markdown without compact card",
-      "severity": "info"
+      "severity": "review_required"
     },
     {
-      "filePath": "docs/agent-truth/admin-revenue-trends.md",
-      "lines": 194,
+      "filePath": "docs/agent-truth/final-math-normalization-lock.md",
+      "lines": 811,
       "classification": "markdown without compact card",
-      "severity": "info"
+      "severity": "review_required"
     }
   ],
   "suggestedFeatureFolderMigrations": [
@@ -1227,12 +1227,12 @@
       "targetPath": "src/features/wallet",
       "currentEntrypoints": [
         "functions/src/analytics-core.ts",
-        "functions/src/analytics-timeline.ts",
-        "functions/src/analytics-transactions.ts"
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-timeline.ts"
       ],
       "firstMoveCandidates": [
         "functions/src/analytics-core.ts",
-        "functions/src/analytics-timeline.ts"
+        "functions/src/analytics-event-facts.ts"
       ],
       "guardrails": [
         "Server purchase facts stay in server modules.",
@@ -1310,13 +1310,13 @@
       "feature": "chat",
       "targetPath": "src/features/chat",
       "currentEntrypoints": [
-        "scripts/agent/run-ast-grep-rules.ts",
-        "scripts/agent/score-code-organization.ts",
-        "scripts/agent/score-codebase-hardening.ts"
-      ],
-      "firstMoveCandidates": [
+        "scripts/agent/chat-cost-status-cleanup-shared.ts",
         "scripts/agent/run-ast-grep-rules.ts",
         "scripts/agent/score-code-organization.ts"
+      ],
+      "firstMoveCandidates": [
+        "scripts/agent/chat-cost-status-cleanup-shared.ts",
+        "scripts/agent/run-ast-grep-rules.ts"
       ],
       "guardrails": [
         "Chat owns its stable viewport shell.",
@@ -1327,13 +1327,13 @@
       "feature": "support",
       "targetPath": "src/features/support",
       "currentEntrypoints": [
-        "scripts/agent/inject-debug-evidence.ts",
-        "scripts/agent/precatch-runtime-issues.ts",
-        "scripts/agent/score-code-organization.ts"
-      ],
-      "firstMoveCandidates": [
+        "scripts/agent/debug-cockpit-batch12-shared.ts",
         "scripts/agent/inject-debug-evidence.ts",
         "scripts/agent/precatch-runtime-issues.ts"
+      ],
+      "firstMoveCandidates": [
+        "scripts/agent/debug-cockpit-batch12-shared.ts",
+        "scripts/agent/inject-debug-evidence.ts"
       ],
       "guardrails": [
         "Admin support actions stay excluded from user behavior.",
@@ -1362,12 +1362,12 @@
       "targetPath": "src/features/notifications",
       "currentEntrypoints": [
         "scripts/agent/score-code-organization.ts",
-        "scripts/agent/score-telemetry-identified-parity.ts",
-        "scripts/agent/validate-analytics-event-contract.ts"
+        "scripts/agent/validate-analytics-event-contract.ts",
+        "scripts/agent/validate-event-fact-truth.ts"
       ],
       "firstMoveCandidates": [
         "scripts/agent/score-code-organization.ts",
-        "scripts/agent/score-telemetry-identified-parity.ts"
+        "scripts/agent/validate-analytics-event-contract.ts"
       ],
       "guardrails": [
         "notification_read is the behavioral fact.",
@@ -1378,13 +1378,13 @@
       "feature": "admin-users",
       "targetPath": "src/features/admin-users",
       "currentEntrypoints": [
-        "scripts/agent/validate-admin-pages-cutover.ts",
-        "scripts/agent/validate-admin-realtime-cutover.ts",
-        "scripts/agent/validate-admin-user-behavior-truth.ts"
-      ],
-      "firstMoveCandidates": [
+        "scripts/agent/debug-cockpit-batch19-shared.ts",
         "scripts/agent/validate-admin-pages-cutover.ts",
         "scripts/agent/validate-admin-realtime-cutover.ts"
+      ],
+      "firstMoveCandidates": [
+        "scripts/agent/debug-cockpit-batch19-shared.ts",
+        "scripts/agent/validate-admin-pages-cutover.ts"
       ],
       "guardrails": [
         "Admin/projection facts never contaminate user metrics.",
@@ -1450,5 +1450,5 @@
     "cypress",
     "lighthouse"
   ],
-  "summary": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves. Current report scored 10/100 with 732 organization findings; report arrays are capped for compact agent loading."
+  "summary": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves. Current report scored 10/100 with 1472 organization findings; report arrays are capped for compact agent loading."
 }
