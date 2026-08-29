@@ -28,32 +28,50 @@ import {
   type AudienceTopPathFilter,
 } from "./AdminAnalyticsAudienceTab.utils";
 
-export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
-  const {
-    renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
-    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries,
-    journeyFunnelMetrics,
-    authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
-    authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
-    formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    topEvents,
-    
-    // Audience Tab
-    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, historicalOverviewTruthState,
-    navigationDestinationsRange,
-    deviceMixRange, devices, getDeviceIcon,
-    topPathsRange, pages,
-    regionsRange, geo,
-    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsModel, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsPages, topPathsModel, regionsGeo,
-    regionsModel,
+type AdminAnalyticsAudienceTabProps = Pick<
+  AdminAnalyticsState,
+  | "renderSectionRangeControl"
+  | "historicalLoading"
+  | "nowMs"
+  | "formatCompactNumber"
+  | "formatDuration"
+  | "formatPercent"
+  | "formatRelativeTime"
+  | "historicalOverviewTruthState"
+  | "getDeviceIcon"
+  | "topPathsRange"
+  | "regionsRange"
+  | "audienceHistorySeries"
+  | "audienceSnapshotModel"
+  | "returnCadenceModel"
+  | "navigationDestinationsModel"
+  | "deviceMixModel"
+  | "topPathsModel"
+  | "regionsModel"
+  | "PIE_COLORS"
+>;
 
-    // Commerce Tab
-    commerceSnapshotRange, commerce,
-    packagePerformanceRange, packagePerformance,
-    PIE_COLORS, contentConversionRange, unlockCategoryMix, previewToUnlockRate, checkoutToPurchaseRate,
-    topDropConversionRange, topDrops,
-    // Added remaining
-    clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter
+export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps) {
+  const {
+    renderSectionRangeControl,
+    historicalLoading,
+    nowMs,
+    formatCompactNumber,
+    formatDuration,
+    formatPercent,
+    formatRelativeTime,
+    historicalOverviewTruthState,
+    getDeviceIcon,
+    topPathsRange,
+    regionsRange,
+    audienceHistorySeries,
+    audienceSnapshotModel,
+    returnCadenceModel,
+    navigationDestinationsModel,
+    deviceMixModel,
+    topPathsModel,
+    regionsModel,
+    PIE_COLORS,
   } = props;
   const historicalPanelTruthState = historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable");
   const returnCadenceTruthState = returnCadenceModel.truthState ?? (historicalLoading ? "loading" : "unavailable");
