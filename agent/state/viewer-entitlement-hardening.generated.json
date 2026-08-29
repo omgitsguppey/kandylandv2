@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-08-29T01:48:37.683Z",
+  "generatedAtUtc": "2026-08-29T05:02:20.184Z",
   "reportKey": "viewer-entitlement-hardening",
-  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+  "currentHead": "4e58291919ecc3efa9dbb28253c934f6c19d64f3",
   "viewerRouteEntitlementGuarded": true,
   "rawDropSanitized": true,
   "privateMediaHiddenUntilEntitled": true,
