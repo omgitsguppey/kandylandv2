@@ -15,7 +15,7 @@ import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth
 import { DebugOperatorCockpit, DebugPublicBetaDecisionDetails, DebugPublicBetaDecisionStrip, formatPublicBetaDecisionStatus, resolvePublicBetaOperatorPresentation } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
 import { formatPublicBetaCapDetailForAdmin, formatPublicBetaReadinessStatusForAdmin, resolvePublicBetaCapDetailForAdmin, summarizePublicBetaCapDisplays } from "./DebugControlTowerEvidenceCopy";
-import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, resolveReportDisplay, toBadgeState } from "./DebugControlTowerCards";
+import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, resolveReportDisplay } from "./DebugControlTowerCards";
 import { formatRelative } from "./DebugTime";
 export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: { businessSnapshot?: AdminUserTruthSnapshot | null; isLocalAdminUiTestSession?: boolean }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
@@ -85,7 +85,9 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     const controlTruthState = model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
     const resolvedBusinessSnapshot = model?.businessSnapshot ?? businessSnapshot ?? null;
     const canonicalBusinessTruthState = model?.businessTruthState ?? resolveControlTowerBusinessTruthState(resolvedBusinessSnapshot);
-    const controlTowerBadgeState = toBadgeState(controlTruthState) as "live" | "stale" | "failed" | "unavailable";
+    const controlTowerBadgeState = controlTruthState === "missing" || controlTruthState === "unknown"
+        ? "unavailable"
+        : controlTruthState;
     const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails) ? model.canonicalPublicBetaCapDetails : [];
     const canonicalBetaCapDisplays = canonicalBetaCapDetails.map(resolvePublicBetaCapDetailForAdmin);
     const canonicalBetaCapSummary = summarizePublicBetaCapDisplays(canonicalBetaCapDisplays);
@@ -97,11 +99,12 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
         .filter((report) => report.truthState !== "live" || report.criticalCount > 0 || report.findingCount > 0)
         .slice(0, 5);
     const visibleNextActions = model?.nextActions.slice(0, 3) ?? [];
+    const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
     const publicBetaPresentation = resolvePublicBetaOperatorPresentation({
         decision: publicBetaDecision,
         canonicalTruthState: model?.canonicalPublicBetaTruthState,
         fallback: canonicalBetaCapSummary,
-        failedReportWithFindings: blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0)),
+        failedReportWithFindings,
     });
     const publicBetaReadinessReason = publicBetaDecision?.releaseReadiness.detail
         ?? (model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "");
