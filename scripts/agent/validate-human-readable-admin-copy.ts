@@ -118,6 +118,7 @@ const mainUiFiles = [
   "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx",
   "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
   "src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx",
   "src/components/Admin/AdminModuleVerificationCard.tsx",

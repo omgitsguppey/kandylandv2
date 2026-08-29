@@ -29,6 +29,8 @@ function requireNotIncludes(source: string, needle: string, label: string) {
 const displayStateHelper = readRequired("src/lib/analytics/admin-analytics-display-state.ts");
 const adminMetricSnapshotContract = readRequired("src/lib/analytics/admin-metric-snapshot.ts");
 const operationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const interactionSnapshotSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
+const operationsModule = `${operationsTab}\n${interactionSnapshotSection}`;
 const stateHook = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const livePulseModel = readRequired("src/lib/admin-analytics-live-pulse.ts");
 const debugRoute = readRequired("src/app/api/admin/debug/route.ts");
@@ -139,7 +141,7 @@ for (const livePulseNeedle of [
   "Surface detail needs verified snapshot rows.",
   "Collecting activity.",
 ]) {
-  requireIncludes(operationsTab + livePulseModel + displayStateHelper + stateHook, livePulseNeedle, "Live Pulse snapshot-first visible state");
+  requireIncludes(operationsModule + livePulseModel + displayStateHelper + stateHook, livePulseNeedle, "Live Pulse snapshot-first visible state");
 }
 
 for (const debugNeedle of [
@@ -196,7 +198,7 @@ for (const bannedVisibleCopy of [
   "polled route snapshot",
   "realtime lane fell back to polled data",
 ]) {
-  requireNotIncludes(operationsTab + livePulseModel, bannedVisibleCopy, "Admin Analytics visible module copy");
+  requireNotIncludes(operationsModule + livePulseModel, bannedVisibleCopy, "Admin Analytics visible module copy");
 }
 
 for (const bannedSourceNeedle of [

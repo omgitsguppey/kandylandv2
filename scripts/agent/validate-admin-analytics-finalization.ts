@@ -53,11 +53,13 @@ const analyticsDisplayState = read("src/lib/analytics/admin-analytics-display-st
 const adminMetricSnapshotContract = read("src/lib/analytics/admin-metric-snapshot.ts");
 const analyticsOperations = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const analyticsEventMix = read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
+const analyticsInteractionSnapshot = read("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
 const analyticsComponents = [
   analyticsPage,
   analyticsHook,
   analyticsOperations,
   analyticsEventMix,
+  analyticsInteractionSnapshot,
   read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx"),
   read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),

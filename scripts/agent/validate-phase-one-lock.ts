@@ -161,7 +161,8 @@ const adminAnalyticsCommerceTab = [
 ].join("\n");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
-const adminAnalyticsOperationsModule = `${adminAnalyticsOperationsTab}\n${adminAnalyticsEventMixSection}`;
+const adminAnalyticsInteractionSnapshotSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
+const adminAnalyticsOperationsModule = `${adminAnalyticsOperationsTab}\n${adminAnalyticsEventMixSection}\n${adminAnalyticsInteractionSnapshotSection}`;
 const adminOverviewContract = readRequired("src/lib/admin-overview.ts");
 const adminAnalyticsContracts = readRequired("src/lib/admin-analytics-contracts.ts");
 const adminTruthState = readRequired("src/lib/admin-truth-state.ts");

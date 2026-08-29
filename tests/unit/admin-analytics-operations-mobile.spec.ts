@@ -17,6 +17,10 @@ const eventMixSource = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
   "utf8",
 );
+const interactionSnapshotSource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx"),
+  "utf8",
+);
 
 describe("Admin analytics operations mobile consolidation", () => {
   it("renders Activity Snapshot as one compact mobile view mode at a time", () => {
@@ -154,14 +158,14 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain("guestEstimateSourceLabel");
     expect(source).toContain("guestEstimateFreshnessLabel");
     expect(source).toContain("signedInBounceFreshnessLabel");
-    expect(source).toContain("liveInteractionSourceLabel");
+    expect(interactionSnapshotSource).toContain("liveInteractionSourceLabel");
     expect(source).toContain("title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}");
     expect(source).toContain("title={guestBounceQualityModel.estimatedGuestViews.freshnessState}");
     expect(source).toContain("title={guestBounceQualityModel.signedInBounce.freshnessState}");
-    expect(source).toContain("title={liveInteractionStreamModel.sourceTruth}");
-    expect(source).toContain("title={event.sourceTruth}");
-    expect(source).not.toContain('<td className="px-3 py-2">{event.sourceTruth}</td>');
-    expect(source).not.toContain("{event.sourceTruth} - {event.surfaceState");
+    expect(interactionSnapshotSource).toContain("title={liveInteractionStreamModel.sourceTruth}");
+    expect(interactionSnapshotSource).toContain("title={event.sourceTruth}");
+    expect(interactionSnapshotSource).not.toContain('<td className="px-3 py-2">{event.sourceTruth}</td>');
+    expect(interactionSnapshotSource).not.toContain("{event.sourceTruth} - {event.surfaceState");
     expect(source).not.toContain("{guestBounceQualityModel.estimatedGuestViews.sourceTruth}</td>");
     expect(source).not.toContain("<td className=\"px-3 py-2\">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>");
     expect(source).not.toContain("<td className=\"px-3 py-2\">{guestBounceQualityModel.signedInBounce.freshnessState}</td>");

@@ -13,6 +13,7 @@ const files = [
   "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx",
   "src/app/admin/debug/page.tsx",
   "src/app/admin/economy/page.tsx",
 ].map((path) => ({ path, source: readFileSync(join(root, path), "utf8") }));

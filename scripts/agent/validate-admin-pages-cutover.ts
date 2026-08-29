@@ -34,6 +34,7 @@ const files = {
   analyticsContentConversionSection: read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
   analyticsOperationsTab: read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
   analyticsEventMixSection: read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
+  analyticsInteractionSnapshotSection: read("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx"),
 };
 const analyticsCommerceModule = `${files.analyticsCommerceTab}\n${files.analyticsContentConversionSection}`;
 
@@ -91,7 +92,7 @@ for (const [label, source] of [
   ["Analytics helpers", files.analyticsHelpers],
   ["Audience tab", `${files.analyticsAudienceTab}\n${files.analyticsAudienceSnapshot}`],
   ["Commerce tab", analyticsCommerceModule],
-  ["Operations tab", `${files.analyticsOperationsTab}\n${files.analyticsEventMixSection}`],
+  ["Operations tab", `${files.analyticsOperationsTab}\n${files.analyticsEventMixSection}\n${files.analyticsInteractionSnapshotSection}`],
 ] as const) {
   assert(!source.includes("const conversionRate ="), `${label} must not define conversion formulas inline.`, failures);
   assert(!source.includes("const returnedUsers ="), `${label} must not define returner formulas inline.`, failures);

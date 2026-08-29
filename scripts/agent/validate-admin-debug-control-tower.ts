@@ -140,6 +140,7 @@ const recentCommerceFeedHelper = readRequired("src/lib/admin-analytics-recent-co
 const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
+const adminAnalyticsInteractionSnapshotSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const adminAnalyticsContentConversionSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx");
@@ -2347,13 +2348,29 @@ for (const expected of [
   "surface inferred",
   "surface missing",
 ]) {
-  requireIncludes(adminAnalyticsOperationsTab, expected, "Live interaction stream analytics panel");
+  requireIncludes(adminAnalyticsInteractionSnapshotSection, expected, "Interaction Snapshot analytics panel");
+}
+
+function collectChangedFiles() {
+  const files = new Set<string>();
+
+  for (const command of [
+    "git diff --name-only -z",
+    "git diff --cached --name-only -z",
+    "git ls-files --others --exclude-standard -z",
+  ]) {
+    for (const filePath of execSync(command, { cwd: root, encoding: "utf8" }).split("\0")) {
+      if (filePath) {
+        files.add(filePath.replace(/\\/gu, "/"));
+      }
+    }
+  }
+
+  return [...files].sort();
 }
 
 try {
-  const changedFiles = execSync("git diff --name-only", { cwd: root, encoding: "utf8" })
-    .split(/\r?\n/u)
-    .filter(Boolean);
+  const changedFiles = collectChangedFiles();
   const allowedPatterns = [
     /^src\/lib\/admin-debug-control-tower\.ts$/u,
     /^src\/lib\/admin-debug-summary-cards\.ts$/u,
@@ -2425,6 +2442,7 @@ try {
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsAudienceSnapshotSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsOperationsTab\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsEventMixSection\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsInteractionSnapshotSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsCommerceTab\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsContentConversionSection\.tsx$/u,
     /^src\/app\/admin\/privacy\/page\.tsx$/u,
@@ -2543,7 +2561,9 @@ try {
     /^scripts\/agent\/validate-phase-one-lock\.ts$/u,
     /^scripts\/check-admin-analytics-event-mix\.ts$/u,
     /^scripts\/check-admin-analytics-guest-bounce-quality\.ts$/u,
+    /^scripts\/check-admin-analytics-live-interaction-stream\.ts$/u,
     /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-live-interaction-mobile\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-operations-mobile\.spec\.ts$/u,
     /^docs\/agent-truth\/admin-analytics-audience-snapshot\.md$/u,
     /^src\/lib\/server\/admin-privacy-console\.ts$/u,

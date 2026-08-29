@@ -30,34 +30,31 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const interactionSnapshotSection = read("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
 const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-analytics-live-interaction-stream.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const doc = read("docs/agent-truth/admin-analytics-live-interaction-stream.md");
-const section = component.slice(
-  component.indexOf('title="Interaction Snapshot"'),
-  component.indexOf('title="Data Validation"'),
-);
-
-assertIncludes("AdminAnalyticsOperationsTab", component, 'title="Interaction Snapshot"');
+assertIncludes("AdminAnalyticsOperationsTab", component, "AdminAnalyticsInteractionSnapshotSection");
 assertNotIncludes("AdminAnalyticsOperationsTab", component, 'title="Live Interaction Stream"');
 assertIncludes("AdminAnalyticsOperationsTab", component, "liveInteractionStreamModel");
 assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_INTERACTION_STREAM_DEBUG__");
-assertIncludes("Live Interaction Stream section", section, "liveInteractionStreamModel.eventRows");
-assertIncludes("Live Interaction Stream section", section, "Admin excl.");
-assertIncludes("Live Interaction Stream section", section, "compactTypeLabel");
-assertIncludes("Live Interaction Stream section", section, "duplicateCount");
-assertIncludes("Live Interaction Stream section", section, "rounded-[0.9rem]");
-assertIncludes("Live Interaction Stream section", section, "No user interactions available for this range.");
-assertNotIncludes("Live Interaction Stream section", section, "{event.type}");
-assertNotIncludes("Live Interaction Stream section", section, "rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5");
-assertNotIncludes("Live Interaction Stream section", section, "TASK_ASSIGNED");
-assertNotIncludes("Live Interaction Stream section", section, 'title="Live Interaction Stream"');
+assertIncludes("Interaction Snapshot section", interactionSnapshotSection, 'title="Interaction Snapshot"');
+assertIncludes("Interaction Snapshot section", interactionSnapshotSection, "liveInteractionStreamModel.eventRows");
+assertIncludes("Interaction Snapshot section", interactionSnapshotSection, "Admin excl.");
+assertIncludes("Interaction Snapshot section", interactionSnapshotSection, "compactTypeLabel");
+assertIncludes("Interaction Snapshot section", interactionSnapshotSection, "duplicateCount");
+assertIncludes("Interaction Snapshot section", interactionSnapshotSection, "rounded-[0.9rem]");
+assertIncludes("Interaction Snapshot section", interactionSnapshotSection, "No user interactions available for this range.");
+assertNotIncludes("Interaction Snapshot section", interactionSnapshotSection, "{event.type}");
+assertNotIncludes("Interaction Snapshot section", interactionSnapshotSection, "rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5");
+assertNotIncludes("Interaction Snapshot section", interactionSnapshotSection, "TASK_ASSIGNED");
+assertNotIncludes("Interaction Snapshot section", interactionSnapshotSection, 'title="Live Interaction Stream"');
 
 for (const phrase of BANNED_VISIBLE_COPY) {
-  assertNotIncludes("visible Live Interaction Stream copy", section, phrase);
+  assertNotIncludes("visible Interaction Snapshot copy", interactionSnapshotSection, phrase);
 }
 
 assertIncludes("useAdminAnalyticsState", hook, "buildAdminAnalyticsLiveInteractionStreamModel");
