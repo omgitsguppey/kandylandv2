@@ -3,7 +3,7 @@
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminDebugControlTowerModel, AdminDebugRuntimeEvidenceGroup } from "@/lib/admin-debug-control-tower";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
-import { formatRelative } from "./DebugControlTowerCards";
+import { formatRelative } from "./DebugTime";
 import { Pill, Section } from "./DebugPrimitives";
 
 type AdminAnalyticsRecoveryEvidenceLane = {

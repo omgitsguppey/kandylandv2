@@ -7,7 +7,7 @@ import {
   classifyCanonicalBusinessTruthStatus,
   type CanonicalBusinessTruthStatus,
 } from "@/lib/debug/canonical-business-truth-status";
-import { formatRelative } from "./DebugControlTowerCards";
+import { formatRelative } from "./DebugTime";
 
 function SummaryMetric({ label, value }: { label: string; value: string | number }) {
   return (

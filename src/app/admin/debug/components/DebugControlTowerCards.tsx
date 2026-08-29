@@ -7,6 +7,7 @@ import { resolvePublicBetaCapDetailForAdmin } from "@/lib/agent-score/formal-gat
 import type { AdminDebugControlTowerSection, AdminDebugFindingCard, AdminDebugLiveIssueCard, AdminDebugReportCard, AdminDebugSeverity, AdminDebugTruthState, AdminDebugNextAction } from "@/lib/admin-debug-control-tower";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
+import { formatRelative } from "./DebugTime";
 
 export type FilterId = "all" | "critical" | "ui" | "money" | "cost" | "telemetry" | "support" | "creator" | "stale";
 
@@ -123,17 +124,6 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     }
     return { badgeState: toBadgeState(report.truthState), statusLabel: reportStatusLabel, findingLabel, sourceDetail };
 }
-export function formatRelative(value?: number | null) {
-    if (!value) return "Not generated";
-    const deltaMs = Math.max(0, Date.now() - value);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-
 export function filterReport(report: AdminDebugReportCard, filter: FilterId) {
     if (filter === "all") return true;
     if (filter === "critical") return report.criticalCount > 0 || report.topFindings.some((finding) => finding.severity === "critical");
