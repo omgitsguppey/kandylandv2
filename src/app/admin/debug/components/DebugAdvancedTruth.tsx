@@ -1,6 +1,7 @@
 "use client";
 
 import { Pill, StatCard, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
+import { formatDebugCompactNumber as compactNumber } from "./DebugNumber";
 
 /* ─── Props ─── */
 export interface DebugAdvancedTruthProps {
@@ -8,10 +9,6 @@ export interface DebugAdvancedTruthProps {
 }
 
 /* ─── Helpers (local) ─── */
-function compactNumber(value?: number) {
-    return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
-}
-
 function toneForHealth(score?: number) {
     if ((score ?? 0) >= 90) return "good" as const;
     if ((score ?? 0) >= 70) return "warn" as const;
