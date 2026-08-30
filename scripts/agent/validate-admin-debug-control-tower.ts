@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { collectAdminDebugControlTowerActionsStaticProbeFailures } from "./admin-debug-control-tower-actions-static-probe";
 import { collectAdminDebugControlTowerBugIntakeStaticProbeFailures } from "./admin-debug-control-tower-bug-intake-static-probe";
 import { collectAdminDebugControlTowerPanelStatusStaticProbeFailures } from "./admin-debug-control-tower-panel-status-static-probe";
+import { collectAdminDebugControlTowerTestStaticProbeFailures } from "./admin-debug-control-tower-test-static-probe";
 import { collectAdminDebugControlTowerSystemHealthContractFailures } from "./admin-debug-control-tower-system-health-contract";
 
 const root = process.cwd();
@@ -1912,38 +1913,13 @@ if (lineCount(controlTowerCards) > 300) {
   fail(`DebugControlTowerCards.tsx must stay below 300 lines; found ${lineCount(controlTowerCards)}.`);
 }
 
-for (const expected of [
-  "labels required missing reports as missing and critical",
-  "labels stale reports as stale instead of live",
-  "surfaces critical findings and next actions first",
-  "keeps debug evidence redacted and support-scoped",
-]) {
-  requireIncludes(modelTest, expected, "Admin debug Control Tower model tests");
-}
-
-for (const expected of [
-  "explains aggregate route failures when the per-route sample is empty",
-  "surfaces active diagnostic clusters with validator context",
-]) {
-  requireIncludes(summaryCardTest, expected, "Admin debug summary card tests");
-}
-
-for (const expected of [
-  "separates current diagnostics from loaded sample error history",
-  "marks stale channels stale instead of live when current counts are empty",
-  "labels traffic-dependent writer inactivity as quiet instead of live",
-  "labels recent warehouse heartbeats as live",
-  "clusters repeated AI assistant SyntaxError fallback warnings",
-]) {
-  requireIncludes(adminOpsHealthTest, expected, "Admin ops health diagnostics truth tests");
-}
-for (const expected of [
-  "returns not_validated when no validation rows are available",
-  "returns loaded counts only after validation rows exist",
-  "returns failed when the validation route errors",
-  "buildDataValidationPanelState",
-]) {
-  requireIncludes(adminDataValidationTest, expected, "Admin data validation tests must cover not_validated and failed states");
+for (const message of collectAdminDebugControlTowerTestStaticProbeFailures({
+  modelTest,
+  summaryCardTest,
+  adminOpsHealthTest,
+  adminDataValidationTest,
+})) {
+  fail(message);
 }
 
 for (const expected of [
@@ -2563,6 +2539,7 @@ try {
     /^scripts\/agent\/admin-debug-control-tower-actions-static-probe\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-bug-intake-static-probe\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-panel-status-static-probe\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-test-static-probe\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-system-health-contract\.ts$/u,
     /^scripts\/agent\/debug-cockpit-batch28-bug-validation-shared\.ts$/u,
     /^scripts\/agent\/validate-analytics-validation-semantics\.ts$/u,
