@@ -32,11 +32,12 @@ const files = {
   analyticsAudienceSnapshot: read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   analyticsCommerceTab: read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
   analyticsContentConversionSection: read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  analyticsViewerJourneySection: read("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
   analyticsOperationsTab: read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
   analyticsEventMixSection: read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
   analyticsInteractionSnapshotSection: read("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx"),
 };
-const analyticsCommerceModule = `${files.analyticsCommerceTab}\n${files.analyticsContentConversionSection}`;
+const analyticsCommerceModule = `${files.analyticsCommerceTab}\n${files.analyticsContentConversionSection}\n${files.analyticsViewerJourneySection}`;
 
 const failures: string[] = [];
 

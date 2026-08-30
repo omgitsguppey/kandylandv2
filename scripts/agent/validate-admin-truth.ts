@@ -39,6 +39,7 @@ const interactionSnapshotSection = read("src/app/admin/analytics/components/Admi
 const commerceTab = [
   read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
   read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
 ].join("\n");
 const displayStateHelper = read("src/lib/analytics/admin-analytics-display-state.ts");
 

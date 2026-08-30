@@ -64,6 +64,7 @@ const analyticsComponents = [
   read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
   read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
   read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"),
   read("src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx"),
   read("src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx"),

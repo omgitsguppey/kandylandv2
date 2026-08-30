@@ -11,6 +11,7 @@ const files = [
   "src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx",

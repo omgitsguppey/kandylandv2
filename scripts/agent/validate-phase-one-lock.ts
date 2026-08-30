@@ -158,6 +158,7 @@ const adminAnalyticsAudienceSnapshot = readRequired("src/app/admin/analytics/com
 const adminAnalyticsCommerceTab = [
   readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
   readRequired("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  readRequired("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
 ].join("\n");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");

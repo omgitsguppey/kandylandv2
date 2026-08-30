@@ -214,12 +214,15 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/api/admin/analytics/historical/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-analytics-historical-validation.ts") return "real_source_change_needs_review";
   if (normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/admin-data-validation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-analytics-commerce-mobile.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/admin-analytics-display-state.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/analytics-validation-semantics.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/chart-readiness-hierarchy-repair.spec.ts") return "test_artifact_expected";
@@ -274,7 +277,13 @@ function classifyDirtyFile(path: string) {
   ) {
     return "creator_drop_workflow_expected";
   }
+  if (normalized === "scripts/agent/validate-admin-analytics-finalization.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-copy-surface-truth.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-pages-cutover.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-truth.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-admin-truth-sample-evidence.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-human-readable-admin-copy.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-phase-one-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-evidence-capture-status.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts") return "validator_artifact_expected";

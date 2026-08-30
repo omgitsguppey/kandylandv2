@@ -2344,6 +2344,7 @@ try {
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsInteractionSnapshotSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsCommerceTab\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsContentConversionSection\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsViewerJourneySection\.tsx$/u,
     /^src\/app\/admin\/privacy\/page\.tsx$/u,
     /^src\/app\/admin\/AdminPrivacyPreflight\.tsx$/u,
     /^src\/app\/admin\/ai\/components\/AdminAiOptimizerhealthSection\.tsx$/u,
