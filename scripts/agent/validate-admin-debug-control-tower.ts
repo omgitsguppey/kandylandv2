@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 import { collectAdminDebugControlTowerActionsStaticProbeFailures } from "./admin-debug-control-tower-actions-static-probe";
 import { collectAdminDebugControlTowerBugIntakeStaticProbeFailures } from "./admin-debug-control-tower-bug-intake-static-probe";
+import { collectAdminDebugControlTowerPanelStatusStaticProbeFailures } from "./admin-debug-control-tower-panel-status-static-probe";
 import { collectAdminDebugControlTowerSystemHealthContractFailures } from "./admin-debug-control-tower-system-health-contract";
 
 const root = process.cwd();
@@ -1349,26 +1350,8 @@ for (const forbidden of [
 for (const message of collectAdminDebugControlTowerBugIntakeStaticProbeFailures({ debugTabActions, debugBugIntakePanel })) {
   fail(message);
 }
-for (const expected of [
-  "Signals total",
-  "Needs review",
-  "data-debug-section-status",
-  "data-debug-section-severity",
-  "data-debug-signal-type",
-  "data-debug-current-counts",
-  "data-debug-historical-counts",
-  "data-debug-inventory-counts",
-  "data-debug-reviewable-signal-count",
-  "data-debug-total-signal-count",
-]) {
-  requireIncludes(debugPanelStatus, expected, "Panel status by section must separate total and reviewable signals");
-}
-
-for (const forbidden of [
-  "label=\"Current\"",
-  "Sample count",
-]) {
-  requireNotIncludes(debugNowDiagnostics, forbidden, "Recent diagnostics panel must not render ambiguous diagnostics chips");
+for (const message of collectAdminDebugControlTowerPanelStatusStaticProbeFailures({ debugPanelStatus, debugNowDiagnostics })) {
+  fail(message);
 }
 
 requireIncludes(debugPage, "opsCanonicalState.displayLabel", "Debug page must derive a canonical ops state when backend canonical state is missing");
@@ -2579,6 +2562,7 @@ try {
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-actions-static-probe\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-bug-intake-static-probe\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-panel-status-static-probe\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-system-health-contract\.ts$/u,
     /^scripts\/agent\/debug-cockpit-batch28-bug-validation-shared\.ts$/u,
     /^scripts\/agent\/validate-analytics-validation-semantics\.ts$/u,
