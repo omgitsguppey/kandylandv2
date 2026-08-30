@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { collectAdminDebugControlTowerActionsStaticProbeFailures } from "./admin-debug-control-tower-actions-static-probe";
+import { collectAdminDebugControlTowerBugIntakeStaticProbeFailures } from "./admin-debug-control-tower-bug-intake-static-probe";
 import { collectAdminDebugControlTowerSystemHealthContractFailures } from "./admin-debug-control-tower-system-health-contract";
 
 const root = process.cwd();
@@ -1345,39 +1346,8 @@ for (const forbidden of [
 ]) {
   requireNotIncludes(debugTabMonitoring, forbidden, "Queue runtime continuity panel must not use raw drop ids as primary text or WAIT-style loaded chips");
 }
-requireIncludes(debugTabActions, "<DebugBugIntakePanel data={data} />", "Debug actions tab must delegate loaded bug intake truth to the focused panel");
-for (const expected of [
-  "Bug reports to triage",
-  "Loaded",
-  "Last 7d",
-  "Older backlog",
-  "Needs triage",
-  "Last 7 days",
-  "Path clusters",
-  "Loaded sample and last-seven-day intake are separate",
-  "data-bug-intake-loaded-count",
-  "data-bug-intake-last7d-count",
-  "data-bug-intake-backlog-count",
-  "data-bug-intake-needs-triage-count",
-  "data-bug-report-status",
-  "data-bug-report-severity",
-  "data-bug-report-age-bucket",
-  "data-bug-report-evidence-state",
-  "createdAtUtc",
-  "ageBucket === \"last_7d\" ? \"RECENT\" : \"BACKLOG\"",
-  "badgeLabel=\"LOADED\"",
-  "badgeLabel=\"INFO\"",
-]) {
-  requireIncludes(debugBugIntakePanel, expected, "Bug intake triage panel must separate loaded sample, recent intake, backlog, and evidence inventory");
-}
-for (const forbidden of [
-  "<Pill label=\"Status\" value={report.status} />",
-  "<Pill label=\"Breadcrumbs\" value={report.breadcrumbsCount} />",
-  "<Pill label=\"Diagnostics\" value={report.diagnosticsCount} />",
-  "<Pill label=\"Rollouts\" value={report.rolloutCount} />",
-  "<Pill label=\"When\" value={formatRelative(report.timestamp)} />",
-]) {
-  requireNotIncludes(`${debugTabActions}\n${debugBugIntakePanel}`, forbidden, "Bug intake panel must not render WAIT-style chips for known loaded values");
+for (const message of collectAdminDebugControlTowerBugIntakeStaticProbeFailures({ debugTabActions, debugBugIntakePanel })) {
+  fail(message);
 }
 for (const expected of [
   "Signals total",
@@ -2608,6 +2578,7 @@ try {
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-actions-static-probe\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-bug-intake-static-probe\.ts$/u,
     /^scripts\/agent\/admin-debug-control-tower-system-health-contract\.ts$/u,
     /^scripts\/agent\/debug-cockpit-batch28-bug-validation-shared\.ts$/u,
     /^scripts\/agent\/validate-analytics-validation-semantics\.ts$/u,
