@@ -13,7 +13,7 @@ describe("LegacyCreatorSettingsPage", () => {
   it("shows the migration notice and creator settings CTA", () => {
     const markup = renderToStaticMarkup(<LegacyCreatorSettingsPage />);
 
-    expect(markup).toContain("Creator settings now live in Creator Settings.");
+    expect(markup).toContain("Creator tools have their own studio now.");
     expect(markup).toContain("Open Creator Settings");
     expect(markup).toContain("/dashboard/creator/settings");
   });

@@ -24,10 +24,19 @@ Production Firebase project: `kandydrops-by-ikandy`.
 
 App Hosting uses:
 
-- `runConfig.minInstances: 1`
+- `runConfig.minInstances: 0`
 - `runConfig.maxInstances: 2`
 - `firebase.json` framework backend region `us-central1`
 - `.firebaserc` default project `kandydrops-by-ikandy`
+
+`firebase.json` also routes local source archives to the existing App Hosting
+backend `kandydrops`. Use
+`firebase deploy --only apphosting:kandydrops --project kandydrops-by-ikandy`
+for this lane. The explicit backend filter excludes Hosting, Functions, rules,
+and Data Connect deployments. The archive excludes local environment files,
+credentials, installed dependencies and recovery output. Cloud Build resolves
+the runtime secret references from `apphosting.yaml`; local environment files
+are not deployment inputs. The existing GitHub connection remains available.
 
 Repo automation uses Cloud Build, not GitHub-hosted runner billing, for automated verification:
 
