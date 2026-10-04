@@ -1,11 +1,13 @@
 // @vitest-environment happy-dom
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { User } from "firebase/auth";
 import { StrictMode } from "react";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { MaintenanceAdminBootstrap } from "@/components/Maintenance/MaintenanceAdminBootstrap";
 import { buildCanonicalUserFixture } from "@/lib/testing/canonical-test-factories";
+import type { AuthModal } from "@/components/Auth/AuthModal";
+import type { ComponentProps } from "react";
 
 type Listener = { uid: string; next: (snapshot: unknown) => Promise<void>; unsubscribe: ReturnType<typeof vi.fn> };
 const state = vi.hoisted(() => ({
@@ -18,6 +20,13 @@ const state = vi.hoisted(() => ({
   afterRegister: null as (() => void) | null,
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => state.path, useRouter: () => state.router }));
+// Source-only boundary fixture: the real bootstrap owns opening/dismissal and
+// server acknowledgement; provider sign-in remains deployed/browser evidence.
+vi.mock("next/dynamic", () => ({ default: () => function AuthModalBoundary(props: ComponentProps<typeof AuthModal>) {
+  return props.isOpen ? <section role="dialog" aria-label="Canonical sign-in">
+    <span>{props.mode}</span><button onClick={props.onClose}>Close sign-in</button>
+  </section> : null;
+} }));
 vi.mock("@/lib/firebase", () => ({ auth: state.auth, firebaseClientConfigured: true }));
 vi.mock("@/lib/firebase-data", () => ({ db: {} }));
 vi.mock("firebase/auth", () => ({
@@ -82,6 +91,22 @@ describe("actual maintenance bootstrap recovery", () => {
     state.path = "/maintenance/admin";
     window.history.replaceState(null, "", "/maintenance/admin?next=%2Fadmin%2Fanalytics%3Frange%3D7d");
     state.authFetch.mockResolvedValue(Response.json({ success: true, role: "admin" }));
+  });
+
+  it("opens and dismisses canonical sign-in from a fresh session, then requires server admin acknowledgement", async () => {
+    state.auth.currentUser = null;
+    render(<MaintenanceAdminBootstrap />);
+    expect(state.authFetch).not.toHaveBeenCalled();
+    expect(state.router.replace).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Sign in", exact: true }));
+    expect(screen.getByRole("dialog", { name: "Canonical sign-in" }).textContent).toContain("signin");
+    fireEvent.click(screen.getByRole("button", { name: "Close sign-in" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    const pending = deferred<Response>(); state.authFetch.mockReturnValue(pending.promise);
+    act(() => { state.auth.currentUser = user("admin-a"); state.authCallback!(state.auth.currentUser); });
+    expect(state.router.replace).not.toHaveBeenCalled();
+    await act(async () => { pending.resolve(Response.json({ success: true, role: "admin" })); await pending.promise; });
+    await waitFor(() => expect(state.router.replace).toHaveBeenCalledWith("/admin/analytics?range=7d"));
   });
 
   it("returns to the intended route only after a current admin acknowledgement", async () => {
