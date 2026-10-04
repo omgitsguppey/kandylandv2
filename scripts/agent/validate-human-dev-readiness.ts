@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+// Cloud CI evaluates this readiness gate for main-branch delivery.
 const root = process.cwd();
 const reportPath = "agent/state/human-dev-readiness.generated.json";
 
