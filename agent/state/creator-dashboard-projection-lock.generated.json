@@ -1,11 +1,23 @@
 {
-  "generatedAt": "2026-05-08T04:44:07.266Z",
+  "generatedAt": "2026-10-02T18:29:25.623Z",
   "status": "pass",
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastCreatorDashboardProjectionLock": [
     "agent/state/creator-dashboard-projection-lock.generated.json",
-    "package.json"
+    "package.json",
+    "scripts/agent/validate-creator-dashboard-projection-lock.ts",
+    "src/app/dashboard/DashboardClient.tsx",
+    "src/app/dashboard/profile/components/ProfileAccountSection.tsx",
+    "src/app/dashboard/profile/components/ProfileCreatorEarningsSection.tsx",
+    "src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx",
+    "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+    "src/app/dashboard/profile/components/ProfilePrimitives.tsx",
+    "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+    "src/app/dashboard/profile/components/ProfileProfileSection.tsx",
+    "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+    "src/app/dashboard/profile/hooks/useProfileState.tsx",
+    "src/components/Dashboard/CreatorWorkspacePanel.tsx"
   ],
   "requiredTargetedChecks": [
     "npm run check:creator-dashboard-projection-lock",
@@ -34,10 +46,10 @@
     },
     {
       "key": "dashboard-uses-projection",
-      "label": "Dashboard reads projection state",
+      "label": "Creator landing owns projection without stacking the user dashboard",
       "ok": true,
       "evidence": [
-        "Dashboard mounts the creator workspace when projection mode is active."
+        "The dedicated Creator route mounts its real projection owner; the normal user dashboard retains its separate route boundary."
       ]
     },
     {
@@ -50,26 +62,26 @@
     },
     {
       "key": "workspace-write-blocks",
-      "label": "Creator workspace blocks destructive actions in projection",
+      "label": "Creator workspace blocks current mutation affordances in projection",
       "ok": true,
       "evidence": [
-        "Projection mode disables broadcast, request, booking, and create-drop actions."
+        "The real controller guards request, booking and broadcast handlers; delegated current controls disable those actions in projection. Creator Drop mutations independently require the authenticated caller's Creator role and retain the canonical service guard."
       ]
     },
     {
-      "key": "profile-hook-projection",
-      "label": "Profile hook treats projection as read-only",
+      "key": "account-isolated-from-creator-projection",
+      "label": "Account state remains separate from Creator projection",
       "ok": true,
       "evidence": [
-        "Profile state now loads projected creator data and blocks creator writes."
+        "The actual Account hook owns the resolved caller's matching profile only; Creator data, reads and projection state remain in the Creator workspace."
       ]
     },
     {
-      "key": "profile-ui-readonly",
-      "label": "Creator dashboard profile sections show read-only banners and disabled controls",
+      "key": "creator-settings-ui-readonly",
+      "label": "Current Creator settings projection blocks writes and preserves visible state",
       "ok": true,
       "evidence": [
-        "Profile page and creator-specific sections now present compact read-only copy instead of silent write affordances."
+        "Current Creator managers and the delegated settings deck render the server projection state; inactive Profile section banners are retired rather than counted as production projection proof."
       ]
     },
     {
@@ -77,7 +89,7 @@
       "label": "Creator API routes read projected creator data",
       "ok": true,
       "evidence": [
-        "Server routes now read the projected creator's data instead of treating the admin session as the creator's own account."
+        "Each current route binds read queries to the validated projection target; its mutation handlers return the canonical read-only response before writes. Chat separately binds its viewer and effective profile to the target."
       ]
     },
     {

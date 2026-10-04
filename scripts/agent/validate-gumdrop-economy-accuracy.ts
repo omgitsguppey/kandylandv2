@@ -70,6 +70,7 @@ const bookingSlots = readRequired("src/lib/creator-booking-slots.ts");
 const panel = readRequired("src/components/Creators/CreatorExperiencesPanel.tsx");
 const creatorProfile = readRequired("src/app/creators/[username]/CreatorProfileClient.tsx");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
+const dropsPresentation = readRequired("src/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience.tsx");
 const docs = readRequired("docs/agent-truth/gumdrop-economy-accuracy.md");
 const packageJson = readRequired("package.json");
 const accuracyTest = readRequired("tests/unit/gumdrop-economy-accuracy.spec.ts");
@@ -180,7 +181,17 @@ requireNotIncludes(panel, "type=\"datetime-local\"", "creator experiences panel"
 requireIncludes(creatorProfile, "existingBookings={bookings}", "creator profile booking slot data");
 requireIncludes(creatorProfile, "gumDropsPurchasedBalance ?? 0", "creator profile paid balance display");
 requireIncludes(creatorProfile, "data-drop-visibility-scope=\"own_creator_drops\"", "creator profile drop scope");
-requireIncludes(dropsClient, "data-drop-visibility-scope=\"public_discovery\"", "public drops scope");
+requireIncludes(dropsClient, "from \"@/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience\"", "public drops scope active composition");
+requireIncludes(dropsClient, "<DropsDiscoveryExperience", "public drops scope active composition");
+requireIncludes(dropsClient, "useDrops([\"active\", \"scheduled\"], initialDrops)", "public drops scope active composition");
+requireIncludes(dropsClient, "visibleDropCount={filteredDrops.length}", "public drops scope active composition");
+requireIncludes(dropsClient, "collection={(", "public drops scope active composition");
+requireIncludes(dropsClient, "<DropGrid", "public drops scope active composition");
+requireIncludes(dropsClient, "drops={filteredDrops}", "public drops scope active composition");
+requireIncludes(dropsPresentation, "data-drop-visibility-scope=\"public_discovery\"", "public drops scope rendered scope");
+requireIncludes(dropsPresentation, "{collection}", "public drops scope collection handoff");
+requireNotIncludes(dropsClient, "data-drop-visibility-scope=\"own_creator_drops\"", "public drops scope");
+requireNotIncludes(dropsPresentation, "data-drop-visibility-scope=\"own_creator_drops\"", "public drops scope");
 
 for (const expected of [
     "Paid bundle bonuses are purchased balance, not reward balance.",

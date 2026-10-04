@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-07-05T01:06:24.960Z",
+  "generatedAtUtc": "2026-10-01T20:49:25.984Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "194cf69dbfcc1eeae68eeed030864931947c8716",
-  "sourceCommit": "194cf69dbfcc1eeae68eeed030864931947c8716",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
@@ -29,7 +29,8 @@
         "owner=speed-security-cost",
         "externalReviewRequired=true",
         "externalBillingReviewed=false",
-        "nextAction=Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof."
+        "nextAction=Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof.",
+        "canonicalSource=agent/state/cost-risk-owner-review-closure.generated.json"
       ],
       "blocksBetaExit": false
     },
@@ -46,7 +47,8 @@
         "owner=agent-context-mirror",
         "externalReviewRequired=true",
         "externalBillingReviewed=false",
-        "nextAction=Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console."
+        "nextAction=Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console.",
+        "canonicalSource=agent/state/cost-risk-owner-review-closure.generated.json"
       ],
       "blocksBetaExit": false
     },
@@ -63,7 +65,8 @@
         "owner=admin-ai",
         "externalReviewRequired=true",
         "externalBillingReviewed=false",
-        "nextAction=Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited."
+        "nextAction=Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited.",
+        "canonicalSource=agent/state/cost-risk-owner-review-closure.generated.json"
       ],
       "blocksBetaExit": false
     },
@@ -71,8 +74,8 @@
       "status": "source_ready_retry_storm_guarded",
       "detail": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
       "evidence": [
-        "artifactPath=agent/state/final-cost-audit-lock.generated.json",
-        "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
+        "sourcePath=src/lib/server/cheap-4xx-response.ts",
+        "sourcePath=src/lib/server/route-4xx-classifier.ts",
         "finalCostCurrent=true",
         "analyticsRuntimeCurrent=true",
         "route4xxSourceReady=true",
@@ -80,26 +83,25 @@
         "owner=server-routing",
         "externalReviewRequired=false",
         "externalBillingReviewed=false",
-        "nextAction=Keep noisy 4xx routes typed, deduped, and non-retryable unless a validator proves retry is needed."
+        "nextAction=Keep noisy 4xx routes typed, deduped, and non-retryable unless a validator proves retry is needed.",
+        "canonicalSource=agent/state/cost-risk-owner-review-closure.generated.json"
       ],
       "blocksBetaExit": false
     }
   },
   "costRiskScore": 92.5,
-  "costRiskScoreExplanation": "Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
+  "costRiskScoreExplanation": "Cost risk score 92.5 projects canonical source readiness only; external billing evidence and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
+    "canonicalCostSourceCurrent=true",
     "cloudRunSourceReady=true",
-    "route4xxSourceReady=true",
-    "globalCostClean=true",
-    "finalCostCurrent=true",
-    "telemetryCurrent=true",
-    "costOwnerReviewSourceClosureCurrent=true",
-    "costRiskOwnerReviewClosureCurrent=true",
-    "costRiskExitPassCurrent=true"
+    "route4xxSourceReady=true"
   ],
   "staleArtifacts": [],
   "ignoredLegacyArtifacts": [
+    "agent/state/final-cost-audit-lock.generated.json",
+    "agent/state/cost-owner-review-source-closure.generated.json",
+    "agent/state/cost-risk-exit-pass.generated.json",
     "agent/state/creator-dashboard-error-cost-inventory.generated.json"
   ],
   "ownerReviewLanes": [
@@ -109,58 +111,48 @@
   ],
   "validatorResults": [
     {
-      "command": "npm run check:final-cost-audit-lock",
-      "status": "pass",
-      "artifactPath": "agent/state/final-cost-audit-lock.generated.json",
-      "detail": "Current final cost lock is available."
-    },
-    {
-      "command": "npm run check:cost-risk-exit-pass",
-      "status": "pass",
-      "artifactPath": "agent/state/cost-risk-exit-pass.generated.json",
-      "detail": "Current cost risk exit pass is available."
-    },
-    {
       "command": "npm run check:cost-risk-owner-review-closure",
       "status": "pass",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "detail": "Current cost risk owner-review closure is available."
-    },
-    {
-      "command": "npm run check:cost-owner-review-source-closure",
-      "status": "pass",
-      "artifactPath": "agent/state/cost-owner-review-source-closure.generated.json",
-      "detail": "Current cost owner-review source closure is available."
-    },
-    {
-      "command": "npm run check:cloud-sql-gemini-cost-guards",
-      "status": "pass",
-      "artifactPath": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "detail": "Current Cloud SQL/Gemini guard report is available."
-    },
-    {
-      "command": "npm run check:global-cost",
-      "status": "pass",
-      "artifactPath": "agent/state/global-cost-surfaces.generated.json",
-      "detail": "Global cost source surfaces are clean supporting context; this is not external billing evidence."
-    },
-    {
-      "command": "npm run check:billing-spike-radar",
-      "status": "pass",
-      "artifactPath": "agent/state/billing-spike-radar.generated.json",
-      "detail": "Billing spike radar is supporting watchlist context; warnings do not become external billing evidence."
-    },
-    {
-      "command": "npm run check:analytics-cost-runtime-inventory",
-      "status": "pass",
-      "artifactPath": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "detail": "Analytics cost runtime inventory refresh is tracked separately from external billing evidence."
+      "detail": "Validated canonical current-byte source cost proof; external reviews remain required."
     }
   ],
   "nextExactSteps": [
-    "Use current final cost and telemetry locks as beta score cost input.",
-    "Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing externally before claiming provider savings.",
-    "Keep stale creator-dashboard-only cost inventory out of primary cost scoring when newer source locks exist.",
-    "Attach external billing evidence separately before claiming provider-side cost savings."
-  ]
+    "cloudRun: attach external billing/provider evidence before claiming full cost closure.",
+    "cloudSqlDataConnect: attach external billing/provider evidence before claiming full cost closure.",
+    "geminiCloudAssistVertex: attach external billing/provider evidence before claiming full cost closure.",
+    "bigQuery: attach external billing/provider evidence before claiming full cost closure.",
+    "scheduledRuntimeJobs: attach external billing/provider evidence before claiming full cost closure."
+  ],
+  "sourceDependencyFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "validationFailures": [],
+  "doesNotProve": [
+    "External billing acceptance",
+    "Deployed runtime",
+    "Provider settlement",
+    "Authoritative admin activity"
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

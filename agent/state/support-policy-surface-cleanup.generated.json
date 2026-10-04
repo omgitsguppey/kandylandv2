@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-07-16T04:27:44.579Z",
+  "generatedAtUtc": "2026-10-02T18:29:18.718Z",
   "reportKey": "support-policy-surface-cleanup",
   "status": "pass",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
-  "supportPolicyContractVersion": "2026.05.support-policy-surface.1",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "supportPolicyContractVersion": "2026.10.support-policy-surface.1",
   "surfaces": [
     {
       "id": "faq",
@@ -65,7 +65,7 @@
       "id": "data_export",
       "label": "Download My Data",
       "canonicalRoute": "/settings",
-      "routeSource": "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+      "routeSource": "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx",
       "backendRouteOrAction": "/api/user/data",
       "accountSettingsSettingId": "download_my_data",
       "featureRegistrationId": "user_dashboard",
@@ -102,18 +102,7 @@
   "routeSourcesMissing": [],
   "duplicateRoutes": [],
   "surfacesWithoutFallback": [],
-  "changedFiles": [
-    "agent/state/account-settings-delete-flow.generated.json",
-    "agent/state/settings-connection-parity.generated.json",
-    "agent/state/settings-debug-validator-authority.generated.json",
-    "agent/state/settings-route-alias-cleanup.generated.json",
-    "agent/state/stale-client-preferences-cleanup.generated.json",
-    "docs/agent-truth/account-settings-delete-flow.md",
-    "docs/agent-truth/settings-connection-parity.md",
-    "docs/agent-truth/settings-debug-validator-authority.md",
-    "docs/agent-truth/settings-route-alias-cleanup.md",
-    "docs/agent-truth/stale-client-preferences-cleanup.md"
-  ],
+  "changedFiles": [],
   "protectedChanges": [],
   "checks": {
     "packageScriptPresent": true,
@@ -129,5 +118,19 @@
     "noBrokenOrDishonestSurfaces": true,
     "protectedSurfacesUntouched": true
   },
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-account-responsive-release-20261002",
+    "inputHash": "8d2428af888cdcf736b750ec5061f8c40977617fc4bf81b263b3d8ced79a4284",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "41be66efd851cf1d9248cc1392c93631afa52f483ad39b44cdcc5f73ae9b60a6",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 332,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

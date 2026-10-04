@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -23,13 +24,7 @@ function gitOutput(command: string) {
 }
 
 function listChangedFiles() {
-  const names = new Set<string>();
-  for (const command of ["git diff --name-only", "git diff --cached --name-only", "git ls-files --others --exclude-standard"]) {
-    for (const line of gitOutput(command).split(/\r?\n/u)) {
-      if (line.trim()) names.add(line.trim());
-    }
-  }
-  return [...names].sort();
+  return listValidatorScopeFiles();
 }
 
 function writeJson(path: string, value: unknown) {
@@ -196,7 +191,7 @@ function main() {
     validationFailures: failures,
   };
 
-  writeJson(REPORT_PATH, report);
+  writeJson(REPORT_PATH, withValidatorMutationScope(report));
   writeDoc(report);
 
   if (failures.length > 0) {

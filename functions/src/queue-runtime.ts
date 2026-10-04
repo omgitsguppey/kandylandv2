@@ -11,6 +11,8 @@ import {
 import {
   buildNotifyActiveDropsLifecyclePlan,
   buildProcessQueueLifecyclePlan,
+  LEGACY_QUEUED_DROP_SCAN_LIMIT,
+  readSavedQueueSettingsConfig,
   type ActivationDropRuntime,
   type QueuedDropRuntime,
 } from "../../shared/runtime/queue-runtime"
@@ -191,17 +193,18 @@ function normalizeQueueConfig(raw: Record<string, unknown> | null | undefined) {
 }
 
 async function getLegacyQueuedDropIds() {
-  const snapshot = await db.collection("drops").where("rotationConfig.enabled", "==", true).get()
+  const snapshot = await db.collection("drops").where("rotationConfig.enabled", "==", true).limit(LEGACY_QUEUED_DROP_SCAN_LIMIT).get()
   return snapshot.docs.map((doc) => doc.id)
 }
 
 async function getResolvedQueueConfig() {
-  const [queueSnap, legacyIds] = await Promise.all([
-    db.collection("adminSettings").doc("dropQueue").get(),
-    getLegacyQueuedDropIds(),
-  ])
+  const queueSnap = await db.collection("adminSettings").doc("dropQueue").get()
+  const raw = queueSnap.exists ? queueSnap.data() as Record<string, unknown> : DEFAULT_QUEUE_CONFIG
+  const saved = readSavedQueueSettingsConfig(raw)
+  if (saved) return saved
 
-  const stored = normalizeQueueConfig(queueSnap.exists ? queueSnap.data() as Record<string, unknown> : DEFAULT_QUEUE_CONFIG)
+  const legacyIds = await getLegacyQueuedDropIds()
+  const stored = normalizeQueueConfig(raw)
   return {
     ...stored,
     queue: Array.from(new Set([...stored.queue, ...legacyIds])),

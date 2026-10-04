@@ -16,30 +16,31 @@ export function CreatorDashboardQuickActions({
     isProjectionMode: boolean;
 }) {
     return (
-        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-            <div className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 sm:pb-0" data-creator-landing-quick-actions="compact_v2">
-                <Link href="/dashboard/chat" className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-brand-purple/20 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm">
-                    <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    Inbox {unreadMessagesCount > 0 ? <span className="flex h-5 items-center justify-center rounded-full bg-brand-purple px-2 text-[10px] font-bold">{unreadMessagesCount}</span> : null}
+        <section className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <nav className="grid gap-2 sm:grid-cols-3" aria-label="Creator studio shortcuts" data-creator-landing-quick-actions="soft_ui">
+                <Link href="/dashboard/chat" className="flex min-h-11 items-center gap-3 rounded-2xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/20">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-purple text-white"><MessageCircle className="h-4 w-4" /></span>
+                    <span className="min-w-0">Inbox {unreadMessagesCount > 0 ? <span className="ml-1 text-brand-pink">{unreadMessagesCount}</span> : null}</span>
                 </Link>
                 {isProjectionMode ? (
-                    <button type="button" onClick={() => toast.error("Creator dashboard is read-only in admin projection.")} className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-60 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm">
-                        <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <button type="button" onClick={() => toast.error("Creator dashboard is read-only in admin projection.")} className="flex min-h-11 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-bold text-zinc-400 opacity-70">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.08]"><Package className="h-4 w-4" /></span>
                         Manage drops
                     </button>
                 ) : (
-                    <Link href={CREATOR_DROP_MANAGE_ROUTE} className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm" data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}>
-                        <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <Link href={CREATOR_DROP_MANAGE_ROUTE} className="flex min-h-11 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/[0.1]" data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.08]"><Package className="h-4 w-4" /></span>
                         Manage drops
                     </Link>
                 )}
-                <Link href={CREATOR_SETTINGS_ROUTE} className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm">
-                    Creator settings
+                <Link href={CREATOR_SETTINGS_ROUTE} className="flex min-h-11 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/[0.1]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.08]"><Users className="h-4 w-4" /></span>
+                    Settings
                 </Link>
-            </div>
+            </nav>
 
             {recentThread ? (
-                <Link href={`/dashboard/chat?thread=${recentThread.id}`} className="group relative flex w-full shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-3 py-2.5 transition-colors hover:bg-white/5 sm:w-[280px] sm:px-4 sm:py-3">
+                <Link href={`/dashboard/chat?thread=${recentThread.id}`} className="group relative flex min-h-11 w-full items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 transition-colors hover:bg-white/[0.06]">
                     {recentThread.counterpartPhotoURL ? (
                         <Image
                             src={recentThread.counterpartPhotoURL}
@@ -57,13 +58,13 @@ export function CreatorDashboardQuickActions({
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
                             <p className="truncate text-sm font-bold text-white">{recentThread.counterpartDisplayName || recentThread.counterpartUsername || "Fan"}</p>
-                            <span className="shrink-0 text-[10px] text-gray-500">{formatRelativeTime(recentThread.lastMessageAt).replace(" ago", "")}</span>
+                            <span className="shrink-0 text-xs text-zinc-500">{formatRelativeTime(recentThread.lastMessageAt).replace(" ago", "")}</span>
                         </div>
                         <p className="truncate text-xs text-gray-400">{recentThread.lastMessagePreview || "New thread"}</p>
                     </div>
                     {(recentThread.unreadCount ?? 0) > 0 ? <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-brand-purple" /> : null}
                 </Link>
             ) : null}
-        </div>
+        </section>
     );
 }

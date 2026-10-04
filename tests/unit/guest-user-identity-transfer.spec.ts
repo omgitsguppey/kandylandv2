@@ -44,6 +44,7 @@ import {
   summarizeAnalyticsIdentityLineageOwnerVersions,
 } from "@/lib/analytics/identity-link-contract";
 import { POST } from "@/app/api/analytics/identity-link/route";
+import { IDENTITY_LINK_PENDING_TTL_MS } from "@/lib/analytics/analytics-identity-link";
 
 function buildRequest(body: unknown) {
   return new NextRequest("http://localhost/api/analytics/identity-link", {
@@ -51,6 +52,7 @@ function buildRequest(body: unknown) {
     body: JSON.stringify(body),
     headers: {
       "content-type": "application/json",
+      cookie: "kandydrops_analytics_consent=full_behavioral",
     },
   });
 }
@@ -419,5 +421,78 @@ describe("guest-to-user identity transfer", () => {
 
     expect(response.status).toBe(401);
     expect(routeMocks.upsertAnalyticsIdentityLink).not.toHaveBeenCalled();
+  });
+});
+
+describe("blocked identity submit recovery", () => {
+  const buildPayload = () => buildIdentityLinkPayload({ guestId: "subject_blocked-recovery", userId: "user_1", sessionId: "sess_blocked-recovery", reason: "login", consentMode: "full_behavioral" });
+
+  it.each([
+    { success: true, ignored: true, reason: "identity_link_blocked_by_consent", mergeAllowed: false, identityState: "user_logged_in" },
+    { success: true, mergeAllowed: false, identityState: "user_logged_in" },
+  ])("does not mark a blocked canonical response as linked or suppress the next valid handoff (%j)", async blockedBody => {
+    const storage = createMemoryStorage();
+    const payload = buildPayload();
+    const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify(blockedBody), { status: 200 })).mockResolvedValueOnce(new Response(JSON.stringify({ success: true, identityLinkId: payload.identityLinkId, created: true, mergeAllowed: true }), { status: 200 }));
+    const blocked = await payload.submit(fetcher, storage);
+    expect(blocked).toMatchObject({ success: false, loginBlocking: false, retryable: false, reason: "identity_link_blocked_by_consent" });
+    expect(blocked.identityState).not.toBe("guest_linked_to_user");
+    expect(storage.getItem(createIdentityLinkStorageKey(payload))).not.toBe("sent");
+    expect(hasSubmittedIdentityLink(payload, storage)).toBe(false);
+    expect(fetcher).toHaveBeenCalledOnce();
+    const admitted = await buildPayload().submit(fetcher, storage);
+    expect(admitted).toMatchObject({ success: true, created: true, identityState: "guest_linked_to_user" });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(storage.getItem(createIdentityLinkStorageKey(payload))).toBe("sent");
+  });
+
+  it("keeps a later verified handoff when an older expired request eventually returns blocked", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-10-02T00:00:00.000Z"));
+      const storage = createMemoryStorage();
+      const payload = buildPayload();
+      let resolveOld!: (response: Response) => void;
+      const pending = payload.submit(() => new Promise<Response>(resolve => { resolveOld = resolve; }), storage);
+      expect(hasSubmittedIdentityLink(payload, storage)).toBe(true);
+      vi.setSystemTime(Date.now() + IDENTITY_LINK_PENDING_TTL_MS + 1);
+      const admitted = await buildPayload().submit(async () => new Response(JSON.stringify({ success: true, identityLinkId: payload.identityLinkId, mergeAllowed: true }), { status: 200 }), storage);
+      expect(admitted.success).toBe(true);
+      expect(storage.getItem(createIdentityLinkStorageKey(payload))).toBe("sent");
+      resolveOld(new Response(JSON.stringify({ success: true, ignored: true, mergeAllowed: false, reason: "identity_link_blocked_by_consent" }), { status: 200 }));
+      expect(await pending).toMatchObject({ success: false, reason: "identity_link_blocked_by_consent" });
+      expect(storage.getItem(createIdentityLinkStorageKey(payload))).toBe("sent");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each(["http_error", "transport_rejection"] as const)("keeps the later verified handoff when an older expired request settles with %s", async failure => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-10-02T00:00:00.000Z"));
+      const storage = createMemoryStorage();
+      const payload = buildPayload();
+      let resolveOld!: (response: Response) => void;
+      let rejectOld!: (error: Error) => void;
+      const pending = payload.submit(() => new Promise<Response>((resolve, reject) => {
+        resolveOld = resolve;
+        rejectOld = reject;
+      }), storage);
+      expect(hasSubmittedIdentityLink(payload, storage)).toBe(true);
+      vi.setSystemTime(Date.now() + IDENTITY_LINK_PENDING_TTL_MS + 1);
+      const admitted = await buildPayload().submit(async () => new Response(JSON.stringify({ success: true, identityLinkId: payload.identityLinkId, mergeAllowed: true }), { status: 200 }), storage);
+      expect(admitted.success).toBe(true);
+      expect(storage.getItem(createIdentityLinkStorageKey(payload))).toBe("sent");
+      if (failure === "http_error") {
+        resolveOld(new Response(JSON.stringify({ success: false, reason: "try_later" }), { status: 503 }));
+      } else {
+        rejectOld(new Error("offline"));
+      }
+      expect(await pending).toMatchObject({ success: false, loginBlocking: false, retryable: false, reason: failure === "http_error" ? "try_later" : "identity_link_submit_failed" });
+      expect(storage.getItem(createIdentityLinkStorageKey(payload))).toBe("sent");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

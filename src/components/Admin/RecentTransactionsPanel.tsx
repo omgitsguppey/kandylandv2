@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/creative-tim/ui/badge";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatDistance } from "date-fns";
 import {
@@ -392,101 +395,45 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
 
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
-        <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+        <div className="min-w-0 space-y-4" data-admin-transaction-listener={debugMeta.listenerStatus} data-admin-transaction-snapshot={debugMeta.snapshotSource} data-admin-transaction-source={debugMeta.transactionSource}>
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0"><p className="text-sm font-medium text-muted-foreground">Transaction ledger</p>{debugMeta.resolvedUserCount > 0 ? <p className="mt-1 text-xs text-muted-foreground">{debugMeta.resolvedUserCount}/{transactions.length} user identities resolved</p> : null}</div>
                 <AdminStatusBadge state={truthState} />
-                {debugMeta.resolvedUserCount > 0 && (
-                    <span className="text-[10px] text-gray-500">
-                        {debugMeta.resolvedUserCount}/{transactions.length} users resolved
-                    </span>
-                )}
             </div>
-            {transactions.length === 0 ? (
-                <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400">No recent transactions available.</p>
-                </div>
-            ) : (
+            {transactions.length === 0 ? <p className="py-6 text-sm leading-6 text-muted-foreground">No recent transactions are available from the current source.</p> : (
                 <>
-                    <div className="divide-y divide-white/6 rounded-xl border border-white/8 bg-black/20 overflow-hidden">
+                    <ol className="min-w-0 divide-y divide-border" aria-label="Recent transaction records">
                         {paginated.items.map((transaction) => {
-                            const timestamp = typeof transaction.timestamp === "number" && transaction.timestamp > 0
-                                ? transaction.timestamp
-                                : toTimestampNumber(transaction.timestamp);
-                            const relativeLabel = timestamp > 0 && nowMs > 0
-                                ? formatDistance(timestamp, nowMs, { addSuffix: true })
-                                : "Unknown time";
-
+                            const timestamp = typeof transaction.timestamp === "number" && transaction.timestamp > 0 ? transaction.timestamp : toTimestampNumber(transaction.timestamp);
+                            const relativeLabel = timestamp > 0 && nowMs > 0 ? formatDistance(timestamp, nowMs, { addSuffix: true }) : "Unknown time";
                             const { label: displayName, resolved: nameResolved } = resolveDisplayName(transaction, identityMap, enableRealtime);
                             const badge = getTransactionBadgeLabel(transaction);
-                            const badgeColor = BADGE_COLORS[transaction.type] ?? "border-white/10 bg-white/5 text-gray-300";
+                            const badgeColor = BADGE_COLORS[transaction.type] ?? "border-border bg-secondary text-secondary-foreground";
                             const { primary, secondary, color } = formatAmountDelta(transaction);
-
                             return (
-                                <div
-                                    key={transaction.id}
-                                    className="flex items-center gap-2 px-3 py-2 min-h-[36px]"
-                                >
-                                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${badgeColor}`}>
-                                        {badge}
-                                    </span>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-baseline gap-1.5 text-[12px]">
-                                            <span className="truncate font-medium text-white">
-                                                {transaction.description}
-                                            </span>
-                                            {nameResolved ? (
-                                                <span className="shrink-0 text-[11px] text-gray-400">
-                                                    {displayName}
-                                                </span>
-                                            ) : (
-                                                <span className="shrink-0 h-2.5 w-14 animate-pulse rounded bg-white/8" />
-                                            )}
-                                        </div>
+                                <li key={transaction.id} className="min-w-0 py-4">
+                                    <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                                        <Badge variant="secondary" className={badgeColor}>{badge}</Badge>
+                                        <div className="min-w-0 text-right"><span className={`block wrap-anywhere text-lg font-semibold tabular-nums ${color}`}>{primary}</span>{secondary ? <span className="block wrap-anywhere text-sm text-muted-foreground">{secondary}</span> : null}</div>
                                     </div>
-                                    <span className="hidden shrink-0 text-[10px] text-gray-500 sm:block">
-                                        {relativeLabel}
-                                    </span>
-                                    <div className="shrink-0 text-right">
-                                        <span className={`text-[12px] font-semibold tabular-nums ${color}`}>
-                                            {primary}
-                                        </span>
-                                        {secondary && (
-                                            <span className="ml-1 text-[10px] text-gray-500">
-                                                {secondary}
-                                            </span>
-                                        )}
+                                    <p className="mt-2 wrap-anywhere text-sm font-medium text-foreground">{transaction.description}</p>
+                                    <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                        {nameResolved ? <span className="wrap-anywhere">{displayName}</span> : <span className="h-2.5 w-14 animate-pulse rounded bg-muted" />}
+                                        <span>{relativeLabel}</span>
                                     </div>
-                                </div>
+                                </li>
                             );
                         })}
-                    </div>
-                    {paginated.totalPages > 1 && (
-                        <div className="flex items-center justify-between px-1 text-[11px] text-gray-400">
-                            <span>
-                                Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}
-                            </span>
-                            <div className="flex items-center gap-1">
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.max(0, c - 1))}
-                                    disabled={paginated.page === 0}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Previous page"
-                                >
-                                    <ChevronLeft size={14} />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))}
-                                    disabled={paginated.page >= paginated.totalPages - 1}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Next page"
-                                >
-                                    <ChevronRight size={14} />
-                                </button>
+                    </ol>
+                    {paginated.totalPages > 1 ? (
+                        <nav aria-label="Recent transactions pagination" className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+                            <span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}</span>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} aria-label="Previous page"><ChevronLeft aria-hidden="true" size={16} /></Button>
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} aria-label="Next page"><ChevronRight aria-hidden="true" size={16} /></Button>
                             </div>
-                        </div>
-                    )}
+                        </nav>
+                    ) : null}
                 </>
             )}
         </div>

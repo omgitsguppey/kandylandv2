@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Clock3, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search, Shield, Ban, Plus, MessageSquare, DollarSign, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
@@ -12,11 +12,9 @@ import { BalanceAdjustmentPanel } from "@/components/Admin/BalanceAdjustmentPane
 import { TransactionHistoryPanel } from "@/components/Admin/TransactionHistoryPanel";
 import { authFetch } from "@/lib/authFetch";
 import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
+import { AdminUserDirectory, AdminUserMetricCard, AdminUsersOperations, AdminUsersOperatorEntryBand } from "@/components/creative-tim/kandydrops/admin-users/AdminUsersOperations";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -503,44 +501,26 @@ export default function UserManagementPage() {
                 : card.freshnessState.replace(/_/g, " ");
 
         return (
-        <div
-            className="rounded-2xl border border-white/10 bg-white/[0.045] px-2.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:px-3 sm:py-3"
-            title={`${card.explanation}${card.formula ? ` Formula: ${card.formula}.` : ""}${card.warnings.length ? ` Warnings: ${card.warnings.join(" | ")}` : ""}`}
-            data-admin-metric-state={metricState}
-            data-admin-metric-source={card.sourceLabel ?? card.sourceTruth}
-            data-admin-metric-freshness={card.freshnessState}
-            data-admin-users-metric-state={metricState}
-            data-admin-users-metric-source={card.sourceLabel ?? card.sourceTruth}
-            data-admin-review-reason={reviewDecision?.reasonCode ?? "none"}
-            data-admin-users-kpi-id={card.id}
-            data-admin-users-kpi-source-truth={card.sourceTruth}
-            data-admin-users-kpi-freshness={card.freshnessState}
-            data-admin-users-kpi-scope={card.scope}
-            data-admin-users-kpi-reason={card.reasonCode ?? "none"}
-            data-admin-users-kpi-generated-at-utc={card.generatedAtUtc}
-        >
-            <div className="flex min-h-5 items-start justify-between gap-1.5">
-                <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-gray-500">{card.label}</p>
-                <div className="flex shrink-0 items-center gap-1">
-                    <AdminReviewBadge decision={reviewDecision ?? null} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
-                    <AdminTruthBadge
-                        state={metricState}
-                        className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
-                        pendingInitialLoad={!summary && summaryLoading}
-                        hasUsableValue={hasUsableValue}
-                    />
-                </div>
-            </div>
-            <p className="mt-1 truncate text-xl font-black leading-none text-white sm:text-2xl">{String(card.primaryValue)}</p>
-            <div className="mt-1 min-h-9 space-y-1">
-                <p className="text-[10px] leading-snug text-gray-300 sm:text-[11px]">{card.secondaryValue ?? card.explanation}</p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] uppercase tracking-[0.08em] text-gray-500">
-                    <span>{sourceDetail}</span>
-                    <span>{footerReason}</span>
-                </div>
-            </div>
-        </div>
-    )};
+            <AdminUserMetricCard
+                id={card.id}
+                label={card.label}
+                primaryValue={String(card.primaryValue)}
+                secondaryValue={card.secondaryValue ?? card.explanation}
+                title={card.explanation + (card.formula ? " Formula: " + card.formula + "." : "") + (card.warnings.length ? " Warnings: " + card.warnings.join(" | ") : "")}
+                state={metricState}
+                pendingInitialLoad={!summary && summaryLoading}
+                hasUsableValue={hasUsableValue}
+                reviewDecision={reviewDecision ?? null}
+                source={card.sourceLabel ?? card.sourceTruth}
+                freshness={card.freshnessState}
+                scope={card.scope}
+                reason={card.reasonCode ?? "none"}
+                generatedAtUtc={card.generatedAtUtc}
+                sourceDetail={sourceDetail}
+                footerReason={footerReason}
+            />
+        );
+    };
     const formatJoined = (value: unknown) => {
         const timestamp = typeof value === "number"
             ? value
@@ -621,6 +601,56 @@ export default function UserManagementPage() {
     const leaderboardPageNumber = behaviorLeaderboard?.page ?? behaviorLeaderboardPage;
     const leaderboardPageSize = behaviorLeaderboard?.pageSize ?? 10;
 
+    const adminDirectoryRecords = filteredUsers.map((user) => {
+        const analytics = getUserAnalytics(user.uid);
+        const behaviorRollup = getBehaviorRollup(user.uid);
+        const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
+        const value = analytics?.value ?? behaviorRollup?.value;
+        const truthState = getBehaviorTruthState(behaviorRollup);
+        const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
+        const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
+        const reviewDecision = buildBehaviorRollupReviewBadge({
+            behaviorRollup,
+            truthState,
+            personalizedOutputShown: true,
+        });
+        const managementSummary = userManagementSummaryById.get(user.uid);
+
+        return {
+            user,
+            joined: formatJoined(user.createdAt),
+            lastSeen: analytics ? formatLastSeen(analytics.lastSeenAt) : undefined,
+            lastPurchase: analytics ? formatLastPurchase(analytics.lastPurchaseAt) : undefined,
+            onboarding: getOnboardingBadge(user, analytics),
+            guestLinkLabel: managementSummary?.guestLinkStatus.state.replace(/_/g, " ") ?? "link unknown",
+            behavior: {
+                loaded: Boolean(analytics),
+                engagement: engagementExplanation.verdict,
+                engagementReason: engagementExplanation.reasons[0] ?? engagementExplanation.summary,
+                value: valueExplanation.verdict,
+                valueReason: valueExplanation.reasons[0] ?? valueExplanation.summary,
+                mathMode: behaviorRollup?.mathCalibration?.activeMode ?? "unavailable",
+                mathVerdict: behaviorRollup?.mathCalibration?.verdict ?? "unavailable",
+                availability: getBehaviorAvailabilityLabel(behaviorRollup) ?? valueExplanation.statusLabel ?? engagementExplanation.statusLabel ?? "No recent signal",
+                issueCount: behaviorRollup?.issues.length ?? 0,
+                consent: managementSummary?.consentMode.mode.replace(/_/g, " ") ?? "consent unknown",
+                lowConfidence: managementSummary?.personMetricConfidence.lowConfidenceCount ?? 0,
+                activitySource: (managementSummary?.activitySummary.state ?? "unknown") + " / " + (managementSummary?.lastActivity.source ?? "not loaded"),
+                walletSource: managementSummary?.walletPaymentConfidence.source ?? "not loaded",
+                missingMetric: managementSummary?.personMetricConfidence.lowConfidenceMetrics[0]?.explanation ?? "none",
+                activityEvents: managementSummary
+                    ? formatOptionalCount(managementSummary.activitySummary.totalEvents)
+                    : formatOptionalCount(behaviorRollup?.totalActions),
+                unwraps: managementSummary
+                    ? formatOptionalCount(managementSummary.dropUnwrapMetrics.unwraps)
+                    : formatOptionalCount(behaviorRollup?.unwraps),
+                watchTime: formatWatchHours(behaviorRollup?.watchTimeMs, analytics?.watchHours),
+                source: behaviorRollup?.source ?? "unavailable",
+                confidence: behaviorRollup?.confidence ?? "unknown",
+                reviewDecision,
+            },
+        };
+    });
     const handleUpdateStatus = async () => {
         if (!actionUser || !actionType) return;
         if (isLocalAdminUiTestSession) {
@@ -837,16 +867,15 @@ export default function UserManagementPage() {
     return (
         <div className="space-y-4 md:space-y-5">
             <PageViewEvent eventName="admin_users_viewed" />
-            <AdminPageHeader
+            <AdminUsersOperatorEntryBand
                 eyebrow="Admin Users"
                 title={viewMode === 'users' ? 'User Management' : viewMode === 'feedback' ? 'Platform Feedback' : 'Daily Task Control'}
-                compact
                 subtitle={viewMode === 'users'
                     ? pageData.subtitle
                     : viewMode === 'feedback'
                         ? 'Review user-submitted feedback from daily tasks.'
                         : 'Create daily missions and review latest task-trigger activity.'}
-                topSlot={viewMode === "users" ? (
+                sourceSignals={viewMode === "users" ? (
                     <div
                         className="flex flex-wrap items-center gap-2"
                         data-admin-users-snapshot-state={userSummaryTruthState}
@@ -875,7 +904,7 @@ export default function UserManagementPage() {
                         </div>
                     </div>
                 ) : null}
-                actions={
+                controls={
                     <>
                     <button
                         onClick={() => setViewMode('users')}
@@ -922,22 +951,27 @@ export default function UserManagementPage() {
             ) : null}
 
             {viewMode === 'users' && (
-                <>
+                <AdminUsersOperations
+                    mode="directory"
+                    eyebrow="User operations"
+                    title="Evidence-led user directory"
+                    description="Search a user, inspect the current source state, then take a targeted account action without separating identity, wallet, behavior, or protection work into competing dashboards."
+                >
                     <div
-                        className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 md:gap-2.5 xl:grid-cols-5"
-                        data-admin-users-stats-layout="compact-grid"
+                        className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:thin]"
+                        data-admin-users-stats-layout="evidence-ribbon"
                         data-admin-users-truth-source={summary?.truthSnapshot?.sourceTruth ?? "unavailable"}
                         data-admin-users-truth-freshness={summary?.truthSnapshot?.sourceFreshness ?? "unavailable"}
                     >
                         {(summary?.kpiCards ?? []).map((card) => (
-                            <div key={card.id}>
+                            <div key={card.id} className="min-w-[12.5rem] flex-1">
                                 {renderSummaryMetricCard(card)}
                             </div>
                         ))}
                     </div>
 
-                    <div className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
-                        <div className="glass-panel p-2 rounded-xl flex items-center gap-3 border border-white/5">
+                    <div className="space-y-4">
+                        <div className="flex min-h-14 items-center gap-3 border-y border-white/10 px-2">
                             <Search className="w-5 h-5 text-gray-500 ml-2" />
                             <input
                                 type="text"
@@ -948,7 +982,7 @@ export default function UserManagementPage() {
                             />
                         </div>
 
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                        <section className="border-y border-white/10 py-4">
                             <div className="flex items-center justify-between gap-3">
                                 <div>
                                     <div className="flex items-center gap-2 text-sm font-bold text-white">
@@ -1088,14 +1122,14 @@ export default function UserManagementPage() {
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
 
                     <div
-                        className="grid gap-3 md:grid-cols-3"
+                        className="divide-y divide-white/10 border-y border-white/10"
                         data-admin-user-management-summary-lane="identity-activity-confidence"
                     >
-                        <div className="rounded-xl border border-white/10 bg-black/25 p-3" data-admin-user-management-identity-handoff="summary">
+                        <div className="py-4" data-admin-user-management-identity-handoff="summary">
                             <div className="flex items-center justify-between gap-2">
                                 <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Identity handoff</p>
                                 <AdminTruthBadge
@@ -1112,7 +1146,7 @@ export default function UserManagementPage() {
                                 Guest link status is visible per row. Raw user/event rows stay behind detail actions.
                             </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-black/25 p-3" data-admin-user-management-consent-mode="summary">
+                        <div className="py-4" data-admin-user-management-consent-mode="summary">
                             <div className="flex items-center justify-between gap-2">
                                 <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Consent/tracking</p>
                                 <AdminTruthBadge
@@ -1131,7 +1165,7 @@ export default function UserManagementPage() {
                                 Behavioral metrics wait for consent and source materialization before they can be shown.
                             </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-black/25 p-3" data-admin-user-management-metric-confidence="summary">
+                        <div className="py-4" data-admin-user-management-metric-confidence="summary">
                             <div className="flex items-center justify-between gap-2">
                                 <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Metric confidence</p>
                                 <AdminTruthBadge
@@ -1150,416 +1184,40 @@ export default function UserManagementPage() {
                         </div>
                     </div>
 
-                    {/* Desktop Users Table */}
-                    <div className="hidden md:block glass-panel rounded-2xl overflow-hidden border border-white/5">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="border-b border-white/5 bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
-                                        <th className="p-4 font-medium">User</th>
-                                        <th className="p-4 font-medium">Role</th>
-                                        <th className="p-4 font-medium">Status</th>
-                                        <th className="p-4 font-medium">Balance</th>
-                                        <th className="p-4 font-medium">Analytics</th>
-                                        <th className="p-4 font-medium">Joined</th>
-                                        <th className="p-4 font-medium">Security</th>
-                                        <th className="p-4 font-medium text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {loading ? (
-                                        <tr>
-                                            <td colSpan={8} className="p-8 text-center">
-                                                <Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" />
-                                            </td>
-                                        </tr>
-                                    ) : filteredUsers.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={8} className="p-8 text-center text-gray-500">
-                                                {searchQuery.trim()
-                                                    ? <>No users match &quot;{searchQuery.trim()}&quot;.</>
-                                                    : "No users found."}
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredUsers.map((user) => {
-                                            const analytics = getUserAnalytics(user.uid);
-                                            const behaviorRollup = getBehaviorRollup(user.uid);
-                                            const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
-                                            const value = analytics?.value ?? behaviorRollup?.value;
-                                            const truthState = getBehaviorTruthState(behaviorRollup);
-                                            const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
-                                            const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
-                                            const reviewDecision = buildBehaviorRollupReviewBadge({
-                                                behaviorRollup,
-                                                truthState,
-                                                personalizedOutputShown: true,
-                                            });
-                                            const onboardingBadge = getOnboardingBadge(user, analytics);
-                                            const managementSummary = userManagementSummaryById.get(user.uid);
-                                            return (
-                                            <tr key={user.uid} className="transition-colors">
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 overflow-hidden relative">
-                                                            {user.photoURL ? (
-                                                                <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="40px" className="object-cover" />
-                                                            ) : (
-                                                                (user.displayName?.[0] || user.email?.[0] || "?").toUpperCase()
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex items-center gap-1 font-bold text-white">
-                                                                {user.username ? `@${user.username}` : user.displayName || "No Name"}
-                                                                {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-purple" />}
-                                                                <button onClick={() => { setEditUsernameUser(user); setEditUsernameInput(user.username || ""); }} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="Edit username"><Edit2 className="w-3 h-3" /></button>
-                                                            </div>
-                                                            <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">
-                                                                {user.username ? user.displayName : user.uid.slice(0, 8)}
-                                                            </div>
-                                                            <div className="text-xs text-gray-500">{user.email}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-bold border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}>
-                                                        {user.role || 'user'}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="flex flex-wrap gap-2">
-                                                        <span className={`px-2 py-1 rounded-full text-xs font-bold border ${getStatusColor(user.status)}`}>
-                                                            {(user.status || 'active').toUpperCase()}
-                                                        </span>
-                                                        <span className={`px-2 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${onboardingBadge.className}`}>
-                                                            {onboardingBadge.label}
-                                                        </span>
-                                                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
-                                                            {managementSummary?.guestLinkStatus.state.replace(/_/g, " ") ?? "link unknown"}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 font-mono text-brand-purple">
-                                                    <div className="flex items-center gap-2">
-                                                        {user.gumDropsBalance} GD
-                                                        <button onClick={() => setEditBalanceUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="Edit balance" aria-label="Edit balance"><Edit2 className="w-3 h-3" /></button>
-                                                        <button onClick={() => setHistoryUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="View history" aria-label="View history"><ScrollText className="w-3 h-3" /></button>
-                                                    </div>
-                                                    <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
-                                                        <span>{user.unlockedContent?.length || 0} unlocked</span>
-                                                        <span>{user.notificationSettings?.browserPushEnabled ? "Push on" : "Push off"}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-sm">
-                                                    {analytics ? (
-                                                        <div
-                                                            className="space-y-2"
-                                                            data-admin-users-loading-lane="behavioralDetail"
-                                                            data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
-                                                            data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
-                                                        >
-                                                            <div className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                                <span>
-                                                                {engagementExplanation.verdict} / Value {valueExplanation.verdict}
-                                                                </span>
-                                                                <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
-                                                            </div>
-                                                            <div className="text-[10px] text-gray-500">
-                                                                {(getBehaviorAvailabilityLabel(behaviorRollup) ?? valueExplanation.statusLabel ?? engagementExplanation.statusLabel ?? "No recent signal")} / {behaviorRollup?.issues.length ?? 0} issues
-                                                            </div>
-                                                            <div className="flex flex-wrap gap-1.5 text-[10px] text-gray-400">
-                                                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
-                                                                    {managementSummary?.consentMode.mode.replace(/_/g, " ") ?? "consent unknown"}
-                                                                </span>
-                                                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
-                                                                    {managementSummary?.personMetricConfidence.lowConfidenceCount ?? 0} low confidence
-                                                                </span>
-                                                            </div>
-                                                            <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[10px] text-gray-400">
-                                                                <summary className="cursor-pointer font-bold text-gray-200">Metric source</summary>
-                                                                <p className="mt-1">Activity: {managementSummary?.activitySummary.state ?? "unknown"} / {managementSummary?.lastActivity.source ?? "not loaded"}</p>
-                                                                <p className="mt-1">Wallet: {managementSummary?.walletPaymentConfidence.source ?? "not loaded"}</p>
-                                                                <p className="mt-1">Missing: {managementSummary?.personMetricConfidence.lowConfidenceMetrics[0]?.explanation ?? "none"}</p>
-                                                            </details>
-                                                        </div>
-                                                    ) : (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => void fetchUserDetail(user)}
-                                                            className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
-                                                            data-admin-users-loading-lane="selectedUser"
-                                                            disabled={selectedUserDetailLoading === user.uid}
-                                                        >
-                                                            {selectedUserDetailLoading === user.uid ? "Loading detail" : "Load detail"}
-                                                        </button>
-                                                    )}
-                                                </td>
-                                                <td className="p-4 text-gray-500 text-sm">
-                                                    {formatJoined(user.createdAt)}
-                                                    {analytics && (
-                                                        <>
-                                                            <div className="mt-2 text-[10px] text-gray-500">{formatLastSeen(analytics.lastSeenAt)}</div>
-                                                            <div className="mt-1 text-[10px] text-gray-500">{formatLastPurchase(analytics.lastPurchaseAt)}</div>
-                                                        </>
-                                                    )}
-                                                </td>
-                                                <td className="p-4 text-sm">
-                                                    {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
-                                                        <button
-                                                            onClick={() => setSecurityDetailsUser(user)}
-                                                            className="flex items-center gap-1 text-red-500 font-bold bg-red-500/10 px-2 py-1 rounded-full w-fit border border-red-500/20 hover:bg-red-500/20 transition-colors"
-                                                            title="View security dossier"
-                                                            aria-label="View security dossier"
-                                                        >
-                                                            <AlertTriangle className="w-3 h-3" />
-                                                            {user.securityFlags!.ripAttempts} Flags
-                                                        </button>
-                                                    ) : (
-                                                        <span className="text-gray-600 font-medium">Clean</span>
-                                                    )}
-                                                </td>
-                                                <td className="p-4 text-right">
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        {user.role !== 'creator' && (
-                                                            <button onClick={() => handleRoleUpdate(user.uid, 'creator')} className="p-1.5 text-gray-400 rounded transition-colors" title="Promote to creator" aria-label="Promote to creator"><Plus className="w-3 h-3" /></button>
-                                                        )}
-                                                        <button
-                                                            onClick={() => handleVerification(user.uid, !user.isVerified)}
-                                                            className={`p-1.5 rounded transition-colors ${user.isVerified ? "text-brand-purple " : "text-gray-400 "}`}
-                                                            title={user.isVerified ? "Remove verification badge" : "Add verification badge"}
-                                                            aria-label={user.isVerified ? "Remove verification badge" : "Add verification badge"}
-                                                        >
-                                                            <CheckCircle className="w-3 h-3" />
-                                                        </button>
-                                                        <Link href={`/admin/user/${user.uid}`} className="p-1.5 rounded text-brand-purple transition-colors" title="Open user analytics" aria-label="Open user analytics">
-                                                            <TrendingUp className="w-3 h-3" />
-                                                        </Link>
-                                                        <div className="w-px h-4 bg-white/10 mx-1" />
-                                                        {(!user.status || user.status === 'active') ? (
-                                                            <>
-                                                                <button onClick={() => { setActionUser(user); setActionType('suspend'); }} className="p-1.5 rounded text-gray-400 transition-colors" title="Suspend user" aria-label="Suspend user"><AlertTriangle className="w-3 h-3" /></button>
-                                                                <button onClick={() => { setActionUser(user); setActionType('ban'); }} className="p-1.5 rounded text-gray-400 transition-colors" title="Ban user" aria-label="Ban user"><Ban className="w-3 h-3" /></button>
-                                                            </>
-                                                        ) : (
-                                                            <button onClick={() => { setActionUser(user); setActionType('activate'); }} className="p-1.5 rounded text-brand-purple transition-colors" title="Reactivate user" aria-label="Reactivate user"><CheckCircle className="w-3 h-3" /></button>
-                                                        )}
-                                                        <button onClick={() => void fetchUserDetail(user, { openContent: true })} className="p-1.5 rounded text-gray-400 transition-colors" title="Manage content access" aria-label="Manage content access"><Lock className="w-3 h-3" /></button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )})
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Mobile Card Layout */}
-                    <div className="md:hidden flex flex-col gap-4">
-                        {loading ? (
-                            <div className="p-8 text-center glass-panel rounded-2xl"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>
-                        ) : filteredUsers.length === 0 ? (
-                            <div className="p-8 text-center text-gray-500 glass-panel rounded-2xl">No users found.</div>
-                        ) : (
-                            filteredUsers.map((user) => {
-                                const analytics = getUserAnalytics(user.uid);
-                                const behaviorRollup = getBehaviorRollup(user.uid);
-                                const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
-                                const value = analytics?.value ?? behaviorRollup?.value;
-                                const truthState = getBehaviorTruthState(behaviorRollup);
-                                const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
-                                const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
-                                const reviewDecision = buildBehaviorRollupReviewBadge({
-                                    behaviorRollup,
-                                    truthState,
-                                    personalizedOutputShown: true,
-                                });
-                                const onboardingBadge = getOnboardingBadge(user, analytics);
-                                const managementSummary = userManagementSummaryById.get(user.uid);
-                                const activityEventsLabel = managementSummary
-                                    ? formatOptionalCount(managementSummary.activitySummary.totalEvents)
-                                    : formatOptionalCount(behaviorRollup?.totalActions);
-                                const unwrapsLabel = managementSummary
-                                    ? formatOptionalCount(managementSummary.dropUnwrapMetrics.unwraps)
-                                    : formatOptionalCount(behaviorRollup?.unwraps);
-                                return (
-                                <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
-                                    {/* Background Accent based on Role/Status */}
-                                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -z-10 opacity-20 ${user.status === 'banned' ? 'bg-red-500' : user.role === 'admin' ? 'bg-red-500' : user.role === 'creator' ? 'bg-brand-purple' : 'bg-white'}`} />
-
-                                    {/* Header: Avatar, Name, Role, Status */}
-                                    <div className="flex gap-4 items-center">
-                                        <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center text-xl font-bold text-gray-500 overflow-hidden shrink-0 relative border border-white/10 shadow-inner">
-                                            {user.photoURL ? (
-                                                <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="56px" className="object-cover" />
-                                            ) : (
-                                                (user.displayName?.[0] || user.email?.[0] || "?").toUpperCase()
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-start">
-                                                <div className="truncate">
-                                                    <div className="flex items-center gap-1.5 font-bold text-white text-base">
-                                                        <span className="truncate">{user.username ? `@${user.username}` : user.displayName || "No Name"}</span>
-                                                        {user.isVerified && <CheckCircle className="w-4 h-4 text-brand-purple shrink-0" />}
-                                                        <button onClick={() => { setEditUsernameUser(user); setEditUsernameInput(user.username || ""); }} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors shrink-0" title="Edit username"><Edit2 className="w-4 h-4" /></button>
-                                                    </div>
-                                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider truncate mb-0.5">
-                                                        {user.username ? user.displayName : user.uid.slice(0, 8)}
-                                                    </div>
-                                                    <div className="text-[10px] text-gray-500 font-mono truncate">{user.email}</div>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/30" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/30" : "bg-gray-500/10 text-gray-400 border-gray-500/30"}`}>
-                                                    {user.role || 'user'}
-                                                </span>
-                                                <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getStatusColor(user.status)}`}>
-                                                    {user.status || 'active'}
-                                                </span>
-                                                <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${onboardingBadge.className}`}>
-                                                    {onboardingBadge.label}
-                                                </span>
-                                                <span className="px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-wider text-gray-300">
-                                                    {managementSummary?.guestLinkStatus.state.replace(/_/g, " ") ?? "link unknown"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Metrics / Quick Stats */}
-                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/40 rounded-xl border border-white/5">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><ScrollText className="w-3 h-3 inline mr-1" />Joined</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MM/dd/yy')}
-                                            </span>
-                                        </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Balance</span>
-                                                <span className="text-sm font-mono text-brand-purple font-bold">
-                                                    {user.gumDropsBalance} GD
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {analytics ? (
-                                            <div
-                                                className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5"
-                                                data-admin-users-loading-lane="behavioralDetail"
-                                                data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
-                                                data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
-                                            >
-                                                <div className="col-span-2 flex justify-end">
-                                                    <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0.5 text-[8px] tracking-[0.08em]" />
-                                                </div>
-                                                <div className="col-span-2 grid gap-2 rounded-lg border border-white/10 bg-black/20 p-2 text-[10px] text-gray-300">
-                                                    <div className="flex justify-between gap-2">
-                                                        <span className="text-gray-500">Consent</span>
-                                                        <span>{managementSummary?.consentMode.mode.replace(/_/g, " ") ?? "unknown"}</span>
-                                                    </div>
-                                                    <div className="flex justify-between gap-2">
-                                                        <span className="text-gray-500">Confidence</span>
-                                                        <span>{managementSummary?.personMetricConfidence.lowConfidenceCount ?? 0} low-confidence</span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
-                                                    <span className="text-sm font-mono text-gray-300">{activityEventsLabel}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Unwraps</span>
-                                                    <span className="text-sm font-mono text-gray-300">{unwrapsLabel}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Watch</span>
-                                                    <span className="text-sm font-mono text-gray-300">{formatWatchHours(behaviorRollup?.watchTimeMs, analytics.watchHours)}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Engagement</span>
-                                                    <span className="text-sm font-mono text-gray-300">{engagementExplanation.verdict}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Value</span>
-                                                    <span className="text-sm font-mono text-gray-300">{valueExplanation.verdict}</span>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                onClick={() => void fetchUserDetail(user)}
-                                                className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
-                                                data-admin-users-loading-lane="selectedUser"
-                                                disabled={selectedUserDetailLoading === user.uid}
-                                            >
-                                                {selectedUserDetailLoading === user.uid ? "Loading behavior detail" : "Load behavior detail"}
-                                            </button>
-                                        )}
-
-                                    {/* Security Flag (Full Width Button if flags exist) */}
-                                    {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
-                                        <button
-                                            onClick={() => setSecurityDetailsUser(user)}
-                                            className="w-full flex items-center justify-between bg-red-500/10 border border-red-500/30 p-3 rounded-xl hover:bg-red-500/20 active:scale-[0.98] transition-all"
-                                        >
-                                            <div className="flex items-center gap-2 text-red-500 font-bold text-sm">
-                                                <AlertTriangle className="w-4 h-4 animate-pulse duration-1000" />
-                                                <span>{user.securityFlags!.ripAttempts} Security Flags</span>
-                                            </div>
-                                            <span className="text-xs font-bold text-red-400 bg-red-500/20 px-2 py-1 rounded-full uppercase tracking-wider">Review Request</span>
-                                        </button>
-                                    ) : null}
-
-                                    {/* Action Grid */}
-                                    <div className="grid grid-cols-4 gap-2 mt-1">
-                                        <button onClick={() => setEditBalanceUser(user)} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-brand-purple/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-brand-purple hover:border-brand-purple/50 group">
-                                            <Edit2 className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">Balance</span>
-                                        </button>
-                                        <button onClick={() => void fetchUserDetail(user, { openContent: true })} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-blue-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-blue-400 hover:border-blue-500/50 group">
-                                            <Lock className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">Content</span>
-                                        </button>
-                                        <button onClick={() => setHistoryUser(user)} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-gray-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-white hover:border-white/50 group">
-                                            <ScrollText className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">History</span>
-                                        </button>
-                                        <button onClick={() => { setActionUser(user); setActionType('ban'); }} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-red-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-red-500 hover:border-red-500/50 group">
-                                            <Ban className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">Ban</span>
-                                        </button>
-                                    </div>
-
-                                    <Link href={`/admin/user/${user.uid}`} className="flex items-center justify-center gap-2 rounded-xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-3 text-xs font-bold uppercase tracking-wider text-brand-purple">
-                                        <TrendingUp className="w-4 h-4" />
-                                        View Analytics
-                                    </Link>
-
-                                    {/* Sub Actions (Roles & Verification) */}
-                                    <div className="flex gap-2 w-full pt-1">
-                                        <div className="flex-1">
-                                            <select
-                                                value={user.role || 'user'}
-                                                onChange={(e) => handleRoleUpdate(user.uid, e.target.value as any)}
-                                                className="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs text-brand-purple font-bold uppercase tracking-wider appearance-none text-center outline-none focus:border-brand-purple hover:bg-black/80 transition-colors"
-                                            >
-                                                <option value="user">User Role</option>
-                                                <option value="creator">Creator Role</option>
-                                                <option value="admin">Admin Role</option>
-                                            </select>
-                                        </div>
-                                        <button
-                                            onClick={() => handleVerification(user.uid, !user.isVerified)}
-                                            className={`flex-1 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors border ${user.isVerified ? "bg-brand-purple/10 text-brand-purple border-brand-purple/20" : "bg-zinc-800 text-gray-400 border-white/5"}`}
-                                        >
-                                            {user.isVerified ? "Verified" : "Verify Badge"}
-                                        </button>
-                                    </div>
-                                </div>
-                            )})
-                        )}
-                    </div>
-                </>
+                    <AdminUserDirectory
+                        records={adminDirectoryRecords}
+                        loading={loading}
+                        searchQuery={searchQuery}
+                        selectedDetailUserId={selectedUserDetailLoading}
+                        getStatusColor={getStatusColor}
+                        onEditUsername={(user) => {
+                            setEditUsernameUser(user);
+                            setEditUsernameInput(user.username || "");
+                        }}
+                        onEditBalance={setEditBalanceUser}
+                        onViewHistory={setHistoryUser}
+                        onLoadDetail={(user) => {
+                            void fetchUserDetail(user);
+                        }}
+                        onOpenContent={(user) => {
+                            void fetchUserDetail(user, { openContent: true });
+                        }}
+                        onViewSecurity={setSecurityDetailsUser}
+                        onPromoteCreator={(user) => {
+                            void handleRoleUpdate(user.uid, "creator");
+                        }}
+                        onChangeRole={(user, role) => {
+                            void handleRoleUpdate(user.uid, role);
+                        }}
+                        onToggleVerification={(user) => {
+                            void handleVerification(user.uid, !user.isVerified);
+                        }}
+                        onSetStatus={(user, status) => {
+                            setActionUser(user);
+                            setActionType(status);
+                        }}
+                    />
+                </AdminUsersOperations>
             )}
 
             {/* Platform Feedback View */}

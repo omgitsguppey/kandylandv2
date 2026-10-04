@@ -1,10 +1,19 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import ts from "typescript";
 
-import { buildAdminDebugSystemHealthNowModel } from "../../src/lib/admin-debug-summary-cards";
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
+
+import { collectAdminDebugControlTowerActionsStaticProbeFailures } from "./admin-debug-control-tower-actions-static-probe";
+import { collectAdminDebugControlTowerBugIntakeStaticProbeFailures } from "./admin-debug-control-tower-bug-intake-static-probe";
+import { collectAdminDebugControlTowerPanelStatusStaticProbeFailures } from "./admin-debug-control-tower-panel-status-static-probe";
+import { collectAdminDebugControlTowerTestStaticProbeFailures } from "./admin-debug-control-tower-test-static-probe";
+import { collectAdminDebugControlTowerSystemHealthContractFailures } from "./admin-debug-control-tower-system-health-contract";
 
 const root = process.cwd();
+// Explicit task checks delegate mutation safety to the immutable source owner;
+// standalone runs retain every inherited incident and the existing path rules.
+const mutationScope = readValidatorMutationScope(root);
 const failures: string[] = [];
 
 function fail(message: string) {
@@ -40,6 +49,156 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 
 function lineCount(source: string) {
   return source.split(/\r?\n/u).length;
+}
+
+function hasConnectedMonitoringTransactionIdentity(source: string) {
+  const tree = ts.createSourceFile("DebugTabMonitoring.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const localName = (imported: string) => {
+    for (const statement of tree.statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "./DebugPrimitives") continue;
+      const bindings = statement.importClause?.namedBindings;
+      if (!bindings || !ts.isNamedImports(bindings)) continue;
+      for (const specifier of bindings.elements) if ((specifier.propertyName?.text ?? specifier.name.text) === imported) return specifier.name.text;
+    }
+    return null;
+  };
+  const pill = localName("Pill"), section = localName("Section");
+  const component = tree.statements.find((statement): statement is ts.FunctionDeclaration => ts.isFunctionDeclaration(statement) && statement.name?.text === "DebugTabMonitoring");
+  if (!pill || !section || !component?.body) return false;
+  const returned = component.body.statements.filter(ts.isReturnStatement).flatMap(statement => statement.expression ? [statement.expression] : []);
+  const unwrap = (node: ts.Expression): ts.Expression => ts.isParenthesizedExpression(node) ? unwrap(node.expression) : node;
+  const attribute = (element: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string) => element.attributes.properties.find((prop): prop is ts.JsxAttribute => ts.isJsxAttribute(prop) && prop.name.getText(tree) === name);
+  const expression = (element: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string) => {
+    const initializer = attribute(element, name)?.initializer;
+    return initializer && ts.isJsxExpression(initializer) && initializer.expression ? unwrap(initializer.expression) : null;
+  };
+  const rowIdentity = (node: ts.Expression | null, row: string) => Boolean(node && ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === row && node.name.text === "userIdentityState");
+  let connected = false;
+  const visitRendered = (node: ts.Node, callback: (node: ts.Node) => void) => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken && unwrap(node.left).kind === ts.SyntaxKind.FalseKeyword) return;
+    callback(node);
+    ts.forEachChild(node, child => visitRendered(child, callback));
+  };
+  const inspectSection = (node: ts.Node) => {
+    if (!ts.isJsxElement(node) || node.openingElement.tagName.getText(tree) !== section) return;
+    const title = attribute(node.openingElement, "title")?.initializer;
+    if (!title || !ts.isStringLiteral(title) || title.text !== "Recent transactions") return;
+    visitRendered(node, call => {
+      if (!ts.isCallExpression(call) || !ts.isPropertyAccessExpression(call.expression) || call.expression.name.text !== "map" || !ts.isIdentifier(call.expression.expression) || call.expression.expression.text !== "recentTransactions") return;
+      const callback = call.arguments[0];
+      if (!callback || !(ts.isArrowFunction(callback) || ts.isFunctionExpression(callback))) return;
+      const row = callback.parameters[0]?.name;
+      if (!row || !ts.isIdentifier(row)) return;
+      const roots = ts.isBlock(callback.body) ? callback.body.statements.filter(ts.isReturnStatement).flatMap(statement => statement.expression ? [statement.expression] : []) : [callback.body];
+      for (const root of roots) visitRendered(root, element => {
+        const opening = ts.isJsxSelfClosingElement(element) ? element : ts.isJsxElement(element) ? element.openingElement : null;
+        if (!opening || opening.tagName.getText(tree) !== pill) return;
+        const label = attribute(opening, "label")?.initializer;
+        const value = expression(opening, "value"), tone = expression(opening, "tone");
+        if (!label || !ts.isStringLiteral(label) || label.text !== "Identity" || !value || !ts.isBinaryExpression(value)) return;
+        const fallback = value.operatorToken.kind === ts.SyntaxKind.BarBarToken || value.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken;
+        const right = unwrap(value.right);
+        if (!fallback || !rowIdentity(unwrap(value.left), row.text) || !ts.isStringLiteral(right) || right.text !== "fallback_uid") return;
+        if (tone && ts.isCallExpression(tone) && ts.isIdentifier(tone.expression) && tone.expression.text === "toneForIdentityState" && tone.arguments.length === 1 && rowIdentity(unwrap(tone.arguments[0]), row.text)) connected = true;
+      });
+    });
+  };
+  for (const root of returned) visitRendered(root, inspectSection);
+  return connected;
+}
+
+function hasConnectedInfrastructureCountReadout(source: string) {
+  const tree = ts.createSourceFile("DebugTabInfrastructure.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const localName = (moduleName: string, imported: string) => {
+    for (const statement of tree.statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== moduleName) continue;
+      const bindings = statement.importClause?.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) for (const item of bindings.elements) if ((item.propertyName?.text ?? item.name.text) === imported) return item.name.text;
+    }
+    return null;
+  };
+  const section = localName("./DebugPrimitives", "Section");
+  const workstream = localName("@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream", "AdminDebugWorkstream");
+  const component = tree.statements.find((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node) && node.name?.text === "DebugTabInfrastructure");
+  if (!section || !workstream || !component?.body) return false;
+  const unwrap = (node: ts.Expression): ts.Expression => ts.isParenthesizedExpression(node) ? unwrap(node.expression) : node;
+  const propertyPath = (node: ts.Expression): string[] => ts.isPropertyAccessExpression(unwrap(node))
+    ? [...propertyPath((unwrap(node) as ts.PropertyAccessExpression).expression), (unwrap(node) as ts.PropertyAccessExpression).name.text]
+    : ts.isIdentifier(unwrap(node)) ? [(unwrap(node) as ts.Identifier).text] : [];
+  const declarations = component.body.statements.filter(ts.isVariableStatement).flatMap(node => [...node.declarationList.declarations]);
+  const inventory = declarations.find(node => node.initializer && propertyPath(node.initializer).join(".") === "data.infrastructure");
+  if (!inventory || !ts.isIdentifier(inventory.name)) return false;
+  const arrays = declarations.filter(node => node.initializer && ts.isArrayLiteralExpression(unwrap(node.initializer)) && ts.isIdentifier(node.name));
+  const attribute = (opening: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string) => opening.attributes.properties.find((item): item is ts.JsxAttribute => ts.isJsxAttribute(item) && item.name.getText(tree) === name);
+  const titleIs = (opening: ts.JsxOpeningElement | ts.JsxSelfClosingElement, title: string) => {
+    const value = attribute(opening, "title")?.initializer;
+    return Boolean(value && ts.isStringLiteral(value) && value.text === title);
+  };
+  const visitRendered = (node: ts.Node, callback: (node: ts.Node) => void) => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken && unwrap(node.left).kind === ts.SyntaxKind.FalseKeyword) return;
+    if (ts.isConditionalExpression(node) && [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(unwrap(node.condition).kind)) {
+      visitRendered(unwrap(node.condition).kind === ts.SyntaxKind.TrueKeyword ? node.whenTrue : node.whenFalse, callback);
+      return;
+    }
+    callback(node);
+    ts.forEachChild(node, child => visitRendered(child, callback));
+  };
+  let masthead = false, counts = false;
+  const returned = component.body.statements.filter(ts.isReturnStatement).flatMap(node => node.expression ? [node.expression] : []);
+  for (const root of returned) visitRendered(root, node => {
+    if (!ts.isJsxElement(node)) return;
+    const opening = node.openingElement;
+    if (opening.tagName.getText(tree) === workstream && titleIs(opening, "Runtime and dependency evidence")) masthead = true;
+    if (opening.tagName.getText(tree) !== section || !titleIs(opening, "Inventory counts")) return;
+    visitRendered(node, call => {
+      if (!ts.isCallExpression(call) || !ts.isPropertyAccessExpression(call.expression) || call.expression.name.text !== "map" || !ts.isIdentifier(call.expression.expression)) return;
+      const receiver = call.expression.expression.text;
+      const array = arrays.find(item => item.name.getText(tree) === receiver);
+      if (!array?.initializer) return;
+      const fields = (unwrap(array.initializer) as ts.ArrayLiteralExpression).elements.flatMap(item => {
+        if (!ts.isObjectLiteralExpression(item)) return [];
+        const label = item.properties.find((prop): prop is ts.PropertyAssignment => ts.isPropertyAssignment(prop) && prop.name.getText(tree) === "label");
+        const value = item.properties.find((prop): prop is ts.PropertyAssignment => ts.isPropertyAssignment(prop) && prop.name.getText(tree) === "value");
+        if (!value || !label || !ts.isStringLiteral(unwrap(label.initializer))) return [];
+        const chain = propertyPath(value.initializer);
+        return chain.length === 3 && chain[0] === inventory.name.getText(tree) && chain[1] === "totals" ? [{ label: (unwrap(label.initializer) as ts.StringLiteral).text, field: chain[2] }] : [];
+      });
+      if (![["Runtime deps", "runtimeDependencies"], ["Dev deps", "devDependencies"], ["Functions deps", "functionsDependencies"]].every(([label, field]) => fields.some(item => item.label === label && item.field === field))) return;
+      const callback = call.arguments[0];
+      if (!callback || !ts.isArrowFunction(callback)) return;
+      const binding = callback.parameters[0]?.name;
+      if (!binding || !ts.isObjectBindingPattern(binding)) return;
+      const value = binding.elements.find(item => (item.propertyName?.getText(tree) ?? item.name.getText(tree)) === "value")?.name;
+      const label = binding.elements.find(item => (item.propertyName?.getText(tree) ?? item.name.getText(tree)) === "label")?.name;
+      if (!value || !label || !ts.isIdentifier(value) || !ts.isIdentifier(label)) return;
+      const valueIs = (expr: ts.Expression) => ts.isIdentifier(unwrap(expr)) && (unwrap(expr) as ts.Identifier).text === value.text;
+      const finite = (expr: ts.Expression) => {
+        const test = unwrap(expr);
+        if (!ts.isBinaryExpression(test) || test.operatorToken.kind !== ts.SyntaxKind.AmpersandAmpersandToken) return false;
+        const type = unwrap(test.left), check = unwrap(test.right);
+        return ts.isBinaryExpression(type) && type.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken && ts.isTypeOfExpression(unwrap(type.left)) && valueIs((unwrap(type.left) as ts.TypeOfExpression).expression)
+          && ts.isStringLiteral(unwrap(type.right)) && (unwrap(type.right) as ts.StringLiteral).text === "number"
+          && ts.isCallExpression(check) && propertyPath(check.expression).join(".") === "Number.isFinite" && check.arguments.length === 1 && valueIs(check.arguments[0]);
+      };
+      const callbackRoots = ts.isBlock(callback.body) ? callback.body.statements.filter(ts.isReturnStatement).flatMap(item => item.expression ? [item.expression] : []) : [callback.body];
+      let returnedLabel = false, returnedValue = false;
+      for (const root of callbackRoots) visitRendered(root, readout => {
+        if (!ts.isJsxElement(readout)) return;
+        if (readout.openingElement.tagName.getText(tree) === "dt") {
+          returnedLabel ||= readout.children.some(child => ts.isJsxExpression(child) && child.expression && ts.isIdentifier(unwrap(child.expression)) && (unwrap(child.expression) as ts.Identifier).text === label.text);
+          return;
+        }
+        if (readout.openingElement.tagName.getText(tree) !== "dd") return;
+        for (const child of readout.children) {
+          if (!ts.isJsxExpression(child) || !child.expression) continue;
+          const result = unwrap(child.expression);
+          if (ts.isConditionalExpression(result) && finite(result.condition) && valueIs(result.whenTrue) && ts.isStringLiteral(unwrap(result.whenFalse)) && (unwrap(result.whenFalse) as ts.StringLiteral).text === "Not loaded") returnedValue = true;
+        }
+      });
+      counts ||= returnedLabel && returnedValue;
+    });
+  });
+  return masthead && counts;
 }
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string>; dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
@@ -139,8 +298,11 @@ const topDropConversionHelper = readRequired("src/lib/admin-analytics-top-drop-c
 const recentCommerceFeedHelper = readRequired("src/lib/admin-analytics-recent-commerce-feed.ts");
 const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
+const adminAnalyticsInteractionSnapshotSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const adminAnalyticsContentConversionSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
@@ -1134,40 +1296,9 @@ for (const expected of [
 ]) {
   requireIncludes(`${adminOrchestration}\n${adminOrchestrationRepairs}`, expected, "Debug repair proposals must be deduped and grouped with source context truth");
 }
-for (const expected of [
-  "Expected source",
-  "Found source",
-  "Issue type",
-  "Freshness",
-  "Eligible",
-  "canSelfHeal",
-]) {
-  requireIncludes(debugTabActions, expected, "Task Issues Attribution panel must show source-truth classification");
+for (const message of collectAdminDebugControlTowerActionsStaticProbeFailures({ debugTabActions })) {
+  fail(message);
 }
-for (const expected of [
-  "Actionable repairs",
-  "Inspect-only",
-  "Duplicates collapsed",
-  "data-debug-repair-dedupe-key",
-  "data-debug-repair-canonical-source-path",
-  "data-debug-repair-actionability",
-  "data-debug-repair-source-context-state",
-  "data-debug-repair-duplicate-count",
-  "data-debug-repair-source-collection",
-  "data-debug-repair-visible-count",
-  "data-debug-repair-actionable-count",
-  "data-debug-repair-inspect-only-count",
-  "Source collection",
-  "Affected records",
-  "Show source records",
-  "Show more",
-  "proposal.actionability === \"actionable\"",
-  "Apply",
-  "Inspect",
-]) {
-  requireIncludes(debugTabActions, expected, "Repairs panel must separate actionable, inspect-only, and deduped proposals");
-}
-requireNotIncludes(debugTabActions, "proposal.actionType !== \"rebuild_projection\"", "Repairs panel must not decide actionability from raw actionType in the UI");
 for (const expected of [
   "routeRuntimeSummaryTruth",
   "buildRouteRuntimeSummaryTruth",
@@ -1297,14 +1428,18 @@ for (const expected of [
   "entry.adminUserHref || `/admin/user/${entry.userId}`",
   "entry.userDisplayName || entry.username || entry.shortUserId",
   "entry.userIdRedacted || entry.shortUserId || \"redacted_uid\"",
-  "identity_missing",
   "User profile could not be resolved from loaded admin sample.",
-  "UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}",
+  "formatUtcTimestamp as formatUtc",
+  "UTC: {entry.createdAtUtc || formatUtc(entry.timestamp, \"unknown\")}",
   "Admin drilldown UID: {entry.userId}",
   "entry.continuityLabel",
 ]) {
   requireIncludes(debugTabMonitoring, expected, "Recent transactions panel must show loaded state, enriched identity, units, admin links, UTC, and continuity details");
 }
+if (!hasConnectedMonitoringTransactionIdentity(debugTabMonitoring)) {
+  fail("Monitoring transaction Identity must bind the returned record state and canonical tone; comments or detached JSX cannot prove the control.");
+}
+
 for (const forbidden of [
   "<Pill label=\"Loaded\" value={recentTransactions.length} />",
   "<Pill label=\"Feed window\" value=\"Latest loaded entries\" />",
@@ -1371,60 +1506,11 @@ for (const forbidden of [
 ]) {
   requireNotIncludes(debugTabMonitoring, forbidden, "Queue runtime continuity panel must not use raw drop ids as primary text or WAIT-style loaded chips");
 }
-requireIncludes(debugTabActions, "<DebugBugIntakePanel data={data} />", "Debug actions tab must delegate loaded bug intake truth to the focused panel");
-for (const expected of [
-  "Bug reports to triage",
-  "Loaded",
-  "Last 7d",
-  "Older backlog",
-  "Needs triage",
-  "Last 7 days",
-  "Path clusters",
-  "Loaded sample and last-seven-day intake are separate",
-  "data-bug-intake-loaded-count",
-  "data-bug-intake-last7d-count",
-  "data-bug-intake-backlog-count",
-  "data-bug-intake-needs-triage-count",
-  "data-bug-report-status",
-  "data-bug-report-severity",
-  "data-bug-report-age-bucket",
-  "data-bug-report-evidence-state",
-  "createdAtUtc",
-  "ageBucket === \"last_7d\" ? \"RECENT\" : \"BACKLOG\"",
-  "badgeLabel=\"LOADED\"",
-  "badgeLabel=\"INFO\"",
-]) {
-  requireIncludes(debugBugIntakePanel, expected, "Bug intake triage panel must separate loaded sample, recent intake, backlog, and evidence inventory");
+for (const message of collectAdminDebugControlTowerBugIntakeStaticProbeFailures({ debugTabActions, debugBugIntakePanel })) {
+  fail(message);
 }
-for (const forbidden of [
-  "<Pill label=\"Status\" value={report.status} />",
-  "<Pill label=\"Breadcrumbs\" value={report.breadcrumbsCount} />",
-  "<Pill label=\"Diagnostics\" value={report.diagnosticsCount} />",
-  "<Pill label=\"Rollouts\" value={report.rolloutCount} />",
-  "<Pill label=\"When\" value={formatRelative(report.timestamp)} />",
-]) {
-  requireNotIncludes(`${debugTabActions}\n${debugBugIntakePanel}`, forbidden, "Bug intake panel must not render WAIT-style chips for known loaded values");
-}
-for (const expected of [
-  "Signals total",
-  "Needs review",
-  "data-debug-section-status",
-  "data-debug-section-severity",
-  "data-debug-signal-type",
-  "data-debug-current-counts",
-  "data-debug-historical-counts",
-  "data-debug-inventory-counts",
-  "data-debug-reviewable-signal-count",
-  "data-debug-total-signal-count",
-]) {
-  requireIncludes(debugPanelStatus, expected, "Panel status by section must separate total and reviewable signals");
-}
-
-for (const forbidden of [
-  "label=\"Current\"",
-  "Sample count",
-]) {
-  requireNotIncludes(debugNowDiagnostics, forbidden, "Recent diagnostics panel must not render ambiguous diagnostics chips");
+for (const message of collectAdminDebugControlTowerPanelStatusStaticProbeFailures({ debugPanelStatus, debugNowDiagnostics })) {
+  fail(message);
 }
 
 requireIncludes(debugPage, "opsCanonicalState.displayLabel", "Debug page must derive a canonical ops state when backend canonical state is missing");
@@ -1896,7 +1982,6 @@ for (const expected of [
 requireNotIncludes(debugAdvancedExperiments, "WAIT", "Rollout registry panel must not show WAIT for loaded values");
 
 for (const expected of [
-  "Infrastructure Health & Dependencies",
   "Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use.",
   "Environment & runtime checks",
   "Inventory counts",
@@ -1913,14 +1998,14 @@ for (const expected of [
   "data-debug-dependency-generated-at-utc",
   "data-debug-dependency-group-count",
   "inventory.generatedAtUtc",
-  "inventory.totals?.runtimeDependencies",
-  "inventory.totals?.devDependencies",
-  "inventory.totals?.functionsDependencies",
   "inventory.notDirectDependencies",
   "TRANSITIVE",
   "ABSENT",
 ]) {
   requireIncludes(debugTabInfrastructure, expected, "Infrastructure dependency panel must show full grouped inventory and separate runtime truth from package truth");
+}
+if (!hasConnectedInfrastructureCountReadout(debugTabInfrastructure)) {
+  fail("Infrastructure counts must bind the returned workstream and finite inventory totals; comments, detached readouts or missing-to-zero fallbacks cannot prove the display.");
 }
 for (const forbidden of [
   "subtitle=\"Runtime telemetry showing actual module versions and connection state.\"",
@@ -1985,38 +2070,13 @@ if (lineCount(controlTowerCards) > 300) {
   fail(`DebugControlTowerCards.tsx must stay below 300 lines; found ${lineCount(controlTowerCards)}.`);
 }
 
-for (const expected of [
-  "labels required missing reports as missing and critical",
-  "labels stale reports as stale instead of live",
-  "surfaces critical findings and next actions first",
-  "keeps debug evidence redacted and support-scoped",
-]) {
-  requireIncludes(modelTest, expected, "Admin debug Control Tower model tests");
-}
-
-for (const expected of [
-  "explains aggregate route failures when the per-route sample is empty",
-  "surfaces active diagnostic clusters with validator context",
-]) {
-  requireIncludes(summaryCardTest, expected, "Admin debug summary card tests");
-}
-
-for (const expected of [
-  "separates current diagnostics from loaded sample error history",
-  "marks stale channels stale instead of live when current counts are empty",
-  "labels traffic-dependent writer inactivity as quiet instead of live",
-  "labels recent warehouse heartbeats as live",
-  "clusters repeated AI assistant SyntaxError fallback warnings",
-]) {
-  requireIncludes(adminOpsHealthTest, expected, "Admin ops health diagnostics truth tests");
-}
-for (const expected of [
-  "returns not_validated when no validation rows are available",
-  "returns loaded counts only after validation rows exist",
-  "returns failed when the validation route errors",
-  "buildDataValidationPanelState",
-]) {
-  requireIncludes(adminDataValidationTest, expected, "Admin data validation tests must cover not_validated and failed states");
+for (const message of collectAdminDebugControlTowerTestStaticProbeFailures({
+  modelTest,
+  summaryCardTest,
+  adminOpsHealthTest,
+  adminDataValidationTest,
+})) {
+  fail(message);
 }
 
 for (const expected of [
@@ -2090,79 +2150,8 @@ for (const expected of [
 
 requireRegex(controlTowerDoc, /Beta Readiness[\s\S]*Current Issues[\s\S]*Device \+ UI[\s\S]*Money \+ Cost[\s\S]*Telemetry \+ Behavior[\s\S]*Support \+ Creator Monetization/u, "Control Tower docs must describe the required information architecture");
 
-const aggregateOnlyHealth = buildAdminDebugSystemHealthNowModel({
-  score: 40,
-  scorePenalties: [{
-    id: "pipeline-active-failures",
-    label: "Active route pipeline failures",
-    points: 30,
-    source: "opsHealth.pipeline",
-    truthState: "failed",
-  }],
-  activePipelineFailureCount: 8,
-  recentPipelineFailureCount: 8,
-  sampledPipelineFailureCount: 53,
-  activePipelineWindowMs: 60 * 60 * 1000,
-  lastPipelineFailureAt: Date.now() - 21 * 60 * 1000,
-  activeDiagnosticCount: 0,
-  recentDiagnosticCount: 0,
-  sampledDiagnosticCount: 0,
-  activeIssueClusterCount: 0,
-  routeFailureCount: 0,
-  writerSampleCount: 10,
-  writerWarnCount: 0,
-  writerFailCount: 0,
-  runtimeWarningCount: 0,
-});
-if (!String(aggregateOnlyHealth.routeFailures.emptyDetail).includes("No active route failures in current sample")) {
-  fail("Summary route failure count must explain an aggregate/sample-window mismatch when per-route failures are empty.");
-}
-if (aggregateOnlyHealth.writers.summaryValue === "0/0") {
-  fail("Writers summary must not say 0/0 while tracked writers exist.");
-}
-if (aggregateOnlyHealth.writers.summaryValue !== "10/10") {
-  fail("Writers summary must show healthy/total tracked writers when all materializers are live.");
-}
-if (aggregateOnlyHealth.score.penaltyCount === 0) {
-  fail("Health status ERROR/DEGRADED states must expose score penalty reasons.");
-}
-
-const diagnosticClusterHealth = buildAdminDebugSystemHealthNowModel({
-  score: 86,
-  scorePenalties: [{
-    id: "active-diagnostics",
-    label: "14 active diagnostics across 2 clusters",
-    points: 14,
-    source: "opsHealth.diagnostics",
-    truthState: "degraded",
-  }],
-  activePipelineFailureCount: 0,
-  recentPipelineFailureCount: 0,
-  sampledPipelineFailureCount: 0,
-  activePipelineWindowMs: 60 * 60 * 1000,
-  activeDiagnosticCount: 14,
-  recentDiagnosticCount: 14,
-  sampledDiagnosticCount: 14,
-  activeIssueClusterCount: 2,
-  activeDiagnosticClusters: [{
-    id: "diagnostic:admin:warn:abc",
-    fingerprint: "admin|warn|Debug route delayed",
-    severity: "warn",
-    count: 9,
-    lastSeenAt: Date.UTC(2026, 4, 5, 21),
-    source: "admin",
-    sourceRouteOrComponent: "/api/admin/debug",
-    message: "Debug route delayed",
-    suggestedValidator: "npm run check:admin-debug-control-tower",
-  }],
-  routeFailureCount: 0,
-  writerSampleCount: 10,
-  writerWarnCount: 0,
-  writerFailCount: 0,
-  runtimeWarningCount: 0,
-});
-if (diagnosticClusterHealth.diagnostics.clusterCount > 0 && diagnosticClusterHealth.diagnostics.clusters.length === 0) {
-  fail("Diagnostics count exists but clusters are not surfaced.");
+for (const message of collectAdminDebugControlTowerSystemHealthContractFailures({ nowMs: Date.now() })) {
+  fail(message);
 }
 
 for (const expected of [
@@ -2212,7 +2201,7 @@ for (const expected of [
   "Route: missing",
   "missing verified surface context",
 ]) {
-  requireIncludes(adminAnalyticsOperationsTab, expected, "Event mix analytics panel");
+  requireIncludes(adminAnalyticsEventMixSection, expected, "Event mix analytics panel");
 }
 for (const expected of [
   "generatedAtUtc",
@@ -2317,6 +2306,10 @@ requireIncludes(deterministicTruth, "\"<0.1%\"", "Deterministic top-drop rate pr
     "data-content-conversion-generated-at-utc",
     "data-content-conversion-grouping",
     "No preview/unwrap/drop metadata source available for this range.",
+  ]) {
+    requireIncludes(adminAnalyticsContentConversionSection, expected, "Content Conversion analytics panel");
+  }
+  for (const expected of [
     "Top Drop Conversion",
     "Drops with enough views to evaluate unwrap conversion.",
     "data-top-drop-conversion-source-truth",
@@ -2411,13 +2404,15 @@ for (const expected of [
   "surface inferred",
   "surface missing",
 ]) {
-  requireIncludes(adminAnalyticsOperationsTab, expected, "Live interaction stream analytics panel");
+  requireIncludes(adminAnalyticsInteractionSnapshotSection, expected, "Interaction Snapshot analytics panel");
+}
+
+function collectChangedFiles() {
+  return mutationScope ? [] : listValidatorScopeFiles(root, []);
 }
 
 try {
-  const changedFiles = execSync("git diff --name-only", { cwd: root, encoding: "utf8" })
-    .split(/\r?\n/u)
-    .filter(Boolean);
+  const changedFiles = collectChangedFiles();
   const allowedPatterns = [
     /^src\/lib\/admin-debug-control-tower\.ts$/u,
     /^src\/lib\/admin-debug-summary-cards\.ts$/u,
@@ -2486,8 +2481,13 @@ try {
     /^src\/app\/admin\/analytics\/page\.tsx$/u,
     /^src\/app\/admin\/analytics\/AnalyticsHelpers\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsAudienceTab\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsAudienceSnapshotSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsOperationsTab\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsEventMixSection\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsInteractionSnapshotSection\.tsx$/u,
     /^src\/app\/admin\/analytics\/components\/AdminAnalyticsCommerceTab\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsContentConversionSection\.tsx$/u,
+    /^src\/app\/admin\/analytics\/components\/AdminAnalyticsViewerJourneySection\.tsx$/u,
     /^src\/app\/admin\/privacy\/page\.tsx$/u,
     /^src\/app\/admin\/AdminPrivacyPreflight\.tsx$/u,
     /^src\/app\/admin\/ai\/components\/AdminAiOptimizerhealthSection\.tsx$/u,
@@ -2499,6 +2499,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTowerEvidenceCopy\.ts$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTowerBusinessTruth\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugTime\.ts$/u,
     /^src\/app\/admin\/debug\/components\/DebugBugIntakePanel\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabAi\.tsx$/u,
@@ -2597,6 +2598,16 @@ try {
     /^src\/lib\/errors\/bug-report-admin-summary\.ts$/u,
     /^src\/lib\/analytics\/validation-readiness-contract\.ts$/u,
     /^scripts\/check-admin-analytics-audience-snapshot\.ts$/u,
+    /^scripts\/agent\/validate-admin-analytics-finalization\.ts$/u,
+    /^scripts\/agent\/validate-admin-pages-cutover\.ts$/u,
+    /^scripts\/agent\/validate-human-readable-admin-copy\.ts$/u,
+    /^scripts\/agent\/validate-phase-one-lock\.ts$/u,
+    /^scripts\/check-admin-analytics-event-mix\.ts$/u,
+    /^scripts\/check-admin-analytics-guest-bounce-quality\.ts$/u,
+    /^scripts\/check-admin-analytics-live-interaction-stream\.ts$/u,
+    /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-live-interaction-mobile\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-operations-mobile\.spec\.ts$/u,
     /^docs\/agent-truth\/admin-analytics-audience-snapshot\.md$/u,
     /^src\/lib\/server\/admin-privacy-console\.ts$/u,
     /^src\/lib\/server\/creator-onboarding\.ts$/u,
@@ -2669,6 +2680,11 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-actions-static-probe\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-bug-intake-static-probe\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-panel-status-static-probe\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-test-static-probe\.ts$/u,
+    /^scripts\/agent\/admin-debug-control-tower-system-health-contract\.ts$/u,
     /^scripts\/agent\/debug-cockpit-batch28-bug-validation-shared\.ts$/u,
     /^scripts\/agent\/validate-analytics-validation-semantics\.ts$/u,
     /^scripts\/agent\/validate-bug-report-truth-source-cleanup\.ts$/u,
@@ -3038,3 +3054,4 @@ if (failures.length > 0) {
 }
 
 console.log("Admin debug Control Tower validation passed.");
+console.log(JSON.stringify({ mutationScope: mutationScope ?? { mode: "whole_git_worktree" } }));

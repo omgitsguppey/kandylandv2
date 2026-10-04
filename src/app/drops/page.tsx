@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { getDrops } from "@/lib/server/drops";
-import { listCreatorDiscoveryProfiles } from "@/lib/server/creator-discovery";
+import { getPublicDiscoveryData } from "@/lib/server/public-discovery-preview";
 import { DropsClient } from "./DropsClient";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-    title: "Live Drops",
-    description: "Browse live KandyDrops, preview what is active right now, and unwrap exclusive digital content before it expires.",
+    title: "Discover Live KandyDrops",
+    description: "Explore the live KandyDrops collection, meet the creators behind each release, and preview what is available right now.",
     alternates: {
         canonical: "/drops",
     },
@@ -26,10 +25,10 @@ export default async function DropsPage({ searchParams }: DropsPageProps) {
         redirect(`/drops/${encodeURIComponent(requestedDropId)}/preview?source_component=legacy_drop_query`);
     }
 
-    const [allDrops, creatorRailProfiles] = await Promise.all([
-        getDrops(),
-        listCreatorDiscoveryProfiles("drops"),
-    ]);
+    const {
+        drops: allDrops,
+        creatorProfiles: creatorRailProfiles,
+    } = await getPublicDiscoveryData("drops");
     const drops = allDrops.filter((drop) => drop.status === "active");
 
     return <DropsClient initialDrops={drops} creatorRailProfiles={creatorRailProfiles} />;

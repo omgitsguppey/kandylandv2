@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "kind": "maintenance-provider-expectations",
+  "projectId": "kandydrops-by-ikandy",
+  "region": "us-central1",
+  "capturedAt": "2026-08-09",
+  "authority": "checked-in target configuration; live provider state requires an explicit read-only operator check",
+  "staleAfterHours": 24,
+  "maintenance": {
+    "canonicalEnvironmentVariable": "KANDY_MAINTENANCE_MODE",
+    "appHostingMinInstances": 0,
+    "scheduledFunctionMinInstances": 0,
+    "cloudSqlCompute": "stopped",
+    "firestoreDataReads": "off-unless-explicitly-approved"
+  },
+  "schedulerJobs": [
+    {
+      "functionName": "refreshAdminAnalyticsRealtimeSummary",
+      "jobName": "firebase-schedule-refreshAdminAnalyticsRealtimeSummary-us-central1",
+      "expectedSchedule": "every 5 minutes",
+      "expectedTimeZone": "UTC",
+      "maintenanceAllowed": false
+    },
+    {
+      "functionName": "reconcileAnalyticsTruthLayers",
+      "jobName": "firebase-schedule-reconcileAnalyticsTruthLayers-us-central1",
+      "expectedSchedule": "every 1 hours",
+      "expectedTimeZone": "UTC",
+      "maintenanceAllowed": false
+    },
+    {
+      "functionName": "processQueueLifecycle",
+      "jobName": "firebase-schedule-processQueueLifecycle-us-central1",
+      "expectedSchedule": "every 15 minutes",
+      "expectedTimeZone": "UTC",
+      "maintenanceAllowed": false
+    },
+    {
+      "functionName": "notifyActiveDropsLifecycle",
+      "jobName": "firebase-schedule-notifyActiveDropsLifecycle-us-central1",
+      "expectedSchedule": "every 5 minutes",
+      "expectedTimeZone": "UTC",
+      "maintenanceAllowed": false
+    },
+    {
+      "functionName": "buildMLFeatureProfiles",
+      "jobName": "firebase-schedule-buildMLFeatureProfiles-us-central1",
+      "expectedSchedule": "every 4 hours",
+      "expectedTimeZone": "UTC",
+      "maintenanceAllowed": false
+    }
+  ],
+  "functionMinInstanceExpectations": [
+    {
+      "functionName": "refreshAdminAnalyticsRealtimeSummary",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "eventual-consistency analytics; no warm instance required"
+    },
+    {
+      "functionName": "reconcileAnalyticsTruthLayers",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "scheduled batch; no warm instance required"
+    },
+    {
+      "functionName": "processQueueLifecycle",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "scheduled batch; no warm instance required"
+    },
+    {
+      "functionName": "notifyActiveDropsLifecycle",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "scheduled batch; no warm instance required"
+    },
+    {
+      "functionName": "buildMLFeatureProfiles",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "scheduled batch; no warm instance required"
+    },
+    {
+      "functionName": "onAnalyticsEventFactCreated",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "event-triggered; scale from zero unless latency SLO is explicitly approved"
+    },
+    {
+      "functionName": "onDailyTaskEventCreated",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "event-triggered; scale from zero unless latency SLO is explicitly approved"
+    },
+    {
+      "functionName": "onGuestAnalyticsBatchCreated",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "event-triggered; scale from zero unless latency SLO is explicitly approved"
+    },
+    {
+      "functionName": "onSecurityEventCreated",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "event-triggered; scale from zero unless latency SLO is explicitly approved"
+    },
+    {
+      "functionName": "onTransactionCreated",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "event-triggered; scale from zero unless latency SLO is explicitly approved"
+    },
+    {
+      "functionName": "ssrkandydropsbyikandy",
+      "expectedMinInstances": 0,
+      "normalModeLatencyDecision": "App Hosting-backed SSR; use App Hosting minInstances as the owner"
+    }
+  ],
+  "scheduledFunctionRuntime": {
+    "expectedMemory": "512MiB",
+    "expectedMaxInstances": 1,
+    "expectedRetryCount": 0,
+    "reason": "The source already declares 512MiB globally; the two failing rebuilds need that allocation for normal-mode execution. This is not a maintenance-mode cost because maintenance pauses the trigger and the handler fails closed."
+  },
+  "sqlInstances": [
+    {
+      "instanceId": "kandydrops-db",
+      "role": "canonical-repo-agent-context-mirror",
+      "database": "kandydrops_db",
+      "runtimeConsumer": "none in checked-in product runtime",
+      "maintenanceCompute": "stopped",
+      "storage": "retained while the mirror is intentionally retained",
+      "decommissionStatus": "candidate after mirror-retirement decision"
+    },
+    {
+      "instanceId": "kandydrops-by-ikandy-instance",
+      "role": "legacy-or-external-dataconnect-candidate",
+      "database": "provider metadata only in this repository",
+      "runtimeConsumer": "none in checked-in product runtime; provider connector uniqueness still requires operator verification",
+      "maintenanceCompute": "stopped pending uniqueness check",
+      "storage": "retained until connector/data ownership is proven",
+      "decommissionStatus": "candidate after provider Data Connect and data-retention review"
+    }
+  ]
+}

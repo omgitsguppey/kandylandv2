@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T08:23:46.540Z",
+  "generatedAtUtc": "2026-10-01T20:49:19.332Z",
   "reportKey": "cost-risk-owner-review-closure",
-  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -13,9 +13,8 @@
       "externalBillingReviewed": false,
       "externalReviewRequired": true,
       "sourceFiles": [
-        "agent/state/final-cost-audit-lock.generated.json",
-        "agent/state/global-cost-surfaces.generated.json",
-        "agent/state/analytics-cost-runtime-inventory.generated.json"
+        "scripts/agent/validate-cost-risk-owner-review-closure.ts",
+        "src/lib/server/global-cost-surface-contract.ts"
       ],
       "evidence": [
         "finalCostCurrent=true",
@@ -90,14 +89,14 @@
       "externalBillingReviewed": false,
       "externalReviewRequired": false,
       "sourceFiles": [
-        "agent/state/final-cost-audit-lock.generated.json",
-        "agent/state/final-telemetry-closure-lock.generated.json",
+        "scripts/agent/validate-cost-risk-owner-review-closure.ts",
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
         "src/lib/server/cheap-4xx-response.ts",
         "src/lib/server/route-4xx-classifier.ts"
       ],
       "evidence": [
-        "artifactPath=agent/state/final-cost-audit-lock.generated.json",
-        "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
+        "sourcePath=src/lib/server/cheap-4xx-response.ts",
+        "sourcePath=src/lib/server/route-4xx-classifier.ts",
         "finalCostCurrent=true",
         "analyticsRuntimeCurrent=true",
         "route4xxSourceReady=true",
@@ -143,7 +142,7 @@
       "externalBillingReviewed": false,
       "externalReviewRequired": false,
       "sourceFiles": [
-        "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
         "src/app/api/analytics/ingest/route.ts"
       ],
       "evidence": [
@@ -165,7 +164,6 @@
       "externalBillingReviewed": false,
       "externalReviewRequired": true,
       "sourceFiles": [
-        "agent/state/final-cost-audit-lock.generated.json",
         "agent/state/scheduled-runtime-cost-reduction.generated.json"
       ],
       "evidence": [
@@ -187,7 +185,6 @@
       "externalBillingReviewed": false,
       "externalReviewRequired": false,
       "sourceFiles": [
-        "agent/state/final-cost-audit-lock.generated.json",
         "agent/state/admin-analytics-debug-cost-reduction.generated.json",
         "src/app/admin/debug/page.tsx"
       ],
@@ -255,8 +252,8 @@
       "status": "source_ready_retry_storm_guarded",
       "detail": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
       "evidence": [
-        "artifactPath=agent/state/final-cost-audit-lock.generated.json",
-        "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
+        "sourcePath=src/lib/server/cheap-4xx-response.ts",
+        "sourcePath=src/lib/server/route-4xx-classifier.ts",
         "finalCostCurrent=true",
         "analyticsRuntimeCurrent=true",
         "route4xxSourceReady=true",
@@ -282,80 +279,24 @@
   "sourceGuardedLaneCount": 8,
   "ownerReviewLaneCount": 5,
   "scoreBefore": {
-    "sourceHealth": 98.6,
-    "runtimeHealth": 65.34,
-    "evidenceCompleteness": 75.11,
-    "freshness": 91.88,
-    "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 81.19
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 61.22,
+    "costRisk": 79.5,
+    "regressionRisk": 100,
+    "overallHealthScore": 52.19
   },
   "scoreAfter": {
-    "sourceHealth": 98.6,
-    "runtimeHealth": 65.34,
-    "evidenceCompleteness": 75.11,
-    "freshness": 91.88,
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 61.22,
     "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 81.19
+    "regressionRisk": 100,
+    "overallHealthScore": 54.05
   },
-  "dirtyFilesClassification": [
-    {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "status": "M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/cost-owner-review-source-closure.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/final-cost-audit-lock.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "status": " M",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/final-cost-audit-lock.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    }
-  ],
+  "dirtyFilesClassification": [],
   "staleLogicClassification": [
     {
       "reference": "cost_review_required",
@@ -380,5 +321,34 @@
     "bigQuery: attach external billing/provider evidence before claiming full cost closure.",
     "scheduledRuntimeJobs: attach external billing/provider evidence before claiming full cost closure."
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "doesNotProve": [
+    "External billing acceptance",
+    "Deployed runtime behavior",
+    "Provider settlement",
+    "Authoritative admin activity"
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

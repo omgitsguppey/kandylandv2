@@ -35,6 +35,7 @@ const taskCatalog = readRequired("src/lib/tasks/task-catalog.ts");
 const taskGuidance = readRequired("src/lib/task-guidance.ts");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
+const runtimeFactNormalizer = readRequired("src/lib/runtime-facts/normalize-runtime-fact.ts");
 const checkInRoute = readRequired("src/app/api/checkin/route.ts");
 const dailyTasksServer = readRequired("src/lib/server/daily-tasks.ts");
 const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
@@ -100,8 +101,10 @@ requireIncludes(telemetryCatalog, '{ eventName: "task_help_opened"', "Telemetry 
 requireIncludes(telemetryCatalog, 'rewardGd: "reward_gd"', "Telemetry catalog reward alias");
 requireIncludes(telemetryCatalog, 'sourceTruth: "source_truth"', "Telemetry catalog sourceTruth alias");
 
-requireIncludes(identifiedIngestRoute, 'canonicalEventName === "daily_checkin_claimed"', "Identified ingest daily check-in truth");
-requireIncludes(identifiedIngestRoute, 'canonicalEventName === "task_completed"', "Identified ingest task truth");
+requireIncludes(identifiedIngestRoute, "normalizeIdentifiedRuntimeFact({", "Identified ingest canonical normalization");
+requireIncludes(identifiedIngestRoute, "runtimeFact: ingestRuntimeFact", "Identified ingest canonical fact persistence");
+requireIncludes(runtimeFactNormalizer, 'const sourceTruth = "client" as const', "Identified browser observation source boundary");
+requireIncludes(runtimeFactNormalizer, "normalizeIdentifiedMetricEventFact({", "Identified canonical metric normalization");
 requireIncludes(checkInRoute, '"daily_checkin_claimed"', "Check-in route canonical event");
 requireIncludes(checkInRoute, 'sourceTruth: "canonical"', "Check-in route source truth");
 requireIncludes(dailyTasksServer, 'incrementEventStat(transaction, "task_completed"', "Daily tasks server task completion stats");

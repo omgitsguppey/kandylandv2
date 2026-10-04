@@ -34,6 +34,7 @@ const files = {
   legacyRegistry: join(repoRoot, "src", "lib", "creator", "dashboard", "creator-settings-legacy-registry.ts"),
   userSettingsPage: join(repoRoot, "src", "components", "Settings", "UserSettingsPage.tsx"),
   creatorDashboardHub: join(repoRoot, "src", "components", "Creators", "CreatorDashboardSettingsHub.tsx"),
+  creatorControlDeck: join(repoRoot, "src", "components", "creative-tim", "kandydrops", "creator", "CreatorSettingsControlDeck.tsx"),
   creatorDashboardLanding: join(repoRoot, "src", "components", "Dashboard", "CreatorWorkspacePanel.tsx"),
   creatorSettingsWorkspacePage: join(repoRoot, "src", "app", "dashboard", "creator", "settings", "page.tsx"),
   creatorBroadcastManager: join(repoRoot, "src", "components", "Creators", "CreatorBroadcastManager.tsx"),
@@ -57,6 +58,7 @@ const files = {
   userDoctrine: join(repoRoot, "docs", "doctrine", "surfaces", "user-ui-doctrine.md"),
   creatorDoctrine: join(repoRoot, "docs", "doctrine", "surfaces", "creator-ui-doctrine.md"),
   migrationPage: join(repoRoot, "src", "app", "dashboard", "profile", "creator", "page.tsx"),
+  migrationPanel: join(repoRoot, "src", "components", "creative-tim", "kandydrops", "account", "CreatorSettingsMigrationPanel.tsx"),
   dashboardSettingsRedirect: join(repoRoot, "src", "app", "dashboard", "settings", "page.tsx"),
   dashboardProfileRedirect: join(repoRoot, "src", "app", "dashboard", "profile", "page.tsx"),
   accountRedirect: join(repoRoot, "src", "app", "account", "page.tsx"),
@@ -132,6 +134,8 @@ function validate(): SplitReport {
   const legacyRegistry = read(files.legacyRegistry);
   const userSettingsPage = read(files.userSettingsPage);
   const creatorDashboardHub = read(files.creatorDashboardHub);
+  const creatorControlDeck = read(files.creatorControlDeck);
+  const creatorHubAndDeck = creatorDashboardHub.includes("<CreatorSettingsControlDeck") ? `${creatorDashboardHub}\n${creatorControlDeck}` : creatorDashboardHub;
   const creatorDashboardLanding = read(files.creatorDashboardLanding);
   const creatorSettingsWorkspacePage = read(files.creatorSettingsWorkspacePage);
   const creatorBroadcastManager = read(files.creatorBroadcastManager);
@@ -195,12 +199,12 @@ function validate(): SplitReport {
       key: "global-user-settings-clean",
       label: "Global user settings contain only account and app preferences",
       ok: includesAll(userSettingsPage, [
-        "ProfileProfileSection",
-        "ProfileAccountSection",
-        "ProfileNotificationsSection",
-        "ProfilePrivacyDataSection",
-        "ProfileSupportSafetySection",
-        "Creator tools moved to Creator Settings.",
+        "KandyProfilePanel",
+        "KandyAccountDetailsPanel",
+        "KandyNotificationsPanel",
+        "KandyPrivacyDataPanel",
+        "KandySupportSafetyPanel",
+        "Manage broadcasts, bookings, requests, and monetization in your creator workspace.",
         "Open Creator Settings",
       ]) && !includesAny(userSettingsPage, ["ProfileCreatorToolsSection", "ProfileCreatorEarningsSection", "CreatorBroadcastManager", "CreatorDashboardSettingsHub"]),
       evidence: ["User settings page renders the allowed account/preferences sections and a creator-dashboard CTA only."],
@@ -208,7 +212,7 @@ function validate(): SplitReport {
     {
       key: "creator-settings-hub",
       label: "Creator dashboard settings hub exists and is operational",
-      ok: includesAll(creatorDashboardHub, [
+      ok: includesAll(creatorHubAndDeck, [
         "Public Profile",
         "Broadcasts",
         "Fan Pass",
@@ -218,7 +222,8 @@ function validate(): SplitReport {
         "Availability",
         "Earnings / payout",
         "Notifications / audience",
-        "Read-only projection",
+        "isReadOnlyProjection",
+        "isReadOnly={isReadOnlyProjection}",
         "CreatorRequestsManager",
         "CreatorBookingsManager",
         "CreatorFanPassManager",
@@ -237,7 +242,7 @@ function validate(): SplitReport {
     {
       key: "creator-requests-manager-real-data",
       label: "Creator request manager reads real backend data or says not connected",
-      ok: includesAll(creatorDashboardHub, [
+      ok: includesAll(creatorHubAndDeck, [
         "CreatorRequestsManager",
         "isReadOnlyProjection",
         "readOnly={isReadOnlyProjection}",
@@ -255,7 +260,7 @@ function validate(): SplitReport {
     {
       key: "creator-bookings-manager-real-data",
       label: "Creator booking manager reads real backend data or says not connected",
-      ok: includesAll(creatorDashboardHub, [
+      ok: includesAll(creatorHubAndDeck, [
         "CreatorBookingsManager",
         "bookingsManagementState",
         "availabilityConfigured={bookingsAvailabilityConfigured}",
@@ -273,7 +278,7 @@ function validate(): SplitReport {
     {
       key: "creator-fan-pass-subscriber-visibility",
       label: "Fan Pass subscriber visibility is read-only and route-backed",
-      ok: includesAll(creatorDashboardHub, [
+      ok: includesAll(creatorHubAndDeck, [
         "CreatorFanPassManager",
         "fanPassManagementState",
         "subscriber_visibility",
@@ -325,10 +330,10 @@ function validate(): SplitReport {
       label: "Old creator settings routes redirect or show migration notice",
       ok: includesAll(migrationPage, [
         "creator_settings_migrated_redirect_viewed",
-        "Open Creator Settings",
-        "Creator settings now live in Creator Settings.",
+        "<CreatorSettingsMigrationPanel",
         "href={CREATOR_SETTINGS_ROUTE}",
-      ]) && includesAll(creatorSettingsWorkspacePage, ["CreatorDashboardSettingsHub"])
+      ]) && includesAll(read(files.migrationPanel), ["Open Creator Settings", "now live together in Creator Settings.", "href={href}"])
+        && includesAll(creatorSettingsWorkspacePage, ["CreatorDashboardSettingsHub"])
         && includesAll(creatorDashboardLanding, ["CreatorDashboardLandingRoute"])
         && includesAll(routing, ['USER_SETTINGS_ROUTE = "/settings"', 'USER_PROFILE_ROUTE = "/settings"'])
         && includesAll(profileSidebar, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "USER_SETTINGS_ROUTE"])
@@ -339,7 +344,7 @@ function validate(): SplitReport {
         && includesAll(read(files.profileSettingsRedirect), ["redirect(\"/settings\")"])
         && includesAll(read(files.creatorRedirect), ["redirect(\"/dashboard/creator\")"])
         && includesAll(read(files.creatorsDashboardRedirect), ["redirect(\"/dashboard/creator\")"]),
-      evidence: ["Legacy creator settings routes are redirected and the migration notice is explicit."],
+      evidence: ["The legacy route retains its migration fact and passes the canonical Creator settings href to the actual migration panel; the panel displays the real notice/action, and redirect aliases retain their verified targets."],
     },
     {
       key: "ownership-and-read-only",

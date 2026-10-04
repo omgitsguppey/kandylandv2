@@ -3,15 +3,20 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const source = readFileSync(
+const parentSource = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx"),
   "utf8",
 );
+const snapshotSource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
+  "utf8",
+);
+const source = `${parentSource}\n${snapshotSource}`;
 
 describe("Admin analytics audience mobile consolidation", () => {
   it("keeps the large audience snapshot drilldown collapsed by default", () => {
-    expect(source).toContain('title="Audience Snapshot"');
-    expect(source).toContain("defaultExpanded={false}");
+    expect(snapshotSource).toContain('title="Audience Snapshot"');
+    expect(snapshotSource).toContain("defaultExpanded={false}");
   });
 
   it("renders Navigation Destinations as one compact mobile view mode at a time", () => {
@@ -80,9 +85,9 @@ describe("Admin analytics audience mobile consolidation", () => {
   });
 
   it("uses shared labels for source truth in visible audience rows", () => {
-    expect(source).toContain("formatAdminAnalyticsSourceStateLabel");
+    expect(snapshotSource).toContain("formatAdminAnalyticsSourceStateLabel");
     expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
-    expect(source).toContain("audienceSourceStateLabel");
+    expect(snapshotSource).toContain("audienceSourceStateLabel");
     expect(source).toContain("returnCadenceSourceTruthLabel");
     expect(source).toContain("returnCadenceFreshnessLabel");
     expect(source).toContain("formatAdminAnalyticsSourceStateLabel(item.freshnessState)");
@@ -105,13 +110,13 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).not.toContain("<td className=\"px-3 py-2\">{item.freshnessState}</td>");
     expect(source).not.toContain("Recovery label:");
     expect(source).not.toContain("vendor evidence + first-party snapshot");
-    expect(source).toContain('label="Site users"');
-    expect(source).toContain('data-admin-analytics-vendor-source-label="vendor_evidence"');
-    expect(source).toContain('data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
+    expect(snapshotSource).toContain('label="Site users"');
+    expect(snapshotSource).toContain('data-admin-analytics-vendor-source-label="vendor_evidence"');
+    expect(snapshotSource).toContain('data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
     expect(source).not.toContain("Source mix: site users; views are mixed site analytics and first-party snapshots.");
     expect(source).not.toContain("Chart source: Site users plus site views.");
-    expect(source).toContain("avg site session");
-    expect(source).toContain('name="Site users"');
+    expect(snapshotSource).toContain("avg site session");
+    expect(snapshotSource).toContain('name="Site users"');
     expect(source).toContain("Device data will appear after site analytics has enough sessions");
     expect(source).not.toContain("GA4 Users");
     expect(source).not.toContain("avg GA session");
@@ -119,6 +124,6 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).not.toContain("vendor evidence only");
     expect(source).not.toContain("Decision source: {verifiedSnapshotLabel}");
     expect(source).not.toContain("Vendor analytics are supporting evidence, not product truth.");
-    expect(source).toContain("formatAudienceSeriesLabel");
+    expect(snapshotSource).toContain("formatAudienceSeriesLabel");
   });
 });

@@ -1,17 +1,17 @@
 # Antigravity Agent Self-Knowledge Audit
 
-This document captures the onboarding self-knowledge audit for Antigravity 2.0. It tracks known facts, unknowns, no-touch domains, and critical safety rules.
+This document preserves the 28 May 2026 onboarding history. Its commit, score, PR count, dirty-file count, and blocked-gate observations are historical. Current knowledge is the knowledge section of the coordinated takeover record, produced by the [takeover evidence owner](agent-takeover-safety-check.md); the old independent snapshot is retired. The current command checks actual Git counts and score freshness, preserves unknowns, and leaves unqueried PR/release state unavailable.
 
 ## Self-Knowledge Summary
 
-### Deployed / Runtime Truth
-- **Latest Deployed Commit**: `cfd39b4 fix(creator): repair drop approvals`
+### Recorded observations on 28 May 2026
+- **Recorded checkout commit**: `cfd39b4 fix(creator): repair drop approvals` (deployment not established by this record)
 - **Latest Beta Health Score**: `76.61` (overall score)
 - **Beta Exit Readiness**: `false` (currently blocked)
 - **Open PRs**: 6 open pull requests (`#305`, `#306`, `#307`, `#308`, `#309`, `#310`)
 - **Dirty Files**: 18 modified files, 31 untracked files
 
-### Current Blocked Gates
+### Blocked gates observed on 28 May 2026
 1. **Runtime/provider smoke**: Deployed runtime behavior unverified. Deployed route smoke/PayPal Refill tests need operator confirmation.
 2. **Admin truth/sample evidence**: Production admin truth sample is missing.
 3. **Report freshness and PR integrity**: Stale evidence. 8 generated reports are head-mismatched or older than the 24-hour freshness window.
@@ -29,7 +29,7 @@ This document captures the onboarding self-knowledge audit for Antigravity 2.0. 
 
 ---
 
-## Top 10 Repository Memory Rules
+## Archived repository rule notes from the May observation
 1. **Inspect Identity Chain**: When user analytics fail, inspect the guest ID, session ID, event envelope, auth state, identity link, signed-in user, linked person, metric hydration, and panel.
 2. **Every Event Declared**: Every event must declare whether it counts globally, for guest, for user, for person, for creator role, or not at all.
 3. **Continuous Handoff**: Guest-to-user handoff must preserve journey continuity without double-counting.

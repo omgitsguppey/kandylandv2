@@ -21,7 +21,7 @@ function toneClasses(tone: Tone) {
 
 export function CreatorWorkspaceStatusPill({ label, tone = "neutral" }: { label: string; tone?: Tone }) {
     return (
-        <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${toneClasses(tone)}`}>
+        <span className={`rounded-xl border px-3 py-2 text-xs font-bold ${toneClasses(tone)}`}>
             {label}
         </span>
     );
@@ -50,7 +50,7 @@ export function CreatorDashboardSourceNotice({
 
             {!settingsModuleError && settingsSourceNotice ? (
                 <div
-                    className="rounded-[1.1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 sm:px-4 sm:py-3 sm:text-sm"
+                    className="rounded-[1.5rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
                     data-creator-landing-source-state={settingsSourceNotice.state}
                     data-creator-landing-source-review="partial_safe"
                 >
@@ -60,7 +60,7 @@ export function CreatorDashboardSourceNotice({
             ) : null}
 
             {moduleErrorEntries.length > 0 ? (
-                <div className="rounded-[1.1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 sm:px-4 sm:py-3 sm:text-sm">
+                <div className="rounded-[1.5rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
                     {moduleErrorEntries.map(([module]) => `${moduleLabels[module]} could not load right now.`).join(" | ")}
                 </div>
             ) : null}

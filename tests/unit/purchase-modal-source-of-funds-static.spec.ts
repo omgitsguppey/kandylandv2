@@ -5,11 +5,16 @@ import { describe, expect, it } from "vitest";
 
 describe("PurchaseModal source-of-funds display guard", () => {
     const source = readFileSync(join(process.cwd(), "src/components/PurchaseModal.tsx"), "utf8");
+    const walletPackagePickerSource = readFileSync(
+        join(process.cwd(), "src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx"),
+        "utf8",
+    );
 
-    it("keeps visible package headlines framed around paid GD plus explicit bonus display", () => {
-        expect(source).toContain("amount={pkgEconomics.paidGumDrops}");
-        expect(source).toContain("amount={deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops}");
-        expect(source).toContain("Paid GD");
+    it("keeps visible package headlines on delivered GumDrops with the canonical bonus display", () => {
+        expect(source).toContain("amount={pkg.drops}");
+        expect(source).toContain("amount={customDrops}");
+        expect(walletPackagePickerSource).toContain("export function KandyWalletPackageOption");
+        expect(walletPackagePickerSource).toContain("GumDrops");
         expect(source).toContain("resolvePurchaseBonusPromoOffer(pkgEconomics.bonusGumDrops)");
         expect(source).toContain("resolveBundlePromoOffer(customDrops >= 5000)");
     });

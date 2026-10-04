@@ -17,6 +17,7 @@ describe("account settings mobile padding parity", () => {
       isolationCheck: "reportIssueAndNavUntouched",
       expectedIsolationFailure: "reportIssueAndNavUntouched failed.",
     });
+    expect(JSON.parse(read("agent/state/account-settings-mobile-padding.generated.json")).mutationScope).toEqual({ mode: "whole_git_worktree" });
   }, 30000);
 
   it("marks Account Settings as shell aligned and keeps bottom safety", () => {
@@ -26,7 +27,14 @@ describe("account settings mobile padding parity", () => {
     expect(page).toContain('data-account-settings-shell-aligned="true"');
     expect(page).toContain('data-settings-bottom-safe="true"');
     expect(page).toContain("--account-settings-shell-side-padding");
-    expect(page).toContain("USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET");
-    expect(page).toContain("env(safe-area-inset-bottom)");
+    expect(page).toContain("USER_MOBILE_BOTTOM_NAV_SAFE_GAP");
+    expect(page).toContain('ACCOUNT_SETTINGS_SHELL_SIDE_PADDING = "0rem"');
+    expect(page).toContain('data-account-settings-nav-reservation="root-owned"');
+    expect(page).not.toContain("env(safe-area-inset-bottom)");
+    expect(page).not.toContain("-mx-");
+    const center = read("src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx");
+    expect(center).toContain("<UserSettingsPage />");
+    expect(center).toContain("mx-auto w-full max-w-4xl px-4");
+    expect(center).not.toMatch(/(?:sm|md|lg|xl|2xl):px-/u);
   });
 });

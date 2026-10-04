@@ -1,9 +1,7 @@
 import {logger} from "firebase-functions"
 import {FieldValue, type QueryDocumentSnapshot} from "firebase-admin/firestore"
-import {onSchedule} from "firebase-functions/v2/scheduler"
 
 import {db} from "./firebase-admin.js"
-import {REGION} from "./firebase-runtime.js"
 import {average, readBoolean, readNumber, readString} from "./analytics-core.js"
 
 const REALTIME_WINDOW_MS = 30 * 60 * 1000
@@ -747,11 +745,7 @@ export async function rebuildAdminAnalyticsRealtimeSummary(nowMs = Date.now()) {
   return payload
 }
 
-export const refreshAdminAnalyticsRealtimeSummary = onSchedule({
-  schedule: "every 5 minutes",
-  region: REGION,
-  retryCount: 0,
-}, async () => {
+export async function runRefreshAdminAnalyticsRealtimeSummary() {
   const lastGeneratedAtMs = await readRealtimeSummaryCadenceState()
   if (!shouldRunRealtimeSummaryRefresh({lastGeneratedAtMs, nowMs: Date.now()})) {
     logger.info("refreshAdminAnalyticsRealtimeSummary skipped; cadence window still active", {
@@ -762,4 +756,4 @@ export const refreshAdminAnalyticsRealtimeSummary = onSchedule({
   }
 
   await rebuildAdminAnalyticsRealtimeSummary()
-})
+}

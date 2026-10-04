@@ -430,7 +430,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
       ? "Derived from last-seen presence rows"
       : "Live or verified counts";
   const mode: AdminAnalyticsLivePulseModel["mode"] =
-    input.feedStatus === "failed" && !snapshotDisplayActive
+    (input.displayState?.shouldShowUnavailable || input.feedStatus === "failed") && !snapshotDisplayActive
       ? "unavailable"
       : snapshotDisplayActive && (input.displayState?.sourceMode === "stale_cache" || input.feedStatus === "snapshot")
         ? "delayed_snapshot"

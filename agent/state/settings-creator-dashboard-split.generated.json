@@ -1,10 +1,18 @@
 {
-  "generatedAt": "2026-06-19T06:42:41.335Z",
+  "generatedAt": "2026-10-02T18:29:15.285Z",
   "status": "pass",
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastSettingsCreatorDashboardSplit": [
-    "scripts/agent/validate-settings-creator-dashboard-split.ts"
+    "agent/state/settings-creator-dashboard-split.generated.json",
+    "docs/doctrine/surfaces/creator-ui-doctrine.md",
+    "docs/doctrine/surfaces/user-ui-doctrine.md",
+    "package.json",
+    "scripts/agent/validate-settings-creator-dashboard-split.ts",
+    "src/app/dashboard/profile/hooks/useProfileState.tsx",
+    "src/components/Navigation/ProfileSidebar.tsx",
+    "src/components/Settings/UserSettingsPage.tsx",
+    "src/lib/creator/dashboard/creator-settings-legacy-registry.ts"
   ],
   "requiredTargetedChecks": [
     "npm run check:settings-creator-dashboard-split",
@@ -101,7 +109,7 @@
       "label": "Old creator settings routes redirect or show migration notice",
       "ok": true,
       "evidence": [
-        "Legacy creator settings routes are redirected and the migration notice is explicit."
+        "The legacy route retains its migration fact and passes the canonical Creator settings href to the actual migration panel; the panel displays the real notice/action, and redirect aliases retain their verified targets."
       ]
     },
     {

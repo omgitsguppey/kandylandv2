@@ -1,6 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import * as ts from "typescript";
+import { readSourceAst, findSourceFunction, someSourceNode, sourceExpressionIs, hasRenderedExpression, getReturnedLiteralRecord, literalRecordProperty, readBehavioralAdminConsumers } from "./validate-behavioral-truth-source";
+
 const root = process.cwd();
 
 function read(path: string) {
@@ -23,6 +26,8 @@ const userDetailPage = read("src/app/admin/user/[userId]/page.tsx");
 const adminTypes = read("src/types/admin-analytics.ts");
 
 const failures: string[] = [];
+
+const { usersRender, hasDirectoryVerdict, hasDetailVerdict, hasDetailReasons, verdictRender, explanationAst } = readBehavioralAdminConsumers();
 
 [
   "totalSpendUsd",
@@ -69,11 +74,18 @@ assert(userDetailRoute.includes("value,"), "Admin user detail route must expose 
 assert(adminTypes.includes("value?: UserValueScoreResult;"), "Admin analytics types must include the canonical value object.", failures);
 assert(adminTypes.includes("valueScore?: number;"), "Admin analytics types must include the canonical value score.", failures);
 
-assert(usersPage.includes("Value {value?.verdict || \"Observer\"}"), "User Management top tracked cards must surface the value verdict.", failures);
-assert(usersPage.includes("value?.valueScore ?? 0"), "User Management cards must surface the canonical value score.", failures);
+assert(hasDirectoryVerdict("value"), "The rendered User Management directory must show the canonical value verdict.", failures);
+assert(hasRenderedExpression(usersRender, 'row.valueScore ?? "--"'), "User Management must render its canonical value score with an unavailable placeholder instead of fabricated zero.", failures);
 assert(userDetailPage.includes("Value verdict"), "User detail must render the value verdict block.", failures);
-assert(userDetailPage.includes("Bonus GD stays separate from cash revenue."), "User detail must state that bonus GD is not cash revenue.", failures);
-assert(userDetailPage.includes("(value?.topReasons ?? []).slice(0, 3)"), "User detail must surface the top three value reasons.", failures);
+const valueExplanation = findSourceFunction(explanationAst, "buildValueBehavioralExplanation");
+const bonusExplanation = "Bonus GD stays separate from cash revenue. Package bonus raises paid-source delivery, not gross spend.";
+assert(someSourceNode(valueExplanation?.body, node => {
+  if (!ts.isReturnStatement(node) || !node.expression || !ts.isObjectLiteralExpression(node.expression)) return false;
+  return node.expression.properties.some(property => ts.isPropertyAssignment(property) && property.name.getText() === "debugFacts" && ts.isArrayLiteralExpression(property.initializer)
+    && property.initializer.elements.some(element => ts.isStringLiteral(element) && element.text === bonusExplanation));
+})
+  && hasDetailVerdict("value") && hasRenderedExpression(verdictRender, "explanation.debugFacts.map((fact) => (<p key={fact}>{fact}</p>))"), "The actual value explanation and shared Card must preserve the independent bonus-not-cash distinction.", failures);
+assert(hasDetailVerdict("value") && hasDetailReasons("value"), "User detail must render the canonical value verdict and top three reasons through its shared Card.", failures);
 
 if (failures.length > 0) {
   console.error("User value score validation failed:");

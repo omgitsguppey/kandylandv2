@@ -1,7 +1,7 @@
 # Device Layout Contract
 
 Status: Active public beta layout doctrine  
-Last updated: 2026-05-04  
+Last updated: 2026-09-29
 Canonical code: `src/lib/device-layout-contract.ts`  
 Validator: `npm run check:device-layout-contract`
 
@@ -46,7 +46,7 @@ Allowed display modes are:
 
 `src/lib/user-mobile-shell.ts` owns the public mobile shell CSS math that feature surfaces consume.
 
-- Top navigation is fixed/floating glass and safe-area-aware.
+- Top navigation is a stable, sticky glass route bar and safe-area-aware.
 - Phone user shell keeps the mobile bottom navigation visible.
 - Mobile bottom navigation is navigation only, not an action bar.
 - Content must reserve bottom-nav height plus safe area plus 12px-16px breathing room.

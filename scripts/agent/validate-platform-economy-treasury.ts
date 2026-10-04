@@ -22,6 +22,7 @@ function requireIncludes(source: string, expected: string, label: string) {
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
 const page = readRequired("src/app/admin/economy/page.tsx");
 const consoleView = readRequired("src/app/admin/economy/components/PlatformEconomyConsole.tsx");
+const canvas = readRequired("src/components/creative-tim/kandydrops/admin-economy/KandyTreasuryOperationsCanvas.tsx");
 const strip = readRequired("src/app/admin/economy/components/PlatformEconomyStrip.tsx");
 const helper = readRequired("src/lib/server/platform-economy.ts");
 const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
@@ -33,7 +34,9 @@ if (packageJson.scripts?.["check:platform-economy-treasury"] !== "tsx scripts/ag
     failures.push("package.json must expose check:platform-economy-treasury.");
 }
 
-requireIncludes(page, "GumDrops Commerce Control Center", "Economy page");
+requireIncludes(page, "PlatformEconomyConsole", "Economy page composition");
+requireIncludes(consoleView, "KandyTreasuryOperationsCanvas", "Economy console composition");
+requireIncludes(canvas, "GumDrops Commerce Control Center", "Consumed Economy heading");
 if (page.includes("Work in progress")) {
     failures.push("Economy page must not remain a Work in progress placeholder.");
 }

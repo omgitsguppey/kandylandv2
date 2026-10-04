@@ -4,6 +4,17 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.6.17 - 2026-10-01
+- Maintenance and creator settings fixes
+- Fixed the creator settings page's client interaction boundary.
+- Kept public maintenance active during the ongoing update.
+
+## 1.6.16 - 2026-08-30
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Fixed opening the legacy creator settings page.
+
 ## 1.6.15 - 2026-06-21
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -31,7 +42,7 @@ Showing the last 25 public updates in pages of 5.
 ## 1.6.11 - 2026-06-21
 - Clearer Admin Analytics source status
 - Clarified when analytics history is recovered from first-party sources.
-- Kept GA4 and legacy analytics labeled as evidence instead of product truth.
+- Clarified GA4 and legacy analytics labels as supporting evidence.
 - Improved Admin Analytics source labels so missing data is not shown as zero.
 
 ## 1.6.10 - 2026-06-20
@@ -73,7 +84,7 @@ Showing the last 25 public updates in pages of 5.
 ## 1.6.4 - 2026-06-18
 - Clearer Admin Analytics source status
 - Clarified when analytics history is recovered from first-party sources.
-- Kept GA4 and legacy analytics labeled as evidence instead of product truth.
+- Clarified GA4 and legacy analytics labels as supporting evidence.
 - Improved Admin Analytics source labels so missing data is not shown as zero.
 
 ## 1.6.3 - 2026-06-18
@@ -90,23 +101,23 @@ Showing the last 25 public updates in pages of 5.
 
 ## 1.6.1 - 2026-06-18
 - Cleaner Admin Debug evidence cards
-- Proof gates now show action-focused evidence states instead of raw generated-report wording.
-- Report cards now show last-updated status first, with refresh commands kept inside source detail.
+- Clarified the next action shown by evidence checks.
+- Updated report cards to show their last update first and keep refresh details inside the panel.
 
 ## 1.6.0 - 2026-06-18
 - Cleaner Admin Debug evidence states
-- Data Validation now uses one issue total in the header while keeping detailed source evidence inside the panel.
-- Proof gates now say what action is needed instead of showing raw unknown or stale evidence labels.
+- Updated Data Validation to show one issue total in the header and keep evidence details inside the panel.
+- Clarified the action needed when evidence is missing or out of date.
 
 ## 1.5.99 - 2026-06-18
 - Cleaner Admin Debug validation
-- Compact Data Validation now shows one issue total instead of repeating every validation state in the header.
-- Detailed source, chart, parity, and blocked-pass evidence stays available in the panel body.
+- Improved compact Data Validation with one issue total in the header.
+- Clarified where to find detailed source, chart, and unresolved evidence inside the panel.
 
 ## 1.5.98 - 2026-06-18
 - Clearer Admin Analytics source status
 - Clarified when analytics history is recovered from first-party sources.
-- Kept GA4 and legacy analytics labeled as evidence instead of product truth.
+- Clarified GA4 and legacy analytics labels as supporting evidence.
 - Improved Admin Analytics source labels so missing data is not shown as zero.
 
 ## 1.5.97 - 2026-06-18
@@ -134,18 +145,6 @@ Showing the last 25 public updates in pages of 5.
 - Updated Beta readiness evidence so stale or missing launch evidence stays visible.
 
 ## 1.5.93 - 2026-06-18
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.5.92 - 2026-06-18
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.5.91 - 2026-06-18
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.

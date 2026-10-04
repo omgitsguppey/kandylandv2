@@ -25,12 +25,9 @@ export function buildUiRuntimeAudit() {
   const observability = readJsonFile<ObservabilityFile>("agent/index/runtime-observability.json");
   const observabilityKeys = new Set(observability.lanes.map((lane) => lane.key));
   const failures: string[] = [];
+  const hydrationSensitiveSurfaces = coverage.surfaces.filter((surface) => surface.hydration_mode !== "static");
 
-  coverage.surfaces.forEach((surface) => {
-    if (surface.hydration_mode === "static") {
-      return;
-    }
-
+  hydrationSensitiveSurfaces.forEach((surface) => {
     if (!surface.runtime_canary.protected) {
       failures.push(`${surface.route_or_component} is ${surface.hydration_mode} without a runtime canary.`);
     }
@@ -54,8 +51,8 @@ export function buildUiRuntimeAudit() {
   }
 
   return {
-    hydrationSensitiveSurfaceCount: coverage.surfaces.filter((surface) => surface.hydration_mode !== "static").length,
-    protectedSurfaceCount: coverage.surfaces.filter((surface) => surface.runtime_canary.protected).length,
+    hydrationSensitiveSurfaceCount: hydrationSensitiveSurfaces.length,
+    protectedSurfaceCount: hydrationSensitiveSurfaces.filter((surface) => surface.runtime_canary.protected).length,
   };
 }
 

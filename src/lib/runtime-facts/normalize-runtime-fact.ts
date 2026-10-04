@@ -1,6 +1,8 @@
+import { readSessionMeasurementCheckpoint, readSessionMeasurementFromParams } from "@/lib/analytics/session-metrics-contract";
 import {
   explainEventInclusion,
   type AnalyticsActorType,
+  type AnalyticsActorClassificationInput,
 } from "@/lib/analytics/analytics-event-contract";
 import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
 import { normalizeIdentifiedMetricEventFact } from "@/lib/behavioral/event-fact-normalizer";
@@ -9,10 +11,19 @@ import type { TelemetryEventOption } from "@/lib/telemetry-catalog";
 import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import {
   RUNTIME_FACT_CONTRACT_VERSION,
+  RUNTIME_FACT_REQUEST_CONSENT_ADMISSION_VERSION,
+  readRuntimeFactRequestConsentAdmission,
   type RuntimeFactDiagnostic,
   type RuntimeFactNormalizationResult,
   type RuntimeFactSourceTruth,
 } from "@/lib/runtime-facts/runtime-fact-contract";
+import { canTrackEvent, deriveAnalyticsConsentState } from "@/lib/privacy/consent-tracking-policy";
+import type { ConsentMode } from "@/lib/privacy/consent-tracking-contract";
+
+function buildRequestConsentAdmission(eventName: string, consentMode: ConsentMode | undefined) {
+  const admission = readRuntimeFactRequestConsentAdmission({ version: RUNTIME_FACT_REQUEST_CONSENT_ADMISSION_VERSION, consentMode });
+  return admission && canTrackEvent(eventName, admission.consentMode) ? admission : null;
+}
 
 function readStringParam(params: Record<string, unknown>, ...keys: string[]) {
   for (const key of keys) {
@@ -23,20 +34,6 @@ function readStringParam(params: Record<string, unknown>, ...keys: string[]) {
   }
 
   return "";
-}
-
-function readStringArrayParam(params: Record<string, unknown>, ...keys: string[]) {
-  const values: string[] = [];
-  for (const key of keys) {
-    const value = params[key];
-    if (Array.isArray(value)) {
-      values.push(...value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0));
-    } else if (typeof value === "string" && value.trim().length > 0) {
-      values.push(...value.split(",").map((entry) => entry.trim()).filter(Boolean));
-    }
-  }
-
-  return Array.from(new Set(values.map((value) => value.toLowerCase())));
 }
 
 function readBooleanParam(params: Record<string, unknown>, ...keys: string[]) {
@@ -51,24 +48,6 @@ function readBooleanParam(params: Record<string, unknown>, ...keys: string[]) {
   }
 
   return false;
-}
-
-function readClaimsParam(params: Record<string, unknown>) {
-  const claimsValue = params.claims ?? params.authClaims ?? params.userClaims;
-  const claims = claimsValue && typeof claimsValue === "object" && !Array.isArray(claimsValue)
-    ? { ...(claimsValue as Record<string, unknown>) }
-    : {};
-
-  if (readBooleanParam(params, "is_admin", "isAdmin", "admin")) claims.admin = true;
-  if (readBooleanParam(params, "is_owner", "isOwner", "owner", "owner_admin", "ownerAdmin")) claims.owner = true;
-  if (readBooleanParam(params, "is_creator", "isCreator", "creator")) claims.creator = true;
-
-  const creatorId = readStringParam(params, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid");
-  if (creatorId && typeof claims.creatorId !== "string" && typeof claims.creatorUid !== "string") {
-    claims.creatorId = creatorId;
-  }
-
-  return claims;
 }
 
 function clampConfidence(value: number) {
@@ -94,87 +73,6 @@ function buildUnknownDiagnostic(input: {
     timestampMs: input.timestampMs,
     issueCode: "unknown_runtime_event",
   };
-}
-
-function resolveIdentifiedSourceTruth(
-  canonicalEventName: string,
-  params: Record<string, unknown>,
-) {
-  const explicitSourceTruth = readStringParam(params, "source_truth", "sourceTruth");
-
-  if (
-    explicitSourceTruth === "client"
-    || explicitSourceTruth === "client_funnel"
-    || explicitSourceTruth === "client_supporting"
-  ) {
-    return "client" as const;
-  }
-
-  if (explicitSourceTruth === "local_projection") {
-    return "local_projection" as const;
-  }
-
-  if (explicitSourceTruth === "legacy") {
-    return "legacy" as const;
-  }
-
-  if (explicitSourceTruth === "materialized") {
-    return "materialized" as const;
-  }
-
-  if (explicitSourceTruth === "server") {
-    return "server" as const;
-  }
-
-  if (explicitSourceTruth === "canonical") {
-    return "canonical" as const;
-  }
-
-  if (
-    canonicalEventName === "identity_linked"
-    || canonicalEventName === "server_purchase_verified"
-    || canonicalEventName === "daily_checkin_claimed"
-    || canonicalEventName === "task_completed"
-  ) {
-    return "canonical" as const;
-  }
-
-  if (canonicalEventName === "drop_unlocked" || canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted") {
-    return "server" as const;
-  }
-
-  if (canonicalEventName === "unlock_drop_success") {
-    return "client" as const;
-  }
-
-  if (
-    canonicalEventName === "drop_not_interested"
-    || canonicalEventName === "creator_not_interested"
-    || canonicalEventName === "category_not_interested"
-    || canonicalEventName === "creator_muted"
-    || canonicalEventName === "recommendation_dismissed"
-    || canonicalEventName === "content_satisfaction_positive"
-    || canonicalEventName === "content_satisfaction_negative"
-    || canonicalEventName === "content_satisfaction_skipped"
-    || canonicalEventName === "recommendation_reason_helpful"
-    || canonicalEventName === "recommendation_reason_not_helpful"
-  ) {
-    return "client" as const;
-  }
-
-  if (canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase") {
-    return "client" as const;
-  }
-
-  if (
-    canonicalEventName.startsWith("watch_session_")
-    || canonicalEventName === "viewer_session_completed"
-    || canonicalEventName === "watch_score_computed"
-  ) {
-    return "canonical" as const;
-  }
-
-  return "server" as const;
 }
 
 function buildAnonymousTelemetryEventName(input: {
@@ -247,6 +145,8 @@ export function normalizeIdentifiedRuntimeFact(input: {
   params: Record<string, unknown>;
   timestampMs: number;
   callerUid: string;
+  callerRole?: AnalyticsActorClassificationInput["trustedProfileRole"];
+  requestConsentMode?: ConsentMode;
 }) : RuntimeFactNormalizationResult {
   const telemetryEvent = resolveTrackedTelemetryEvent(input.rawEventName);
   const route = resolveRoute(input.params, "");
@@ -265,82 +165,66 @@ export function normalizeIdentifiedRuntimeFact(input: {
     };
   }
 
+  if (input.callerRole !== "user" && input.callerRole !== "creator" && input.callerRole !== "admin") {
+    return { fact: null, diagnostic: { ...buildUnknownDiagnostic({ eventId: input.eventId, rawEventName: input.rawEventName, route, source_component, timestampMs: input.timestampMs }), issueCode: "unverified_actor_authority" } };
+  }
   const canonicalEventName = telemetryEvent.canonicalEventName;
-  const enrichedParams = {
-    ...input.params,
-    ...telemetryEvent.metadataParams,
-    tracking_origin: "identified_api_ingest",
-  };
-  const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");
-  const projectionMode = readStringParam(enrichedParams, "projection_mode", "projectionMode", "view_as_mode", "viewAsMode");
-  const sourceTruth = resolveIdentifiedSourceTruth(canonicalEventName, enrichedParams);
-  const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
-  const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
-  const identityLinkId = readStringParam(enrichedParams, "identity_link_id", "identityLinkId");
-  const roles = readStringArrayParam(enrichedParams, "roles", "role", "actor_roles", "actorRoles", "actor_role", "actorRole");
-  const claims = readClaimsParam(enrichedParams);
-  const creatorActorId = readStringParam(
-    enrichedParams,
-    "actor_creator_id",
-    "actorCreatorId",
-    "creator_actor_id",
-    "creatorActorId",
-    "creator_uid",
-    "creatorUid",
+  const requestConsentAdmission = buildRequestConsentAdmission(canonicalEventName, input.requestConsentMode);
+  const observedParams = { ...input.params, ...telemetryEvent.metadataParams, tracking_origin: "identified_api_ingest" };
+  const anonymousVisitorId = readStringParam(observedParams, "anonymous_visitor_id", "anonymousVisitorId");
+  const sessionId = readStringParam(observedParams, "session_id", "sessionId");
+  const identityLinkId = readStringParam(observedParams, "identity_link_id", "identityLinkId", "link_id", "linkId");
+  const legacyUnknown = readBooleanParam(observedParams, "legacy_unknown", "legacyUnknown")
+    || readStringParam(observedParams, "actor_kind", "actorKind") === "legacy_unknown";
+  const guestObservation = input.callerRole !== "admin"
+    && readStringParam(observedParams, "actor_kind", "actorKind") === "guest" && Boolean(anonymousVisitorId || sessionId);
+  const performedAs = input.callerRole === "admin" ? readStringParam(observedParams, "performed_as", "performedAs") : "";
+  const projectionMode = input.callerRole === "admin" ? readStringParam(observedParams, "projection_mode", "projectionMode", "view_as_mode", "viewAsMode") : "";
+  const projectionEvent = input.callerRole === "admin" && (
+    readStringParam(observedParams, "actor_kind", "actorKind") === "admin_projection"
+    || performedAs === "admin_view_as_creator" || projectionMode.includes("projection")
+    || canonicalEventName.startsWith("admin_projection_") || canonicalEventName.startsWith("admin_view_as_")
   );
+  const actorKind = legacyUnknown ? "legacy_unknown" : input.callerRole === "admin" ? projectionEvent ? "admin_projection" : "admin"
+    : guestObservation ? "guest" : input.callerRole === "creator" ? "creator_user" : "signed_in_user";
+  const sourceTruth = "client" as const;
   const identityEnvelope = buildEventIdentityEnvelope({
-    eventName: canonicalEventName,
-    actorKind: readStringParam(enrichedParams, "actor_kind", "actorKind") || undefined,
-    identityState: readStringParam(enrichedParams, "identity_state", "identityState") || undefined,
-    guestId: anonymousVisitorId,
-    userId: input.callerUid,
-    sessionId,
-    linkId: identityLinkId,
-    consentMode: readStringParam(enrichedParams, "consent_mode", "consentMode") || undefined,
-    roles,
-    claims,
-    projectionMode,
-    performedAs,
-    systemGenerated: readBooleanParam(enrichedParams, "system_generated", "systemGenerated"),
-    legacyUnknown: readBooleanParam(enrichedParams, "legacy_unknown", "legacyUnknown"),
+    eventName: canonicalEventName, actorKind,
+    guestId: anonymousVisitorId, userId: guestObservation || legacyUnknown ? null : input.callerUid,
+    sessionId, linkId: identityLinkId,
+    consentMode: input.requestConsentMode !== undefined ? input.requestConsentMode : readStringParam(observedParams, "consent_mode", "consentMode") || undefined,
+    roles: guestObservation || legacyUnknown ? [] : [input.callerRole],
+    projectionMode, performedAs, legacyUnknown,
   });
-  const explicitActorAdminId = readStringParam(
-    enrichedParams,
-    "actor_admin_id",
-    "actorAdminId",
-    "admin_id",
-    "adminId",
-    "actor_uid",
-    "actorUid",
-  );
-  const adminRouteOrEvent = telemetryEvent.option?.category === "admin"
-    || canonicalEventName.startsWith("admin_")
-    || performedAs === "admin_view_as_creator"
-    || projectionMode.includes("projection")
-    || sourceTruth === "local_projection"
-    || route === "/admin"
-    || route.startsWith("/admin/");
+  // Browser authority aliases are discarded once, before every sibling normalization/persistence path.
+  const excludedAuthorityKeys = new Set([
+    "trustedProfileRole", "callerRole",
+    "roles", "role", "actor_roles", "actorRoles", "actor_role", "actorRole", "claims", "authClaims", "userClaims",
+    "is_admin", "isAdmin", "admin", "is_owner", "isOwner", "owner", "owner_admin", "ownerAdmin", "is_creator", "isCreator", "creator",
+    "system_generated", "systemGenerated", "actor_type", "actorType", "actor_kind", "actorKind", "actor_lane", "actorLane",
+    "actor_user_id", "actorUserId", "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid",
+    "actor_admin_id", "actorAdminId", "admin_id", "adminId", "actor_uid", "actorUid", "user_id", "userId", "analytics_user_id", "analyticsUserId",
+    "identity_state", "identityState", "identity_confidence", "identityConfidence", "source_truth", "sourceTruth",
+    "consent_mode", "consentMode", "consent_state", "consentState",
+    "performed_as", "performedAs", "projection_mode", "projectionMode", "view_as_mode", "viewAsMode",
+    "linked_person_id", "linkedPersonId", "person_id", "personId", "include_in_user_behavior", "includeInUserBehavior",
+  ]);
+  const runtimeActorUserId = actorKind === "signed_in_user" || actorKind === "creator_user" ? input.callerUid : "";
+  const runtimeActorCreatorId = actorKind === "creator_user" ? input.callerUid : "";
+  const runtimeActorAdminId = actorKind === "admin" || actorKind === "admin_projection" ? input.callerUid : "";
+  const enrichedParams = {
+    ...Object.fromEntries(Object.entries(observedParams).filter(([key]) => !excludedAuthorityKeys.has(key))),
+    actor_kind: identityEnvelope.actorKind, identity_state: identityEnvelope.identityState,
+    identity_confidence: identityEnvelope.identityConfidence, user_id: runtimeActorUserId,
+    actor_user_id: runtimeActorUserId, actor_creator_id: runtimeActorCreatorId, actor_admin_id: runtimeActorAdminId,
+    source_truth: sourceTruth, performed_as: performedAs, projection_mode: projectionMode,
+    include_in_user_behavior: identityEnvelope.includeInUserBehavior,
+    consent_mode: identityEnvelope.consentMode, consent_state: deriveAnalyticsConsentState(identityEnvelope.consentMode),
+  };
   const inclusion = explainEventInclusion({
-    eventName: canonicalEventName,
-    userId: input.callerUid,
-    actorKind: identityEnvelope.actorKind,
-    identityState: identityEnvelope.identityState,
-    actorAdminId: explicitActorAdminId,
-    actorCreatorId: creatorActorId,
-    adminId: adminRouteOrEvent ? (explicitActorAdminId || input.callerUid) : readStringParam(enrichedParams, "admin_id", "adminId"),
-    actorType: readStringParam(enrichedParams, "actor_type", "actorType"),
-    anonymousVisitorId,
-    sessionId,
-    identityLinkId,
-    route,
-    surface: readStringParam(enrichedParams, "surface", "source_surface", "sourceSurface") || "client",
-    source: "identified_ingest",
-    performedAs,
-    projectionMode,
-    sourceTruth,
-    roles,
-    claims,
-    systemGenerated: identityEnvelope.actorKind === "system",
+    trustedProfileRole: input.callerRole, eventName: canonicalEventName, userId: input.callerUid,
+    actorKind: identityEnvelope.actorKind, identityState: identityEnvelope.identityState,
+    anonymousVisitorId, sessionId, identityLinkId, performedAs, projectionMode, sourceTruth,
   });
   const actorClassification = inclusion.actorClassification;
   const parityFact = normalizeIdentifiedMetricEventFact({
@@ -353,15 +237,13 @@ export function normalizeIdentifiedRuntimeFact(input: {
     includeInUserBehavior: inclusion.includeInUserBehavior,
     actorType: actorClassification.actorType,
     actorLane: actorClassification.actorLane,
+    actorUserId: runtimeActorUserId, actorCreatorId: runtimeActorCreatorId, actorAdminId: runtimeActorAdminId,
     sourceTruth,
   });
-  const projectionEvent = sourceTruth === "local_projection"
-    || performedAs === "admin_view_as_creator"
-    || projectionMode.includes("projection");
   const notificationReadWithoutEntity = parityFact.metricFamily === "notification"
     && canonicalEventName === "notification_read"
     && parityFact.normalizedAction === "notification_read";
-  const metricEligible = parityFact.metricEligible || notificationReadWithoutEntity;
+  const metricEligible = !projectionEvent && !actorClassification.isUnknown && (parityFact.metricEligible || notificationReadWithoutEntity);
   const metricExclusionReason = metricEligible
     ? ""
     : projectionEvent
@@ -369,20 +251,13 @@ export function normalizeIdentifiedRuntimeFact(input: {
       : parityFact.metricFamily === "notification" && canonicalEventName !== "notification_read"
         ? "notification_diagnostic_only"
         : parityFact.metricExclusionReason;
-  const countsAsSignedInUser = actorClassification.countScopes.includes("signed_in_user");
-  const runtimeActorUserId = countsAsSignedInUser
-    ? (parityFact.actorUserId || input.callerUid)
-    : "";
-  const runtimeActorCreatorId = actorClassification.actorType === "creator"
-    ? (parityFact.actorCreatorId || creatorActorId || input.callerUid)
-    : "";
-  const runtimeActorAdminId = actorClassification.isAdmin
-    ? (parityFact.actorAdminId || explicitActorAdminId || input.callerUid)
-    : "";
 
   return {
     diagnostic: null,
+    identityEnvelope,
+    params: enrichedParams,
     fact: {
+      ...(requestConsentAdmission?.consentMode === "full_behavioral" && readSessionMeasurementFromParams(enrichedParams) ? { sessionMeasurement: readSessionMeasurementFromParams(enrichedParams)! } : {}),
       runtimeFactVersion: RUNTIME_FACT_CONTRACT_VERSION,
       eventId: input.eventId,
       rawEventName: input.rawEventName,
@@ -412,9 +287,10 @@ export function normalizeIdentifiedRuntimeFact(input: {
       sourceTruth: parityFact.sourceTruth,
       confidence: clampConfidence(parityFact.sourceConfidence || resolveCategoryConfidence(telemetryEvent.option, parityFact.sourceTruth)),
       timestampMs: input.timestampMs,
+      ...(requestConsentAdmission ? { requestConsentAdmission } : {}),
       performedAs,
       projectionMode,
-      includeInUserBehavior: inclusion.includeInUserBehavior,
+      includeInUserBehavior: inclusion.includeInUserBehavior && identityEnvelope.includeInUserBehavior,
       includeInAdminAnalytics: inclusion.includeInAdminAnalytics,
       includeInGlobalEvents: inclusion.includeInGlobalEvents,
       adminExcludedCount: actorClassification.isAdmin ? 1 : 0,
@@ -439,14 +315,20 @@ export function normalizeAnonymousRuntimeFact(input: {
   targetTag?: string;
   interactionState?: string;
   exitIntent?: string;
+  sourceOrigin?: "accepted_current_guest_ingest" | "legacy_import";
+  acceptedEventName?: string;
+  sessionMeasurement?: unknown;
+  requestConsentMode?: ConsentMode;
 }) : RuntimeFactNormalizationResult {
+  const sourceTruth = input.sourceOrigin === "accepted_current_guest_ingest" ? "client" : "legacy";
   const params: Record<string, unknown> = {
     route: input.path,
     page_path: input.path,
     drop_id: input.dropId,
     source_component: input.targetId || input.targetTag || "guest_runtime_ingest",
   };
-  const eventName = buildAnonymousTelemetryEventName({
+  const eventName = input.sourceOrigin === "accepted_current_guest_ingest" && input.acceptedEventName
+    ? input.acceptedEventName : buildAnonymousTelemetryEventName({
     type: input.type,
     interactionState: input.interactionState,
     exitIntent: input.exitIntent,
@@ -460,9 +342,12 @@ export function normalizeAnonymousRuntimeFact(input: {
     anonymousVisitorId: input.anonymousVisitorId,
     pagePath: input.path,
     dropId: input.dropId,
-    source: "legacy",
+    source: sourceTruth,
     confidence: 0.55,
   });
+
+  const requestConsentAdmission = input.sourceOrigin === "accepted_current_guest_ingest"
+    ? buildRequestConsentAdmission(eventName, input.requestConsentMode) : null;
 
   if (!normalized.fact) {
     return {
@@ -480,13 +365,15 @@ export function normalizeAnonymousRuntimeFact(input: {
     };
   }
 
+  const sessionMeasurement = input.sourceOrigin === "accepted_current_guest_ingest" && requestConsentAdmission?.consentMode === "full_behavioral" ? readSessionMeasurementCheckpoint(input.sessionMeasurement) : null;
   const diagnosticOnly = input.type === "hover" || input.type === "visibility" || input.type === "page_leave";
-  const metricEligible = !diagnosticOnly && (input.type === "page_view" || input.type === "click" || input.type === "scroll");
+  const metricEligible = !diagnosticOnly && (input.type === "page_view" || input.type === "click" || input.type === "scroll" || (input.type === "session" && sessionMeasurement !== null));
   const metricExclusionReason = metricEligible ? "" : "diagnostic_only_event";
 
   return {
     diagnostic: null,
     fact: {
+      ...(sessionMeasurement ? { sessionMeasurement } : {}),
       runtimeFactVersion: RUNTIME_FACT_CONTRACT_VERSION,
       eventId: input.eventId,
       rawEventName: input.type,
@@ -513,9 +400,10 @@ export function normalizeAnonymousRuntimeFact(input: {
       },
       route: input.path,
       source_component: resolveSourceComponent(params, "guest_runtime_ingest"),
-      sourceTruth: "legacy",
+      sourceTruth,
       confidence: clampConfidence(normalized.fact.confidence),
       timestampMs: input.timestampMs,
+      ...(requestConsentAdmission ? { requestConsentAdmission } : {}),
       performedAs: "",
       projectionMode: "",
       includeInUserBehavior: false,

@@ -29,9 +29,15 @@ const files = {
   analyticsHelpers: read("src/app/admin/analytics/AnalyticsHelpers.tsx"),
   analyticsState: read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
   analyticsAudienceTab: read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx"),
+  analyticsAudienceSnapshot: read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   analyticsCommerceTab: read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
+  analyticsContentConversionSection: read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  analyticsViewerJourneySection: read("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
   analyticsOperationsTab: read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
+  analyticsEventMixSection: read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
+  analyticsInteractionSnapshotSection: read("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx"),
 };
+const analyticsCommerceModule = `${files.analyticsCommerceTab}\n${files.analyticsContentConversionSection}\n${files.analyticsViewerJourneySection}`;
 
 const failures: string[] = [];
 
@@ -85,9 +91,9 @@ assert(
 assert(files.analyticsPage.includes("useAdminAnalyticsState"), "Analytics page must render through the shared analytics state.", failures);
 for (const [label, source] of [
   ["Analytics helpers", files.analyticsHelpers],
-  ["Audience tab", files.analyticsAudienceTab],
-  ["Commerce tab", files.analyticsCommerceTab],
-  ["Operations tab", files.analyticsOperationsTab],
+  ["Audience tab", `${files.analyticsAudienceTab}\n${files.analyticsAudienceSnapshot}`],
+  ["Commerce tab", analyticsCommerceModule],
+  ["Operations tab", `${files.analyticsOperationsTab}\n${files.analyticsEventMixSection}\n${files.analyticsInteractionSnapshotSection}`],
 ] as const) {
   assert(!source.includes("const conversionRate ="), `${label} must not define conversion formulas inline.`, failures);
   assert(!source.includes("const returnedUsers ="), `${label} must not define returner formulas inline.`, failures);

@@ -5,8 +5,8 @@ import { join } from "path";
 import { buildAdminAnalyticsEventMixModel } from "@/lib/admin-analytics-event-mix";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
-const OPERATIONS_TAB_SOURCE = readFileSync(
-  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
+const EVENT_MIX_SECTION_SOURCE = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
   "utf-8",
 );
 
@@ -139,7 +139,7 @@ describe("buildAdminAnalyticsEventMixModel", () => {
   });
 
   it("keeps unavailable surface context explicit in the admin Event Mix UI", () => {
-    expect(OPERATIONS_TAB_SOURCE).toContain("eventMixSurfaceContextLabel");
-    expect(OPERATIONS_TAB_SOURCE).toContain("Surface context unavailable");
+    expect(EVENT_MIX_SECTION_SOURCE).toContain("eventMixSurfaceContextLabel");
+    expect(EVENT_MIX_SECTION_SOURCE).toContain("Surface context unavailable");
   });
 });

@@ -2,11 +2,14 @@
 
 import { ChevronDown, DollarSign, LayoutGrid, LifeBuoy, Radar, ShieldCheck, Signal, type LucideIcon } from "lucide-react";
 
+import { Badge } from "@/components/creative-tim/ui/badge";
+import { Card } from "@/components/creative-tim/ui/card";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { resolvePublicBetaCapDetailForAdmin } from "@/lib/agent-score/formal-gate-display";
 import type { AdminDebugControlTowerSection, AdminDebugFindingCard, AdminDebugLiveIssueCard, AdminDebugReportCard, AdminDebugSeverity, AdminDebugTruthState, AdminDebugNextAction } from "@/lib/admin-debug-control-tower";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
+import { formatRelative } from "./DebugTime";
 
 export type FilterId = "all" | "critical" | "ui" | "money" | "cost" | "telemetry" | "support" | "creator" | "stale";
 
@@ -31,7 +34,7 @@ export const SECTION_COPY: Record<AdminDebugControlTowerSection, { title: string
     support_creator: { title: "Support + Creator Monetization", subtitle: "Support access, creator status, and paid-GD surface checks.", icon: LifeBuoy },
 };
 
-export function toBadgeState(state: AdminDebugTruthState): AdminSurfaceState {
+export function toBadgeState(state: AdminDebugTruthState) {
     if (state === "live") return "live";
     if (state === "stale") return "stale";
     if (state === "failed") return "failed";
@@ -123,17 +126,6 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     }
     return { badgeState: toBadgeState(report.truthState), statusLabel: reportStatusLabel, findingLabel, sourceDetail };
 }
-export function formatRelative(value?: number | null) {
-    if (!value) return "Not generated";
-    const deltaMs = Math.max(0, Date.now() - value);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-
 export function filterReport(report: AdminDebugReportCard, filter: FilterId) {
     if (filter === "all") return true;
     if (filter === "critical") return report.criticalCount > 0 || report.topFindings.some((finding) => finding.severity === "critical");
@@ -148,10 +140,10 @@ export function filterReport(report: AdminDebugReportCard, filter: FilterId) {
 }
 
 export function toneClassForSeverity(severity: AdminDebugSeverity | string) {
-    if (severity === "critical") return "border-red-400/30 bg-red-500/10 text-red-100";
-    if (severity === "major") return "border-orange-400/30 bg-orange-500/10 text-orange-100";
-    if (severity === "moderate") return "border-amber-400/30 bg-amber-500/10 text-amber-100";
-    return "border-white/10 bg-white/5 text-gray-200";
+    if (severity === "critical") return "border-destructive/40 text-destructive";
+    if (severity === "major") return "border-warning/40 text-warning";
+    if (severity === "moderate") return "border-warning/40 text-warning";
+    return "border-border text-foreground";
 }
 
 function formatLiveIssueCategory(category: string) {
@@ -164,24 +156,24 @@ function formatLiveIssueCategory(category: string) {
 export function FindingCard({ finding, compact = false }: { finding: AdminDebugFindingCard; compact?: boolean }) {
     return (
         <article
-            className={cn("rounded-xl border p-3", toneClassForSeverity(finding.severity))}
+            className={cn("min-w-0 wrap-anywhere border-l-2 py-3 pl-4", toneClassForSeverity(finding.severity))}
             data-debug-truth-state={finding.truthState}
         >
-            <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <p className={cn("font-bold text-white", compact ? "text-xs" : "text-sm")}>{finding.title}</p>
-                    <p className="mt-1 text-[11px] text-gray-300">{finding.domain} | {finding.filePath}</p>
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                    <p className={cn("font-semibold text-foreground", compact ? "text-xs" : "text-sm")}>{finding.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{finding.domain} | {finding.filePath}</p>
                 </div>
-                <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]">
+                <Badge variant="secondary" className="max-w-full whitespace-normal">
                     {finding.severity}
-                </span>
+                </Badge>
             </div>
-            <p className="mt-2 text-xs leading-5 text-gray-100">{finding.humanReadableWarning}</p>
-            <p className="mt-2 text-[11px] font-semibold text-white/80">{finding.suggestedValidator}</p>
+            <p className="mt-2 text-xs leading-5 text-foreground">{finding.humanReadableWarning}</p>
+            <p className="mt-2 text-sm font-semibold text-foreground">{finding.suggestedValidator}</p>
             {finding.evidence.length > 0 ? (
-                <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px]">
-                    <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Evidence</summary>
-                    <ul className="mt-1 list-disc space-y-1 pl-4 text-gray-300">
+                <details className="mt-2 min-w-0 border-t border-border text-sm">
+                    <summary className="flex min-h-11 cursor-pointer items-center py-3 text-foreground">Evidence</summary>
+                    <ul className="mt-1 list-disc space-y-1 pl-4 text-muted-foreground">
                         {finding.evidence.map((entry, index) => (
                             <li key={`${finding.id}-evidence-${index}`}>{entry}</li>
                         ))}
@@ -197,39 +189,39 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
     const updatedLabel = report.updatedAtMs ? `Last updated ${formatRelative(report.updatedAtMs)}` : report.ageHours === null ? "Not generated" : `Last updated ${report.ageHours}h ago`;
 
     return (
-        <article
-            className="rounded-xl border border-white/10 bg-white/[0.035] p-3"
+        <Card
+            className="min-w-0 gap-3 p-4"
             data-debug-report-source={report.filePath}
             data-debug-report-freshness={report.freshness}
             data-debug-truth-state={report.truthState}
         >
-            <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-white">{report.label}</h3>
-                    <p className="mt-1 text-[11px] leading-4 text-gray-400">{updatedLabel}</p>
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-semibold text-foreground">{report.label}</h3>
+                    <p className="mt-1 text-sm leading-4 text-muted-foreground">{updatedLabel}</p>
                 </div>
-                <AdminStatusBadge state={display.badgeState} label={display.badgeLabel} title={display.sourceDetail} className="shrink-0 py-0 text-[8px]" />
+                <AdminStatusBadge state={display.badgeState} label={display.badgeLabel} title={display.sourceDetail} className="max-w-full whitespace-normal py-0.5" />
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                <span className="text-sm text-muted-foreground">
                     {display.statusLabel}
                 </span>
-                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                <span className="text-sm text-muted-foreground">
                     {display.findingLabel}
                 </span>
                 {report.criticalCount > 0 ? (
-                    <span className="rounded-md border border-red-400/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-bold text-red-100">
+                    <span className="text-sm font-medium text-destructive">
                         {report.criticalCount} critical
                     </span>
                 ) : null}
             </div>
-            <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
-                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Why this state</summary>
+            <details className="mt-2 min-w-0 border-t border-border text-sm text-muted-foreground">
+                <summary className="flex min-h-11 cursor-pointer items-center py-3 font-semibold text-foreground">Why this state</summary>
                 <p className="mt-1">{display.sourceDetail} Next check: {report.command}</p>
             </details>
             {report.topFindings.length > 0 ? (
-                <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-2 text-xs text-gray-300">
-                    <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 font-semibold text-gray-100">
+                <details className="mt-3 min-w-0 border-t border-border py-2 text-xs text-muted-foreground">
+                    <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 font-semibold text-foreground">
                         Top findings
                         <ChevronDown className="h-4 w-4" />
                     </summary>
@@ -240,7 +232,7 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
                     </div>
                 </details>
             ) : null}
-        </article>
+        </Card>
     );
 }
 
@@ -261,28 +253,28 @@ export function LiveIssueCard({ issue }: { issue: AdminDebugLiveIssueCard }) {
     return (
         <article
             className={cn(
-                "rounded-xl border p-3",
+                "min-w-0 wrap-anywhere border-l-2 py-3 pl-4",
                 issue.severity === "critical"
-                    ? "border-red-400/30 bg-red-500/10"
+                    ? "border-destructive/40"
                     : issue.severity === "error"
-                        ? "border-orange-400/30 bg-orange-500/10"
-                        : "border-white/10 bg-white/[0.04]",
+                        ? "border-warning/40"
+                        : "border-border",
             )}
             data-debug-truth-state={issue.truthState}
         >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                 <div>
-                    <p className="text-sm font-bold text-white">{issue.humanMessage}</p>
-                    <p className="mt-1 text-[11px] text-gray-400">{metaParts.join(" | ")}</p>
+                    <p className="text-sm font-semibold text-foreground">{issue.humanMessage}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{metaParts.join(" | ")}</p>
                 </div>
-                <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] font-bold uppercase text-white">{issue.severity}</span>
+                <Badge variant="secondary" className="max-w-full whitespace-normal">{issue.severity}</Badge>
             </div>
             {note ? (
-                <p className="mt-2 text-xs text-gray-200">{note}</p>
+                <p className="mt-2 text-xs text-foreground">{note}</p>
             ) : null}
-            <p className="mt-2 text-xs text-gray-300">Fingerprint {issue.fingerprint} | {issue.occurrenceCount}x | {formatRelative(issue.lastSeenAt)}</p>
-            <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
-                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Evidence handling</summary>
+            <p className="mt-2 text-xs text-muted-foreground">Fingerprint {issue.fingerprint} | {issue.occurrenceCount}x | {formatRelative(issue.lastSeenAt)}</p>
+            <details className="mt-2 min-w-0 border-t border-border text-sm text-muted-foreground">
+                <summary className="flex min-h-11 cursor-pointer items-center py-3 font-semibold text-foreground">Evidence handling</summary>
                 <p className="mt-1">Raw support/user bodies stay redacted and collapsed.</p>
             </details>
         </article>
@@ -291,10 +283,10 @@ export function LiveIssueCard({ issue }: { issue: AdminDebugLiveIssueCard }) {
 
 export function NextActionCard({ action }: { action: AdminDebugNextAction }) {
     return (
-        <article className={cn("rounded-xl border p-3", toneClassForSeverity(action.severity))}>
-            <p className="text-sm font-bold text-white">{action.action}</p>
-            <p className="mt-1 text-xs text-gray-300">{action.domain} | {action.affectedFile}</p>
-            <p className="mt-2 text-[11px] font-semibold text-white/80">{action.suggestedValidator}</p>
+        <article className={cn("min-w-0 wrap-anywhere border-l-2 py-3 pl-4", toneClassForSeverity(action.severity))}>
+            <p className="text-sm font-semibold text-foreground">{action.action}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{action.domain} | {action.affectedFile}</p>
+            <p className="mt-2 text-sm font-semibold text-foreground">{action.suggestedValidator}</p>
         </article>
     );
 }

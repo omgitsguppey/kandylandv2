@@ -2,33 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Bell,
-  Candy,
-  ChevronDown,
-  ChevronUp,
-  CheckCircle2,
-  Eye,
-  Gift,
-  Layers3,
-  Loader2,
-  MessageSquare,
-  Play,
-  Share2,
-  Sparkles,
-  Wallet,
-} from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
-import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { useNow } from "@/hooks/useNow";
 import { useTaskGuidanceActions } from "@/hooks/useTaskGuidanceActions";
 import { authFetch } from "@/lib/authFetch";
-import { cn } from "@/lib/utils";
 import {
   type DailyTaskAssignment,
-  type DailyTaskIconName,
   DAILY_TASK_LIMIT,
   type DailyTasksState,
 } from "@/lib/tasks/task-catalog";
@@ -54,21 +35,9 @@ import {
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { USER_LIBRARY_ROUTE } from "@/lib/creator-profile-routing";
+import { DailyTasksJourney } from "@/components/creative-tim/kandydrops/daily-tasks/DailyTasksJourney";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
-
-const ICONS: Record<DailyTaskIconName, typeof Gift> = {
-  bell: Bell,
-  sparkles: Sparkles,
-  wallet: Wallet,
-  gift: Gift,
-  candy: Candy,
-  play: Play,
-  share: Share2,
-  message: MessageSquare,
-  eye: Eye,
-  layers: Layers3,
-};
 
 const FEEDBACK_CATEGORY_OPTIONS: Array<{ value: FeedbackCategory; label: string }> = [
   { value: "general", label: "General idea" },
@@ -540,362 +509,69 @@ export function DailyTasksModule() {
   }
 
   return (
-    <div className="space-y-4">
-      {showFeedbackModal ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-[2rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.2),rgba(18,18,24,0.96)_50%,rgba(255,110,199,0.1))] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
-            <h2 className="text-xl font-bold text-white">Share feedback</h2>
-            <p className="mt-1 text-sm leading-6 text-gray-400">Tell us what would make daily tasks more useful.</p>
-
-            <div className="mt-4 space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Category</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {FEEDBACK_CATEGORY_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setFeedbackCategory(option.value)}
-                      aria-pressed={feedbackCategory === option.value}
-                      className={cn(
-                        "min-h-11 rounded-2xl border px-3 py-3 text-left text-sm font-semibold transition-colors",
-                        feedbackCategory === option.value
-                          ? "border-brand-purple bg-brand-purple/15 text-white"
-                          : "border-white/10 bg-white/5 text-gray-300",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Rating</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <button
-                      key={rating}
-                      type="button"
-                      onClick={() => setFeedbackRating(rating)}
-                      aria-pressed={feedbackRating === rating}
-                      aria-label={`Rate ${rating} out of 5 stars`}
-                      className={cn(
-                        "flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-bold transition-colors",
-                        feedbackRating === rating
-                          ? "border-brand-purple bg-brand-purple text-white"
-                          : "border-white/10 bg-white/5 text-gray-300",
-                      )}
-                    >
-                      {rating}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Message</label>
-                <textarea
-                  value={feedbackMessage}
-                  onChange={(event) => setFeedbackMessage(event.target.value)}
-                  className="h-32 w-full rounded-[1.4rem] border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/25"
-                  placeholder="What should we improve?"
-                />
-              </div>
-            </div>
-
-            <div className="mt-5 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowFeedbackModal(false)}
-                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={submitFeedback}
-                disabled={feedbackLoading}
-                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(178,140,255,0.28)] transition-opacity hover:opacity-90 disabled:opacity-60"
-              >
-                {feedbackLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Send feedback"}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      <section id="daily-tasks" className="relative overflow-hidden rounded-[2rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.16),rgba(18,18,24,0.94)_52%,rgba(255,110,199,0.08))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.22)] sm:p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-              <Sparkles className="h-3.5 w-3.5" />
-              Earn Free Gum Drops
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white sm:text-2xl">Daily tasks</h2>
-              <p className="mt-1 text-sm leading-6 text-gray-400">Finish these before the daily reset.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 sm:min-w-[14rem]">
-            <div className="rounded-[1.4rem] border border-white/10 bg-black/35 px-3 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Completed</p>
-              <p className="mt-1 text-2xl font-black text-white">{completedCount}/{expectedTaskCount}</p>
-            </div>
-            <div className="rounded-[1.4rem] border border-white/10 bg-black/35 px-3 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{isCompleteForToday ? "Tasks reset at" : "Tasks reset in"}</p>
-              <p className="mt-1 text-lg font-black text-brand-purple">{waitLabel}</p>
-              {resetAtLabel ? (
-                <p className="mt-1 text-[11px] font-medium text-gray-400">Tasks reset at {resetAtLabel}.</p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-      {shouldShowRepairCard ? (
-        <div className="rounded-[2rem] border border-amber-400/20 bg-[linear-gradient(145deg,rgba(251,191,36,0.12),rgba(18,18,24,0.92))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
-          <p className="text-sm font-semibold text-amber-200">Your daily tasks need a quick refresh.</p>
-          <p className="mt-2 text-sm leading-6 text-gray-300">Reload the page to restore the current task set. Your progress stays tied to this daily window.</p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="mt-4 min-h-11 rounded-full border border-amber-300/30 bg-amber-300/15 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-300/20"
-          >
-            Reload tasks
-          </button>
-        </div>
-      ) : null}
-
-      {rotating && activeTasks.length === 0 ? (
-        <div className="rounded-[1.6rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.12),rgba(18,18,24,0.92))] p-4 text-center shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-5" data-mobile-residual-cleanup="score-impact">
-          <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-purple" aria-hidden="true" />
-          <p className="mt-3 text-sm text-gray-400">Preparing today&apos;s tasks...</p>
-        </div>
-      ) : null}
-
-      {!rotating && activeTasks.length === 0 ? (
-        <div className="rounded-[1.6rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.12),rgba(18,18,24,0.92))] p-4 text-center shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-5" data-mobile-residual-cleanup="score-impact">
-          <Gift className="mx-auto h-8 w-8 text-brand-purple" />
-          <p className="mt-3 text-sm text-gray-400">No tasks are ready right now.</p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("navigation_click", {
-                  destination: "/drops",
-                  source: "daily_tasks_empty",
-                  source_component: "daily_tasks_module",
-                });
-                router.push("/drops");
-              }}
-              className="min-h-11 rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(178,140,255,0.28)] transition-opacity hover:opacity-90"
-            >
-              Unwrap now
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("navigation_click", {
-                  destination: USER_LIBRARY_ROUTE,
-                  source: "daily_tasks_empty",
-                  source_component: "daily_tasks_module",
-                });
-                router.push(USER_LIBRARY_ROUTE);
-              }}
-              className="min-h-11 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-            >
-              Open library
-            </button>
-          </div>
-          <div className="mt-4 flex justify-center">
-            <ReportBugButton context="daily-tasks-empty" />
-          </div>
-        </div>
-      ) : null}
-
-      {isCompleteForToday ? (
-        <div className="rounded-[2rem] border border-purple-200/15 bg-[linear-gradient(145deg,rgba(178,140,255,0.15),rgba(18,18,24,0.94))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
-          <div className="rounded-[1.7rem] border border-brand-purple/25 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.22),rgba(18,18,24,0.94)_72%)] p-5 text-center">
-            <CheckCircle2 className="mx-auto h-10 w-10 text-brand-purple" />
-            <h3 className="mt-3 text-xl font-bold text-white">Today&apos;s tasks are complete</h3>
-            <p className="mt-2 text-sm leading-6 text-gray-300">You finished all {expectedTaskCount} tasks, and the next batch unlocks at reset.</p>
-            <div className="mt-4 inline-flex items-center rounded-full border border-brand-purple/30 bg-brand-purple/15 px-4 py-2 text-sm font-bold text-white">
-              Next batch in {waitLabel}
-            </div>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => {
-                  trackEvent("navigation_click", {
-                    destination: "/drops",
-                    source: "daily_tasks_complete",
-                    source_component: "daily_tasks_module",
-                  });
-                  router.push("/drops");
-                }}
-                className="min-h-11 rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(178,140,255,0.28)] transition-opacity hover:opacity-90"
-              >
-                Unwrap more drops
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  trackEvent("navigation_click", {
-                    destination: USER_LIBRARY_ROUTE,
-                    source: "daily_tasks_complete",
-                    source_component: "daily_tasks_module",
-                  });
-                  router.push(USER_LIBRARY_ROUTE);
-                }}
-                className="min-h-11 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-              >
-                Watch your library
-              </button>
-            </div>
-            <div className="mt-4 flex justify-center">
-              <ReportBugButton context="daily-tasks-complete" />
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {activeTasks.length > 0 && !isCompleteForToday ? (
-        <div className="grid gap-2.5">
-          {activeTasks.map((task) => {
-            const Icon = ICONS[task.icon] || Gift;
-            const progressPercent = Math.min(100, Math.round((task.progress / Math.max(1, task.maxProgress)) * 100));
-            const isBusy = notificationLoading && task.actionType === "enable_notifications";
-            const isExpanded = expandedTaskIds.includes(task.id);
-            const taskInstruction = getTaskInstruction(task);
-            const statusLabel = task.claimed
-              ? task.oneTime
-                ? "Retired forever"
-                : "Reward claimed"
-              : task.progress > 0
-                ? "Progress saved"
-                : "Ready now";
-
-            return (
-              <article
-                key={task.id}
-                className={cn(
-                  "overflow-hidden rounded-[1.6rem] border bg-[linear-gradient(145deg,rgba(255,255,255,0.06),rgba(18,18,24,0.9))] p-3.5 shadow-[0_14px_40px_rgba(0,0,0,0.16)] transition-colors",
-                  task.claimed
-                    ? "border-brand-purple/25 bg-brand-purple/10"
-                    : "border-white/10 bg-black/30",
-                )}
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleTaskExpanded(task)}
-                  className="min-h-11 w-full text-left"
-                  aria-expanded={isExpanded}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.15rem] border",
-                      task.claimed
-                        ? "border-brand-purple/30 bg-brand-purple text-white"
-                        : "border-white/10 bg-white/5 text-brand-purple",
-                    )}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-gray-200">
-                              Reset {waitLabel}
-                            </span>
-                            {task.oneTime ? (
-                              <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-300">
-                                One time
-                              </span>
-                            ) : null}
-                          </div>
-                          <h3 className="text-[15px] font-bold leading-5 text-white">{task.title}</h3>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          {isExpanded ? (
-                            <ChevronUp aria-hidden="true" className="h-4 w-4 text-gray-400" />
-                          ) : (
-                            <ChevronDown aria-hidden="true" className="h-4 w-4 text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-3">
-                        <div className="h-2 rounded-full bg-white/8">
-                          <div
-                            className={cn(
-                              "h-full rounded-full transition-all",
-                              task.claimed ? "bg-brand-purple" : "bg-brand-purple/80",
-                          )}
-                          style={{ width: `${progressPercent}%` }}
-                        />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-
-                {isExpanded ? (
-                  <div className="ml-[3.25rem] mt-3 border-t border-white/10 pt-3">
-                    <p className="text-[13px] leading-5 text-gray-300">{taskInstruction}</p>
-                    {task.subtitle && task.subtitle !== taskInstruction ? (
-                      <p className="mt-1.5 text-[12px] leading-5 text-gray-500">{task.subtitle}</p>
-                    ) : null}
-                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                      <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 py-1 text-[10px] font-bold text-white">
-                        +{task.reward} GD
-                      </span>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-300">
-                        {Math.min(task.progress, task.maxProgress)} / {task.maxProgress}
-                      </span>
-                      <span className={cn(
-                        "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em]",
-                        task.claimed
-                          ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple"
-                          : "border-white/10 bg-white/5 text-gray-300",
-                      )}>
-                        {statusLabel}
-                      </span>
-                    </div>
-
-                    <div className="mt-3">
-                      {task.claimed ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple px-3.5 py-2 text-xs font-bold text-white">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Reward claimed
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => void handleTaskAction(task)}
-                          disabled={isBusy}
-                          className={cn(
-                            "inline-flex min-h-11 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold transition-opacity disabled:opacity-60",
-                            task.actionType === "open_wallet"
-                              ? "border-brand-purple bg-brand-purple text-white"
-                              : "border-white/10 bg-white/5 text-white hover:bg-white/10",
-                          )}
-                        >
-                          {isBusy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Icon className="h-4 w-4" />}
-                          {getTaskActionLabel(task)}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ) : null}
-              </article>
-            );
-          })}
-        </div>
-      ) : null}
-    </div>
+    <DailyTasksJourney
+      activeTasks={activeTasks}
+      expandedTaskIds={expandedTaskIds}
+      waitLabel={waitLabel}
+      resetAtLabel={resetAtLabel}
+      completedCount={completedCount}
+      expectedTaskCount={expectedTaskCount}
+      isCompleteForToday={isCompleteForToday}
+      shouldShowRepairCard={shouldShowRepairCard}
+      rotating={rotating}
+      notificationLoading={notificationLoading}
+      showFeedback={showFeedbackModal}
+      feedbackOptions={FEEDBACK_CATEGORY_OPTIONS}
+      feedbackCategory={feedbackCategory}
+      feedbackRating={feedbackRating}
+      feedbackMessage={feedbackMessage}
+      feedbackLoading={feedbackLoading}
+      getTaskInstruction={getTaskInstruction}
+      getTaskActionLabel={getTaskActionLabel}
+      onToggleTask={toggleTaskExpanded}
+      onTaskAction={(task) => {
+        void handleTaskAction(task);
+      }}
+      onReloadTasks={() => window.location.reload()}
+      onOpenDropsWhenEmpty={() => {
+        trackEvent("navigation_click", {
+          destination: "/drops",
+          source: "daily_tasks_empty",
+          source_component: "daily_tasks_module",
+        });
+        router.push("/drops");
+      }}
+      onOpenLibraryWhenEmpty={() => {
+        trackEvent("navigation_click", {
+          destination: USER_LIBRARY_ROUTE,
+          source: "daily_tasks_empty",
+          source_component: "daily_tasks_module",
+        });
+        router.push(USER_LIBRARY_ROUTE);
+      }}
+      onOpenDropsWhenComplete={() => {
+        trackEvent("navigation_click", {
+          destination: "/drops",
+          source: "daily_tasks_complete",
+          source_component: "daily_tasks_module",
+        });
+        router.push("/drops");
+      }}
+      onOpenLibraryWhenComplete={() => {
+        trackEvent("navigation_click", {
+          destination: USER_LIBRARY_ROUTE,
+          source: "daily_tasks_complete",
+          source_component: "daily_tasks_module",
+        });
+        router.push(USER_LIBRARY_ROUTE);
+      }}
+      onCloseFeedback={() => setShowFeedbackModal(false)}
+      onFeedbackCategoryChange={(category) => setFeedbackCategory(category as FeedbackCategory)}
+      onFeedbackRatingChange={setFeedbackRating}
+      onFeedbackMessageChange={setFeedbackMessage}
+      onSubmitFeedback={() => {
+        void submitFeedback();
+      }}
+    />
   );
 }

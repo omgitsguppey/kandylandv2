@@ -1,20 +1,19 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
-import { Clock, Eye, Image as ImageIcon, Lock, Unlock } from "lucide-react";
+import { Clock, Eye, Image as ImageIcon, Unlock } from "lucide-react";
 
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent } from "@/components/creative-tim/ui/card";
 import { Badge } from "@/components/creative-tim/ui/badge";
-import { TitleMarquee } from "@/components/ui/TitleMarquee";
-import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
+import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
 import { DROP_COUNTDOWN_ONE_DAY_MS, DROP_COUNTDOWN_ONE_HOUR_MS, formatDropCountdown, type DropCountdownUrgency } from "@/lib/drop-countdown";
 import { getDropCardVisibilityTelemetryPayload, resolveDropCardVisibilityState, type DropCtaState } from "@/lib/drop-card-visibility";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
-import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { resolveDropLifecycleStatus } from "@/lib/drop-status";
 import { hasUnwrappedDrop } from "@/lib/drop-view-access";
 import {
@@ -33,52 +32,18 @@ interface FeaturedCarouselProps {
     onSelectDrop: (drop: Drop, sourceComponent?: string) => void;
 }
 
-const AUTO_ADVANCE_MS = 5_000;
 type DropTimingUrgency = DropCountdownUrgency;
 type FeaturedCoverAccentName = "cherry" | "watermelon" | "honey" | "lemon" | "peach" | "bubblegum" | "chocolate" | "brand";
 type FeaturedSocialProofType = "unwraps" | "views";
 
-const FEATURED_CHIP_BASE_CLASSNAME = "border text-white shadow-[0_8px_24px_rgba(0,0,0,0.38)] backdrop-blur-xl";
-const FEATURED_COVER_ACCENTS: Record<FeaturedCoverAccentName, { ctaGradientClass: string; chipGlassClass: string }> = {
-    cherry: {
-        ctaGradientClass: "border-rose-200/45 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 shadow-[0_0_18px_rgba(244,63,94,0.30)]",
-        chipGlassClass: "border-rose-100/25 bg-black/70 ring-1 ring-rose-500/20",
-    },
-    watermelon: {
-        ctaGradientClass: "border-emerald-100/45 bg-gradient-to-r from-emerald-500 via-rose-500 to-fuchsia-500 shadow-[0_0_18px_rgba(16,185,129,0.24)]",
-        chipGlassClass: "border-emerald-100/25 bg-black/70 ring-1 ring-emerald-500/20",
-    },
-    honey: {
-        ctaGradientClass: "border-amber-100/50 bg-gradient-to-r from-amber-500 via-orange-400 to-purple-500 shadow-[0_0_18px_rgba(245,158,11,0.28)]",
-        chipGlassClass: "border-amber-100/25 bg-stone-950/72 ring-1 ring-amber-500/20",
-    },
-    lemon: {
-        ctaGradientClass: "border-yellow-100/55 bg-gradient-to-r from-yellow-400 via-amber-500 to-purple-500 shadow-[0_0_18px_rgba(250,204,21,0.26)]",
-        chipGlassClass: "border-yellow-100/25 bg-stone-950/72 ring-1 ring-yellow-400/20",
-    },
-    peach: {
-        ctaGradientClass: "border-orange-100/50 bg-gradient-to-r from-orange-400 via-pink-400 to-purple-500 shadow-[0_0_18px_rgba(251,146,60,0.25)]",
-        chipGlassClass: "border-orange-100/25 bg-black/68 ring-1 ring-orange-400/20",
-    },
-    bubblegum: {
-        ctaGradientClass: "border-pink-100/45 bg-gradient-to-r from-pink-400 via-fuchsia-500 to-purple-500 shadow-[0_0_18px_rgba(236,72,153,0.28)]",
-        chipGlassClass: "border-pink-100/25 bg-black/68 ring-1 ring-pink-500/20",
-    },
-    chocolate: {
-        ctaGradientClass: "border-amber-100/35 bg-gradient-to-r from-stone-800 via-amber-800 to-purple-600 shadow-[0_0_18px_rgba(120,53,15,0.32)]",
-        chipGlassClass: "border-amber-100/20 bg-stone-950/76 ring-1 ring-amber-700/20",
-    },
-    brand: {
-        ctaGradientClass: "border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 shadow-[0_0_15px_rgba(164,118,255,0.24)]",
-        chipGlassClass: "border-white/25 bg-black/65 ring-1 ring-black/20",
-    },
-};
 
 export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const { user } = useAuthIdentity();
     const { userProfile } = useUserProfile();
-    const intervalRef = useRef<number | null>(null);
+    const { loading: authLoading } = useAuthLoading();
+    const profileReady = !authLoading && Boolean(user?.uid && userProfile?.uid === user.uid);
+    const activeProfile = profileReady ? userProfile : null;
     const prefersReducedMotion = usePrefersReducedMotion();
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true });
     const carouselViewportRef = useRef<HTMLDivElement | null>(null);
@@ -137,29 +102,6 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 
         return () => window.clearTimeout(syncId);
     }, [emblaApi, featuredDrops.length]);
-
-    const stopAutoAdvance = useCallback(() => {
-        if (intervalRef.current !== null) {
-            window.clearInterval(intervalRef.current);
-            intervalRef.current = null;
-        }
-    }, []);
-
-    const startAutoAdvance = useCallback(() => {
-        stopAutoAdvance();
-        if (!emblaApi || featuredDrops.length <= 1 || prefersReducedMotion) {
-            return;
-        }
-
-        intervalRef.current = window.setInterval(() => {
-            emblaApi.scrollNext();
-        }, AUTO_ADVANCE_MS);
-    }, [emblaApi, featuredDrops.length, prefersReducedMotion, stopAutoAdvance]);
-
-    useEffect(() => {
-        startAutoAdvance();
-        return stopAutoAdvance;
-    }, [startAutoAdvance, stopAutoAdvance]);
 
     useEffect(() => {
         const node = carouselViewportRef.current;
@@ -221,70 +163,16 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
     }
 
     const safeActiveIndex = Math.min(activeIndex, featuredDrops.length - 1);
-    const activeDrop = featuredDrops[safeActiveIndex] || featuredDrops[0];
-    const activeAspectRatio = getSupportedDropAspectRatio(activeDrop);
-    const aspectStyle = {
-        "--featured-drop-ratio": activeAspectRatio.replace(":", " / "),
-    } as CSSProperties;
 
     return (
-        <section className="mb-4 w-full space-y-2 md:mb-7 md:space-y-4" data-featured-drops-density="compact-mobile">
-            <div className="flex items-center gap-2 px-1 md:px-0">
-                <h2 className="text-base font-black tracking-tight text-white md:text-2xl">Featured Drops</h2>
-                <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
-            </div>
-
-            <div
-                className={cn(
-                    "group relative mx-auto block w-full overflow-hidden rounded-[1.35rem] border border-white/10 shadow-[0_14px_34px_rgba(164,118,255,0.16)] md:rounded-[2rem]",
-                    "[aspect-ratio:16/10] sm:[aspect-ratio:var(--featured-drop-ratio)]",
-                    activeAspectRatio === "16:9" && "max-w-[590px]",
-                    activeAspectRatio === "1:1" && "max-w-[500px]",
-                    activeAspectRatio === "9:16" && "max-w-[348px]",
-                )}
-                style={aspectStyle}
-                ref={setCarouselViewportRef}
-            >
-                <div className="flex h-full w-full">
-                    {featuredDrops.map((drop, index) => (
-                        <FeaturedDropSlide
-                            key={drop.id}
-                            drop={drop}
-                            index={index}
-                            isActive={index === safeActiveIndex}
-                            user={user}
-                            userProfile={userProfile}
-                            onSelectDrop={onSelectDrop}
-                            trackingSessionId={featuredTrackingSessionId}
-                        />
-                    ))}
+        <section className="min-w-0 w-full" data-featured-drops-density="creative-tim-editorial">
+            <div className="mx-auto w-full max-w-5xl overflow-hidden" ref={setCarouselViewportRef}>
+                <div className="flex min-w-0 items-stretch">
+                    {featuredDrops.map((drop, index) => <FeaturedDropSlide key={drop.id} drop={drop} index={index} isActive={index === safeActiveIndex} user={user} userProfile={activeProfile} onSelectDrop={onSelectDrop} trackingSessionId={featuredTrackingSessionId} />)}
                 </div>
             </div>
-
-            <div className="flex justify-center gap-0">
-                {featuredDrops.map((drop, index) => (
-                    <button
-                        key={drop.id}
-                        type="button"
-                        onClick={() => {
-                            emblaApi?.scrollTo(index);
-                            startAutoAdvance();
-                        }}
-                        className={cn(
-                            "flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black",
-                        )}
-                        aria-label={`Go to featured Drop ${index + 1}`}
-                        aria-current={index === safeActiveIndex}
-                    >
-                        <span
-                            aria-hidden="true"
-                            className={cn(
-                                "block h-2 rounded-full transition-all",
-                                index === safeActiveIndex ? "w-6 bg-brand-purple" : "w-2 bg-white/25",
-                            )}
-                        />
-                    </button>
-                ))}
+            <div className="mt-3 flex flex-wrap justify-center gap-2" aria-label="Featured Drop navigation">
+                {featuredDrops.map((drop, index) => <Button key={drop.id} type="button" variant={index === safeActiveIndex ? "brand" : "ghost"} size="icon" aria-label={`Go to featured Drop ${index + 1}`} aria-current={index === safeActiveIndex} onClick={() => emblaApi?.scrollTo(index, prefersReducedMotion)}><span aria-hidden="true">{index + 1}</span></Button>)}
             </div>
         </section>
     );
@@ -328,157 +216,71 @@ function FeaturedDropSlide({
             }),
         [drop, isUnlocked, user, userProfile?.gumDropsBalance, userProfile?.role, userProfile?.uid],
     );
-    const ctaLabel = getFeaturedCtaLabel(visibilityState.ctaState, drop.unlockCost);
+    const ctaLabel = getFeaturedCtaLabel(visibilityState.ctaState, drop.unlockCost, visibilityState.balanceState === "pending");
     const coverAccent = useMemo(() => resolveFeaturedCoverAccent(drop), [drop]);
     const socialProof = useMemo(() => getFeaturedSocialProof(drop), [drop]);
     const imagePolicy = useMemo(
-        () => getImageLoadingPolicy("featured_carousel", { mediaIndex: index, isLcpCandidate: index === 0 }),
+        () => getImageLoadingPolicy("featured_carousel", { mediaIndex: index, isLcpCandidate: index === 0, intrinsicLayout: true }),
         [index],
     );
     const { images, videos } = getMediaCounts(drop);
     const coverSrc = resolvePublicDropCoverSrc(drop.imageUrl);
 
+    const previewDrop = () => {
+        if (!isActive) {
+            return;
+        }
+        trackEvent("featured_slide_clicked", {
+            drop_id: drop.id,
+            drop_category: drop.type,
+            position: index + 1,
+            featured_rank: index + 1,
+            surface: "featured_carousel",
+            route: "/drops",
+            source_component: "compact_featured_carousel",
+            impression_session_id: trackingSessionId,
+            ui_density: DROPS_MOBILE_UI_DENSITY,
+            featured_cta_accent: coverAccent.accentName,
+            featured_social_proof_type: socialProof.type,
+            ...getDropCardVisibilityTelemetryPayload(visibilityState),
+        });
+        onSelectDrop(drop, "compact_featured_carousel");
+    };
+
     return (
-        <div
-            className="relative h-full min-w-0 flex-[0_0_100%] transition-opacity duration-300"
-            data-featured-drop-affordability={visibilityState.balanceState}
-            data-featured-drop-cta-state={visibilityState.ctaState}
-            data-featured-chip-treatment="cover-aware-glass"
-        >
-            <button
-                onClick={() => {
-                    trackEvent("featured_slide_clicked", {
-                        drop_id: drop.id,
-                        drop_category: drop.type,
-                        position: index + 1,
-                        featured_rank: index + 1,
-                        surface: "featured_carousel",
-                        route: "/drops",
-                        source_component: "compact_featured_carousel",
-                        impression_session_id: trackingSessionId,
-                        ui_density: DROPS_MOBILE_UI_DENSITY,
-                        featured_cta_accent: coverAccent.accentName,
-                        featured_social_proof_type: socialProof.type,
-                        ...getDropCardVisibilityTelemetryPayload(visibilityState),
-                    });
-                    onSelectDrop(drop, "compact_featured_carousel");
-                }}
-                type="button"
-                className="absolute inset-0 block h-full w-full text-left"
-                tabIndex={isActive ? 0 : -1}
-            >
-                <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_0%,rgba(164,118,255,0.30),transparent_44%)]" />
-                <NextImage
-                    src={coverSrc}
-                    alt={drop.title}
-                    fill
-                    loading={imagePolicy.loading}
-                    preload={imagePolicy.preload}
-                    fetchPriority={imagePolicy.fetchPriority}
-                    quality={imagePolicy.quality}
-                    className={cn("bg-black object-cover object-center transition-all duration-500", visibilityState.shouldBlurCover && "blur-[10px] brightness-[0.72] saturate-[0.86]")}
-                    sizes={imagePolicy.sizes}
-                    {...getImagePolicyDataAttributes(imagePolicy)}
-                />
-                {visibilityState.shouldBlurCover ? <div className="absolute inset-0 bg-black/20" aria-hidden="true" /> : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-transparent" />
-
-                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 md:left-4 md:top-4 md:gap-2">
-                    <Badge variant="outline" className={cn("!rounded-[0.75rem] !px-2.5 !py-1 !text-[9px] !font-black uppercase tracking-[0.14em] !text-white md:!text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}>
-                        Featured
-                    </Badge>
-
-                    {images > 0 || videos > 0 ? (
-                        <div
-                            className={cn("flex items-center gap-1.5 rounded-[0.75rem] px-2.5 py-1 text-[9px] font-bold md:text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}
-                            aria-label={`${images > 0 ? `${images} ${images === 1 ? "image" : "images"}` : ""}${images > 0 && videos > 0 ? ", " : ""}${videos > 0 ? `${videos} ${videos === 1 ? "video" : "videos"}` : ""}`}
-                        >
-                            {images > 0 ? (
-                                <div className="flex items-center gap-0.5">
-                                    <ImageIcon aria-hidden="true" className="h-3 w-3 text-gray-300" />
-                                    <span>{images}</span>
-                                </div>
-                            ) : null}
-                            {videos > 0 ? (
-                                <div className="flex items-center gap-0.5">
-                                    <span aria-hidden="true" className="text-[11px] leading-none md:text-xs">🎥</span>
-                                    <span>{videos}</span>
-                                </div>
-                            ) : null}
+        <div className="min-w-0 flex-[0_0_100%]" aria-hidden={!isActive} inert={!isActive} data-featured-drop-affordability={visibilityState.balanceState} data-featured-drop-cta-state={visibilityState.ctaState} data-featured-chip-treatment="opaque-readout">
+            <Card className="gap-0 overflow-hidden py-0">
+                <div className="grid min-w-0 [grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
+                    <button type="button" disabled={!isActive} onClick={previewDrop} aria-label={`Preview ${drop.title}`} tabIndex={isActive ? 0 : -1} className="relative aspect-[4/3] min-h-11 min-w-0 w-full overflow-hidden bg-muted text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
+                        <NextImage src={coverSrc} alt={drop.title} fill loading={imagePolicy.loading} preload={imagePolicy.preload} fetchPriority={imagePolicy.fetchPriority} quality={imagePolicy.quality} sizes={imagePolicy.sizes} className={cn("object-cover object-center", visibilityState.shouldBlurCover && "blur-[10px] brightness-[0.72] saturate-[0.86]")} {...getImagePolicyDataAttributes(imagePolicy)} />
+                    </button>
+                    <CardContent className="flex min-w-0 flex-col gap-4 px-2 py-4">
+                        <h3 className="text-2xl font-semibold leading-snug tracking-tight [overflow-wrap:anywhere]">{drop.title}</h3>
+                        <p className="text-base leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">{drop.description}</p>
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                            <Badge variant="secondary" className="max-w-full shrink whitespace-normal [overflow-wrap:anywhere]">{drop.unlockCost.toLocaleString()} GD</Badge>
+                            {images > 0 || videos > 0 ? <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-2 text-sm text-muted-foreground [overflow-wrap:anywhere]" aria-label={`${images > 0 ? `${images} ${images === 1 ? "image" : "images"}` : ""}${images > 0 && videos > 0 ? ", " : ""}${videos > 0 ? `${videos} ${videos === 1 ? "video" : "videos"}` : ""}`}>
+                                {images > 0 ? <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-1 [overflow-wrap:anywhere]"><ImageIcon className="h-4 w-4 shrink-0" aria-hidden="true" />{images} {images === 1 ? "image" : "images"}</span> : null}
+                                {videos > 0 ? <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-1 [overflow-wrap:anywhere]"><span aria-hidden="true">🎥</span>{videos} {videos === 1 ? "video" : "videos"}</span> : null}
+                            </span> : null}
                         </div>
-                    ) : null}
-                </div>
-
-                <div className="absolute right-3 top-3 z-20 md:right-4 md:top-4">
-                    <TimerWithProgress validUntil={drop.validUntil} coverAccent={coverAccent} />
-                </div>
-
-                <div className="absolute bottom-0 left-0 right-0 space-y-1.5 p-4 md:space-y-2 md:p-6">
-                    <div className="w-full max-w-full overflow-hidden">
-                        <TitleMarquee
-                            title={drop.title}
-                            delaySeed={drop.id.charCodeAt(0) % 6}
-                            className="text-lg font-black leading-tight text-white md:text-2xl"
-                        />
-                    </div>
-                    <p className="line-clamp-2 text-xs leading-relaxed text-gray-300 md:text-sm">{drop.description}</p>
-
-                    <div
-                        className="flex items-center gap-1.5 pb-0.5 text-[11px] font-semibold text-white/80 md:text-xs"
-                        data-featured-social-proof-type={socialProof.type}
-                    >
-                        {socialProof.type === "unwraps" ? (
-                            <Unlock className="h-3.5 w-3.5 text-brand-purple" />
-                        ) : (
-                            <Eye className="h-3.5 w-3.5 text-brand-purple" />
-                        )}
-                        <span>{socialProof.label}</span>
-                    </div>
-
-                    <div className="w-full max-w-[230px] pt-1 md:max-w-[260px] md:pt-2">
-                        <div
-                            className={cn(
-                                "flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.9rem] border px-3 py-2 text-xs font-black text-white transition-transform active:scale-[0.98] md:rounded-xl md:px-4 md:py-2.5 md:text-sm",
-                                "drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]",
-                                coverAccent.ctaGradientClass,
-                            )}
-                            data-featured-cta-accent={coverAccent.accentName}
-                            data-featured-cta-cover-aware="true"
-                        >
-                            {visibilityState.ctaState === "view" ? <Unlock className="h-3.5 w-3.5 md:h-4 md:w-4" /> : <Lock className="h-3.5 w-3.5 md:h-4 md:w-4" />}
-                            {ctaLabel}
+                        <div className="flex min-w-0 flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                            <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-1.5 [overflow-wrap:anywhere]" data-featured-social-proof-type={socialProof.type}>{socialProof.type === "unwraps" ? <Unlock className="h-4 w-4 shrink-0" aria-hidden="true" /> : <Eye className="h-4 w-4 shrink-0" aria-hidden="true" />}{socialProof.label}</span>
+                            <TimerWithProgress validUntil={drop.validUntil} />
                         </div>
-                    </div>
+                        <Button type="button" disabled={!isActive} variant="brand" className="mt-auto w-full px-2 whitespace-normal [overflow-wrap:anywhere]" tabIndex={isActive ? 0 : -1} onClick={previewDrop} data-featured-cta-accent={coverAccent.accentName} data-featured-cta-cover-aware="true">
+                            <span className="min-w-0 max-w-full">{ctaLabel}</span>
+                        </Button>
+                    </CardContent>
                 </div>
-            </button>
+            </Card>
         </div>
     );
 }
 
-function TimerWithProgress({ validUntil, coverAccent }: { validUntil?: number; coverAccent: FeaturedCoverAccent }) {
+function TimerWithProgress({ validUntil }: { validUntil?: number }) {
     const { label, fullLabel, urgencyState } = useDropTiming(validUntil);
-
-    return (
-        <div className="flex w-auto max-w-[92px] justify-end md:max-w-[118px]">
-            <div
-                className={cn(
-                    "inline-flex min-w-0 items-center gap-1 rounded-[0.75rem] px-2 py-1 text-[10px] font-black tracking-tight md:px-2.5 md:text-[12px]",
-                    FEATURED_CHIP_BASE_CLASSNAME,
-                    coverAccent.chipGlassClass,
-                    urgencyState === "critical"
-                        ? "border-fuchsia-400/55 bg-fuchsia-950/55 text-fuchsia-100 ring-fuchsia-500/20"
-                        : urgencyState === "warm"
-                          ? "border-brand-purple/45 bg-black/70 text-[#dfcdff] ring-brand-purple/20"
-                          : "border-white/25 bg-black/65 text-white",
-                )}
-                aria-label={fullLabel}
-                title={fullLabel}
-            >
-                <Clock className={cn("h-3 w-3 md:h-3.5 md:w-3.5", urgencyState === "critical" ? "text-fuchsia-300" : "text-brand-purple")} />
-                <span className="truncate">{label}</span>
-            </div>
-        </div>
-    );
+    return <span className={cn("inline-flex min-w-0 max-w-full flex-wrap items-center gap-1.5 text-sm", urgencyState === "critical" ? "text-destructive" : urgencyState === "warm" ? "text-primary" : "text-muted-foreground")} aria-label={fullLabel} title={fullLabel}><Clock className="h-4 w-4 shrink-0" aria-hidden="true" /><span className="whitespace-nowrap tabular-nums">{label}</span></span>;
 }
 
 function useDropTiming(validUntil?: number): { label: string; fullLabel: string; urgencyState: DropTimingUrgency } {
@@ -502,7 +304,7 @@ function useDropTiming(validUntil?: number): { label: string; fullLabel: string;
     }, [nowMs, validUntil]);
 }
 
-function getFeaturedCtaLabel(ctaState: DropCtaState, unlockCost: number) {
+function getFeaturedCtaLabel(ctaState: DropCtaState, unlockCost: number, isBalancePending: boolean) {
     if (ctaState === "view") {
         return "View Content";
     }
@@ -510,7 +312,7 @@ function getFeaturedCtaLabel(ctaState: DropCtaState, unlockCost: number) {
         return "Create account to unwrap";
     }
     if (ctaState === "refill") {
-        return "Refill to unwrap";
+        return isBalancePending ? "Check access" : "Refill to unwrap";
     }
     if (ctaState === "preview") {
         return "Preview cover";
@@ -523,8 +325,6 @@ function getFeaturedCtaLabel(ctaState: DropCtaState, unlockCost: number) {
 
 interface FeaturedCoverAccent {
     accentName: FeaturedCoverAccentName;
-    ctaGradientClass: string;
-    chipGlassClass: string;
 }
 
 function resolveFeaturedCoverAccent(drop: Pick<Drop, "title" | "type" | "tags" | "imageUrl">): FeaturedCoverAccent {
@@ -538,12 +338,8 @@ function resolveFeaturedCoverAccent(drop: Pick<Drop, "title" | "type" | "tags" |
                             : /\b(bubblegum|bubble|candy|pink|fuchsia|cotton)\b/.test(searchable) ? "bubblegum"
                                 : /\b(chocolate|cocoa|coffee|espresso|brown|mocha)\b/.test(searchable) ? "chocolate"
                                     : "brand";
-    const accent = FEATURED_COVER_ACCENTS[accentName];
-
     return {
         accentName,
-        ctaGradientClass: accent.ctaGradientClass,
-        chipGlassClass: accent.chipGlassClass,
     };
 }
 

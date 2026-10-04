@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -36,10 +37,7 @@ function readText(path: string) {
 }
 
 function changedFiles() {
-  return Array.from(new Set([
-    ...git(["diff", "--name-only", "HEAD"]).split(/\r?\n/u),
-    ...git(["diff", "--cached", "--name-only"]).split(/\r?\n/u),
-  ].map((entry) => entry.trim().replace(/\\/g, "/")).filter(Boolean))).sort();
+  return listValidatorScopeFiles();
 }
 
 function forbiddenTouched(files: string[]) {
@@ -205,7 +203,7 @@ const report = {
   ],
 };
 
-write(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
+write(REPORT_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
 write(DOC_PATH, renderDoc(report));
 
 if (validationFailures.length > 0) {

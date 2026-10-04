@@ -8,6 +8,9 @@ Creator UI prioritizes operational control, creator earnings, content visibility
 
 ## Rules
 
+- Apply the current whole-site visual direction from Shared Brand Primitives. Organize creator work around meaningful lists, selected detail and grouped settings. Phone layouts show one working pane at a time; wider layouts may expose list and detail together while retaining the same data, selection and action owners.
+- Keep current workflow status, drafts, permissions, expected failures and recovery visible as the presentation changes. Settings belong to their existing Creator Dashboard owners; the redesign does not create a parallel tools or earnings system.
+
 - Creator dashboards may be denser than User UI, but must remain less dense than Admin UI.
 - Show money, status, fan, booking, and content consequences clearly before a creator acts.
 - Keep creator workflows mobile-first while supporting productive tablet and desktop dashboard use.

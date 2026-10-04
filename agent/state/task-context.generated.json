@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T14:58:57.637Z",
+  "generatedAt": "2026-10-04T00:39:10.682Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -40,8 +40,6 @@
     "scripts/agent/build-agent-indexes.ts",
     "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "scripts/agent/shared.ts",
-    "scripts/agent/sync-sql.ts",
-    "scripts/agent/verification-selector.ts",
     "scripts/agent/build-task-context.ts",
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
@@ -49,9 +47,8 @@
     "scripts/agent/collect-signal-source-graph.ts",
     "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-governance.ts",
-    "src/lib/gumdrop-economics.ts",
-    "src/lib/gumdrop-ledger.ts",
-    "src/lib/server/paypal.ts"
+    "scripts/agent/extract-runtime-observability.ts",
+    "scripts/agent/extract-workflow.ts"
   ],
   "forbiddenFiles": [
     "src/lib/gumdrop-ledger.ts",
@@ -65,32 +62,31 @@
       "scripts/agent/build-agent-indexes.ts",
       "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
       "scripts/agent/shared.ts",
-      "scripts/agent/sync-sql.ts",
-      "scripts/agent/verification-selector.ts"
+      "scripts/agent/build-task-context.ts",
+      "scripts/agent/build-ui-surface-coverage.ts"
     ],
     "warm": [
-      "scripts/agent/build-task-context.ts",
-      "scripts/agent/build-ui-surface-coverage.ts",
       "scripts/agent/check-agent-context.ts",
       "scripts/agent/classify-repo-files.ts",
-      "scripts/agent/collect-signal-source-graph.ts"
+      "scripts/agent/collect-signal-source-graph.ts",
+      "scripts/agent/extract-canonical-helpers.ts",
+      "scripts/agent/extract-governance.ts"
     ],
     "cold": [
       "FULL_SCALE_CODEBASE_AUDIT.md",
       "REPO_MEMORY_LEDGER.md",
       "EVERY_FILE_FUNCTION_CHECKLIST.md",
-      ".Jules/**",
-      ".jules/**",
-      "agent/context/validator-authority.json",
-      "agent/prompts/"
+      "output/manual-account-responsive-release-20261002/",
+      "output/manual-account-source-20261002/input.json",
+      "output/manual-admin-debug-scope-repair-20261002/input.json",
+      "output/manual-admin-privacy-recovery-20261002/"
     ]
   },
   "likelyDuplicateLogicSearches": [
-    "rg -n \"duplicate|legacy|deprecated|orphan|moved\" <touched-domain>",
-    "rg -n \"paypal|purchase|wallet|gumdrop|unlock|entitlement|sourceOfFunds\" src tests scripts/agent"
+    "rg -n \"duplicate|legacy|deprecated|orphan|moved\" <touched-domain>"
   ],
   "releaseNoteImpact": "review_required",
-  "rollbackNote": "Rollback by reverting the narrow patch; do not alter balances, provider callbacks, entitlements, or source-of-funds records outside the selected slice.",
+  "rollbackNote": "Rollback by reverting the tooling change and regenerating the affected compact agent artifacts.",
   "promptCompilerExamples": [
     {
       "label": "telemetry",
@@ -125,69 +121,61 @@
     "scripts/agent/build-agent-indexes.ts",
     "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "scripts/agent/shared.ts",
-    "scripts/agent/sync-sql.ts",
-    "scripts/agent/verification-selector.ts"
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/build-ui-surface-coverage.ts"
   ],
   "warmContextFiles": [
-    "scripts/agent/build-task-context.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
-    "scripts/agent/check-agent-context.ts",
-    "scripts/agent/classify-repo-files.ts",
-    "scripts/agent/collect-signal-source-graph.ts"
-  ],
-  "coldContextFiles": [
-    "FULL_SCALE_CODEBASE_AUDIT.md",
-    "REPO_MEMORY_LEDGER.md",
-    "EVERY_FILE_FUNCTION_CHECKLIST.md",
-    ".Jules/**",
-    ".jules/**",
-    "agent/context/validator-authority.json",
-    "agent/prompts/"
-  ],
-  "likelyTouchedFiles": [
-    "scripts/agent/build-agent-indexes.ts",
-    "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
-    "scripts/agent/shared.ts",
-    "scripts/agent/sync-sql.ts",
-    "scripts/agent/verification-selector.ts",
-    "scripts/agent/build-task-context.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
     "scripts/agent/collect-signal-source-graph.ts",
     "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-governance.ts"
   ],
-  "likelyAdjacentFiles": [
+  "coldContextFiles": [
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "output/manual-account-responsive-release-20261002/",
+    "output/manual-account-source-20261002/input.json",
+    "output/manual-admin-debug-scope-repair-20261002/input.json",
+    "output/manual-admin-privacy-recovery-20261002/"
+  ],
+  "likelyTouchedFiles": [
+    "scripts/agent/build-agent-indexes.ts",
+    "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
+    "scripts/agent/shared.ts",
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
+    "scripts/agent/check-agent-context.ts",
+    "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/collect-signal-source-graph.ts",
+    "scripts/agent/extract-canonical-helpers.ts",
+    "scripts/agent/extract-governance.ts",
     "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/extract-workflow.ts",
+    "scripts/agent/extract-workflow.ts"
+  ],
+  "likelyAdjacentFiles": [
     "scripts/agent/summarize-dependency-graph.ts",
     "scripts/agent/run-evals.ts",
+    "scripts/agent/sync-sql.ts",
+    "scripts/agent/verification-selector.ts",
     "tests/unit/repo-inventory-stable-id.spec.ts",
     "scripts/agent/rank-signal-problems.ts",
     "scripts/agent/score-orphaned-logic.ts",
+    "scripts/agent/validate-agent-takeover-safety-check.ts",
     "scripts/agent/validate-evidence-freshness-index.ts",
     "scripts/agent/validate-generated-artifact-size-policy.ts",
     "scripts/agent/validate-generated-report-authority.ts",
-    "scripts/agent/validate-generated-report-schema-contract.ts",
-    "scripts/agent/validate-phase-one-lock.ts"
+    "scripts/agent/validate-generated-report-schema-contract.ts"
   ],
-  "likelyAdjacentHelpers": [
-    "src/lib/gumdrop-economics.ts",
-    "src/lib/gumdrop-ledger.ts",
-    "src/lib/server/paypal.ts"
-  ],
+  "likelyAdjacentHelpers": [],
   "governanceConsultFull": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "REPO_MEMORY_LEDGER.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md"
   ],
   "governanceConsultSelective": [],
-  "canonicalHelpersToReuse": [
-    "src/lib/gumdrop-economics.ts",
-    "src/lib/gumdrop-ledger.ts",
-    "src/lib/server/paypal.ts"
-  ],
+  "canonicalHelpersToReuse": [],
   "relevantKnownPitfalls": [
     "diagnostics_serialization_crash",
     "consumed_response_stream_fallback",
@@ -211,7 +199,7 @@
     "npm run agent:test -- scripts/agent/build-agent-indexes.ts",
     "npm run agent:test -- src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "npm run agent:test -- scripts/agent/shared.ts",
-    "npm run agent:test -- scripts/agent/sync-sql.ts",
+    "npm run agent:test -- scripts/agent/build-task-context.ts",
     "npm run check:agent-context"
   ],
   "signoffVerificationCommands": [
@@ -240,7 +228,7 @@
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
     "Mode resolved as audit.",
-    "Ranking considered 4914 repo files and 20 canonical helper entries.",
+    "Ranking considered 5036 repo files and 20 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
@@ -267,10 +255,6 @@
       "why_not_selected": "generated_penalty"
     },
     {
-      "path": "agent/state/antigravity-agent-self-knowledge.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
       "path": "agent/state/behavioral-intelligence-snapshot-truth.generated.json",
       "why_not_selected": "generated_penalty"
     },
@@ -285,35 +269,38 @@
     {
       "path": "agent/state/bug-report-truth-terminal-state.generated.json",
       "why_not_selected": "generated_penalty"
+    },
+    {
+      "path": "agent/state/control-tower-report-freshness-cleanup.generated.json",
+      "why_not_selected": "generated_penalty"
     }
   ],
   "do_not_touch_without_broad_signoff": [
     "scripts/agent/build-agent-indexes.ts",
     "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "scripts/agent/shared.ts",
-    "scripts/agent/sync-sql.ts",
-    "scripts/agent/verification-selector.ts",
     "scripts/agent/build-task-context.ts",
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
     "scripts/agent/collect-signal-source-graph.ts",
     "scripts/agent/extract-canonical-helpers.ts",
-    "scripts/agent/extract-governance.ts"
+    "scripts/agent/extract-governance.ts",
+    "scripts/agent/extract-runtime-observability.ts",
+    "scripts/agent/extract-workflow.ts"
   ],
   "rankingEvidence": [
     {
       "stable_id": "file__scripts__agent__build-agent-indexes-ts",
       "path": "scripts/agent/build-agent-indexes.ts",
-      "score": 160,
-      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, verification_lane_match",
+      "score": 146,
+      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, verification_lane_match",
       "weighted_components": [
         "explicit_file_hint",
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "recent_pass_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
@@ -321,15 +308,14 @@
     {
       "stable_id": "file__src__lib__agent-governance__generated-reports__generated-report-contract-ts",
       "path": "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
-      "score": 148,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, pitfall_match, verification_lane_match",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
         "adjacency_match",
-        "recent_pass_match",
         "pitfall_match",
         "verification_lane_match"
       ],
@@ -338,49 +324,16 @@
     {
       "stable_id": "file__scripts__agent__shared-ts",
       "path": "scripts/agent/shared.ts",
-      "score": 142,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match, high_inbound_bonus",
+      "score": 128,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match, high_inbound_bonus",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
         "adjacency_match",
-        "recent_pass_match",
         "verification_lane_match",
         "high_inbound_bonus"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__sync-sql-ts",
-      "path": "scripts/agent/sync-sql.ts",
-      "score": 136,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "recent_pass_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__verification-selector-ts",
-      "path": "scripts/agent/verification-selector.ts",
-      "score": 136,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "recent_pass_match",
-        "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
@@ -477,6 +430,36 @@
     {
       "stable_id": "file__scripts__agent__extract-governance-ts",
       "path": "scripts/agent/extract-governance.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__extract-runtime-observability-ts",
+      "path": "scripts/agent/extract-runtime-observability.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__extract-workflow-ts",
+      "path": "scripts/agent/extract-workflow.ts",
       "score": 122,
       "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [

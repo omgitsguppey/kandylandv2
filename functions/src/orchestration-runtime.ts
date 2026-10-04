@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto"
 import {FieldValue} from "firebase-admin/firestore"
 
 import {db} from "./firebase-admin.js"
@@ -179,11 +180,18 @@ export async function orchestrateSourceMutation(input: {
     fallbackObservations: identity.fallbackObservations,
   })
 
-  const eventRef = db.collection(ORCHESTRATION_COLLECTIONS.events).doc()
+  // Immutable event-fact creates share one atomic diagnostic projection. Other
+  // source updates and explicit repair observations retain their existing flow.
+  const dedupeEventFactCreate = input.sourceCollection === "analytics_event_facts"
+    && input.sourceMutation === "create"
+  const eventCollection = db.collection(ORCHESTRATION_COLLECTIONS.events)
+  const eventRef = dedupeEventFactCreate
+    ? eventCollection.doc(`event_fact_${createHash("sha256").update(input.sourceDocumentPath).digest("hex")}`)
+    : eventCollection.doc()
   const activeFindingKeys = new Set(findings.map((entry) => entry.findingKey))
   const batch = db.batch()
 
-  batch.set(eventRef, {
+  const eventRecord = {
     engineVersion: ORCHESTRATION_ENGINE_VERSION,
     sourceCollection: input.sourceCollection,
     sourceDocumentId: input.sourceDocumentId,
@@ -206,8 +214,14 @@ export async function orchestrateSourceMutation(input: {
     status,
     findingCount: findings.length,
     proposalCount: findings.length,
+    ...(dedupeEventFactCreate ? {activeFindingKeys: Array.from(activeFindingKeys)} : {}),
     createdAt: FieldValue.serverTimestamp(),
-  })
+  }
+  if (dedupeEventFactCreate) {
+    batch.create(eventRef, eventRecord)
+  } else {
+    batch.set(eventRef, eventRecord)
+  }
 
   findings.forEach((finding) => {
     const findingId = buildFindingDocumentId(sourceDocumentKey, finding.findingKey)
@@ -277,7 +291,39 @@ export async function orchestrateSourceMutation(input: {
     updatedAt: FieldValue.serverTimestamp(),
   }, {merge: true})
 
-  await batch.commit()
+  try {
+    await batch.commit()
+  } catch (error) {
+    const code = (error as {code?: unknown}).code
+    if (!dedupeEventFactCreate
+      || (code !== 6 && code !== "already-exists" && code !== "ALREADY_EXISTS")) {
+      throw error
+    }
+
+    // The event document and increments committed together. On redelivery use
+    // that committed finding context, which may differ from today's role state,
+    // and finish reconciliation without incrementing a second time.
+    const persisted = await eventRef.get()
+    const record = asRecord(persisted.data())
+    const persistedKeys = record.activeFindingKeys
+    if (!persisted.exists
+      || record.engineVersion !== ORCHESTRATION_ENGINE_VERSION
+      || record.sourceCollection !== input.sourceCollection
+      || record.sourceDocumentPath !== input.sourceDocumentPath
+      || record.sourceMutation !== "create"
+      || !Array.isArray(persistedKeys)
+      || persistedKeys.some((key) => typeof key !== "string" || key.length === 0)
+      || new Set(persistedKeys).size !== persistedKeys.length
+      || persistedKeys.length !== record.findingCount) {
+      throw new Error("orchestration_recovery_context_missing")
+    }
+    await reconcileResolvedRecords({
+      sourceDocumentKey,
+      activeFindingKeys: new Set(persistedKeys as string[]),
+      nowMs: observedAtMs,
+    })
+    return
+  }
   await reconcileResolvedRecords({
     sourceDocumentKey,
     activeFindingKeys,

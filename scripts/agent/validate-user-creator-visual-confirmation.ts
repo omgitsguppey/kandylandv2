@@ -3,6 +3,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { readValidatorMutationScope, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
+
 type VisualSeverity = "P0" | "P1" | "P2";
 type VisualStatus = "fixed" | "current" | "deferred";
 
@@ -19,6 +21,9 @@ type VisualFinding = {
 
 type VisualRoute = {
   route: string;
+  routeKind: "composition" | "redirect_alias" | "shared_surface";
+  primaryCanvas: string;
+  redirectTarget?: string;
   surface: "user" | "creator" | "shared_shell" | "release_notes";
   confirmationMode: "source_coverage" | "reproduction_evidence";
   evidencePaths: string[];
@@ -34,6 +39,7 @@ type ForbiddenDriftCheck = {
 };
 
 export type UserCreatorVisualConfirmationReport = {
+  mutationScope?: ReturnType<typeof readValidatorMutationScope> | { mode: "whole_git_worktree" };
   generatedAtUtc: string;
   reportKey: "user-creator-visual-confirmation";
   currentHead: string;
@@ -63,6 +69,8 @@ export const REQUIRED_VISUAL_CONFIRMATION_ROUTES = [
   "/drops/[id]/preview",
   "/dashboard",
   "/dashboard/creator",
+  "/dashboard/creator/settings",
+  "/settings",
   "/dashboard/profile",
   "/dashboard/settings",
   "/dashboard/library",
@@ -92,6 +100,10 @@ const scannedSingletons = [
   "src/components/Chat/ChatExperience.tsx",
   "src/app/page.tsx",
   "src/app/HomeClient.tsx",
+  "src/components/Settings/UserSettingsPage.tsx",
+  "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+  "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx",
+  "src/components/creative-tim/kandydrops/account/AccountSettingsPanel.tsx",
 ] as const;
 
 const forbiddenAdminBackendPrefixes = [
@@ -119,8 +131,9 @@ function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 }
 
-function changedFiles() {
-  const output = execFileSync("git", ["status", "--porcelain=v1", "-z"], { cwd: repoRoot, encoding: "utf8" });
+export function changedFiles(root = repoRoot, args: readonly string[] = process.argv.slice(2)) {
+  if (readValidatorMutationScope(root, args)) return [];
+  const output = execFileSync("git", ["status", "--porcelain=v1", "-z"], { cwd: root, encoding: "utf8" });
   return output
     .split("\0")
     .filter(Boolean)
@@ -182,7 +195,7 @@ export function detectFakeActionTarget(source: string, filePath = "") {
   return false;
 }
 
-export function detectEagerCreatorManagerMount(source: string) {
+export function detectEagerCreatorManagerMount(source: string, controlDeckSource = "") {
   const managers = [
     "CreatorRequestsManager",
     "CreatorBookingsManager",
@@ -191,7 +204,12 @@ export function detectEagerCreatorManagerMount(source: string) {
   ];
   const mountedManagers = managers.filter((manager) => source.includes(`<${manager}`)).length;
   if (mountedManagers < 4) return false;
-  return !(source.includes("const activeManager") && source.includes("data-creator-active-manager") && source.includes("openSection ==="));
+  const exclusiveManager = source.includes("const activeManager") && source.includes("openSection ===")
+    && /\{openSection\s*\?\s*activeManager\s*:/u.test(source);
+  const currentDeckBinding = source.includes("<CreatorSettingsControlDeck") && source.includes("activeScope={activeScope}")
+    && controlDeckSource.includes("data-creator-active-manager={activeScope.kind")
+    && controlDeckSource.includes("{children ??");
+  return !(exclusiveManager && (source.includes("data-creator-active-manager") || currentDeckBinding));
 }
 
 export function detectFanPassMutationControls(source: string) {
@@ -231,6 +249,24 @@ export function detectReproductionEvidenceMismatch(report: UserCreatorVisualConf
   for (const route of REQUIRED_VISUAL_CONFIRMATION_ROUTES) {
     if (!routes.has(route)) failures.push(`missing_route:${route}`);
   }
+  for (const route of report.routes) {
+    if (route.sourceFiles.length === 0) failures.push(`missing_source_owner:${route.route}`);
+    if (!route.sourceFiles.includes(route.primaryCanvas)) failures.push(`primary_canvas_not_covered:${route.route}`);
+    for (const sourceFile of route.sourceFiles) {
+      if (!existsSync(join(repoRoot, sourceFile))) failures.push(`missing_source_owner:${route.route}:${sourceFile}`);
+    }
+    if (route.routeKind === "redirect_alias") {
+      const target = report.routes.find((candidate) => candidate.route === route.redirectTarget);
+      if (!target || target.routeKind !== "composition" || target.primaryCanvas !== route.primaryCanvas) {
+        failures.push(`invalid_redirect_owner:${route.route}`);
+      }
+      const redirectIsBound = route.redirectTarget && route.sourceFiles.some((sourceFile) => (
+        sourceFile.endsWith("/page.tsx") && existsSync(join(repoRoot, sourceFile))
+          && read(sourceFile).includes(`redirect("${route.redirectTarget}")`)
+      ));
+      if (!redirectIsBound) failures.push(`missing_redirect_binding:${route.route}`);
+    }
+  }
   if (report.summary.reproductionEvidenceAttached) {
     const evidenceCount = report.routes.reduce((total, route) => total + route.evidencePaths.length, 0);
     if (evidenceCount === 0) failures.push("missing_reproduction_evidence_paths");
@@ -249,23 +285,46 @@ export function detectFinalVisualQaClaimWithoutEvidence(report: UserCreatorVisua
 
 function routeFor(route: typeof REQUIRED_VISUAL_CONFIRMATION_ROUTES[number], reproductionEvidenceAttached: boolean): VisualRoute {
   const sourceFileMap: Record<typeof REQUIRED_VISUAL_CONFIRMATION_ROUTES[number], string[]> = {
-    "/": ["src/app/page.tsx", "src/app/HomeClient.tsx", "src/components/Navigation/ProfileDropdown.tsx"],
+    "/": ["src/app/page.tsx", "src/app/HomeClient.tsx", "src/components/Landing/PublicHomeExperience.tsx", "src/components/Navigation/ProfileDropdown.tsx"],
     "/drops": ["src/app/drops/DropsClient.tsx", "src/components/Drops/LockedDropPreviewView.tsx"],
     "/drops/[id]/preview": ["src/components/Drops/LockedDropPreviewView.tsx"],
-    "/dashboard": ["src/app/dashboard/layout.tsx", "src/components/Navigation/ProfileSidebar.tsx"],
-    "/dashboard/creator": ["src/components/Creators/CreatorDashboardSettingsHub.tsx", "src/components/Creators/CreatorBroadcastManager.tsx"],
-    "/dashboard/profile": ["src/app/dashboard/profile/components/ProfileProfileSection.tsx", "src/app/dashboard/profile/components/ProfilePrimitives.tsx"],
-    "/dashboard/settings": ["src/app/dashboard/settings/page.tsx", "src/components/Navigation/ProfileSidebar.tsx"],
+    "/dashboard": ["src/app/dashboard/layout.tsx", "src/app/dashboard/DashboardClient.tsx", "src/components/Navigation/ProfileSidebar.tsx"],
+    "/dashboard/creator": ["src/app/dashboard/creator/page.tsx", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "src/components/creative-tim/kandydrops/creator/CreatorOperatingRunway.tsx"],
+    "/dashboard/creator/settings": ["src/app/dashboard/creator/settings/page.tsx", "src/components/Creators/CreatorDashboardSettingsHub.tsx", "src/components/creative-tim/kandydrops/creator/CreatorSettingsControlDeck.tsx"],
+    "/settings": ["src/app/settings/page.tsx", "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx", "src/components/Settings/UserSettingsPage.tsx", "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx", "src/components/creative-tim/kandydrops/account/AccountSettingsPanel.tsx"],
+    "/dashboard/profile": ["src/app/dashboard/profile/page.tsx", "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx"],
+    "/dashboard/settings": ["src/app/dashboard/settings/page.tsx", "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx"],
     "/dashboard/library": ["src/app/dashboard/library/LibraryClient.tsx"],
     "/dashboard/chat": ["src/components/Chat/ChatExperience.tsx"],
     "/creators/[username]": ["src/app/creators/[username]/CreatorProfileClient.tsx", "src/components/Creators/CreatorExperiencesPanel.tsx"],
     "Beta release notes drawer": ["src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx"],
     "Mobile nav/sidebar/profile dropdown": ["src/components/Navigation/ProfileSidebar.tsx", "src/components/Navigation/ProfileDropdown.tsx"],
   };
-  const creatorRoutes = new Set(["/dashboard/creator", "/creators/[username]"]);
+  const primaryCanvasMap: Record<typeof REQUIRED_VISUAL_CONFIRMATION_ROUTES[number], string> = {
+    "/": "src/components/Landing/PublicHomeExperience.tsx",
+    "/drops": "src/app/drops/DropsClient.tsx",
+    "/drops/[id]/preview": "src/components/Drops/LockedDropPreviewView.tsx",
+    "/dashboard": "src/app/dashboard/DashboardClient.tsx",
+    "/dashboard/creator": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+    "/dashboard/creator/settings": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+    "/settings": "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+    "/dashboard/profile": "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+    "/dashboard/settings": "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+    "/dashboard/library": "src/app/dashboard/library/LibraryClient.tsx",
+    "/dashboard/chat": "src/components/Chat/ChatExperience.tsx",
+    "/creators/[username]": "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "Beta release notes drawer": "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx",
+    "Mobile nav/sidebar/profile dropdown": "src/components/Navigation/ProfileSidebar.tsx",
+  };
+  const redirectAlias = route === "/dashboard/profile" || route === "/dashboard/settings";
+  const sharedSurface = route === "Beta release notes drawer" || route === "Mobile nav/sidebar/profile dropdown";
+  const creatorRoutes = new Set(["/dashboard/creator", "/dashboard/creator/settings", "/creators/[username]"]);
   const releaseRoutes = new Set(["Beta release notes drawer"]);
   return {
     route,
+    routeKind: redirectAlias ? "redirect_alias" : sharedSurface ? "shared_surface" : "composition",
+    primaryCanvas: primaryCanvasMap[route],
+    ...(redirectAlias ? { redirectTarget: "/settings" } : {}),
     surface: releaseRoutes.has(route) ? "release_notes" : creatorRoutes.has(route) ? "creator" : route === "/dashboard/chat" || route === "Mobile nav/sidebar/profile dropdown" ? "shared_shell" : "user",
     confirmationMode: reproductionEvidenceAttached ? "reproduction_evidence" : "source_coverage",
     evidencePaths: [],
@@ -282,7 +341,7 @@ function scanVisualFindings(files = sourceFiles(), changed = changedFiles()) {
     if (detectFakeActionTarget(source, filePath)) {
       current.push(finding("fake_action_target", "P1", "User or creator UI contains a fake href or creator self-loop action.", filePath, "current", "user-creator-ui", ['href="#"', "/dashboard/creator"], "Replace the fake target with a real action, route, or disabled/configuration-only state."));
     }
-    if (filePath === "src/components/Creators/CreatorDashboardSettingsHub.tsx" && detectEagerCreatorManagerMount(source)) {
+    if (filePath === "src/components/Creators/CreatorDashboardSettingsHub.tsx" && detectEagerCreatorManagerMount(source, read("src/components/creative-tim/kandydrops/creator/CreatorSettingsControlDeck.tsx"))) {
       current.push(finding("eager_creator_managers", "P1", "Creator dashboard managers mount together instead of only when opened.", filePath, "current", "creator-ui", ["CreatorRequestsManager", "CreatorBookingsManager", "CreatorFanPassManager", "CreatorBroadcastManager"], "Keep manager rendering gated by openSection/activeManager."));
     }
     if (/src\/components\/Creators\/Creator(?:Requests|Bookings|FanPass|Broadcast)Manager\.tsx/u.test(filePath) && detectMissingManagerMobileTargets(source)) {
@@ -339,7 +398,7 @@ export function buildUserCreatorVisualConfirmationReport(options: { reproduction
     "Fix any source-reported UI gap before optional browser reproduction.",
   ));
 
-  return {
+  return withValidatorMutationScope<UserCreatorVisualConfirmationReport>({
     generatedAtUtc: new Date().toISOString(),
     reportKey: "user-creator-visual-confirmation",
     currentHead: currentHead(),
@@ -378,7 +437,7 @@ export function buildUserCreatorVisualConfirmationReport(options: { reproduction
       "Use browser viewing or screenshots only to reproduce a specific source-reported issue.",
       "Keep reproductionEvidenceAttached=false unless an optional reproduction artifact is attached for a source-reported issue.",
     ],
-  };
+  });
 }
 
 function writeReport(report: UserCreatorVisualConfirmationReport) {

@@ -1,10 +1,10 @@
 ---
-description: Pre-commit verification checklist to run before every git commit and push
+description: Verification checklist before an authorized KandyDrops commit or push
 ---
 
 # Pre-Commit Verification
 
-Run these checks before every `git commit` and `git push` to catch build-breaking, continuity-breaking, and deployment-breaking issues before they reach App Hosting.
+Use this checklist before an authorized `git commit` or `git push` to catch build-breaking and continuity-breaking issues. It does not authorize publishing, deployment, or App Hosting changes.
 
 ## Steps
 
@@ -74,14 +74,7 @@ This saves full output to `build.log`.
 
 8. Use full repo checks as signoff-only for broad, release-risk, package/lockfile, deployment, Firebase, provider, or governance changes. Do not use full `npm run check`, Playwright, Cypress, Lighthouse, provider-connected checks, or deploy commands as the default edit loop.
 
-9. Only commit if the required checks for the touched surfaces pass, and only after required memory/audit files have been updated for that lane.
-
-```bash
-git add -- <explicit-paths>
-# or use: git add -p
-git commit -m "your message"
-git push
-```
+9. Stage, commit, or push only when the user has authorized that action and the required checks for the touched surfaces pass. Update durable ledgers only when this lane changes governance, an owner/validator, or verification policy.
 
 ## Available npm Scripts
 

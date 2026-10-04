@@ -29,6 +29,7 @@ function requireNotIncludes(source: string, needle: string, label: string) {
 const page = readRequired("src/app/admin/analytics/page.tsx");
 const stateHook = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const primitives = readRequired("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx");
+const canvas = readRequired("src/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas.tsx");
 const operationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const displayState = readRequired("src/lib/analytics/admin-analytics-display-state.ts");
 const pageSpec = readRequired("tests/unit/admin-analytics-page.spec.tsx");
@@ -52,11 +53,17 @@ for (const needle of [
   "primaryBlockingAnalyticsError",
   "analyticsOverviewDisplayMetrics.revenue.displayValue",
   "analyticsOverviewDisplayMetrics.purchases.displayValue",
-  "badgePlacement={analyticsOverviewDisplayMetrics.revenue.showBadgeInPrimary ? \"footer\" : \"hidden\"}",
-  "md:sticky md:top-24",
 ]) {
   requireIncludes(page, needle, "Admin Analytics overview page");
 }
+
+requireIncludes(page, "<AdminAnalyticsEvidenceCanvas", "Admin Analytics active sourced canvas");
+requireIncludes(page, "statusLabel: analyticsOverviewDisplayMetrics.revenue.showBadgeInPrimary ? analyticsOverviewDisplayMetrics.revenue.badgeLabel : undefined", "Admin Analytics conditional canonical source badge");
+requireIncludes(page, "<NativeSelect", "Admin Analytics native evidence lens");
+requireIncludes(page, "value={activeTab}", "Admin Analytics evidence lens state");
+requireIncludes(canvas, 'aria-label="Analytics controls"', "Admin Analytics in-flow controls");
+requireNotIncludes(canvas, "sticky", "Admin Analytics body controls must stay in flow");
+requireNotIncludes(page, "mobileViewMode", "Admin Analytics detached duplicate page view state");
 
 requireNotIncludes(page, "{blockingAnalyticsError.message", "Admin Analytics overview page");
 requireNotIncludes(page, "top-[8.6rem]", "Admin Analytics overview mobile tabs");

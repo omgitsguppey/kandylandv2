@@ -305,6 +305,8 @@ const SYSTEM_INTERNAL_ROUTE_PREFIXES = [
   "src/app/(legal)/terms",
   "src/app/page.tsx",
   "src/app/offline",
+  "src/app/maintenance/page.tsx",
+  "src/app/maintenance/admin/page.tsx",
 ] as const;
 
 function unique<T>(items: readonly T[]) {

@@ -56,6 +56,12 @@ if (packageJson.scripts?.["check:daily-task-reward-economy"] !== "tsx scripts/ag
 const outOfBoundsCatalogTasks = BUILT_IN_DAILY_TASKS.filter((task) => (
   task.reward < DAILY_TASK_GLOBAL_MIN_REWARD_GD || task.reward > DAILY_TASK_GLOBAL_MAX_REWARD_GD
 ));
+if (!Number.isFinite(DAILY_TASK_GLOBAL_MIN_REWARD_GD)
+  || !Number.isFinite(DAILY_TASK_GLOBAL_MAX_REWARD_GD)
+  || DAILY_TASK_GLOBAL_MIN_REWARD_GD <= 0
+  || DAILY_TASK_GLOBAL_MAX_REWARD_GD < DAILY_TASK_GLOBAL_MIN_REWARD_GD) {
+  fail("Canonical task catalog reward bounds must be finite, positive and ordered.");
+}
 if (outOfBoundsCatalogTasks.length > 0) {
   fail(`Built-in daily task rewards must stay within ${DAILY_TASK_GLOBAL_MIN_REWARD_GD}-${DAILY_TASK_GLOBAL_MAX_REWARD_GD} GD. Offenders: ${outOfBoundsCatalogTasks.map((task) => `${task.id}:${task.reward}`).join(", ")}`);
 }
@@ -67,8 +73,6 @@ for (const expected of [
   "payoutPolicy: \"on_completion_only\"",
   "repeatPolicy",
   "economyRisk",
-  "DAILY_TASK_GLOBAL_MIN_REWARD_GD = 10",
-  "DAILY_TASK_GLOBAL_MAX_REWARD_GD = 1000",
 ]) {
   requireIncludes(taskCatalogSource, expected, "Task catalog reward contract");
 }

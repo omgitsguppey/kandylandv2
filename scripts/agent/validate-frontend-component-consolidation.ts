@@ -10,7 +10,8 @@ import {
   validateFrontendComponentConsolidationReport,
   validateFrontendSurfaceInventoryReport,
 } from "@/lib/frontend-hardening/frontend-surface-inventory";
-import { listWorkingTreeFiles, readRepoToolchainState } from "./shared";
+import { readRepoToolchainState } from "./shared";
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 const ROOT = process.cwd();
 
@@ -39,7 +40,7 @@ function readPublicBetaScore() {
 }
 
 function changedFiles() {
-  return listWorkingTreeFiles();
+  return listValidatorScopeFiles();
 }
 
 function renderDoc(
@@ -91,13 +92,18 @@ const validations = [
 ];
 const classifications = Object.fromEntries(changedFiles().map((file) => [file, classifyFrontendConsolidationDirtyFile(file)]));
 const compactClassifications = compactFrontendConsolidationDirtyClassifications(classifications);
+const { mutationScope } = withValidatorMutationScope({});
 
 const toolingFailures = toolchain.gitStatus !== "available"
   ? [`git_required: frontend component consolidation cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`]
   : [];
-write("agent/state/frontend-component-consolidation.generated.json", JSON.stringify({ ...report, gitStatus: toolchain.gitStatus, currentHeadSource: toolchain.currentHeadSource, toolingDegraded: toolchain.toolingDegraded, degradationReason: toolchain.degradationReason, dirtyFileCount: compactClassifications.total, dirtyFileClassificationSummary: compactClassifications.summary, dirtyFileClassificationOmitted: compactClassifications.omitted, dirtyFileClassification: compactClassifications.classifications, validationFailures: [...validations, ...toolingFailures] }, null, 2));
+const failures = [...validations, ...toolingFailures];
+for (const [file, classification] of Object.entries(classifications)) {
+  if (classification === "unsafe_unknown") failures.push(`Dirty/untracked file is unclassified: ${file}`);
+}
+write("agent/state/frontend-component-consolidation.generated.json", JSON.stringify({ ...report, mutationScope, gitStatus: toolchain.gitStatus, currentHeadSource: toolchain.currentHeadSource, toolingDegraded: toolchain.toolingDegraded, degradationReason: toolchain.degradationReason, dirtyFileCount: compactClassifications.total, dirtyFileClassificationSummary: compactClassifications.summary, dirtyFileClassificationOmitted: compactClassifications.omitted, dirtyFileClassification: compactClassifications.classifications, validationFailures: failures }, null, 2));
 write("docs/agent-truth/frontend-component-consolidation.md", renderDoc(report, compactClassifications));
-write("agent/state/frontend-gut-consolidation.generated.json", JSON.stringify({ ...gut, dirtyFileCount: compactClassifications.total, dirtyFileClassificationSummary: compactClassifications.summary, dirtyFileClassificationOmitted: compactClassifications.omitted, dirtyFileClassification: compactClassifications.classifications }, null, 2));
+write("agent/state/frontend-gut-consolidation.generated.json", JSON.stringify({ ...gut, mutationScope, dirtyFileCount: compactClassifications.total, dirtyFileClassificationSummary: compactClassifications.summary, dirtyFileClassificationOmitted: compactClassifications.omitted, dirtyFileClassification: compactClassifications.classifications, validationFailures: failures }, null, 2));
 write("docs/agent-truth/frontend-gut-consolidation.md", [
   "# Frontend Gut Consolidation",
   "",
@@ -112,10 +118,6 @@ write("docs/agent-truth/frontend-gut-consolidation.md", [
   "",
 ].join("\n"));
 
-const failures = [...validations, ...toolingFailures];
-for (const [file, classification] of Object.entries(classifications)) {
-  if (classification === "unsafe_unknown") failures.push(`Dirty/untracked file is unclassified: ${file}`);
-}
 for (const path of ["agent/state/frontend-component-consolidation.generated.json", "agent/state/frontend-gut-consolidation.generated.json"]) {
   if (lineCount(path) > 500) failures.push(`${path} exceeds 500 lines.`);
 }

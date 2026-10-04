@@ -46,6 +46,7 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 }));
 
 import { GET } from "@/app/api/admin/overview/route";
+import { buildAdminOverviewPageData } from "@/lib/server/admin-page-data-loader";
 
 describe("admin overview hot-cache route", () => {
   beforeEach(() => {
@@ -138,5 +139,17 @@ describe("admin overview hot-cache route", () => {
     expect(payload.issues[0]).toContain("snapshot is missing");
     expect(payload.hotCache.broadFallbackReadsRun).toBe(false);
     expect(payload.platformPulse).toHaveLength(6);
+    for (const metric of payload.platformPulse) {
+      expect(metric.primaryValue).toBeNull();
+      expect(metric.current30dValue).toBeNull();
+      expect(metric.prior30dValue).toBeNull();
+      expect(metric.issueState).toBe("unavailable");
+      expect(metric.deltaPct).toBeNull();
+    }
+    const pageData = buildAdminOverviewPageData({ data: payload, isLoading: false });
+    expect(pageData.truthState).toBe("unavailable");
+    expect(pageData.serverUpdateLabel).toBe("Overview data unavailable");
+    expect(pageData.truthLabel).toBe("No verified source is available.");
+    expect(payload.issues[0]).toContain("snapshot is missing");
   });
 });

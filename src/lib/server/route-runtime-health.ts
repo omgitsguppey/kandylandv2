@@ -1,8 +1,8 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 
-import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { isKandyLocalPublicPreview } from "@/lib/server/local-public-preview";
 import {
     ROUTE_RUNTIME_HEALTH_TARGETS,
     type RouteRuntimeHealthItem,
@@ -70,6 +70,12 @@ export async function recordRouteRuntimeSample(input: {
     statusCode: number;
     errorMessage?: string | null;
 }) {
+    if (isKandyLocalPublicPreview()) {
+        return;
+    }
+
+    const { adminDb } = await import("@/lib/server/firebase-admin");
+
     if (!adminDb || typeof adminDb.runTransaction !== "function") {
         return;
     }
@@ -128,6 +134,14 @@ export async function recordRouteRuntimeSample(input: {
 }
 
 export async function listRouteRuntimeHealth(limitCount = Object.keys(ROUTE_RUNTIME_HEALTH_TARGETS).length) {
+    if (isKandyLocalPublicPreview()) {
+        return (Object.keys(ROUTE_RUNTIME_HEALTH_TARGETS) as RouteRuntimeHealthKey[])
+            .slice(0, limitCount)
+            .map((key) => buildDefaultRouteRuntimeHealthItem(key));
+    }
+
+    const { adminDb } = await import("@/lib/server/firebase-admin");
+
     if (!adminDb) {
         return (Object.keys(ROUTE_RUNTIME_HEALTH_TARGETS) as RouteRuntimeHealthKey[])
             .slice(0, limitCount)

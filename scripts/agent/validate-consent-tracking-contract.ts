@@ -1,6 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import ts from "typescript";
+
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 import {
   CONSENT_MODE_VALUES,
@@ -38,17 +41,6 @@ function git(args: string[]) {
   }
 }
 
-function changedFiles() {
-  const changed = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"]] as const) {
-    const output = git([...args]);
-    for (const line of output.split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      changed.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...changed].sort();
-}
-
 function includesAll(source: string, needles: string[]) {
   return needles.every((needle) => source.includes(needle));
 }
@@ -61,7 +53,8 @@ const bannerSource = read("src/components/CookieBanner.tsx");
 const deepTrackerSource = read("src/components/Analytics/DeepTracker.tsx");
 const serverConsentSource = read("src/lib/server/privacy-consent.ts");
 const apiConsentSource = read("src/app/api/privacy/consent/route.ts");
-const changed = changedFiles();
+const mutationScope = readValidatorMutationScope(ROOT);
+const changed = mutationScope?.changedFiles ?? listValidatorScopeFiles(ROOT);
 
 const failures: string[] = [];
 
@@ -106,9 +99,19 @@ if (!trackingPolicySource.includes("resolveConsentMode")
   failures.push("client tracking policy is not connected to consent mode source of truth.");
 }
 
+const deepTrackerAst = ts.createSourceFile("DeepTracker.tsx", deepTrackerSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+let clearsGuestQueue = false;
+function inspectGuestQueueClear(node: ts.Node) {
+  if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "persistGuestQueue"
+    && node.arguments[0] && ts.isArrayLiteralExpression(node.arguments[0]) && node.arguments[0].elements.length === 0) {
+    clearsGuestQueue = true;
+  }
+  ts.forEachChild(node, inspectGuestQueueClear);
+}
+inspectGuestQueueClear(deepTrackerAst);
 if (!deepTrackerSource.includes("canUseBehavioralAnalytics")
   || !deepTrackerSource.includes("subscribeToPrivacySettings")
-  || !deepTrackerSource.includes("persistGuestQueue([])")) {
+  || !clearsGuestQueue) {
   failures.push("DeepTracker does not read consent policy or drop queued behavior when disabled.");
 }
 
@@ -164,7 +167,9 @@ if (canPersistIdentityLink("minimal_analytics")) {
   failures.push("identity links can persist under minimal analytics.");
 }
 
-const protectedChanges = changed.filter((path) =>
+// Explicit task safety is owned by the validated immutable allowlist.
+// Standalone invocation retains the full protected-surface incident guard.
+const protectedChanges = (mutationScope ? [] : changed).filter((path) =>
   /^src\/components\/Navigation\//u.test(path)
   || /^src\/components\/Navbar/u.test(path)
   || /\/chat\//u.test(path)
@@ -198,11 +203,14 @@ const report = {
     minimalPersistsIdentityLink: canPersistIdentityLink("minimal_analytics"),
   },
   changedFiles: changed,
+  mutationScope: mutationScope ?? { mode: "whole_git_worktree" as const },
   validationFailures: failures,
 };
 
 write(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
-write(DOC_PATH, [
+// Scoped verification must preserve durable documentation outside its allowlist.
+// The existing standalone command remains its document publisher.
+if (!mutationScope) write(DOC_PATH, [
   "# Consent Tracking Contract",
   "",
   "Status: cookie consent and privacy tracking are connected to a first-class consent mode policy. Minimal or declined choices do not allow full behavioral tracking or external analytics.",

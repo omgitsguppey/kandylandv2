@@ -1,4 +1,3 @@
-// turbo-all
 # Omni-System UI Simulation Workflow
 
 This workflow routes explicit UI simulation requests. It is not the default detector for broken admin surfaces, modals, source-state labels, or beta-exit readiness. Source coverage, route contracts, selectors, hydration markers, and client-error fixtures should report the issue first; browser simulation is reproduction or diagnostic evidence after that boundary is clear.
@@ -12,12 +11,11 @@ This workflow routes explicit UI simulation requests. It is not the default dete
    - If they ask whether an admin action, modal, or source-state label is connected -> start with `npm run check:ui:coverage`, `npm run check:ui:runtime`, and the surface-specific source validator before browser reproduction.
 
 ## Step 2: Test Orchestration
-1. Formulate a temporary test script inside the matching framework's directory (e.g. `cypress/e2e/temp.cy.ts`).
-2. Run the specific script using the framework's strict runner command.
+1. Reuse an existing focused test first. Create a temporary test only when the framework requires it, keep it outside tracked source when possible, and remove it through the supported cleanup path.
+2. Run the narrowest framework command that exercises the reported behavior.
 
-## Step 3: Flag and Report (Strictly No Code Changes)
+## Step 3: Classify And Report
 1. Read the framework's terminal output or visual generation.
-2. **CRITICAL RULE:** Do NOT modify any source code (`.tsx`, `.ts`, etc.) to fix the issues discovered by the framework. 
-3. Compile the errors into an artifact titled `omni_ui_report.md`.
-4. Delete the temporary script file created in Step 2.
-5. Present the specific error stack gracefully and wait for confirmation before fixing any UI bugs.
+2. For a simulation-only request, report the observed behavior and leave source untouched.
+3. If the task also authorizes a fix, route the evidence through compact context, the surface doctrine, and the normal source-first implementation flow; do not treat a browser result as sufficient proof of the cause.
+4. Report findings in the task response or an explicitly requested artifact. Do not leave a generic `omni_ui_report.md` in the repository.

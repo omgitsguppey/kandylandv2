@@ -8,6 +8,7 @@ import type {
   AdminMetricSnapshotSourceMode,
   SnapshotRefreshStatus,
 } from "@/lib/analytics/admin-metric-snapshot";
+import { validateAdminMetricSnapshot } from "@/lib/analytics/admin-metric-snapshot";
 import { authFetch } from "@/lib/authFetch";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 
@@ -25,6 +26,7 @@ export interface UseAdminAnalyticsSnapshotOptions {
   moduleKey: string;
   rangeKey: AdminMetricSnapshotRange;
   refreshOnMount?: boolean;
+  enabled?: boolean;
 }
 
 export interface UseAdminAnalyticsSnapshotResult {
@@ -63,15 +65,51 @@ function getAdminAnalyticsSnapshotSafeErrorMessage(error: unknown, fallback: str
 export function useAdminAnalyticsSnapshot(
   options: UseAdminAnalyticsSnapshotOptions,
 ): UseAdminAnalyticsSnapshotResult {
+  const enabled = options.enabled !== false;
+  const selectionKey = `${options.moduleKey}:${options.rangeKey}`;
+  const selectionRef = useRef(selectionKey);
+  const selectionVersionRef = useRef(0);
+  const requestVersionRef = useRef(0);
+  const controllersRef = useRef(new Set<AbortController>());
+  const mountedRef = useRef(false);
   const hydrationStartedAtRef = useRef(getClientPerformanceMs());
-  const refreshOnMountStartedRef = useRef(false);
   const [snapshot, setSnapshot] = useState<AdminMetricSnapshot | null>(null);
   const [metadata, setMetadata] = useState<Record<string, unknown> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [firstSnapshotMs, setFirstSnapshotMs] = useState<number | null>(null);
   const [refreshStatus, setRefreshStatus] = useState<SnapshotRefreshStatus>("idle");
   const [duplicateRefreshPrevented, setDuplicateRefreshPrevented] = useState(false);
+
+  const beginRequest = useCallback(() => {
+    for (const previous of controllersRef.current) previous.abort();
+    controllersRef.current.clear();
+    const controller = new AbortController();
+    controllersRef.current.add(controller);
+    const selectionVersion = selectionVersionRef.current;
+    const requestVersion = ++requestVersionRef.current;
+    return {
+      controller,
+      isCurrent: () => mountedRef.current
+        && !controller.signal.aborted
+        && selectionRef.current === selectionKey
+        && selectionVersionRef.current === selectionVersion
+        && requestVersionRef.current === requestVersion,
+      finish: () => controllersRef.current.delete(controller),
+    };
+  }, [selectionKey]);
+
+  const validateResultSnapshot = useCallback((value: unknown): AdminMetricSnapshot | null => {
+    if (value === null || value === undefined) return null;
+    if (typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid analytics snapshot response");
+    const candidate = value as AdminMetricSnapshot;
+    if (candidate.moduleKey !== options.moduleKey || candidate.rangeKey !== options.rangeKey
+      || !candidate.values || typeof candidate.values !== "object" || Array.isArray(candidate.values)
+      || validateAdminMetricSnapshot(candidate).length > 0) {
+      throw new Error("Analytics snapshot does not match the selected module and range");
+    }
+    return candidate;
+  }, [options.moduleKey, options.rangeKey]);
 
   const markFirstSnapshot = useCallback(() => {
     setFirstSnapshotMs((current) =>
@@ -80,37 +118,49 @@ export function useAdminAnalyticsSnapshot(
   }, []);
 
   const loadSnapshot = useCallback(async () => {
+    if (!enabled) return;
+    const request = beginRequest();
     setIsLoading(true);
     setError(null);
     try {
       const response = await authFetch(buildSnapshotUrl(options.moduleKey, options.rangeKey), {
         method: "GET",
+        signal: request.controller.signal,
       });
       const result = await response.json() as SnapshotRouteResponse;
+      if (!request.isCurrent()) return;
       if (!response.ok || result.success !== true) {
         throw new Error(result.error || "Admin analytics snapshot load failed");
       }
 
-      setSnapshot(result.snapshot ?? null);
+      const nextSnapshot = validateResultSnapshot(result.snapshot);
+      setSnapshot(nextSnapshot);
       setMetadata(result.metadata ?? null);
       setRefreshStatus(result.refreshStatus ?? result.snapshot?.refreshStatus ?? "idle");
       setDuplicateRefreshPrevented(result.duplicateRefreshPrevented === true);
-      if (result.snapshot) {
+      if (nextSnapshot) {
         markFirstSnapshot();
       }
+      return request;
     } catch (loadError) {
+      if (!request.isCurrent()) return;
       setError(getAdminAnalyticsSnapshotSafeErrorMessage(loadError, "Admin analytics snapshot load failed"));
+      setRefreshStatus("failed");
     } finally {
-      setIsLoading(false);
+      if (request.isCurrent()) setIsLoading(false);
+      request.finish();
     }
-  }, [markFirstSnapshot, options.moduleKey, options.rangeKey]);
+  }, [beginRequest, enabled, markFirstSnapshot, options.moduleKey, options.rangeKey, validateResultSnapshot]);
 
   const refresh = useCallback(async (input: { force?: boolean } = {}) => {
+    if (!enabled || !mountedRef.current || selectionRef.current !== selectionKey) return null;
+    const request = beginRequest();
     setRefreshStatus("refreshing");
     setError(null);
     try {
       const response = await authFetch("/api/admin/analytics/refresh", {
         method: "POST",
+        signal: request.controller.signal,
         body: JSON.stringify({
           moduleKey: options.moduleKey,
           rangeKey: options.rangeKey,
@@ -118,51 +168,74 @@ export function useAdminAnalyticsSnapshot(
         }),
       });
       const result = await response.json() as SnapshotRouteResponse;
+      if (!request.isCurrent()) return null;
       if (!response.ok && !result.snapshot) {
         throw new Error(result.error || "Admin analytics snapshot refresh failed");
       }
 
-      setSnapshot((current) => result.snapshot ?? current);
+      const nextSnapshot = validateResultSnapshot(result.snapshot);
+      const completed = response.ok && result.success === true;
+      const displaySnapshot = nextSnapshot?.lastVerifiedAt ? nextSnapshot : null;
+      setSnapshot((current) => displaySnapshot ?? current);
       setMetadata(result.metadata ?? null);
-      setRefreshStatus(result.refreshStatus ?? result.snapshot?.refreshStatus ?? (result.success ? "completed" : "failed"));
+      setRefreshStatus(completed ? result.refreshStatus ?? nextSnapshot?.refreshStatus ?? "completed" : "failed");
       setDuplicateRefreshPrevented(result.duplicateRefreshPrevented === true);
-      if (result.snapshot) {
+      if (displaySnapshot) {
         markFirstSnapshot();
       }
-      if (result.success !== true && result.error) {
+      if (!completed) {
         setError(getAdminAnalyticsSnapshotSafeErrorMessage(result.error, "Admin analytics snapshot refresh failed"));
       }
       return result;
     } catch (refreshError) {
+      if (!request.isCurrent()) return null;
       const message = getAdminAnalyticsSnapshotSafeErrorMessage(refreshError, "Admin analytics snapshot refresh failed");
       setError(message);
       setRefreshStatus("failed");
       return null;
+    } finally {
+      if (request.isCurrent()) setIsLoading(false);
+      request.finish();
     }
-  }, [markFirstSnapshot, options.moduleKey, options.rangeKey]);
+  }, [beginRequest, enabled, markFirstSnapshot, options.moduleKey, options.rangeKey, selectionKey, validateResultSnapshot]);
 
   useEffect(() => {
-    void loadSnapshot();
-  }, [loadSnapshot]);
+    mountedRef.current = enabled;
+    selectionRef.current = selectionKey;
+    const version = ++selectionVersionRef.current;
+    hydrationStartedAtRef.current = getClientPerformanceMs();
+    setSnapshot(null);
+    setMetadata(null);
+    setError(null);
+    setFirstSnapshotMs(null);
+    setRefreshStatus("idle");
+    setDuplicateRefreshPrevented(false);
+    setIsLoading(enabled);
+    if (enabled) void loadSnapshot().then((initialRequest) => {
+      if (options.refreshOnMount && initialRequest?.isCurrent()
+        && mountedRef.current && selectionVersionRef.current === version) {
+        void refresh({ force: false });
+      }
+    });
+    return () => {
+      mountedRef.current = false;
+      selectionVersionRef.current += 1;
+      for (const controller of controllersRef.current) controller.abort();
+      controllersRef.current.clear();
+    };
+  }, [enabled, loadSnapshot, options.refreshOnMount, refresh, selectionKey]);
 
-  useEffect(() => {
-    if (!options.refreshOnMount || refreshOnMountStartedRef.current) {
-      return;
-    }
-
-    refreshOnMountStartedRef.current = true;
-    void refresh({ force: false });
-  }, [options.refreshOnMount, refresh]);
+  const visibleSelection = enabled && selectionRef.current === selectionKey;
 
   return {
-    snapshot,
-    metadata,
-    isLoading,
-    error,
-    firstSnapshotMs,
-    refreshStatus,
-    sourceMode: snapshot?.sourceMode ?? "unavailable",
-    duplicateRefreshPrevented,
+    snapshot: visibleSelection ? snapshot : null,
+    metadata: visibleSelection ? metadata : null,
+    isLoading: enabled && (visibleSelection ? isLoading : true),
+    error: visibleSelection ? error : null,
+    firstSnapshotMs: visibleSelection ? firstSnapshotMs : null,
+    refreshStatus: visibleSelection ? refreshStatus : "idle",
+    sourceMode: visibleSelection ? snapshot?.sourceMode ?? "unavailable" : "unavailable",
+    duplicateRefreshPrevented: visibleSelection && duplicateRefreshPrevented,
     refresh,
   };
 }

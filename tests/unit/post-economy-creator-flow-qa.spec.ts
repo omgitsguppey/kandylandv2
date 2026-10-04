@@ -16,8 +16,10 @@ describe("post-economy creator flow QA guardrails", () => {
 
         expect(bonusLines.length).toBeGreaterThan(0);
         expect(bonusLines.some((line) => /(free|reward)/i.test(line))).toBe(false);
-        expect(purchaseModal).toContain("Paid GD");
-        expect(purchaseModal).toContain("PurchasePromoBadge");
+        const walletPackagePicker = readSource("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
+        expect(purchaseModal).toContain("<KandyWalletPackageOption");
+        expect(walletPackagePicker).toContain("GumDrops");
+        expect(walletPackagePicker).toContain("KandyWalletPromoBadge");
         expect(purchaseModal).not.toContain("paid bonus GD");
         expect(purchaseModal).not.toContain("Paid bundle bonus");
     });
@@ -63,6 +65,7 @@ describe("post-economy creator flow QA guardrails", () => {
         const bookingRoute = readSource("src/app/api/creator/bookings/route.ts");
         const subscriptionRoute = readSource("src/app/api/creator/subscriptions/route.ts");
         const dropsClient = readSource("src/app/drops/DropsClient.tsx");
+        const dropsPresentation = readSource("src/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience.tsx");
         const settingsHub = readSource("src/components/Creators/CreatorDashboardSettingsHub.tsx");
         const settingsRoute = readSource("src/app/api/creator/settings/route.ts");
 
@@ -74,8 +77,16 @@ describe("post-economy creator flow QA guardrails", () => {
             expect(routeSource).toContain("buildCreatorExperienceAttribution");
         }
 
-        expect(dropsClient).toContain('data-drop-visibility-scope="public_discovery"');
-        expect(dropsClient).not.toContain('data-drop-visibility-scope="own_creator_drops"');
+        expect(dropsClient).toContain("from \"@/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience\"");
+        expect(dropsClient).toContain("<DropsDiscoveryExperience");
+        expect(dropsClient).toContain("useDrops([\"active\", \"scheduled\"], initialDrops)");
+        expect(dropsClient).toContain("visibleDropCount={filteredDrops.length}");
+        expect(dropsClient).toContain("collection={(");
+        expect(dropsClient).toContain("<DropGrid");
+        expect(dropsClient).toContain("drops={filteredDrops}");
+        expect(dropsPresentation).toContain('data-drop-visibility-scope="public_discovery"');
+        expect(dropsPresentation).toContain("{collection}");
+        expect(dropsClient + dropsPresentation).not.toContain('data-drop-visibility-scope="own_creator_drops"');
         expect(settingsHub).toContain("data-creator-earnings-attribution={creatorEarningsAttribution}");
         expect(settingsHub).toContain("creator_experience_paid_source");
         expect(settingsHub).toContain("Earnings are based on paid creator experiences.");

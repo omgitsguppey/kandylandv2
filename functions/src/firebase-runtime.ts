@@ -1,4 +1,15 @@
+import {setGlobalOptions} from "firebase-functions/v2"
+
 export const REGION = "us-central1"
+
+// Every endpoint module imports this bootstrap before constructing its SDK
+// export, so defaults apply to both direct and re-exported functions.
+setGlobalOptions({
+  region: REGION,
+  memory: "512MiB",
+  minInstances: 0,
+  maxInstances: 10,
+})
 
 export function resolveProjectId() {
   return process.env.GCLOUD_PROJECT ||

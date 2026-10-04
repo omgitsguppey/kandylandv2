@@ -1,4 +1,77 @@
 import { describe, expect, it, vi } from "vitest";
+import ts from "typescript";
+
+// These local readers inspect rendered JSX bindings, so a relocated owner or a
+// harmless wrapper is accepted while an unbound value/comment cannot pass.
+function jsxOpenings(source: string, tag: string) {
+    const file = ts.createSourceFile("actual-consumer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const openings: (ts.JsxOpeningElement | ts.JsxSelfClosingElement)[] = [];
+    function visit(node: ts.Node) {
+        if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText(file) === tag) openings.push(node);
+        ts.forEachChild(node, visit);
+    }
+    visit(file);
+    return openings;
+}
+
+function jsxAttribute(opening: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string, normalize = true) {
+    const attribute = opening.attributes.properties.find((item): item is ts.JsxAttribute => ts.isJsxAttribute(item) && item.name.getText() === name);
+    const initializer = attribute?.initializer;
+    if (!initializer) return null;
+    if (ts.isStringLiteral(initializer)) return initializer.text;
+    if (ts.isJsxExpression(initializer)) { const expression = initializer.expression?.getText(); return expression === undefined ? null : normalize ? expression.replace(/\s+/g, "") : expression; }
+    return null;
+}
+
+function jsxAttributeExpression(opening: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string) {
+    const attribute = opening.attributes.properties.find((item): item is ts.JsxAttribute => ts.isJsxAttribute(item) && item.name.getText() === name);
+    if (!attribute?.initializer || !ts.isJsxExpression(attribute.initializer)) return null;
+    let expression = attribute.initializer.expression;
+    while (expression && ts.isParenthesizedExpression(expression)) expression = expression.expression;
+    return expression ?? null;
+}
+
+function rewriteJsxAttribute(source: string, tag: string, name: string, expression: string) {
+    const openings = jsxOpenings(source, tag);
+    if (openings.length !== 1) throw new Error("Expected one actual " + tag + " owner");
+    const attribute = openings[0].attributes.properties.find((item): item is ts.JsxAttribute => ts.isJsxAttribute(item) && item.name.getText() === name);
+    if (!attribute?.initializer) throw new Error("Missing actual " + name + " binding");
+    return source.slice(0, attribute.initializer.getStart()) + "{" + expression + "}" + source.slice(attribute.initializer.getEnd());
+}
+
+function hasFixtureSourceLabel(expression: ts.Expression | null, fixtureLabel: string, sourceExpression: string) {
+    return expression !== null && ts.isConditionalExpression(expression)
+        && expression.condition.getText() === "isLocalAdminUiTestSession"
+        && ts.isStringLiteral(expression.whenTrue) && expression.whenTrue.text === fixtureLabel
+        && expression.whenFalse.getText().replace(/\s+/g, "") === sourceExpression;
+}
+
+function renderedPropertyExpressions(source: string, property: string) {
+    const file = ts.createSourceFile("actual-consumer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX), result: string[] = [];
+    function visit(node: ts.Node) {
+        if (ts.isJsxExpression(node) && !ts.isJsxAttribute(node.parent) && node.expression) {
+            const expression = node.expression.getText(file).replace(/\s+/g, "");
+            if (expression.includes(property)) result.push(expression);
+        }
+        ts.forEachChild(node, visit);
+    }
+    visit(file);
+    return result;
+}
+
+function hasSingleBoundHomeTruthHeader(page: string, landing: string) {
+    const callers = jsxOpenings(page, "AdminControlTowerLanding"), headers = jsxOpenings(landing, "AdminPageHeader");
+    if (callers.length !== 1 || headers.length !== 1 || jsxOpenings(page, "AdminPageHeader").length !== 0) return false;
+    const badge = jsxAttribute(callers[0], "evidenceStatus", false);
+    return hasFixtureSourceLabel(jsxAttributeExpression(callers[0], "truthLabel"), "Local fixture only", "pageData.truthLabel")
+        && badge !== null && jsxOpenings(badge, "AdminStatusBadge").length === 1
+        && jsxAttribute(jsxOpenings(badge, "AdminStatusBadge")[0], "state") === "truthVariant"
+        && hasFixtureSourceLabel(jsxAttributeExpression(jsxOpenings(badge, "AdminStatusBadge")[0], "label"), "No source", "undefined")
+        && jsxAttribute(headers[0], "actions") === "evidenceStatus"
+        && jsxAttribute(headers[0], "subtitle") === "subtitle"
+        && renderedPropertyExpressions(jsxAttribute(headers[0], "topSlot", false) ?? "", "truthLabel").includes("truthLabel");
+}
+
 
 vi.mock("@/lib/firebase-data", () => ({
     db: {},
@@ -214,23 +287,16 @@ describe("admin top spacing tokens", () => {
 });
 
 describe("hero truth display rule", () => {
-    it("hero has exactly one chip (truth chip), not multiple", () => {
-        // The AdminPageHeader actions slot must contain a single <span> chip.
-        // Extract the actions prop block from <AdminPageHeader ... />
-        const startIdx = ADMIN_PAGE_SOURCE.indexOf("<AdminPageHeader");
-        expect(startIdx).toBeGreaterThan(-1);
-        const endIdx = ADMIN_PAGE_SOURCE.indexOf("/>", startIdx);
-        expect(endIdx).toBeGreaterThan(startIdx);
-        const headerBlock = ADMIN_PAGE_SOURCE.slice(startIdx, endIdx + 2);
-
-        // Must NOT contain a Fragment wrapper (<> ... </>), which indicates multiple chips
-        expect(headerBlock).not.toContain("<>");
-        expect(headerBlock).not.toContain("</>");
-
-        // Must contain the single source-state badge plus the exact truth label text.
-        expect(ADMIN_PAGE_SOURCE).toContain("pageData.truthLabel");
-        expect(headerBlock).toContain("<AdminStatusBadge state={truthVariant}");
-        expect(ADMIN_PAGE_SOURCE).toContain("pageData.truthLabel}</span>");
+    it("hero has one current truth badge through the actual Landing-to-Header binding", () => {
+        const landing = readFileSync(join(__dirname, "../../src/components/creative-tim/kandydrops/admin/AdminControlTowerLanding.tsx"), "utf8");
+        expect(hasSingleBoundHomeTruthHeader(ADMIN_PAGE_SOURCE, landing)).toBe(true);
+        expect(hasSingleBoundHomeTruthHeader(rewriteJsxAttribute(ADMIN_PAGE_SOURCE, "AdminControlTowerLanding", "truthLabel", '"All healthy"'), landing)).toBe(false);
+        expect(hasSingleBoundHomeTruthHeader(rewriteJsxAttribute(ADMIN_PAGE_SOURCE, "AdminControlTowerLanding", "evidenceStatus", "<span>Healthy</span>"), landing)).toBe(false);
+        expect(hasSingleBoundHomeTruthHeader(ADMIN_PAGE_SOURCE, rewriteJsxAttribute(landing, "AdminPageHeader", "actions", "null"))).toBe(false);
+        const badge = jsxAttribute(jsxOpenings(ADMIN_PAGE_SOURCE, "AdminControlTowerLanding")[0], "evidenceStatus", false)!;
+        const fixtureBroken = rewriteJsxAttribute(badge, "AdminStatusBadge", "label", "undefined");
+        expect(hasSingleBoundHomeTruthHeader(rewriteJsxAttribute(ADMIN_PAGE_SOURCE, "AdminControlTowerLanding", "evidenceStatus", fixtureBroken), landing)).toBe(false);
+        expect(hasSingleBoundHomeTruthHeader(rewriteJsxAttribute(ADMIN_PAGE_SOURCE, "AdminControlTowerLanding", "evidenceStatus", "<>" + badge + "</>"), landing)).toBe(true);
     });
 
     it("serverUpdateLabel is passed as subtitle, not as a standalone chip", () => {
@@ -535,8 +601,10 @@ describe("top drops table: source-code contracts", () => {
         expect(ADMIN_PAGE_SOURCE).not.toContain("TopDropsPanel");
     });
 
-    it("admin page passes topDrops prop to AdminAnalyticsCharts", () => {
-        expect(ADMIN_PAGE_SOURCE).toContain("topDrops={data?.topDrops");
+    it("admin page binds the source topDrops collection to AdminAnalyticsCharts", () => {
+        const charts = jsxOpenings(ADMIN_PAGE_SOURCE, "AdminAnalyticsCharts");
+        expect(charts).toHaveLength(1);
+        expect(jsxAttribute(charts[0], "topDrops")).toMatch(/data(?:\?|)\.topDrops/);
     });
 
     it("AdminAnalyticsCharts accepts topDrops prop", () => {
@@ -544,9 +612,12 @@ describe("top drops table: source-code contracts", () => {
         expect(CHART_SOURCE).toContain("TopDropsTable");
     });
 
-    it("top drops table has a search input", () => {
-        expect(TOP_DROPS_TABLE_SOURCE).toContain("Search drops");
-        expect(TOP_DROPS_TABLE_SOURCE).toContain("<input");
+    it("top drops binds native or sourced search to the bounded local query", () => {
+        const controls = [...jsxOpenings(TOP_DROPS_TABLE_SOURCE, "input"), ...jsxOpenings(TOP_DROPS_TABLE_SOURCE, "Input")];
+        const search = controls.filter((control) => jsxAttribute(control, "value") === "searchInput");
+        expect(search).toHaveLength(1);
+        expect(jsxAttribute(search[0], "onChange")).toContain("setSearchInput(e.target.value)");
+        expect(jsxAttribute(search[0], "placeholder")).toBe("Search drops");
     });
 
     it("top drops table has pagination controls (Prev/Next/Showing)", () => {
@@ -741,12 +812,22 @@ describe("admin overview recent transactions contract", () => {
         expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("rounded-[1.15rem]");
     });
 
-    it("uses hairline dividers instead of card gaps", () => {
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("divide-y divide-white/6");
+    it("renders transaction records as one ordinary named list with distinct source-bound rows", () => {
+        const records = jsxOpenings(RECENT_TRANSACTIONS_SOURCE, "ol");
+        expect(records.some((record) => jsxAttribute(record, "aria-label") === "Recent transaction records")).toBe(true);
+        expect(jsxOpenings(RECENT_TRANSACTIONS_SOURCE, "li").some((record) => jsxAttribute(record, "key") === "transaction.id")).toBe(true);
+        expect(renderedPropertyExpressions(RECENT_TRANSACTIONS_SOURCE, "transaction.description")).toContain("transaction.description");
     });
 
-    it("uses compact row height (min-h-[36px])", () => {
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("min-h-[36px]");
+    it("keeps transaction pages bounded and routes native navigation to the existing page owner", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("paginateOverviewItems(transactions, page, PAGE_SIZE)");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("const PAGE_SIZE = 5;");
+        const navigation = jsxOpenings(RECENT_TRANSACTIONS_SOURCE, "nav");
+        expect(navigation.some((nav) => jsxAttribute(nav, "aria-label") === "Recent transactions pagination")).toBe(true);
+        const next = jsxOpenings(RECENT_TRANSACTIONS_SOURCE, "Button").find((button) => jsxAttribute(button, "aria-label") === "Next page");
+        expect(next).toBeDefined();
+        expect(jsxAttribute(next!, "onClick")).toContain("setPage");
+        expect(jsxAttribute(next!, "disabled")).toContain("paginated.totalPages");
     });
 
     /* ── Debug metadata ───────────────────────────────────────────────── */
@@ -777,8 +858,9 @@ describe("admin overview recent transactions contract", () => {
 
     /* ── Empty state ──────────────────────────────────────────────────── */
 
-    it("shows meaningful empty state message", () => {
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("No recent transactions available");
+    it("qualifies an empty transaction list by its current source", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("transactions.length === 0");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("No recent transactions are available from the current source.");
     });
 });
 
@@ -834,9 +916,14 @@ describe("admin activity truth contracts", () => {
         expect(ADMIN_ACTIVITY_SOURCE).toContain("item.targetLabel");
     });
 
-    it("does NOT concatenate actor and target into detail string", () => {
-        // The detail field should not contain 'target' concatenation — that's done by dedicated targetLabel
-        expect(ADMIN_ACTIVITY_SOURCE).not.toMatch(/item\.detail.*target/);
+    it("keeps rendered detail separate from actor and target even when JSX shares a source line", () => {
+        const details = renderedPropertyExpressions(ADMIN_ACTIVITY_SOURCE, "item.detail").filter((value) => !value.includes("<"));
+        expect(details).toEqual(["item.detail"]);
+        expect(renderedPropertyExpressions(ADMIN_ACTIVITY_SOURCE, "item.actorLabel").filter((value) => !value.includes("<"))).toContain("item.actorLabel");
+        expect(renderedPropertyExpressions(ADMIN_ACTIVITY_SOURCE, "item.targetLabel").filter((value) => !value.includes("<"))).toContain("item.targetLabel");
+        const broken = ADMIN_ACTIVITY_SOURCE.replace("{item.detail}</dd>", "{item.detail + item.targetLabel}</dd>");
+        expect(renderedPropertyExpressions(broken, "item.detail").filter((value) => !value.includes("<"))).not.toEqual(["item.detail"]);
+        expect(renderedPropertyExpressions('<span>{item.detail}</span><p>{item.targetLabel}</p>', "item.detail")).toEqual(["item.detail"]);
     });
 
     /* ── Actor fallback rules ─────────────────────────────────────────── */
@@ -886,19 +973,27 @@ describe("admin activity truth contracts", () => {
         expect(ADMIN_ACTIVITY_SOURCE).not.toContain('normalizedNote.includes("cached")) return "stale"');
     });
 
-    it("uses amber coloring for stale freshness", () => {
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("amber-400");
+    it("classifies record age independently from verified cache truth", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("const isStale = ageMs > STALE_THRESHOLD_MS");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("14 * 24 * 60 * 60 * 1000");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain('normalizedNote.includes("cached")) return "cached"');
+        expect(ADMIN_ACTIVITY_SOURCE).not.toContain('if (isStale) return "live"');
     });
 
     /* ── Compact layout ──────────────────────────────────────────────── */
 
-    it("uses compact rows with min-h-[36px], not oversized cards", () => {
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("min-h-[36px]");
-        expect(ADMIN_ACTIVITY_SOURCE).not.toContain("rounded-[1.15rem]");
+    it("keeps activity records keyed by their canonical id in an ordinary bounded list", () => {
+        expect(jsxOpenings(ADMIN_ACTIVITY_SOURCE, "ol").some((list) => jsxAttribute(list, "aria-label") === "Admin activity records")).toBe(true);
+        expect(jsxOpenings(ADMIN_ACTIVITY_SOURCE, "li").some((record) => jsxAttribute(record, "key") === "item.id")).toBe(true);
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("paginateOverviewItems(activity, page, PAGE_SIZE)");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("const PAGE_SIZE = 5;");
     });
 
-    it("uses hairline dividers (divide-y divide-white/6)", () => {
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("divide-y divide-white/6");
+    it("keeps operator, target and details as separately labeled record fields", () => {
+        expect(jsxOpenings(ADMIN_ACTIVITY_SOURCE, "dl")).toHaveLength(1);
+        expect(ADMIN_ACTIVITY_SOURCE).toContain(">Operator</dt>");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain(">Target</dt>");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain(">Details</dt>");
     });
 
     it("does NOT use per-row bg-black/30 card layout", () => {
@@ -946,8 +1041,9 @@ describe("admin activity truth contracts", () => {
 
     /* ── Empty state ─────────────────────────────────────────────────── */
 
-    it("shows meaningful empty state message", () => {
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("No admin actions found");
+    it("qualifies an empty activity list by its current source window", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("activity.length === 0");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("No admin actions were found in the current source window.");
     });
 });
 
@@ -1086,9 +1182,11 @@ describe("admin analytics overview truth", () => {
 
     /* ── Compact tab nav ────────────────────────────────────────────── */
 
-    it("tab buttons use compact inline layout not tile grid", () => {
-        expect(ANALYTICS_PAGE_SOURCE).toContain("inline-flex items-center gap-1.5");
-        expect(ANALYTICS_PAGE_SOURCE).not.toContain("py-3 text-left");
+    it("uses the native evidence lens connected to the actual selected pane", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("<NativeSelect");
+        expect(ANALYTICS_PAGE_SOURCE).toContain("value={activeTab}");
+        expect(ANALYTICS_PAGE_SOURCE).toContain("onChange={(event) => setActiveTab(event.target.value as typeof activeTab)}");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("mobileViewMode");
     });
 
     /* ── Compact alert banner ───────────────────────────────────────── */
@@ -1104,8 +1202,10 @@ describe("admin analytics overview truth", () => {
         expect(ANALYTICS_PAGE_SOURCE).not.toContain("Mobile Monitoring Station");
     });
 
-    it("page title is Analytics Overview", () => {
-        expect(ANALYTICS_PAGE_SOURCE).toContain("Analytics Overview");
+    it("keeps the Analytics heading in the rendered sourced canvas", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("<AdminAnalyticsEvidenceCanvas");
+        const canvas = readFileSync(join(__dirname, "../../src/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas.tsx"), "utf-8");
+        expect(canvas).toMatch(/<AdminPageHeader\s[^>]*title="Analytics"/u);
     });
 
     /* ── Agent truth doc ────────────────────────────────────────────── */
@@ -1129,12 +1229,13 @@ describe("admin analytics overview truth", () => {
 
     /* ── Density contract ───────────────────────────────────────────── */
 
-    it("MetricCard uses compact padding p-2.5", () => {
-        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("p-2.5");
+    it("keeps metric content on the existing sourced Card owner", () => {
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain('from "@/components/creative-tim/ui/card"');
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toMatch(/function MetricCard[\s\S]*?<Card\s/u);
     });
 
-    it("MetricCard uses compact font text-[1.45rem]", () => {
-        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("text-[1.45rem]");
+    it("keeps metric value and hint tied to their canonical props", () => {
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toMatch(/function MetricCard[\s\S]*?\{value\}[\s\S]*?\{hint\}/u);
     });
 
     it("loading spinner uses min-h-[20vh] not min-h-[40vh]", () => {

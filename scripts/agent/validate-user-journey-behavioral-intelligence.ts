@@ -1,3 +1,6 @@
+import { BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS } from "@/lib/behavioral/event-fact-contract";
+import { SESSION_MEASUREMENT_VERSION, serializeSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -71,16 +74,6 @@ function scoreSnapshot(score: JsonRecord) {
     regressionRisk: readNumber(score.regressionRiskScore, 80),
     overallHealthScore: readNumber(score.healthScore, 80),
   } satisfies Record<ScoreDimension, number>;
-}
-
-function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
 }
 
 function writeJson(path: string, value: unknown) {
@@ -204,6 +197,7 @@ function renderDoc(report: JsonRecord) {
 }
 
 function main() {
+  const mutationScope = readValidatorMutationScope();
   const generatedAtUtc = new Date().toISOString();
   const currentHead = run("git", ["rev-parse", "HEAD"]) || "unknown";
   const scoreBefore = scoreSnapshot(readJson(SCORE_PATH));
@@ -309,7 +303,7 @@ function main() {
       ? "No user journey score action needed for this dimension."
       : "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence.",
   }]));
-  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const dirtyFiles = (mutationScope ? [] : listValidatorScopeFiles()).map((path) => ({ path, classification: classifyDirtyFile(path) }));
   const validationFailures: string[] = [];
 
   for (const field of ["journeyEventId", "eventId", "sessionId", "linkedPersonId", "actorKind", "identityState", "identityConfidence", "timestamp", "route", "surface", "featureId", "action", "objectType", "objectId", "durationMs", "activeMs"]) {
@@ -331,7 +325,13 @@ function main() {
     if (!getPersonMetricDefinition(metricId)) validationFailures.push(`person metric ${metricId} missing.`);
   }
   if (!classifyJourneyStep("wallet_opened").funnelIds.includes("wallet_to_checkout_to_payment")) validationFailures.push("wallet journey step missing.");
-  if (!sourceFiles.factContract.includes("durationMs") || !sourceFiles.factContract.includes("activeMs") || !sourceFiles.normalizer.includes("active_ms")) validationFailures.push("event facts lack active duration fields.");
+  const normalizeDurationProbe = (params: Record<string, unknown>) => normalizeBehavioralEventFact({ eventId: "validator_duration_probe", eventName: "semantic_page_passive", timestamp: 31_000, userId: "user_validator", sessionId: "session_validator", params: { source_component: "user_journey_validator", route: "/dashboard", ...params }, source: "client" });
+  if (!BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS.every(key => normalizeDurationProbe({ [key]: 7_000, duration_ms: 30_000 })?.activeMs === 7_000)) validationFailures.push("legacy active-duration aliases are not consumed by canonical event facts.");
+  if (normalizeDurationProbe({ duration_ms: 30_000 })?.activeMs !== undefined || normalizeDurationProbe({ active_ms: 0, duration_ms: 30_000 })?.activeMs !== 0) validationFailures.push("event facts collapse missing activity into measured zero.");
+  const checkpoint = { version: SESSION_MEASUREMENT_VERSION, segmentId: "segment_validator_probe", sequence: 1, startedAtMs: 1_000, endedAtMs: 31_000, activeMs: 0, idleMs: 30_000, hiddenMs: 0, status: "final" } as const;
+  const measuredFact = normalizeDurationProbe({ session_measurement: serializeSessionMeasurementCheckpoint(checkpoint) });
+  if (JSON.stringify(measuredFact?.sessionMeasurement) !== JSON.stringify(checkpoint)) validationFailures.push("event facts do not consume the validated session checkpoint.");
+  if (!sourceFiles.factContract.includes("durationMs") || !sourceFiles.factContract.includes("activeMs")) validationFailures.push("event facts lack active duration fields.");
   if (!sourceFiles.packageJson.includes("\"check:user-journey-behavioral-intelligence\"")) validationFailures.push("package script check:user-journey-behavioral-intelligence missing.");
   if (dirtyFiles.some((file) => file.classification === "unsafe_unknown")) validationFailures.push("dirty files are unclassified.");
   for (const dimension of SCORE_DIMENSIONS) {
@@ -342,6 +342,7 @@ function main() {
   }
 
   const report = {
+    mutationScope: mutationScope ?? { mode: "whole_git_worktree" as const },
     generatedAtUtc,
     reportKey: "user-journey-behavioral-intelligence",
     currentHead,

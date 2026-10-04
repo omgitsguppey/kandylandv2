@@ -4,22 +4,30 @@
   "costClass": "single_health_request_when_url_provided",
   "cleanupPolicy": "regenerate",
   "cleanupCommand": "npm run check:deployment -- --url=<deployment-origin>",
+  "targetUrl": "https://kandydrops.com",
+  "healthEndpoint": "https://kandydrops.com/api/health",
+  "httpStatus": 503,
+  "responseStatus": "missing_status",
+  "elapsedMs": 9329,
   "timeoutMs": 10000,
   "reportKey": "deployment-health",
-  "status": "external_evidence_required",
-  "generatedAtUtc": "2026-06-16T18:53:42.714Z",
-  "currentHead": "ce46e228dc0f39151b4fb89d0878ed28012b61d9",
-  "evidenceClass": "external_evidence_required",
+  "status": "unhealthy",
+  "generatedAtUtc": "2026-10-01T13:40:40.337Z",
+  "currentHead": "01934bcd7098471a1ff841386d315a82c884859f",
+  "sourceCommit": "01934bcd7098471a1ff841386d315a82c884859f",
+  "evidenceClass": "runtime_redacted",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "nextExactSteps": [
-    "Provide a deployed or local runtime URL explicitly: npm run check:deployment -- --url=https://<deployment-origin>",
-    "Do not use this source-safe placeholder as deployed runtime proof.",
-    "Record provider/payment smoke evidence separately; /api/health cannot clear provider gates."
+    "Inspect the deployment target and /api/health response before retrying.",
+    "If this was an App Hosting rollout, keep runtime smoke marked unavailable until a healthy deployed response is captured.",
+    "Do not replace this failed runtime check with source-only proof."
   ],
-  "validationFailures": [],
+  "validationFailures": [
+    "deployment health status is unhealthy"
+  ],
   "doesNotProve": [
     "Does not prove PayPal/provider smoke.",
     "Does not prove production database correctness.",

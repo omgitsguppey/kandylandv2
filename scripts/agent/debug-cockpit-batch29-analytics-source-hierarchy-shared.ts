@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
+
 import { buildAdminAnalyticsSourceHierarchy } from "../../src/lib/analytics/admin-analytics-source-hierarchy";
 import {
   LAUNCH_ANALYTICS_FIRST_DAY_KEY,
@@ -597,13 +599,13 @@ export function buildLaunchSourceAgreementDetail() {
 
 function runValidation(reportKey: string, report: Report, failures: string[], summary: string[]) {
   const generatedAtUtc = new Date().toISOString();
-  const result = {
+  const result = withValidatorMutationScope({
     reportKey,
     generatedAtUtc,
     currentHead: command(["git", "rev-parse", "HEAD"], "unknown"),
     ...report,
     validationFailures: failures,
-  };
+  });
   writeJson(`agent/state/${reportKey}.generated.json`, result);
   writeMarkdown(`docs/agent-truth/${reportKey}.md`, [
     `# ${reportKey}`,
@@ -654,11 +656,8 @@ function buildSourceDisagreementFixture() {
 }
 
 function dirtyClassifications() {
-  return command(["git", "status", "--short"], "")
-    .split(/\r?\n/u)
-    .filter(Boolean)
-    .map((line) => {
-      const filePath = line.replace(/^[ MADRCU?!]{1,2}\s+/u, "").trim();
+  return listValidatorScopeFiles()
+    .map((filePath) => {
       const classification =
         filePath === "AGENTS.md" || filePath === "FULL_SCALE_CODEBASE_AUDIT.md" || filePath === "REPO_MEMORY_LEDGER.md" || filePath === "EVERY_FILE_FUNCTION_CHECKLIST.md"
           ? "doctrine_memory_artifact_expected"

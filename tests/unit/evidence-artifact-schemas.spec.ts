@@ -18,6 +18,8 @@ import {
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
 import {
   buildLiveRuntimeActivityExportDocument,
+  buildGeneratedAdminDiagnostic,
+  buildRouteOnlyRuntimeEvidence,
   buildLaunchHistoryCoverageLocalExportDocument,
   buildLaunchHistoryCoverageReadinessForEvidence,
   resolveEvidenceCaptureMode,
@@ -83,6 +85,49 @@ const runtimeValidationOptions = {
 };
 
 describe("evidence artifact schemas", () => {
+  it("keeps actual shell-only runtime capture incomplete and rejects a falsely relabeled complete result", () => {
+    const document = buildRouteOnlyRuntimeEvidence(REQUIRED_RUNTIME_SMOKE_CHECKS.map(route => ({
+      route, status: "pass", testedPath: route, httpStatus: 200, latencyMs: 1, notes: "reachable",
+    })), {
+      generatedAtUtc: "2026-05-17T05:30:00.000Z", baseUrl: "https://kandydrops.com", artifactPath: RUNTIME_EVIDENCE_PATH, localSourceHead: RUNTIME_TEST_HEAD,
+    });
+    expect(document.status).toBe("incomplete");
+    expect(document).not.toHaveProperty("currentHead");
+    expect(document.checks.every(check => check.status === "blocked")).toBe(true);
+    const forged = { ...document, status: "complete", currentHead: RUNTIME_TEST_HEAD, checks: document.checks.map(check => ({ ...check, status: "pass" })) };
+    expect(validateRuntimeSmokeEvidenceDocument(forged, runtimeValidationOptions)).toContain("runtime complete evidence cannot be a source or reachability diagnostic.");
+    expect(validateRuntimeSmokeEvidenceDocument(completeRuntimeSmokeDocument(), runtimeValidationOptions)).toEqual([]);
+  });
+
+  it("does not turn a healthy generated admin summary into authoritative admin activity", () => {
+    const { manifest } = buildGeneratedAdminDiagnostic({
+      generatedAtUtc: "2026-05-17T05:30:00.000Z", sourceTruthStatus: "source_backed", sourceTruthLabelsPresent: true, fakeHealthyStateDetected: false, criticalAdminTruthIssueCount: 0,
+    }, {}, {}, { generatedAtUtc: "2026-05-17T05:30:00.000Z", samplePath: "agent/evidence/admin-truth-sample/sample.redacted.json", localSourceHead: RUNTIME_TEST_HEAD });
+    expect(manifest.status).toBe("incomplete");
+    expect(manifest).not.toHaveProperty("currentHead");
+    const options = { requireComplete: true, existingPaths: new Set([manifest.artifactPath]) };
+    const forged = { ...manifest, status: "complete", currentHead: RUNTIME_TEST_HEAD, checks: manifest.checks.map(check => ({ ...check, status: "pass" })) };
+    expect(validateAdminTruthSampleEvidenceDocument(forged, options)).toContain("admin complete evidence cannot be a local generated source diagnostic.");
+    expect(adminTruthSampleReadinessImpact({ status: "complete", passingArtifacts: [manifest.artifactPath], failures: ["second artifact invalid"] }).canClearAdminTruthGate).toBe(false);
+  });
+
+  it("rejects failed or blocked formal checks even when the document claims complete", () => {
+    for (const status of ["fail", "blocked"]) {
+      const runtime = completeRuntimeSmokeDocument();
+      runtime.checks[0].status = status;
+      expect(validateRuntimeSmokeEvidenceDocument(runtime, runtimeValidationOptions)).toContain('runtime smoke complete check "/" must pass.');
+      const admin = {
+        status: "complete", capturedAtUtc: "2026-05-17T05:30:00.000Z", surface: "admin_truth_sample", sourceFreshnessUtc: "2026-05-17T05:30:00.000Z", artifactPath: "sample.redacted.json", redactions: ["identifiers"],
+        checks: ["source-freshness", "sample-count", "source-state-label", "redacted-artifact-attached"].map(id => ({ id, status: "pass" })),
+      };
+      admin.checks[0].status = status;
+      const options = { requireComplete: true, existingPaths: new Set([admin.artifactPath]) };
+      expect(validateAdminTruthSampleEvidenceDocument(admin, options)).toContain('admin truth complete check "source-freshness" must pass.');
+      admin.checks[0].status = "pass";
+      expect(validateAdminTruthSampleEvidenceDocument(admin, options)).toEqual([]);
+    }
+  });
+
   it("does not emit a passing provider verdict when any scanned evidence artifact is invalid", () => {
     expect(providerSmokeEvaluationPassed({
       passingArtifacts: ["agent/evidence/provider-smoke/valid.json"],

@@ -7,12 +7,12 @@ function readSource(path: string) {
     return readFileSync(join(process.cwd(), path), "utf8");
 }
 
-describe("PurchaseModal compact paid-GD labels", () => {
-    it("uses compact paid-GD package labels", () => {
-        const source = readSource("src/components/PurchaseModal.tsx");
+describe("PurchaseModal compact delivered-GumDrops labels", () => {
+    it("uses compact delivered-GumDrops package labels", () => {
+        const source = readSource("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
 
-        expect(source).toContain("Paid GD");
-        expect(source).toContain("PurchasePromoBadge");
+        expect(source).toContain("GumDrops");
+        expect(source).toContain("KandyWalletPromoBadge");
         expect(source).not.toContain("paid bonus GD");
         expect(source).not.toContain("Paid bundle bonus");
     });
@@ -44,12 +44,16 @@ describe("PurchaseModal compact paid-GD labels", () => {
         expect(source).not.toMatch(/error_message:\s*(?:err|error|order|result|body)\.(?:message|error|userMessage)/u);
     });
 
-    it("keeps configurable bundle controls separate and mobile-safe", () => {
-        const source = readSource("src/components/PurchaseModal.tsx");
-
-        expect(source).toContain("col-span-3 grid min-h-11 w-full cursor-pointer");
-        expect(source).not.toContain('role="button"');
-        expect(source).toContain("flex h-11 w-11 flex-col items-center");
-        expect(source).toContain("flex h-11 w-11 items-center");
+    it("keeps configurable bundle controls separate from package selection", () => {
+        const purchase = readSource("src/components/PurchaseModal.tsx");
+        const picker = readSource("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
+        expect(purchase).toContain("<KandyWalletBundleStepper");
+        expect(purchase).toContain("canDecrease={canDecreaseBundle && !processing}");
+        expect(purchase).toContain("canIncrease={canIncreaseBundle && !processing}");
+        expect(picker).not.toContain('role="button"');
+        expect(picker).toContain('aria-label="Decrease bundle size"');
+        expect(picker).toContain('aria-label="Increase bundle size"');
+        expect(picker).toContain("disabled={!canDecrease}");
+        expect(picker).toContain("disabled={!canIncrease}");
     });
 });

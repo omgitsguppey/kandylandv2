@@ -13,7 +13,7 @@ const baseInputs = {
   changedFiles: [
     "src/app/admin/debug/page.tsx",
     "src/app/creators/[username]/CreatorProfileClient.tsx",
-    "src/components/Dashboard/RecentActivityFeed.tsx",
+    "src/components/creative-tim/kandydrops/activity/KandyRecentActivityExperience.tsx",
     "src/components/Dashboard/DailyTasksModule.tsx",
     "src/components/Dashboard/CollectionList.tsx",
   ],
@@ -21,7 +21,7 @@ const baseInputs = {
   sourceFiles: {
     "src/app/admin/debug/page.tsx": 'data-mobile-residual-cleanup="score-impact" className="p-3 sm:p-4"',
     "src/app/creators/[username]/CreatorProfileClient.tsx": 'data-mobile-residual-cleanup="score-impact" className="py-8 sm:py-10"',
-    "src/components/Dashboard/RecentActivityFeed.tsx": 'data-mobile-residual-cleanup="score-impact" className="rounded-[1.35rem] p-3.5 sm:p-5"',
+    "src/components/creative-tim/kandydrops/activity/KandyRecentActivityExperience.tsx": 'data-mobile-residual-cleanup="score-impact" className="rounded-[1.35rem] p-3.5 sm:p-5"',
     "src/components/Dashboard/DailyTasksModule.tsx": 'data-mobile-residual-cleanup="score-impact" className="p-4 sm:p-6"',
     "src/components/Dashboard/CollectionList.tsx": 'data-mobile-residual-cleanup="score-impact" className="py-8 sm:py-12"',
   },
@@ -55,7 +55,7 @@ describe("mobile residual score-impact cleanup", () => {
       ...baseInputs,
       sourceFiles: {
         ...baseInputs.sourceFiles,
-        "src/components/Dashboard/RecentActivityFeed.tsx": 'className="glass-panel rounded-3xl p-6"',
+        "src/components/creative-tim/kandydrops/activity/KandyRecentActivityExperience.tsx": 'className="glass-panel rounded-3xl p-6"',
       },
     });
 

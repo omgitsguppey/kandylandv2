@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
+import { getImageProps } from "next/image";
 
 import { getImageLoadingPolicy } from "@/lib/image-loading-policy";
 
@@ -73,5 +74,30 @@ describe("image loading policy", () => {
         expect(source).toMatch(/onError\s*=\s*\{[\s\S]{0,160}set(?:ImageError|ErroredImageUrl)\s*\(/u);
         expect(source).toContain("resolvePublicDropCoverSrc(null)");
         expect(source).toMatch(/src\s*=\s*\{\s*coverSrc\s*\}/u);
+    });
+});
+
+describe("intrinsic public image source sizing", () => {
+    it("keeps native lazy rendered-width sizing and real Next width candidates connected", () => {
+        const policy = getImageLoadingPolicy("drops_grid", { intrinsicLayout: true });
+        const { props } = getImageProps({ src: "/local-public-cover.png", alt: "Public cover", fill: true, sizes: policy.sizes, loading: policy.loading, quality: policy.quality });
+        expect(props.loading).toBe("lazy");
+        expect(props.sizes).toMatch(/^auto,/u);
+        expect(props.srcSet).toContain("256w");
+        expect(props.srcSet).toContain("384w");
+        expect(props.srcSet).toMatch(/\b3840w$/u);
+        expect(policy).toMatchObject({ preload: false, fetchPriority: "low", quality: 72 });
+    });
+
+    it("never uses lazy-only auto sizing for the real eager first Featured slide", () => {
+        const first = getImageLoadingPolicy("featured_carousel", { mediaIndex: 0, intrinsicLayout: true });
+        const later = getImageLoadingPolicy("featured_carousel", { mediaIndex: 1, intrinsicLayout: true });
+        const attributes = (policy: typeof first) => getImageProps({ src: "/local-public-cover.png", alt: "Public cover", fill: true, sizes: policy.sizes, loading: policy.loading, quality: policy.quality }).props;
+        expect(attributes(first).loading).toBe("eager");
+        expect(attributes(first).sizes).not.toMatch(/^auto(?:,|$)/u);
+        expect(attributes(later).loading).toBe("lazy");
+        expect(attributes(later).sizes).toMatch(/^auto,/u);
+        expect(first).toMatchObject({ preload: false, fetchPriority: "high", quality: 78, lcpCandidate: true });
+        expect(later).toMatchObject({ preload: false, fetchPriority: "low", quality: 78, lcpCandidate: false });
     });
 });

@@ -2,24 +2,32 @@
 
 import { toCreatorLaneParityMismatch, type CreatorLaneParityMismatch } from "@/lib/creator-lane-debug-parity";
 import { Pill, Section } from "./DebugPrimitives";
-
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-
-function formatUtc(timestamp?: number | null) {
-    return timestamp ? new Date(timestamp).toISOString() : "Not recorded";
-}
+import { ADMIN_NO_SOURCE_LABEL } from "@/lib/admin-truth-state";
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc } from "./DebugTime";
 
 export function DebugCreatorLane({ data }: { data: any }) {
     const creatorLaneDebug = data?.creatorOnboardingDiagnostics?.creatorLaneDebug;
+    if (!creatorLaneDebug || !["ok", "needs_review"].includes(creatorLaneDebug.parityStatus)
+        || !Array.isArray(data?.creatorOnboardingDiagnostics?.issues)
+        || ![
+            data?.creatorOnboardingDiagnostics?.summary?.totalIssues,
+            creatorLaneDebug.report?.historyGapCount ?? data?.creatorOnboardingDiagnostics?.summary?.historyCoverageIssueCount,
+            creatorLaneDebug.sourceSnapshots?.onboardingCount,
+            creatorLaneDebug.sourceSnapshots?.reviewQueueCount,
+            creatorLaneDebug.sourceSnapshots?.userProjectionCount,
+            creatorLaneDebug.sourceSnapshots?.settingsCount,
+            creatorLaneDebug.sourceSnapshots?.creatorExperienceActivityCount,
+        ].every((value) => typeof value === "number" && Number.isInteger(value) && value >= 0)) {
+        return (
+            <Section title="Creator Lane" subtitle="Creator parity source and findings." defaultOpen
+                summary={<Pill label="Parity" value={ADMIN_NO_SOURCE_LABEL} truthState="unavailable" />}>
+                <div className="min-w-0 space-y-2 text-sm text-muted-foreground" data-creator-lane-status="source_missing">
+                    <p>Creator parity source is not loaded.</p>
+                    <p>Missing source is not zero. Source counts and anomaly findings are unavailable.</p>
+                </div>
+            </Section>
+        );
+    }
     const creatorLaneIssues = data?.creatorOnboardingDiagnostics?.issues || [];
     const creatorLaneNeedsReview = (data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0;
     const creatorLaneReport = creatorLaneDebug?.report;
@@ -49,7 +57,7 @@ export function DebugCreatorLane({ data }: { data: any }) {
             summary={<><Pill label="Parity" value={creatorLaneDebug?.parityStatus ?? "ok"} tone={creatorLaneNeedsReview ? "warn" : "good"} /><Pill label="Issues" value={data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0} tone={creatorLaneNeedsReview ? "warn" : "good"} /><Pill label="History gaps" value={historyGapCount} tone={historyGapCount > 0 ? "warn" : "good"} /><Pill label="Freshness" value={materializationState} tone={materializationState === "live" ? "good" : "warn"} truthState={materializationState === "live" ? "live" : "degraded"} /></>}
         >
             <div
-                className="grid gap-4 lg:grid-cols-3"
+                className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-4"
                 data-creator-lane-status={reportStatus}
                 data-creator-lane-generated-at-utc={generatedAtUtc}
                 data-creator-lane-materialization-freshness={materializationState}
@@ -78,7 +86,7 @@ export function DebugCreatorLane({ data }: { data: any }) {
                     <p className="mt-1 text-sm text-gray-400">
                         {materializationState === "not_recorded"
                             ? "Materializer has no recorded completion timestamp. Source snapshots loaded, but queue materializer completion was not recorded."
-                            : `lastMaterializedAtUtc ${lastMaterializedAtUtc ?? formatUtc(creatorLaneDebug?.lastMaterializedAt)}`}
+                            : `lastMaterializedAtUtc ${lastMaterializedAtUtc ?? formatUtc(creatorLaneDebug?.lastMaterializedAt, "Not recorded")}`}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">{creatorLaneDebug?.recommendedFix ?? "No action needed."}</p>
                 </div>

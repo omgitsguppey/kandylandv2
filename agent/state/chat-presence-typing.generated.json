@@ -1,8 +1,8 @@
 {
   "reportKey": "chat-presence-typing",
-  "generatedAtUtc": "2026-07-16T04:24:47.361Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-01T20:47:13.935Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "passed": true,
   "canClearSourceGate": true,
@@ -142,36 +142,36 @@
   },
   "scoreImpactByDimension": {
     "sourceHealth": {
-      "before": 83.6,
-      "after": 83.6,
+      "before": 100,
+      "after": 100,
       "target": 80,
       "status": "target_met",
       "reason": "Chat presence hardening does not negatively affect this dimension.",
       "nextExactAction": "No score action needed for this dimension."
     },
     "runtimeHealth": {
-      "before": 50.22,
-      "after": 50.22,
+      "before": 0,
+      "after": 0,
       "target": 80,
       "status": "below_target",
       "reason": "Chat typing and presence are bounded, ephemeral, self-cleaning, and debug-visible; below-target movement still depends on formal runtime/evidence/cost gates.",
       "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
     },
     "evidenceCompleteness": {
-      "before": 45,
-      "after": 45,
+      "before": 50,
+      "after": 50,
       "target": 80,
       "status": "below_target",
       "reason": "Chat typing and presence are bounded, ephemeral, self-cleaning, and debug-visible; below-target movement still depends on formal runtime/evidence/cost gates.",
       "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
     },
     "freshness": {
-      "before": 59.38,
-      "after": 59.38,
+      "before": 91.22,
+      "after": 91.22,
       "target": 80,
-      "status": "below_target",
+      "status": "target_met",
       "reason": "Chat presence hardening does not negatively affect this dimension.",
-      "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
+      "nextExactAction": "No score action needed for this dimension."
     },
     "costRisk": {
       "before": 92.5,
@@ -182,24 +182,15 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "regressionRisk": {
-      "before": 94,
-      "after": 94,
+      "before": 90,
+      "after": 90,
       "target": 80,
       "status": "target_met",
       "reason": "Chat presence hardening does not negatively affect this dimension.",
       "nextExactAction": "No score action needed for this dimension."
     }
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/chat-gating-moderation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-gating-moderation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    }
-  ],
+  "dirtyFiles": [],
   "oldLogicClassification": [
     {
       "reference": "ChatExperience direct per-change typing write",
@@ -217,5 +208,22 @@
       "reason": "Counterpart presence remains a participant-scoped RTDB read and is normalized for stale typing expiry."
     }
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

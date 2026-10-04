@@ -10,6 +10,41 @@ export type QueueRuntimeConfig = {
   timesPerDay: string[]
 }
 
+/** Existing bootstrap recovery window; complete saved records bypass the legacy scan. */
+export const LEGACY_QUEUED_DROP_SCAN_LIMIT = 1_000
+
+export const DROP_QUEUE_AUTHORITY_VERSION = 1
+
+export type QueueSettingsConfig = QueueRuntimeConfig & {
+  dropsPerDay: number
+  queueAuthorityVersion?: typeof DROP_QUEUE_AUTHORITY_VERSION
+}
+
+/** Decode the complete queue DTO without normalizing membership or schedule semantics. */
+export function readQueueSettingsConfig(value: unknown): QueueSettingsConfig | null {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const raw = value as Record<string, unknown>;
+    const hasAuthorityVersion = Object.prototype.hasOwnProperty.call(raw, "queueAuthorityVersion");
+    if (hasAuthorityVersion && raw.queueAuthorityVersion !== DROP_QUEUE_AUTHORITY_VERSION) return null;
+    const { queue, dropsPerDay, cooldownDays, timesPerDay } = raw;
+    if (!Array.isArray(queue) || !queue.every(id => typeof id === "string" && id.length > 0) || new Set(queue).size !== queue.length) return null;
+    if (typeof dropsPerDay !== "number" || !Number.isSafeInteger(dropsPerDay) || dropsPerDay < 1) return null;
+    if (typeof cooldownDays !== "number" || !Number.isSafeInteger(cooldownDays) || cooldownDays < 1) return null;
+    if (!Array.isArray(timesPerDay) || timesPerDay.length !== dropsPerDay || !timesPerDay.every(time => typeof time === "string" && /^\d{2}:\d{2}$/.test(time))) return null;
+    return { queue: [...queue], dropsPerDay, cooldownDays, timesPerDay: [...timesPerDay],
+        ...(hasAuthorityVersion ? { queueAuthorityVersion: DROP_QUEUE_AUTHORITY_VERSION } : {}) };
+}
+
+/** Only a deliberately saved complete list can retire legacy membership recovery. */
+export function readSavedQueueSettingsConfig(value: unknown): QueueSettingsConfig | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  const raw = value as Record<string, unknown>
+  if (!Object.prototype.hasOwnProperty.call(raw, "queueAuthorityVersion")) return null
+  const config = readQueueSettingsConfig(raw)
+  if (!config) throw new Error("Saved drop queue configuration is invalid")
+  return config
+}
+
 export type QueuedDropRuntime = QueueManagedDropLike & {
   activationCount: number
 }

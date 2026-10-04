@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 import { BetaReleaseNotesDrawer } from "@/components/ReleaseNotes/BetaReleaseNotesDrawer";
 import { PUBLIC_RELEASE_NOTES_VERSION_CONTEXT } from "@/lib/release-notes/public-release-notes";
@@ -29,18 +30,20 @@ export function BetaBadge() {
 
   return (
     <>
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         type="button"
         onClick={openReleaseNotes}
-        className="group inline-flex min-h-11 shrink-0 items-center justify-center rounded-full px-0.5 focus:outline-none focus:ring-2 focus:ring-brand-purple/60"
+        className="min-w-11 shrink-0 text-xs"
         aria-label="Open KandyDrops beta release notes"
         data-beta-badge="public-release-notes"
         data-beta-version={PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion}
       >
-        <span className="rounded-full border border-brand-purple/35 bg-white/[0.08] px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white/80 shadow-[0_0_18px_rgba(178,140,255,0.22)] transition group-hover:border-brand-purple/55 group-hover:bg-brand-purple/[0.18] group-hover:text-white">
+        <span className="font-medium">
           Beta
         </span>
-      </button>
+      </Button>
 
       {isOpen ? (
         <BetaReleaseNotesDrawer isOpen={isOpen} onClose={closeReleaseNotes} />

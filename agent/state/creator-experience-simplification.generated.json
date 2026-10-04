@@ -1,7 +1,18 @@
 {
-  "generatedAtUtc": "2026-07-14T06:50:31.330Z",
+  "generatedAtUtc": "2026-10-02T21:13:31.981Z",
   "reportKey": "creator-experience-simplification",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-admin-pulse-release-successor-20261002",
+    "inputHash": "975f18bd22f8848de4306be79dc18fd6db31bdf5f137cd09a14d51f5df279488",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "34fdd046aedbb9fbe8ef66166533bb578932cc71502f28debe00ed83edea066e",
+    "changedFiles": [],
+    "inheritedDirtySourceFileCount": 379,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  },
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "bookingFreePickPaths": 0,
     "generatedSlotPaths": 2,

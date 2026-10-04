@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/Button";
 import { badgeForSourceStatus, Pill, Section, ScrollWrap, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 import { DebugMonitoringRoutes, type DebugMonitoringRoutesProps } from "./DebugMonitoringRoutes";
+import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream";
 import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
 import { buildRouteRuntimeDisplayStatus, type RouteRuntimeDisplayBadgeState } from "@/lib/debug/route-runtime-display-status";
 import { buildRouteRuntimeRollup } from "@/lib/debug/route-runtime-rollup-engine";
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc, formatWindowHours } from "./DebugTime";
 
 const DEBUG_MONITORING_NOT_LOADED = "Not loaded";
 
@@ -35,28 +38,22 @@ function countValueForSampleArray(value: unknown, sourceLoaded: boolean): string
     return status === "source_missing_actionable" || !Array.isArray(value) ? DEBUG_MONITORING_NOT_LOADED : value.length;
 }
 
+function sourceConfigStateForOptionalFlag(value: unknown) {
+    return typeof value === "boolean" ? value ? "configPresent" : "configMissing" : "source_missing";
+}
+
+function valueForConfigState(state: ReturnType<typeof sourceConfigStateForOptionalFlag>) {
+    return state === "source_missing" ? DEBUG_MONITORING_NOT_LOADED : state === "configPresent" ? "Config present" : "Config missing";
+}
+
+function badgeForConfigState(state: ReturnType<typeof sourceConfigStateForOptionalFlag>) {
+    return state === "source_missing" ? "MISSING" : state === "configPresent" ? "CONFIG" : "MISSING";
+}
+
 /* ─── Helpers ─── */
 function formatTimestamp(timestamp?: number) {
     if (!timestamp) return "Not recorded";
     return new Date(timestamp).toLocaleString();
-}
-function formatUtc(timestamp?: number) {
-    if (!timestamp) return "unknown";
-    return new Date(timestamp).toISOString();
-}
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-function formatWindowHours(windowMs?: number) {
-    if (!windowMs) return "current";
-    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
 }
 function formatRuntimeStatus(status?: string) {
     if (status === "failed") return "Failed";
@@ -334,17 +331,18 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
         || queueContinuityStatus === "broken_drift";
     const queueStatus = queueContinuityStatus || (!queueLoaded ? "source_ready_no_sample_loaded" : queueNeedsReview ? "degraded_missing_heartbeat" : "healthy_current");
     const adminDisplayName = userProfile?.username || userProfile?.displayName || user?.displayName || "Current admin";
-    const gaConfigState = data?.opsHealth?.runtime?.gaPropertyConfigured ? "configPresent" : "configMissing";
-    const vapidConfigState = data?.opsHealth?.runtime?.vapidConfigured ? "configPresent" : "configMissing";
-    const databaseConfigState = data?.opsHealth?.runtime?.databaseUrlConfigured ? "configPresent" : "configMissing";
-    const navigationSigningConfigState = data?.opsHealth?.runtime?.navigationSessionSigningReady ? "configPresent" : "configMissing";
+    const gaConfigState = sourceConfigStateForOptionalFlag(data?.opsHealth?.runtime?.gaPropertyConfigured);
+    const vapidConfigState = sourceConfigStateForOptionalFlag(data?.opsHealth?.runtime?.vapidConfigured);
+    const databaseConfigState = sourceConfigStateForOptionalFlag(data?.opsHealth?.runtime?.databaseUrlConfigured);
+    const navigationSigningConfigState = sourceConfigStateForOptionalFlag(data?.opsHealth?.runtime?.navigationSessionSigningReady);
     const recentEventFlowRows = buildRecentEventFlowRows(data?.orchestration?.events || []);
     const lowConfidenceCauses = buildLowConfidenceCauseBreakdown(recentEventFlowRows);
     const latestEventRow = recentEventFlowRows[0];
     const monitoringDataLoaded = Boolean(data);
     const orchestrationEventsStatus = sourceStatusForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded);
     const orchestrationLowConfidenceStatus = sourceStatusForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded);
-    const recentEventRowsStatus = sourceStatusForSampleArray(recentEventFlowRows, monitoringDataLoaded);
+    const recentEventDetailLoaded = Array.isArray(data?.orchestration?.events);
+    const recentEventRowsStatus = sourceStatusForSampleArray(recentEventFlowRows, recentEventDetailLoaded);
     const recentTaskEventsStatus = sourceStatusForSampleArray(data?.recentTaskEvents, monitoringDataLoaded);
     const taskRollupsStatus = sourceStatusForSampleArray(data?.taskRollups, monitoringDataLoaded);
     const dailyTaskSeriesStatus = sourceStatusForSampleArray(data?.dailyTaskSeries, monitoringDataLoaded);
@@ -378,7 +376,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 truthState={routeRuntimeChatTruthState}
                 badgeLabel="DRILLDOWN"
             />
-            <span className="sr-only">
+            <span className="sr-only min-w-0 wrap-anywhere">
                 Native chat observed {routeRuntimeRollup.cohorts.chat_native.observedRoutes}. Native chat samples {routeRuntimeRollup.cohorts.chat_native.samples}.
                 Compat observed {routeRuntimeRollup.cohorts.chat_compat.observedRoutes}. Compat samples {routeRuntimeRollup.cohorts.chat_compat.samples}.
             </span>
@@ -386,7 +384,11 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     );
 
     return (
-        <div className="space-y-4">
+        <AdminDebugWorkstream
+            eyebrow="Monitoring"
+            title="Runtime evidence ledger"
+            subtitle="Read current route and queue evidence first. Activity samples and session details remain available below."
+        >
             <Section
                 title="Tracked route runtime"
                 subtitle="Canonical route rollups for debug, overview, support, chat, creator relationships, and AI flows."
@@ -406,72 +408,6 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 />
             </Section>
 
-            <Section title="Recent transactions" subtitle="Latest loaded commerce entries from the current bounded feed." defaultOpen summary={<><Pill label="Status" value={recentTransactions.length > 0 ? "loaded" : "empty"} truthState={recentTransactions.length > 0 ? "live" : "unavailable"} badgeLabel={recentTransactions.length > 0 ? "LOADED" : "EMPTY"} /><Pill label="Loaded" value={recentTransactions.length} truthState={recentTransactions.length > 0 ? "live" : "unavailable"} badgeLabel="INFO" /><Pill label="Feed window" value="Latest loaded entries" truthState={recentTransactions.length > 0 ? "live" : "unavailable"} badgeLabel="INFO" /></>}>
-                <ScrollWrap>
-                    <div className="space-y-3 p-3 md:hidden" data-recent-transactions-loaded-count={recentTransactions.length}>
-                        {recentTransactions.map((entry: any) => (
-                            <article
-                                key={entry.id}
-                                className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-3"
-                                data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp)}
-                                data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}
-                            >
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <Link href={entry.adminUserHref || `/admin/user/${entry.userId}`} className="font-semibold text-white underline-offset-4 hover:underline">
-                                            {entry.userDisplayName || entry.username || entry.shortUserId}
-                                        </Link>
-                                        <p className="mt-0.5 font-mono text-[11px] text-gray-500" title={entry.userIdRedacted || entry.shortUserId}>{entry.userIdRedacted || entry.shortUserId || "redacted_uid"}</p>
-                                    </div>
-                                    <Pill label="Amount" value={entry.amountDisplay || `${entry.amount} GD`} tone={toneForTransactionDirection(entry.direction)} truthState={entry ? "live" : "unavailable"} badgeLabel={entry.unit || "GD"} />
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    <Pill label="Type" value={entry.typeLabel || entry.type} truthState={entry ? "live" : "unavailable"} badgeLabel="INFO" />
-                                    <Pill label="Source" value={entry.sourceLabel || entry.sourceOfFunds || "unknown_missing_metadata"} tone={entry.sourceOfFunds === "unknown_missing_metadata" || entry.sourceOfFunds === "legacy_unknown" ? "warn" : "neutral"} truthState={entry.sourceOfFunds === "unknown_missing_metadata" || entry.sourceOfFunds === "legacy_unknown" ? "degraded" : "live"} />
-                                    <Pill label="Identity" value={entry.userIdentityState || "fallback_uid"} tone={toneForIdentityState(entry.userIdentityState)} />
-                                </div>
-                                <p className="text-sm text-gray-300">{entry.description}</p>
-                                {entry.continuityLabel ? <p className="text-xs text-gray-400">{entry.continuityLabel}</p> : null}
-                                <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
-                                    <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Transaction details</summary>
-                                    <p className="mt-2">Local time: {entry.timestampLabel}</p>
-                                    <p>UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}</p>
-                                    <p data-full-uid-default-visible="false">Admin drilldown UID: {entry.userId}</p>
-                                    {entry.userIdentityState !== "resolved" ? <p>User profile could not be resolved from loaded admin sample.</p> : null}
-                                </details>
-                            </article>
-                        ))}
-                    </div>
-                    <table className="hidden w-full text-left text-sm md:table" data-recent-transactions-loaded-count={recentTransactions.length}>
-                        <thead className="sticky top-0 bg-black/80 text-[11px] uppercase tracking-[0.16em] text-gray-400">
-                            <tr><th className="px-3 py-3">Time</th><th className="px-3 py-3">Type</th><th className="px-3 py-3">Amount</th><th className="px-3 py-3">User</th><th className="px-3 py-3">Source</th><th className="px-3 py-3">Description</th></tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/10">
-                            {recentTransactions.map((entry: any) => (
-                                <tr key={entry.id} data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp)} data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}>
-                                    <td className="px-3 py-3 text-gray-400" title={entry.createdAtUtc || formatUtc(entry.timestamp)}>{entry.timestampLabel}</td>
-                                    <td className="px-3 py-3 text-brand-purple">{entry.typeLabel || entry.type}</td>
-                                    <td className="px-3 py-3 text-white">{entry.amountDisplay || `${entry.amount} GD`}</td>
-                                    <td className="px-3 py-3 text-gray-300">
-                                        <Link href={entry.adminUserHref || `/admin/user/${entry.userId}`} className="font-semibold text-white underline-offset-4 hover:underline">
-                                            {entry.userDisplayName || entry.username || entry.shortUserId}
-                                        </Link>
-                                        <p className="font-mono text-[11px] text-gray-500" title={entry.userIdRedacted || entry.shortUserId}>{entry.userIdRedacted || entry.shortUserId || "redacted_uid"}</p>
-                                        {entry.userIdentityState !== "resolved" ? <p className="text-[11px] text-amber-200">identity_missing</p> : null}
-                                    </td>
-                                    <td className="px-3 py-3 text-gray-300">{entry.sourceLabel || entry.sourceOfFunds || "unknown_missing_metadata"}</td>
-                                    <td className="px-3 py-3 text-gray-400">
-                                        <p>{entry.description}</p>
-                                        {entry.continuityLabel ? <p className="mt-1 text-xs text-gray-500">{entry.continuityLabel}</p> : null}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {recentTransactions.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No recent transactions are loaded in the bounded feed.</div> : null}
-                </ScrollWrap>
-            </Section>
-
             <Section
                 title="Queue runtime continuity"
                 subtitle="Canonical scheduler heartbeats, runtime warnings, and notification outcomes for queue lifecycle health."
@@ -479,7 +415,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 summary={<><Pill label="Status" value={queueStatus} tone={toneForQueueContinuityStatus(queueStatus)} truthState={truthForQueueContinuityStatus(queueStatus)} badgeLabel={queueRuntimeSummary.liveStatusAllowed === true ? "LIVE" : queueLoaded ? "REVIEW" : "NO SAMPLE"} /><Pill label="Jobs" value={queueRuntimeSummary.jobHeartbeats.total} tone={toneForQueueLaneStatus(queueHeartbeatStatus)} truthState={truthForQueueLaneStatus(queueHeartbeatStatus)} badgeLabel={queueHeartbeatStatus === "observed_current" ? "CURRENT" : queueHeartbeatStatus === "missing" ? "MISSING" : "UNKNOWN"} /><Pill label="Outcomes" value={notificationDispatchOutcomes.length} tone={toneForQueueLaneStatus(queueOutcomeStatus)} truthState={truthForQueueLaneStatus(queueOutcomeStatus)} badgeLabel={queueOutcomeStatus === "observed_current" ? "READABLE" : queueOutcomeStatus === "observed_stale" ? "STALE" : "UNKNOWN"} /><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} badgeLabel={queueLoaded ? "SOURCE" : "UNKNOWN"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} badgeLabel={queueLoaded ? "SOURCE" : "UNKNOWN"} /></>}
             >
                 <div
-                    className="grid gap-4 lg:grid-cols-1"
+                    className="grid gap-4 min-w-0 wrap-anywhere"
                     data-queue-runtime-loaded={queueLoaded ? "true" : "false"}
                     data-queue-runtime-heartbeat-count={queueJobHeartbeats.length}
                     data-queue-runtime-outcome-count={notificationDispatchOutcomes.length}
@@ -489,64 +425,67 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                     data-queue-outcome-status={queueOutcomeStatus}
                     data-queue-drift-source-loaded={queueDriftSourceLoaded ? "true" : "false"}
                 >
-                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                        <div className="flex flex-wrap gap-2">
+                    <div className="p-4 min-w-0 wrap-anywhere">
+                        <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                             <Pill label="Heartbeat lane" value={queueHeartbeatStatus} tone={toneForQueueLaneStatus(queueHeartbeatStatus)} truthState={truthForQueueLaneStatus(queueHeartbeatStatus)} badgeLabel={queueHeartbeatStatus === "missing" ? "MISSING" : queueHeartbeatStatus === "observed_current" ? "CURRENT" : "UNKNOWN"} />
                             <Pill label="Outcome lane" value={queueOutcomeStatus} tone={toneForQueueLaneStatus(queueOutcomeStatus)} truthState={truthForQueueLaneStatus(queueOutcomeStatus)} badgeLabel={queueOutcomeStatus === "observed_current" ? "READABLE" : queueOutcomeStatus === "observed_stale" ? "STALE" : "UNKNOWN"} />
                             <Pill label="Continuity" value={queueStatus} tone={toneForQueueContinuityStatus(queueStatus)} truthState={truthForQueueContinuityStatus(queueStatus)} badgeLabel={queueRuntimeSummary.liveStatusAllowed === true ? "LIVE" : "NOT LIVE"} />
                             {(queueRuntimeSummary.warningReasons || []).map((reason: string) => <Pill key={reason} label="Reason" value={reason} tone="warn" />)}
                         </div>
                         {queueJobHeartbeats.length === 0 && notificationDispatchOutcomes.length > 0 ? (
-                            <p className="mt-3 text-sm text-amber-100">No heartbeat records, but dispatch outcome records exist. Treat heartbeat evidence as missing while outcome rows remain readable.</p>
+                            <p className="mt-3 text-sm text-warning min-w-0 wrap-anywhere">No heartbeat records, but dispatch outcome records exist. Treat heartbeat evidence as missing while outcome rows remain readable.</p>
                         ) : null}
-                        {queueRuntimeSummary.nextAction ? <p className="mt-2 text-sm text-gray-300">{queueRuntimeSummary.nextAction}</p> : null}
+                        {queueRuntimeSummary.nextAction ? <p className="mt-2 text-sm text-foreground min-w-0 wrap-anywhere">{queueRuntimeSummary.nextAction}</p> : null}
                     </div>
-                <div className="grid gap-4 lg:grid-cols-1">
-                    <div className="space-y-4">
+                <div className="grid gap-4 min-w-0 wrap-anywhere">
+                    <div className="space-y-4 min-w-0 wrap-anywhere">
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10">
-                                {queueJobHeartbeats.map((entry: any) => (
-                                    <div key={entry.jobId} className="space-y-2 px-4 py-3">
-                                        <div className="flex flex-wrap items-start justify-between gap-2">
-                                            <div><p className="font-semibold text-white">{entry.jobId}</p><p className="text-xs text-gray-400">Last touch {formatRelative(entry.completedAt || entry.startedAt || entry.updatedAt)}</p></div>
-                                            <div className="flex flex-wrap gap-2"><Pill label="Status" value={entry.status} tone={entry.status === "failed" ? "bad" : entry.status === "warn" || entry.status === "running" ? "warn" : "good"} /><Pill label="Scanned" value={entry.itemsScanned ?? 0} /><Pill label="Changed" value={entry.itemsChanged ?? 0} /></div>
+                            <div className="divide-y divide-border min-w-0 wrap-anywhere">
+                                <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Scheduler heartbeats</h3>
+                            {queueJobHeartbeats.map((entry: any) => (
+                                    <div key={entry.jobId} className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere">
+                                        <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
+                                            <div><p className="font-semibold text-foreground min-w-0 wrap-anywhere">{entry.jobId}</p><p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">Last touch {formatRelative(entry.completedAt || entry.startedAt || entry.updatedAt)}</p></div>
+                                            <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Status" value={entry.status} tone={entry.status === "failed" ? "bad" : entry.status === "warn" || entry.status === "running" ? "warn" : "good"} /><Pill label="Scanned" value={entry.itemsScanned ?? 0} /><Pill label="Changed" value={entry.itemsChanged ?? 0} /></div>
                                         </div>
-                                        <div className="flex flex-wrap gap-2"><Pill label="Duration" value={`${entry.durationMs ?? 0}ms`} /><Pill label="Stale after" value={formatWindowHours(entry.staleAfterMs)} /><Pill label="Warnings" value={(entry.warnings || []).length} tone={(entry.warnings || []).length > 0 ? "warn" : "good"} /></div>
-                                        {entry.lastErrorCode ? <p className="text-sm text-amber-100">{entry.lastErrorCode}</p> : null}
+                                        <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Duration" value={`${entry.durationMs ?? 0}ms`} /><Pill label="Stale after" value={formatWindowHours(entry.staleAfterMs)} /><Pill label="Warnings" value={(entry.warnings || []).length} tone={(entry.warnings || []).length > 0 ? "warn" : "good"} /></div>
+                                        {entry.lastErrorCode ? <p className="text-sm text-warning min-w-0 wrap-anywhere">{entry.lastErrorCode}</p> : null}
                                     </div>
                                 ))}
-                                {queueJobHeartbeats.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">{notificationDispatchOutcomes.length > 0 ? "No heartbeat records, but dispatch outcome records exist." : "No queue scheduler heartbeats have been recorded yet."}</div> : null}
+                                {queueJobHeartbeats.length === 0 ? <div className="px-4 py-4 text-sm text-warning min-w-0 wrap-anywhere">{notificationDispatchOutcomes.length > 0 ? "No heartbeat records, but dispatch outcome records exist." : "No queue scheduler heartbeats have been recorded yet."}</div> : null}
                             </div>
                         </ScrollWrap>
-                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <div className="flex flex-wrap gap-2"><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Failed" value={queueRuntimeSummary.warnings.failed} tone={queueRuntimeSummary.warnings.failed > 0 ? "bad" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Saved data" value={`${queueRuntimeSummary.warnings.fallback} / ${queueRuntimeSummary.savedDataStatus || "unknown"}`} tone={queueRuntimeSummary.warnings.fallback > 0 ? "warn" : queueOutcomeStatus === "observed_current" ? "good" : "neutral"} truthState={queueOutcomeStatus === "observed_current" ? "live" : "unavailable"} /><Pill label="Queue drift" value={`${queueRuntimeSummary.warnings.queueDriftWarnings} / ${queueRuntimeSummary.queueDrift?.status || "unknown"}`} tone={queueRuntimeSummary.warnings.queueDriftWarnings > 0 || queueRuntimeSummary.legacyAdapterStatus?.blocksContinuity ? "warn" : queueDriftSourceLoaded ? "good" : "neutral"} truthState={queueDriftSourceLoaded ? "live" : "unavailable"} /></div>
-                            <p className="mt-3 text-sm text-gray-300">Legacy queue adapters are compatibility-only. Any adapter usage or missing dispatch outcome should be treated as blocking runtime continuity drift.</p>
+                        <div className="p-4 min-w-0 wrap-anywhere">
+                            <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Failed" value={queueRuntimeSummary.warnings.failed} tone={queueRuntimeSummary.warnings.failed > 0 ? "bad" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Saved data" value={`${queueRuntimeSummary.warnings.fallback} / ${queueRuntimeSummary.savedDataStatus || "unknown"}`} tone={queueRuntimeSummary.warnings.fallback > 0 ? "warn" : queueOutcomeStatus === "observed_current" ? "good" : "neutral"} truthState={queueOutcomeStatus === "observed_current" ? "live" : "unavailable"} /><Pill label="Queue drift" value={`${queueRuntimeSummary.warnings.queueDriftWarnings} / ${queueRuntimeSummary.queueDrift?.status || "unknown"}`} tone={queueRuntimeSummary.warnings.queueDriftWarnings > 0 || queueRuntimeSummary.legacyAdapterStatus?.blocksContinuity ? "warn" : queueDriftSourceLoaded ? "good" : "neutral"} truthState={queueDriftSourceLoaded ? "live" : "unavailable"} /></div>
+                            <p className="mt-3 text-sm text-foreground min-w-0 wrap-anywhere">Legacy queue adapters are compatibility-only. Any adapter usage or missing dispatch outcome should be treated as blocking runtime continuity drift.</p>
                         </div>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-4 min-w-0 wrap-anywhere">
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10">
-                                {runtimeWarnings.slice(0, 20).map((entry: any) => (
-                                    <div key={entry.stable_id} className="space-y-2 px-4 py-3">
-                                        <div className="flex flex-wrap items-start justify-between gap-2">
-                                            <div><p className="font-semibold text-white">{entry.code}</p><p className="text-xs text-gray-400">{entry.surface} | {entry.executionLayer} | {formatRelative(entry.lastSeenAt)}</p></div>
-                                            <div className="flex flex-wrap gap-2"><Pill label="Status" value={formatRuntimeStatus(entry.status)} tone={entry.status === "failed" ? "bad" : entry.status === "fallback" || entry.status === "degraded" ? "warn" : "good"} /><Pill label="Count" value={entry.occurrenceCount ?? 0} /></div>
+                            <div className="divide-y divide-border min-w-0 wrap-anywhere">
+                                <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Runtime warnings</h3>
+                            {runtimeWarnings.slice(0, 20).map((entry: any) => (
+                                    <div key={entry.stable_id} className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere">
+                                        <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
+                                            <div><p className="font-semibold text-foreground min-w-0 wrap-anywhere">{entry.code}</p><p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{entry.surface} | {entry.executionLayer} | {formatRelative(entry.lastSeenAt)}</p></div>
+                                            <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Status" value={formatRuntimeStatus(entry.status)} tone={entry.status === "failed" ? "bad" : entry.status === "fallback" || entry.status === "degraded" ? "warn" : "good"} /><Pill label="Count" value={entry.occurrenceCount ?? 0} /></div>
                                         </div>
-                                        {entry.detail?.message ? <p className="text-sm text-gray-300">{String(entry.detail.message)}</p> : null}
+                                        {entry.detail?.message ? <p className="text-sm text-foreground min-w-0 wrap-anywhere">{String(entry.detail.message)}</p> : null}
                                     </div>
                                 ))}
-                                {runtimeWarnings.length === 0 ? <div className="px-4 py-4 text-sm text-emerald-100">No persisted runtime warning records are active.</div> : null}
+                                {runtimeWarnings.length === 0 ? <div className="px-4 py-4 text-sm text-success min-w-0 wrap-anywhere">No persisted runtime warning records are active.</div> : null}
                             </div>
                         </ScrollWrap>
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10">
-                                {notificationDispatchOutcomes.slice(0, 20).map((entry: any) => {
+                            <div className="divide-y divide-border min-w-0 wrap-anywhere">
+                                <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Dispatch outcomes</h3>
+                            {notificationDispatchOutcomes.slice(0, 20).map((entry: any) => {
                                     const dropLabel = entry.dropTitle || (entry.shortDropId && entry.shortDropId !== "unknown" ? `Drop ${entry.shortDropId}` : "Unknown drop");
                                     const metadataState = entry.dropMetadataState || entry.dropIdentityState || "unknown";
                                     const metadataResolved = entry.dropMetadataConfidence === "exact" || entry.dropMetadataConfidence === "inferred" || entry.dropIdentityState === "resolved";
                                     return <div
                                         key={entry.stable_id}
-                                        className="space-y-2 px-4 py-3"
+                                        className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere"
                                         data-queue-runtime-drop-identity-state={entry.dropIdentityState || "unknown"}
                                         data-queue-runtime-drop-metadata-state={metadataState}
                                         data-queue-runtime-drop-metadata-source={entry.dropMetadataSource || "unknown"}
@@ -556,41 +495,41 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                         data-queue-runtime-outcome={entry.outcome || entry.status || "unknown"}
                                         data-queue-runtime-scheduled-for-utc={entry.scheduledForUtc || ""}
                                     >
-                                        <div className="flex flex-wrap items-start justify-between gap-2">
-                                            <div className="min-w-0">
-                                                <p className="font-semibold text-white">{dropLabel}</p>
-                                                <p className="text-xs text-gray-400">
+                                        <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
+                                            <div className="min-w-0 wrap-anywhere">
+                                                <p className="font-semibold text-foreground min-w-0 wrap-anywhere">{dropLabel}</p>
+                                                <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">
                                                     {entry.creatorName ? `Creator: ${entry.creatorName} | ` : ""}
                                                     {entry.queueKind === "drop_activation" ? "Drop activation" : "Notification dispatch"}
                                                     {entry.scheduledForUtc ? ` | Scheduled ${entry.scheduledForUtc}` : ""}
                                                     {entry.lastOutcomeAtUtc ? ` | Last outcome ${entry.lastOutcomeAtUtc}` : ""}
                                                 </p>
                                             </div>
-                                            <div className="flex flex-wrap gap-2"><Pill label="Outcome" value={entry.outcome || entry.status || "unknown"} tone={entry.outcome === "failed" ? "bad" : entry.outcome === "skipped" ? "warn" : "good"} /><Pill label="Error" value={entry.error || entry.errorCode || "none"} tone={entry.error || entry.errorCode ? "warn" : "good"} /></div>
+                                            <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Outcome" value={entry.outcome || entry.status || "unknown"} tone={entry.outcome === "failed" ? "bad" : entry.outcome === "skipped" ? "warn" : "good"} /><Pill label="Error" value={entry.error || entry.errorCode || "none"} tone={entry.error || entry.errorCode ? "warn" : "good"} /></div>
                                         </div>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                                             <Pill label="Drop metadata" value={metadataState} tone={metadataResolved ? "good" : "warn"} truthState={metadataResolved ? "live" : "degraded"} />
                                             <Pill label="Status" value={entry.status || "unknown"} />
                                             {entry.recipientCount !== undefined ? <Pill label="Recipients" value={entry.recipientCount} /> : null}
                                             {entry.notificationCount !== undefined ? <Pill label="Notifications" value={entry.notificationCount} /> : null}
                                         </div>
-                                        <div className="flex flex-wrap gap-2 text-xs">
-                                            {entry.adminDropHref ? <Link href={entry.adminDropHref} className="min-h-9 rounded-full border border-white/10 px-3 py-2 text-white hover:bg-white/10">View drop</Link> : null}
-                                            {entry.adminCreatorHref ? <Link href={entry.adminCreatorHref} className="min-h-9 rounded-full border border-white/10 px-3 py-2 text-white hover:bg-white/10">View creator</Link> : null}
+                                        <div className="flex flex-wrap gap-2 text-xs min-w-0 wrap-anywhere">
+                                            {entry.adminDropHref ? <Link href={entry.adminDropHref} className={buttonVariants({ variant: "ghost", className: "max-w-full justify-start whitespace-normal wrap-anywhere text-left" })}>View drop</Link> : null}
+                                            {entry.adminCreatorHref ? <Link href={entry.adminCreatorHref} className={buttonVariants({ variant: "ghost", className: "max-w-full justify-start whitespace-normal wrap-anywhere text-left" })}>View creator</Link> : null}
                                         </div>
-                                        <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
-                                            <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Raw queue details</summary>
-                                            <p className="mt-2">Drop ID: {entry.dropId || entry.shortDropId || "unknown"}</p>
+                                        <details className="min-w-0 text-sm text-muted-foreground">
+                                            <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Raw queue details</summary>
+                                            <p className="mt-2 min-w-0 wrap-anywhere">Drop ID: {entry.dropId || entry.shortDropId || "unknown"}</p>
                                             <p>Scheduler key: {entry.schedulerKey || entry.activationKey || "unknown"}</p>
                                             <p>Scheduled UTC: {entry.scheduledForUtc || "unknown"}</p>
-                                            <p>Last outcome UTC: {entry.lastOutcomeAtUtc || formatUtc(entry.updatedAt)}</p>
+                                            <p>Last outcome UTC: {entry.lastOutcomeAtUtc || formatUtc(entry.updatedAt, "unknown")}</p>
                                             <p>Raw timestamp: {entry.updatedAt || 0}</p>
                                             {entry.dropMetadataWarning ? <p>{entry.dropMetadataWarning || "drop_metadata_missing"}: {entry.dropMetadataMissingReason || "metadata_missing_with_drop_id"}</p> : null}
                                             {entry.schedulerKeyParseError ? <p>scheduler_key_parse_error: {entry.schedulerKeyParseError}</p> : null}
                                         </details>
                                     </div>
                                 })}
-                                {notificationDispatchOutcomes.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No recent notification dispatch outcomes are loaded yet.</div> : null}
+                                {notificationDispatchOutcomes.length === 0 ? <div className="px-4 py-4 text-sm text-warning min-w-0 wrap-anywhere">No recent notification dispatch outcomes are loaded yet.</div> : null}
                             </div>
                         </ScrollWrap>
                     </div>
@@ -598,52 +537,55 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </div>
             </Section>
 
-            <Section title="Admin session + config readiness" subtitle="Current admin identity and required config presence for debug/admin tools. This does not prove external services are healthy." defaultOpen={false} summary={<><Pill label="Session" value="Admin session verified" tone={userProfile?.role === "admin" ? "good" : "warn"} truthState={userProfile?.role === "admin" ? "live" : "degraded"} badgeLabel="SESSION" /><Pill label="GA property" value={gaConfigState === "configPresent" ? "Config present" : "Config missing"} tone={gaConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={gaConfigState === "configPresent" ? "CONFIG" : "MISSING"} /><Pill label="Runtime" value="Runtime not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" /></>}>
-                <div
-                    className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"
-                    data-admin-session-state={userProfile?.role === "admin" ? "sessionVerified" : "warning"}
-                    data-admin-config-ga-state={gaConfigState}
-                    data-admin-config-vapid-state={vapidConfigState}
-                    data-admin-config-database-state={databaseConfigState}
-                    data-admin-config-navigation-signing-state={navigationSigningConfigState}
-                    data-admin-prereq-runtime-verified="false"
-                    data-admin-session-sensitive-collapsed="true"
-                >
-                    <p className="mb-4 rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">These checks confirm the current admin session and config presence only. They do not prove GA, push, database, or all runtime dependencies are healthy. See runtime route health and writer health for live dependency behavior.</p>
-                    <div className="grid gap-4 lg:grid-cols-1">
-                        <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4 text-sm text-gray-300">
-                            <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Admin</span><span className="truncate text-white">{adminDisplayName}</span></div>
-                            <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Role</span><span className="text-white">{userProfile?.role || "user"}</span></div>
-                            <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Project</span><span className="truncate text-white">{data?.opsHealth?.runtime?.projectId || "--"}</span></div>
-                            <div className="flex justify-between gap-3 py-2"><span className="text-gray-400">Warnings</span><span className="text-white">{data?.opsHealth?.runtime?.warnings?.length || 0} config warning{(data?.opsHealth?.runtime?.warnings?.length || 0) === 1 ? "" : "s"}</span></div>
-                            <details className="mt-3 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
-                                <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Session details</summary>
-                                <p className="mt-2">User ID: {user?.uid || "--"}</p>
-                                <p>Email: {user?.email || "--"}</p>
-                            </details>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            <Pill label="GA property" value={gaConfigState === "configPresent" ? "Config present" : "Config missing"} tone={gaConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={gaConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
-                            <Pill label="GA runtime" value="Runtime GA delivery not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
-                            <Pill label="VAPID" value={vapidConfigState === "configPresent" ? "Config present" : "Config missing"} tone={vapidConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={vapidConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
-                            <Pill label="Push delivery" value="Push delivery not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
-                            <Pill label="Database URL" value={databaseConfigState === "configPresent" ? "Config present" : "Config missing"} tone={databaseConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={databaseConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
-                            <Pill label="Database runtime" value="Runtime database connectivity not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
-                            <Pill label="Navigation signing" value={navigationSigningConfigState === "configPresent" ? "Config present" : "Config missing"} tone={navigationSigningConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={navigationSigningConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
-                            <Pill label="Signing runtime" value="Config present, signing runtime not exercised" truthState="unavailable" badgeLabel="UNVERIFIED" />
-                            {(data?.opsHealth?.runtime?.warnings || []).map((warning: string) => <Pill key={warning} label="Warning" value={warning} tone="warn" />)}
-                        </div>
+            <Section title="Recent transactions" subtitle="Latest loaded commerce entries from the current bounded feed." defaultOpen summary={<><Pill label="Status" value={recentTransactions.length > 0 ? "loaded" : "empty"} truthState={recentTransactions.length > 0 ? "live" : "unavailable"} badgeLabel={recentTransactions.length > 0 ? "LOADED" : "EMPTY"} /><Pill label="Loaded" value={recentTransactions.length} truthState={recentTransactions.length > 0 ? "live" : "unavailable"} badgeLabel="INFO" /><Pill label="Feed window" value="Latest loaded entries" truthState={recentTransactions.length > 0 ? "live" : "unavailable"} badgeLabel="INFO" /></>}>
+                <ScrollWrap>
+                    <div className="divide-y divide-border min-w-0 wrap-anywhere" data-recent-transactions-loaded-count={recentTransactions.length}>
+                        {recentTransactions.map((entry: any) => (
+                            <article
+                                key={entry.id}
+                                className="min-w-0 space-y-3 py-4 wrap-anywhere"
+                                data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp, "unknown")}
+                                data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}
+                            >
+                                <div className="flex items-start justify-between gap-3 min-w-0 wrap-anywhere">
+                                    <div className="min-w-0 wrap-anywhere">
+                                        <Link href={entry.adminUserHref || `/admin/user/${entry.userId}`} className={buttonVariants({ variant: "ghost", className: "max-w-full justify-start whitespace-normal wrap-anywhere text-left" })}>
+                                            {entry.userDisplayName || entry.username || entry.shortUserId}
+                                        </Link>
+                                        <p className="mt-0.5 font-mono text-[11px] text-muted-foreground min-w-0 wrap-anywhere" title={entry.userIdRedacted || entry.shortUserId}>{entry.userIdRedacted || entry.shortUserId || "redacted_uid"}</p>
+                                    </div>
+                                    <Pill label="Amount" value={entry.amountDisplay || `${entry.amount} GD`} tone={toneForTransactionDirection(entry.direction)} truthState={entry ? "live" : "unavailable"} badgeLabel={entry.unit || "GD"} />
+                                </div>
+                                <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
+                                    <Pill label="Type" value={entry.typeLabel || entry.type} truthState={entry ? "live" : "unavailable"} badgeLabel="INFO" />
+                                    <Pill label="Source" value={entry.sourceLabel || entry.sourceOfFunds || "unknown_missing_metadata"} tone={entry.sourceOfFunds === "unknown_missing_metadata" || entry.sourceOfFunds === "legacy_unknown" ? "warn" : "neutral"} truthState={entry.sourceOfFunds === "unknown_missing_metadata" || entry.sourceOfFunds === "legacy_unknown" ? "degraded" : "live"} />
+                                    <Pill label="Identity" value={entry.userIdentityState || "fallback_uid"} tone={toneForIdentityState(entry.userIdentityState)} />
+                                </div>
+                                <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{entry.timestampLabel}</p>
+                                <p className="text-sm text-foreground min-w-0 wrap-anywhere">{entry.description}</p>
+                                {entry.continuityLabel ? <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{entry.continuityLabel}</p> : null}
+                                <details className="min-w-0 text-sm text-muted-foreground">
+                                    <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Transaction details</summary>
+                                    <p className="mt-2 min-w-0 wrap-anywhere">Local time: {entry.timestampLabel}</p>
+                                    <p>UTC: {entry.createdAtUtc || formatUtc(entry.timestamp, "unknown")}</p>
+                                    <p data-full-uid-default-visible="false">Admin drilldown UID: {entry.userId}</p>
+                                    {entry.userIdentityState !== "resolved" ? <p>User profile could not be resolved from loaded admin sample.</p> : null}
+                                </details>
+                            </article>
+                        ))}
                     </div>
-                </div>
+                    {recentTransactions.length === 0 ? <div className="px-4 py-4 text-sm text-warning min-w-0 wrap-anywhere">No recent transactions are loaded in the bounded feed.</div> : null}
+                </ScrollWrap>
             </Section>
 
-            <Section title="Recent event flow" subtitle="Derived recent events normalized from telemetry and backend signals." defaultOpen={!isCompactViewport} summary={<><Pill label="Events" value={countValueForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded)} tone={toneForSourceStatus(orchestrationEventsStatus)} truthState={truthStateForSourceStatus(orchestrationEventsStatus)} badgeLabel={badgeForSourceStatus(orchestrationEventsStatus)} /><Pill label="Low confidence" value={countValueForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded)} tone={orchestrationLowConfidenceStatus === "loaded_with_data" ? "warn" : toneForSourceStatus(orchestrationLowConfidenceStatus)} truthState={truthStateForSourceStatus(orchestrationLowConfidenceStatus)} badgeLabel={orchestrationLowConfidenceStatus === "loaded_with_data" ? "REVIEW" : badgeForSourceStatus(orchestrationLowConfidenceStatus)} /><Pill label="Unique rows" value={countValueForSampleArray(recentEventFlowRows, monitoringDataLoaded)} tone={toneForSourceStatus(recentEventRowsStatus)} truthState={truthStateForSourceStatus(recentEventRowsStatus)} badgeLabel={recentEventRowsStatus === "loaded_with_data" ? "GROUPED" : badgeForSourceStatus(recentEventRowsStatus)} /><Pill label="Last event age" value={latestEventRow?.ageLabel || (monitoringDataLoaded ? "No sample" : DEBUG_MONITORING_NOT_LOADED)} truthState={latestEventRow ? "live" : monitoringDataLoaded ? "review" : "unavailable"} badgeLabel={latestEventRow?.freshnessState?.toUpperCase() || (monitoringDataLoaded ? "NO SAMPLE" : "MISSING")} /></>}>
+            <Section title="Recent event flow" subtitle="Derived recent events normalized from telemetry and backend signals." defaultOpen={!isCompactViewport} summary={<><Pill label="Events" value={countValueForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded)} tone={toneForSourceStatus(orchestrationEventsStatus)} truthState={truthStateForSourceStatus(orchestrationEventsStatus)} badgeLabel={badgeForSourceStatus(orchestrationEventsStatus)} /><Pill label="Low confidence" value={countValueForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded)} tone={orchestrationLowConfidenceStatus === "loaded_with_data" ? "warn" : toneForSourceStatus(orchestrationLowConfidenceStatus)} truthState={truthStateForSourceStatus(orchestrationLowConfidenceStatus)} badgeLabel={orchestrationLowConfidenceStatus === "loaded_with_data" ? "REVIEW" : badgeForSourceStatus(orchestrationLowConfidenceStatus)} /><Pill label="Unique rows" value={countValueForSampleArray(recentEventFlowRows, recentEventDetailLoaded)} tone={toneForSourceStatus(recentEventRowsStatus)} truthState={truthStateForSourceStatus(recentEventRowsStatus)} badgeLabel={recentEventRowsStatus === "loaded_with_data" ? "GROUPED" : badgeForSourceStatus(recentEventRowsStatus)} /><Pill label="Last event age" value={latestEventRow?.ageLabel || (recentEventDetailLoaded ? "No sample" : DEBUG_MONITORING_NOT_LOADED)} truthState={latestEventRow ? "live" : recentEventDetailLoaded ? "review" : "unavailable"} badgeLabel={latestEventRow?.freshnessState?.toUpperCase() || (recentEventDetailLoaded ? "NO SAMPLE" : "MISSING")} /></>}>
                 <ScrollWrap>
-                    <div className="divide-y divide-white/10" data-event-flow-loaded-count={countValueForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded)} data-event-flow-low-confidence-count={countValueForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded)} data-event-flow-grouped-count={countValueForSampleArray(recentEventFlowRows, monitoringDataLoaded)}>
+                    <div className="divide-y divide-border min-w-0 wrap-anywhere" data-event-flow-loaded-count={countValueForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded)} data-event-flow-low-confidence-count={countValueForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded)} data-event-flow-grouped-count={countValueForSampleArray(recentEventFlowRows, recentEventDetailLoaded)}>
+                        {recentEventFlowRows.length === 0 ? <p className="py-3 text-sm text-muted-foreground">{recentEventDetailLoaded ? "No recent event rows are loaded." : "Event detail is not included in the loaded response."}</p> : null}
                         {lowConfidenceCauses.length > 0 ? (
-                            <div className="space-y-2 px-4 py-3">
-                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Top low-confidence causes</p>
-                                <div className="flex flex-wrap gap-2">
+                            <div className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere">
+                                <p className="text-xs font-semibold text-muted-foreground min-w-0 wrap-anywhere">Top low-confidence causes</p>
+                                <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                                     {lowConfidenceCauses.map(([cause, count]) => <Pill key={cause} label={cause} value={count} tone="warn" badgeLabel="CAUSE" />)}
                                 </div>
                             </div>
@@ -651,7 +593,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                         {recentEventFlowRows.map((event) => (
                             <div
                                 key={event.eventId}
-                                className="space-y-2 px-4 py-3"
+                                className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere"
                                 data-event-flow-context={event.eventContext}
                                 data-event-flow-freshness={event.freshnessState}
                                 data-event-flow-eval-eligible={event.evalEligible ? "true" : "false"}
@@ -659,17 +601,17 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                 data-event-flow-duplicate-count={event.duplicateCount}
                                 data-event-flow-missing-inputs-required={event.requiredMissingInputs.join(",")}
                             >
-                                <div className="flex flex-wrap items-start justify-between gap-2">
-                                    <div><p className="font-semibold text-white">{event.displayName}{event.duplicateCount > 1 ? ` x${event.duplicateCount}` : ""}</p><p className="text-xs text-gray-400">{event.eventName} | {event.source} | {event.createdAtUtc} | {event.ageLabel}</p></div>
+                                <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
+                                    <div><p className="font-semibold text-foreground min-w-0 wrap-anywhere">{event.displayName}{event.duplicateCount > 1 ? ` x${event.duplicateCount}` : ""}</p><p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{event.eventName} | {event.source} | {event.createdAtUtc} | {event.ageLabel}</p></div>
                                     <Pill label="Status" value={event.state} tone={event.state === "critical" ? "bad" : event.state === "review" ? "warn" : event.state === "healthy" ? "good" : "neutral"} truthState={event.state === "critical" ? "failed" : event.state === "review" ? "degraded" : "live"} />
                                 </div>
-                                <p className="text-sm text-gray-200">{event.eventContext === "server_system" && event.eventName === "server_drop_clicked" ? "Server/system click lacks user ownership; excluded from user scoring." : event.evalEligibilityReason}</p>
-                                <div className="flex flex-wrap gap-2"><Pill label="Actor" value={event.actorLabel} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Surface" value={event.surface} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Context" value={event.eventContext} truthState={event ? "live" : "unavailable"} badgeLabel="INFO" /><Pill label="Freshness" value={event.freshnessState} truthState={event.freshnessState === "stale" ? "stale" : event.freshnessState === "unknown" ? "unavailable" : "live"} /><Pill label="Findings" value={event.findingsCount} tone={event.findingsCount ? "warn" : "good"} truthState={event.findingsCount ? "degraded" : "live"} /><Pill label="Eval eligible" value={event.evalEligible ? "yes" : "no"} tone={event.evalEligible ? "good" : "neutral"} truthState={event ? "live" : "unavailable"} badgeLabel={event.evalEligible ? "YES" : "INFO"} /></div>
-                                {event.requiredMissingInputs.length ? (<p className="text-xs text-gray-400">Missing required inputs: {event.requiredMissingInputs.join(", ")}</p>) : null}
-                                {event.missingInputs.length > 0 && event.requiredMissingInputs.length === 0 ? (<p className="text-xs text-gray-500">Context-only missing inputs ignored for this event type: {event.missingInputs.join(", ")}</p>) : null}
-                                <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
-                                    <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Event details</summary>
-                                    <p className="mt-2">createdAtUtc: {event.createdAtUtc}</p>
+                                <p className="text-sm text-foreground min-w-0 wrap-anywhere">{event.eventContext === "server_system" && event.eventName === "server_drop_clicked" ? "Server/system click lacks user ownership; excluded from user scoring." : event.evalEligibilityReason}</p>
+                                <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Actor" value={event.actorLabel} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Surface" value={event.surface} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Context" value={event.eventContext} truthState={event ? "live" : "unavailable"} badgeLabel="INFO" /><Pill label="Freshness" value={event.freshnessState} truthState={event.freshnessState === "stale" ? "stale" : event.freshnessState === "unknown" ? "unavailable" : "live"} /><Pill label="Findings" value={event.findingsCount} tone={event.findingsCount ? "warn" : "good"} truthState={event.findingsCount ? "degraded" : "live"} /><Pill label="Eval eligible" value={event.evalEligible ? "yes" : "no"} tone={event.evalEligible ? "good" : "neutral"} truthState={event ? "live" : "unavailable"} badgeLabel={event.evalEligible ? "YES" : "INFO"} /></div>
+                                {event.requiredMissingInputs.length ? (<p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">Missing required inputs: {event.requiredMissingInputs.join(", ")}</p>) : null}
+                                {event.missingInputs.length > 0 && event.requiredMissingInputs.length === 0 ? (<p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">Context-only missing inputs ignored for this event type: {event.missingInputs.join(", ")}</p>) : null}
+                                <details className="min-w-0 text-sm text-muted-foreground">
+                                    <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Event details</summary>
+                                    <p className="mt-2 min-w-0 wrap-anywhere">createdAtUtc: {event.createdAtUtc}</p>
                                     <p>ageLabel: {event.ageLabel}</p>
                                     <p>evalEligibilityReason: {event.evalEligibilityReason}</p>
                                     <p>duplicateEventIds: {event.duplicateEventIds.join(", ")}</p>
@@ -681,20 +623,22 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
             </Section>
 
             <Section title="Recent task activity sample" subtitle="Recent task events and longer-tail rollups from the activity sample." defaultOpen={false} summary={<><Pill label="Recent events" value={countValueForSampleArray(data?.recentTaskEvents, monitoringDataLoaded)} tone={toneForSourceStatus(recentTaskEventsStatus)} truthState={truthStateForSourceStatus(recentTaskEventsStatus)} badgeLabel={badgeForSourceStatus(recentTaskEventsStatus)} /><Pill label="Rollups" value={countValueForSampleArray(data?.taskRollups, monitoringDataLoaded)} tone={toneForSourceStatus(taskRollupsStatus)} truthState={truthStateForSourceStatus(taskRollupsStatus)} badgeLabel={badgeForSourceStatus(taskRollupsStatus)} /><Pill label="Daily points" value={countValueForSampleArray(data?.dailyTaskSeries, monitoringDataLoaded)} tone={toneForSourceStatus(dailyTaskSeriesStatus)} truthState={truthStateForSourceStatus(dailyTaskSeriesStatus)} badgeLabel={badgeForSourceStatus(dailyTaskSeriesStatus)} /></>}>
-                <div className="grid gap-4 lg:grid-cols-1">
+                <div className="grid gap-4 min-w-0 wrap-anywhere">
                     <ScrollWrap>
-                        <div className="divide-y divide-white/10" data-daily-task-activity-loaded-count={countValueForSampleArray(data?.recentTaskEvents, monitoringDataLoaded)}>
+                        <div className="divide-y divide-border min-w-0 wrap-anywhere" data-daily-task-activity-loaded-count={countValueForSampleArray(data?.recentTaskEvents, monitoringDataLoaded)}>
+                            <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Task events</h3>
+                            {!data?.recentTaskEvents?.length ? <p className="py-3 text-sm text-muted-foreground">No task event rows are loaded.</p> : null}
                             {(data?.recentTaskEvents || []).map((event: any) => (
-                                <div key={event.id} className="space-y-2 px-4 py-3" data-daily-task-window-id={event.dailyTaskWindowId || "unknown"} data-daily-task-reason-code={event.reasonCode || event.reason || "unknown"} data-daily-task-source={event.source || "unknown"}>
-                                    <div className="flex flex-wrap items-start justify-between gap-2">
-                                        <div><p className="font-semibold text-white">{event.title || event.taskId}</p><p className="text-xs text-gray-400">{event.triggerEvent} | {event.updatedAtUtc || formatUtc(event.timestamp)}</p></div>
+                                <div key={event.id} className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere" data-daily-task-window-id={event.dailyTaskWindowId || "unknown"} data-daily-task-reason-code={event.reasonCode || event.reason || "unknown"} data-daily-task-source={event.source || "unknown"}>
+                                    <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
+                                        <div><p className="font-semibold text-foreground min-w-0 wrap-anywhere">{event.title || event.taskId}</p><p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{event.triggerEvent} | {event.updatedAtUtc || formatUtc(event.timestamp, "unknown")}</p></div>
                                         <Pill label="Status" value={event.type || "unknown"} tone={event.type === "failed" ? "warn" : event.type === "completed" ? "good" : "neutral"} truthState={event.type === "failed" ? "degraded" : "live"} badgeLabel={(event.type || "loaded").toUpperCase()} />
                                     </div>
-                                    <div className="flex flex-wrap gap-2"><Pill label="User" value={event.username || event.userId || "unknown"} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Paid reward" value={`${event.creditedRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Potential reward" value={`${event.potentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Forfeited potential" value={`${event.forfeitedPotentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Window" value={event.dailyTaskWindowId || "unknown"} truthState={event.dailyTaskWindowId ? "live" : "unavailable"} badgeLabel={event.dailyTaskWindowId ? "WINDOW" : "MISSING"} /><Pill label="Reason" value={event.reasonCode || event.reason || "unknown"} tone={(event.reasonCode || event.reason) === "daily_window_expired" ? "warn" : "neutral"} /><Pill label="Source" value={event.source || "unknown"} truthState={event.source ? "live" : "unavailable"} badgeLabel="SOURCE" /></div>
-                                    <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
-                                        <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Task event timing</summary>
-                                        <p className="mt-2">assignedAtUtc: {event.assignedAtUtc || formatUtc(event.assignedAt)}</p>
-                                        <p>updatedAtUtc: {event.updatedAtUtc || formatUtc(event.timestamp)}</p>
+                                    <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="User" value={event.username || event.userId || "unknown"} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Paid reward" value={`${event.creditedRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Potential reward" value={`${event.potentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Forfeited potential" value={`${event.forfeitedPotentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Window" value={event.dailyTaskWindowId || "unknown"} truthState={event.dailyTaskWindowId ? "live" : "unavailable"} badgeLabel={event.dailyTaskWindowId ? "WINDOW" : "MISSING"} /><Pill label="Reason" value={event.reasonCode || event.reason || "unknown"} tone={(event.reasonCode || event.reason) === "daily_window_expired" ? "warn" : "neutral"} /><Pill label="Source" value={event.source || "unknown"} truthState={event.source ? "live" : "unavailable"} badgeLabel="SOURCE" /></div>
+                                    <details className="min-w-0 text-sm text-muted-foreground">
+                                        <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Task event timing</summary>
+                                        <p className="mt-2 min-w-0 wrap-anywhere">assignedAtUtc: {event.assignedAtUtc || formatUtc(event.assignedAt, "unknown")}</p>
+                                        <p>updatedAtUtc: {event.updatedAtUtc || formatUtc(event.timestamp, "unknown")}</p>
                                         <p>expiresAtUtc: {event.expiresAtUtc || "unknown"}</p>
                                         <p>rewardEventState: {event.rewardEventState || "unknown"}</p>
                                         <p>rewardCreditIdempotencyKey: {event.rewardCreditIdempotencyKey || "n/a"}</p>
@@ -705,19 +649,25 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                         </div>
                     </ScrollWrap>
                     <ScrollWrap>
-                        <div className="divide-y divide-white/10">
+                        <div className="divide-y divide-border min-w-0 wrap-anywhere">
+                            <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Task rollups</h3>
+                            {!data?.taskRollups?.length ? <p className="py-3 text-sm text-muted-foreground">No task rollups are loaded.</p> : null}
+                            
                             {(data?.taskRollups || []).map((rollup: any) => (
-                                <div key={rollup.taskId} className="space-y-2 px-4 py-3">
-                                    <div className="flex flex-wrap items-start justify-between gap-2">
-                                        <div><p className="font-semibold text-white">{rollup.title}</p><p className="text-xs text-gray-400">Last event {formatRelative(rollup.lastEventAt)}</p></div>
+                                <div key={rollup.taskId} className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere">
+                                    <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
+                                        <div><p className="font-semibold text-foreground min-w-0 wrap-anywhere">{rollup.title}</p><p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">Last event {formatRelative(rollup.lastEventAt)}</p></div>
                                         <Pill label="Completed" value={rollup.completed} />
                                     </div>
-                                    <div className="flex flex-wrap gap-2"><Pill label="Assigned" value={rollup.assigned || 0} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Started" value={rollup.started} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Failed" value={rollup.failed} tone={rollup.failed ? "warn" : "good"} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Reminders" value={rollup.reminders} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Paid rewards" value={`${rollup.paidRewardTotalGd || 0} GD`} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Potential assigned" value={`${rollup.potentialRewardTotalGd || 0} GD`} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Forfeited potential" value={`${rollup.forfeitedPotentialRewardGd || 0} GD`} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Out of bounds" value={rollup.outOfBoundsEventCount || 0} tone={(rollup.outOfBoundsEventCount || 0) > 0 ? "warn" : "good"} truthState={rollup ? "live" : "unavailable"} badgeLabel="AUDIT" /></div>
+                                    <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Assigned" value={rollup.assigned || 0} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Started" value={rollup.started} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Failed" value={rollup.failed} tone={rollup.failed ? "warn" : "good"} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Reminders" value={rollup.reminders} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Paid rewards" value={`${rollup.paidRewardTotalGd || 0} GD`} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Potential assigned" value={`${rollup.potentialRewardTotalGd || 0} GD`} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Forfeited potential" value={`${rollup.forfeitedPotentialRewardGd || 0} GD`} truthState={rollup ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Out of bounds" value={rollup.outOfBoundsEventCount || 0} tone={(rollup.outOfBoundsEventCount || 0) > 0 ? "warn" : "good"} truthState={rollup ? "live" : "unavailable"} badgeLabel="AUDIT" /></div>
                                 </div>
                             ))}
+                            <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Daily series</h3>
+                            {!data?.dailyTaskSeries?.length ? <p className="py-3 text-sm text-muted-foreground">No daily points are loaded.</p> : null}
+                            
                             {(data?.dailyTaskSeries || []).map((day: any) => (
-                                <div key={day.dayKey} className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm text-gray-300">
-                                    <span className="font-semibold text-white">{day.dayKey}</span>
+                                <div key={day.dayKey} className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm text-foreground min-w-0 wrap-anywhere">
+                                    <span className="font-semibold text-foreground min-w-0 wrap-anywhere">{day.dayKey}</span>
                                     <Pill label="Events" value={day.eventCount} truthState={day ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Assigned" value={day.assigned || 0} truthState={day ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Completed" value={day.completed} truthState={day ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Failed" value={day.failed} tone={day.failed ? "warn" : "good"} truthState={day ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Paid rewards" value={`${day.paidRewardTotalGd || 0} GD`} truthState={day ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Potential assigned" value={`${day.potentialRewardTotalGd || 0} GD`} truthState={day ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Forfeited potential" value={`${day.forfeitedPotentialRewardGd || 0} GD`} truthState={day ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Out of bounds" value={day.outOfBoundsEventCount || 0} tone={(day.outOfBoundsEventCount || 0) > 0 ? "warn" : "good"} truthState={day ? "live" : "unavailable"} badgeLabel="AUDIT" />
                                 </div>
                             ))}
@@ -727,17 +677,19 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
             </Section>
 
             <Section title="Recent receipts and dedupe sample" subtitle="Recent receipts plus dedupe counters from the current sample." defaultOpen={false} summary={<><Pill label="Receipts 7d" value={countValueForOptionalNumber(data?.stats?.receiptsLast7d, monitoringDataLoaded)} tone={toneForSourceStatus(receiptsLast7dStatus)} truthState={truthStateForSourceStatus(receiptsLast7dStatus)} badgeLabel={badgeForSourceStatus(receiptsLast7dStatus)} /><Pill label="Recent" value={countValueForSampleArray(data?.recentReceipts, monitoringDataLoaded)} tone={toneForSourceStatus(recentReceiptsStatus)} truthState={truthStateForSourceStatus(recentReceiptsStatus)} badgeLabel={badgeForSourceStatus(recentReceiptsStatus)} /></>}>
-                <div className="grid gap-4 lg:grid-cols-1">
+                <div className="grid gap-4 min-w-0 wrap-anywhere">
                     <ScrollWrap>
-                        <div className="divide-y divide-white/10">
+                        <div className="divide-y divide-border min-w-0 wrap-anywhere">
+                            <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Dedupe counters</h3>
+                            {!data?.receiptSummary?.length ? <p className="py-3 text-sm text-muted-foreground">No dedupe counters are loaded.</p> : null}
                             {(data?.receiptSummary || []).map((receipt: any) => (
-                                <div key={receipt.groupKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                                <div key={receipt.groupKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 min-w-0 wrap-anywhere">
                                     <div>
-                                        <p className="font-semibold text-white">{receipt.displayLabel}</p>
-                                        <p className="text-xs text-gray-400">{receipt.dedupeKeyLabel}</p>
-                                        <p className="text-xs text-gray-500">{receipt.lastSeenAtUtc || formatTimestamp(receipt.lastSeenAt)}</p>
+                                        <p className="font-semibold text-foreground min-w-0 wrap-anywhere">{receipt.displayLabel}</p>
+                                        <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{receipt.dedupeKeyLabel}</p>
+                                        <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{receipt.lastSeenAtUtc || formatTimestamp(receipt.lastSeenAt)}</p>
                                     </div>
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                                         <Pill label="Count" value={receipt.count} truthState={receipt ? "live" : "unavailable"} badgeLabel="LOADED" />
                                         {receipt.aliasCount > 1 ? <Pill label="Aliases" value={`${receipt.aliasCount} normalized`} truthState="cached" badgeLabel="ALIASES" /> : null}
                                         <Pill label="Source" value={receipt.sourceTruth} tone={toneForReceiptSourceState(receipt.sourceState)} truthState={truthStateForReceiptSourceState(receipt.sourceState)} badgeLabel={receipt.sourceState === "review" ? "REVIEW" : "LIVE"} />
@@ -747,36 +699,38 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                         </div>
                     </ScrollWrap>
                     <ScrollWrap>
-                        <div className="divide-y divide-white/10">
+                        <div className="divide-y divide-border min-w-0 wrap-anywhere">
+                            <h3 className="min-w-0 wrap-anywhere py-3 text-sm font-semibold text-foreground">Receipt records</h3>
+                            {!data?.recentReceipts?.length ? <p className="py-3 text-sm text-muted-foreground">No receipt rows are loaded.</p> : null}
                             {(data?.recentReceipts || []).map((receipt: any) => (
-                                <div key={receipt.receiptId} className="space-y-2 px-4 py-3" data-debug-receipt-source-state={receipt.sourceState} data-debug-receipt-created-at-utc={receipt.createdAtUtc}>
-                                    <div className="flex flex-wrap items-start justify-between gap-2">
-                                        <div className="space-y-1">
-                                            <p className="font-semibold text-white">{receipt.displayLabel}</p>
+                                <div key={receipt.receiptId} className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere" data-debug-receipt-source-state={receipt.sourceState} data-debug-receipt-created-at-utc={receipt.createdAtUtc}>
+                                    <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
+                                        <div className="space-y-1 min-w-0 wrap-anywhere">
+                                            <p className="font-semibold text-foreground min-w-0 wrap-anywhere">{receipt.displayLabel}</p>
                                             {receipt.adminUserHref ? (
-                                                <p className="text-xs text-gray-300">
-                                                    <Link href={receipt.adminUserHref} className="underline decoration-white/20 underline-offset-2 hover:text-white">
+                                                <p className="text-xs text-foreground min-w-0 wrap-anywhere">
+                                                    <Link href={receipt.adminUserHref} className={buttonVariants({ variant: "ghost", className: "max-w-full justify-start whitespace-normal wrap-anywhere text-left" })}>
                                                         {receipt.actorDisplayName}
                                                     </Link>
-                                                    <span className="text-gray-500"> | {receipt.shortUserId}</span>
+                                                    <span className="text-muted-foreground min-w-0 wrap-anywhere"> | {receipt.shortUserId}</span>
                                                 </p>
                                             ) : (
-                                                <p className="text-xs text-gray-300">{receipt.actorDisplayName}<span className="text-gray-500"> | {receipt.shortUserId}</span></p>
+                                                <p className="text-xs text-foreground min-w-0 wrap-anywhere">{receipt.actorDisplayName}<span className="text-muted-foreground min-w-0 wrap-anywhere"> | {receipt.shortUserId}</span></p>
                                             )}
-                                            <p className="text-xs text-gray-400">{receipt.dedupeKeyLabel}</p>
-                                            {receipt.amountDisplay ? <p className="text-xs text-gray-400">{receipt.amountDisplay}</p> : null}
-                                            {receipt.sourceDetail ? <p className="text-xs text-gray-500">{receipt.sourceDetail}</p> : null}
+                                            <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{receipt.dedupeKeyLabel}</p>
+                                            {receipt.amountDisplay ? <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{receipt.amountDisplay}</p> : null}
+                                            {receipt.sourceDetail ? <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{receipt.sourceDetail}</p> : null}
                                         </div>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                                             <Pill label="Source" value={receipt.sourceTruth} tone={toneForReceiptSourceState(receipt.sourceState)} truthState={truthStateForReceiptSourceState(receipt.sourceState)} badgeLabel={receipt.sourceState === "review" ? "REVIEW" : "LIVE"} />
                                             <Pill label="Identity" value={receipt.userIdentityState} tone={toneForIdentityState(receipt.userIdentityState)} truthState={receipt.userIdentityState === "resolved" ? "live" : "degraded"} badgeLabel={receipt.userIdentityState === "resolved" ? "RESOLVED" : "FALLBACK"} />
                                             {receipt.aliasCount > 1 ? <Pill label="Aliases" value={`${receipt.aliasCount} aliases normalized`} truthState="cached" badgeLabel="ALIASES" /> : null}
                                         </div>
                                     </div>
-                                    <p className="text-xs text-gray-400">{receipt.ageLabel} | {receipt.createdAtUtc}</p>
-                                    <details className="text-xs text-gray-500">
-                                        <summary className="cursor-pointer select-none">Raw details</summary>
-                                        <div className="mt-2 space-y-1">
+                                    <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{receipt.ageLabel} | {receipt.createdAtUtc}</p>
+                                    <details className="min-w-0 text-sm text-muted-foreground">
+                                        <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Raw details</summary>
+                                        <div className="mt-2 space-y-1 min-w-0 wrap-anywhere">
                                             <p>rawEventName: {receipt.rawEventName}</p>
                                             <p>dedupeKey: {receipt.dedupeKey}</p>
                                             <p>actorUserId: {receipt.actorUserId || "unknown"}</p>
@@ -790,7 +744,46 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                     </ScrollWrap>
                 </div>
             </Section>
-        </div>
+
+            <Section title="Admin session + config readiness" subtitle="Current admin identity and required config presence for debug/admin tools. This does not prove external services are healthy." defaultOpen={false} summary={<><Pill label="Session" value="Admin session verified" tone={userProfile?.role === "admin" ? "good" : "warn"} truthState={userProfile?.role === "admin" ? "live" : "degraded"} badgeLabel="SESSION" /><Pill label="GA property" value={valueForConfigState(gaConfigState)} truthState={gaConfigState === "source_missing" ? "unavailable" : undefined} tone={gaConfigState === "configMissing" ? "warn" : "neutral"} badgeLabel={badgeForConfigState(gaConfigState)} /><Pill label="Runtime" value="Runtime not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" /></>}>
+                <div
+                    className="p-4 min-w-0 wrap-anywhere"
+                    data-admin-session-state={userProfile?.role === "admin" ? "sessionVerified" : "warning"}
+                    data-admin-config-ga-state={gaConfigState}
+                    data-admin-config-vapid-state={vapidConfigState}
+                    data-admin-config-database-state={databaseConfigState}
+                    data-admin-config-navigation-signing-state={navigationSigningConfigState}
+                    data-admin-prereq-runtime-verified="false"
+                    data-admin-session-sensitive-collapsed="true"
+                >
+                    <p className="mb-4 p-3 text-sm text-warning min-w-0 wrap-anywhere">These checks confirm the current admin session and config presence only. They do not prove GA, push, database, or all runtime dependencies are healthy. See runtime route health and writer health for live dependency behavior.</p>
+                    <div className="grid gap-4 min-w-0 wrap-anywhere">
+                        <div className="p-4 text-sm text-foreground min-w-0 wrap-anywhere">
+                            <div className="flex flex-wrap justify-between gap-3 border-b border-border py-2 min-w-0 wrap-anywhere"><span className="text-muted-foreground min-w-0 wrap-anywhere">Admin</span><span className="wrap-anywhere text-foreground min-w-0">{adminDisplayName}</span></div>
+                            <div className="flex flex-wrap justify-between gap-3 border-b border-border py-2 min-w-0 wrap-anywhere"><span className="text-muted-foreground min-w-0 wrap-anywhere">Role</span><span className="text-foreground min-w-0 wrap-anywhere">{userProfile?.role || "user"}</span></div>
+                            <div className="flex flex-wrap justify-between gap-3 border-b border-border py-2 min-w-0 wrap-anywhere"><span className="text-muted-foreground min-w-0 wrap-anywhere">Project</span><span className="wrap-anywhere text-foreground min-w-0">{data?.opsHealth?.runtime?.projectId || "--"}</span></div>
+                            <div className="flex flex-wrap justify-between gap-3 py-2 min-w-0 wrap-anywhere"><span className="text-muted-foreground min-w-0 wrap-anywhere">Warnings</span><span className="text-foreground min-w-0 wrap-anywhere">{Array.isArray(data?.opsHealth?.runtime?.warnings) ? `${data.opsHealth.runtime.warnings.length} config warning${data.opsHealth.runtime.warnings.length === 1 ? "" : "s"}` : DEBUG_MONITORING_NOT_LOADED}</span></div>
+                            <details className="min-w-0 text-sm text-muted-foreground">
+                                <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Session details</summary>
+                                <p className="mt-2 min-w-0 wrap-anywhere">User ID: {user?.uid || "--"}</p>
+                                <p>Email: {user?.email || "--"}</p>
+                            </details>
+                        </div>
+                        <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
+                            <Pill label="GA property" value={valueForConfigState(gaConfigState)} truthState={gaConfigState === "source_missing" ? "unavailable" : undefined} tone={gaConfigState === "configMissing" ? "warn" : "neutral"} badgeLabel={badgeForConfigState(gaConfigState)} />
+                            <Pill label="GA runtime" value="Runtime GA delivery not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
+                            <Pill label="VAPID" value={valueForConfigState(vapidConfigState)} truthState={vapidConfigState === "source_missing" ? "unavailable" : undefined} tone={vapidConfigState === "configMissing" ? "warn" : "neutral"} badgeLabel={badgeForConfigState(vapidConfigState)} />
+                            <Pill label="Push delivery" value="Push delivery not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
+                            <Pill label="Database URL" value={valueForConfigState(databaseConfigState)} truthState={databaseConfigState === "source_missing" ? "unavailable" : undefined} tone={databaseConfigState === "configMissing" ? "warn" : "neutral"} badgeLabel={badgeForConfigState(databaseConfigState)} />
+                            <Pill label="Database runtime" value="Runtime database connectivity not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
+                            <Pill label="Navigation signing" value={valueForConfigState(navigationSigningConfigState)} truthState={navigationSigningConfigState === "source_missing" ? "unavailable" : undefined} tone={navigationSigningConfigState === "configMissing" ? "warn" : "neutral"} badgeLabel={badgeForConfigState(navigationSigningConfigState)} />
+                            <Pill label="Signing runtime" value={navigationSigningConfigState === "configPresent" ? "Config present, signing runtime not exercised" : navigationSigningConfigState === "configMissing" ? "Config missing; signing runtime not exercised" : "Signing config not loaded; runtime not exercised"} truthState="unavailable" badgeLabel="UNVERIFIED" />
+                            {(data?.opsHealth?.runtime?.warnings || []).map((warning: string) => <Pill key={warning} label="Warning" value={warning} tone="warn" />)}
+                        </div>
+                    </div>
+                </div>
+            </Section>
+        </AdminDebugWorkstream>
     );
 }
 

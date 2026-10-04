@@ -373,6 +373,7 @@ async function probeRoute(baseUrl: string, route: string) {
     const response = await fetch(url, {
       method: "GET",
       redirect: "manual",
+      signal: AbortSignal.timeout(10_000),
       headers: {
         "user-agent": "KandyDropsTruthfulEvidenceCapture/1.0",
       },
@@ -404,6 +405,27 @@ async function probeRoute(baseUrl: string, route: string) {
   }
 }
 
+export function buildRouteOnlyRuntimeEvidence(routeChecks: Array<{ route: string; status: string; testedPath: string; httpStatus: number | null; latencyMs: number; notes: string }>, input: { generatedAtUtc: string; baseUrl: string; artifactPath: string; localSourceHead: string }) {
+  return {
+    status: "incomplete" as const,
+    evidenceClass: "generated_snapshot" as const,
+    canClearRuntimeGate: false,
+    capturedAtUtc: input.generatedAtUtc,
+    appBaseUrl: input.baseUrl,
+    environment: input.baseUrl.includes("kandydrops.com") ? "production" : "preview",
+    localSourceHead: input.localSourceHead,
+    checks: REQUIRED_RUNTIME_SMOKE_CHECKS.map((route) => ({
+      route,
+      status: "blocked" as const,
+      artifactPath: input.artifactPath,
+      notes: "Route reachability does not prove deployed revision or this behavior; attach independent current deployment and behavior evidence.",
+    })),
+    routeResults: routeChecks,
+    redactions: ["No response bodies, cookies, headers, provider IDs, user IDs, or secrets are stored."],
+    operatorNotes: "Reachability diagnostic only. The local source HEAD is not a verified deployed revision.",
+  };
+}
+
 async function captureRuntimeEvidence(generatedAtUtc: string, evidenceStamp: string) {
   const baseUrl = process.env.KANDYDROPS_RUNTIME_SMOKE_BASE_URL?.trim() || DEFAULT_APP_BASE_URL;
   const folder = join(ROOT, RUNTIME_FOLDER);
@@ -429,7 +451,7 @@ async function captureRuntimeEvidence(generatedAtUtc: string, evidenceStamp: str
       routeChecks.push({
         route,
         testedPath: route,
-        status: "pass",
+        status: "blocked",
         httpStatus: null,
         redirected: false,
         latencyMs: 0,
@@ -437,49 +459,26 @@ async function captureRuntimeEvidence(generatedAtUtc: string, evidenceStamp: str
           ? "This capture script does not call provider/payment endpoints."
           : route === "no-raw-secrets"
             ? "Captured artifact stores status codes, paths, and redacted metadata only."
-            : "Covered by deployed route shell probes and source-backed runtime confidence.",
+            : "This behavior was not exercised by a route-shell GET.",
       });
     }
   }
 
-  const checks = routeChecks.map((check) => ({
-    route: check.route,
-    status: check.status,
-    artifactPath,
-    notes: `${check.notes} testedPath=${check.testedPath}; httpStatus=${check.httpStatus ?? "n/a"}; latencyMs=${check.latencyMs}`,
-  }));
-  const failed = checks.filter((check) => check.status !== "pass");
-  const document = {
-    status: failed.length === 0 ? "complete" : "incomplete",
-    capturedAtUtc: generatedAtUtc,
-    appBaseUrl: baseUrl,
-    environment: baseUrl.includes("kandydrops.com") ? "production" : "preview",
-    checks,
-    redactions: ["No response bodies, cookies, headers, provider IDs, user IDs, or secrets are stored."],
-    operatorNotes: "Automated deployed runtime smoke evidence; provider/payment calls are intentionally excluded.",
-    currentHead: currentHead(),
-    routeResults: routeChecks,
-  };
+  const document = buildRouteOnlyRuntimeEvidence(routeChecks, { generatedAtUtc, baseUrl, artifactPath, localSourceHead: currentHead() });
   writeFileSync(join(ROOT, artifactPath), `${JSON.stringify(document, null, 2)}\n`);
-  return { artifactPath, status: document.status, failedCount: failed.length };
+  return { artifactPath, status: document.status, failedCount: document.checks.length };
 }
 
-function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string) {
-  const source = readJson("agent/state/admin-truth-source-sample.generated.json");
-  const debugTriage = readJson("agent/state/debug-panel-output-triage.generated.json");
-  const launchRecovery = readJson(LAUNCH_RECOVERY_REPORT_PATH);
+export function buildGeneratedAdminDiagnostic(source: JsonRecord | null, debugTriage: JsonRecord | null, launchRecovery: JsonRecord | null, input: { generatedAtUtc: string; samplePath: string; localSourceHead: string }) {
   const launchHistoryCoverageReadiness = buildLaunchHistoryCoverageReadinessForEvidence(launchRecovery);
   const launchHistoryCoverage = buildLaunchHistoryCoverageForEvidence(launchRecovery);
-  const folder = join(ROOT, ADMIN_FOLDER);
-  mkdirSync(folder, { recursive: true });
-  const samplePath = `${ADMIN_FOLDER}/automated-admin-truth-sample.${evidenceStamp}.redacted.json`;
-  const manifestPath = `${ADMIN_FOLDER}/automated-admin-truth-sample.${evidenceStamp}.json`;
-  const sourceGeneratedAt = stringValue(source?.generatedAtUtc, generatedAtUtc);
+  const sourceGeneratedAt = stringValue(source?.generatedAtUtc);
   const degraded = Array.isArray(source?.degradedOrUnavailableLanes) ? source.degradedOrUnavailableLanes.map(record) : [];
   const summary = record(source?.summary);
   const redactedSample = {
     reportKey: "admin-truth-redacted-json-sample",
-    capturedAtUtc: generatedAtUtc,
+    capturedAtUtc: input.generatedAtUtc,
+    evidenceClass: "generated_snapshot",
     sourceArtifact: "agent/state/admin-truth-source-sample.generated.json",
     sourceFreshnessUtc: sourceGeneratedAt,
     sourceTruthStatus: stringValue(source?.sourceTruthStatus, "source_missing"),
@@ -498,39 +497,39 @@ function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string
     ...(launchHistoryCoverage ? { launchHistoryCoverage } : {}),
     redactionPolicy: "No user identifiers, emails, transaction IDs, provider IDs, raw auth data, or support content included.",
   };
-  writeFileSync(join(ROOT, samplePath), `${JSON.stringify(redactedSample, null, 2)}\n`);
-
-  const sourceReady = redactedSample.sourceTruthStatus === "source_backed"
-    && redactedSample.sourceTruthLabelsPresent
-    && redactedSample.fakeHealthyStateDetected === false
-    && redactedSample.criticalAdminTruthIssueCount === 0;
-  const checks = [
-    { id: "source-freshness", status: sourceGeneratedAt ? "pass" : "fail", notes: `sourceFreshnessUtc=${sourceGeneratedAt || "missing"}` },
-    { id: "sample-count", status: "pass", notes: "sampleCount=1" },
-    { id: "source-state-label", status: sourceReady ? "pass" : "fail", notes: `sourceTruthStatus=${redactedSample.sourceTruthStatus}` },
-    { id: "redacted-artifact-attached", status: "pass", notes: `artifactPath=${samplePath}` },
-    ...(launchHistoryCoverage ? [{
-      id: "launch-history-coverage",
-      status: "pass",
-      notes: `launchHistoryCoverage dayRows=${launchHistoryCoverage.days.length}; source=${LAUNCH_RECOVERY_REPORT_PATH}`,
-    }] : []),
-  ];
-  const failed = checks.filter((check) => check.status !== "pass");
+  const checks = ["source-freshness", "sample-count", "source-state-label", "redacted-artifact-attached"].map((id) => ({
+    id, status: "blocked", notes: "Local generated data is a source diagnostic; no authoritative admin activity was sampled.",
+  }));
   const manifest = {
-    status: failed.length === 0 ? "complete" : "incomplete",
-    capturedAtUtc: generatedAtUtc,
+    status: "incomplete" as const,
+    evidenceClass: "generated_snapshot",
+    canClearAdminTruthGate: false,
+    capturedAtUtc: input.generatedAtUtc,
     surface: "admin_truth_sample",
-    artifactPath: samplePath,
+    artifactPath: input.samplePath,
     sourceFreshnessUtc: sourceGeneratedAt,
     redactions: [redactedSample.redactionPolicy],
     checks,
-    operatorNotes: "Automated first-party redacted JSON admin truth sample.",
-    currentHead: currentHead(),
+    operatorNotes: "Local generated source diagnostic; no formal admin truth claim.",
+    localSourceHead: input.localSourceHead,
     launchHistoryCoverageReadiness,
     ...(launchHistoryCoverage ? { launchHistoryCoverage } : {}),
   };
+  return { manifest, redactedSample };
+}
+
+function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string) {
+  const folder = join(ROOT, ADMIN_FOLDER);
+  mkdirSync(folder, { recursive: true });
+  const samplePath = `${ADMIN_FOLDER}/automated-admin-truth-sample.${evidenceStamp}.redacted.json`;
+  const manifestPath = `${ADMIN_FOLDER}/automated-admin-truth-sample.${evidenceStamp}.json`;
+  const { manifest, redactedSample } = buildGeneratedAdminDiagnostic(
+    readJson("agent/state/admin-truth-source-sample.generated.json"), readJson("agent/state/debug-panel-output-triage.generated.json"), readJson(LAUNCH_RECOVERY_REPORT_PATH),
+    { generatedAtUtc, samplePath, localSourceHead: currentHead() },
+  );
+  writeFileSync(join(ROOT, samplePath), `${JSON.stringify(redactedSample, null, 2)}\n`);
   writeFileSync(join(ROOT, manifestPath), `${JSON.stringify(manifest, null, 2)}\n`);
-  return { artifactPath: manifestPath, samplePath, status: manifest.status, failedCount: failed.length };
+  return { artifactPath: manifestPath, samplePath, status: manifest.status, failedCount: manifest.checks.length };
 }
 
 async function main() {
@@ -581,7 +580,8 @@ async function main() {
   const admin = mode.admin
     ? captureAdminTruthEvidence(generatedAtUtc, evidenceStamp)
     : { artifactPath: "skipped", samplePath: "skipped", status: "skipped", failedCount: 0 };
-  console.log(`Truthful evidence capture complete. mode=${mode.reason} runtime=${runtime.status} (${runtime.artifactPath}) admin=${admin.status} (${admin.artifactPath})`);
+  console.log(`Evidence capture finished. mode=${mode.reason} runtime=${runtime.status} (${runtime.artifactPath}) admin=${admin.status} (${admin.artifactPath}); reachability/generated data cannot clear formal gates.`);
+  if (runtime.failedCount > 0 || admin.failedCount > 0) process.exitCode = 1;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

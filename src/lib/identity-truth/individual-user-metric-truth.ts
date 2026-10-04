@@ -4,7 +4,11 @@ import {
 } from "@/lib/analytics/person-metrics-contract";
 import type { PersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
 import type { AnalyticsIdentityLineageOwnerSummaryState } from "@/lib/analytics/identity-link-contract";
-import { USER_INDEX_MATERIALIZER_CONTRACT_VERSION } from "@/lib/user-indexes/user-tracking-index-contract";
+import {
+  USER_INDEX_MATERIALIZER_CONTRACT_VERSION,
+  USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT,
+} from "@/lib/user-indexes/user-tracking-index-contract";
+import { canUseBehavioralSignals, type ConsentMode } from "@/lib/privacy/consent-tracking-policy";
 
 export const INDIVIDUAL_USER_METRIC_TRUTH_VERSION = "2026.05.individual-user-metrics.1";
 export const INDIVIDUAL_USER_METRIC_PROVEN_ZERO_FRESHNESS_TOLERANCE_MS = 15 * 60 * 1000;
@@ -18,7 +22,12 @@ export interface IndividualUserMetricSourceTruthInput {
   identityLineageRejectedCount?: number;
   identityLineageOwnerState?: AnalyticsIdentityLineageOwnerSummaryState;
   materializerDocumentPresent: boolean;
-  materializedUserCount?: number;
+  requestedUserId?: string;
+  materializedUserId?: unknown;
+  materializedSourceTruth?: unknown;
+  currentConsentMode?: ConsentMode;
+  materializedUserCount?: unknown;
+  materializedDataAvailabilityReason?: unknown;
   sourceWindowStartMs?: number | null;
   sourceWindowEndMs?: number | null;
   materializerMetadata?: {
@@ -53,6 +62,27 @@ export type IndividualUserMetricFreshnessState =
   | "materializer_publication_stale"
   | "source_window_stale";
 
+export type IndividualUserAdmittedActivityUnavailableReason =
+  | "source_missing"
+  | "identity_mismatch"
+  | "materializer_proof_missing"
+  | "materializer_stale"
+  | "privacy_limited"
+  | "source_incomplete"
+  | "source_unverified"
+  | "count_invalid";
+
+export interface IndividualUserAdmittedActivity {
+  userId: string;
+  recordCount: number;
+  sourceWindowStartMs: number;
+  sourceWindowEndMs: number;
+  publishedAtMs: number;
+  sourceTruth: "canonical" | "materialized";
+  materializerVersion: string;
+  sourceFingerprint: string;
+}
+
 export interface IndividualUserMetricSourceTruth {
   state: UserMetricHydrationStatus;
   valuesDisplayable: boolean;
@@ -76,6 +106,8 @@ export interface IndividualUserMetricSourceTruth {
   sourceWindowStartMs: number | null;
   sourceWindowEndMs: number | null;
   sourceTruth: "individual_user_metric_truth";
+  admittedActivity: IndividualUserAdmittedActivity | null;
+  admittedActivityUnavailableReason: IndividualUserAdmittedActivityUnavailableReason | null;
   explanation: string;
 }
 
@@ -250,6 +282,44 @@ export function buildIndividualUserMetricSourceTruth(
     sourceWindowEndMs,
   });
   const hasFreshBoundedSourceWindow = materializerFreshnessState === "fresh";
+  const hasCompleteMaterializedSource = input.materializedDataAvailabilityReason === "available";
+  const requestedUserId = cleanString(input.requestedUserId);
+  const rawRecordCount = input.materializedUserCount;
+  const hasValidRecordCount = typeof rawRecordCount === "number"
+    && Number.isSafeInteger(rawRecordCount)
+    && rawRecordCount >= 0
+    && rawRecordCount <= USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT;
+  const admittedActivityUnavailableReason: IndividualUserAdmittedActivityUnavailableReason | null = !input.materializerDocumentPresent
+    ? "source_missing"
+    : !requestedUserId || input.materializedUserId !== requestedUserId
+      ? "identity_mismatch"
+      : !hasCurrentMaterializerProof
+        ? "materializer_proof_missing"
+        : !hasFreshBoundedSourceWindow
+          ? "materializer_stale"
+          : input.materializedDataAvailabilityReason === "privacy_limited" || !canUseBehavioralSignals(input.currentConsentMode ?? "unknown")
+            ? "privacy_limited"
+            : !hasCompleteMaterializedSource
+              ? "source_incomplete"
+              : input.materializedSourceTruth !== "canonical" && input.materializedSourceTruth !== "materialized"
+                ? "source_unverified"
+                : !hasValidRecordCount
+                  ? "count_invalid"
+                  : null;
+  // The active index proves this bounded record count, not coverage of each detailed metric.
+  const admittedActivity: IndividualUserAdmittedActivity | null = admittedActivityUnavailableReason === null
+    ? {
+      userId: requestedUserId!,
+      recordCount: rawRecordCount as number,
+      sourceWindowStartMs: sourceWindowStartMs!,
+      sourceWindowEndMs: sourceWindowEndMs!,
+      publishedAtMs: materializerPublishedAtMs!,
+      sourceTruth: input.materializedSourceTruth as "canonical" | "materialized",
+      materializerVersion: materializerVersion!,
+      sourceFingerprint: materializerSourceFingerprint!,
+    }
+    : null;
+  const materializedPrivacyLimited = input.materializedDataAvailabilityReason === "privacy_limited";
   const hasRejectedIdentityLineage = identityLineageRejectedCount > 0;
   const freshnessProofMissing = materializerFreshnessState === "evaluation_time_invalid"
     || materializerFreshnessState === "source_window_missing"
@@ -265,9 +335,13 @@ export function buildIndividualUserMetricSourceTruth(
           ? "collecting"
         : hasRejectedIdentityLineage
           ? "bridge_missing"
+        : materializedPrivacyLimited || admittedActivityUnavailableReason === "privacy_limited"
+          ? "permission_blocked"
         : materializedUserCount > 0
           ? "bridge_missing"
-        : hasFreshBoundedSourceWindow
+        : hasFreshBoundedSourceWindow && !admittedActivity
+          ? "collecting"
+        : admittedActivity?.recordCount === 0
           ? "proven_zero"
         : identityLinkCount > 0 && !input.materializerDocumentPresent
           ? "materializer_missing"
@@ -277,28 +351,32 @@ export function buildIndividualUserMetricSourceTruth(
   const state = resolveIndividualUserMetricHydrationStatus({
     globalCount: 0,
     userCount: displayedUserCount,
-    provenZero: hasFreshBoundedSourceWindow && !hasRejectedIdentityLineage && materializedUserCount === 0,
+    provenZero: admittedActivity?.recordCount === 0 && !hasRejectedIdentityLineage,
     missingProducer: directUserSourceCount === 0 ? "individual_user_sources" : null,
     missingBridge: identityLinkCount === 0 ? "identity_lineage_indexes" : null,
     explicitState,
   });
   const provenZero = state === "proven_zero";
-  const valuesDisplayable = state === "hydrated" || provenZero;
+  const valuesDisplayable = state === "hydrated";
 
   const explanation = state === "hydrated"
     ? "Observed user-scoped evidence is available for the Admin User projection."
     : state === "proven_zero"
-      ? "A fresh bounded materialized source window proved zero user activity."
+      ? "A fresh bounded materialized source window proved zero admitted activity records; detailed metrics remain unavailable."
+      : state === "permission_blocked"
+        ? "Person behavior is limited by the admitted privacy policy; excluded values are not a proved zero."
       : state === "bridge_missing"
         ? hasRejectedIdentityLineage
           ? `${identityLineageRejectedCount} identity lineage record(s) were excluded because owner-version proof is ${identityLineageOwnerState}; missing values are not zero.`
-          : "Materialized user evidence exists, but the Admin User projection did not hydrate it; missing values are not zero."
+          : "Materialized activity evidence exists, but detailed Admin User metrics are not hydrated; missing detailed values are not zero."
       : state === "materializer_missing"
           ? input.materializerDocumentPresent
             ? hasCurrentMaterializerProof
               ? `The user tracking index lacks required freshness proof (${materializerFreshnessState}); missing values are not zero.`
               : `The user tracking index lacks current materializer proof (${materializerProofState}); missing values are not zero.`
             : "Identity linkage exists, but the user tracking materializer output is missing; missing values are not zero."
+          : hasFreshBoundedSourceWindow && !admittedActivity
+            ? `Bounded admitted activity is unavailable (${admittedActivityUnavailableReason}); missing detailed values are not zero.`
           : state === "source_missing"
             ? "No individual user source is available; missing values are not zero."
             : hasCurrentMaterializerProof && materializerFreshnessState !== "fresh"
@@ -332,6 +410,8 @@ export function buildIndividualUserMetricSourceTruth(
     sourceWindowStartMs: hasFreshBoundedSourceWindow ? sourceWindowStartMs : null,
     sourceWindowEndMs: hasFreshBoundedSourceWindow ? sourceWindowEndMs : null,
     sourceTruth: "individual_user_metric_truth",
+    admittedActivity,
+    admittedActivityUnavailableReason,
     explanation,
   };
 }

@@ -1,18 +1,18 @@
 {
-  "generatedAtUtc": "2026-07-14T09:35:24.380Z",
+  "generatedAtUtc": "2026-08-09T23:35:26.381Z",
   "reportKey": "creator-landing-dashboard-mobile",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
   "summary": {
     "landingRoute": "/dashboard/creator",
     "createDropRouteState": "creator_submission",
     "createDropHref": "/dashboard/creator/drops",
     "rawModuleErrorLeaks": 0,
-    "mobileLayoutFixes": 4,
+    "mobileLayoutFixes": 1,
     "bottomNavSafe": true,
     "reportIssueSafe": true,
     "p0Count": 0,
-    "p1Count": 0,
-    "p2Count": 0
+    "p1Count": 2,
+    "p2Count": 1
   },
   "routeFindings": [
     {
@@ -38,27 +38,6 @@
     }
   ],
   "mobileFindings": [
-    {
-      "id": "compact-v2-route-markers",
-      "status": "fixed",
-      "severity": "p1",
-      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Creator Dashboard landing exposes compact_v2 density, human error language, and route-state markers."
-    },
-    {
-      "id": "compact-overview-density",
-      "status": "fixed",
-      "severity": "p1",
-      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Creator stats render inside one compact Creator Overview module instead of standalone metric cards."
-    },
-    {
-      "id": "broadcast-mobile-deferred",
-      "status": "fixed",
-      "severity": "p2",
-      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Quick Broadcast is lower priority on mobile while creator stats are unavailable."
-    },
     {
       "id": "safe-area-spacing",
       "status": "fixed",

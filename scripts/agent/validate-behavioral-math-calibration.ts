@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import * as ts from "typescript";
+import { readSourceAst, findSourceFunction, someSourceNode, sourceExpressionIs, hasSourceCall, readBehavioralAdminConsumers, readActiveEngagementCalibration } from "./validate-behavioral-truth-source";
+
 const repoRoot = process.cwd();
 
 type Check = {
@@ -70,6 +73,18 @@ function main() {
   const report = parseJson<CalibrationReport>("agent/state/behavioral-math-calibration.generated.json");
   const docs = read("docs/agent-truth/behavioral-math-calibration.md");
 
+  const engagementControls = readActiveEngagementCalibration();
+  const consumers = readBehavioralAdminConsumers();
+  const runtimeAst = readSourceAst("functions/src/behavioral-intelligence-runtime.ts");
+  const metricBuilder = findSourceFunction(runtimeAst, "buildCanonicalMetricFacts");
+  const metricGate = someSourceNode(metricBuilder?.body, (node) => ts.isIfStatement(node)
+    && sourceExpressionIs(node.expression, "!normalizedAction || record.metricEligible === false || !isCanonicalMetricSource(record)")
+    && someSourceNode(node.thenStatement, (child) => ts.isReturnStatement(child)));
+  const metricsRead = findSourceFunction(runtimeAst, "readRecentCollections");
+  const metricsConnected = someSourceNode(metricsRead?.body, (node) => ts.isReturnStatement(node) && Boolean(node.expression)
+    && someSourceNode(node.expression, (child) => ts.isPropertyAssignment(child) && child.name.getText() === "metricFacts"
+      && ts.isCallExpression(child.initializer) && ts.isIdentifier(child.initializer.expression) && child.initializer.expression.text === "buildCanonicalMetricFacts"));
+
   const requiredPredictionFields = [
     "pPurchase7d",
     "pUnlock24h",
@@ -111,12 +126,7 @@ function main() {
     ),
     check(
       "engagement formula exists",
-      contract.includes("(0.24 * clamp01(input.purchaseSignal))")
-        && contract.includes("(0.23 * clamp01(input.unwrapSignal))")
-        && contract.includes("(0.23 * clamp01(input.validWatchSignal))")
-        && contract.includes("(0.13 * clamp01(input.return7dSignal))")
-        && contract.includes("(0.1 * clamp01(input.meaningfulActionSignal))")
-        && contract.includes("(0.07 * clamp01(input.freeIntentSignal))"),
+      engagementControls.usesCanonicalOwner && engagementControls.signals.every((control) => control.pass),
       "Engagement score must match the product-goal weights.",
     ),
     check(
@@ -160,8 +170,10 @@ function main() {
       "server purchase and unlock truth first",
       runtime.includes("serverPurchaseCount")
         && runtime.includes("serverUnlockCount")
-        && runtime.includes("isServerPurchaseFact")
-        && runtime.includes("isServerUnlockFact")
+        && metricGate && metricsConnected
+        && hasSourceCall(metricBuilder?.body, "isCanonicalMetricSource")
+        && someSourceNode(metricBuilder?.body, (node) => sourceExpressionIs(node, 'normalizedAction === "gumdrops_purchased"'))
+        && someSourceNode(metricBuilder?.body, (node) => sourceExpressionIs(node, 'normalizedAction === "drop_unlocked"'))
         && runtime.includes("server_transaction")
         && runtime.includes("server_entitlement_unlock"),
       "Functions materializer must separate server purchases/unlocks from client context.",
@@ -172,7 +184,7 @@ function main() {
         && rollupContract.includes("predictionOutputs")
         && rollupContract.includes("mathCalibration")
         && rollupHelper.includes("computeBehavioralTruthScore")
-        && usersPage.includes("data-user-behavior-math-mode")
+        && consumers.hasDirectoryMathState()
         && userDetailPage.includes("Math:"),
       "Admin users must be able to see whether math is deterministic, validated, or unvalidated.",
     ),

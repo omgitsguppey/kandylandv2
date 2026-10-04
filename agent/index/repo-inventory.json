@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T16:00:11.695Z",
+  "generatedAt": "2026-10-04T00:38:21.662Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,9 +15,9 @@
     "scripts/repo-inventory.ts"
   ],
   "reportCompleteness": "capped",
-  "totalFindingCount": 4917,
+  "totalFindingCount": 5036,
   "emittedFindingCount": 12,
-  "omittedFindingCount": 4905,
+  "omittedFindingCount": 5024,
   "capReason": "The complete inventory is derived live from source discovery; the tracked index retains bounded high-risk examples and complete aggregate counts.",
   "capStrategy": "top_risk",
   "capLimit": 12,
@@ -35,10 +35,10 @@
   "gitStatus": "available",
   "toolingDegraded": false,
   "degradationReason": null,
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "currentHeadSource": "git",
-  "generatedAtUtc": "2026-07-14T16:00:11.695Z",
-  "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "generatedAtUtc": "2026-10-04T00:38:21.662Z",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "freshness": "fresh",
   "baselineStatus": "current",
   "owner": "scripts/agent/build-agent-indexes.ts",
@@ -48,7 +48,7 @@
   "cleanupPolicy": "regenerate",
   "cleanupCommand": "npm run agent:index",
   "sourceTruthRole": "generated_snapshot",
-  "dirtyFileCount": 681,
+  "dirtyFileCount": 768,
   "items": [
     {
       "stable_id": "file__src__lib__activity-sync-ts",
@@ -96,7 +96,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1784011383057:68e85702f7c7"
+      "last_modified_or_hash": "1784176519682:523e341571f1"
     },
     {
       "stable_id": "file__src__lib__admin-analytics-audience-snapshot-ts",
@@ -144,7 +144,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1781803616867:72c4c6a92693"
+      "last_modified_or_hash": "1785990632668:9d502b8831c1"
     },
     {
       "stable_id": "file__src__lib__admin-analytics-content-conversion-ts",
@@ -240,65 +240,65 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1781989122955:72ead8773a74"
+      "last_modified_or_hash": "1785990632671:e4914f072199"
     }
   ],
   "counts": {
-    "total": 4917,
+    "total": 5036,
     "emitted": 12,
-    "omitted": 4905,
+    "omitted": 5024,
     "byDomain": [
       {
         "domainClass": "tests",
-        "count": 983
+        "count": 1006
       },
       {
         "domainClass": "repo_intelligence_tooling",
-        "count": 846
+        "count": 849
       },
       {
         "domainClass": "other",
-        "count": 835
+        "count": 837
       },
       {
         "domainClass": "shared_helper",
-        "count": 728
+        "count": 730
       },
       {
         "domainClass": "agent_state",
-        "count": 624
+        "count": 625
       },
       {
         "domainClass": "component",
-        "count": 148
+        "count": 233
       },
       {
         "domainClass": "server_helper",
-        "count": 143
+        "count": 146
       },
       {
         "domainClass": "app_route",
         "count": 134
       },
       {
-        "domainClass": "app_surface",
-        "count": 72
-      },
-      {
         "domainClass": "admin_surface",
-        "count": 71
+        "count": 78
       },
       {
         "domainClass": "repo_tooling",
-        "count": 70
+        "count": 72
       },
       {
         "domainClass": "agent_docs",
         "count": 69
       },
       {
+        "domainClass": "app_surface",
+        "count": 67
+      },
+      {
         "domainClass": "functions_runtime",
-        "count": 38
+        "count": 41
       },
       {
         "domainClass": "hook",
@@ -321,12 +321,8 @@
         "count": 15
       },
       {
-        "domainClass": "workflow_tooling",
-        "count": 14
-      },
-      {
         "domainClass": "public_asset",
-        "count": 12
+        "count": 13
       },
       {
         "domainClass": "documentation",
@@ -334,7 +330,11 @@
       },
       {
         "domainClass": "functions_config",
-        "count": 8
+        "count": 7
+      },
+      {
+        "domainClass": "workflow_tooling",
+        "count": 7
       },
       {
         "domainClass": "playbook",
@@ -364,11 +364,11 @@
     "byPrefix": [
       {
         "prefix": "src/app",
-        "count": 277
+        "count": 279
       },
       {
         "prefix": "src/components",
-        "count": 148
+        "count": 233
       },
       {
         "prefix": "src/hooks",
@@ -376,23 +376,23 @@
       },
       {
         "prefix": "src/lib",
-        "count": 871
+        "count": 876
       },
       {
         "prefix": "src/lib/server",
-        "count": 143
+        "count": 146
       },
       {
         "prefix": "functions/src",
-        "count": 38
+        "count": 41
       },
       {
         "prefix": "scripts",
-        "count": 916
+        "count": 921
       },
       {
         "prefix": "tests",
-        "count": 983
+        "count": 1006
       },
       {
         "prefix": "agent/index",
@@ -404,7 +404,7 @@
       },
       {
         "prefix": "agent/state",
-        "count": 624
+        "count": 625
       }
     ]
   }

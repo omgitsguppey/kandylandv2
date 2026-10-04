@@ -1,6 +1,6 @@
 "use client";
 
-import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
+import { type AdminSurfaceState } from "@/lib/admin-parity";
 import {
     adminTruthStateForNoSampleStatus,
     badgeLabelForNoSampleStatus,
@@ -8,25 +8,10 @@ import {
 } from "@/lib/debug/no-sample-status-classifier";
 import { DebugPanelStatusBySection } from "./DebugPanelStatusBySection";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
+import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc, formatWindowHours } from "./DebugTime";
 
 /* ─── Helpers ─── */
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-function formatWindowHours(windowMs?: number) {
-    if (!windowMs) return "current";
-    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
-}
-function formatUtc(timestamp?: number | null) {
-    return timestamp ? new Date(timestamp).toISOString() : "unavailable";
-} function toneForChannelState(state?: string) {
+function toneForChannelState(state?: string) {
     if (state === "error" || state === "expired") return "bad" as const;
     if (state === "review" || state === "stale" || state === "sample_error_history" || state === "sample_has_history") return "warn" as const;
     if (state === "live" || state === "clean_sample") return "good" as const;
@@ -103,21 +88,6 @@ function channelTruth(channel: any, activeWindowMs?: number, recentWindowMs?: nu
         explanation: "Current, recent, and loaded sample windows are separated.",
     };
 }
-function toneForPanelStatus(status?: string) {
-    if (status === "healthy") return "good" as const;
-    if (status === "warn") return "warn" as const;
-    if (status === "fail" || status === "failed") return "bad" as const;
-    return "neutral" as const;
-}
-function truthStateForPanelStatus(status?: string): AdminSurfaceState {
-    if (status === "warn") return "degraded";
-    if (status === "fail" || status === "failed") return "failed";
-    return coerceAdminSurfaceState(status);
-}
-function labelForPanelStatus(status?: string) {
-    return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
-}
-
 /* ─── Props ─── */
 export interface DebugNowDiagnosticsProps {
     data: any;

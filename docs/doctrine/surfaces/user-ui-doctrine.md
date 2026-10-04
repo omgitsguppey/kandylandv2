@@ -8,6 +8,9 @@ User UI prioritizes conversion, clarity, reward-loop momentum, trust, and emotio
 
 ## Rules
 
+- Apply the current whole-site visual direction from Shared Brand Primitives. Public discovery is content-led, with one contextual heading and primary next action; signed-in library and account tasks use clear collections and grouped rows. User conversion, wallet and viewer meaning remain in their canonical owners.
+- Keep labeled primary navigation destinations stable. Wide layouts may expose the same route hierarchy in a sidebar; resizing must not create a second selection, fetch, telemetry or permission owner. Account and contextual actions stay in menus/toolbars, separate from navigation.
+
 - Keep cards simple, readable, and action-oriented.
 - Use compact density only when it improves scanning; compact must not become cramped.
 - Do not use admin-style diagnostic density, source machinery, raw metrics, or debug terminology.

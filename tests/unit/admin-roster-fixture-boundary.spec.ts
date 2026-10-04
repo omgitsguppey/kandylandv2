@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const source = readFileSync(join(process.cwd(), "src/app/admin/roster/page.tsx"), "utf8");
+const source = readFileSync(join(process.cwd(), "src/app/admin/roster/page.tsx"), "utf8").replace(/\r\n/g, "\n");
 
 describe("admin roster fixture boundary", () => {
   it("keeps local admin UI test access read-only for creator roster mutations", () => {
@@ -13,13 +13,12 @@ describe("admin roster fixture boundary", () => {
     expect(source).toContain("source_missing: creator roster source is not loaded in this fixture");
     expect(source).toContain("permission_blocked: account controls require verified admin access");
     expect(source).toContain("permission_blocked: fan-experience settings require verified admin access");
-    expect(source).toContain('{isLocalAdminUiTestSession ? "No source" : entriesByDecision.needs_review.length}');
-    expect(source).toContain('{isLocalAdminUiTestSession ? "No source" : entriesByDecision.waiting.length}');
-    expect(source).toContain('{isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length}');
+    expect(source).toContain('value: isLocalAdminUiTestSession ? "No source" : entriesByDecision.needs_review.length');
+    expect(source).toContain('value: isLocalAdminUiTestSession ? "No source" : entriesByDecision.waiting.length');
+    expect(source).toContain('value: isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length');
     expect(source).toContain("No creator decision queue source is loaded in local UI review");
     expect(source).toContain('creatorMutationDisabled ? "Create needs admin"');
-    expect(source).toContain('className="flex max-w-full flex-wrap gap-1 rounded-2xl');
-    expect(source).toContain('className="grid gap-3 sm:grid-cols-3"');
+    expect(source).toContain("<AdminRosterWorkspace");
     expect(source).not.toContain("min-w-[180px]");
 
     expect(source).toContain("disabled={creatorMutationDisabled || creating}");

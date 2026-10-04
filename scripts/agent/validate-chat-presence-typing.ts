@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -77,9 +78,7 @@ function git(args: string[]) {
 }
 
 function listDirtyFiles() {
-  const changed = git(["diff", "--name-only"]).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean);
-  const untracked = git(["ls-files", "--others", "--exclude-standard"]).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean);
-  return [...new Set([...changed, ...untracked])].sort();
+  return listValidatorScopeFiles();
 }
 
 function readJson(relativePath: string): Record<string, unknown> {
@@ -263,7 +262,7 @@ export function validateChatPresenceTypingReport(report: ChatPresenceTypingRepor
 function writeReport(report: ChatPresenceTypingReport) {
   const fullPath = join(repoRoot, STATE_PATH);
   mkdirSync(dirname(fullPath), { recursive: true });
-  writeFileSync(fullPath, `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(fullPath, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
 }
 
 function writeDoc(report: ChatPresenceTypingReport) {

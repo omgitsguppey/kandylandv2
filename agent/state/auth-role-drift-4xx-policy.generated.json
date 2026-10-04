@@ -1,10 +1,10 @@
 {
   "reportKey": "auth-role-drift-4xx-policy",
-  "generatedAtUtc": "2026-05-27T06:24:51.490Z",
+  "generatedAtUtc": "2026-10-04T00:30:29.258Z",
   "status": "pass",
   "authRoleDriftCasesCovered": 8,
   "stateClearingCases": 8,
   "oneRefreshMaxCases": 3,
   "validationFailures": [],
-  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48"
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8"
 }

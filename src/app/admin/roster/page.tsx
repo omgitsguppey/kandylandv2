@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminRosterWorkspace } from "@/components/creative-tim/kandydrops/admin-roster/AdminRosterWorkspace";
 import {
     CreatorAccountControlsPanel,
     type CreatorAccountControlResult,
@@ -1067,59 +1067,42 @@ export default function AdminRosterPage() {
     };
 
     return (
-        <main className="min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6" data-roster-mode="decision_queue" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
-            <PageViewEvent eventName="admin_roster_viewed" eventParams={{ component_name: "admin_roster_page", roster_mode: "decision_queue", actorMarkerPresent: true, actorType: isOwner ? "owner_admin" : "admin", performedAs: "own_account" }} />
-            <div className="mx-auto max-w-7xl">
-                <AdminPageHeader
-                    eyebrow="Creator Operations"
-                    title="Creator Review"
-                    subtitle="Review applications, send agreements, verify identity, and activate approved creators."
-                    compact
-                    actions={(
-                        <div className="flex max-w-full flex-wrap gap-1 rounded-2xl border border-white/10 bg-zinc-950/80 p-1" role="tablist" aria-label="Creator review views">
-                            {ROSTER_DECISION_TABS.map((item) => (
-                                <button
-                                    key={item.key}
-                                    type="button"
-                                    role="tab"
-                                    aria-selected={tab === item.key}
-                                    onClick={() => handleTabChange(item.key)}
-                                    className={`min-h-10 rounded-full px-3 text-sm font-semibold transition-colors ${tab === item.key ? "bg-white text-black" : "text-zinc-300 hover:bg-white/10 hover:text-white"}`}
-                                >
-                                    {item.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                />
-                {creatorMutationDisabled ? (
-                    <div
-                        className="mb-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-6 text-zinc-200"
-                        data-admin-roster-fixture-boundary="true"
-                        data-admin-roster-fixture-state="source_missing"
-                    >
-                        <span className="font-bold text-white">source_missing fixture.</span> source_missing: creator roster source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
-                    </div>
-                ) : null}
-                <section className="grid gap-4 lg:grid-cols-[0.94fr_1.06fr]">
-                    <div className="space-y-4">
-                        <div className="grid gap-3 sm:grid-cols-3">
-                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Needs admin</p>
-                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : entriesByDecision.needs_review.length}</p>
-                                <p className="mt-1 text-xs leading-5 text-zinc-400">Creators waiting for your next action.</p>
-                            </div>
-                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Waiting on creator</p>
-                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : entriesByDecision.waiting.length}</p>
-                                <p className="mt-1 text-xs leading-5 text-zinc-400">Agreement, ID, or intake steps still missing.</p>
-                            </div>
-                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Live creators</p>
-                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length}</p>
-                                <p className="mt-1 text-xs leading-5 text-zinc-400">Approved creators with active access.</p>
-                            </div>
-                        </div>
+        <AdminRosterWorkspace
+            eyebrow="Creator Operations"
+            title="Creator Review"
+            subtitle="Review applications, send agreements, verify identity, and activate approved creators."
+            tabs={ROSTER_DECISION_TABS}
+            activeTab={tab}
+            onTabChange={(key) => handleTabChange(key as RosterTab)}
+            metrics={[
+                {
+                    label: "Needs admin",
+                    value: isLocalAdminUiTestSession ? "No source" : entriesByDecision.needs_review.length,
+                    description: "Creators waiting for your next action.",
+                },
+                {
+                    label: "Waiting on creator",
+                    value: isLocalAdminUiTestSession ? "No source" : entriesByDecision.waiting.length,
+                    description: "Agreement, ID, or intake steps still missing.",
+                },
+                {
+                    label: "Live creators",
+                    value: isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length,
+                    description: "Approved creators with active access.",
+                },
+            ]}
+            sourceNotice={creatorMutationDisabled ? (
+                <div
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-6 text-zinc-200"
+                    data-admin-roster-fixture-boundary="true"
+                    data-admin-roster-fixture-state="source_missing"
+                >
+                    <span className="font-bold text-white">source_missing fixture.</span> source_missing: creator roster source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
+                </div>
+            ) : null}
+            beforeContent={<PageViewEvent eventName="admin_roster_viewed" eventParams={{ component_name: "admin_roster_page", roster_mode: "decision_queue", actorMarkerPresent: true, actorType: isOwner ? "owner_admin" : "admin", performedAs: "own_account" }} />}
+        >
+                    <div className="min-w-0 space-y-4" data-admin-roster-primary="true" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
 
                         {tab !== "create" ? (
                             <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
@@ -1619,8 +1602,6 @@ export default function AdminRosterPage() {
                             </div>
                         )}
                     </div>
-                </section>
-            </div>
-        </main>
+        </AdminRosterWorkspace>
     );
 }

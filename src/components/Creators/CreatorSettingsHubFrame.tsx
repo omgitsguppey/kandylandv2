@@ -1,17 +1,20 @@
 import type { ComponentPropsWithoutRef } from "react";
 
-import { CreatorDashboardGlassFrame } from "@/components/Creators/CreatorDashboardGlassFrame";
+import { CreatorStudioCanvas } from "@/components/creative-tim/kandydrops/creator/CreatorStudioCanvas";
 
 type CreatorSettingsHubFrameProps = ComponentPropsWithoutRef<"div">;
 
 export function CreatorSettingsHubFrame({ children, className, ...props }: CreatorSettingsHubFrameProps) {
     return (
-        <div
-            {...props}
-            className={["relative isolate", className].filter(Boolean).join(" ")}
-            data-creator-settings-frame="true"
-        >
-            <CreatorDashboardGlassFrame>{children}</CreatorDashboardGlassFrame>
-        </div>
+        <CreatorStudioCanvas>
+            <div
+                {...props}
+                className={["relative isolate", className].filter(Boolean).join(" ")}
+                data-creator-settings-frame="true"
+                data-creator-settings-studio-frame="true"
+            >
+                {children}
+            </div>
+        </CreatorStudioCanvas>
     );
 }

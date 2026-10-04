@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -53,13 +54,7 @@ function write(path: string, value: string) {
 }
 
 function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listValidatorScopeFiles();
 }
 
 function trackedFiles() {
@@ -300,6 +295,7 @@ function main() {
   });
   const failures = [...report.validationFailures];
   const page = read("src/app/admin/users/page.tsx");
+  const directory = read("src/components/creative-tim/kandydrops/admin-users/AdminUsersOperations.tsx");
   const route = read("src/app/api/admin/users/route.ts");
   const debugSummary = read("src/lib/debug/debug-panel-tracking-summary.ts");
   const adminDebugSummary = read("src/lib/server/admin-debug/summary.ts");
@@ -311,7 +307,8 @@ function main() {
   if (!page.includes("data-admin-user-management-consent-mode")) failures.push("consent mode not visible.");
   if (!page.includes("data-admin-user-management-metric-confidence")) failures.push("metric confidence missing.");
   if (!page.includes("guestLinkStatus.state")) failures.push("guest/user link status not visible.");
-  if (!page.includes("<details")) failures.push("raw event rows are not hidden behind drilldown.");
+  if (!page.includes("<AdminUserDirectory") || !directory.includes("<DirectoryBehaviorSummary") || !directory.includes("<details")) failures.push("raw event rows are not hidden behind the consumed directory drilldown.");
+  if (/<pre[\s\S]{0,200}JSON\.stringify/iu.test(directory)) failures.push("user directory default view shows raw dumps before summary.");
   if (!route.includes('mode === "summary"') || !route.includes("readAdminUsersFastSummarySnapshot")) failures.push("route lacks bounded summary-first mode.");
   if (!debugSummary.includes("user_management") || !adminDebugSummary.includes("userManagementRefactor") || !adminDebugRoute.includes("userManagementRefactor")) failures.push("debug panel lacks User management lane.");
   if (/user_metrics_confidence_panel|individual_user_metrics_debug|duplicate_user_metrics_section/iu.test(page + debugSummary)) failures.push("duplicate user metrics sections remain.");
@@ -332,7 +329,7 @@ function main() {
     validationFailures: [...new Set(failures)],
   };
 
-  write(REPORT_PATH, `${JSON.stringify(output, null, 2)}\n`);
+  write(REPORT_PATH, `${JSON.stringify(withValidatorMutationScope(output), null, 2)}\n`);
   write(DOC_PATH, renderDoc(output));
 
   if (output.validationFailures.length > 0) {

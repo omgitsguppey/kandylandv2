@@ -7,6 +7,7 @@ import { resolveHumanError } from "@/lib/errors/resolve-human-error";
 import { recordDebugEvidence } from "@/lib/server/debug-evidence-store";
 
 import { recordAnalyticsPipelineFailure } from "./analytics-pipeline-health";
+import { isKandyLocalPublicPreview } from "./local-public-preview";
 import {
   recordServerDiagnostic,
   type ServerDiagnosticChannel,
@@ -233,6 +234,10 @@ interface RouteDiagnosticInput {
 }
 
 export function recordRouteDiagnostic(input: RouteDiagnosticInput) {
+  if (isKandyLocalPublicPreview()) {
+    return;
+  }
+
   const channel = input.channel ?? inferDiagnosticChannel(input.context);
   const severity = input.severity ?? "warn";
   const errorMessage = getErrorMessage(input.error, input.message);

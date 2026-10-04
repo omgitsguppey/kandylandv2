@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { buildNotFoundBody } from "@/lib/server/not-found";
 import { getCSTDateKey } from "@/lib/timezone";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
@@ -325,8 +326,7 @@ export async function POST(request: NextRequest) {
         if (error instanceof Error && /user not found/i.test(error.message)) {
             return finalize(NextResponse.json({
                 success: false,
-                error: "User profile is not available for check-in.",
-                errorCode: "profile_missing",
+                ...buildNotFoundBody("user", "User profile is not available for check-in.", "profile_missing"),
                 routeStatus: "expected_typed_client_error",
                 retryable: false,
             }, { status: 404 }), error);

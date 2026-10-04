@@ -339,7 +339,7 @@ describe("admin UI test session", () => {
     }
   });
 
-  it("does not expose the cookie bootstrap route when the fixture gate is disabled", () => {
+  it("does not expose the cookie bootstrap route when the fixture gate is disabled", async () => {
     const previousEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
     delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
 
@@ -350,6 +350,12 @@ describe("admin UI test session", () => {
 
       expect(response.status).toBe(404);
       expect(response.headers.get("set-cookie")).toBeNull();
+      expect(await response.json()).toMatchObject({
+        ok: false,
+        status: "disabled",
+        errorCode: "disabled",
+        resource: "request",
+      });
     } finally {
       if (previousEnv === undefined) {
         delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
@@ -370,8 +376,10 @@ describe("admin UI test session", () => {
   });
 
   it("does not attempt server navigation-session sync with the local UI test identity", () => {
+    const syncKeyPosition = authContextSource.indexOf("const syncKey = `${user.uid}:${userProfile.role ?? \"user\"}`;");
+    expect(syncKeyPosition).toBeGreaterThan(0);
     const navigationSyncEffect = authContextSource.slice(
-      authContextSource.indexOf("useEffect(() => {\n        if (!user)"),
+      authContextSource.lastIndexOf("useEffect(() => {", syncKeyPosition),
       authContextSource.indexOf("const signInWithGoogle"),
     );
 

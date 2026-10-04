@@ -52,12 +52,19 @@ const analyticsHook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState
 const analyticsDisplayState = read("src/lib/analytics/admin-analytics-display-state.ts");
 const adminMetricSnapshotContract = read("src/lib/analytics/admin-metric-snapshot.ts");
 const analyticsOperations = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const analyticsEventMix = read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
+const analyticsInteractionSnapshot = read("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
 const analyticsComponents = [
   analyticsPage,
   analyticsHook,
   analyticsOperations,
+  analyticsEventMix,
+  analyticsInteractionSnapshot,
   read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx"),
   read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
   read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"),
   read("src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx"),
   read("src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx"),
@@ -168,9 +175,9 @@ includes(debugRoute, "readPersistenceRule", "Admin Debug notification read evide
 includes(taskPipeline, "lifecycle", "Task pipeline lifecycle truth");
 includes(notificationFunnel, "duplicatePrevented", "Notification funnel dedupe truth");
 includes(notificationFunnel, "readCount", "Notification funnel read truth");
-includes(analyticsOperations, "Ranked event activity", "Event Mix ranked list");
-includes(analyticsOperations, "Surface context unavailable", "Event Mix context truth");
-notIncludes(analyticsOperations, "BarChart", "Event Mix module");
+includes(analyticsEventMix, "Ranked event activity", "Event Mix ranked list");
+includes(analyticsEventMix, "Surface context unavailable", "Event Mix context truth");
+notIncludes(analyticsEventMix, "BarChart", "Event Mix module");
 notIncludes(analyticsComponents, "Data Validation", "Admin Analytics primary UI");
 
 for (const bannedVisible of [

@@ -9,6 +9,7 @@ import type {
 
 export type BehavioralExplanationType =
   | "spend_likely"
+  | "value_profile"
   | "return_likely"
   | "watch_likely"
   | "unlock_likely"
@@ -83,6 +84,8 @@ function toStatusLabel(type: BehavioralExplanationType) {
   switch (type) {
     case "spend_likely":
       return "Spend likely";
+    case "value_profile":
+      return "Value profile";
     case "return_likely":
       return "Return likely";
     case "watch_likely":
@@ -304,17 +307,15 @@ export function buildValueBehavioralExplanation(input: {
 
   return {
     verdict: input.value.verdict,
-    statusLabel: "Spend likely",
-    type: "spend_likely",
+    statusLabel: toStatusLabel("value_profile"),
+    type: "value_profile",
     confidenceLabel,
     confidenceScore,
     truthState: input.truthState,
-    summary: "This user is likely to spend again because they purchased recently and kept unlocking afterward.",
-    reasons: [
-      ...input.value.topReasons.slice(0, 3).map((reason) => reason.summary),
-      "Bonus GD stays separate from cash revenue. Package bonus raises paid-source delivery, not gross spend.",
-    ].slice(0, 3),
+    summary: "This value profile reflects recorded spend and usage.",
+    reasons: input.value.topReasons.slice(0, 3).map((reason) => reason.summary),
     debugFacts: [
+      "Bonus GD stays separate from cash revenue. Package bonus raises paid-source delivery, not gross spend.",
       `Score ${input.value.valueScore}/100`,
       `Tier ${input.value.valueTier}`,
       `Repeat purchase likelihood ${Math.round(input.value.repeatPurchaseLikelihood * 100)}%`,

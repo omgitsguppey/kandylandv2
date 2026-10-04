@@ -73,16 +73,16 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
     };
 
     return (
-        <div className="flex max-h-[34rem] flex-col rounded-xl border border-white/10 bg-zinc-900/80 p-4">
+        <div className="relative flex max-h-[34rem] flex-col overflow-hidden rounded-[1.65rem] border border-fuchsia-200/15 bg-[linear-gradient(145deg,rgba(59,21,84,0.78),rgba(13,8,25,0.96)_58%,rgba(7,5,15,0.98))] p-4 shadow-[0_18px_48px_rgba(5,0,18,0.36)]">
             <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
                     <div>
-                        <h3 className="flex items-center gap-2 text-base font-bold text-white">
-                            <ScrollText className="h-5 w-5 text-brand-purple" />
+                        <h3 className="flex items-center gap-2 text-lg font-black text-white">
+                            <ScrollText className="h-5 w-5 text-fuchsia-200" />
                             Transaction history
                         </h3>
                         <p className="mt-1 text-sm text-gray-400">{user.displayName || user.email || "Selected user"} - Last 30 records</p>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-center">
+                    <div className="rounded-[1.1rem] border border-fuchsia-200/15 bg-fuchsia-200/[0.08] px-3 py-2 text-right">
                         <span className="block text-[10px] font-bold uppercase text-gray-500">Balance</span>
                         <span className="font-mono font-bold text-brand-purple">{user.gumDropsBalance || 0} GD</span>
                     </div>
@@ -99,7 +99,7 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                             {error}
                         </div>
                     ) : transactions.length === 0 ? (
-                        <div className="rounded-xl border border-white/5 bg-white/5 py-12 text-center text-sm text-gray-500">
+                        <div className="rounded-[1.15rem] border border-dashed border-white/10 bg-black/20 py-12 text-center text-sm text-violet-100/50">
                             <ScrollText className="mx-auto mb-3 h-8 w-8 opacity-20" />
                             No recent transactions for this user.
                         </div>
@@ -112,7 +112,7 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                             return (
                                 <div
                                     key={tx.id}
-                                    className="flex items-center justify-between rounded-xl border border-white/5 bg-black/40 p-3 transition-colors hover:bg-white/5"
+                                    className="flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-black/25 p-3 transition-colors hover:border-fuchsia-200/20 hover:bg-fuchsia-200/[0.045]"
                                 >
                                     <div className="min-w-0 flex-1 pr-4">
                                         <div className="mb-1 flex items-center gap-2">
@@ -189,7 +189,7 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                     )}
             </div>
 
-            <div className="mt-3 flex shrink-0 justify-end border-t border-white/10 pt-3">
+            <div className="mt-3 flex shrink-0 justify-end border-t border-fuchsia-200/10 pt-3">
                 <Button variant="ghost" onClick={onClose}>Close</Button>
             </div>
         </div>

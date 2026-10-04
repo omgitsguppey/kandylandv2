@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent } from "@/components/creative-tim/ui/card";
+
 import { useMemo, useState } from "react";
 import {
     Area,
@@ -223,151 +226,25 @@ export function AdminAnalyticsCharts({
     ];
 
     if (loading) {
-        return <div className="h-[18rem] animate-pulse rounded-[1.4rem] border border-white/10 bg-white/5" />;
+        return <div className="h-[18rem] animate-pulse rounded-2xl bg-muted" />;
     }
 
-    return (
-        <div className="space-y-2.5">
-            {/* ── Top row: time-range filter + truth chip ─────────── */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-black/35 p-0.5">
-                    {TIME_RANGE_OPTIONS.map((opt) => (
-                        <button
-                            key={opt.key}
-                            type="button"
-                            onClick={() => {
-                                setTimeRange(opt.key);
-                                trackEvent("admin_revenue_range_changed", { range: opt.key });
-                                trackEvent("admin_chart_view_changed", {
-                                    chart: "revenue_unwraps",
-                                    range: opt.key,
-                                });
-                            }}
-                            className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors ${
-                                timeRange === opt.key
-                                    ? "bg-brand-purple/20 text-white"
-                                    : "text-gray-500 hover:text-gray-300"
-                            }`}
-                        >
-                            {opt.shortLabel}
-                        </button>
-                    ))}
+return (
+        <div className="min-w-0 space-y-6" data-admin-analytics-workspace="true">
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0"><p className="text-sm font-medium text-muted-foreground">Analysis window</p>
+                    <div className="mt-2 flex max-w-full flex-wrap gap-2" role="group" aria-label="Analysis time range">{TIME_RANGE_OPTIONS.map((opt) => <Button key={opt.key} variant={timeRange === opt.key ? "default" : "ghost"} type="button" aria-pressed={timeRange === opt.key} onClick={() => { setTimeRange(opt.key); trackEvent("admin_revenue_range_changed", { range: opt.key }); trackEvent("admin_chart_view_changed", { chart: "revenue_unwraps", range: opt.key }); }}>{opt.shortLabel}</Button>)}</div>
                 </div>
-
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-                    <AdminStatusBadge state={truthVariant} className="py-0.5" />
-                    <span>{truthLabel}</span>
-                </div>
+                <div className="min-w-0 space-y-1"><div className="flex flex-wrap items-center gap-2"><AdminStatusBadge state={truthVariant} /><span className="wrap-anywhere text-sm text-muted-foreground">{truthLabel}</span></div><p className="text-xs text-muted-foreground">{windowLabel}</p></div>
             </div>
-
-            {/* ── Window label ─────────────────────────────────────── */}
-            <p className="text-[10px] font-medium text-gray-500">{windowLabel}</p>
-
-            {/* ── Metric cards ─────────────────────────────────────── */}
-            <div className="grid grid-cols-3 gap-1.5 xl:grid-cols-6">
-                {metricCards.map((card) => (
-                    <div key={card.label} className="rounded-xl border border-white/8 bg-black/30 px-2.5 py-2">
-                        <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-gray-500">{card.label}</p>
-                        <p className="mt-0.5 truncate text-xs font-bold text-white">{card.value}</p>
-                        {card.sub ? (
-                            <p className="mt-0.5 text-[9px] font-medium text-gray-400">{card.sub}</p>
-                        ) : null}
-                    </div>
-                ))}
-            </div>
-
-            {/* ── Combined chart ────────────────────────────────────── */}
-            {!chartHasData ? (
-                <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                    <div className="flex flex-col items-center gap-2 text-[11px] font-semibold text-gray-400">
-                        <AdminStatusBadge state={truthVariant} />
-                        <span>No revenue or unwrap activity in this window.</span>
-                    </div>
-                </div>
-            ) : (
-                <div className="rounded-xl border border-white/8 bg-black/30 p-3 md:p-3.5">
-                    <div className="h-[13rem] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <ComposedChart data={filteredChart} margin={{ top: 8, right: 4, left: -22, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={CHART_PURPLE} stopOpacity={0.28} />
-                                        <stop offset="95%" stopColor={CHART_PURPLE} stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke={KANDYDROPS_CHART_COLORS.grid} vertical={false} />
-                                <XAxis
-                                    dataKey="date"
-                                    stroke={KANDYDROPS_CHART_COLORS.axis}
-                                    fontSize={10}
-                                    tickLine={false}
-                                    axisLine={false}
-                                    minTickGap={28}
-                                />
-                                <YAxis
-                                    yAxisId="revenue"
-                                    stroke={KANDYDROPS_CHART_COLORS.axis}
-                                    fontSize={10}
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickFormatter={(value) => `$${value}`}
-                                />
-                                <YAxis
-                                    yAxisId="unwraps"
-                                    orientation="right"
-                                    stroke={KANDYDROPS_CHART_COLORS.axis}
-                                    fontSize={10}
-                                    tickLine={false}
-                                    axisLine={false}
-                                    allowDecimals={false}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: KANDYDROPS_CHART_COLORS.tooltipBackground,
-                                        borderColor: KANDYDROPS_CHART_COLORS.tooltipBorder,
-                                        borderRadius: "10px",
-                                        color: "white",
-                                        fontSize: "11px",
-                                    }}
-                                    formatter={(value, name) => {
-                                        if (name === "Revenue") return [`$${Number(value ?? 0).toFixed(2)}`, "Revenue"];
-                                        return [Number(value ?? 0).toLocaleString(), "Unwraps"];
-                                    }}
-                                />
-                                <Legend
-                                    iconType="circle"
-                                    iconSize={6}
-                                    wrapperStyle={{ fontSize: "10px", color: KANDYDROPS_CHART_COLORS.legend, paddingTop: "4px" }}
-                                />
-                                <Bar
-                                    yAxisId="unwraps"
-                                    dataKey="unwraps"
-                                    name="Unwraps"
-                                    fill={CHART_PURPLE_LIGHT}
-                                    fillOpacity={0.5}
-                                    radius={[3, 3, 0, 0]}
-                                />
-                                <Area
-                                    yAxisId="revenue"
-                                    type="monotone"
-                                    dataKey="revenue"
-                                    name="Revenue"
-                                    stroke={CHART_PURPLE}
-                                    strokeWidth={2.2}
-                                    fillOpacity={1}
-                                    fill="url(#revenueGradient)"
-                                />
-                            </ComposedChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            )}
-
-            {/* ── Top drops table ─────────────────────────────────── */}
-            <TopDropsTable
-                drops={topDrops}
-                timeRangeKey={timeRange}
-            />
+            <dl className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-x-6 gap-y-4">{metricCards.map((card) => <div key={card.label} className="min-w-0"><dt className="text-sm text-muted-foreground">{card.label}</dt><dd className="mt-1 wrap-anywhere text-lg font-semibold tabular-nums">{card.value}</dd>{card.sub ? <p className="mt-1 wrap-anywhere text-xs text-primary">{card.sub}</p> : null}</div>)}</dl>
+            <Card className="min-w-0 gap-0 py-0">
+                <CardContent className="min-w-0 space-y-4 p-4 md:p-5">
+                    <div className="flex min-w-0 flex-wrap items-start justify-between gap-3"><div className="min-w-0"><h3 className="text-base font-semibold">Revenue and unwraps</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">Dual-axis view for the selected source window.</p></div><span className="text-xs text-muted-foreground">{windowLabel}</span></div>
+                    {loading ? <div aria-busy="true" className="h-64 animate-pulse rounded-xl bg-muted" /> : !chartHasData ? <div className="flex min-h-64 min-w-0 flex-col items-center justify-center px-4 text-center"><AdminStatusBadge state={truthVariant} /><p className="mt-3 text-sm text-muted-foreground">No revenue or unwrap activity in this window.</p></div> : <div className="h-64 min-w-0 w-full"><ResponsiveContainer width="100%" height="100%"><ComposedChart data={filteredChart} margin={{ top: 8, right: 4, left: -22, bottom: 0 }}><defs><linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={CHART_PURPLE} stopOpacity={0.28} /><stop offset="95%" stopColor={CHART_PURPLE} stopOpacity={0} /></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke={KANDYDROPS_CHART_COLORS.grid} vertical={false} /><XAxis dataKey="date" stroke={KANDYDROPS_CHART_COLORS.axis} fontSize={10} tickLine={false} axisLine={false} minTickGap={28} /><YAxis yAxisId="revenue" stroke={KANDYDROPS_CHART_COLORS.axis} fontSize={10} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} /><YAxis yAxisId="unwraps" orientation="right" stroke={KANDYDROPS_CHART_COLORS.axis} fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={{ backgroundColor: KANDYDROPS_CHART_COLORS.tooltipBackground, borderColor: KANDYDROPS_CHART_COLORS.tooltipBorder, borderRadius: "10px", color: "white", fontSize: "11px" }} formatter={(value, name) => name === "Revenue" ? [`$${Number(value ?? 0).toFixed(2)}`, "Revenue"] : [Number(value ?? 0).toLocaleString(), "Unwraps"]} /><Legend iconType="circle" iconSize={6} wrapperStyle={{ fontSize: "10px", color: KANDYDROPS_CHART_COLORS.legend, paddingTop: "4px" }} /><Bar yAxisId="unwraps" dataKey="unwraps" name="Unwraps" fill={CHART_PURPLE_LIGHT} fillOpacity={0.5} radius={[3, 3, 0, 0]} /><Area yAxisId="revenue" type="monotone" dataKey="revenue" name="Revenue" stroke={CHART_PURPLE} strokeWidth={2.2} fillOpacity={1} fill="url(#revenueGradient)" /></ComposedChart></ResponsiveContainer></div>}
+                </CardContent>
+            </Card>
+            <TopDropsTable drops={topDrops} timeRangeKey={timeRange} />
         </div>
     );
 }

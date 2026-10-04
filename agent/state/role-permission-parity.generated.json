@@ -1,8 +1,8 @@
 {
   "reportKey": "role-permission-parity",
   "version": "2026.05.role-permission.1",
-  "generatedAtUtc": "2026-07-16T04:23:24.612Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-03T10:35:52.559Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -2741,44 +2741,7 @@
       "regressionRisk"
     ]
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/activity-verification-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/monolith-orphan-metric-registry.md",
-      "classification": "documentation_artifact_expected"
-    }
-  ],
+  "dirtyFiles": [],
   "staleRolePermissionLogicClassification": [
     {
       "path": "src/context/AuthContext.tsx",
@@ -2797,11 +2760,22 @@
     }
   ],
   "validationFailures": [],
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "passed": true,
   "canClearSourceGate": true,
   "gitStatus": "available",
   "currentHeadSource": "git",
   "toolingDegraded": false,
-  "degradationReason": null
+  "degradationReason": null,
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-drops-unlock-release-v3-20261003",
+    "inputHash": "c62723a7a377dd56631132f822d59084eb580587d269ff59880515fcd7885836",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "8cf59467204327bdc662fdd411717ac8494d96c72a5dda5524291534a14c119e",
+    "changedFiles": [],
+    "inheritedDirtySourceFileCount": 529,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

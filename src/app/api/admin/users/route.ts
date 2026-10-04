@@ -320,7 +320,7 @@ function buildAdminUsersKpiCards(input: {
     },
     {
       id: "returned_7d",
-      label: "Returners",
+      label: "Returned in last 7 days",
       primaryValue: formatCount(summary.returnedInLast7Days ?? summary.activeLast7Days ?? 0),
       secondaryValue: returnedShare,
       scope: "rolling_7d",

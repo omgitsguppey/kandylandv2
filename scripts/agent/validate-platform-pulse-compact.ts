@@ -25,6 +25,7 @@ function requireNotIncludes(source: string, needle: string, label: string) {
 }
 
 const adminStatsBar = read("src/components/Admin/AdminStatsBar.tsx");
+const adminMetricCard = read("src/components/Admin/AdminMetricCard.tsx");
 const adminOverviewTypes = read("src/lib/admin-overview.ts");
 const adminOverviewRoute = read("src/app/api/admin/overview/route.ts");
 const windowHelper = read("src/lib/admin/platform-pulse-window.ts");
@@ -37,8 +38,9 @@ const windowTestPath = "tests/unit/platform-pulse-window.spec.ts";
 requireIncludes(adminOverviewTypes, '"gumdropsCirculation30d"', "PlatformPulseMetric id union");
 requireIncludes(adminOverviewTypes, '"supportBugs30d"', "PlatformPulseMetric id union");
 requireIncludes(adminOverviewTypes, 'primaryScope: "rolling_30d"', "PlatformPulseMetric contract");
-requireIncludes(adminOverviewTypes, "current30dValue: number", "PlatformPulseMetric contract");
-requireIncludes(adminOverviewTypes, "prior30dValue: number", "PlatformPulseMetric contract");
+requireIncludes(adminOverviewTypes, "current30dValue: number | null", "Missing comparison source contract");
+requireIncludes(adminOverviewTypes, "prior30dValue: number | null", "Missing comparison source contract");
+requireIncludes(adminOverviewTypes, "primaryValue: string | number | null", "Missing metric source contract");
 requireIncludes(adminOverviewTypes, "deltaPct: number | null", "PlatformPulseMetric contract");
 requireIncludes(adminOverviewTypes, "displayCombinesPaidAndRewardOnly", "GumDrops display metadata");
 requireIncludes(adminOverviewTypes, "excludesAiDebugCodeInternalDiagnostics", "Support/Bugs metadata");
@@ -65,12 +67,22 @@ requireNotIncludes(adminOverviewRoute, "buildPlatformPulseFromTruthSnapshot", "s
 requireNotIncludes(adminOverviewRoute, "materialized_snapshot", "stale platform pulse source label");
 
 requireIncludes(adminStatsBar, 'data-admin-platform-pulse-grid="compact-six"', "Compact grid marker");
-requireIncludes(adminStatsBar, "grid-cols-2", "Mobile compact grid");
-requireIncludes(adminStatsBar, "md:grid-cols-3", "Wide compact grid");
+// Available-space layout replaces the obsolete fixed viewport-column prediction.
+// Rendered containment/text/activation remains a separate direct browser proof.
+const pulseGridClassName = adminStatsBar.match(/className="([^"]+)"\s+data-admin-platform-pulse-grid="compact-six"/u)?.[1] ?? "";
+if (!/\bgrid-cols-\[repeat\(auto-(?:fit|fill),minmax\(min\(100%,[^)]+\),1fr\)\)\]/u.test(pulseGridClassName)) {
+  fail("Compact pulse grid must use available width without a fixed viewport column count.");
+}
+requireIncludes(adminMetricCard, '<Card', "Licensed local metric content surface");
+requireIncludes(adminMetricCard, 'flex min-w-0 max-w-full flex-wrap', "Constrained wrapping metric badge group");
+requireIncludes(adminMetricCard, '*:break-words', "Metric badge text containment");
 requireIncludes(adminStatsBar, "metricNeedsIssueBadge", "Issue-only badge gate");
 requireIncludes(adminStatsBar, "AdminReviewBadge", "Issue badge visibility");
 requireIncludes(adminStatsBar, "AdminMetricCard", "Shared metric primitive");
 requireIncludes(adminStatsBar, "showTruthBadge={shouldRenderIssue}", "Issue-only truth badge gate");
+requireIncludes(adminStatsBar, "resolveAdminInputTruthState", "Canonical value visibility owner");
+requireIncludes(adminStatsBar, 'value={hasUsableValue ? formatPrimaryValue(metric.primaryValue) : "Unavailable"}', "Missing values must not display placeholder zeroes");
+requireIncludes(adminStatsBar, "meta={hasUsableValue ? <DeltaBadge", "Missing values must not display trends");
 requireIncludes(adminStatsBar, "AdminTruthBadge", "Overall overview truth badge");
 requireNotIncludes(adminStatsBar, "metric.subtext", "Platform pulse subtext");
 requireNotIncludes(adminStatsBar, "formatConfidence", "Platform pulse confidence text");

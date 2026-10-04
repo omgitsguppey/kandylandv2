@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -61,10 +62,7 @@ function currentHead() {
 }
 
 function dirtyFiles() {
-  const changed = shell("git", ["diff", "--name-only"]).split(/\r?\n/u).filter(Boolean);
-  const staged = shell("git", ["diff", "--cached", "--name-only"]).split(/\r?\n/u).filter(Boolean);
-  const untracked = shell("git", ["ls-files", "--others", "--exclude-standard"]).split(/\r?\n/u).filter(Boolean);
-  return [...new Set([...changed, ...staged, ...untracked].map((path) => path.replace(/\\/gu, "/")))].sort();
+  return listValidatorScopeFiles();
 }
 
 function classifyDirtyFile(path: string): DirtyClassification {
@@ -360,7 +358,7 @@ function main() {
     validationFailures: [...new Set(failures)],
   };
 
-  write(REPORT_PATH, `${JSON.stringify(output, null, 2)}\n`);
+  write(REPORT_PATH, `${JSON.stringify(withValidatorMutationScope(output), null, 2)}\n`);
   write(DOC_PATH, renderDoc(output));
 
   if (output.validationFailures.length > 0) {

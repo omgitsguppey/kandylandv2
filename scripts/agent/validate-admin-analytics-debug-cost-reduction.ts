@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
+import { withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 type Finding = {
   id: string;
@@ -226,18 +228,7 @@ export function validateAdminAnalyticsDebugCostReduction(options: { writeReport?
         estimatedReduction: "60-95% fewer default support/roster/user-detail reads on large tenants",
       },
     ],
-    prCleanupActions: [
-      {
-        number: 271,
-        action: "not_relevant",
-        reason: "Open governance/doc PR does not touch admin analytics/debug cost runtime.",
-      },
-      {
-        number: 272,
-        action: "not_relevant",
-        reason: "Open creator accessibility PR does not touch admin analytics/debug cost runtime.",
-      },
-    ],
+    prCleanupActions: [],
     nextFixOrder: [
       "Add UI drilldown controls for named Admin Debug sections after the summary/all route split is consumed.",
       "Promote verified Admin Analytics materializers for remaining placeholder modules so explicit refreshes use fewer raw sources.",
@@ -250,7 +241,12 @@ export function validateAdminAnalyticsDebugCostReduction(options: { writeReport?
     fs.mkdirSync(path.join(ROOT, "docs/agent-truth"), { recursive: true });
     fs.writeFileSync(
       path.join(ROOT, "agent/state/admin-analytics-debug-cost-reduction.generated.json"),
-      `${JSON.stringify(report, null, 2)}\n`,
+      `${JSON.stringify(withValidatorMutationScope(withGeneratedReportEnvelope(report, {
+        evidenceClass: "source_snapshot", status: failed.length ? "fail" : "pass",
+        validationFailures: failed.map((entry) => entry.id), canClearSourceGate: failed.length === 0,
+        nextExactSteps: report.nextFixOrder,
+        doesNotProve: ["Current PR state, authoritative admin activity, deployed reads or billing savings."],
+      })), null, 2)}\n`,
     );
     fs.writeFileSync(
       path.join(ROOT, "docs/agent-truth/admin-analytics-debug-cost-reduction.md"),

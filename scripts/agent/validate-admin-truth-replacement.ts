@@ -70,7 +70,7 @@ assert(files.adminStatsBar.includes("AdminTruthBadge"), "Admin stats bar must re
 assert(files.adminModuleVerificationCard.includes("AdminTruthBadge"), "Admin module verification card must render canonical truth badges.", failures);
 assert(files.debugPrimitives.includes("AdminTruthBadge"), "Admin debug primitives must render canonical truth badges.", failures);
 assert(files.aiHelpers.includes("resolveAdminInputTruthState"), "Admin AI helpers must resolve AdminTruthState through the canonical helper.", failures);
-assert(files.adminStatsBar.includes("resolveAdminMetricTruthState"), "Admin stats bar must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.adminStatsBar.includes("resolveAdminInputTruthState"), "Admin stats bar must resolve value availability and AdminTruthState through the canonical input helper.", failures);
 assert(files.adminModuleVerificationCard.includes("resolveAdminVerificationTruthState"), "Admin module verification card must resolve AdminTruthState through the canonical helper.", failures);
 assert(files.debugPrimitives.includes("resolveAdminInputTruthState"), "Admin debug primitives must resolve AdminTruthState through the canonical helper.", failures);
 for (const [label, source] of [

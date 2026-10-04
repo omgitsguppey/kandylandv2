@@ -33,9 +33,9 @@ describe("Antigravity Capability Policy Validation Suite", () => {
   });
 
   it("should fail validation if memory writeback is missing", () => {
-    const badPolicy = { ...ANTIGRAVITY_CAPABILITY_POLICY, requireMemoryWritebackAfterTask: false };
+    const badPolicy = { ...ANTIGRAVITY_CAPABILITY_POLICY, requireTriggeredMemoryWriteback: false };
     const failures = validatePolicy(badPolicy);
-    expect(failures).toContain("Policy violation: requireMemoryWritebackAfterTask must be true.");
+    expect(failures).toContain("Policy violation: requireTriggeredMemoryWriteback must be true.");
   });
 
   it("should execute validation without process.exit if clean", () => {

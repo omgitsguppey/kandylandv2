@@ -14,7 +14,7 @@ KandyDrops legacy phaseout is a hardcoded registry. Orphan scoring now treats `s
 ## Rules
 
 - Duplicate normalizers or exported truth helpers with the same name must become one canonical owner plus documented adapters.
-- `DropPreviewModal` is legacy fallback only. Locked Drop preview ownership belongs to the full-page `/drops/[id]/preview` route.
+- `DropPreviewModal` is physically retired and remains blocked in the existing legacy registry. Locked Drop preview ownership belongs to the full-page `/drops/[id]/preview` route; `check:drop-preview-legacy-handoff` enforces absence and current entry/share bindings.
 - `/drops?drop=` is legacy handoff only. It must not become the primary modal preview flow again.
 - Duplicate useDrops optimization notes and duplicate bot PR audit chunks should not spread across generated docs.
 - Broken template text such as unresolved placeholders is stale generated evidence and should be removed only when the duplicate chunk is exact.

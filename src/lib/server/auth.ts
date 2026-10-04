@@ -47,6 +47,8 @@ type AuthDiagnosticClass =
     | "expired_session"
     | "malformed_token"
     | "missing_user"
+    | "role_unknown"
+    | "role_lookup_blocked"
     | "permission_denied"
     | "provider_config_failure"
     | "validation_failed";
@@ -124,6 +126,41 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
     } catch (error) {
         throw new AuthError("Invalid or expired token", 401, undefined, classifyVerifyIdTokenFailure(error));
     }
+}
+
+/** Current profile admission for identified observations; generic auth stays read-free. */
+export async function readCurrentAnalyticsProfileRole(uid: string): Promise<"user" | "creator" | "admin"> {
+    if (!adminDb) {
+        throw new AuthError("Profile authority is unavailable", 503, undefined, {
+            errorKey: "service_unavailable", diagnosticClass: "provider_config_failure",
+        });
+    }
+    let userDoc;
+    try {
+        userDoc = await adminDb.collection("users").doc(uid).get();
+    } catch (error) {
+        const code = error && typeof error === "object" ? String(Reflect.get(error, "code") ?? "").replace(/^firestore\//, "").toLowerCase() : "";
+        if (["7", "16", "permission-denied", "permission_denied", "unauthenticated"].includes(code)) {
+            throw new AuthError("Profile authority lookup is blocked", 403, undefined, {
+                errorKey: "forbidden", diagnosticClass: "role_lookup_blocked",
+            });
+        }
+        throw new AuthError("Profile authority lookup failed", 503, undefined, {
+            errorKey: "provider_unavailable", diagnosticClass: "provider_config_failure",
+        });
+    }
+    if (!userDoc.exists) {
+        throw new AuthError("Current profile is required", 403, "user", {
+            errorKey: "forbidden", diagnosticClass: "missing_user",
+        });
+    }
+    const role = userDoc.data()?.role;
+    if (role !== "user" && role !== "creator" && role !== "admin") {
+        throw new AuthError("Current profile role is unknown", 403, undefined, {
+            errorKey: "forbidden", diagnosticClass: "role_unknown",
+        });
+    }
+    return role;
 }
 
 /**

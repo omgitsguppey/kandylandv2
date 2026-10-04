@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-07-16T04:27:41.227Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-08-29T04:08:43.052Z",
+  "currentHead": "fde24e265d1a33a3915e59b7af74af5113ddfde3",
   "status": "passed",
   "version": "2026.05.settings-debug-validator-authority.1",
   "lane": {
@@ -231,10 +231,13 @@
   ],
   "staleArtifactsAffectingScore": [],
   "changedFiles": [
-    "agent/state/account-settings-delete-flow.generated.json",
-    "agent/state/settings-connection-parity.generated.json",
-    "docs/agent-truth/account-settings-delete-flow.md",
-    "docs/agent-truth/settings-connection-parity.md"
+    "agent/context/optimized-task-context.generated.json",
+    "agent/state/mobile-residual-score-impact.generated.json",
+    "agent/state/support-policy-surface-cleanup.generated.json",
+    "agent/state/user-profile-api-contract.generated.json",
+    "docs/agent-truth/mobile-residual-score-impact.md",
+    "docs/agent-truth/support-policy-surface-cleanup.md",
+    "docs/agent-truth/user-profile-api-contract.md"
   ],
   "checks": {
     "packageScriptPresent": true,

@@ -1,28 +1,53 @@
 {
-  "generatedAtUtc": "2026-05-26T06:12:47.487Z",
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-measurement-reader-source-20261002",
+    "inputHash": "f0f6c1fc2a650038fdef9e9251ce0d533ad5029994386f4d8ff94fdf3c9769b9",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "55f12a5d726a274a285d8000089a781497641d88145529bbaae7c2c2abff6962",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/validate-event-envelope-normalization.ts",
+      "scripts/agent/validate-person-metrics-contract.ts",
+      "scripts/agent/validate-session-bounce-calculation.ts",
+      "scripts/agent/validate-session-journey-duration-math.ts",
+      "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
+      "tests/unit/event-envelope-normalization.spec.ts",
+      "tests/unit/person-metrics-contract.spec.ts",
+      "tests/unit/session-bounce-calculation.spec.ts",
+      "tests/unit/session-journey-duration-math.spec.ts",
+      "tests/unit/user-journey-behavioral-intelligence.spec.ts",
+      "tests/unit/utils/source-validator-contract.ts"
+    ],
+    "inheritedDirtySourceFileCount": 409,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  },
+  "generatedAtUtc": "2026-10-02T22:51:13.102Z",
   "reportKey": "session-bounce-calculation",
-  "currentHead": "c84694d7f546c25f68639db1ed4680dab9abaccb",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeSessionActivityUsed": false,
   "scoreBefore": {
     "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
+    "costRisk": 92.5,
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreAfter": {
     "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
+    "costRisk": 92.5,
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "metrics": {
     "sourceHealth": {
@@ -33,46 +58,46 @@
       "nextExactAction": "No session/bounce score action needed for this dimension."
     },
     "runtimeHealth": {
-      "before": 84.2,
-      "after": 84.2,
+      "before": 0,
+      "after": 0,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No session/bounce score action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence."
     },
     "evidenceCompleteness": {
-      "before": 84.6,
-      "after": 84.6,
+      "before": 50,
+      "after": 50,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No session/bounce score action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence."
     },
     "freshness": {
-      "before": 91.88,
-      "after": 91.88,
+      "before": 91.22,
+      "after": 91.22,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No session/bounce score action needed for this dimension."
     },
     "costRisk": {
-      "before": 42,
-      "after": 42,
+      "before": 92.5,
+      "after": 92.5,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence."
+      "status": "target_met",
+      "nextExactAction": "No session/bounce score action needed for this dimension."
     },
     "regressionRisk": {
-      "before": 86,
-      "after": 86,
+      "before": 90,
+      "after": 90,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No session/bounce score action needed for this dimension."
     },
     "overallHealthScore": {
-      "before": 85.34,
-      "after": 85.34,
+      "before": 55.1,
+      "after": 55.1,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No session/bounce score action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence."
     }
   },
   "telemetryEvents": [
@@ -101,88 +126,7 @@
     "guestUserHandoffDoubleCounts": false,
     "activityTickThrottled": true
   },
-  "dirtyFiles": [
-    {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/canonical-math-authority-ledger.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/duration-math-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/duration-math-normalization.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-duration-math-normalization.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-session-bounce-calculation.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/canonical-math-authority-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/canonical-math-authority-ledger.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/duration-math-normalizer.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/duration-math-normalization.spec.ts",
-      "classification": "test_artifact_expected"
-    }
-  ],
+  "dirtyFiles": [],
   "validationFailures": [],
   "nextExactSteps": [
     "Keep session active time tied to foreground meaningful activity.",

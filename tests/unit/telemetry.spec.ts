@@ -397,6 +397,163 @@ describe("telemetry flow logic", () => {
         });
     });
 
+    describe("identified telemetry failure recovery", () => {
+        function setActor(userId: string | null) {
+            const fixtureAuth = firebaseAuth.auth as unknown as { currentUser: { uid: string } | null };
+            fixtureAuth.currentUser = userId ? { uid: userId } : null;
+            telemetry.syncIdentifiedTelemetryOwnership(userId);
+        }
+
+        function sentEvents(callIndex: number) {
+            const init = vi.mocked(authFetchModule.authFetch).mock.calls[callIndex]?.[1];
+            return (JSON.parse(String(init?.body)) as { events: Array<{ eventId: string; eventName: string }> }).events;
+        }
+
+        beforeEach(() => {
+            vi.mocked(privacyConsent.readPrivacySettingsSnapshot).mockReturnValue({
+                consentMode: "full_behavioral",
+                anonymousAnalyticsEnabled: true,
+                identifiedAnalyticsEnabled: true,
+                honorGlobalPrivacyControl: true,
+            } as any);
+            vi.mocked(privacyConsent.canUseAnonymousAnalytics).mockReturnValue(true);
+            vi.mocked(privacyConsent.canUseIdentifiedAnalytics).mockReturnValue(true);
+            vi.mocked(analyticsClientEngine.prepareAnalyticsEvent).mockImplementation((eventName, params) => ({
+                isKnownEvent: true,
+                canonicalEventName: eventName,
+                enrichedParams: params as any,
+            }));
+            vi.mocked(authFetchModule.authFetch).mockReset();
+            vi.mocked(authFetchModule.authFetch).mockResolvedValue(new Response(null, { status: 204 }));
+            vi.mocked(window.setTimeout).mockImplementation((callback, delay) => globalThis.setTimeout(callback as () => void, delay) as unknown as number);
+            vi.mocked(window.clearTimeout).mockImplementation((timer) => globalThis.clearTimeout(timer));
+            setActor("actor_a");
+        });
+
+        it.each([401, 403, 422, 429])("stops automatic retries after permanent HTTP %s and lets later valid events advance", async (status) => {
+            vi.mocked(authFetchModule.authFetch).mockResolvedValueOnce(new Response(JSON.stringify({
+                reason: "request_rejected",
+                retryable: false,
+            }), { status }));
+
+            telemetry.trackEvent("wallet_opened");
+            await vi.advanceTimersByTimeAsync(300_000);
+
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(1);
+            expect(telemetry.__getTelemetryStateForTesting().events).toEqual([]);
+            expect(diagnostics.recordClientDiagnostic).toHaveBeenCalledWith("telemetry", "Identified telemetry batch permanently rejected", expect.objectContaining({
+                httpStatus: status,
+                droppedEvents: 1,
+            }));
+
+            telemetry.trackEvent("wallet_opened");
+            await vi.advanceTimersByTimeAsync(0);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(2);
+            expect(sentEvents(1)[0].eventId).not.toBe(sentEvents(0)[0].eventId);
+        });
+
+        it("retains stable event IDs and honors transient backoff despite fresh priority events", async () => {
+            vi.mocked(authFetchModule.authFetch).mockResolvedValueOnce(new Response(null, { status: 503 }));
+            telemetry.trackEvent("wallet_opened");
+            await vi.advanceTimersByTimeAsync(0);
+            const originalEventId = sentEvents(0)[0].eventId;
+
+            telemetry.trackEvent("wallet_closed_incomplete");
+            await vi.advanceTimersByTimeAsync(14_999);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(1);
+            await vi.advanceTimersByTimeAsync(1);
+
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(2);
+            expect(sentEvents(1).map((event) => event.eventName)).toEqual(["wallet_opened", "wallet_closed_incomplete"]);
+            expect(sentEvents(1)[0].eventId).toBe(originalEventId);
+            expect(telemetry.__getTelemetryStateForTesting().events).toEqual([]);
+        });
+
+        it("respects a verified numeric Retry-After before a bounded rate-limit retry", async () => {
+            vi.mocked(authFetchModule.authFetch).mockResolvedValueOnce(new Response(null, {
+                status: 429,
+                headers: { "retry-after": "60" },
+            }));
+            telemetry.trackEvent("wallet_opened");
+            await vi.advanceTimersByTimeAsync(59_999);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(1);
+            await vi.advanceTimersByTimeAsync(1);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(2);
+            expect(sentEvents(1)[0].eventId).toBe(sentEvents(0)[0].eventId);
+        });
+
+        it("reschedules an existing fresh-event timer when an in-flight batch enters backoff", async () => {
+            let settleOld!: (response: Response) => void;
+            vi.mocked(authFetchModule.authFetch).mockReturnValueOnce(new Promise<Response>((resolve) => { settleOld = resolve; }));
+            telemetry.trackEvent("wallet_opened");
+            telemetry.trackEvent("filter_selected");
+            settleOld(new Response(null, { status: 503 }));
+            await vi.advanceTimersByTimeAsync(14_999);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(1);
+            await vi.advanceTimersByTimeAsync(1);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(2);
+            expect(sentEvents(1).map((event) => event.eventName)).toEqual(["wallet_opened", "filter_selected"]);
+        });
+
+        it.each(["server", "offline"])("bounds %s retries, retains the batch, and recovers on reconnect", async (failure) => {
+            if (failure === "server") {
+                vi.mocked(authFetchModule.authFetch).mockResolvedValue(new Response(null, { status: 503 }));
+            } else {
+                vi.mocked(authFetchModule.authFetch).mockRejectedValue(new Error("transport_secret_must_not_be_logged"));
+            }
+            telemetry.trackEvent("wallet_opened");
+            await vi.advanceTimersByTimeAsync(0);
+            for (const delay of [15_000, 30_000, 60_000, 120_000]) {
+                await vi.advanceTimersByTimeAsync(delay);
+            }
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(5);
+            const originalEventId = sentEvents(0)[0].eventId;
+            expect(telemetry.__getTelemetryStateForTesting().events[0].eventId).toBe(originalEventId);
+            await vi.advanceTimersByTimeAsync(600_000);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(5);
+            expect(JSON.stringify(vi.mocked(diagnostics.recordClientDiagnostic).mock.calls)).not.toContain("transport_secret_must_not_be_logged");
+
+            vi.mocked(authFetchModule.authFetch).mockResolvedValue(new Response(null, { status: 204 }));
+            const reconnect = vi.mocked(window.addEventListener).mock.calls.find(([name]) => name === "online")?.[1];
+            expect(reconnect).toBeTypeOf("function");
+            (reconnect as () => void)();
+            await vi.advanceTimersByTimeAsync(0);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(6);
+            expect(sentEvents(5)[0].eventId).toBe(originalEventId);
+            expect(telemetry.__getTelemetryStateForTesting().events).toEqual([]);
+        });
+
+        it.each(["new_actor", "same_actor_after_logout"])("does not restore an old in-flight failure into %s custody", async (transition) => {
+            let settleOld!: (response: Response) => void;
+            vi.mocked(authFetchModule.authFetch).mockReturnValueOnce(new Promise<Response>((resolve) => { settleOld = resolve; }));
+            telemetry.trackEvent("wallet_opened");
+            const oldEventId = sentEvents(0)[0].eventId;
+            setActor(null);
+            setActor(transition === "new_actor" ? "actor_b" : "actor_a");
+            // The shared deterministic UUID fixture is constant; advance the event timestamp.
+            vi.setSystemTime(Date.now() + 1);
+            telemetry.trackEvent("wallet_closed_incomplete");
+            settleOld(new Response(null, { status: 503 }));
+            await vi.advanceTimersByTimeAsync(1_500);
+
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(2);
+            expect(sentEvents(1).map((event) => event.eventName)).toEqual(["wallet_closed_incomplete"]);
+            expect(sentEvents(1).map((event) => event.eventId)).not.toContain(oldEventId);
+            expect(telemetry.__getTelemetryStateForTesting().events).toEqual([]);
+        });
+
+        it("does not resurrect a failed batch or schedule retries after logout", async () => {
+            let settleOld!: (response: Response) => void;
+            vi.mocked(authFetchModule.authFetch).mockReturnValueOnce(new Promise<Response>((resolve) => { settleOld = resolve; }));
+            telemetry.trackEvent("wallet_opened");
+            setActor(null);
+            settleOld(new Response(null, { status: 503 }));
+            await vi.advanceTimersByTimeAsync(300_000);
+            expect(authFetchModule.authFetch).toHaveBeenCalledTimes(1);
+            expect(telemetry.__getTelemetryStateForTesting()).toMatchObject({ userId: null, events: [] });
+        });
+    });
+
     describe("trackIdentityLinked", () => {
         beforeEach(() => {
             vi.mocked(privacyConsent.readPrivacySettingsSnapshot).mockReturnValue({
@@ -512,12 +669,21 @@ describe("telemetry flow logic", () => {
                 eventCount: 1,
             });
 
-            expect(result).toEqual({ status: "accepted" });
+            expect(result).toEqual({ status: "queued_unacknowledged" });
+            expect(telemetry.shouldAdvanceGuestAnalyticsQueue(result)).toBe(false);
             expect(navigator.sendBeacon).toHaveBeenCalledWith(
                 "/api/analytics/ingest",
                 expect.any(Blob),
             );
             expect(fetch).not.toHaveBeenCalled();
+        });
+
+
+        it("retains a queued beacon without a second transport or a fabricated receipt", async () => {
+            vi.mocked(navigator.sendBeacon).mockReturnValue(true);
+            const result=await telemetry.submitGuestAnalyticsIngestPayload({payload:{batchId:"batch_pending",events:[]},pagePath:"/test-path",reason:"visibility",eventCount:1});
+            expect(telemetry.shouldAdvanceGuestAnalyticsQueue(result)).toBe(false);
+            expect(fetch).not.toHaveBeenCalled();expect(navigator.sendBeacon).toHaveBeenCalledTimes(1);
         });
 
         it("records a diagnostic and keeps the guest queue intact when transport fails", async () => {

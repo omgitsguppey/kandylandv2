@@ -60,6 +60,8 @@ const spacing = readRequired("src/lib/user-mobile-shell.ts");
 const creatorPublicPages = readRequired("src/lib/creator-public-pages.ts");
 const creatorProfileRouting = readRequired("src/lib/creator-profile-routing.ts");
 const creatorDiscoveryRail = readRequired("src/components/CreatorDiscoveryRail.tsx");
+const creatorDiscoveryPresentation = readRequired("src/components/creative-tim/kandydrops/creator-discovery/CreatorDiscoveryPresentation.tsx");
+const newMessageModal = readRequired("src/components/creative-tim/kandydrops/chat/ChatNewMessageModal.tsx");
 const notFound = readRequired("src/components/ui/NotFoundSurface.tsx");
 const doc = readRequired("docs/agent-truth/user-chat-shell-routing.md");
 
@@ -118,19 +120,23 @@ for (const needle of [
   "placeholder=\"Search\"",
   "SquarePen",
   "Compose message",
-  "No followed creators yet",
 ]) {
   requireIncludes(chat, needle, "Messages list search/new-thread controls");
 }
 
+requireIncludes(chat, "from \"@/components/creative-tim/kandydrops/chat/ChatNewMessageModal\"", "New message canonical presentation import");
+requireIncludes(chat, "<ChatNewMessageModal", "New message canonical presentation consumer");
+requireIncludes(chat, "creators={followedCreators}", "New message followed-creator binding");
+requireIncludes(newMessageModal, "No followed creators yet", "New message no-follow recovery copy");
+
 for (const needle of [
   "documentElement.style.overflow = \"hidden\"",
-  "USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
-  "mainElement.style.height = USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT",
-  "mainElement.style.height = USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT",
+  "USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT",
+  "mainElement.style.height = USER_MOBILE_CHAT_ANDROID_PWA_MAIN_VIEWPORT_HEIGHT",
+  "mainElement.style.height = USER_MOBILE_CHAT_IOS_PWA_MAIN_VIEWPORT_HEIGHT",
   "mainElement.style.boxSizing = \"border-box\"",
   "mainElement.style.setProperty(\"--user-mobile-chat-bottom-reserved-height\"",
-  "mainElement.style.paddingBottom = USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT",
+  "mainElement.style.paddingBottom = \"0px\"",
   "--chat-visual-viewport-height",
   "min-h-0",
 ]) {
@@ -163,7 +169,7 @@ for (const needle of [
 requireNotIncludes(spacing, "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = \"0px\"", "Shared user mobile shell spacing");
 requireIncludes(coreLayout, "const mobileBottomNavReservedHeight = shouldReserveMobileBottomNav", "Chat route shell ownership");
 requireIncludes(coreLayout, "data-user-mobile-shell-route={isChatRoute ? \"chat-owned\"", "Chat route shell ownership");
-requireIncludes(coreLayout, "\"--root-shell-top-spacing\": USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT", "Chat route shell ownership");
+requireIncludes(coreLayout, "\"--root-shell-top-spacing\": USER_MOBILE_CHAT_TOP_GAP", "Chat route shell ownership");
 requireIncludes(coreLayout, "\"--user-mobile-chat-bottom-reserved-height\": USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT", "Chat route shell ownership");
 
 requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET", "Bottom nav shared spacing");
@@ -179,7 +185,12 @@ requireNotIncludes(chat, "href={`/${selectedThread.counterpartUsername}`}", "Cha
 requireNotIncludes(chat, "href={`/${", "Chat thread profile route");
 requireIncludes(creatorDiscoveryRail, "buildCreatorPublicHref", "Creator discovery profile route");
 requireIncludes(creatorDiscoveryRail, "creatorProfileHref", "Creator discovery profile route");
-requireIncludes(creatorDiscoveryRail, "Creator profile unavailable", "Creator discovery missing profile route");
+requireIncludes(creatorDiscoveryRail, "<KandyCreatorDiscoveryCard", "Creator discovery canonical presentation consumer");
+requireIncludes(creatorDiscoveryRail, "profileHref={creatorProfileHref}", "Creator discovery canonical route projection");
+requireIncludes(creatorDiscoveryRail, "missingProfileReason={missingProfileReason}", "Creator discovery missing route projection");
+requireIncludes(creatorDiscoveryPresentation, "Creator profile unavailable", "Creator discovery missing profile route");
+requireIncludes(creatorDiscoveryPresentation, "aria-disabled=\"true\"", "Creator discovery missing profile unavailable action");
+requireIncludes(creatorDiscoveryPresentation, "href={profileHref}", "Creator discovery valid canonical link");
 requireNotIncludes(creatorDiscoveryRail, "`/creators/${creator.username}`", "Creator discovery profile route");
 requireNotIncludes(creatorDiscoveryRail, "href={creator.username ? `/creators/${creator.username}` : \"#\"}", "Creator discovery profile route");
 requireNotIncludes(creatorDiscoveryRail, "href=\"#\"", "Creator discovery profile route");
@@ -213,7 +224,6 @@ for (const needle of [
 }
 
 for (const needle of [
-  "linear-gradient(135deg,rgba(178,140,255,.96),rgba(126,87,255,.94))",
   "Text ${detail.pricing.textPriceGd} GD, image ${detail.pricing.imagePriceGd} GD, video ${detail.pricing.videoPriceGd} GD. Paid balance ${detail.pricing.purchasedBalanceGd} GD.",
   "chat_thread_opened",
   "chat_compose_sheet_opened",
@@ -256,10 +266,18 @@ requireIncludes(searchFocusHandler, "deferChatListSearchFocusedTelemetry({", "Se
 requireNotIncludes(searchFocusHandler, "trackEvent(\"chat_", "Search focus tap path");
 
 const threadOpenHandler = sourceBetween(chat, "const openThreadFromList = useCallback", ["const handleMarkThreadsRead = useCallback"]);
-requireOrdered(threadOpenHandler, "setSelectedThreadId(thread.id);", "deferChatThreadOpenedTelemetry({", "Thread open tap path");
+requireOrdered(threadOpenHandler, "selectChatThread(thread.id);", "deferChatThreadOpenedTelemetry({", "Thread open tap path");
+const selectThreadHandler = sourceBetween(chat, "const selectChatThread = useCallback", ["const updateCurrentComposerRecovery = useCallback"]);
+requireIncludes(selectThreadHandler, "setSelectedThreadId(nextThreadId);", "Canonical thread selection state binding");
+requireIncludes(selectThreadHandler, "selectedThreadGenerationRef.current += 1;", "Canonical thread selection freshness binding");
 requireNotIncludes(threadOpenHandler, "trackEvent(\"chat_", "Thread open tap path");
 requireNotIncludes(threadOpenHandler, "reportClientIssue(", "Thread open tap path");
 requireNotIncludes(threadOpenHandler, "reportRealtimeIssue(", "Thread open tap path");
+
+const sendControl = sourceBetween(chat, "onClick={() => void handleSendMessage()}", ["</button>"]);
+requireIncludes(sendControl, "disabled={sendingMessage || composerBlockedByPaidGdGate}", "Native send control pending and paid-GD recovery");
+requireIncludes(sendControl, "aria-label=\"Send message\"", "Native send control action meaning");
+requireIncludes(sendControl, "sendingMessage ?", "Native send control pending feedback");
 
 const sendMessageHandler = sourceBetween(chat, "const handleSendMessage = useCallback", ["const handleComposerKeyDown = useCallback"]);
 requireIncludes(sendMessageHandler, "setSendingMessage(true);", "Message send tap path");

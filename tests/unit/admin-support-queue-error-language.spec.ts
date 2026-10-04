@@ -7,9 +7,9 @@ const source = readFileSync(join(process.cwd(), "src/components/Admin/AdminSuppo
 
 describe("admin support queue error language", () => {
   it("maps support load, reply, and status failures through safe admin error language", () => {
-    expect(source).toContain("sanitizeErrorForUser");
+    expect(source).toContain("resolveClientActionError");
     expect(source).toContain('"admin_truth"');
-    expect(source).toContain('"admin_truth_unavailable"');
+    expect(source).toContain('fallbackKey: "admin_truth_unavailable"');
     expect(source).toContain('getAdminSupportSafeErrorMessage(threadsError, "Support thread list failed.")');
     expect(source).toContain('getAdminSupportSafeErrorMessage(messagesError, "Support message detail failed.")');
     expect(source).toContain('getAdminSupportSafeErrorMessage(error, "Support reply failed.")');

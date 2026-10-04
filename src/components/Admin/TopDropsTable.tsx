@@ -3,8 +3,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/creative-tim/ui/input";
+import { Badge } from "@/components/creative-tim/ui/badge";
 
-import { MarqueeText } from "@/components/ui/MarqueeText";
 import type { Drop } from "@/types/db";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -158,123 +160,43 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
     }, [drops.length, filtered.length, debouncedQuery, safePage, timeRangeKey, onDebugMeta]);
 
     if (drops.length === 0) {
-        return (
-            <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-5 text-center">
-                <p className="text-[11px] font-semibold text-gray-400">No drop activity in this range.</p>
-            </div>
-        );
+        return <section data-admin-top-drops-table="true" className="min-w-0 space-y-2" aria-labelledby="top-drops-title"><h3 id="top-drops-title" className="text-base font-semibold">Top drops</h3><p className="text-xs leading-5 text-muted-foreground">Ranked by all-time unwraps</p><p className="py-6 text-sm leading-6 text-muted-foreground">No drop activity in this range.</p></section>;
     }
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
-                    Top drops in this range
-                </p>
-                <div className="relative w-40 sm:w-48">
-                    <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-gray-500" />
-                    <input
-                        type="text"
-                        value={searchInput}
-                        onChange={(e) => {
-                            setSearchInput(e.target.value);
-                            trackEvent("admin_top_drops_search", { query: e.target.value.slice(0, 40) });
-                        }}
-                        placeholder="Search drops"
-                        className="w-full rounded-lg border border-white/10 bg-black/40 py-1.5 pl-7 pr-2 text-[11px] text-white placeholder-gray-500 outline-none focus:border-brand-purple/40 focus:ring-1 focus:ring-brand-purple/20"
-                    />
-                </div>
-            </div>
-            {filtered.length === 0 ? (
-                <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-5 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400">No drops match this search.</p>
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-xl border border-white/8 bg-black/30">
-                    <div className="grid grid-cols-[1.5rem,28px,minmax(0,1fr),auto,auto,auto,auto] items-center gap-x-2 border-b border-white/6 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">
-                        <span>#</span>
-                        <span />
-                        <span>Title</span>
-                        <span className="text-right">Status</span>
-                        <span className="text-right">Unwraps</span>
-                        <span className="hidden text-right sm:block">Clicks</span>
-                        <span className="text-right">Price</span>
-                    </div>
+        <section data-admin-top-drops-table="true" className="min-w-0 space-y-4" aria-labelledby="top-drops-title">
+            <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0"><h3 id="top-drops-title" className="text-base font-semibold">Top drops</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">Ranked by all-time unwraps</p></div>
+                <label className="relative block min-w-0 max-w-full flex-1 basis-56"><span className="sr-only">Search top drops</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" /><Input type="text" value={searchInput} onChange={(e) => { setSearchInput(e.target.value); trackEvent("admin_top_drops_search", { query: e.target.value.slice(0, 40) }); }} placeholder="Search drops" className="pl-10" /></label>
+            </header>
+            {filtered.length === 0 ? <p className="py-6 text-sm leading-6 text-muted-foreground">No drops match this search.</p> : (
+                <ol className="min-w-0 divide-y divide-border" aria-label="Top drops ranked by all-time unwraps">
                     {pageSlice.map((drop, idx) => {
                         const rank = startIdx + idx + 1;
                         const statusKey = drop.approvalStatus === "pending_review" ? "pending_review" : drop.status;
                         const statusLabel = STATUS_LABEL[statusKey] || drop.status;
                         const pillStyle = STATUS_PILL_STYLES[statusKey] || STATUS_PILL_STYLES.expired;
-
                         return (
-                            <div
-                                key={drop.id}
-                                className="grid grid-cols-[1.5rem,28px,minmax(0,1fr),auto,auto,auto,auto] items-center gap-x-2 border-b border-white/4 px-2.5 py-1.5 last:border-b-0 transition-colors hover:bg-white/[0.03]"
-                            >
-                                <span className="text-[10px] font-black text-gray-500">{rank}</span>
-                                <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/40">
-                                    {drop.imageUrl ? (
-                                        <img
-                                            src={drop.imageUrl}
-                                            alt=""
-                                            className="h-full w-full object-cover"
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full w-full items-center justify-center text-[8px] text-gray-600">No image</div>
-                                    )}
+                            <li key={drop.id} className="min-w-0 py-4">
+                                <div className="flex min-w-0 items-start gap-3">
+                                    <span className="min-w-6 shrink-0 pt-1 text-sm font-medium tabular-nums text-muted-foreground">{rank}</span>
+                                    <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">{drop.imageUrl ? <img src={drop.imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">No image</div>}</div>
+                                    <div className="min-w-0 flex-1"><p className="wrap-anywhere text-sm font-medium">{drop.title}</p><p className="mt-1 wrap-anywhere font-mono text-xs text-muted-foreground">{drop.id}</p></div>
                                 </div>
-                                <MarqueeText
-                                    as="p"
-                                    title={drop.title}
-                                    className="text-[11px] font-semibold text-white"
-                                    ariaLabel={drop.title}
-                                />
-                                <span className={`rounded-full border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] ${pillStyle}`}>
-                                    {statusLabel}
-                                </span>
-                                <span className="text-right text-[11px] font-semibold tabular-nums text-gray-300">
-                                    {(drop.totalUnlocks || 0).toLocaleString()}
-                                </span>
-                                <span className="hidden text-right text-[11px] font-semibold tabular-nums text-gray-400 sm:block">
-                                    {(drop.totalClicks || 0).toLocaleString()}
-                                </span>
-                                <span className="text-right text-[11px] font-bold tabular-nums text-brand-purple">
-                                    {drop.unlockCost} GD
-                                </span>
-                            </div>
+                                <div className="mt-3 flex min-w-0 flex-wrap items-start justify-between gap-3"><Badge variant="secondary" className={pillStyle}>{statusLabel}</Badge>
+                                    <dl className="flex min-w-0 flex-wrap gap-x-5 gap-y-2 text-xs"><div><dt className="text-muted-foreground">Unwraps</dt><dd className="mt-1 font-semibold tabular-nums">{(drop.totalUnlocks || 0).toLocaleString()}</dd></div><div><dt className="text-muted-foreground">Clicks</dt><dd className="mt-1 font-semibold tabular-nums">{(drop.totalClicks || 0).toLocaleString()}</dd></div><div><dt className="text-muted-foreground">Price</dt><dd className="mt-1 font-semibold tabular-nums text-primary">{drop.unlockCost} GD</dd></div></dl>
+                                </div>
+                            </li>
                         );
                     })}
-                </div>
+                </ol>
             )}
             {filtered.length > PAGE_SIZE && (
-                <div className="flex items-center justify-between pt-0.5">
-                    <p className="text-[10px] text-gray-500">
-                        Showing {startIdx + 1}-{endIdx} of {filtered.length}
-                    </p>
-                    <div className="flex items-center gap-1">
-                        <button
-                            type="button"
-                            disabled={safePage === 0}
-                            onClick={() => handlePageChange("prev")}
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-black/35 text-gray-400 transition-colors hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <ChevronLeft className="h-3 w-3" />
-                        </button>
-                        <span className="min-w-[3rem] text-center text-[10px] font-semibold text-gray-400">
-                            {safePage + 1} / {totalPages}
-                        </span>
-                        <button
-                            type="button"
-                            disabled={safePage >= totalPages - 1}
-                            onClick={() => handlePageChange("next")}
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-black/35 text-gray-400 transition-colors hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <ChevronRight className="h-3 w-3" />
-                        </button>
-                    </div>
-                </div>
+                <nav aria-label="Top drops pagination" className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs text-muted-foreground" aria-live="polite">Showing {startIdx + 1}-{endIdx} of {filtered.length}</p>
+                    <div className="flex max-w-full flex-wrap items-center gap-2"><Button variant="ghost" size="icon" type="button" disabled={safePage === 0} onClick={() => handlePageChange("prev")} aria-label="Previous top drops page"><ChevronLeft className="h-4 w-4" aria-hidden="true" /></Button><span className="text-xs font-medium tabular-nums text-muted-foreground">{safePage + 1} / {totalPages}</span><Button variant="ghost" size="icon" type="button" disabled={safePage >= totalPages - 1} onClick={() => handlePageChange("next")} aria-label="Next top drops page"><ChevronRight className="h-4 w-4" aria-hidden="true" /></Button></div>
+                </nav>
             )}
-        </div>
+        </section>
     );
 }

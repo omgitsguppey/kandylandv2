@@ -1,13 +1,10 @@
+import { DROP_QUEUE_AUTHORITY_VERSION, readQueueSettingsConfig, type QueueSettingsConfig } from "../../shared/runtime/queue-runtime";
 import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
 import { formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
 import type { Drop } from "@/types/db";
 
-export interface AdminDropQueueConfig {
-    queue: string[];
-    dropsPerDay: number;
-    cooldownDays: number;
-    timesPerDay: string[];
-}
+export type AdminDropQueueConfig = QueueSettingsConfig;
+export { readQueueSettingsConfig as readAdminDropQueueConfig };
 
 export function buildQueueScheduleSummary(config: AdminDropQueueConfig) {
     const dropLabel = config.dropsPerDay === 1 ? "drop/day" : "drops/day";
@@ -25,11 +22,14 @@ export function buildAdminQueueProjection(input: {
     getDropById: (dropId: string) => Drop | undefined;
     queueOrder: readonly string[];
     legacyQueueIds?: Iterable<string>;
+    queueAuthorityVersion?: QueueSettingsConfig["queueAuthorityVersion"];
     cooldownDays: number;
     timesPerDay: readonly string[];
     now: number;
 }) {
-    const legacyIds = Array.from(input.legacyQueueIds ?? []);
+    const legacyIds = input.queueAuthorityVersion === DROP_QUEUE_AUTHORITY_VERSION
+        ? []
+        : Array.from(input.legacyQueueIds ?? []);
     const visibleQueueIds = new Set<string>([...legacyIds, ...input.queueOrder]);
     const queuedIds = new Set(input.queueOrder);
     const queueProjectionOrder = [

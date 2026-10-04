@@ -1,29 +1,43 @@
 {
-  "generatedAtUtc": "2026-05-27T00:55:34.822Z",
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-directory-control-labels-source-20261002",
+    "inputHash": "dd9c5b796ee3ba6d0f946dee0f5980abd5829c8866eb5d2fe41aa14e24bf137b",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "0ccd43d9d337359b4a9d699ac4e4685a6901d109d8f17e3ea968b55219e7bc84",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "src/components/creative-tim/kandydrops/admin-users/AdminUsersOperations.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 433,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  },
+  "generatedAtUtc": "2026-10-03T01:48:07.627Z",
   "reportKey": "user-journey-behavioral-intelligence",
-  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-  "status": "fail",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeJourneysUsed": false,
   "rawSensitivePayloadStored": false,
   "scoreBefore": {
     "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
+    "costRisk": 92.5,
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreAfter": {
     "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
+    "costRisk": 92.5,
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "metrics": {
     "sourceHealth": {
@@ -34,46 +48,46 @@
       "nextExactAction": "No user journey score action needed for this dimension."
     },
     "runtimeHealth": {
-      "before": 84.2,
-      "after": 84.2,
+      "before": 0,
+      "after": 0,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No user journey score action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
     },
     "evidenceCompleteness": {
-      "before": 84.6,
-      "after": 84.6,
+      "before": 50,
+      "after": 50,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No user journey score action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
     },
     "freshness": {
-      "before": 91.88,
-      "after": 91.88,
+      "before": 91.22,
+      "after": 91.22,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No user journey score action needed for this dimension."
     },
     "costRisk": {
-      "before": 42,
-      "after": 42,
+      "before": 92.5,
+      "after": 92.5,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
     },
     "regressionRisk": {
-      "before": 86,
-      "after": 86,
+      "before": 90,
+      "after": 90,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No user journey score action needed for this dimension."
     },
     "overallHealthScore": {
-      "before": 85.34,
-      "after": 85.34,
+      "before": 55.1,
+      "after": 55.1,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No user journey score action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
     }
   },
   "coreFunnels": [
@@ -305,87 +319,8 @@
     "droppedLowImportanceCount": 4,
     "containsRawSensitivePayload": false
   },
-  "dirtyFiles": [
-    {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-release-exit-readiness-packet.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/live-evidence-gate-replacement.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/real-usage-confidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-liveness-audit.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-live-evidence-gate-replacement.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-readiness/final-release-readiness.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/final-release-exit-readiness-packet.spec.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
-      "classification": "unsafe_unknown"
-    }
-  ],
-  "validationFailures": [
-    "dirty files are unclassified."
-  ],
+  "dirtyFiles": [],
+  "validationFailures": [],
   "nextExactSteps": [
     "Feed normalized journey summaries from canonical event facts and rollups only.",
     "Keep raw payment/provider/chat/private payloads out of behavioral storage.",

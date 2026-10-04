@@ -13,6 +13,14 @@ const source = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
   "utf8",
 );
+const eventMixSource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx"),
+  "utf8",
+);
+const interactionSnapshotSource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx"),
+  "utf8",
+);
 
 describe("Admin analytics operations mobile consolidation", () => {
   it("renders Activity Snapshot as one compact mobile view mode at a time", () => {
@@ -133,15 +141,15 @@ describe("Admin analytics operations mobile consolidation", () => {
   });
 
   it("renders Event Mix as one compact mobile view mode at a time", () => {
-    expect(source).toContain("eventMixViewMode");
-    expect(source).toContain("setEventMixViewMode");
-    expect(source).toContain("data-admin-analytics-mobile-view-mode={eventMixViewMode}");
-    expect(source).toContain('data-event-mix-table="compact"');
-    expect(source).toContain("data-event-mix-source-mode={eventMixModel.eventMixSourceMode}");
-    expect(source).toContain("data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}");
-    expect(source).toContain('eventMixViewMode === "chart"');
-    expect(source).toContain('eventMixViewMode === "table"');
-    expect(source).toContain('eventMixViewMode === "cards"');
+    expect(eventMixSource).toContain("eventMixViewMode");
+    expect(eventMixSource).toContain("setEventMixViewMode");
+    expect(eventMixSource).toContain("data-admin-analytics-mobile-view-mode={eventMixViewMode}");
+    expect(eventMixSource).toContain('data-event-mix-table="compact"');
+    expect(eventMixSource).toContain("data-event-mix-source-mode={eventMixModel.eventMixSourceMode}");
+    expect(eventMixSource).toContain("data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}");
+    expect(eventMixSource).toContain('eventMixViewMode === "chart"');
+    expect(eventMixSource).toContain('eventMixViewMode === "table"');
+    expect(eventMixSource).toContain('eventMixViewMode === "cards"');
   });
 
   it("uses shared source-truth labels instead of raw source keys in visible rows", () => {
@@ -150,14 +158,14 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain("guestEstimateSourceLabel");
     expect(source).toContain("guestEstimateFreshnessLabel");
     expect(source).toContain("signedInBounceFreshnessLabel");
-    expect(source).toContain("liveInteractionSourceLabel");
+    expect(interactionSnapshotSource).toContain("liveInteractionSourceLabel");
     expect(source).toContain("title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}");
     expect(source).toContain("title={guestBounceQualityModel.estimatedGuestViews.freshnessState}");
     expect(source).toContain("title={guestBounceQualityModel.signedInBounce.freshnessState}");
-    expect(source).toContain("title={liveInteractionStreamModel.sourceTruth}");
-    expect(source).toContain("title={event.sourceTruth}");
-    expect(source).not.toContain('<td className="px-3 py-2">{event.sourceTruth}</td>');
-    expect(source).not.toContain("{event.sourceTruth} - {event.surfaceState");
+    expect(interactionSnapshotSource).toContain("title={liveInteractionStreamModel.sourceTruth}");
+    expect(interactionSnapshotSource).toContain("title={event.sourceTruth}");
+    expect(interactionSnapshotSource).not.toContain('<td className="px-3 py-2">{event.sourceTruth}</td>');
+    expect(interactionSnapshotSource).not.toContain("{event.sourceTruth} - {event.surfaceState");
     expect(source).not.toContain("{guestBounceQualityModel.estimatedGuestViews.sourceTruth}</td>");
     expect(source).not.toContain("<td className=\"px-3 py-2\">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>");
     expect(source).not.toContain("<td className=\"px-3 py-2\">{guestBounceQualityModel.signedInBounce.freshnessState}</td>");

@@ -1,21 +1,92 @@
 {
-  "generatedAtUtc": "2026-05-28T20:50:00.000Z",
+  "schemaVersion": 2,
+  "taskKey": "manual-viewer-strobe-release-v2-20261003",
+  "generatedAtUtc": "2026-10-04T00:29:24.701Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceFingerprint": "1536453fd2507b3ab963cabd5d05afa46f0005f9674f15bfd9bba9a6d30eb5e5",
+  "inputHash": "45abb16a79373f8b5c5ebd576093920ac4806f04b0cdae9663a38c35b5fea9bb",
   "takeoverStatus": "verified_safe",
-  "checks": {
-    "latestCommitIdentified": "cfd39b411b08374c8a698bb07bb42f473ebba278",
-    "activePromptLane": "onboarding_and_safety_guardrails",
-    "noOverlapWithInFlightWork": true,
-    "noStaleArtifactTreatedAsCurrent": true,
-    "noBroadDependencyPrMerged": true,
-    "noPaymentRuntimeViolations": true,
-    "repoMemoryUpdated": true,
-    "releaseNotesUpdatedIfSourceChanged": true,
-    "scoreCurrentHeadClassified": true
+  "evidenceScope": "local_task_source_and_review_declarations",
+  "knowledge": {
+    "dirtySourceFileCount": 607,
+    "inheritedDirtySourceFileCount": 602,
+    "unknowns": [
+      "Private media playback and physical-device strobe remain NOT RUN under maintenance.",
+      "Finite source admission is not full TypeScript CFG or runtime security proof.",
+      "Viewer body/App-state/theme/whole-site acceptance and broader financial/capacity/Beta dependencies remain incomplete."
+    ],
+    "betaDiagnosticScore": {
+      "status": "unknown",
+      "value": null
+    },
+    "openPrStatus": {
+      "status": "not_requested",
+      "count": null,
+      "reason": "No PR operation is in this local task; no remote count is claimed."
+    },
+    "releaseReadiness": "not_assessed"
   },
-  "verifications": [
-    "latestHead verified against cfd39b4",
-    "stale readiness and exit artifacts classified as stale (older than 24h freshness window)",
-    "no touch domains declared: PayPal, GumDrop math, wallets, payments, layout navigation",
-    "same-commit release notes are structured for the takeover guardrails commit"
-  ]
+  "output": {
+    "changedFiles": [
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/debug-cockpit-batch10-shared.ts",
+      "scripts/agent/validate-content-media-pipeline.ts",
+      "src/app/dashboard/viewer/hooks/useViewerState.ts",
+      "tests/unit/viewer-entitlement-hardening.spec.ts",
+      "tests/unit/viewer-file-tracking.spec.ts"
+    ],
+    "preservedInheritedWork": true
+  },
+  "bloat": {
+    "netAdditions": 382,
+    "netDeletions": 30,
+    "binaryAssetAdditions": [],
+    "binaryBytesAdded": 0,
+    "measurementScope": "declared_non_generated_source_paths_against_retained_baseline",
+    "justificationForNetAdditions": "One committed reporter ref/effect in existing hook plus distinct existing lifecycle tests. Existing Batch10 and pipeline consolidate source admission into the canonical traversal/report;9 real CLI controls extend the existing entitlement test and one ledger lesson. No new runtime helper, framework, package, command, validator, report family or collector.",
+    "isGutConsolidationTask": false,
+    "newResolversCreated": [],
+    "newValidatorsCreated": [],
+    "newMemoryRules": [
+      {
+        "rule": "Existing canonical report/caller verification policy transferred from stale helper spellings to actual import/returned-payload/verified-actor admission; durable lesson preserves failures and evidence limits.",
+        "associatedMistakePattern": "Historical onboarding snapshots and a missing local producer were treated as current truth or an external blocker."
+      }
+    ],
+    "generatedArtifactLinesCount": {
+      "agent/state/agent-takeover-safety-check.generated.json": 93
+    }
+  },
+  "reportCompleteness": "complete",
+  "totalFindingCount": 6,
+  "emittedFindingCount": 6,
+  "omittedFindingCount": 0,
+  "capReason": null,
+  "capStrategy": "none",
+  "capLimit": null,
+  "rankingInputCompleteness": "complete",
+  "highRiskCounts": {
+    "critical": 0,
+    "major": 0,
+    "signoff": 0,
+    "privacy": 0,
+    "payment": 0,
+    "lockedContent": 0,
+    "sourceTruth": 0
+  },
+  "sourceFileDiscovery": "git",
+  "gitStatus": "available",
+  "currentHeadSource": "git",
+  "toolingDegraded": false,
+  "degradationReason": null,
+  "freshness": "fresh",
+  "baselineStatus": "current",
+  "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+  "safetyClass": "source_safe",
+  "costClass": "local_free",
+  "cleanupPolicy": "regenerate",
+  "cleanupCommand": "npm run check:agent-takeover-safety-check -- --record output/manual-viewer-strobe-release-v2-20261003/input.json",
+  "sourceTruthRole": "generated_snapshot",
+  "rollback": "Retained baseline and exact allowed-file copies under output/manual-viewer-strobe-release-v2-20261003/before."
 }

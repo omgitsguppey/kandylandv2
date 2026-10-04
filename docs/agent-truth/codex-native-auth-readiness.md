@@ -1,6 +1,6 @@
 # Codex Native Auth Readiness
 
-Generated: 2026-05-05
+Maintained owner: `scripts/agent/verify-codex-native-auth.ts`; observations live in the generated report.
 
 Codex must verify authentication before attempting cloud or billing checks. Repo/code changes are native. Cloud console, Firebase console, PayPal, GitHub settings, and secrets require existing CLI/API auth or a configured GitHub Actions Workload Identity Federation path. Read-only checks are allowed after auth verification. Mutations require explicit instruction.
 
@@ -15,7 +15,7 @@ Codex must verify authentication before attempting cloud or billing checks. Repo
 ## Surfaces Checked
 
 - GitHub CLI auth, repo permission, workflow metadata, secret-name metadata, and variable-name metadata.
-- Google Cloud CLI auth, active project, project describe, and enabled services.
+- Google Cloud CLI auth, explicit target project identity, and enabled services. A different global default is not an access failure: every service read carries the requested project, and the returned project identity must match. The verifier does not change global CLI configuration.
 - Firebase CLI auth, project metadata, app metadata, and App Hosting backend metadata when supported.
 - BigQuery dataset metadata.
 - Cloud SQL/Data Connect read metadata for `kandydrops-db`.
@@ -42,8 +42,11 @@ Codex must verify authentication before attempting cloud or billing checks. Repo
 3. If cloud auth is missing, run `npm run plan:cloud-auth-bootstrap` to print the WIF setup plan.
 4. Use `.github/workflows/cloud-readiness-smoke.yml` only after GitHub repo variables and Google WIF are configured.
 
+On Windows, the existing launcher supports installed `.ps1` and `.cmd` wrappers. It retries only a failed process launch; a command that ran and failed is not repeated. PowerShell arguments are literal data, and batch wrappers reject metacharacters outside this lane's simple metadata tokens. A missing executable, command failure and timeout remain distinct. `tests/unit/codex-auth-command.spec.ts` exercises real isolated processes and recovery without calling providers. Native metadata access remains a separate capability observation, not payment, billing acceptance, deployed runtime or admin-truth proof. Refresh these witnesses when the Node runtime or CLI wrapper changes.
+
 ## Official References
 
+- [Node 22.22.3 child-process documentation](https://nodejs.org/download/release/v22.22.3/docs/api/child_process.html#spawning-bat-and-cmd-files-on-windows) explains Windows wrapper execution and shell argument risks.
 - [Google GitHub auth action](https://github.com/google-github-actions/auth) recommends Workload Identity Federation over long-lived service account key JSON.
 - [Google Cloud Workload Identity Federation for deployment pipelines](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines) documents `id-token: write` and `contents: read` for GitHub Actions.
 - [GitHub OIDC with Google Cloud](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-google-cloud-platform) documents keyless OIDC authentication and warns to scope trust conditions.

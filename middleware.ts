@@ -16,11 +16,17 @@ import { isMaintenanceModeEnabled } from "@/lib/maintenance-mode";
 import { getCanonicalSiteHost } from "@/lib/site-origin";
 import { cheap4xxResponse } from "@/lib/server/cheap-4xx-response";
 import { isInternalBypassPath, isKnownBotProbePath, isKnownLegacyPath } from "@/lib/server/route-4xx-classifier";
+import {
+  MAINTENANCE_ADMIN_API_PATH,
+  MAINTENANCE_ADMIN_BOOTSTRAP_PATH,
+  MAINTENANCE_ADMIN_DROP_PREFLIGHT_PATH,
+  MAINTENANCE_NAVIGATION_SESSION_PATH,
+  isMaintenanceAdminBrowseRequest,
+  isMaintenancePublicAssetRequest,
+  isMaintenanceBlockedAdminApiPath,
+  resolveMaintenanceAdminReturnPath,
+} from "./shared/runtime/maintenance-mode-contract";
 
-const MAINTENANCE_ADMIN_BOOTSTRAP_PATH = "/maintenance/admin";
-const NAVIGATION_SESSION_PATH = "/api/auth/navigation-session";
-const ADMIN_API_PATH = "/api/admin";
-const ADMIN_DROP_PREFLIGHT_PATH = "/api/drops/duplicate-filenames";
 
 function buildMaintenanceResponse() {
   const adminAccess = '<p class="admin-access"><a href="/maintenance/admin">Admin access</a></p>';
@@ -131,18 +137,46 @@ function buildMaintenanceResponse() {
   });
 }
 
+function buildMaintenanceApiResponse() {
+  return NextResponse.json(
+    {
+      state: "maintenance",
+      message: "KandyDrops is upgrading. We will be back soon.",
+    },
+    {
+      status: 503,
+      headers: {
+        "cache-control": "no-store",
+        "retry-after": "120",
+        "content-security-policy": "default-src 'none';",
+        "x-frame-options": "DENY",
+        "referrer-policy": "no-referrer",
+        "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      },
+    },
+  );
+}
+
 function isAdminPagePath(pathname: string) {
   return pathname === "/admin" || pathname.startsWith("/admin/");
 }
 
 function isReviewedAdminApiPath(pathname: string) {
-  return pathname === ADMIN_API_PATH
-    || pathname.startsWith(ADMIN_API_PATH + "/")
-    || pathname === ADMIN_DROP_PREFLIGHT_PATH;
+  return pathname === MAINTENANCE_ADMIN_API_PATH
+    || pathname.startsWith(MAINTENANCE_ADMIN_API_PATH + "/")
+    || pathname === MAINTENANCE_ADMIN_DROP_PREFLIGHT_PATH;
 }
 
-function isMaintenanceTicketPath(pathname: string) {
-  return isAdminPagePath(pathname) || isReviewedAdminApiPath(pathname);
+function isMaintenanceTicketPath(pathname: string, method: string) {
+  return isAdminPagePath(pathname) || isReviewedAdminApiPath(pathname)
+    || isMaintenanceAdminBrowseRequest(pathname, method);
+}
+
+function continueMaintenanceAdminRequest() {
+  const response = NextResponse.next();
+  response.headers.set("cache-control", "private, no-store");
+  response.headers.set("vary", "Cookie");
+  return response;
 }
 
 export async function middleware(request: NextRequest) {
@@ -161,39 +195,43 @@ export async function middleware(request: NextRequest) {
   if (isMaintenanceModeEnabled()) {
     if (
       pathname === MAINTENANCE_ADMIN_BOOTSTRAP_PATH
-      || (pathname === NAVIGATION_SESSION_PATH && request.method === "POST")
+      || (pathname === MAINTENANCE_NAVIGATION_SESSION_PATH && (request.method === "POST" || request.method === "DELETE"))
+      || isMaintenancePublicAssetRequest(pathname, request.method)
     ) {
       return NextResponse.next();
     }
 
-    if (isMaintenanceTicketPath(pathname)) {
+    if (isMaintenanceBlockedAdminApiPath(pathname, request.method)) {
+      return buildMaintenanceApiResponse();
+    }
+
+    if (isMaintenanceTicketPath(pathname, request.method)) {
       const ticket = await verifyMaintenanceAdminSessionCookieValue(
         request.cookies.get(MAINTENANCE_ADMIN_SESSION_COOKIE)?.value,
       );
 
       if (ticket) {
-        return NextResponse.next();
+        return continueMaintenanceAdminRequest();
+      }
+
+      // A signed navigation hint can request fresh server verification, never bypass it.
+      if (request.method === "GET" && pathname !== "/api" && !pathname.startsWith("/api/")) {
+        const session = await getNavigationSession();
+        if (session?.role === "admin") {
+          const redirectUrl = request.nextUrl.clone();
+          redirectUrl.pathname = MAINTENANCE_ADMIN_BOOTSTRAP_PATH;
+          redirectUrl.search = "";
+          redirectUrl.searchParams.set("next", resolveMaintenanceAdminReturnPath(pathname + request.nextUrl.search));
+          const response = NextResponse.redirect(redirectUrl);
+          response.headers.set("cache-control", "private, no-store");
+          response.headers.set("vary", "Cookie");
+          return response;
+        }
       }
     }
 
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json(
-        {
-          state: "maintenance",
-          message: "KandyDrops is upgrading. We will be back soon.",
-        },
-        {
-          status: 503,
-          headers: {
-            "cache-control": "no-store",
-            "retry-after": "120",
-            "content-security-policy": "default-src 'none';",
-            "x-frame-options": "DENY",
-            "referrer-policy": "no-referrer",
-            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
-          },
-        },
-      );
+      return buildMaintenanceApiResponse();
     }
 
     return buildMaintenanceResponse();

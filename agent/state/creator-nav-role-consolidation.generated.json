@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-14T06:34:55.870Z",
+  "generatedAtUtc": "2026-10-02T18:29:27.771Z",
   "reportKey": "creator-nav-role-consolidation",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "routeMatrixCanonical": true,
     "staleDoctrineRemoved": true,
@@ -70,7 +70,7 @@
       "id": "account-settings-label",
       "severity": "p1",
       "file": "src/components/Navigation",
-      "summary": "Account menus label USER_SETTINGS_ROUTE as Account Settings.",
+      "summary": "Account groups label the canonical USER_SETTINGS_ROUTE item as Settings through the real data-to-surface binding.",
       "status": "fixed"
     },
     {

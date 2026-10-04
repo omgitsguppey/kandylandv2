@@ -3,13 +3,18 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const source = readFileSync(
+const parentSource = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
+  "utf8",
+);
+const source = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx"),
   "utf8",
 );
 
 describe("Admin analytics live interaction mobile consolidation", () => {
   it("renders Interaction Snapshot as one compact mobile view mode at a time", () => {
+    expect(parentSource).toContain("AdminAnalyticsInteractionSnapshotSection");
     expect(source).toContain('title="Interaction Snapshot"');
     expect(source).not.toContain('title="Live Interaction Stream"');
     expect(source).toContain("liveInteractionViewMode");

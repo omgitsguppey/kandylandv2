@@ -111,11 +111,9 @@ export const DROPS_FILES = [
   "src/components/DropCard.tsx",
   "src/components/DropCardLayout.tsx",
   "src/components/FeaturedCarousel.tsx",
-  "src/components/DropPreviewModal.tsx",
 ] as const;
 
 export const PREVIEW_FILES = [
-  "src/components/DropPreviewModal.tsx",
   "src/app/drops/[id]/preview/page.tsx",
   "src/app/drops/[id]/preview/loading.tsx",
   "src/components/Drops/LockedDropPreviewClient.tsx",
@@ -356,7 +354,7 @@ function scanViewport(root: string, findings: DeviceLayoutFindingInput[]) {
     if (file.source.includes("100vh")) {
       pushFinding(findings, {
         title: "Shell-critical surface uses 100vh instead of 100dvh or a shared shell token",
-        severity: file.path.includes("Chat") || file.path.includes("/preview/") || file.path.includes("DropPreviewModal")
+        severity: file.path.includes("Chat") || file.path.includes("/preview/")
           ? "critical"
           : "major",
         category: "viewport",
@@ -748,48 +746,7 @@ function scanDropPreview(root: string, findings: DeviceLayoutFindingInput[]) {
     });
   }
 
-  const modal = readIfExists(root, "src/components/DropPreviewModal.tsx");
-  if (modal) {
-    const importedElsewhere = walkSourceFiles(root, "src").some((filePath) => {
-      if (filePath === modal.path) {
-        return false;
-      }
-      if (
-        filePath === "src/lib/device-layout-score.ts"
-        || filePath === "src/lib/device-layout-contract.ts"
-        || filePath.startsWith("src/lib/agent-score/")
-      ) {
-        return false;
-      }
-      return readRequired(root, filePath).includes("DropPreviewModal");
-    });
 
-    if (importedElsewhere && modal.source.includes("contentUrl")) {
-      pushFinding(findings, {
-        title: "Legacy locked preview modal still receives internal content URL fields",
-        severity: "critical",
-        category: "content_protection",
-        filePath: modal.path,
-        line: lineOf(modal.source, "contentUrl"),
-        excerpt: excerpt(modal.source, "contentUrl"),
-        canAutofix: false,
-        autofixConfidence: 0,
-        escalation: "Preview may expose locked content URLs. Autofix blocked because route-level data contract must be reviewed.",
-        docsBasis: "kandydrops",
-      });
-    } else if (!modal.source.includes("Legacy fallback only")) {
-      pushFinding(findings, {
-        title: "Legacy DropPreviewModal exists without fallback documentation",
-        severity: "major",
-        category: "orphaned_logic",
-        filePath: modal.path,
-        canAutofix: false,
-        autofixConfidence: 0,
-        escalation: "Document fallback ownership or delete the modal through a dedicated migration cleanup.",
-        docsBasis: "repo",
-      });
-    }
-  }
 }
 
 function scanTelemetryAndDebug(root: string, findings: DeviceLayoutFindingInput[]) {
@@ -891,7 +848,7 @@ function scanIntervalsAndDisplayMode(root: string, findings: DeviceLayoutFinding
 
     if (file.source.includes("setInterval")) {
       const line = excerpt(file.source, "setInterval") ?? "";
-      const whitelisted = line.includes("heartbeatTimer") || file.path.endsWith("DropPreviewModal.tsx");
+      const whitelisted = line.includes("heartbeatTimer");
       if (!whitelisted) {
         pushFinding(findings, {
           title: "Shell-critical file contains a non-whitelisted recurring timer",

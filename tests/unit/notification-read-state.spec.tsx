@@ -90,6 +90,28 @@ describe("Notification read state", () => {
     mockState.toastError.mockReset();
   });
 
+  it("keeps the closed inbox out of the focus sequence and restores its trigger after Escape", async () => {
+    mockState.authFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ etag: "notification-focus-v1" }),
+      json: async () => ({ success: true, notifications: [buildNotification("focus_note")] }),
+    });
+    render(<NotificationBell />);
+    const trigger = screen.getByRole("button", { name: "Notifications" });
+    await waitFor(() => expect(mockState.authFetch).toHaveBeenCalled());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Clear all notifications" })).not.toBeInTheDocument();
+    await userEvent.click(trigger);
+    const panel = await screen.findByRole("dialog", { name: "Notifications" });
+    expect(panel).toContainElement(document.activeElement as HTMLElement);
+    expect(panel).not.toHaveAttribute("aria-modal", "true");
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+    expect(mockState.trackEvent.mock.calls.filter(([name]) => name === "notifications_dropdown_opened")).toHaveLength(1);
+  });
+
   it("removes a notification from the visible list when marked read", async () => {
     mockState.authFetch.mockImplementation(async (_url: string, options?: RequestInit) => {
       if (options?.method === "PUT") {

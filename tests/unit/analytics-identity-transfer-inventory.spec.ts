@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import {
   buildAnalyticsIdentityTransferInventoryReport,
@@ -6,35 +8,25 @@ import {
   type AnalyticsIdentityTransferInventoryReport,
 } from "../../scripts/agent/validate-analytics-identity-transfer-inventory";
 
-const sources = {
-  "src/lib/client-session.ts": `
-    export function getClientAnalyticsIdentitySnapshot() {
-      return { anonymousVisitorId: "subject_123", sessionId: "sess_123" };
-    }
-    export function buildClientIdentityLinkRecord() {}
-  `,
-  "src/components/Analytics/DeepTracker.tsx": `
-    buildGuestAnalyticsIngestPayload([{ type: "page_view" }]);
-    const payload = { anonymousVisitorId, sessionId, batchId };
-  `,
-  "src/app/api/analytics/ingest/route.ts": `
-    adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.guestBatches);
-    const collection = "analytics_guest_batches";
-  `,
-  "src/app/api/analytics/ingest-identified/route.ts": `
-    if (canonicalEventName === "identity_linked") {
-      await upsertAnalyticsIdentityLink({ anonymousVisitorId, sessionId, userId });
-    }
-    adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.runtimeFacts);
-    const collection = "analytics_event_facts";
-  `,
-};
+// Actual maintained source, inspected only. No auth, Firebase or provider execution.
+const sourcePaths = [
+  "src/context/AuthContext.tsx",
+  "src/lib/client-session.ts",
+  "src/components/Analytics/DeepTracker.tsx",
+  "src/lib/analytics/analytics-identity-link.ts",
+  "src/app/api/analytics/identity-link/route.ts",
+  "src/app/api/analytics/ingest/route.ts",
+  "src/app/api/analytics/ingest-identified/route.ts",
+];
+const sources = Object.fromEntries(sourcePaths.map(sourcePath => [sourcePath, readFileSync(join(process.cwd(), sourcePath), "utf8")]));
+const reportInput = { currentHead: "head", generatedAtUtc: "2026-10-02T12:00:00.000Z", sources };
 
 describe("analytics identity transfer inventory", () => {
   it("maps guest, user, transfer, truth, watch, and cost lanes", () => {
     const report = buildAnalyticsIdentityTransferInventoryReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-17T10:00:00.000Z",
+      sources,
     });
 
     expect(report.summary.guestIdentitySources).toBeGreaterThanOrEqual(2);
@@ -55,6 +47,7 @@ describe("analytics identity transfer inventory", () => {
     const report = buildAnalyticsIdentityTransferInventoryReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-17T10:00:00.000Z",
+      sources,
     }) as AnalyticsIdentityTransferInventoryReport;
     report.identityMap = report.identityMap.map((entry) => ({ ...entry, transferCandidate: false }));
     report.summary.transferCandidates = 0;
@@ -68,6 +61,7 @@ describe("analytics identity transfer inventory", () => {
     const report = buildAnalyticsIdentityTransferInventoryReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-17T10:00:00.000Z",
+      sources,
     }) as AnalyticsIdentityTransferInventoryReport;
     report.sourceTruthMap = report.sourceTruthMap.filter((entry) => entry.truthRole !== "evidence_only");
 
@@ -80,6 +74,7 @@ describe("analytics identity transfer inventory", () => {
     const report = buildAnalyticsIdentityTransferInventoryReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-17T10:00:00.000Z",
+      sources,
     }) as AnalyticsIdentityTransferInventoryReport;
     report.watchTimeMap = [];
 
@@ -92,6 +87,7 @@ describe("analytics identity transfer inventory", () => {
     const report = buildAnalyticsIdentityTransferInventoryReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-17T10:00:00.000Z",
+      sources,
     }) as AnalyticsIdentityTransferInventoryReport;
     report.costFindings = report.costFindings.filter((entry) => entry.lane !== "cloud_sql");
 
@@ -99,4 +95,68 @@ describe("analytics identity transfer inventory", () => {
       "cloud_sql cost status lane is missing.",
     );
   });
+  it("reports the source-checked canonical handoff without inventing deployed or historical proof", () => {
+    const report = buildAnalyticsIdentityTransferInventoryReport(reportInput);
+    const bridge = report.identityMap.find(entry => entry.id === "identity-linked-bridge");
+    expect(bridge?.source).toBe("AuthContext -> buildIdentityLinkPayload.submit -> /api/analytics/identity-link");
+    expect(bridge?.collectionOrPath).toContain("src/app/api/analytics/identity-link/route.ts");
+    expect(bridge?.notes).toContain("does not prove deployed or historical continuity");
+    expect(report.identityMap.find(entry => entry.id === "identified-ingest-user")?.notes).toContain("diagnostic only");
+    expect(report.transferGaps.some(gap => gap.id === "login-signup-transfer-entrypoint-not-proven")).toBe(false);
+    expect(report.transferGaps.some(gap => gap.id === "auth-handoff-source-chain-incomplete")).toBe(false);
+    expect(report.nextFixOrder.join(" ")).not.toContain("If absent, add");
+  });
+
+  it("derives an incomplete source finding when the existing handoff is disconnected", () => {
+    const disconnected = { ...sources, "src/context/AuthContext.tsx": "" };
+    const report = buildAnalyticsIdentityTransferInventoryReport({ ...reportInput, sources: disconnected });
+    expect(report.transferGaps.find(gap => gap.id === "auth-handoff-source-chain-incomplete")?.currentState).toContain("handoff");
+    expect(report.nextFixOrder[0]).toContain("Repair the reported existing");
+  });
+
+  it.each(["login", "signup", "session_restore"])("fails when the actual %s transition is disconnected", method => {
+    const auth = sources["src/context/AuthContext.tsx"].replace(new RegExp('emitIdentityLinkContinuity\\(([^\\n]+), "' + method + '"\\)', 'g'), 'disconnectedHandoff($1, "' + method + '")');
+    const broken = { ...sources, "src/context/AuthContext.tsx": auth };
+    const report = buildAnalyticsIdentityTransferInventoryReport(reportInput);
+    expect(validateAnalyticsIdentityTransferInventoryReport(report, broken)).toContain("AuthContext " + method + " handoff call is missing.");
+  });
+
+  it.each(["payload.submit", "hasSubmittedIdentityLink"])("fails when %s is removed from the actual guarded callback", call => {
+    const broken = { ...sources, "src/context/AuthContext.tsx": sources["src/context/AuthContext.tsx"].replaceAll(call, "disconnectedCall") };
+    expect(validateAnalyticsIdentityTransferInventoryReport(buildAnalyticsIdentityTransferInventoryReport(reportInput), broken)).toContain(
+      "AuthContext handoff must build, lifecycle-guard and submit the canonical identity payload.");
+  });
+
+  it("fails when the actual payload submit targets another endpoint", () => {
+    const broken = { ...sources, "src/lib/analytics/analytics-identity-link.ts": sources["src/lib/analytics/analytics-identity-link.ts"].replace('"/api/analytics/identity-link"', '"/api/analytics/ingest-identified"') };
+    expect(validateAnalyticsIdentityTransferInventoryReport(buildAnalyticsIdentityTransferInventoryReport(reportInput), broken)).toContain("Identity payload submit must target /api/analytics/identity-link.");
+  });
+
+  it("fails when the association writer binds a body identity instead of the authenticated caller", () => {
+    const broken = { ...sources, "src/app/api/analytics/identity-link/route.ts": sources["src/app/api/analytics/identity-link/route.ts"].replaceAll("userId: caller.uid", "userId: parsed.data.userId") };
+    expect(validateAnalyticsIdentityTransferInventoryReport(buildAnalyticsIdentityTransferInventoryReport(reportInput), broken)).toContain("Canonical identity route must own the caller-bound association write.");
+  });
+
+  it("fails when request consent is no longer the association upper bound", () => {
+    const broken = { ...sources, "src/app/api/analytics/identity-link/route.ts": sources["src/app/api/analytics/identity-link/route.ts"].replaceAll("resolveRequestConsentMode(request)", '"full_behavioral_consent"') };
+    expect(validateAnalyticsIdentityTransferInventoryReport(buildAnalyticsIdentityTransferInventoryReport(reportInput), broken)).toContain("Canonical identity route must clamp declared consent to request consent.");
+  });
+
+  it("fails when identified ingest regains a duplicate association mutation", () => {
+    const broken = { ...sources, "src/app/api/analytics/ingest-identified/route.ts": sources["src/app/api/analytics/ingest-identified/route.ts"] + "\nupsertAnalyticsIdentityLink({ anonymousVisitorId, sessionId, userId });" };
+    expect(validateAnalyticsIdentityTransferInventoryReport(buildAnalyticsIdentityTransferInventoryReport(reportInput), broken)).toContain("Identified ingest must not duplicate the canonical association writer.");
+  });
+
+  it.each([["diagnostic_only: true", "diagnostic_only: false"], ["const identityLinksCreated = 0", "const identityLinksCreated = 1"]])("fails when observed identity compatibility loses %s", (from, to) => {
+    const broken = { ...sources, "src/app/api/analytics/ingest-identified/route.ts": sources["src/app/api/analytics/ingest-identified/route.ts"].replace(from, to) };
+    expect(validateAnalyticsIdentityTransferInventoryReport(buildAnalyticsIdentityTransferInventoryReport(reportInput), broken)).toContain("Observed identity ingest must retain diagnostic exclusion and zero-created compatibility status.");
+  });
+
+  it("does not accept comments containing all the handoff tokens as connected source", () => {
+    const broken = Object.fromEntries(Object.entries(sources).map(([key, value]) => [key, "/*\n" + value + "\n*/"]));
+    const failures = validateAnalyticsIdentityTransferInventoryReport(buildAnalyticsIdentityTransferInventoryReport(reportInput), broken);
+    expect(failures).toContain("Identity payload submit must target /api/analytics/identity-link.");
+    expect(failures).toContain("Canonical identity route must own the caller-bound association write.");
+  });
+
 });

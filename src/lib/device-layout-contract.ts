@@ -28,6 +28,17 @@ export const DEVICE_VIEWPORT_QUERIES = {
   desktop: "(min-width: 1280px)",
 } as const;
 
+/* Static Tailwind projections of the established compact shell boundary.
+ * At default media font size, compact ends at 767px and expanded starts at 768px.
+ * Both navigation presentations and content reservation use this same boundary.
+ */
+export const DEVICE_PRIMARY_NAVIGATION_CLASSES = {
+  frame: "mx-auto grid min-h-12 max-w-7xl grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1",
+  expanded: "col-span-2 row-start-2 hidden min-w-0 items-center justify-center md:flex",
+  compact: "md:hidden",
+  expandedContentReservation: "md:pb-0",
+} as const;
+
 export const DEVICE_LAYOUT_CLASSES = [
   {
     id: "xs-phone",
@@ -98,13 +109,14 @@ export type DeviceDisplayMode = (typeof DEVICE_DISPLAY_MODES)[number];
 
 export const DEVICE_LAYOUT_SHELL_TOKENS = {
   topNav: {
-    behavior: "fixed-floating-glass",
+    behavior: "stable-route-bar",
     safeArea: "env(safe-area-inset-top)",
     cssVariable: "--root-shell-top-spacing",
   },
   phoneBottomNav: {
     behavior: "navigation-only",
     visualHeightPx: 56,
+    heightSizing: "minimum-with-intrinsic-label-height",
     cssVariable: "--user-mobile-bottom-nav-reserved-height",
     safeArea: "env(safe-area-inset-bottom)",
   },
@@ -147,7 +159,7 @@ export const DEVICE_LAYOUT_COMPONENT_SIZING = {
 } as const;
 
 export const DEVICE_LAYOUT_SHELL_RULES = [
-  "Top navigation is fixed/floating glass and must reserve or account for safe-area top space.",
+  "Top navigation is a stable, sticky glass route bar and must account for safe-area top space.",
   "The phone user shell keeps the mobile bottom navigation visible.",
   "The mobile bottom navigation is navigation only, not an action bar.",
   "Public content must reserve bottom nav height plus safe area plus 12px-16px breathing room.",

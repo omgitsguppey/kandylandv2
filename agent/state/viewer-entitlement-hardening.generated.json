@@ -1,13 +1,13 @@
 {
-  "generatedAtUtc": "2026-07-14T07:18:21.807Z",
+  "generatedAtUtc": "2026-10-04T00:34:16.029Z",
   "reportKey": "viewer-entitlement-hardening",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "viewerRouteEntitlementGuarded": true,
   "rawDropSanitized": true,
   "privateMediaHiddenUntilEntitled": true,
   "contentFetchRoute": true,
   "clientEntitlementEvidence": true,
   "rawDropFieldsReachClient": false,
-  "publicPreviewBehavior": "Viewer page returns sanitized metadata only; private bytes load through /api/drops/content after client entitlement.",
+  "publicPreviewBehavior": "Bounded source inspection connects the returned ViewerClient to the same fetched, sanitized Drop and verified-actor denial guard. Private bytes remain mediated by /api/drops/content; this is not runtime or full control-flow proof.",
   "validationFailures": []
 }

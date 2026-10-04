@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 type FindingSeverity = "p0" | "p1" | "p2";
 
@@ -14,6 +15,7 @@ type FlowFinding = {
 };
 
 const root = process.cwd();
+const mutationScope = readValidatorMutationScope(root);
 const failures: string[] = [];
 const fixesApplied: FlowFinding[] = [];
 const verifiedFlows: FlowFinding[] = [];
@@ -50,19 +52,16 @@ function currentHead() {
 
 function changedPaths() {
     try {
-        return execFileSync("git", ["status", "--short"], { cwd: root, encoding: "utf8" })
-            .split(/\r?\n/u)
-            .map((line) => line.trimEnd())
-            .filter(Boolean)
-            .map((line) => line.slice(3).trim().replace(/^"|"$/g, ""));
-    } catch {
+        return mutationScope ? [] : listValidatorScopeFiles(root, []);
+    } catch (error) {
+        failures.push(`Unable to inspect task mutation scope: ${(error as Error).message}`);
         return [];
     }
 }
 
 function runRequiredValidator(scriptName: string) {
     try {
-        execFileSync("cmd.exe", ["/c", `npm run ${scriptName}`], {
+        execFileSync(process.execPath, [join(dirname(process.execPath), "node_modules/npm/bin/npm-cli.js"), "run", scriptName, ...(process.argv.slice(2).length ? ["--", ...process.argv.slice(2)] : [])], {
             cwd: root,
             encoding: "utf8",
             stdio: "pipe",
@@ -102,6 +101,7 @@ runRequiredValidator("check:gumdrop-economy-accuracy");
 runRequiredValidator("check:creator-experience-simplification");
 
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const walletPackagePicker = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
 const guidanceCard = readRequired("src/components/Creators/CreatorPaidGdGuidanceCard.tsx");
 const panel = readRequired("src/components/Creators/CreatorExperiencesPanel.tsx");
 const requestsRoute = readRequired("src/app/api/creator/requests/route.ts");
@@ -110,6 +110,7 @@ const subscriptionsRoute = readRequired("src/app/api/creator/subscriptions/route
 const chatServer = readRequired("src/lib/server/chat.ts");
 const creatorServer = readRequired("src/lib/server/creator-experiences.ts");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
+const dropsPresentation = readRequired("src/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience.tsx");
 const creatorProfile = readRequired("src/app/creators/[username]/CreatorProfileClient.tsx");
 const creatorSettingsRoute = readRequired("src/app/api/creator/settings/route.ts");
 const creatorDashboardSettings = readRequired("src/components/Creators/CreatorDashboardSettingsHub.tsx");
@@ -149,15 +150,20 @@ for (const line of purchaseModal.split(/\r?\n/u)) {
         failures.push(`Package bonus copy must not label paid bundle bonuses as free/reward: ${line.trim()}`);
     }
 }
-requireIncludes(purchaseModal, "Paid GD", "PurchaseModal compact paid-GD labels");
-requireIncludes(purchaseModal, "PurchasePromoBadge", "PurchaseModal compact paid-GD labels");
+requireIncludes(purchaseModal, "<KandyWalletPackageOption", "PurchaseModal actual package presentation binding");
+requireIncludes(walletPackagePicker, "GumDrops", "Bound wallet package compact delivered-GumDrops labels");
+requireIncludes(walletPackagePicker, "KandyWalletPromoBadge", "Bound wallet package promo owner");
 requireNotIncludes(purchaseModal, "paid bonus GD", "PurchaseModal compact paid-GD labels");
 requireNotIncludes(purchaseModal, "Paid bundle bonus", "PurchaseModal compact paid-GD labels");
 
 for (const expected of [
     "Creator experiences use paid GumDrops only",
     "Reward GumDrops do not count toward Fan Pass",
-    "Free and reward GumDrops cannot book live time",
+    "Reward GumDrops do not cover live-time bookings.",
+    "Free GumDrops are only for unwrapping Drops.",
+    "Bookings need paid GumDrops",
+    "const copy = REASON_COPY[reason]",
+    "{copy.body} {PAID_SOURCE_RULE_COPY} {FREE_GD_RULE_COPY}",
     "Paid GD",
 ]) {
     requireIncludes(guidanceCard, expected, "creator paid GD guidance");
@@ -177,6 +183,12 @@ for (const expected of [
 ]) {
     requireIncludes(panel, expected, "creator experiences panel");
 }
+requireIncludes(panel, "from \"@/components/Creators/CreatorPaidGdGuidanceCard\"", "booking paid-guidance active composition");
+requireIncludes(panel, "<CreatorPaidGdGuidanceCard", "booking paid-guidance active composition");
+requireIncludes(panel, "currentPaidGd={balance}", "booking paid-guidance active composition");
+requireIncludes(panel, "requiredPaidGd={cost}", "booking paid-guidance active composition");
+requireIncludes(panel, "reason={guidanceReasonByView[view]}", "booking paid-guidance active composition");
+requireIncludes(panel, "bookings: \"booking\"", "booking paid-guidance active composition");
 requireNotIncludes(panel, "datetime-local", "creator experiences panel");
 requireNotIncludes(panel, "type=\"datetime-local\"", "creator experiences panel");
 
@@ -198,8 +210,17 @@ requireIncludes(creatorServer, "source_policy: \"creator_experience_paid_only\""
 requireIncludes(bookingsRoute, "slot_unavailable", "creator bookings route");
 requireIncludes(bookingsRoute, "Pick one of the available creator time slots.", "creator bookings route");
 
-requireIncludes(dropsClient, "data-drop-visibility-scope=\"public_discovery\"", "public drops discovery");
+requireIncludes(dropsClient, "from \"@/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience\"", "public drops discovery active composition");
+requireIncludes(dropsClient, "<DropsDiscoveryExperience", "public drops discovery active composition");
+requireIncludes(dropsClient, "useDrops([\"active\", \"scheduled\"], initialDrops)", "public drops discovery active composition");
+requireIncludes(dropsClient, "visibleDropCount={filteredDrops.length}", "public drops discovery active composition");
+requireIncludes(dropsClient, "collection={(", "public drops discovery active composition");
+requireIncludes(dropsClient, "<DropGrid", "public drops discovery active composition");
+requireIncludes(dropsClient, "drops={filteredDrops}", "public drops discovery active composition");
+requireIncludes(dropsPresentation, "data-drop-visibility-scope=\"public_discovery\"", "public drops discovery rendered scope");
+requireIncludes(dropsPresentation, "{collection}", "public drops discovery collection handoff");
 requireNotIncludes(dropsClient, "data-drop-visibility-scope=\"own_creator_drops\"", "public drops discovery");
+requireNotIncludes(dropsPresentation, "data-drop-visibility-scope=\"own_creator_drops\"", "public drops discovery");
 requireIncludes(creatorProfile, "data-drop-visibility-scope=\"creator_profile\"", "creator profile drops");
 requireIncludes(creatorProfile, "data-drop-visibility-scope=\"own_creator_drops\"", "creator profile drops");
 for (const expected of [
@@ -227,7 +248,7 @@ requireIncludes(ownerTest, "Manage experiences in Creator Dashboard.", "creator 
 requireIncludes(routeTest, "slot_unavailable", "creator bookings route tests");
 requireIncludes(economyTest, "attributionTruth", "GumDrop economy accuracy tests");
 requireIncludes(simplificationTest, "public_discovery", "creator experience simplification tests");
-requireIncludes(purchaseModalTest, "uses compact paid-GD package labels", "purchase modal tests");
+requireIncludes(purchaseModalTest, "uses compact delivered-GumDrops package labels", "purchase modal tests");
 requireIncludes(creatorDashboardSettingsTest, "creator earnings summary uses the safe settings source", "creator dashboard settings tests");
 requireIncludes(creatorDashboardSettingsTest, "data-creator-earnings-attribution", "creator dashboard settings tests");
 requireIncludes(packageJson, "\"check:post-economy-creator-flow-qa\": \"tsx scripts/agent/validate-post-economy-creator-flow-qa.ts\"", "package scripts");
@@ -260,6 +281,7 @@ const allFindings = [...verifiedFlows, ...fixesApplied, ...deferredFindings];
 const report = {
     generatedAtUtc: new Date().toISOString(),
     reportKey: "post-economy-creator-flow-qa",
+    mutationScope: mutationScope ?? { mode: "whole_git_worktree" },
     currentHead: currentHead(),
     summary: {
         flowsChecked: verifiedFlows.length,

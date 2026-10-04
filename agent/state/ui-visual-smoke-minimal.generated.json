@@ -1,9 +1,9 @@
 {
   "status": "source_surface_checks_current",
   "passed": true,
-  "generatedAtUtc": "2026-07-16T23:39:49.800Z",
-  "currentHead": "ad29b1b5390f2e7f258f09860c1f082f9cf4a0f5",
-  "sourceCommit": "ad29b1b5390f2e7f258f09860c1f082f9cf4a0f5",
+  "generatedAtUtc": "2026-10-01T17:15:43.857Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "detail": "Deterministic UI surface coverage is current. Browser viewing is optional follow-up only after a source/UI-surface check finds a visual issue.",
   "nonUiLanesBlocked": false,
   "formalGateImpact": {

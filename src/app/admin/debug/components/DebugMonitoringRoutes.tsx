@@ -1,6 +1,7 @@
 "use client";
 
 import { Pill, ScrollWrap } from "./DebugPrimitives";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
 import {
     ADMIN_DEBUG_ROUTE_RUNTIME_FILTER_OPTIONS,
     type AdminDebugRouteRuntimeFilter,
@@ -17,19 +18,9 @@ import {
 import { buildRouteRuntimeCohortSummary } from "@/lib/debug/route-runtime-rollup-engine";
 import { classifyNoSampleRouteCohort } from "@/lib/debug/no-sample-route-cohort-classifier";
 import { buildNoSampleRouteDisplay } from "@/lib/debug/no-sample-route-display";
+import { formatRecentActivity as formatRelative } from "./DebugTime";
 
 /* ─── Helpers ─── */
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-
 /* ─── Props ─── */
 export interface DebugMonitoringRoutesProps {
     routeRuntimeSummaryTruth?: RouteRuntimeSummaryTruth;
@@ -96,9 +87,9 @@ export function DebugMonitoringRoutes({
     } satisfies RouteRuntimeSummaryTruth;
     return (
         <>
-            <div className="mb-4 grid gap-3 lg:grid-cols-1">
+            <div className="mb-4 grid gap-3 min-w-0 wrap-anywhere">
                 <div
-                    className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"
+                    className="p-4 min-w-0 wrap-anywhere"
                     data-route-runtime-loaded={summaryTruth.trackedCount > 0 ? "true" : "false"}
                     data-route-runtime-tracked-count={summaryTruth.trackedCount}
                     data-route-runtime-observed-count={summaryTruth.observedCount}
@@ -110,49 +101,51 @@ export function DebugMonitoringRoutes({
                     data-route-runtime-health-state={summaryTruth.healthState}
                     data-route-runtime-summary-reason={summaryTruth.explanation}
                 >
-                    <p className="mb-3 text-sm text-gray-200">{summaryTruth.explanation}</p>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <p className="mb-3 text-sm text-foreground min-w-0 wrap-anywhere">{summaryTruth.explanation}</p>
+                    <div className="flex flex-wrap items-center gap-2 min-w-0 wrap-anywhere">
                         <Pill label="Native chat error rate" value={nativeChatCohort.errorRateLabel} tone={nativeChatCohort.errorRateState === "over_threshold" ? "warn" : "good"} />
                         <Pill label="Native chat observed" value={nativeChatCohort.observedRoutes} truthState={nativeChatCohort.observedRoutes > 0 ? "live" : "unavailable"} badgeLabel={nativeChatCohort.observedRoutes > 0 ? "LOADED" : "NO SAMPLE"} />
                         <Pill label="Native chat samples" value={nativeChatCohort.samples} truthState={nativeChatCohort.samples > 0 ? "live" : "unavailable"} badgeLabel={nativeChatCohort.samples > 0 ? "LOADED" : "NO SAMPLE"} />
                         <Pill label="Native chat threshold" value={`${(nativeChatCohort.errorThreshold * 100).toFixed(1)}%`} truthState="live" badgeLabel="INFO" />
                     </div>
-                    <p className="mt-3 text-sm text-gray-300">
+                    <p className="mt-3 text-sm text-foreground min-w-0 wrap-anywhere">
                         {formatChatTriple("Native chat", nativeChatCohort)}. Native chat routes currently show {nativeChatCohort.errorSamples} error samples across {nativeChatCohort.samples} tracked samples. Native stale/unseen routes are coverage warnings, not active failures.
                     </p>
                 </div>
-                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                    <div className="flex flex-wrap items-center gap-2">
+                <div className="p-4 min-w-0 wrap-anywhere">
+                    <div className="flex flex-wrap items-center gap-2 min-w-0 wrap-anywhere">
                         <Pill label="Compat error rate" value={compatibilityChatCohort.errorRateLabel} tone={compatibilityChatCohort.errorSamples > 0 ? "warn" : "good"} />
                         <Pill label="Compat observed" value={compatibilityChatCohort.observedRoutes} truthState={compatibilityChatCohort.observedRoutes > 0 ? "live" : "unavailable"} badgeLabel={compatibilityChatCohort.observedRoutes > 0 ? "LOADED" : "NO SAMPLE"} />
                         <Pill label="Compat samples" value={compatibilityChatCohort.samples} truthState={compatibilityChatCohort.samples > 0 ? "live" : "unavailable"} badgeLabel={compatibilityChatCohort.samples > 0 ? "LOADED" : "NO SAMPLE"} />
                         <Pill label="Compat migration" value={compatibilityChatCohort.migrationStatus ?? "legacy_visible_until_removal"} truthState="stale" badgeLabel="LEGACY" />
                     </div>
-                    <p className="mt-3 text-sm text-gray-300">
+                    <p className="mt-3 text-sm text-foreground min-w-0 wrap-anywhere">
                         {formatChatTriple("Compat chat", compatibilityChatCohort)}. Compatibility traffic stays visible until the legacy creator-messages route is removed after {CREATOR_MESSAGES_COMPATIBILITY_REMOVE_AFTER}.
                     </p>
                 </div>
-                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                    <label className="mb-2 block text-[11px] uppercase tracking-[0.18em] text-gray-400">Route filter</label>
-                    <select
+                <div className="p-4 min-w-0 wrap-anywhere">
+                    <label className="block min-w-0 space-y-2 text-sm font-medium text-foreground">
+                        <span>Route filter</span>
+                    <NativeSelect
                         value={routeRuntimeFilter}
                         onChange={(event) => onRouteRuntimeFilterChange(event.target.value as AdminDebugRouteRuntimeFilter)}
-                        className="min-h-11 w-full rounded-[1rem] border border-white/10 bg-black/40 px-3 text-sm font-semibold text-white"
+                        className="h-auto min-h-11"
                     >
                         {ADMIN_DEBUG_ROUTE_RUNTIME_FILTER_OPTIONS.map((option) => (
-                            <option key={option} value={option}>
-                                {option === "all" ? "All tracked routes" : option === "failing" ? "Active failures" : option === "stale" ? "Stale only" : option === "unseen" ? "Unseen only" : option === "native_chat" ? "Native chat only" : "Compatibility chat only"}
-                            </option>
+                            <NativeSelectOption key={option} value={option}>
+                                {option === "all" ? "All routes" : option === "failing" ? "Failures" : option === "stale" ? "Stale" : option === "unseen" ? "Unseen" : option === "native_chat" ? "Native chat" : "Compatibility"}
+                            </NativeSelectOption>
                         ))}
-                    </select>
-                    <p className="mt-2 text-xs text-gray-500">
+                    </NativeSelect>
+                    </label>
+                    <p className="mt-2 text-xs text-muted-foreground min-w-0 wrap-anywhere">
                         Unseen means no sample recorded yet. Stale means the last sample is older than the runtime freshness window.
                     </p>
                 </div>
             </div>
             {filteredRouteRuntimeHealth.length > 0 ? (
                 <ScrollWrap>
-                    <div className="divide-y divide-white/10">
+                    <div className="divide-y divide-border min-w-0 wrap-anywhere">
                         {filteredRouteRuntimeHealth.map((entry: any) => {
                             const status = getRouteRuntimeHealthStatus(entry);
                             const coverageState = getRouteRuntimeHealthCoverageState(entry);
@@ -168,7 +161,7 @@ export function DebugMonitoringRoutes({
                             return (
                                 <div
                                     key={entry.key}
-                                    className="space-y-2 px-4 py-3"
+                                    className="space-y-2 px-4 py-3 min-w-0 wrap-anywhere"
                                     data-route-runtime-health-state={truth.status}
                                     data-route-runtime-status={truth.status}
                                     data-route-runtime-coverage={truth.coverage}
@@ -183,12 +176,12 @@ export function DebugMonitoringRoutes({
                                     data-route-runtime-risk-class={truth.routeRiskClass}
                                     data-route-runtime-summary-reason={truth.stateReasons.join(" | ") || "Current route runtime record is loaded."}
                                 >
-                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div className="flex flex-wrap items-start justify-between gap-2 min-w-0 wrap-anywhere">
                                         <div>
-                                            <p className="font-semibold text-white">{entry.title}</p>
-                                            <p className="text-xs text-gray-400">{entry.routeName} | {entry.method} | {formatRelative(entry.updatedAtMs)}</p>
+                                            <p className="font-semibold text-foreground min-w-0 wrap-anywhere">{entry.title}</p>
+                                            <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{entry.routeName} | {entry.method} | {formatRelative(entry.updatedAtMs)}</p>
                                         </div>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                                             <Pill label="Status" value={truth.status === "healthy_with_history" && truth.latency.latencyState === "review" ? "healthy with latency review" : truth.status} tone={toneForRouteRuntimeHealthState(truth.status)} truthState={noSampleTruthState ?? truthForRouteRuntimeHealthState(truth.status)} badgeLabel={noSampleBadge} />
                                             <Pill label="Coverage" value={coverageState} tone={coverageState === "observed" ? "good" : "warn"} truthState={noSampleTruthState} badgeLabel={noSampleBadge} />
                                             <Pill label="Freshness" value={freshness} tone={freshness === "fresh" ? "good" : freshness === "stale" ? "warn" : "neutral"} truthState={noSampleTruthState ?? truthForRouteRuntimeHealthState(truth.freshness)} badgeLabel={noSampleBadge} />
@@ -197,14 +190,16 @@ export function DebugMonitoringRoutes({
                                             <Pill label="Last result" value={truth.lastResult === "no_sample" ? "No sample" : truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={noSampleTruthState ?? resultTruthState} badgeLabel={noSampleBadge ?? (sampleIsStale ? "STALE SAMPLE" : undefined)} />
                                         </div>
                                     </div>
-                                    {truth.hasSample ? (
+                                    <details className="min-w-0 text-sm text-muted-foreground">
+                                        <summary className="min-h-11 cursor-pointer py-3 font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Latency and history</summary>
+                                        {truth.hasSample ? (
                                         <>
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                                                 <Pill label="Current" value={sampleIsStale ? "stale sample" : truth.lastResult} tone={sampleIsStale ? "warn" : toneForRouteRuntimeHealthState(truth.lastResult)} truthState={resultTruthState} badgeLabel={sampleIsStale ? "STALE SAMPLE" : undefined} />
                                                 <Pill label="Latency history" value={truth.latency.latencyState} tone={toneForRouteRuntimeHealthState(truth.latency.latencyState)} truthState={sampleIsStale ? "stale" : truthForRouteRuntimeHealthState(truth.latency.latencyState)} />
                                                 <Pill label="Error history" value={truth.errorHistoryState} tone={toneForRouteRuntimeHealthState(truth.errorHistoryState)} truthState={sampleIsStale ? "stale" : truthForRouteRuntimeHealthState(truth.errorHistoryState)} />
                                             </div>
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                                                 <Pill label="Last latency" value={formatLatency(truth.latency.lastMs)} tone={truth.latency.lastLatencyState === "review" || sampleIsStale ? "warn" : "good"} truthState={sampleIsStale ? "stale" : truth.latency.lastLatencyState === "review" ? "degraded" : "live"} badgeLabel={sampleIsStale ? "STALE SAMPLE" : truth.latency.lastLatencyState === "review" ? "SLOW" : "LOADED"} />
                                                 <Pill label="Avg latency" value={formatLatency(truth.latency.avgMs)} tone={truth.latency.avgLatencyState === "review" || sampleIsStale ? "warn" : "good"} truthState={sampleIsStale ? "stale" : truth.latency.avgLatencyState === "review" ? "degraded" : "live"} badgeLabel={sampleIsStale ? "STALE SAMPLE" : truth.latency.avgLatencyState === "review" ? "SLOW" : "INFO"} />
                                                 <Pill label="Max latency" value={formatLatency(truth.latency.maxMs)} tone={truth.latency.maxLatencyState === "review_history" || sampleIsStale ? "warn" : "good"} truthState={sampleIsStale ? "stale" : truth.latency.maxLatencyState === "review_history" ? "degraded" : "live"} badgeLabel={sampleIsStale ? "STALE SAMPLE" : truth.latency.maxLatencyState === "review_history" ? "SLOW" : "INFO"} />
@@ -216,7 +211,7 @@ export function DebugMonitoringRoutes({
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="flex flex-wrap gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                        <div className="flex flex-wrap gap-2 px-3 py-2 min-w-0 wrap-anywhere">
                                             <Pill label="Current" value="No sample" truthState="unavailable" badgeLabel="NO SAMPLE" />
                                             <Pill label="Last latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
                                             <Pill label="Avg latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
@@ -227,21 +222,22 @@ export function DebugMonitoringRoutes({
                                             <Pill label="Slow" value={truth.latency.slowCount} truthState="unavailable" badgeLabel="NO SAMPLE" />
                                         </div>
                                     )}
-                                    <p className="text-xs text-gray-400">
+                                    </details>
+                                    <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">
                                         {coverageState === "unseen"
                                             ? noSampleDisplay?.copy ?? "No runtime sample has been recorded. Metrics are unavailable, not zero."
                                             : freshness === "stale"
                                                 ? `Last sample ${formatRelative(entry.updatedAtMs)}. This route needs a fresh runtime sample before the lane can be treated as current.`
                                                 : `Slow threshold ${entry.slowThresholdMs ?? 0}ms. Last success ${formatRelative(entry.lastSuccessAtMs)}. Last server error ${formatRelative(entry.lastServerErrorAtMs)}. ${truth.stateReasons.join(" ")}`}
                                     </p>
-                                    {entry.lastErrorMessage ? <p className="text-sm text-amber-100">{entry.lastErrorMessage}</p> : null}
+                                    {entry.lastErrorMessage ? <p className="text-sm text-warning min-w-0 wrap-anywhere">{entry.lastErrorMessage}</p> : null}
                                 </div>
                             );
                         })}
                     </div>
                 </ScrollWrap>
             ) : (
-                <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                <div className="p-4 text-sm text-warning min-w-0 wrap-anywhere">
                     {routeRuntimeHealth.length > 0
                         ? `No route entries match the current "${routeRuntimeFilter.replace("_", " ")}" filter.`
                         : "No tracked route rollups are loaded yet. Drive the creator follow, support inbox, or AI cover generation flows to populate this lane with real backend samples."}

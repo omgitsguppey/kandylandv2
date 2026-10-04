@@ -68,8 +68,8 @@ const REVIEW_STATUS_LABELS: Record<CreatorDropReviewStatus, string> = {
 
 const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "manager");
 const creatorDropListSkeletonClassName = getMobileSkeletonClass("creator", "list");
-const CREATOR_DROP_MANAGER_PANEL_CLASS_NAME = "rounded-[1.75rem] border border-white/10 bg-[#120a20]/85 shadow-2xl shadow-black/30 backdrop-blur-xl";
-const CREATOR_DROP_MANAGER_PRIMARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand-purple px-4 text-sm font-black text-white shadow-lg shadow-brand-purple/25 transition-transform hover:scale-[1.01]";
+const CREATOR_DROP_MANAGER_PANEL_CLASS_NAME = "rounded-[1.75rem] border border-white/10 bg-[#120b20]/90 shadow-[0_20px_55px_rgba(0,0,0,0.3)] backdrop-blur-xl";
+const CREATOR_DROP_MANAGER_PRIMARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 text-sm font-black text-white shadow-lg shadow-brand-purple/25 transition-transform hover:scale-[1.01]";
 
 function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
     const status = drop.statusResolution ?? resolveDropStatus(drop);
@@ -209,7 +209,7 @@ export function CreatorDropManager() {
 
     return (
         <main
-            className="min-h-[calc(100dvh-var(--root-shell-top-spacing,5rem))] bg-[#0b0614] px-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-5 text-white sm:px-6 lg:px-8"
+            className="min-h-[calc(100dvh-var(--root-shell-top-spacing,5rem))] bg-[#08050d] px-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-5 text-white sm:px-6 lg:px-8"
             data-creator-drop-manager="true"
             data-drop-manager-surface="creator_submission"
             data-admin-approval-required="true"
@@ -221,17 +221,19 @@ export function CreatorDropManager() {
             data-mobile-drilldown="true"
             data-desktop-flow-collapsed="true"
         >
-            <section className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-                <div className={`${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between`}>
-                    <div className="space-y-1">
-                        <h1 className="text-2xl font-black tracking-normal text-white sm:text-3xl">Manage drops</h1>
-                        <p className="text-sm leading-5 text-gray-300">Submit drops for review before they go live.</p>
+            <section className="mx-auto flex w-full max-w-6xl flex-col gap-5">
+                <header className={`${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} overflow-hidden bg-gradient-to-br from-[#2a1647] via-[#160b27] to-[#09050e] p-5 sm:p-7`}>
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-purple-200">Creator studio / drops</p>
+                        <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">Shape your next KandyDrop.</h1>
+                        <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-300">Create, submit, and track the exact review and visibility state of every drop.</p>
                     </div>
                     <div className="flex gap-2">
                         <button
                             type="button"
                             onClick={() => void loadDrops()}
-                            className="inline-flex min-h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-bold text-gray-100 transition-colors hover:bg-white/10"
+                            className="inline-flex min-h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-sm font-bold text-gray-100 transition-colors hover:bg-white/10"
                             aria-label="Refresh creator drops"
                         >
                             <RefreshCw className="h-4 w-4" />
@@ -245,9 +247,12 @@ export function CreatorDropManager() {
                             Submit drop
                         </button>
                     </div>
-                </div>
+                    </div>
+                </header>
 
-                <div className={`${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} grid grid-cols-2 gap-2 p-2 sm:grid-cols-3 lg:grid-cols-6`} aria-label="Creator drop status filters" data-creator-drop-status-filter="all" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
+                <section className={`${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} p-3 sm:p-4`} aria-label="Creator drop status filters" data-creator-drop-status-filter="all" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
+                    <div className="mb-3 flex items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Drop pipeline</p><p className="mt-1 text-sm font-semibold text-white">{tabCounts.all} total drops</p></div><span className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-zinc-300">{visibleDrops[0] ? REVIEW_STATUS_LABELS[classifyDrop(visibleDrops[0])] : "No matching drops"}</span></div>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                     {REVIEW_TABS.map((tab) => {
                         const Icon = tab.icon;
                         const active = activeTab === tab.id;
@@ -257,19 +262,20 @@ export function CreatorDropManager() {
                                 type="button"
                                 onClick={() => setActiveTab(tab.id)}
                                 data-creator-drop-status-filter={tab.id}
-                                className={`flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition-colors ${active ? "border-brand-purple/60 bg-brand-purple/20 shadow-lg shadow-brand-purple/10" : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"}`}
+                                className={`flex min-h-11 items-center justify-between gap-2 rounded-2xl border px-3 py-3 text-left transition-colors ${active ? "border-brand-purple/60 bg-brand-purple/20 shadow-lg shadow-brand-purple/10" : "border-white/10 bg-black/20 hover:bg-white/[0.07]"}`}
                             >
-                                <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-gray-300">
-                                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                                <span className="flex min-w-0 items-center gap-2 text-xs font-bold text-gray-300">
+                                    <Icon className="h-4 w-4 shrink-0" />
                                     {tab.label}
                                 </span>
                                 <span className="text-sm font-black text-white">{tabCounts[tab.id]}</span>
                             </button>
                         );
                     })}
-                </div>
+                    </div>
+                </section>
 
-                <div className={`${creatorManagerModuleClassName} ${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} p-3 sm:p-4`} data-creator-drop-list-density="compact_rows" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                <section className={`${creatorManagerModuleClassName} ${CREATOR_DROP_MANAGER_PANEL_CLASS_NAME} p-4 sm:p-5`} data-creator-drop-list-density="compact_rows" data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     {showDropListSkeleton ? (
                         <div className="grid gap-2" data-mobile-skeleton="creator-drop-list" data-mobile-density="compact" data-mobile-sprawl-guard="true" aria-label="Loading creator drops">
                             {[0, 1, 2].map((item) => (
@@ -277,7 +283,7 @@ export function CreatorDropManager() {
                             ))}
                         </div>
                     ) : visibleDrops.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-3 py-6 text-center" data-empty-state-density="compact">
+                            <div className="flex flex-col items-center justify-center gap-3 py-10 text-center" data-empty-state-density="compact">
                             <Package className="h-7 w-7 text-brand-purple" />
                             <div>
                                 <p className="text-base font-black text-white">No drops submitted yet</p>
@@ -286,7 +292,7 @@ export function CreatorDropManager() {
                             <button
                                 type="button"
                                 onClick={openSubmitForm}
-                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 text-sm font-bold text-white transition-colors hover:bg-white/[0.14]"
+                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-4 text-sm font-bold text-white transition-colors hover:bg-white/[0.14]"
                             >
                                 <Plus className="h-4 w-4" />
                                 Submit drop
@@ -300,7 +306,7 @@ export function CreatorDropManager() {
                                 return (
                                     <article
                                         key={drop.id}
-                                        className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-lg shadow-black/10"
+                                        className="flex items-center gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-3 shadow-lg shadow-black/10 sm:p-4"
                                         data-creator-drop-card-status={status.creatorStatusKey}
                                         data-creator-drop-metrics-source={metrics.source}
                                         data-creator-drop-expired={String(status.isExpired)}
@@ -308,9 +314,9 @@ export function CreatorDropManager() {
                                     >
                                         {drop.imageUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={drop.imageUrl} alt="" className="h-16 w-16 rounded-xl object-cover" />
+                                            <img src={drop.imageUrl} alt="" className="h-16 w-16 rounded-2xl object-cover" />
                                         ) : (
-                                            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/[0.06]">
+                                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.06]">
                                                 <Package className="h-5 w-5 text-gray-400" />
                                             </div>
                                         )}
@@ -322,22 +328,22 @@ export function CreatorDropManager() {
                                                     className="text-sm font-black text-white"
                                                     ariaLabel={drop.title}
                                                 />
-                                                <span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${statusToneClassName(status.statusTone)}`}>
+                                                <span className={`shrink-0 rounded-xl border px-2.5 py-1.5 text-xs font-bold ${statusToneClassName(status.statusTone)}`}>
                                                     {status.creatorStatusLabel}
                                                 </span>
                                             </div>
                                             <p className="mt-1 truncate text-xs leading-5 text-gray-400">{drop.description || "No description provided."}</p>
-                                            <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] font-semibold text-gray-400">
+                                            <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
                                                 <span>{status.isAdminCreated ? "Added by admin" : status.isCreatorSubmitted ? "Submitted" : REVIEW_STATUS_LABELS[classifyDrop(drop)]}</span>
                                                 <span aria-hidden="true">|</span>
                                                 <span>{status.publicVisibilityLabel}</span>
                                                 <span aria-hidden="true">|</span>
                                                 <span>{typeof drop.unlockCost === "number" ? `${drop.unlockCost} GumDrops` : "Cost unset"}</span>
                                             </div>
-                                            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-400">
-                                                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-1">Views {renderMetric(metrics.views)}</span>
-                                                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-1">Clicks {renderMetric(metrics.clicks)}</span>
-                                                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-1">Unwraps {renderMetric(metrics.unwraps)}</span>
+                                            <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs font-bold text-gray-400">
+                                                <span className="rounded-xl border border-white/10 bg-white/[0.035] px-2.5 py-1.5">Views {renderMetric(metrics.views)}</span>
+                                                <span className="rounded-xl border border-white/10 bg-white/[0.035] px-2.5 py-1.5">Clicks {renderMetric(metrics.clicks)}</span>
+                                                <span className="rounded-xl border border-white/10 bg-white/[0.035] px-2.5 py-1.5">Unwraps {renderMetric(metrics.unwraps)}</span>
                                             </div>
                                         </div>
                                     </article>
@@ -345,7 +351,7 @@ export function CreatorDropManager() {
                             })}
                         </div>
                     )}
-                </div>
+                </section>
             </section>
 
             <CreateDropModal

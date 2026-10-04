@@ -2,15 +2,11 @@
 
 import { Section, Pill } from "./DebugPrimitives";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream";
+import type { CompleteDependencyInventory, DependencyInventoryEntry } from "@/lib/debug/dependency-inventory-contract";
 
 export interface DebugTabInfrastructureProps {
     data: any;
-}
-
-function toneForConnectivity(state?: string) {
-    if (state === "live") return "good" as const;
-    if (state === "failed") return "bad" as const;
-    return "neutral" as const;
 }
 
 function truthStateForConnectivity(state?: string) {
@@ -19,7 +15,7 @@ function truthStateForConnectivity(state?: string) {
     return "unavailable" as const;
 }
 
-function installedVersionLabel(entry: any) {
+function installedVersionLabel(entry: DependencyInventoryEntry) {
     if (entry.installedVersionState === "from_lockfile" && entry.installedVersion) {
         return entry.installedVersion;
     }
@@ -32,221 +28,192 @@ function installedVersionLabel(entry: any) {
     return "unknown";
 }
 
-function categoryTone(category?: string) {
-    if (category === "firebase_google" || category === "framework" || category === "payments" || category === "functions_cloud") return "good" as const;
-    if (category === "testing_qa" || category === "agent_repo_tooling" || category === "unknown_other" || category === "security_overrides") return "warn" as const;
-    return "neutral" as const;
-}
-
 export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
-    const inventory = data?.infrastructure;
+    const inventory: (Partial<CompleteDependencyInventory> & { error?: string }) | undefined = data?.infrastructure;
+    const inventoryCounts = [
+        { label: "Runtime deps", value: inventory?.totals?.runtimeDependencies },
+        { label: "Dev deps", value: inventory?.totals?.devDependencies },
+        { label: "Optional deps", value: inventory?.totals?.optionalDependencies },
+        { label: "Peer deps", value: inventory?.totals?.peerDependencies },
+        { label: "Functions deps", value: inventory?.totals?.functionsDependencies },
+        { label: "External services", value: inventory?.totals?.externalServices },
+        { label: "Expected absent", value: inventory?.totals?.expectedAbsentDependencies },
+        { label: "Unknown direct deps", value: inventory?.totals?.unknownDisplayed },
+    ];
 
     return (
-        <div className="space-y-4">
-            <Section
-                title="Infrastructure Health & Dependencies"
-                subtitle="Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use."
-                defaultOpen={true}
-            >
-                {inventory ? (
-                    inventory.error ? (
-                        <div className="rounded border border-red-500/20 bg-red-900/10 p-4 font-mono text-xs text-red-400">
-                            [FAILED] {inventory.error}
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                                <div className="rounded border border-white/5 bg-black/20 p-4" data-debug-dependency-generated-at-utc={inventory.generatedAtUtc}>
-                                    <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Environment & runtime checks</h3>
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="text-xs text-white/70">Node Version</span>
-                                            <span className="text-xs font-mono text-cyan-400">{inventory.nodeVersion}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="text-xs text-white/70">Firestore Connectivity</span>
-                                            <AdminStatusBadge state={truthStateForConnectivity(inventory.firestoreConnectivity)} />
-                                        </div>
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="text-xs text-white/70">Last Telemetry Ping</span>
-                                            <span className="text-xs font-mono text-white/60">{inventory.lastTelemetryPingAtUtc || "unavailable"}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="text-xs text-white/70">Generated</span>
-                                            <span className="text-xs font-mono text-white/60">{inventory.generatedAtUtc}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="text-xs text-white/70">Freshness</span>
-                                            <AdminStatusBadge state={inventory.freshnessState === "fresh" ? "live" : "stale"} />
-                                        </div>
-                                    </div>
-                                    <p className="mt-3 text-xs text-gray-400">Declared package versions are inventory truth. Runtime connectivity is shown separately and does not imply every dependency is active in-process.</p>
-                                </div>
-
-                                <div className="rounded border border-white/5 bg-black/20 p-4">
-                                    <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Inventory counts</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        <Pill label="Runtime deps" value={inventory.totals?.runtimeDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
-                                        <Pill label="Dev deps" value={inventory.totals?.devDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
-                                        <Pill label="Optional deps" value={inventory.totals?.optionalDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
-                                        <Pill label="Peer deps" value={inventory.totals?.peerDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
-                                        <Pill label="Functions deps" value={inventory.totals?.functionsDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
-                                        <Pill label="External services" value={inventory.totals?.externalServices ?? 0} truthState="live" badgeLabel="MAPPED" />
-                                        <Pill label="Expected absent" value={inventory.totals?.expectedAbsentDependencies ?? 0} truthState="live" badgeLabel="CLASSIFIED" />
-                                        <Pill label="Unknown direct deps" value={inventory.totals?.unknownDisplayed ?? 0} truthState="live" badgeLabel="COUNT" />
-                                    </div>
-                                    <div className="mt-4 space-y-2 text-xs text-gray-300">
-                                        <p>Root package updated: {inventory.rootPackageTimestampLabel || inventory.rootPackageUpdatedAtUtc || "timestamp unavailable"}</p>
-                                        <p>Functions package updated: {inventory.functionsPackageTimestampLabel || inventory.functionsPackageUpdatedAtUtc || "timestamp unavailable"}</p>
-                                    </div>
-                                </div>
+        <AdminDebugWorkstream
+            eyebrow="Infrastructure"
+            title="Runtime and dependency evidence"
+            subtitle="Declared inventory and observed connectivity remain separate so package presence is never treated as runtime proof."
+        >
+            {!inventory ? (
+                <div className="min-w-0 space-y-2 text-sm leading-6 text-muted-foreground" data-debug-infrastructure-source="source_missing">
+                    <Pill label="Inventory" value="Not loaded" truthState="unavailable" badgeLabel="MISSING" />
+                    <p>Inventory is not loaded. Check the Debug source status above before treating package counts or runtime checks as current.</p>
+                </div>
+            ) : inventory.error ? (
+                <div role="alert" className="min-w-0 space-y-2 text-sm leading-6 wrap-anywhere" data-debug-infrastructure-source="failed">
+                    <Pill label="Inventory" value="Failed" truthState="failed" badgeLabel="FAILED" />
+                    <p className="text-destructive">{inventory.error}</p>
+                    <p className="text-muted-foreground">The inventory read failed. Its package counts and connectivity are unavailable.</p>
+                </div>
+            ) : (
+                <div className="min-w-0 space-y-6" data-debug-infrastructure-source="loaded">
+                    <Section
+                        title="Environment & runtime checks"
+                        subtitle="Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use."
+                        defaultOpen={true}
+                    >
+                        <dl className="min-w-0 space-y-3 text-sm" data-debug-dependency-generated-at-utc={inventory.generatedAtUtc}>
+                            <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                                <dt className="text-muted-foreground">Node Version</dt>
+                                <dd className="min-w-0 max-w-full wrap-anywhere font-mono">{inventory.nodeVersion || "Not loaded"}</dd>
                             </div>
+                            <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                                <dt className="text-muted-foreground">Firestore Connectivity</dt>
+                                <dd className="min-w-0 max-w-full"><AdminStatusBadge state={truthStateForConnectivity(inventory.runtimeConnectivityChecks?.firestoreConnectivity?.status)} /></dd>
+                            </div>
+                            <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                                <dt className="text-muted-foreground">Last Telemetry Ping</dt>
+                                <dd className="min-w-0 max-w-full wrap-anywhere font-mono">{inventory.runtimeConnectivityChecks?.lastTelemetryPing?.timestampUtc || "unavailable"}</dd>
+                            </div>
+                            <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                                <dt className="text-muted-foreground">Generated</dt>
+                                <dd className="min-w-0 max-w-full wrap-anywhere font-mono">{inventory.generatedAtUtc || "Not loaded"}</dd>
+                            </div>
+                            <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                                <dt className="text-muted-foreground">Freshness</dt>
+                                <dd className="min-w-0 max-w-full"><AdminStatusBadge state={inventory.freshnessState === "fresh" ? "live" : inventory.freshnessState === "stale" ? "stale" : "unavailable"} /></dd>
+                            </div>
+                        </dl>
+                        <p className="text-sm leading-6 text-muted-foreground">Declared package versions are inventory truth. Runtime connectivity is shown separately and does not imply every dependency is active in-process.</p>
+                    </Section>
 
-                            <div className="rounded border border-white/5 bg-black/20 p-4">
-                                <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Dependency groups</h3>
-                                <div className="space-y-3" data-debug-dependency-group-count={inventory.groups?.length ?? 0}>
-                                    {(inventory.groups || []).map((group: any) => (
-                                        <details key={group.key} className="rounded border border-white/10 bg-black/20 px-3 py-2">
-                                            <summary className="cursor-pointer list-none">
-                                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <div>
-                                                        <p className="font-semibold text-white">{group.label}</p>
-                                                        <p className="text-xs text-gray-400">{group.topEntries?.join(", ") || "No direct dependencies loaded"}</p>
-                                                    </div>
-                                                    <Pill label="Count" value={group.count} truthState="live" badgeLabel="COUNT" tone={categoryTone(group.key)} />
+                    <Section title="Inventory counts" subtitle="Declared package counts; these do not establish provider health." defaultOpen={true}>
+                        <dl className="flex min-w-0 flex-wrap gap-x-8 gap-y-4 text-sm" data-debug-dependency-counts="declared">
+                            {inventoryCounts.map(({ label, value }) => (
+                                <div key={label} className="min-w-0 flex-1 basis-40" data-debug-dependency-count-state={typeof value === "number" && Number.isFinite(value) ? "loaded" : "source_missing"}>
+                                    <dt className="wrap-anywhere text-muted-foreground">{label}</dt>
+                                    <dd className="mt-1 wrap-anywhere text-xl font-semibold tabular-nums">{typeof value === "number" && Number.isFinite(value) ? value : "Not loaded"}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                        <dl className="min-w-0 space-y-3 text-sm leading-6 text-muted-foreground">
+                            <div><dt>Root package updated</dt><dd className="wrap-anywhere font-mono">{inventory.rootPackageTimestampLabel || inventory.rootPackageUpdatedAtUtc || "timestamp unavailable"}</dd></div>
+                            <div><dt>Functions package updated</dt><dd className="wrap-anywhere font-mono">{inventory.functionsPackageTimestampLabel || inventory.functionsPackageUpdatedAtUtc || "timestamp unavailable"}</dd></div>
+                        </dl>
+                    </Section>
+
+                    <Section title="Dependency groups" subtitle="Open a group for every declared package and its lockfile result." defaultOpen={true}>
+                        <div className="min-w-0 divide-y divide-border" data-debug-dependency-group-count={Array.isArray(inventory.groups) ? inventory.groups.length : undefined}>
+                            {Array.isArray(inventory.groups) ? inventory.groups.length > 0 ? inventory.groups.map((group: any) => (
+                                <details key={group.key} className="min-w-0">
+                                    <summary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                                        <span className="inline-block max-w-full min-w-0 align-top">
+                                            <span className="block wrap-anywhere font-semibold">{group.label}</span>
+                                            <span className="block wrap-anywhere leading-6 text-muted-foreground">{typeof group.count === "number" && Number.isFinite(group.count) ? `${group.count} declared packages` : "Count not loaded"}</span>
+                                            <span className="block wrap-anywhere leading-6 text-muted-foreground">{group.topEntries?.join(", ") || "No direct dependencies loaded"}</span>
+                                        </span>
+                                    </summary>
+                                    <div className="min-w-0 divide-y divide-border pb-3">
+                                        {(group.entries || []).map((entry: any) => (
+                                            <article key={`${entry.sourcePackage}:${entry.dependencyType}:${entry.name}`} className="min-w-0 space-y-2 py-3 text-sm leading-6">
+                                                <h3 className="wrap-anywhere font-semibold">{entry.name}</h3>
+                                                <div className="flex min-w-0 max-w-full flex-wrap gap-x-4 gap-y-2">
+                                                    <Pill label={entry.dependencyType === "runtime" ? "Declared" : entry.dependencyType === "dev" ? "Dev" : entry.dependencyType === "peer" ? "Peer" : "Optional"} value={entry.declaredVersion} truthState="live" badgeLabel={entry.sourcePackage.toUpperCase()} />
                                                 </div>
-                                            </summary>
-                                            <div className="mt-3 grid gap-2 md:grid-cols-2">
-                                                {(group.entries || []).map((entry: any) => (
-                                                    <div key={`${entry.sourcePackage}:${entry.dependencyType}:${entry.name}`} className="rounded border border-white/10 bg-black/25 p-2 text-xs text-gray-300">
-                                                        <div className="flex items-center justify-between gap-2">
-                                                            <span className="font-semibold text-white">{entry.name}</span>
-                                                            <Pill label={entry.dependencyType === "runtime" ? "Declared" : entry.dependencyType === "dev" ? "Dev" : "Optional"} value={entry.declaredVersion} truthState="live" badgeLabel={entry.sourcePackage.toUpperCase()} />
-                                                        </div>
-                                                        <div className="mt-2 space-y-1">
-                                                            <p>Lockfile verified: {installedVersionLabel(entry)}</p>
-                                                            <p>Source package: {entry.sourcePackage}</p>
-                                                            <p>Category: {entry.category}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </details>
+                                                <p className="wrap-anywhere text-muted-foreground">Lockfile verified: <span className="font-mono text-foreground">{installedVersionLabel(entry)}</span></p>
+                                                <dl className="flex min-w-0 flex-wrap gap-x-6 gap-y-2 text-muted-foreground">
+                                                    <div className="min-w-0"><dt>Source package</dt><dd className="wrap-anywhere text-foreground">{entry.sourcePackage}</dd></div>
+                                                    <div className="min-w-0"><dt>Category</dt><dd className="wrap-anywhere text-foreground">{entry.category}</dd></div>
+                                                </dl>
+                                            </article>
+                                        ))}
+                                    </div>
+                                </details>
+                            )) : <p className="py-3 text-sm leading-6 text-muted-foreground">No direct dependency groups are loaded.</p> : <Pill label="Dependency groups" value="Not loaded" truthState="unavailable" badgeLabel="MISSING" />}
+                        </div>
+                    </Section>
+
+                    <Section title="External services and config dependencies" subtitle="Runtime verification stays separate from config and package inventory." defaultOpen={false}>
+                        <div className="min-w-0 divide-y divide-border">
+                            {Array.isArray(inventory.externalServiceDependencies) ? inventory.externalServiceDependencies.map((service: any) => (
+                                <article key={service.serviceName} className="min-w-0 space-y-3 py-3 text-sm leading-6">
+                                    <h3 className="wrap-anywhere font-semibold">{service.serviceName}</h3>
+                                    <div className="flex min-w-0 max-w-full flex-wrap gap-x-4 gap-y-2">
+                                        <Pill label="Config" value={service.configPresenceStatus} truthState={service.configPresenceStatus === "declared" ? "live" : "unavailable"} />
+                                        <Pill label="Runtime" value={service.runtimeVerificationStatus} truthState="unavailable" badgeLabel="SEPARATE" />
+                                    </div>
+                                    <dl className="min-w-0 space-y-2 text-muted-foreground">
+                                        <div><dt>Owner</dt><dd className="wrap-anywhere text-foreground">{service.owner}</dd></div>
+                                        <div><dt>Env keys</dt><dd className="wrap-anywhere font-mono text-foreground">{[...(service.envKeysRequired || []), ...(service.envKeysOptional || [])].join(", ") || "none required"}</dd></div>
+                                    </dl>
+                                    <p className="wrap-anywhere text-muted-foreground">{service.nextAction}</p>
+                                </article>
+                            )) : <Pill label="External services" value="Not loaded" truthState="unavailable" badgeLabel="MISSING" />}
+                        </div>
+                    </Section>
+
+                    <Section title="Package sources" subtitle="File presence and declared slots; no runtime verification is implied." defaultOpen={false}>
+                        <div className="min-w-0 divide-y divide-border">
+                            {Array.isArray(inventory.packageSources) ? inventory.packageSources.map((source: any) => (
+                                <article key={source.path} className="min-w-0 space-y-3 py-3 text-sm leading-6">
+                                    <h3 className="wrap-anywhere font-semibold">{source.name}</h3>
+                                    <p className="wrap-anywhere font-mono text-muted-foreground">{source.path}</p>
+                                    <Pill label="Source file" value={source.present === true ? "Present" : source.present === false ? "Absent" : "Not loaded"} truthState={source.present === true ? "cached" : "unavailable"} badgeLabel="SOURCE" />
+                                    <dl className="flex min-w-0 flex-wrap gap-x-6 gap-y-2 text-muted-foreground">
+                                        {[
+                                            { label: "Runtime", entries: source.dependencies },
+                                            { label: "Dev", entries: source.devDependencies },
+                                            { label: "Optional", entries: source.optionalDependencies },
+                                            { label: "Peer", entries: source.peerDependencies },
+                                        ].map(({ label, entries }) => (
+                                            <div key={label} className="min-w-0"><dt>{label}</dt><dd className="wrap-anywhere text-foreground tabular-nums">{source.present === true && Array.isArray(entries) ? entries.length : "Not loaded"}</dd></div>
+                                        ))}
+                                    </dl>
+                                </article>
+                            )) : <Pill label="Package sources" value="Not loaded" truthState="unavailable" badgeLabel="MISSING" />}
+                        </div>
+                    </Section>
+
+                    <Section title="Overrides and not-direct packages" subtitle="Security pins and expected-absent classifications remain inventory evidence." defaultOpen={false}>
+                        <div className="min-w-0 divide-y divide-border">
+                            {Array.isArray(inventory.overrides) ? inventory.overrides.map((overrideGroup: any) => (
+                                <details key={overrideGroup.sourcePackage} className="min-w-0">
+                                    <summary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                                        <span className="inline-block max-w-full min-w-0 align-top">
+                                            <span className="block wrap-anywhere font-semibold">{overrideGroup.sourcePackage} overrides</span>
+                                            <span className="block wrap-anywhere leading-6 text-muted-foreground">{typeof overrideGroup.count === "number" && Number.isFinite(overrideGroup.count) ? `${overrideGroup.count} security and transitive pins` : "Count not loaded"}</span>
+                                        </span>
+                                    </summary>
+                                    <ul className="min-w-0 space-y-2 pb-3 text-sm leading-6 text-muted-foreground">
+                                        {(overrideGroup.names || []).map((name: string) => <li key={name} className="wrap-anywhere font-mono">{name}</li>)}
+                                    </ul>
+                                </details>
+                            )) : <Pill label="Overrides" value="Not loaded" truthState="unavailable" badgeLabel="MISSING" />}
+                            <details className="min-w-0">
+                                <summary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                                    <span className="inline-block max-w-full min-w-0 align-top">
+                                        <span className="block wrap-anywhere font-semibold">Not directly installed / transitive or expected but absent</span>
+                                        <span className="block wrap-anywhere leading-6 text-muted-foreground">These are not shown as core direct dependencies.</span>
+                                    </span>
+                                </summary>
+                                <div className="min-w-0 divide-y divide-border pb-3">
+                                    {(inventory.expectedButAbsentDependencies || inventory.notDirectDependencies || []).map((entry: any) => (
+                                        <article key={entry.name} className="min-w-0 space-y-2 py-3 text-sm leading-6">
+                                            <h3 className="wrap-anywhere font-semibold">{entry.name}</h3>
+                                            <p className="wrap-anywhere text-muted-foreground">{entry.status || entry.state}</p>
+                                            {entry.reason ? <p className="wrap-anywhere text-muted-foreground">{entry.reason}</p> : null}
+                                            <Pill label="Classification" value={entry.status || entry.expectedStatus || entry.state || "unknown"} tone={entry.installedVersion || entry.status === "transitive_only" ? "warn" : "neutral"} truthState={entry.installedVersion || entry.status === "transitive_only" ? "cached" : "unavailable"} badgeLabel={entry.installedVersion || entry.status === "transitive_only" ? "TRANSITIVE" : "ABSENT"} />
+                                        </article>
                                     ))}
                                 </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                                <div className="rounded border border-white/5 bg-black/20 p-4">
-                                    <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Package sources</h3>
-                                    <div className="space-y-3">
-                                        {(inventory.packageSources || []).map((source: any) => (
-                                            <details key={source.path} className="rounded border border-white/10 bg-black/20 px-3 py-2">
-                                                <summary className="cursor-pointer list-none">
-                                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                                        <div>
-                                                            <p className="font-semibold text-white">{source.name}</p>
-                                                            <p className="text-xs text-gray-400">{source.path}</p>
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            <Pill label="Runtime" value={(source.dependencies || []).length} truthState="live" badgeLabel="COUNT" />
-                                                            <Pill label="Dev" value={(source.devDependencies || []).length} truthState="live" badgeLabel="COUNT" />
-                                                            <Pill label="Optional" value={(source.optionalDependencies || []).length} truthState="live" badgeLabel="COUNT" />
-                                                            <Pill label="Peer" value={(source.peerDependencies || []).length} truthState="live" badgeLabel="COUNT" />
-                                                        </div>
-                                                    </div>
-                                                </summary>
-                                            </details>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="rounded border border-white/5 bg-black/20 p-4">
-                                    <h3 className="mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider text-white/50">Overrides and not-direct packages</h3>
-                                    <div className="space-y-3">
-                                        {(inventory.overrides || []).map((overrideGroup: any) => (
-                                            <details key={overrideGroup.sourcePackage} className="rounded border border-white/10 bg-black/20 px-3 py-2">
-                                                <summary className="cursor-pointer list-none">
-                                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                                        <div>
-                                                            <p className="font-semibold text-white">{overrideGroup.sourcePackage} overrides</p>
-                                                            <p className="text-xs text-gray-400">Security and transitive pin summary</p>
-                                                        </div>
-                                                        <Pill label="Count" value={overrideGroup.count} truthState="live" badgeLabel="COUNT" />
-                                                    </div>
-                                                </summary>
-                                                <div className="mt-2 flex flex-wrap gap-2">
-                                                    {(overrideGroup.names || []).map((name: string) => (
-                                                        <span key={name} className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-gray-300">{name}</span>
-                                                    ))}
-                                                </div>
-                                            </details>
-                                        ))}
-
-                                        <details className="rounded border border-white/10 bg-black/20 px-3 py-2">
-                                            <summary className="cursor-pointer list-none">
-                                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <div>
-                                                        <p className="font-semibold text-white">External services and config dependencies</p>
-                                                        <p className="text-xs text-gray-400">Runtime verification stays separate from config and package inventory.</p>
-                                                    </div>
-                                                    <Pill label="Count" value={(inventory.externalServiceDependencies || []).length} truthState="live" badgeLabel="MAPPED" />
-                                                </div>
-                                            </summary>
-                                            <div className="mt-3 space-y-2">
-                                                {(inventory.externalServiceDependencies || []).map((service: any) => (
-                                                    <div key={service.serviceName} className="rounded border border-white/10 bg-black/25 px-3 py-2 text-xs text-gray-300">
-                                                        <div className="flex flex-wrap items-center justify-between gap-2">
-                                                            <div>
-                                                                <p className="font-semibold text-white">{service.serviceName}</p>
-                                                                <p>Owner: {service.owner}</p>
-                                                            </div>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                <Pill label="Config" value={service.configPresenceStatus} truthState={service.configPresenceStatus === "declared" ? "live" : "unavailable"} badgeLabel="CONFIG" />
-                                                                <Pill label="Runtime" value={service.runtimeVerificationStatus} truthState="unavailable" badgeLabel="SEPARATE" />
-                                                            </div>
-                                                        </div>
-                                                        <p className="mt-2">Env keys: {[...(service.envKeysRequired || []), ...(service.envKeysOptional || [])].join(", ") || "none required"}</p>
-                                                        <p className="mt-1 text-gray-400">{service.nextAction}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </details>
-
-                                        <details className="rounded border border-white/10 bg-black/20 px-3 py-2">
-                                            <summary className="cursor-pointer list-none">
-                                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <div>
-                                                        <p className="font-semibold text-white">Not directly installed / transitive or expected but absent</p>
-                                                        <p className="text-xs text-gray-400">These are not shown as core direct dependencies.</p>
-                                                    </div>
-                                                    <Pill label="Count" value={(inventory.notDirectDependencies || []).length} truthState="live" badgeLabel="COUNT" />
-                                                </div>
-                                            </summary>
-                                            <div className="mt-3 space-y-2">
-                                                {(inventory.expectedButAbsentDependencies || inventory.notDirectDependencies || []).map((entry: any) => (
-                                                    <div key={entry.name} className="flex flex-wrap items-center justify-between gap-2 rounded border border-white/10 bg-black/25 px-3 py-2 text-xs text-gray-300">
-                                                        <div>
-                                                            <p className="font-semibold text-white">{entry.name}</p>
-                                                            <p>{entry.status || entry.state}</p>
-                                                            {entry.reason ? <p className="text-gray-400">{entry.reason}</p> : null}
-                                                        </div>
-                                                        <Pill label="Classification" value={entry.status || entry.expectedStatus || entry.state || "unknown"} tone={entry.installedVersion || entry.status === "transitive_only" ? "warn" : "neutral"} truthState={entry.installedVersion || entry.status === "transitive_only" ? "cached" : "unavailable"} badgeLabel={entry.installedVersion || entry.status === "transitive_only" ? "TRANSITIVE" : "ABSENT"} />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </details>
-                                    </div>
-                                </div>
-                            </div>
+                            </details>
                         </div>
-                    )
-                ) : (
-                    <div className="py-8 text-center text-sm italic text-white/40">
-                        Loading dependency inventory...
-                    </div>
-                )}
-            </Section>
-        </div>
+                    </Section>
+                </div>
+            )}
+        </AdminDebugWorkstream>
     );
 }

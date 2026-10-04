@@ -6,6 +6,7 @@ import {
   buildAdminUiTestSessionStorageValue,
   isAdminUiTestSessionRuntimeEnabled,
 } from "@/lib/admin/admin-ui-test-session";
+import { buildNotFoundBody } from "@/lib/server/not-found";
 
 function resolveRedirectPath(request: NextRequest) {
   const requestedRedirect = request.nextUrl.searchParams.get("redirect") || "/admin";
@@ -23,7 +24,12 @@ function resolveRedirectPath(request: NextRequest) {
 export function GET(request: NextRequest) {
   if (!isAdminUiTestSessionRuntimeEnabled()) {
     return NextResponse.json(
-      { ok: false, status: "disabled", reason: "Admin UI test session is disabled." },
+      {
+        ...buildNotFoundBody("request", "Admin UI test session is disabled.", "disabled"),
+        ok: false,
+        status: "disabled",
+        reason: "Admin UI test session is disabled.",
+      },
       { status: 404 },
     );
   }

@@ -119,9 +119,8 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       externalBillingReviewed: false,
       externalReviewRequired: true,
       sourceFiles: [
-        "agent/state/final-cost-audit-lock.generated.json",
-        "agent/state/global-cost-surfaces.generated.json",
-        "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "scripts/agent/validate-cost-risk-owner-review-closure.ts",
+        "src/lib/server/global-cost-surface-contract.ts",
       ],
       evidence: [
         `finalCostCurrent=${finalCurrent}`,
@@ -196,14 +195,14 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       externalBillingReviewed: false,
       externalReviewRequired: false,
       sourceFiles: [
-        "agent/state/final-cost-audit-lock.generated.json",
-        "agent/state/final-telemetry-closure-lock.generated.json",
+        "scripts/agent/validate-cost-risk-owner-review-closure.ts",
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
         "src/lib/server/cheap-4xx-response.ts",
         "src/lib/server/route-4xx-classifier.ts",
       ],
       evidence: [
-        "artifactPath=agent/state/final-cost-audit-lock.generated.json",
-        "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
+        "sourcePath=src/lib/server/cheap-4xx-response.ts",
+        "sourcePath=src/lib/server/route-4xx-classifier.ts",
         `finalCostCurrent=${finalCurrent}`,
         `analyticsRuntimeCurrent=${analyticsCurrent}`,
         `route4xxSourceReady=${input.finalCostAudit?.route4xxSourceReady === true}`,
@@ -249,7 +248,7 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       externalBillingReviewed: false,
       externalReviewRequired: false,
       sourceFiles: [
-        "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
         "src/app/api/analytics/ingest/route.ts",
       ],
       evidence: [
@@ -271,7 +270,6 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       externalBillingReviewed: false,
       externalReviewRequired: true,
       sourceFiles: [
-        "agent/state/final-cost-audit-lock.generated.json",
         "agent/state/scheduled-runtime-cost-reduction.generated.json",
       ],
       evidence: [
@@ -293,7 +291,6 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       externalBillingReviewed: false,
       externalReviewRequired: false,
       sourceFiles: [
-        "agent/state/final-cost-audit-lock.generated.json",
         "agent/state/admin-analytics-debug-cost-reduction.generated.json",
         "src/app/admin/debug/page.tsx",
       ],

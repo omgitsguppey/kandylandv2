@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -229,10 +230,7 @@ export function validateDailyTaskGuidanceRouteAuditReport(
     failures.push("debug task guidance health lane missing.");
   }
 
-  const dirtyFiles = input.dirtyFiles ?? [
-    ...gitOutput("git diff --name-only").split(/\r?\n/u).filter(Boolean),
-    ...gitOutput("git ls-files --others --exclude-standard").split(/\r?\n/u).filter(Boolean),
-  ];
+  const dirtyFiles = input.dirtyFiles ?? listValidatorScopeFiles();
   const protectedFilesChanged = dirtyFiles
     .filter((path) =>
       /^src\/app\/dashboard\/chat/u.test(path)
@@ -261,10 +259,7 @@ export function buildDailyTaskGuidanceValidatorReport(input: {
   dirtyFiles?: string[];
 } = {}): DailyTaskGuidanceValidatorReport {
   const currentHead = input.currentHead ?? (gitOutput("git rev-parse HEAD") || "unknown");
-  const dirtyFiles = input.dirtyFiles ?? [
-    ...gitOutput("git diff --name-only").split(/\r?\n/u).filter(Boolean),
-    ...gitOutput("git ls-files --others --exclude-standard").split(/\r?\n/u).filter(Boolean),
-  ];
+  const dirtyFiles = input.dirtyFiles ?? listValidatorScopeFiles();
   const dirtyFilesClassified = dirtyFiles.every((path) => classifyDailyTaskGuidanceDirtyFile(path) !== "unsafe_unknown");
   const report = buildDailyTaskGuidanceAuditReport({
     generatedAtUtc: input.generatedAtUtc,
@@ -307,7 +302,7 @@ export function buildDailyTaskGuidanceValidatorReport(input: {
 function main() {
   const finalReport = buildDailyTaskGuidanceValidatorReport();
 
-  writeText(REPORT_PATH, `${JSON.stringify(finalReport, null, 2)}\n`);
+  writeText(REPORT_PATH, `${JSON.stringify(withValidatorMutationScope(finalReport), null, 2)}\n`);
   writeText(DOC_PATH, buildDoc(finalReport));
 
   if (finalReport.validationFailures.length > 0) {

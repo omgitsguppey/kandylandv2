@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -29,9 +30,7 @@ function commandOutput(command: string) {
 }
 
 function dirtyFiles() {
-  const tracked = commandOutput("git diff --name-only").split(/\r?\n/u).filter(Boolean);
-  const untracked = commandOutput("git ls-files --others --exclude-standard").split(/\r?\n/u).filter(Boolean);
-  return [...new Set([...tracked, ...untracked])].sort();
+  return listValidatorScopeFiles();
 }
 
 function classifyDirtyFile(filePath: string) {
@@ -301,7 +300,7 @@ const report: MediaUploadLifecycleReport = {
 
 mkdirSync(path.dirname(STATE_PATH), { recursive: true });
 mkdirSync(path.dirname(DOC_PATH), { recursive: true });
-writeFileSync(STATE_PATH, `${JSON.stringify(report, null, 2)}\n`);
+writeFileSync(STATE_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
 writeFileSync(DOC_PATH, buildMarkdown(report));
 
 if (report.status !== "pass") {

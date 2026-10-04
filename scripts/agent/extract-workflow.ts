@@ -52,26 +52,12 @@ function inferIntendedAgents(repoPath: string) {
 export function buildWorkflowGuidance() {
   const workflowFiles = ["AGENTS.md"];
   const workflowDirectory = path.join(ROOT, ".agent", "workflows");
-  const julesDirectory = path.join(ROOT, ".jules");
-  const upperJulesDirectory = path.join(ROOT, ".Jules");
   const vscodeDirectory = path.join(ROOT, ".vscode");
 
   if (existsSync(workflowDirectory) && statSync(workflowDirectory).isDirectory()) {
     readdirSync(workflowDirectory)
       .filter((entry) => statSync(path.join(workflowDirectory, entry)).isFile())
       .forEach((entry) => workflowFiles.push(`.agent/workflows/${entry}`));
-  }
-
-  if (existsSync(julesDirectory) && statSync(julesDirectory).isDirectory()) {
-    readdirSync(julesDirectory)
-      .filter((entry) => statSync(path.join(julesDirectory, entry)).isFile())
-      .forEach((entry) => workflowFiles.push(`.jules/${entry}`));
-  }
-
-  if (existsSync(upperJulesDirectory) && statSync(upperJulesDirectory).isDirectory()) {
-    readdirSync(upperJulesDirectory)
-      .filter((entry) => statSync(path.join(upperJulesDirectory, entry)).isFile())
-      .forEach((entry) => workflowFiles.push(`.Jules/${entry}`));
   }
 
   if (existsSync(vscodeDirectory) && statSync(vscodeDirectory).isDirectory()) {
@@ -85,7 +71,7 @@ export function buildWorkflowGuidance() {
       const normalized = entry.replace(/\\/g, "/");
       const dedupeKey = normalized.toLowerCase();
       if (!paths.has(dedupeKey)) {
-        paths.set(dedupeKey, normalized.startsWith(".Jules/") ? normalized.replace(/^\.Jules\//, ".jules/") : normalized);
+        paths.set(dedupeKey, normalized);
       }
       return paths;
     }, new Map<string, string>()).values(),
@@ -104,7 +90,7 @@ export function buildWorkflowGuidance() {
   });
 
   return {
-    ...createMetadata(["AGENTS.md", ".agent/workflows/*", ".jules/*", ".Jules/*", ".vscode/*"]),
+    ...createMetadata(["AGENTS.md", ".agent/workflows/*", ".vscode/*"]),
     files,
   };
 }

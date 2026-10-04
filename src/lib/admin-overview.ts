@@ -35,10 +35,10 @@ export type PlatformPulseMetric = {
         | "gumdropsCirculation30d"
         | "supportBugs30d";
     label: string;
-    primaryValue: string | number;
+    primaryValue: string | number | null;
     primaryScope: "rolling_30d";
-    current30dValue: number;
-    prior30dValue: number;
+    current30dValue: number | null;
+    prior30dValue: number | null;
     deltaPct: number | null;
     deltaLabel: string;
     sourceTruth: "server_transaction" | "user_doc" | "entitlement_rollup" | "materialized_summary" | "bounded_aggregate" | "telemetry" | "legacy" | "mixed" | "unknown";
@@ -352,14 +352,15 @@ function buildPulseMetric(input: {
     const delta = calculatePlatformPulseDelta(input.current, input.prior);
     const formattedDelta = formatPlatformPulseDelta(delta);
     const warnings = input.warnings ?? [];
-    const issueState: PlatformPulseMetric["issueState"] = warnings.length > 0
-        ? "review"
-        : input.freshnessState === "stale"
-            ? "stale"
-            : input.freshnessState === "blocked"
-                ? "blocked"
-                : input.freshnessState === "unavailable" || input.freshnessState === "unknown"
-                    ? "unavailable"
+    const unavailable = input.freshnessState === "unavailable" || input.freshnessState === "unknown";
+    const issueState: PlatformPulseMetric["issueState"] = unavailable
+        ? "unavailable"
+        : input.freshnessState === "blocked"
+            ? "blocked"
+            : warnings.length > 0
+                ? "review"
+                : input.freshnessState === "stale"
+                    ? "stale"
                     : input.freshnessState === "review"
                         ? "review"
                         : "ok";
@@ -367,17 +368,17 @@ function buildPulseMetric(input: {
     return {
         id: input.id,
         label: input.label,
-        primaryValue: input.primaryValue,
+        primaryValue: unavailable ? null : input.primaryValue,
         primaryScope: "rolling_30d",
-        current30dValue: input.current,
-        prior30dValue: input.prior,
-        deltaPct: delta.percentChange,
-        deltaLabel: formattedDelta.ariaLabel,
+        current30dValue: unavailable ? null : input.current,
+        prior30dValue: unavailable ? null : input.prior,
+        deltaPct: unavailable ? null : delta.percentChange,
+        deltaLabel: unavailable ? "Comparison unavailable" : formattedDelta.ariaLabel,
         sourceTruth: input.sourceTruth,
         freshnessState: input.freshnessState,
         issueState,
         warnings,
-        ...(input.metadata ? { metadata: input.metadata } : {}),
+        ...(input.metadata && !unavailable ? { metadata: input.metadata } : {}),
     };
 }
 
@@ -436,7 +437,7 @@ export function buildAdminOverviewPlatformPulse(input: BuildAdminOverviewPlatfor
             current: gumdropCurrentTotal,
             prior: gumdropPriorTotal,
             sourceTruth: input.gumdrops.sourceMode === "bounded_aggregate" ? "bounded_aggregate" : "materialized_summary",
-            freshnessState: input.gumdrops.sourceMode === "summary_missing" ? "review" : input.freshnessState,
+            freshnessState: input.gumdrops.sourceMode === "summary_missing" ? "unavailable" : input.freshnessState,
             warnings: warnings.gumdropsCirculation30d,
             metadata: {
                 ...input.gumdrops.current,
@@ -456,7 +457,7 @@ export function buildAdminOverviewPlatformPulse(input: BuildAdminOverviewPlatfor
             current: supportBugsCurrentTotal,
             prior: supportBugsPriorTotal,
             sourceTruth: input.supportBugs.sourceMode === "materialized_summary" ? "materialized_summary" : "bounded_aggregate",
-            freshnessState: input.supportBugs.sourceMode === "summary_missing" ? "review" : input.freshnessState,
+            freshnessState: input.supportBugs.sourceMode === "summary_missing" ? "unavailable" : input.freshnessState,
             warnings: warnings.supportBugs30d,
             metadata: {
                 ...input.supportBugs.current,

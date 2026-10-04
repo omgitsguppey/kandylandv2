@@ -1,8 +1,10 @@
+import { readSessionMeasurementFromParams } from "@/lib/analytics/session-metrics-contract";
 import { normalizeTelemetryEventName } from "@/lib/telemetry-catalog";
 import { normalizeGlobalUserMetric } from "@/lib/analytics/global-user-dedupe-engine";
 import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
 
 import {
+  BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS,
   BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS,
   BEHAVIORAL_EVENT_LABELS,
   type BehavioralEventEntityType,
@@ -19,6 +21,12 @@ type ActionAliasConfig = {
 };
 
 const ACTION_ALIASES: Record<string, ActionAliasConfig> = {
+  semantic_page_viewed: { normalizedAction: "page_viewed", entityType: "page", entityKeys: ["route", "page_path", "pagePath"] },
+  semantic_target_clicked: { normalizedAction: "target_clicked", entityType: "page", entityKeys: ["target_id", "targetId", "source_component", "sourceComponent", "route"] },
+  semantic_page_engaged: { normalizedAction: "page_engaged", entityType: "page", entityKeys: ["route", "page_path", "pagePath"] },
+  semantic_page_passive: { normalizedAction: "page_passive", entityType: "page", entityKeys: ["route", "page_path", "pagePath"] },
+  semantic_page_bounced: { normalizedAction: "page_bounced", entityType: "page", entityKeys: ["route", "page_path", "pagePath"] },
+  semantic_page_exited: { normalizedAction: "page_exited", entityType: "page", entityKeys: ["route", "page_path", "pagePath"] },
   home_page_viewed: { normalizedAction: "home_viewed", entityType: "page", entityKeys: ["route", "page_path", "pagePath"] },
   session_started: { normalizedAction: "session_started", entityType: "page", entityKeys: ["session_id", "sessionId"] },
   session_activity_tick: { normalizedAction: "session_activity_tick", entityType: "page", entityKeys: ["session_id", "sessionId"] },
@@ -250,8 +258,15 @@ function readOptionalString(source: Record<string, unknown>, ...keys: string[]) 
 }
 
 function readOptionalNumber(source: Record<string, unknown>, ...keys: string[]) {
-  const value = readNumber(source, ...keys);
-  return Number.isFinite(value) ? value : undefined;
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim()) {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return undefined;
 }
 
 function normalizeRoute(route: string) {
@@ -435,9 +450,10 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
 
   const valueUsd = readNumber({ valueUsd: input.valueUsd, ...merged }, "valueUsd", "value_usd", "gross_revenue_usd", "grossRevenueUsd", "amount_usd", "amountUsd", "price_usd", "priceUsd");
   const gumDropsAmount = readNumber({ gumDropsAmount: input.gumDropsAmount, ...merged }, "gumDropsAmount", "gumdrops_amount", "delivered_gumdrops", "deliveredGumDrops", "paid_gumdrops", "paidGumDrops", "amount");
-  const durationMs = readNumber(merged, "duration_ms", "durationMs", "watch_duration_ms", "watchDurationMs", "session_duration_ms", "sessionDurationMs");
-  const activeMs = readNumber(merged, "active_ms", "activeMs", "active_watch_ms", "activeWatchMs", "active_session_ms", "activeSessionMs");
+  const durationMs = readOptionalNumber(merged, "duration_ms", "durationMs", "watch_duration_ms", "watchDurationMs", "session_duration_ms", "sessionDurationMs");
+  const activeMs = readOptionalNumber(merged, ...BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS);
 
+  const sessionMeasurement = readSessionMeasurementFromParams(merged);
   const factWithoutDedupe: Omit<BehavioralEventFact, "dedupeKey"> = {
     eventId,
     ...(userId ? { userId } : {}),
@@ -464,8 +480,9 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
     ...(readOptionalString(merged, "day_key", "dayKey") ? { dayKey: readOptionalString(merged, "day_key", "dayKey") } : {}),
     ...(valueUsd > 0 ? { valueUsd } : {}),
     ...(gumDropsAmount > 0 ? { gumDropsAmount: Math.round(gumDropsAmount) } : {}),
-    ...(durationMs > 0 ? { durationMs: Math.round(durationMs) } : {}),
-    ...(activeMs > 0 ? { activeMs: Math.round(activeMs) } : {}),
+    ...(durationMs !== undefined && durationMs >= 0 ? { durationMs: Math.round(durationMs) } : {}),
+    ...(activeMs !== undefined && activeMs >= 0 ? { activeMs: Math.round(activeMs) } : {}),
+    ...(sessionMeasurement ? { sessionMeasurement } : {}),
     ...(readOptionalString(merged, "reason_code", "reasonCode", "security_reason", "securityReason", "error_code", "errorCode") ? { reasonCode: readOptionalString(merged, "reason_code", "reasonCode", "security_reason", "securityReason", "error_code", "errorCode") } : {}),
     source,
     sourceTruth: source,

@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -20,7 +21,7 @@ import { validateSurfaceStateRegistry } from "@/lib/parity/surface-state-contrac
 import { SURFACE_STATE_REGISTRY } from "@/lib/parity/surface-state-resolver";
 import { ROLE_PERMISSION_IDS, ROLE_PERMISSION_ROLES, validateRolePermissionRegistry } from "@/lib/parity/role-permission-contract";
 import { ROLE_PERMISSION_REGISTRY } from "@/lib/parity/role-permission-resolver";
-import { listWorkingTreeFiles, readRepoToolchainState } from "./shared";
+import { readRepoToolchainState } from "./shared";
 
 export type FinalParityTelemetryLockDirtyClassification =
   | "current_generated_artifact_to_commit"
@@ -676,10 +677,10 @@ ${report.validationFailures.length === 0 ? "- No validation failures." : report.
 }
 
 function main() {
-  const dirtyFiles = listWorkingTreeFiles();
+  const dirtyFiles = listValidatorScopeFiles();
   const report = buildFinalParityTelemetryLockReport({ dirtyFiles });
   fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
-  fs.writeFileSync(STATE_PATH, `${JSON.stringify(report, null, 2)}\n`);
+  fs.writeFileSync(STATE_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
   writeDoc(report);
   if (report.validationFailures.length > 0) {
     console.error(`final parity telemetry lock failed:\n${report.validationFailures.map((failure) => `- ${failure}`).join("\n")}`);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T00:56:39.265Z",
+  "generatedAt": "2026-08-29T05:45:49.173Z",
   "version": 1,
   "surface": "code-organization",
   "researchBasis": [
@@ -251,62 +251,62 @@
     "topRefactorTargets": [
       {
         "filePath": "src/app/api/admin/debug/route.ts",
-        "lines": 6361,
+        "lines": 7062,
         "classification": "routeHandler",
         "severity": "critical"
       },
       {
         "filePath": "src/components/Chat/ChatExperience.tsx",
-        "lines": 3523,
+        "lines": 4980,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/lib/analytics/recovery-timeline-spine.ts",
+        "lines": 4402,
+        "classification": "source",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "lines": 3292,
         "classification": "component",
         "severity": "critical"
       },
       {
         "filePath": "src/app/api/admin/users/route.ts",
-        "lines": 3148,
+        "lines": 3145,
         "classification": "routeHandler",
         "severity": "critical"
       },
       {
-        "filePath": "src/lib/server/ai-drop-covers.ts",
-        "lines": 2874,
-        "classification": "serverHelper",
-        "severity": "critical"
-      },
-      {
-        "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "lines": 2865,
-        "classification": "component",
-        "severity": "critical"
-      },
-      {
         "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
-        "lines": 2581,
+        "lines": 3043,
         "classification": "validator",
         "severity": "critical"
       },
       {
-        "filePath": "functions/src/behavioral-intelligence-runtime.ts",
-        "lines": 2381,
+        "filePath": "src/lib/server/ai-drop-covers.ts",
+        "lines": 2865,
         "classification": "serverHelper",
         "severity": "critical"
       },
       {
-        "filePath": "src/lib/creator-onboarding.ts",
-        "lines": 1947,
+        "filePath": "functions/src/behavioral-intelligence-runtime.ts",
+        "lines": 2564,
+        "classification": "serverHelper",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/lib/agent-score/core.ts",
+        "lines": 2500,
         "classification": "source",
         "severity": "critical"
       },
       {
-        "filePath": "src/lib/server/daily-tasks.ts",
-        "lines": 1867,
-        "classification": "serverHelper",
-        "severity": "critical"
-      },
-      {
-        "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
-        "lines": 1808,
-        "classification": "serverHelper",
+        "filePath": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "lines": 2320,
+        "classification": "component",
         "severity": "critical"
       }
     ],

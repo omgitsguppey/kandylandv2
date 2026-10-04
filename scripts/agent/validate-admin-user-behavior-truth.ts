@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { inspectAdminUsersStatsTruth } from "./validate-admin-users-stats-grid";
 
 const root = process.cwd();
 
@@ -35,10 +36,9 @@ const debugTabActions = read("src/app/admin/debug/components/DebugTabActions.tsx
 const watchTruthValidator = read("scripts/agent/validate-watch-time-rollup-truth.ts");
 const behaviorValidator = read("scripts/agent/validate-behavioral-intelligence-confidence.ts");
 const actionValidator = read("scripts/agent/validate-user-action-ledger-events.ts");
-const statsGridValidator = read("scripts/agent/validate-admin-users-stats-grid.ts");
 const loadingLanesValidator = read("scripts/agent/validate-admin-users-loading-lanes.ts");
 
-const failures: string[] = [];
+const failures: string[] = [...inspectAdminUsersStatsTruth().failures];
 
 [
   "totalUsers",
@@ -72,21 +72,10 @@ assert(
   "Admin overview must read the canonical admin user metrics snapshot.",
   failures,
 );
-assert(usersPage.includes('data-admin-users-stats-layout="compact-grid"'), "User Management stats grid must keep the compact layout marker.", failures);
-assert(statsGridValidator.includes('data-admin-users-stats-layout="compact-grid"'), "Stats-grid validator must enforce the compact layout marker.", failures);
 assert(loadingLanesValidator.includes('authFetch("/api/admin/users?mode=summary")'), "Loading-lanes validator must enforce the separate summary lane.", failures);
 
 assert(!usersPage.includes('value: summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]"'), "User Management Watch card must not fall back to a huge [unavailable] value.", failures);
 assert(!usersPage.includes('formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]"'), "Summary metric cards must not hide the compact grid behind [unavailable] placeholders.", failures);
-assert(usersPage.includes("data-admin-users-metric-state"), "User Management metric cards must expose data-admin-users-metric-state.", failures);
-assert(usersPage.includes("data-admin-users-metric-source"), "User Management metric cards must expose data-admin-users-metric-source.", failures);
-assert(usersPage.includes("data-admin-users-kpi-id"), "User Management KPI cards must expose data-admin-users-kpi-id.", failures);
-assert(usersPage.includes("data-admin-users-kpi-source-truth"), "User Management KPI cards must expose data-admin-users-kpi-source-truth.", failures);
-assert(usersPage.includes("data-admin-users-kpi-freshness"), "User Management KPI cards must expose data-admin-users-kpi-freshness.", failures);
-assert(usersPage.includes("data-admin-users-kpi-scope"), "User Management KPI cards must expose data-admin-users-kpi-scope.", failures);
-assert(usersPage.includes("data-admin-users-kpi-reason"), "User Management KPI cards must expose data-admin-users-kpi-reason.", failures);
-assert(usersPage.includes("data-admin-users-kpi-generated-at-utc"), "User Management KPI cards must expose data-admin-users-kpi-generated-at-utc.", failures);
-assert(usersPage.includes("(summary?.kpiCards ?? []).map"), "User Management must render KPI cards from the canonical summary contract.", failures);
 assert(!usersPage.includes("tracked purchases"), "User Management must not show purchase counts inside the Unwraps card.", failures);
 assert(usersPage.includes("Top behavior users"), "User Management must render the behavior leaderboard title.", failures);
 assert(usersPage.includes("Ranked by engagement, value, recency, and confidence."), "User Management must explain leaderboard ranking semantics.", failures);

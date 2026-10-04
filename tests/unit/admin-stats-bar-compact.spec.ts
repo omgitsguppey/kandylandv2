@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
@@ -41,8 +41,6 @@ describe("AdminStatsBar compact platform pulse", () => {
     expect(container.querySelectorAll("[data-admin-metric-id]")).toHaveLength(6);
     expect(container.querySelector("[data-admin-metric-source]")).toBeNull();
     expect(container.querySelectorAll("[data-admin-metric-freshness]")).toHaveLength(6);
-    expect(container.querySelector("[data-admin-platform-pulse-grid]")?.className).toContain("grid-cols-2");
-    expect(container.querySelector("[data-admin-platform-pulse-grid]")?.className).toContain("md:grid-cols-3");
 
     expect(screen.getByText("Users")).toBeTruthy();
     expect(screen.getByText("Purchases")).toBeTruthy();
@@ -83,5 +81,45 @@ describe("AdminStatsBar compact platform pulse", () => {
 
     expect(container.querySelector("[data-admin-truth-state='cached']")).toBeTruthy();
     expect(screen.getByText("Cached")).toBeTruthy();
+  });
+
+  it("does not display placeholder numbers or trends when a source is missing, even with legacy review warnings", () => {
+    const { container } = render(React.createElement(AdminStatsBar, {
+      platformPulse: metrics.map((metric) => ({ ...metric, primaryValue: 0, current30dValue: 0, prior30dValue: 0, freshnessState: "unavailable", issueState: "review", warnings: ["Snapshot missing"] })),
+      truthState: "unavailable",
+      overviewIssues: [{ source: "analytics_cache", summary: "Snapshot missing", sourceTruth: "materialized_summary", freshnessState: "unknown" }],
+    }));
+    const cards = container.querySelectorAll("[data-admin-metric-id]");
+    for (const card of cards) {
+      expect(within(card as HTMLElement).getByText("Unavailable")).toBeTruthy();
+      expect(within(card as HTMLElement).queryByText("0")).toBeNull();
+      expect(within(card as HTMLElement).queryByText("0%")).toBeNull();
+      expect(card.textContent).not.toMatch(/Source disagreement/i);
+      expect(card.querySelector("[data-admin-metric-card-has-value='false']")).toBeTruthy();
+    }
+    expect(container.querySelector("details")?.open).toBe(false);
+  });
+
+  it("keeps observed zero and its valid zero-to-zero comparison visible", () => {
+    const { container } = render(React.createElement(AdminStatsBar, {
+      platformPulse: [{ ...metrics[0], primaryValue: 0, current30dValue: 0, prior30dValue: 0 }],
+      truthState: "live",
+    }));
+    const card = container.querySelector("[data-admin-metric-id='accounts']") as HTMLElement;
+    expect(within(card).getByText("0")).toBeTruthy();
+    expect(within(card).getByText("0%")).toBeTruthy();
+    expect(within(card).queryByText("Unavailable")).toBeNull();
+  });
+  it("keeps complete source issues reachable through the native disclosure", () => {
+    const issue = { source: "analytics_cache", summary: "Admin overview hot-cache snapshot is missing.", sourceTruth: "materialized_summary", freshnessState: "unknown" };
+    const { container } = render(React.createElement(AdminStatsBar, { platformPulse: metrics, overviewIssues: [issue], truthState: "cached" }));
+    const details = container.querySelector("details") as HTMLDetailsElement;
+    const summary = within(details).getByText("Source details (1)");
+    expect(details.open).toBe(false);
+    fireEvent.click(summary);
+    expect(details.open).toBe(true);
+    expect(within(details).getByText("analytics_cache: Admin overview hot-cache snapshot is missing.")).toBeTruthy();
+    fireEvent.click(summary);
+    expect(details.open).toBe(false);
   });
 });

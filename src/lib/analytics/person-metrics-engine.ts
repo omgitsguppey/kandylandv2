@@ -289,15 +289,23 @@ function scopeInput(candidate: PersonMetricCandidate) {
   };
 }
 
+
+export function buildObservedSessionMetricKey(sessionId: unknown): string | null {
+  return typeof sessionId === "string" && sessionId.trim() ? "session:" + sessionId.trim() : null;
+}
+
 function scopeDecisionsFor(candidate: PersonMetricCandidate): PersonMetricCountDecision["scopeDecisions"] {
   const input = scopeInput(candidate);
-  return {
+  const decisions = {
     global: calculateGlobalCountDecision(input),
     guest: calculateGuestCountDecision(input),
     signedIn: calculateSignedInCountDecision(input),
     linkedPerson: calculateLinkedPersonCountDecision(input),
     creatorRole: calculateCreatorRoleCountDecision(input),
   };
+  const sessionKey = candidate.metricId === "sessions" ? buildObservedSessionMetricKey(candidate.sessionId) : null;
+  if (sessionKey) for (const decision of Object.values(decisions)) decision.dedupeKey = sessionKey;
+  return decisions;
 }
 
 function withExplanation(decision: PersonMetricCountDecision): PersonMetricCountDecision {

@@ -57,6 +57,9 @@ type NormalizeInput = {
   includeInUserBehavior: boolean;
   actorType?: string;
   actorLane?: string;
+  actorUserId?: string;
+  actorCreatorId?: string;
+  actorAdminId?: string;
   sourceTruth?: IdentifiedMetricSourceTruth;
 };
 
@@ -242,11 +245,11 @@ export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): Ident
     || input.eventName === "notifications_dropdown_opened"
     || input.eventName === "notification_mark_all_read"
     || input.eventName === "notification_cleared";
-  const actorAdminId = readString(params, "actor_admin_id", "actorAdminId", "admin_id", "adminId");
-  const actorCreatorId = input.actorType === "creator"
+  const actorAdminId = input.actorAdminId !== undefined ? input.actorAdminId : readString(params, "actor_admin_id", "actorAdminId", "admin_id", "adminId");
+  const actorCreatorId = input.actorCreatorId !== undefined ? input.actorCreatorId : input.actorType === "creator"
     ? (readString(params, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid", "user_id", "userId") || input.callerUid)
     : "";
-  const actorUserId = input.actorType === "user" || (!actorAdminId && !actorCreatorId)
+  const actorUserId = input.actorUserId !== undefined ? input.actorUserId : input.actorType === "user" || (!actorAdminId && !actorCreatorId)
     ? (readString(
       params,
       "actor_user_id",

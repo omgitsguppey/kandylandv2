@@ -13,6 +13,8 @@ This constitution is the highest human doctrine for product, business, user-loop
 
 ## Brand And Copy
 
+- The owner selected a whole-site redesign toward Apple's visual style on 2026-10-02. The canonical visual and interaction rules live in `surfaces/shared-brand-primitives.md`; User, Creator and Admin retain their own task and truth priorities. This selection changes the visual direction, not payment, permission, entitlement, maintenance or analytics authority.
+
 - KandyDrops uses direct, human, high-trust copy. Avoid generic SaaS filler and fake urgency.
 - Product copy may be playful, but payment, security, support, unlock, and account states must be precise.
 - Use approved vocabulary: GumDrops, Drops, unlocks, creators, fan experiences, and support tickets.

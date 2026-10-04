@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T14:58:35.050Z",
+  "generatedAt": "2026-10-04T00:38:43.751Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -60,7 +60,7 @@
         "build:agent-context",
         "check:affected-audit-router"
       ],
-      "lastUpdated": "2026-07-14T09:09:59.869Z",
+      "lastUpdated": "2026-10-02T02:56:30.527Z",
       "sourceDoc": "docs/agent-truth/compact-agent-context.md",
       "priority": "high",
       "tokenEstimate": 233

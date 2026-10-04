@@ -5,6 +5,8 @@ import {FieldPath, FieldValue} from "firebase-admin/firestore"
 import {AnalyticsEventFact, readString, readNumber, readBoolean} from "./analytics-core.js"
 import {db} from "./firebase-admin.js"
 import {logger} from "firebase-functions"
+import {runIfMaintenanceAllows} from "./maintenance-job-guard.js"
+import {MAINTENANCE_SCHEDULES} from "../../shared/runtime/maintenance-mode-contract.js"
 
 // First-party canonical event dataset. Missing env means BigQuery evidence is unavailable, not zero traffic.
 const DEFAULT_DATASET_ID = "kandydrops_canonical_analytics"
@@ -363,19 +365,22 @@ export async function runBigQueryRawEventsExportWindow(eventId: string, nowMs = 
 }
 
 export const scheduledBigQueryRawEventsExport = onSchedule({
-  schedule: "0 4 * * *",
+  schedule: MAINTENANCE_SCHEDULES.scheduledBigQueryRawEventsExport.schedule,
   region: REGION,
+  maxInstances: MAINTENANCE_SCHEDULES.scheduledBigQueryRawEventsExport.maxInstances,
   retryCount: 0,
 }, async () => {
-  try {
-    await runBigQueryRawEventsExportWindow("scheduled_daily_bigquery_raw_events", Date.now())
-  } catch (error) {
-    await recordBigQueryExportStatus({
-      eventId: "scheduled_daily_bigquery_raw_events",
-      status: "fail",
-      error,
-      windowEndMs: Date.now(),
-    })
-    logger.error("[BigQuery Export] Scheduled daily raw-events export failed:", error)
-  }
+  await runIfMaintenanceAllows(async () => {
+    try {
+      await runBigQueryRawEventsExportWindow("scheduled_daily_bigquery_raw_events", Date.now())
+    } catch (error) {
+      await recordBigQueryExportStatus({
+        eventId: "scheduled_daily_bigquery_raw_events",
+        status: "fail",
+        error,
+        windowEndMs: Date.now(),
+      })
+      logger.error("[BigQuery Export] Scheduled daily raw-events export failed:", error)
+    }
+  })
 })

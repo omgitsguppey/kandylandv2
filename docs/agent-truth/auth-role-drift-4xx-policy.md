@@ -1,7 +1,7 @@
 # auth-role-drift-4xx-policy
 
-Generated: 2026-05-27T06:24:51.490Z
-Current head: 8cedd1be76a9d43846a5ba9ace354d1b21d3ef48
+Generated: 2026-10-03T05:23:31.005Z
+Current head: 1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8
 Status: pass
 
 ## Summary

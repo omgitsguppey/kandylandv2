@@ -1,11 +1,15 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import { FieldValue } from "firebase-admin/firestore";
 
 import {
   type AdminMetricSnapshot,
   type AdminMetricSnapshotRange,
   buildAdminMetricSnapshotDocId,
+  createUnavailableAdminMetricSnapshot,
+  isAdminMetricSnapshotRange,
   normalizeAdminMetricSnapshotRefreshFields,
   resolveAdminMetricRefreshCacheDisplayState,
   resolveAdminMetricSnapshotSourceMode,
@@ -16,7 +20,13 @@ import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-govern
 import { adminDb } from "@/lib/server/firebase-admin";
 
 const REFRESH_LOCK_TTL_MS = 2 * 60 * 1000;
-const inFlightRefreshes = new Map<string, Promise<AdminMetricSnapshot>>();
+export type SnapshotRefreshLease = { token: string; version: number };
+const inFlightRefreshes = new Map<string, { promise: Promise<AdminMetricSnapshot>; leaseToken: string | null }>();
+
+function ownsRefreshLease(data: FirebaseFirestore.DocumentData | undefined, lease?: SnapshotRefreshLease) {
+  return Boolean(lease && data?.refreshStatus === "refreshing"
+    && data.refreshLeaseToken === lease.token && data.refreshLeaseVersion === lease.version);
+}
 
 function collectionRef() {
   return adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.adminMetricSnapshots);
@@ -31,6 +41,24 @@ function toSnapshot(data: FirebaseFirestore.DocumentData | undefined): AdminMetr
     return null;
   }
 
+  const hasSnapshotBody = data.values && typeof data.values === "object" && !Array.isArray(data.values)
+    && Object.values(data.values).every((metric) => metric && typeof metric === "object")
+    && Array.isArray(data.parity) && Array.isArray(data.warnings) && typeof data.generatedAt === "string";
+  if (!hasSnapshotBody) {
+    const unavailable = createUnavailableAdminMetricSnapshot({
+      moduleKey: typeof data.moduleKey === "string" ? data.moduleKey : "unknown",
+      rangeKey: isAdminMetricSnapshotRange(data.rangeKey) ? data.rangeKey : "24h",
+      reason: "No verified display snapshot exists for this refresh reservation.",
+      generatedAt: "",
+    });
+    return normalizeAdminMetricSnapshotRefreshFields({
+      ...unavailable, ...data,
+      values: {}, generatedAt: "", lastVerifiedAt: null, expiresAt: null,
+      confidence: 0, truthState: "unavailable", sourceMode: "unavailable", sourceVersion: "unverified",
+      warnings: unavailable.warnings, parity: unavailable.parity,
+      unavailableReason: unavailable.unavailableReason,
+    } as AdminMetricSnapshot);
+  }
   return normalizeAdminMetricSnapshotRefreshFields(data as AdminMetricSnapshot);
 }
 
@@ -39,9 +67,16 @@ export async function getAdminMetricSnapshot(moduleKey: string, rangeKey: AdminM
   return toSnapshot(doc.data());
 }
 
-export async function getLatestVerifiedSnapshot(moduleKey: string, rangeKey: AdminMetricSnapshotRange) {
-  const snapshot = await getAdminMetricSnapshot(moduleKey, rangeKey);
-  if (!snapshot || !snapshot.lastVerifiedAt) {
+export async function getLatestVerifiedSnapshot(
+  moduleKey: string,
+  rangeKey: AdminMetricSnapshotRange,
+  sourceSnapshot?: AdminMetricSnapshot | null,
+) {
+  const snapshot = sourceSnapshot === undefined
+    ? await getAdminMetricSnapshot(moduleKey, rangeKey)
+    : sourceSnapshot;
+  if (!snapshot || !snapshot.values || !snapshot.lastVerifiedAt || snapshot.moduleKey !== moduleKey || snapshot.rangeKey !== rangeKey
+    || snapshot.truthState === "unavailable" || snapshot.truthState === "failed" || validateAdminMetricSnapshot(snapshot).length > 0) {
     return null;
   }
 
@@ -76,103 +111,125 @@ export async function markSnapshotRefreshStarted(input: {
   force?: boolean;
 }) {
   const key = snapshotKey(input.moduleKey, input.rangeKey);
-  const existing = await getAdminMetricSnapshot(input.moduleKey, input.rangeKey);
-  const duplicateRefreshPrevented = !input.force && shouldPreventSnapshotRefreshStorm({
-    refreshStatus: existing?.refreshStatus,
-    refreshStartedAt: existing?.refreshStartedAt,
-    lockTtlMs: REFRESH_LOCK_TTL_MS,
-  });
-
-  if (duplicateRefreshPrevented) {
-    return {
-      refreshStatus: "duplicate_prevented" as const,
-      duplicateRefreshPrevented: true,
-      snapshot: existing,
-    };
-  }
-
   const refreshStartedAt = new Date().toISOString();
-  await collectionRef().doc(key).set({
-    moduleKey: input.moduleKey,
-    rangeKey: input.rangeKey,
-    refreshStatus: "refreshing",
-    lastRefreshRequestedAt: refreshStartedAt,
-    lastRefreshStartedAt: refreshStartedAt,
-    refreshStartedAt,
-    refreshCompletedAt: null,
-    refreshError: null,
-    duplicateRefreshPrevented: false,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
-
-  return {
-    refreshStatus: "refreshing" as const,
-    duplicateRefreshPrevented: false,
-    refreshStartedAt,
-    snapshot: existing,
-  };
+  const token = randomUUID();
+  const ref = collectionRef().doc(key);
+  return adminDb.runTransaction(async (transaction) => {
+    const document = await transaction.get(ref);
+    const data = document.data();
+    const existing = toSnapshot(data);
+    if (shouldPreventSnapshotRefreshStorm({
+      refreshStatus: data?.refreshStatus,
+      refreshStartedAt: data?.refreshStartedAt,
+      lockTtlMs: REFRESH_LOCK_TTL_MS,
+    })) {
+      return { refreshStatus: "duplicate_prevented" as const, duplicateRefreshPrevented: true, snapshot: existing, lease: null };
+    }
+    const previousVersion = Number.isSafeInteger(data?.refreshLeaseVersion) ? data!.refreshLeaseVersion as number : 0;
+    const lease: SnapshotRefreshLease = { token, version: previousVersion + 1 };
+    transaction.set(ref, {
+      moduleKey: input.moduleKey, rangeKey: input.rangeKey,
+      refreshStatus: "refreshing", lastRefreshRequestedAt: refreshStartedAt,
+      lastRefreshStartedAt: refreshStartedAt, refreshStartedAt,
+      refreshCompletedAt: null, refreshError: null, duplicateRefreshPrevented: false,
+      refreshLeaseToken: lease.token, refreshLeaseVersion: lease.version,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+    return { refreshStatus: "refreshing" as const, duplicateRefreshPrevented: false, refreshStartedAt, snapshot: existing, lease };
+  });
 }
 
 export async function markSnapshotRefreshCompleted(
   moduleKey: string,
   rangeKey: AdminMetricSnapshotRange,
   result: AdminMetricSnapshot,
+  lease?: SnapshotRefreshLease,
 ) {
+  const issues = validateAdminMetricSnapshot(result);
+  if (issues.length > 0 || result.moduleKey !== moduleKey || result.rangeKey !== rangeKey
+    || !result.lastVerifiedAt || result.truthState === "unavailable" || result.truthState === "failed") {
+    throw new Error("snapshot_refresh_invalid_display_evidence");
+  }
   const refreshCompletedAt = new Date().toISOString();
-  const existing = await getAdminMetricSnapshot(moduleKey, rangeKey);
-  const snapshot = normalizeAdminMetricSnapshotRefreshFields({
-    ...result,
-    moduleKey,
-    rangeKey,
-    refreshStatus: "completed",
-    refreshCompletedAt,
-    lastRefreshRequestedAt: result.lastRefreshRequestedAt ?? existing?.lastRefreshRequestedAt ?? existing?.lastRefreshStartedAt ?? null,
-    lastRefreshStartedAt: result.lastRefreshStartedAt ?? result.refreshStartedAt ?? existing?.lastRefreshStartedAt ?? existing?.refreshStartedAt ?? null,
-    lastRefreshCompletedAt: refreshCompletedAt,
-    lastRefreshFailedAt: null,
-    refreshError: null,
-    duplicateRefreshPrevented: false,
-    refreshVersion: (existing?.refreshVersion ?? result.refreshVersion ?? 0) + 1,
-    sourceVersion: result.sourceVersion ?? result.lastVerifiedAt ?? result.generatedAt,
-  } satisfies AdminMetricSnapshot);
+  const ref = collectionRef().doc(snapshotKey(moduleKey, rangeKey));
+  return adminDb.runTransaction(async (transaction) => {
+    const document = await transaction.get(ref);
+    const data = document.data();
+    const existing = toSnapshot(data);
+    if (!ownsRefreshLease(data, lease) || !shouldPreventSnapshotRefreshStorm({
+      refreshStatus: data?.refreshStatus, refreshStartedAt: data?.refreshStartedAt, lockTtlMs: REFRESH_LOCK_TTL_MS,
+    })) return { applied: false as const, snapshot: existing };
+    const snapshot = normalizeAdminMetricSnapshotRefreshFields({
+      ...result,
+      moduleKey,
+      rangeKey,
+      refreshStatus: "completed",
+      refreshCompletedAt,
+      lastRefreshRequestedAt: result.lastRefreshRequestedAt ?? existing?.lastRefreshRequestedAt ?? existing?.lastRefreshStartedAt ?? null,
+      lastRefreshStartedAt: result.lastRefreshStartedAt ?? result.refreshStartedAt ?? existing?.lastRefreshStartedAt ?? existing?.refreshStartedAt ?? null,
+      lastRefreshCompletedAt: refreshCompletedAt,
+      lastRefreshFailedAt: null,
+      refreshError: null,
+      duplicateRefreshPrevented: false,
+      refreshVersion: (existing?.refreshVersion ?? result.refreshVersion ?? 0) + 1,
+      sourceVersion: result.sourceVersion ?? result.lastVerifiedAt ?? result.generatedAt,
+    } satisfies AdminMetricSnapshot);
 
-  await collectionRef().doc(snapshotKey(moduleKey, rangeKey)).set({
-    ...snapshot,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+    transaction.set(ref, {
+      ...snapshot,
+      refreshLeaseToken: null,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
 
-  return snapshot;
+    return { applied: true as const, snapshot };
+  });
 }
 
 export async function markSnapshotRefreshFailed(
   moduleKey: string,
   rangeKey: AdminMetricSnapshotRange,
   error: unknown,
+  lease?: SnapshotRefreshLease,
 ) {
   const message = error instanceof Error ? error.message : String(error);
   const refreshFailedAt = new Date().toISOString();
-  await collectionRef().doc(snapshotKey(moduleKey, rangeKey)).set({
-    moduleKey,
-    rangeKey,
-    refreshStatus: "failed",
-    refreshFailedAt,
-    lastRefreshFailedAt: refreshFailedAt,
-    refreshError: message,
-    duplicateRefreshPrevented: false,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  const ref = collectionRef().doc(snapshotKey(moduleKey, rangeKey));
+  return adminDb.runTransaction(async (transaction) => {
+    const document = await transaction.get(ref);
+    if (!ownsRefreshLease(document.data(), lease)) {
+      return { applied: false, moduleKey, rangeKey, refreshStatus: "duplicate_prevented" as const, refreshFailedAt, refreshError: "snapshot_refresh_lease_lost" };
+    }
+    transaction.set(ref, {
+      moduleKey,
+      rangeKey,
+      refreshStatus: "failed",
+      refreshFailedAt,
+      lastRefreshFailedAt: refreshFailedAt,
+      refreshError: message,
+      duplicateRefreshPrevented: false,
+      refreshLeaseToken: null,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
 
-  return {
-    moduleKey,
-    rangeKey,
-    refreshStatus: "failed" as const,
-    refreshFailedAt,
-    refreshError: message,
-  };
+    return {
+      applied: true,
+      moduleKey,
+      rangeKey,
+      refreshStatus: "failed" as const,
+      refreshFailedAt,
+      refreshError: message,
+    };
+  });
 }
 
-export async function getSnapshotDebugMetadata(moduleKey: string, rangeKey: AdminMetricSnapshotRange) {
-  const snapshot = await getAdminMetricSnapshot(moduleKey, rangeKey);
+export async function getSnapshotDebugMetadata(
+  moduleKey: string,
+  rangeKey: AdminMetricSnapshotRange,
+  sourceSnapshot?: AdminMetricSnapshot | null,
+) {
+  const snapshot = sourceSnapshot === undefined
+    ? await getAdminMetricSnapshot(moduleKey, rangeKey)
+    : sourceSnapshot;
   if (!snapshot) {
     return {
       moduleKey,
@@ -232,7 +289,7 @@ export async function getSnapshotDebugMetadata(moduleKey: string, rangeKey: Admi
     blocksOnRefresh: false,
     blocksOnTimeExpiry: false,
     fakeWaitingPrevented: Boolean(snapshot.lastVerifiedAt),
-    fakeZeroPrevented: Object.values(snapshot.values).some((metric) => metric.fakeZeroPrevented === true),
+    fakeZeroPrevented: !snapshot.lastVerifiedAt || Object.values(snapshot.values).some((metric) => metric.fakeZeroPrevented === true),
     routerRefreshUsed: false,
     revalidationUsed: false,
     parityWarnings: snapshot.parity.filter((entry) => entry.status === "warn" || entry.status === "fail"),
@@ -289,7 +346,7 @@ export async function listAdminMetricSnapshotDebugMetadata(input: { limit?: numb
       blocksOnRefresh: false,
       blocksOnTimeExpiry: false,
       fakeWaitingPrevented: Boolean(data?.lastVerifiedAt),
-      fakeZeroPrevented: data ? Object.values(data.values).some((metric) => metric.fakeZeroPrevented === true) : false,
+      fakeZeroPrevented: data ? !data.lastVerifiedAt || Object.values(data.values).some((metric) => metric.fakeZeroPrevented === true) : true,
       routerRefreshUsed: false,
       revalidationUsed: false,
       parityWarnings: data?.parity?.filter((entry) => entry.status === "warn" || entry.status === "fail") ?? [],
@@ -304,25 +361,28 @@ export async function runSnapshotRefreshWithDedupe(input: {
   moduleKey: string;
   rangeKey: AdminMetricSnapshotRange;
   force?: boolean;
+  lease?: SnapshotRefreshLease;
   refresh: () => Promise<AdminMetricSnapshot>;
 }) {
   const key = snapshotKey(input.moduleKey, input.rangeKey);
   const existing = inFlightRefreshes.get(key);
-  if (existing && !input.force) {
-    const snapshot = await existing;
+  const leaseToken = input.lease?.token ?? null;
+  if (existing && existing.leaseToken === leaseToken) {
+    const snapshot = await existing.promise;
     return {
       snapshot,
       duplicateRefreshPrevented: true,
     };
   }
 
-  const refreshPromise = input.refresh()
+  const entry = { promise: null as unknown as Promise<AdminMetricSnapshot>, leaseToken };
+  entry.promise = input.refresh()
     .finally(() => {
-      inFlightRefreshes.delete(key);
+      if (inFlightRefreshes.get(key) === entry) inFlightRefreshes.delete(key);
     });
 
-  inFlightRefreshes.set(key, refreshPromise);
-  const snapshot = await refreshPromise;
+  inFlightRefreshes.set(key, entry);
+  const snapshot = await entry.promise;
 
   return {
     snapshot,

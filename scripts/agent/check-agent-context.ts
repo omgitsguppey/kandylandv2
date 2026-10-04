@@ -1,7 +1,7 @@
 import { buildAgentIndexes } from "./build-agent-indexes";
 import { buildTaskContext } from "./build-task-context";
 import { syncAgentSqlMirror } from "./sync-sql";
-import { fileExists, readJsonFile, toAbsoluteRepoPath, validateWithSchema } from "./shared";
+import { fileExists, getPackageScripts, readJsonFile, readText, toAbsoluteRepoPath, validateWithSchema } from "./shared";
 import { buildRepoInventory, type RepoInventoryEntry } from "./classify-repo-files";
 import type { SqlMirrorSyncEnvironment } from "./sync-sql";
 
@@ -23,6 +23,27 @@ function validateExistingPaths(paths: string[], label: string) {
   for (const repoPath of paths) {
     assert(fileExists(repoPath), `${label}: missing referenced path ${repoPath}`);
   }
+}
+
+export function findMissingWorkflowNpmScripts(source: string, availableScripts: Iterable<string>) {
+  const knownScripts = new Set(availableScripts);
+  return [...source.matchAll(/`npm run ([^`\s<]+)/gu)]
+    .map((match) => match[1])
+    .filter((scriptName) => !knownScripts.has(scriptName));
+}
+
+function validateWorkflowNpmScriptReferences(paths: string[]) {
+  const availableScripts = Object.keys(getPackageScripts("package.json"));
+  for (const repoPath of paths) {
+    for (const scriptName of findMissingWorkflowNpmScripts(readText(repoPath), availableScripts)) {
+      assert(false, `workflow ${repoPath}: references missing package script npm run ${scriptName}`);
+    }
+  }
+}
+
+function validateWorkflowClassification(paths: string[]) {
+  const scratchPaths = paths.filter((repoPath) => /^\.jules\//iu.test(repoPath));
+  assert(scratchPaths.length === 0, `workflow guidance must not index .jules scratch notes: ${scratchPaths.join(", ")}`);
 }
 
 export function shouldSyncAgentSqlMirrorDuringCheck(env: SqlMirrorSyncEnvironment = process.env) {
@@ -79,6 +100,8 @@ export function checkAgentContext() {
   validateExistingPaths(helpers.entries.map((entry) => entry.path), "canonical-helpers");
   validateExistingPaths(workflow.files.map((entry) => entry.path), "workflow-guidance");
   validateExistingPaths(governance.files.map((entry) => entry.path), "governance-truth");
+  validateWorkflowClassification(workflow.files.map((entry) => entry.path));
+  validateWorkflowNpmScriptReferences(workflow.files.map((entry) => entry.path));
 
   for (const pitfall of pitfalls.pitfalls) {
     validateExistingPaths(pitfall.related_helpers, `known-pitfalls:${pitfall.stable_id}`);

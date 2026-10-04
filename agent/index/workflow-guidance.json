@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T16:00:12.160Z",
+  "generatedAt": "2026-10-04T00:38:22.390Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -13,100 +13,24 @@
   "source": [
     "AGENTS.md",
     ".agent/workflows/*",
-    ".jules/*",
-    ".Jules/*",
     ".vscode/*"
   ],
   "files": [
     {
-      "stable_id": "workflow__agent__workflows__audit-hydration-md",
-      "path": ".agent/workflows/audit-hydration.md",
-      "purpose": "Workflow guidance for audit-hydration.",
-      "authorityLevel": "workflow_required",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
-    },
-    {
-      "stable_id": "workflow__agent__workflows__audit-legacy-md",
-      "path": ".agent/workflows/audit-legacy.md",
-      "purpose": "Workflow guidance for audit-legacy.",
-      "authorityLevel": "workflow_required",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
-    },
-    {
-      "stable_id": "workflow__agent__workflows__audit-performance-md",
-      "path": ".agent/workflows/audit-performance.md",
-      "purpose": "Workflow guidance for audit-performance.",
-      "authorityLevel": "workflow_advisory",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
-    },
-    {
-      "stable_id": "workflow__agent__workflows__audit-realtime-md",
-      "path": ".agent/workflows/audit-realtime.md",
-      "purpose": "Workflow guidance for audit-realtime.",
-      "authorityLevel": "workflow_required",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
-    },
-    {
-      "stable_id": "workflow__agent__workflows__audit-telemetry-md",
-      "path": ".agent/workflows/audit-telemetry.md",
-      "purpose": "Workflow guidance for audit-telemetry.",
-      "authorityLevel": "workflow_advisory",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
-    },
-    {
       "stable_id": "workflow__agent__workflows__auto-tasks-md",
       "path": ".agent/workflows/auto-tasks.md",
-      "purpose": "Auto-run standard project commands",
-      "authorityLevel": "workflow_required",
+      "purpose": "Select the smallest valid KandyDrops verification path.",
+      "authorityLevel": "workflow_advisory",
       "intendedAgents": [
         "codex"
       ],
-      "relatedPaths": [
-        "agent"
-      ]
+      "relatedPaths": []
     },
     {
       "stable_id": "workflow__agent__workflows__dependency-audit-md",
       "path": ".agent/workflows/dependency-audit.md",
-      "purpose": "Workflow guidance for dependency-audit.",
-      "authorityLevel": "workflow_required",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": [
-        "src/app/api/admin/debug/route.ts"
-      ]
-    },
-    {
-      "stable_id": "workflow__agent__workflows__dependency-truth-md",
-      "path": ".agent/workflows/dependency-truth.md",
-      "purpose": "Workflow guidance for dependency-truth.",
+      "purpose": "Audit a scoped KandyDrops dependency change without turning routine work into an upgrade sweep.",
       "authorityLevel": "workflow_advisory",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
-    },
-    {
-      "stable_id": "workflow__agent__workflows__kandydrops-guardrails-md",
-      "path": ".agent/workflows/kandydrops-guardrails.md",
-      "purpose": "Workflow guidance for kandydrops-guardrails.",
-      "authorityLevel": "workflow_required",
       "intendedAgents": [
         "codex"
       ],
@@ -137,7 +61,6 @@
       ],
       "relatedPaths": [
         ".storybook/",
-        "cypress/e2e/temp.cy.ts",
         "src/components"
       ]
     },
@@ -163,38 +86,6 @@
         ".agent/skills/doctrine-consultation.md",
         "docs/agent-truth/current-operator-doctrine.md"
       ]
-    },
-    {
-      "stable_id": "workflow__jules__bolt-md",
-      "path": ".jules/bolt.md",
-      "purpose": "Workflow guidance for bolt.",
-      "authorityLevel": "workflow_advisory",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": [
-        "src/app/api/cron/process-queue/route.ts"
-      ]
-    },
-    {
-      "stable_id": "workflow__jules__palette-md",
-      "path": ".jules/palette.md",
-      "purpose": "Workflow guidance for palette.",
-      "authorityLevel": "workflow_advisory",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
-    },
-    {
-      "stable_id": "workflow__jules__sentinel-md",
-      "path": ".jules/sentinel.md",
-      "purpose": "Workflow guidance for sentinel.",
-      "authorityLevel": "workflow_advisory",
-      "intendedAgents": [
-        "codex"
-      ],
-      "relatedPaths": []
     },
     {
       "stable_id": "workflow__vscode__settings-json",
@@ -271,6 +162,7 @@
         "docs/doctrine/surfaces/server-truth-doctrine.md",
         "docs/doctrine/surfaces/shared-brand-primitives.md",
         "docs/doctrine/surfaces/user-ui-doctrine.md",
+        "output/dependency-graph.json",
         "scripts/agent/sync-sql.ts",
         "src/app",
         "src/app/admin/**",

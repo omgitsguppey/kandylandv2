@@ -1,40 +1,12 @@
 "use client";
 
-import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import {
     adminTruthStateForNoSampleStatus,
     badgeLabelForNoSampleStatus,
     classifyNoSampleStatus,
 } from "@/lib/debug/no-sample-status-classifier";
-import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
-
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-
-function toneForPanelStatus(status?: string) {
-    if (status === "healthy") return "good" as const;
-    if (status === "warn") return "warn" as const;
-    if (status === "fail" || status === "failed") return "bad" as const;
-    return "neutral" as const;
-}
-
-function truthStateForPanelStatus(status?: string): AdminSurfaceState {
-    if (status === "warn") return "degraded";
-    if (status === "fail" || status === "failed") return "failed";
-    return coerceAdminSurfaceState(status);
-}
-
-function labelForPanelStatus(status?: string) {
-    return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
-}
+import { Pill, Section, ScrollWrap, labelForPanelStatus, toneForPanelStatus, truthStateForPanelStatus } from "./DebugPrimitives";
+import { formatRecentActivity as formatRelative } from "./DebugTime";
 
 export function DebugPanelStatusBySection({
     data,

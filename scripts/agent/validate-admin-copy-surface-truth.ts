@@ -8,8 +8,13 @@ const files = [
   "src/lib/deterministic-admin-truth.ts",
   "src/app/admin/analytics/AnalyticsHelpers.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx",
   "src/app/admin/debug/page.tsx",
   "src/app/admin/economy/page.tsx",
 ].map((path) => ({ path, source: readFileSync(join(root, path), "utf8") }));

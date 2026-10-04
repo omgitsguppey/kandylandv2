@@ -4,7 +4,9 @@ import { Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Pill, Section } from "./DebugPrimitives";
 import { AdminAiAssistantRealtimePanel } from "./AdminAiAssistantRealtimePanel";
+import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream";
 import type { PillTone } from "./DebugPrimitives";
+import { formatRecentActivity as formatRelative } from "./DebugTime";
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 
 /* ─── Helpers ─── */
@@ -12,17 +14,6 @@ function formatTimestamp(timestamp?: number) {
     if (!timestamp) return "Not recorded";
     return new Date(timestamp).toLocaleString();
 }
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-
 function formatOptionalTimestamp(value?: string) {
     if (!value) return "Not recorded";
     const parsed = Date.parse(value);
@@ -86,7 +77,11 @@ export function DebugTabAi({
     const workbench = aiDebugData?.workbench;
 
     return (
-        <div className="space-y-4">
+        <AdminDebugWorkstream
+            eyebrow="AI workstream"
+            title="Guidance with an explicit cost boundary"
+            subtitle="Saved status loads here by default. Live guidance remains an explicit, permission-gated action."
+        >
             <Section
                 title="AI debug assistant"
                 subtitle="Explicit live guidance over current debug evidence. Page load reads saved status only and does not trigger paid AI calls."
@@ -284,6 +279,6 @@ export function DebugTabAi({
                     </div>
                 ) : null}
             </Section>
-        </div>
+        </AdminDebugWorkstream>
     );
 }

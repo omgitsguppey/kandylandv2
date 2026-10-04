@@ -195,6 +195,8 @@ export type CanonicalIdentityLinkedEvent = CanonicalAnalyticsEvent & {
 };
 
 export interface AnalyticsActorClassificationInput {
+  /** Internal current-profile evidence. Never populated from browser event parameters. */
+  trustedProfileRole?: "user" | "creator" | "admin" | null;
   actorKind?: string | null;
   actorType?: string | null;
   anonymousVisitorId?: string | null;
@@ -311,6 +313,7 @@ function isAdminPerformedAs(value: unknown) {
 }
 
 function isAdminProjectionInput(input: AnalyticsActorClassificationInput) {
+  if (Object.hasOwn(input, "trustedProfileRole") && input.trustedProfileRole !== "admin") return false;
   const actorKind = stringOrNull(input.actorKind)?.toLowerCase() ?? "";
   const eventName = stringOrNull(input.eventName)?.toLowerCase() ?? "";
   const performedAs = stringOrNull(input.performedAs)?.toLowerCase() ?? "";
@@ -458,6 +461,36 @@ export function resolveAnalyticsIdentityState(input: AnalyticsActorClassificatio
 }
 
 export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput): AnalyticsActorClassification {
+  if (Object.hasOwn(input, "trustedProfileRole")) {
+    const role = input.trustedProfileRole;
+    if ((role !== "user" && role !== "creator" && role !== "admin") || !stringOrNull(input.userId)) {
+      return {
+        actorType: "unknown", actorLane: "legacy_unknown", countScopes: [],
+        isAuthenticatedUser: false, isGuestLike: false, isAdmin: false, isCreator: false,
+        isSystem: false, isUnknown: true, identityLinkRequired: false, confidence: "low",
+        reasons: ["Current profile authority is missing; browser declarations cannot fill it."],
+      };
+    }
+    const { trustedProfileRole: _trustedRole, ...observation } = input;
+    const guestObservation = role !== "admin" && input.actorKind === "guest"
+      && Boolean(stringOrNull(input.anonymousVisitorId) || stringOrNull(input.sessionId));
+    const legacyUnknown = input.actorKind === "legacy_unknown";
+    const projection = role === "admin" && isAdminProjectionInput(input);
+    const actorKind = legacyUnknown ? "legacy_unknown" : role === "admin" ? projection ? "admin_projection" : "admin"
+      : guestObservation ? "guest" : role === "creator" ? "creator_user" : "signed_in_user";
+    return classifyAnalyticsActor({
+      ...observation,
+      actorKind, actorType: null, identityState: legacyUnknown ? "legacy_unknown" : input.identityState,
+      userId: guestObservation || legacyUnknown ? null : input.userId,
+      actorUserId: guestObservation || legacyUnknown || role === "admin" ? null : input.userId,
+      actorCreatorId: !guestObservation && !legacyUnknown && role === "creator" ? input.userId : null,
+      creatorId: null, adminId: !legacyUnknown && role === "admin" ? input.userId : null,
+      actorAdminId: !legacyUnknown && role === "admin" ? input.userId : null,
+      roles: !guestObservation && !legacyUnknown ? [role] : [], claims: {}, systemGenerated: false,
+      route: null, eventName: null, source: "identified_ingest", sourceTruth: "client",
+      performedAs: projection ? input.performedAs : null, projectionMode: projection ? input.projectionMode : null,
+    });
+  }
   const actorKind = stringOrNull(input.actorKind)?.toLowerCase() ?? "";
   const explicitActorType = analyticsActorTypeFromActorKind(actorKind) ?? normalizeAnalyticsActorType(input.actorType);
   const roles = Array.isArray(input.roles) ? input.roles.map((role) => role.toLowerCase()) : [];
@@ -877,7 +910,7 @@ export function createIdentityLinkedEvent(input: {
 }
 
 export function shouldExcludeFromUserAnalytics(event: AnalyticsActorClassificationInput) {
-  if (isAdminProjectionInput(event) || isAdminPerformedAs(event.performedAs) || event.includeInUserBehavior === false) {
+  if (isAdminProjectionInput(event) || ((!Object.hasOwn(event, "trustedProfileRole") || event.trustedProfileRole === "admin") && isAdminPerformedAs(event.performedAs)) || event.includeInUserBehavior === false) {
     return true;
   }
 
@@ -898,6 +931,7 @@ export function shouldIncludeInAdminAnalytics(event: AnalyticsActorClassificatio
 
 export function shouldIncludeInGlobalEvents(event: AnalyticsActorClassificationInput) {
   const classification = classifyAnalyticsActor(event);
+  if (Object.hasOwn(event, "trustedProfileRole")) return Boolean(stringOrNull(event.eventName)) && !classification.isUnknown;
   return Boolean(stringOrNull(event.eventName)) && classification.actorType !== "unknown"
     ? true
     : Boolean(stringOrNull(event.eventName));

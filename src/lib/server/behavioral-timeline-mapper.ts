@@ -1,6 +1,7 @@
+import { readSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 import "server-only";
 
-import type { RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
+import { readRuntimeFactRequestConsentAdmission, type RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
 import type {
   BehavioralConsentState,
   BehavioralTimelineFact,
@@ -39,6 +40,7 @@ export function mapRuntimeFactToBehavioralTimelineFact(input: {
   identityLinkId?: string;
 }): BehavioralTimelineFact {
   const sourceTruth = normalizeSourceTruth(input.runtimeFact.sourceTruth);
+  const requestConsentAdmission = readRuntimeFactRequestConsentAdmission(input.runtimeFact.requestConsentAdmission);
   const actorType = input.runtimeFact.actor.actorType === "guest"
     ? "guest"
     : input.runtimeFact.actor.actorType === "creator"
@@ -50,6 +52,7 @@ export function mapRuntimeFactToBehavioralTimelineFact(input: {
           : "user";
 
   return {
+    ...(readSessionMeasurementCheckpoint(input.runtimeFact.sessionMeasurement) ? { sessionMeasurement: readSessionMeasurementCheckpoint(input.runtimeFact.sessionMeasurement)! } : {}),
     factId: input.runtimeFact.eventId,
     idempotencyKey: input.runtimeFact.eventId,
     actorType,
@@ -94,6 +97,7 @@ export function mapRuntimeFactToBehavioralTimelineFact(input: {
     sourceTruth,
     sourceReliability: sourceReliabilityFromTruth(sourceTruth),
     consentState: input.consentState,
+    ...(requestConsentAdmission ? { requestConsentAdmission } : {}),
     includeInGlobalEvents: input.runtimeFact.includeInGlobalEvents,
     includeInPersonMetrics: input.runtimeFact.includeInUserBehavior,
     adminExcludedCount: input.runtimeFact.adminExcludedCount,

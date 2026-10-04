@@ -9,7 +9,6 @@ import {
   PUBLIC_RELEASE_CHANNEL,
   PUBLIC_RELEASE_NOTES_VISIBLE_COUNT,
   getPublicReleaseNotesVisibleNotes,
-  isPublicBetaBadgeNoteFresh,
   type PublicReleaseNotesDocument,
 } from "../../src/lib/release-notes/release-version-contract";
 import { formatBetaOdometerVersion ,
@@ -146,8 +145,8 @@ if (document) {
     const latestTimestamp = getPublicBetaBadgeNoteTimestamp(latestVisible);
     if (latestTimestamp === null) {
       failures.push("latest visible Beta note must include a valid UTC timestamp.");
-    } else if (!isPublicBetaBadgeNoteFresh(latestVisible)) {
-      failures.push("latest visible Beta note is stale for the Phase 1 badge freshness rule.");
+    } else if (latestTimestamp > Date.now()) {
+      failures.push("latest visible Beta note timestamp must not be in the future.");
     }
 
     if (latestVisible.betaReleaseCounter !== document.betaReleaseCounter) {

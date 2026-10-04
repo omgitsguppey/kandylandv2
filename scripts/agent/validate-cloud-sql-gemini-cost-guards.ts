@@ -1,6 +1,8 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
+import { withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 type Finding = {
   id: string;
@@ -346,11 +348,18 @@ export function validateCloudSqlGeminiCostGuards(options: { writeReport?: boolea
     failures.push("P0/P1 source guard failures remain.");
   }
 
+  const artifactReport = withValidatorMutationScope(withGeneratedReportEnvelope(report, {
+    evidenceClass: "source_snapshot", status: failures.length ? "fail" : "pass",
+    validationFailures: failures, canClearSourceGate: failures.length === 0,
+    nextExactSteps: report.nextFixOrder,
+    doesNotProve: ["Current billing, provider outcomes, deployed SQL/AI use or production recovery."],
+  }));
+
   if (failures.length > 0) {
     if (options.writeReport) {
       fs.mkdirSync(path.dirname(path.join(ROOT, ARTIFACT_PATH)), { recursive: true });
       fs.mkdirSync(path.dirname(path.join(ROOT, DOC_PATH)), { recursive: true });
-      fs.writeFileSync(path.join(ROOT, ARTIFACT_PATH), `${JSON.stringify(report, null, 2)}\n`, "utf8");
+      fs.writeFileSync(path.join(ROOT, ARTIFACT_PATH), `${JSON.stringify(artifactReport, null, 2)}\n`, "utf8");
       fs.writeFileSync(path.join(ROOT, DOC_PATH), renderMarkdown(report), "utf8");
     }
     throw new Error(`Cloud SQL/Gemini cost guard validation failed:\n- ${failures.join("\n- ")}`);
@@ -359,7 +368,7 @@ export function validateCloudSqlGeminiCostGuards(options: { writeReport?: boolea
   if (options.writeReport !== false) {
     fs.mkdirSync(path.dirname(path.join(ROOT, ARTIFACT_PATH)), { recursive: true });
     fs.mkdirSync(path.dirname(path.join(ROOT, DOC_PATH)), { recursive: true });
-    fs.writeFileSync(path.join(ROOT, ARTIFACT_PATH), `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    fs.writeFileSync(path.join(ROOT, ARTIFACT_PATH), `${JSON.stringify(artifactReport, null, 2)}\n`, "utf8");
     fs.writeFileSync(path.join(ROOT, DOC_PATH), renderMarkdown(report), "utf8");
   }
 

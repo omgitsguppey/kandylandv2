@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 
 import { toast } from "sonner";
@@ -359,7 +360,7 @@ function buildSnapshotFirstRealtimeState(input: {
   };
 }
 
-function SnapshotRefreshControl(props: { snapshotModule: AdminAnalyticsSnapshotModuleState | null }) {
+function SnapshotRefreshControl(props: { snapshotModule: AdminAnalyticsSnapshotModuleState | null; disabled?: boolean }) {
   const [refreshing, setRefreshing] = useState(false);
   const snapshotModule = props.snapshotModule;
 
@@ -378,6 +379,7 @@ function SnapshotRefreshControl(props: { snapshotModule: AdminAnalyticsSnapshotM
   ].filter(Boolean).join(" | ");
 
   const handleRefresh = async () => {
+    if (props.disabled) return;
     setRefreshing(true);
     try {
       await snapshotModule.refresh({ force: false });
@@ -387,18 +389,20 @@ function SnapshotRefreshControl(props: { snapshotModule: AdminAnalyticsSnapshotM
   };
 
   return (
-    <div className="flex min-w-0 items-center gap-1.5" title={title} aria-label={title}>
-      <span className="max-w-[5.25rem] truncate rounded-full border border-white/10 bg-white/[0.08] px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-gray-200">
+    <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2" title={title} aria-label={title}>
+      <span className="min-w-0 max-w-full wrap-anywhere text-xs text-muted-foreground">
         {refreshing || snapshotModule.refreshStatus === "refreshing" ? "SYNC" : label}
       </span>
-      <button
+      <Button
+        variant="outline"
+        size="sm"
         type="button"
         onClick={handleRefresh}
-        disabled={refreshing || snapshotModule.refreshStatus === "refreshing"}
-        className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={props.disabled || refreshing || snapshotModule.refreshStatus === "refreshing"}
+        className="max-w-full wrap-anywhere"
       >
         Refresh
-      </button>
+      </Button>
     </div>
   );
 }
@@ -1147,7 +1151,7 @@ export function useAdminAnalyticsState() {
     eventMix: eventMixRange,
     liveInteractionStream: liveInteractionStreamRange,
     dataHealthSummary: ADMIN_ANALYTICS_DEFAULT_RANGE,
-  });
+  }, { enabled: !isLocalAdminUiTestSession });
   const renderSectionRangeControl = (sectionKey: string) => {
     const snapshotModule = isSnapshotSectionKey(sectionKey)
       ? analyticsSnapshotRegistry.bySectionKey[sectionKey]
@@ -1156,7 +1160,7 @@ export function useAdminAnalyticsState() {
     return (
       <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
         {renderBaseSectionRangeControl(sectionKey)}
-        <SnapshotRefreshControl snapshotModule={snapshotModule} />
+        <SnapshotRefreshControl snapshotModule={snapshotModule} disabled={isLocalAdminUiTestSession} />
       </div>
     );
   };
@@ -1166,6 +1170,11 @@ export function useAdminAnalyticsState() {
   );
   const effectiveLiveResponse = useMemo<RealtimeAnalyticsResponse | undefined>(
     () => {
+      // Absence must stay absence. A local clock and empty counters are not a
+      // successful source response or server-confirmed activity.
+      if (!liveResponse || liveResponse.success === false) {
+        return undefined;
+      }
       if (liveRealtime.feedStatus === "failed" && liveResponse) {
         return {
           ...liveResponse,
@@ -1182,20 +1191,12 @@ export function useAdminAnalyticsState() {
         };
       }
 
-      if (!liveResponse && liveRealtime.feedStatus === "failed") {
-        return undefined;
-      }
-
-      const base = liveResponse ?? {
-        success: liveRealtime.feedStatus !== "failed",
-        issues: [liveRealtime.feedDetail],
-      };
+      const base = liveResponse;
       return {
         ...base,
         generatedAtMs:
           Math.max(base.generatedAtMs ?? 0, liveRealtime.generatedAtMs ?? 0) ||
-          base.generatedAtMs ||
-          nowMs,
+          base.generatedAtMs,
         totalActive: liveRealtime.totalActive,
         deepTrackerActive: liveRealtime.deepTrackerActive,
         data: liveRealtime.data,
@@ -1344,14 +1345,6 @@ export function useAdminAnalyticsState() {
   const liveSurfaceMix = effectiveLiveResponse?.surfaceMix ?? [];
   const liveWatchCaptureHealth =
     effectiveLiveResponse?.watchCaptureHealth ?? EMPTY_WATCH_CAPTURE_HEALTH;
-
-  const needsSetup =
-    effectiveLiveResponse?.requiresSetup ||
-    historicalResponse?.requiresSetup ||
-    (liveError as { info?: { requiresSetup?: boolean } } | undefined)?.info
-      ?.requiresSetup ||
-    (historicalError as { info?: { requiresSetup?: boolean } } | undefined)
-      ?.info?.requiresSetup;
   const backgroundAnalyticsIssues = [
     effectiveLiveResponse && liveError
       ? `Current activity: ${liveError.message || "Background refresh failed."}`
@@ -3254,7 +3247,7 @@ export function useAdminAnalyticsState() {
     user, isLocalAdminUiTestSession, activeTab, setActiveTab: setActiveTabDeferred, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
     moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey, analyticsSnapshotRegistry, analyticsSnapshotMigrationDebug: analyticsSnapshotRegistry.debug,
     liveResponse: effectiveLiveResponse, historicalResponse, liveError, historicalError, liveLoading, historicalLoading,
-    needsSetup, blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, getSectionRange, renderSectionRangeControl,
+    blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, getSectionRange, renderSectionRangeControl,
     EVENT_LABELS, funnel, onboardingStats, onboardingDurationBuckets, onboardingStepStats, authBreakdown, historySeries,
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,

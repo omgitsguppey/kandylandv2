@@ -30,6 +30,7 @@ import {
   type UserIndexMaterializerFact,
 } from "@/lib/user-indexes/user-index-normalizer";
 import {
+  readIdentityLineageIndex,
   isUserIndexMaterializerActivationReady,
   parseUserIndexMaterializerMode,
   USER_INDEX_COLLECTIONS,
@@ -306,45 +307,57 @@ async function querySubjectFacts(input: {
   return snapshot.docs.map((document) => document.data() as UserIndexMaterializerFact);
 }
 
-async function queryLineagesByGuestIds(anonymousVisitorIds: readonly string[]) {
-  const db = requireMaterializerDatabase();
+type LoadedIdentityLineages = {
+  accepted: IdentityLineageIndex[];
+  rejectedDocumentIds: Set<string>;
+  potentiallyTruncated: boolean;
+};
+
+async function queryLineagesByGuestIds(anonymousVisitorIds: readonly string[]): Promise<LoadedIdentityLineages> {
   const ids = Array.from(new Set(anonymousVisitorIds.map(cleanIdentifier).filter(Boolean))).sort();
-  const lineages: IdentityLineageIndex[] = [];
-  for (let start = 0; start < ids.length && lineages.length < USER_INDEX_MATERIALIZER_MAX_LINEAGES_PER_QUERY; start += 30) {
+  if (ids.length === 0) return { accepted: [], rejectedDocumentIds: new Set(), potentiallyTruncated: false };
+  const db = requireMaterializerDatabase();
+  const raw: Array<{documentId: string; value: unknown}> = [];
+  let potentiallyTruncated = false;
+  for (let start = 0; start < ids.length && raw.length < USER_INDEX_MATERIALIZER_MAX_LINEAGES_PER_QUERY; start += 30) {
     const chunk = ids.slice(start, start + 30);
-    const remaining = USER_INDEX_MATERIALIZER_MAX_LINEAGES_PER_QUERY - lineages.length;
+    const remaining = USER_INDEX_MATERIALIZER_MAX_LINEAGES_PER_QUERY - raw.length;
     const snapshot = await db.collection(USER_INDEX_COLLECTIONS.identityLineageIndexes)
       .where("anonymousVisitorId", "in", chunk)
       .limit(remaining)
       .get();
-    lineages.push(...snapshot.docs.map((document) => document.data() as IdentityLineageIndex));
+    raw.push(...snapshot.docs.map(document => ({documentId: document.id, value: document.data()})));
+    if (snapshot.docs.length >= remaining) potentiallyTruncated = true;
   }
-  return partitionIdentityLineagesByOwnerVersion(lineages).accepted;
+  const partition = partitionIdentityLineagesByOwnerVersion(raw.map(document => document.value));
+  const rejected = new Set(partition.rejected.map(record => record.lineage));
+  return { accepted: partition.accepted,
+    rejectedDocumentIds: new Set(raw.filter(document => rejected.has(document.value)).map(document => document.documentId)), potentiallyTruncated };
 }
 
-async function queryLineagesForUser(userId: string) {
+async function queryLineagesForUser(userId: string): Promise<LoadedIdentityLineages> {
   const db = requireMaterializerDatabase();
   const snapshot = await db.collection(USER_INDEX_COLLECTIONS.identityLineageIndexes)
     .where("userId", "==", userId)
     .limit(USER_INDEX_MATERIALIZER_MAX_LINKED_GUEST_SUBJECTS)
     .get();
-  return partitionIdentityLineagesByOwnerVersion(
-    snapshot.docs.map((document) => document.data() as IdentityLineageIndex),
-  ).accepted;
+  const raw = snapshot.docs.map(document => ({documentId: document.id, value: document.data()}));
+  const partition = partitionIdentityLineagesByOwnerVersion(raw.map(document => document.value));
+  const rejected = new Set(partition.rejected.map(record => record.lineage));
+  return { accepted: partition.accepted,
+    rejectedDocumentIds: new Set(raw.filter(document => rejected.has(document.value)).map(document => document.documentId)),
+    potentiallyTruncated: snapshot.docs.length >= USER_INDEX_MATERIALIZER_MAX_LINKED_GUEST_SUBJECTS };
 }
 
-export function partitionIdentityLineagesByOwnerVersion(
-  lineages: readonly IdentityLineageIndex[],
-) {
+export function partitionIdentityLineagesByOwnerVersion(lineages: readonly unknown[]) {
   const accepted: IdentityLineageIndex[] = [];
-  const rejected: Array<{
-    lineage: IdentityLineageIndex;
-    state: Exclude<AnalyticsIdentityLineageOwnerState, "current">;
-  }> = [];
+  const rejected: Array<{lineage: unknown; state: Exclude<AnalyticsIdentityLineageOwnerState, "current"> | "malformed_lineage"}> = [];
   for (const lineage of lineages) {
-    const state = classifyAnalyticsIdentityLineageOwnerVersion(lineage.ownerKeyVersion);
-    if (state === "current") accepted.push(lineage);
-    else rejected.push({ lineage, state });
+    const value = lineage && typeof lineage === "object" && !Array.isArray(lineage) ? lineage as Record<string, unknown> : null;
+    const state = classifyAnalyticsIdentityLineageOwnerVersion(value?.ownerKeyVersion);
+    const decoded = state === "current" ? readIdentityLineageIndex(lineage) : null;
+    if (decoded) accepted.push(decoded);
+    else rejected.push({lineage, state: state === "current" ? "malformed_lineage" : state});
   }
   return { accepted, rejected };
 }
@@ -399,8 +412,9 @@ async function loadFactsForRequest(
       sourceWindowEndMs: request.sourceWindowEndMs,
       limit: maxFacts,
     });
-    const lineages = await queryLineagesByGuestIds([request.subjectId]);
-    return { facts, lineages, truncated: facts.length >= maxFacts };
+    const lineageSource = await queryLineagesByGuestIds([request.subjectId]);
+    return { facts, lineages: lineageSource.accepted, lineageSourceMissingCount: lineageSource.rejectedDocumentIds.size,
+      truncated: facts.length >= maxFacts || lineageSource.potentiallyTruncated };
   }
 
   const directFacts = await querySubjectFacts({
@@ -410,16 +424,12 @@ async function loadFactsForRequest(
     sourceWindowEndMs: request.sourceWindowEndMs,
     limit: maxFacts,
   });
-  const directGuestIds = directFacts.map((fact) => cleanIdentifier(fact.anonymousVisitorId)).filter(Boolean);
-  const [userLineages, directFactLineages] = await Promise.all([
-    queryLineagesForUser(request.subjectId),
-    queryLineagesByGuestIds(directGuestIds),
-  ]);
-  const userGuestIds = userLineages.map((lineage) => cleanIdentifier(lineage.anonymousVisitorId)).filter(Boolean);
-  const allGuestLineages = userGuestIds.length > 0
-    ? await queryLineagesByGuestIds(userGuestIds)
-    : [];
-  const lineages = mergeLineages(userLineages, directFactLineages, allGuestLineages);
+  const directGuestIds = directFacts.map(fact => cleanIdentifier(fact.anonymousVisitorId)).filter(Boolean);
+  const userLineageSource = await queryLineagesForUser(request.subjectId);
+  const userGuestIds = userLineageSource.accepted.map(lineage => cleanIdentifier(lineage.anonymousVisitorId)).filter(Boolean);
+  // One union lookup retains cross-owner conflicts while removing repeated reads for overlapping guest IDs.
+  const guestLineageSource = await queryLineagesByGuestIds([...directGuestIds, ...userGuestIds]);
+  const lineages = mergeLineages(userLineageSource.accepted, guestLineageSource.accepted);
   const linkedGuestIds = resolveEligibleLinkedGuestIds(lineages, request.subjectId);
   const facts = [...directFacts];
   for (const guestId of linkedGuestIds) {
@@ -434,17 +444,21 @@ async function loadFactsForRequest(
     }));
   }
   facts.sort((left, right) => right.timestampMs - left.timestampMs || left.factId.localeCompare(right.factId));
-  return { facts: facts.slice(0, maxFacts), lineages, truncated: facts.length >= maxFacts };
+  return { facts: facts.slice(0, maxFacts), lineages,
+    lineageSourceMissingCount: new Set([...userLineageSource.rejectedDocumentIds, ...guestLineageSource.rejectedDocumentIds]).size,
+    truncated: facts.length >= maxFacts || userLineageSource.potentiallyTruncated || guestLineageSource.potentiallyTruncated };
 }
 
 function buildPublicationBundle(input: {
   request: UserIndexMaterializerOutboxRequest;
   facts: UserIndexMaterializerFact[];
   lineages: IdentityLineageIndex[];
+  lineageSourceMissingCount: number;
 }) {
   const normalized = normalizeFactsForUserIndexMaterialization({
     facts: input.facts,
     lineages: input.lineages,
+    lineageSourceMissingCount: input.lineageSourceMissingCount,
   });
   if (input.request.subjectKind === "guest") {
     const guestFacts = normalized.globalFacts.filter((fact) =>
@@ -477,6 +491,15 @@ function buildPublicationBundle(input: {
     sourceWindowStartMs: input.request.sourceWindowStartMs,
     sourceWindowEndMs: input.request.sourceWindowEndMs,
   });
+  if (normalized.exclusions.personAdmissionUnverifiedCount > 0 || normalized.exclusions.lineageSourceMissingCount > 0) {
+    trackingIndex.dataAvailabilityReason = "source_disagreement";
+    trackingIndex.issues = Array.from(new Set([...trackingIndex.issues, "person_source_admission_unverified"])).slice(0, 20);
+  } else if (normalized.exclusions.personPrivacyLimitedCount > 0) {
+    trackingIndex.dataAvailabilityReason = "privacy_limited";
+  } else if (personFacts.length === 0) {
+    // The materializer, unlike the pure empty builder, owns the complete bounded read window.
+    trackingIndex.dataAvailabilityReason = "available";
+  }
   if (normalized.exclusions.identityConflictExcludedCount > 0) {
     trackingIndex.issues = Array.from(new Set([...trackingIndex.issues, "identity_link_conflict"])).slice(0, 20);
   }
@@ -507,6 +530,9 @@ function addExclusions(
   target.lineageBlockedCount += source.lineageBlockedCount;
   target.adminExcludedCount += source.adminExcludedCount;
   target.systemExcludedCount += source.systemExcludedCount;
+  target.personAdmissionUnverifiedCount += source.personAdmissionUnverifiedCount;
+  target.personPrivacyLimitedCount += source.personPrivacyLimitedCount;
+  target.lineageSourceMissingCount += source.lineageSourceMissingCount;
 }
 
 function safeMaterializerErrorCode(error: unknown) {
@@ -586,6 +612,9 @@ export async function consumeUserIndexMaterializerOutbox(
     lineageBlockedCount: 0,
     adminExcludedCount: 0,
     systemExcludedCount: 0,
+    personAdmissionUnverifiedCount: 0,
+    personPrivacyLimitedCount: 0,
+    lineageSourceMissingCount: 0,
   };
   let requestsClaimed = 0;
   let requestsCompleted = 0;
@@ -620,6 +649,7 @@ export async function consumeUserIndexMaterializerOutbox(
         request,
         facts: loaded.facts,
         lineages: loaded.lineages,
+        lineageSourceMissingCount: loaded.lineageSourceMissingCount,
       });
       const published = await publishUserIndexMaterializerBundle({
         request,

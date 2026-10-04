@@ -1,10 +1,10 @@
 {
-  "generatedAtUtc": "2026-07-14T05:32:58.586Z",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "generatedAtUtc": "2026-10-03T19:35:30.497Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "imageLoadingStatusBefore": "WAIT",
   "imageLoadingStatusAfter": "clean_current",
   "imageLoadingTimestampStatus": "generatedAt_present",
-  "imageArtifactAgeAfter": 0,
+  "imageArtifactAgeAfter": 0.29,
   "packageScriptPresent": true,
   "findings": [],
   "visualScreenshotProofRequired": false,

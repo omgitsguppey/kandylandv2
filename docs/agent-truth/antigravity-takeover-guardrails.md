@@ -1,9 +1,11 @@
 # Antigravity Takeover Guardrails Report
 
-This report summarizes the Onboarding, Self-Knowledge Audit, and Anti-Stupid Takeover Guardrails setup.
+This report summarizes the 28 May 2026 onboarding and guardrail setup. The values below are historical observations; use current checkout evidence and formal target-environment artifacts for present readiness.
+
+Current local evidence is produced and checked by the [coordinated takeover owner](agent-takeover-safety-check.md). Its command adapters preserve the safety, knowledge, bloat, and current output-scope controls; they do not require this historical incident's score, PR count, or identity compile error.
 
 ## Takeover Metrics
-- **Current Deployed Commit (HEAD)**: `cfd39b411b08374c8a698bb07bb42f473ebba278`
+- **Recorded checkout HEAD**: `cfd39b411b08374c8a698bb07bb42f473ebba278` (deployment not established)
 - **Current Beta Health Score**: `76.61`
 - **Beta Exit Status**: `false` (Blocked by: Runtime/provider smoke, Admin truth/sample evidence, report freshness & stale evidence, etc.)
 - **Takeover Safety**: `verified_safe`

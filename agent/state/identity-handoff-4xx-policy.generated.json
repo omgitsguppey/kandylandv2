@@ -1,17 +1,17 @@
 {
   "reportKey": "identity-handoff-4xx-policy",
-  "generatedAtUtc": "2026-07-14T05:12:25.550Z",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "generatedAtUtc": "2026-10-03T01:47:25.898Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",
-  "individualMetricHydrationStatus": "classified",
-  "globalVsUserMismatchCount": 3,
-  "activeGlobalVsUserMismatchCount": 0,
+  "individualMetricHydrationStatus": "review",
+  "globalVsUserMismatchCount": 4,
+  "activeGlobalVsUserMismatchCount": 1,
   "classifiedNonBlockingMismatchCount": 3,
   "expectedNoUserMappingCount": 3,
-  "missingIdentityLinkCount": 0,
-  "unsafeUnknownMismatchCount": 0,
+  "missingIdentityLinkCount": 1,
+  "unsafeUnknownMismatchCount": 1,
   "duplicateSuppressionCount": 0,
   "unknownLegacyIdentityCount": 0,
   "analyticAlgorithmsAudited": 5,
@@ -27,7 +27,8 @@
   "scoreBefore": 76.61,
   "scoreAfter": 76.61,
   "remainingGaps": [
-    "global_without_user_mapping"
+    "global_without_user_mapping",
+    "identity_link_missing"
   ],
   "nextExactSteps": [
     "Keep user-level panel proof separate from global activity proof.",

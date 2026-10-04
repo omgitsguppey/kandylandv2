@@ -94,14 +94,14 @@ export function CreatorPaidGdGuidanceCard({
                     </p>
                 </div>
                 {typeof onClose === "function" ? (
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         aria-label="Close guidance"
                         onClick={onClose}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
+                        className="shrink-0"
                     >
-                        <Circle className="h-3.5 w-3.5 fill-current" />
-                    </button>
+                        <Circle className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                    </Button>
                 ) : null}
             </div>
 

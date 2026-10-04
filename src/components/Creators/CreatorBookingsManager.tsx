@@ -226,7 +226,7 @@ export function CreatorBookingsManager({
 
   return (
     <section
-      className="rounded-3xl border border-white/10 bg-black/45 p-4 sm:p-5"
+      className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#120b20]/90 p-5 shadow-[0_22px_60px_rgba(0,0,0,0.28)] sm:p-6"
       data-creator-bookings-manager
       data-testid="creator-bookings-manager"
       data-creator-bookings-source-state={sourceState}
@@ -234,17 +234,17 @@ export function CreatorBookingsManager({
       data-creator-bookings-read-only={readOnly ? "true" : "false"}
       data-creator-bookings-management-state={managementState}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Bookings</p>
-          <h2 className="mt-1 text-lg font-black text-white">Manage live-time sessions</h2>
-          <p className="mt-1 text-sm text-gray-300">{canLoadBookings ? `${creatorName} has ${formatCount(bookings.length)} loaded.` : unavailableMessage}</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-black uppercase tracking-widest text-purple-200">Live time desk</p>
+          <h2 className="mt-2 text-2xl font-black tracking-tight text-white">Sessions that need your time</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-300">{canLoadBookings ? `${creatorName} has ${formatCount(bookings.length)} loaded.` : unavailableMessage}</p>
         </div>
         <button
           type="button"
           onClick={() => void loadBookings()}
           disabled={!canLoadBookings || loading}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm font-bold text-gray-200 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <RefreshCw className="h-3.5 w-3.5" />}
           Refresh
@@ -252,10 +252,10 @@ export function CreatorBookingsManager({
       </div>
 
       {readOnly ? (
-        <p className="mt-3 rounded-2xl border border-brand-purple/20 bg-brand-purple/10 px-3 py-2 text-xs font-semibold text-brand-purple">Read-only projection: booking actions are disabled.</p>
+        <p className="mt-4 rounded-[1.5rem] border border-brand-purple/20 bg-brand-purple/10 px-4 py-3 text-sm font-semibold text-purple-100">Read-only projection: booking actions are disabled.</p>
       ) : null}
       {!availabilityConfigured && enabled && !restricted ? (
-        <p className="mt-3 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100">Configure availability before accepting bookings.</p>
+        <p className="mt-4 rounded-[1.5rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-100">Configure availability before accepting bookings.</p>
       ) : null}
       {actionError ? (
         <HumanErrorNotice
@@ -277,16 +277,16 @@ export function CreatorBookingsManager({
       ) : null}
 
       {!canLoadBookings ? (
-        <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-gray-300">{unavailableMessage}</p>
+        <p className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3 text-sm text-gray-300">{unavailableMessage}</p>
       ) : loading ? (
-        <div className="mt-4 flex items-center gap-2 text-sm text-gray-300">
+        <div className="mt-5 flex min-h-20 items-center gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 px-4 text-sm text-gray-300">
           <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
           Loading bookings
         </div>
       ) : bookings.length === 0 ? (
-        <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-gray-300">No bookings yet.</p>
+        <p className="mt-4 rounded-[1.5rem] border border-dashed border-white/10 bg-black/20 px-4 py-5 text-sm text-gray-300">No bookings yet.</p>
       ) : (
-        <div className="mt-4 space-y-3">
+        <div className="mt-5 space-y-3">
           {bookings.map((booking) => {
             const status = booking.status || "booked";
             const canComplete = ["booked", "upcoming", "in_progress"].includes(status);
@@ -295,28 +295,28 @@ export function CreatorBookingsManager({
             const duration = typeof booking.durationMinutes === "number" ? `${booking.durationMinutes} min` : "Duration unavailable";
             const price = typeof booking.priceGd === "number" ? `${booking.priceGd.toLocaleString()} GD` : "Price unavailable";
             return (
-              <article key={booking.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3" data-creator-booking-status={status}>
+              <article key={booking.id} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4" data-creator-booking-status={status}>
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <CalendarClock className="h-4 w-4 text-brand-purple" />
                       <h3 className="text-sm font-bold capitalize text-white">{booking.serviceType || "booking"}</h3>
-                      <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", statusTone(status))}>
+                      <span className={cn("rounded-xl border px-2.5 py-1 text-xs font-bold", statusTone(status))}>
                         {status.replaceAll("_", " ")}
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-gray-300">{formatDate(booking.startAt)} - {duration}</p>
-                    <p className="mt-1 text-xs text-gray-500">{price}</p>
+                    <p className="mt-2 inline-flex rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-bold text-gray-400">{price}</p>
                   </div>
                 </div>
                 {canComplete || canCancel ? (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {canComplete ? (
                       <button
                         type="button"
                         disabled={actionDisabled}
                         onClick={() => void handleAction(booking, "complete")}
-                        className="min-h-11 rounded-full border border-emerald-300/20 bg-emerald-500/10 px-3 py-2.5 text-xs font-bold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="min-h-11 rounded-xl border border-emerald-300/20 bg-emerald-500/10 px-4 py-2.5 text-sm font-bold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Complete
                       </button>
@@ -326,7 +326,7 @@ export function CreatorBookingsManager({
                         type="button"
                         disabled={actionDisabled}
                         onClick={() => void handleAction(booking, "cancel")}
-                        className="min-h-11 rounded-full border border-red-300/20 bg-red-500/10 px-3 py-2.5 text-xs font-bold text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="min-h-11 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Cancel
                       </button>

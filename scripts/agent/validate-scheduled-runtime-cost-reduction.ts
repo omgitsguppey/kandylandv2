@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
+import { withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
+import { MAINTENANCE_SCHEDULES } from "../../shared/runtime/maintenance-mode-contract";
 
 type Finding = {
   id: string;
@@ -70,6 +73,7 @@ function finding(id: string, ok: boolean, detail: string, severity: Finding["sev
 
 export function validateScheduledRuntimeCostReduction(options: { writeReport?: boolean } = {}) {
   const realtimeSummary = read("functions/src/analytics-realtime-summary.ts");
+  const realtimeSchedule = read(MAINTENANCE_SCHEDULES.refreshAdminAnalyticsRealtimeSummary.sourceFile);
   const analyticsTruth = read("functions/src/analytics-truth-runtime.ts");
   const behavioral = read("functions/src/behavioral-intelligence-runtime.ts");
   const queueRuntime = read("src/lib/server/queue-runtime.ts");
@@ -80,9 +84,10 @@ export function validateScheduledRuntimeCostReduction(options: { writeReport?: b
       "realtimeSummaryCadenceMinutes",
       includes(realtimeSummary, "REALTIME_SUMMARY_MIN_CADENCE_MS = 5 * 60 * 1000")
         && includes(realtimeSummary, "shouldRunRealtimeSummaryRefresh")
-        && includes(realtimeSummary, "schedule: \"every 5 minutes\"")
-        && !includes(realtimeSummary, "schedule: \"every 1 minutes\"")
-        && !includes(realtimeSummary, "schedule: \"every 1 minute\""),
+        && MAINTENANCE_SCHEDULES.refreshAdminAnalyticsRealtimeSummary.schedule === "every 5 minutes"
+        && includes(realtimeSchedule, "schedule: MAINTENANCE_SCHEDULES.refreshAdminAnalyticsRealtimeSummary.schedule")
+        && includes(realtimeSchedule, "runIfMaintenanceAllows")
+        && !includes(realtimeSchedule, "schedule: \"every 1 minute\""),
       "Non-critical analytics realtime summary is guarded at a five-minute minimum cadence.",
     ),
     finding(
@@ -197,23 +202,7 @@ export function validateScheduledRuntimeCostReduction(options: { writeReport?: b
         estimatedReduction: "70-99% fewer subscription docs read on non-renewal windows",
       },
     ],
-    prCleanupActions: [
-      {
-        number: 273,
-        action: "not_relevant",
-        reason: "Open Admin Debug Map-lookup optimization PR does not touch scheduled runtime job cost lanes.",
-      },
-      {
-        number: 271,
-        action: "not_relevant",
-        reason: "Open monolith-boundary PR does not touch scheduled runtime job cost lanes.",
-      },
-      {
-        number: 272,
-        action: "not_relevant",
-        reason: "Open creator dashboard accessibility PR does not touch scheduled runtime job cost lanes.",
-      },
-    ],
+    prCleanupActions: [],
     nextFixOrder: [
       "Verify deployed Cloud Scheduler cadence after the next deployment without running provider calls from this pass.",
       "Add persisted recipient summary documents for active-drop notifications to further reduce owner exclusion lookups.",
@@ -226,7 +215,13 @@ export function validateScheduledRuntimeCostReduction(options: { writeReport?: b
     fs.mkdirSync(path.join(ROOT, "docs/agent-truth"), { recursive: true });
     fs.writeFileSync(
       path.join(ROOT, "agent/state/scheduled-runtime-cost-reduction.generated.json"),
-      `${JSON.stringify(report, null, 2)}\n`,
+      `${JSON.stringify(withValidatorMutationScope(withGeneratedReportEnvelope(report, {
+        evidenceClass: "source_snapshot", status: failed.length || /\$\d/u.test(JSON.stringify(report)) ? "fail" : "pass",
+        validationFailures: [...failed.map((entry) => entry.id), ...(/\$\d/u.test(JSON.stringify(report)) ? ["Dollar savings claimed without billing evidence."] : [])],
+        canClearSourceGate: failed.length === 0 && !/\$\d/u.test(JSON.stringify(report)),
+        nextExactSteps: report.nextFixOrder,
+        doesNotProve: ["Current PR state, deployed scheduler cadence, billing or measured workload savings."],
+      })), null, 2)}\n`,
     );
     fs.writeFileSync(
       path.join(ROOT, "docs/agent-truth/scheduled-runtime-cost-reduction.md"),

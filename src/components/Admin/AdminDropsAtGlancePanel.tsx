@@ -1,5 +1,9 @@
 "use client";
 
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { Input } from "@/components/creative-tim/ui/input";
+import { Badge } from "@/components/creative-tim/ui/badge";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,7 +11,6 @@ import { Edit, Loader2, Package, Repeat, Search, Settings2 } from "lucide-react"
 import { toast } from "sonner";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
-import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { paginateOverviewItems } from "@/lib/admin-overview";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { useAdminDropsFeed } from "@/hooks/useAdminDropsFeed";
@@ -18,8 +21,8 @@ import { resolveAdminDropLifecycleFacts } from "@/lib/admin-drop-lifecycle";
 import { buildAdminQueueProjection, type AdminDropQueueConfig } from "@/lib/admin-drop-queue";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
-import { cn } from "@/lib/utils";
+import { resolveClientActionError } from "@/lib/errors/client-error-adapter";
+import { readUiJson } from "@/lib/ui-continuity";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { Drop } from "@/types/db";
 
@@ -107,11 +110,6 @@ function resolveDropsTruthState(state: { loading: boolean; loadError: string | n
     return "live";
 }
 
-function getAdminDropsAtGlanceSafeErrorMessage(error: unknown, fallback: string) {
-    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
-    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
-}
-
 export function AdminDropsAtGlancePanel() {
     const [queueingDropId, setQueueingDropId] = useState<string | null>(null);
     const [page, setPage] = useState(0);
@@ -137,10 +135,11 @@ export function AdminDropsAtGlancePanel() {
         getDropById: (dropId) => dropMap.get(dropId),
         queueOrder,
         legacyQueueIds,
+        queueAuthorityVersion: queueConfig?.queueAuthorityVersion,
         cooldownDays: queueConfig?.cooldownDays ?? 1,
         timesPerDay: queueConfig?.timesPerDay ?? [],
         now: nowMs,
-    }), [dropMap, legacyQueueIds, nowMs, queueConfig?.cooldownDays, queueConfig?.timesPerDay, queueOrder]);
+    }), [dropMap, legacyQueueIds, nowMs, queueConfig?.cooldownDays, queueConfig?.queueAuthorityVersion, queueConfig?.timesPerDay, queueOrder]);
 
     const visibleQueueIds = queueProjection.visibleQueueIds;
     const queueLifecycleMap = queueProjection.lifecycleMap;
@@ -220,12 +219,19 @@ export function AdminDropsAtGlancePanel() {
                 method: "POST",
                 body: JSON.stringify({ dropId }),
             });
-            const result = await response.json() as { added?: boolean; error?: string };
-            if (!response.ok) {
-                throw new Error(result.error || "Failed to update queue");
+            const result = await readUiJson<{ added?: unknown }>(response, {
+                moduleLabel: "Admin queue toggle",
+                url: "/api/admin/queue/toggle",
+                requireSuccess: true,
+            });
+            if (typeof result.added !== "boolean") {
+                throw Object.assign(new Error("Admin queue toggle returned no valid added state"), {
+                    status: response.status,
+                    code: "mutation_failed",
+                });
             }
 
-            const added = result.added === true;
+            const added = result.added;
             await mutateQueueConfig((current) => current ? {
                 ...current,
                 queue: added
@@ -238,203 +244,49 @@ export function AdminDropsAtGlancePanel() {
             dispatchAdminOverviewSync();
             toast.success(added ? "Drop added to queue" : "Drop removed from queue");
         } catch (error) {
-            reportClientIssue({
-                channel: "ui",
-                message: "Admin home queue toggle failed",
-                error,
-                detail: {
+            const resolvedError = resolveClientActionError(error, {
+                surface: "admin_truth",
+                route: "/api/admin/queue/toggle",
+                fallbackKey: "mutation_failed",
+                context: {
                     adminView: "home_drops_module",
                     action: "toggle_queue",
                     dropId,
                 },
+            });
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin home queue toggle failed",
+                error,
+                detail: resolvedError.context,
+                humanMessage: resolvedError.descriptor.userMessage,
                 consoleLabel: "[Admin Drops Home] toggle queue failed",
             });
-            toast.error(getAdminDropsAtGlanceSafeErrorMessage(error, "Failed to update queue."));
+            toast.error(resolvedError.descriptor.userMessage);
         } finally {
             setQueueingDropId(null);
         }
     }, [mutateQueueConfig]);
 
     return (
-        <div className="space-y-2.5">
-                {/* Action buttons */}
-                <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                        href="/admin/drops"
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-brand-purple px-3.5 text-xs font-bold text-white transition-transform hover:scale-[1.01]"
-                    >
-                        <Package className="h-3.5 w-3.5" />
-                        Manage drops
-                    </Link>
-                    <Link
-                        href="/admin/queue"
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-3.5 text-xs font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
-                    >
-                        <Settings2 className="h-3.5 w-3.5" />
-                        Queue
-                    </Link>
-                </div>
-
-                {/* Search bar + source state */}
-                <div className="flex items-center gap-2">
-                    <div className="relative flex-1 min-w-0">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
-                        <input
-                            type="text"
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            placeholder="Search drops…"
-                            className="h-9 w-full rounded-full border border-white/8 bg-black/40 pl-8 pr-3 text-xs text-white placeholder:text-gray-500 focus:border-brand-purple/40 focus:outline-none focus:ring-1 focus:ring-brand-purple/30"
-                        />
+        <div className="min-w-0 space-y-4" data-admin-drops-at-glance="true">
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3"><div className="flex min-w-0 max-w-full flex-wrap items-center gap-2"><Link href="/admin/drops" className={buttonVariants({variant:"default"})}><Package className="h-4 w-4" aria-hidden="true" />Manage drops</Link><Link href="/admin/queue" className={buttonVariants({variant:"ghost"})}><Settings2 className="h-4 w-4" aria-hidden="true" />Queue</Link></div><AdminStatusBadge state={truthState} /></div>
+            <div className="flex min-w-0 flex-wrap items-center gap-3"><label className="relative block min-w-0 max-w-full flex-1 basis-56"><span className="sr-only">Search drops</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" /><Input type="text" value={searchText} onChange={(event) => setSearchText(event.target.value)} placeholder="Search drops..." className="pl-10" /></label><p className="text-xs text-muted-foreground">{isFiltered ? `${filteredRows.length} matching drops` : `${summary.total} drops in current source`}</p></div>
+            <dl className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,6rem),1fr))] gap-x-4 gap-y-3">{[{label:"Total",value:summary.total},{label:"Live",value:summary.live},{label:"Scheduled",value:summary.scheduled},{label:"Queued",value:summary.queued},{label:"Review",value:summary.pending}].map((item) => <div key={item.label} className="min-w-0"><dt className="wrap-anywhere text-xs text-muted-foreground">{item.label}</dt><dd className="mt-1 text-lg font-semibold tabular-nums">{item.value}</dd></div>)}</dl>
+            {loadError ? <div className="min-w-0 rounded-xl bg-destructive/10 p-4 text-sm text-destructive"><AdminStatusBadge state="failed" className="mb-2" /><p className="wrap-anywhere">{loadError}</p></div> : loading ? <div className="grid min-w-0 gap-2" aria-busy="true">{Array.from({length:PAGE_SIZE}).map((_,index) => <div key={index} className="h-24 animate-pulse rounded-xl bg-muted" />)}</div> : filteredRows.length === 0 ? <div className="min-w-0 py-6"><p className="wrap-anywhere text-sm leading-6 text-muted-foreground">{isFiltered ? `No drops match "${searchText.trim()}".` : "No drops exist in the current source."}</p>{isFiltered ? <Button variant="ghost" type="button" onClick={() => setSearchText("")} className="mt-2">Clear search</Button> : null}</div> : (
+                <>
+                    <div className="min-w-0 divide-y divide-border">
+                        {paginatedRows.items.map((row) => {
+                            const isBusy = queueingDropId === row.drop.id;
+                            return <article key={row.drop.id} className="min-w-0 space-y-3 py-4">
+                                <div className="flex min-w-0 items-start gap-3"><div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">{row.drop.imageUrl ? <Image src={row.drop.imageUrl} alt={row.drop.title} fill sizes="44px" className="object-contain bg-black" /> : <span className="grid h-full place-items-center text-xs font-semibold text-muted-foreground">KD</span>}</div><div className="min-w-0 flex-1"><p className="wrap-anywhere text-sm font-medium">{row.drop.title}</p><div className="mt-2 flex min-w-0 flex-wrap items-center gap-2"><Badge variant="secondary" className={row.statusClassName}>{row.statusLabel}</Badge><span className="wrap-anywhere text-xs text-muted-foreground">{row.queueLabel ?? row.scheduleLabel}</span></div></div></div>
+                                <div className="flex min-w-0 flex-wrap items-center justify-between gap-3"><div className="flex min-w-0 flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span>{row.drop.unlockCost} GD</span><span>{(row.drop.totalUnlocks || 0).toLocaleString()} unwraps</span></div><div className="flex max-w-full flex-wrap items-center gap-2"><Link href={`/admin/drops?dropId=${encodeURIComponent(row.drop.id)}`} aria-label={`Open ${row.drop.title}`} className={buttonVariants({variant:"ghost"})}><Edit className="h-4 w-4" aria-hidden="true" />Open</Link><Button variant="ghost" type="button" onClick={() => void handleQueueToggle(row.drop.id)} disabled={isBusy} aria-label={row.isQueued ? "Unqueue drop" : "Queue drop"} aria-busy={isBusy}>{isBusy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Repeat className="h-4 w-4" aria-hidden="true" />}{row.isQueued ? "Unqueue" : "Queue"}</Button></div></div>
+                            </article>;
+                        })}
                     </div>
-                    <AdminStatusBadge state={truthState} />
-                </div>
-
-                {/* Search result count */}
-                {isFiltered ? (
-                    <p className="text-[10px] font-semibold text-gray-500">
-                        {filteredRows.length} result{filteredRows.length !== 1 ? "s" : ""} for &ldquo;{searchText.trim()}&rdquo;
-                    </p>
-                ) : null}
-
-                {/* Summary counters */}
-                <div className="grid grid-cols-5 gap-1.5">
-                    {[
-                        { label: "Total", value: summary.total },
-                        { label: "Live", value: summary.live },
-                        { label: "Scheduled", value: summary.scheduled },
-                        { label: "Queued", value: summary.queued },
-                        { label: "Pending", value: summary.pending },
-                    ].map((item) => (
-                        <div key={item.label} className="rounded-xl border border-white/8 bg-black/30 px-2 py-2 text-center">
-                            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-gray-500">{item.label}</p>
-                            <p className="mt-0.5 text-sm font-black text-white">{item.value}</p>
-                        </div>
-                    ))}
-                </div>
-
-                
-
-                {loadError ? (
-                    <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2.5 text-xs text-red-100">
-                        {loadError}
-                    </div>
-                ) : loading ? (
-                    <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
-                        {Array.from({ length: PAGE_SIZE }).map((_, index) => (
-                            <div key={index} className="h-[6.5rem] animate-pulse rounded-xl border border-white/8 bg-white/5" />
-                        ))}
-                    </div>
-                ) : filteredRows.length === 0 ? (
-                    <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                        <Package className="mx-auto h-8 w-8 text-gray-600" />
-                        {isFiltered ? (
-                            <>
-                                <p className="mt-2 text-xs font-semibold text-white">No drops match &ldquo;{searchText.trim()}&rdquo;</p>
-                                <button
-                                    type="button"
-                                    onClick={() => setSearchText("")}
-                                    className="mt-1.5 text-xs font-medium text-brand-pink hover:underline"
-                                >
-                                    Clear search
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <p className="mt-2 text-xs font-semibold text-white">No drops exist yet.</p>
-                                <p className="mt-1 text-[11px] text-gray-400">Create the first drop or open the full manager.</p>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <>
-                        {/* 2×2 compact card grid (mobile: 2 cols, xl: 4 cols) */}
-                        <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
-                            {paginatedRows.items.map((row) => {
-                                const delaySeed = getDelaySeed(row.drop.id);
-
-                                return (
-                                    <article
-                                        key={row.drop.id}
-                                        className="group flex flex-col gap-2 rounded-xl border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-2.5"
-                                    >
-                                        {/* Thumbnail + status pill row */}
-                                        <div className="flex items-start gap-2">
-                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/55">
-                                                {row.drop.imageUrl ? (
-                                                    <Image src={row.drop.imageUrl} alt={row.drop.title} fill sizes="40px" className="object-contain bg-black" />
-                                                ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-white">KD</div>
-                                                )}
-                                            </div>
-                                            <span className={cn("mt-0.5 shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em]", row.statusClassName)}>
-                                                {row.statusLabel}
-                                            </span>
-                                        </div>
-
-                                        {/* Title */}
-                                        <TitleMarquee title={row.drop.title} delaySeed={delaySeed} className="text-xs font-semibold text-white leading-tight" />
-
-                                        {/* Metrics line */}
-                                        <div className="flex flex-wrap items-center gap-x-2 text-[10px] text-gray-400">
-                                            <span>{row.drop.unlockCost} GD</span>
-                                            <span>{(row.drop.totalUnlocks || 0).toLocaleString()} unwraps</span>
-                                        </div>
-
-                                        {/* Action icons */}
-                                        <div className="mt-auto flex items-center gap-1.5">
-                                            <Link
-                                                href={`/admin/drops?dropId=${encodeURIComponent(row.drop.id)}`}
-                                                aria-label="Edit drop"
-                                                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 text-[10px] font-semibold text-white transition-colors hover:border-brand-purple/35 hover:text-brand-pink"
-                                            >
-                                                <Edit className="h-3 w-3" />
-                                                <span className="hidden md:inline">Open</span>
-                                            </Link>
-                                            <button
-                                                type="button"
-                                                onClick={() => void handleQueueToggle(row.drop.id)}
-                                                disabled={queueingDropId === row.drop.id}
-                                                aria-label={row.isQueued ? "Unqueue drop" : "Queue drop"}
-                                                aria-busy={queueingDropId === row.drop.id}
-                                                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 text-[10px] font-semibold text-white transition-colors hover:border-brand-purple/35 hover:text-brand-pink disabled:opacity-60"
-                                            >
-                                                {queueingDropId === row.drop.id ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : <Repeat className="h-3 w-3" />}
-                                                <span className="hidden md:inline">{row.isQueued ? "Unqueue" : "Queue"}</span>
-                                            </button>
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </div>
-
-                        {paginatedRows.totalPages > 1 ? (
-                            <div className="flex items-center justify-between text-[10px] text-gray-400">
-                                <p>
-                                    {paginatedRows.startIndex + 1}–{paginatedRows.endIndex} of {filteredRows.length}
-                                </p>
-                                <div className="flex items-center gap-1.5">
-                                    <button
-                                        type="button"
-                                        onClick={() => setPage((current) => Math.max(0, current - 1))}
-                                        disabled={paginatedRows.page === 0}
-                                        className="rounded-full border border-white/10 px-2.5 py-1 text-white disabled:opacity-40"
-                                    >
-                                        Prev
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setPage((current) => Math.min(paginatedRows.totalPages - 1, current + 1))}
-                                        disabled={paginatedRows.page >= paginatedRows.totalPages - 1}
-                                        className="rounded-full border border-white/10 px-2.5 py-1 text-white disabled:opacity-40"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                        ) : null}
-                    </>
-                )}
+                    {paginatedRows.totalPages > 1 ? <nav aria-label="Drops at a glance pagination" className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground"><p>{paginatedRows.startIndex + 1}-{paginatedRows.endIndex} of {filteredRows.length}</p><div className="flex max-w-full flex-wrap gap-2"><Button variant="ghost" type="button" onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={paginatedRows.page === 0}>Previous</Button><Button variant="ghost" type="button" onClick={() => setPage((current) => Math.min(paginatedRows.totalPages - 1, current + 1))} disabled={paginatedRows.page >= paginatedRows.totalPages - 1}>Next</Button></div></nav> : null}
+                </>
+            )}
         </div>
     );
 }

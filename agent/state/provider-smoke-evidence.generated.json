@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-07-05T02:02:02.533Z",
+  "generatedAtUtc": "2026-10-01T20:51:58.854Z",
   "reportKey": "provider-smoke-evidence",
-  "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
-  "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "overallStatus": "operator_reported_not_formal_provider_smoke",
   "status": "operator_reported_not_formal_provider_smoke",
   "externalEvidenceStatus": "external_evidence_required",
@@ -41,6 +41,7 @@
   "evidenceFiles": [],
   "completeArtifacts": [],
   "passingArtifacts": [],
+  "validationFailures": [],
   "evidence": [
     "providerSmoke.status=missing",
     "providerSmoke.completeArtifacts=0",

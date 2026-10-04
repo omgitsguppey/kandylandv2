@@ -15,6 +15,7 @@ import {
   materializeAdminAnalyticsSnapshot,
 } from "@/lib/server/admin-analytics-materializers";
 import {
+  getAdminMetricSnapshot,
   getLatestVerifiedSnapshot,
   getSnapshotDebugMetadata,
   markSnapshotRefreshCompleted,
@@ -98,8 +99,9 @@ async function GET_handler(request: NextRequest) {
       return parsed.response;
     }
 
-    const snapshot = await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey);
-    const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
+    const sourceSnapshot = await getAdminMetricSnapshot(parsed.moduleKey, parsed.rangeKey);
+    const snapshot = await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey, sourceSnapshot);
+    const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey, sourceSnapshot);
     const materializer = getAdminAnalyticsMaterializer(parsed.moduleKey);
 
     return adminAnalyticsJson({
@@ -179,24 +181,27 @@ async function POST_handler(request: NextRequest) {
     });
 
     if (started.duplicateRefreshPrevented) {
-      const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
+      const sourceSnapshot = started.snapshot ?? await getAdminMetricSnapshot(parsed.moduleKey, parsed.rangeKey);
+      const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey, sourceSnapshot);
       return adminAnalyticsJson({
         success: true,
         moduleKey: parsed.moduleKey,
         rangeKey: parsed.rangeKey,
         refreshStatus: "duplicate_prevented",
         duplicateRefreshPrevented: true,
-        snapshot: started.snapshot ?? await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey),
+        snapshot: started.snapshot ?? await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey, sourceSnapshot),
         metadata,
         warnings: ["A refresh is already running for this module and range."],
       });
     }
+    if (!started.lease) throw new Error("snapshot_refresh_lease_missing");
 
     try {
       const refreshed = await runSnapshotRefreshWithDedupe({
         moduleKey: parsed.moduleKey,
         rangeKey: parsed.rangeKey,
         force,
+        lease: started.lease,
         refresh: () => materializeAdminAnalyticsSnapshot({
           moduleKey: parsed.moduleKey,
           rangeKey: parsed.rangeKey,
@@ -204,12 +209,23 @@ async function POST_handler(request: NextRequest) {
           requestedBy: admin?.uid ?? "admin_unknown",
         }),
       });
-      const completed = await markSnapshotRefreshCompleted(parsed.moduleKey, parsed.rangeKey, {
+      const completion = await markSnapshotRefreshCompleted(parsed.moduleKey, parsed.rangeKey, {
         ...refreshed.snapshot,
         refreshStartedAt: started.refreshStartedAt ?? refreshed.snapshot.refreshStartedAt,
         duplicateRefreshPrevented: refreshed.duplicateRefreshPrevented,
-      });
-      const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
+      }, started.lease);
+      if (!completion.applied) {
+        const sourceSnapshot = await getAdminMetricSnapshot(parsed.moduleKey, parsed.rangeKey);
+        const snapshot = await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey, sourceSnapshot);
+        const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey, sourceSnapshot);
+        return adminAnalyticsJson({
+          success: false, code: "snapshot_refresh_lease_lost", error: "This refresh no longer owns the selected snapshot. Reload or refresh to read the current source.",
+          moduleKey: parsed.moduleKey, rangeKey: parsed.rangeKey,
+          refreshStatus: "failed", snapshot, metadata,
+        }, { status: snapshot ? 200 : 409 });
+      }
+      const completed = completion.snapshot;
+      const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey, completed);
 
       return adminAnalyticsJson({
         success: true,
@@ -222,9 +238,10 @@ async function POST_handler(request: NextRequest) {
         warnings: completed.warnings,
       });
     } catch (error) {
-      const failed = await markSnapshotRefreshFailed(parsed.moduleKey, parsed.rangeKey, error);
-      const snapshot = await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey);
-      const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
+      const failed = await markSnapshotRefreshFailed(parsed.moduleKey, parsed.rangeKey, error, started.lease);
+      const sourceSnapshot = await getAdminMetricSnapshot(parsed.moduleKey, parsed.rangeKey);
+      const snapshot = await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey, sourceSnapshot);
+      const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey, sourceSnapshot);
 
       return adminAnalyticsJson({
         success: false,

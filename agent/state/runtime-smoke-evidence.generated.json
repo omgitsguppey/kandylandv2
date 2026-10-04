@@ -1,30 +1,24 @@
 {
-  "generatedAtUtc": "2026-07-05T02:02:02.604Z",
+  "generatedAtUtc": "2026-10-01T20:51:55.373Z",
   "reportKey": "runtime-smoke-evidence",
-  "currentHead": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
-  "sourceCommit": "eac7c3ba84cff3b13a878f74da4ad81b27e22d49",
-  "overallStatus": "formal_runtime_smoke_passed",
-  "status": "formal_runtime_smoke_passed",
-  "runtimeDeploymentSmokePassed": true,
-  "passed": true,
-  "evidenceFiles": [
-    "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
-  ],
-  "completeArtifacts": [
-    "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
-  ],
-  "passingArtifacts": [
-    "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
-  ],
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "overallStatus": "runtime_unverified",
+  "status": "runtime_unverified",
+  "runtimeDeploymentSmokePassed": false,
+  "passed": false,
+  "evidenceFiles": [],
+  "completeArtifacts": [],
+  "passingArtifacts": [],
+  "validationFailures": [],
   "readinessImpact": {
-    "runtimeGatePassed": true,
-    "phaseOneStatusCap": "Ready",
-    "recommendedAction": "Keep deployed route/runtime evidence fresh."
+    "runtimeGatePassed": false,
+    "phaseOneStatusCap": "Runtime unverified",
+    "recommendedAction": "Attach current deployment-revision and exercised behavior evidence. capture:truthful-evidence --runtime-smoke provides reachability diagnostics only."
   },
   "evidenceItems": [
-    "runtimeEvidence.status=complete",
-    "runtimeEvidence.completeArtifacts=1",
-    "runtimeEvidence.passingArtifacts=1",
-    "runtimeEvidence.passingArtifact=agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    "runtimeEvidence.status=missing",
+    "runtimeEvidence.completeArtifacts=0",
+    "runtimeEvidence.passingArtifacts=0"
   ]
 }

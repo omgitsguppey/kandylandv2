@@ -10,8 +10,12 @@ import { toast } from "sonner";
 import { DropGrid } from "@/components/DropGrid";
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
 import { CreatorPublicProfileFrame } from "@/components/Creators/CreatorPublicProfileFrame";
-import { CreatorProfileHeader } from "@/components/Creators/CreatorProfileHeader";
 import { CreatorProfileTimelineFeed } from "@/components/Creators/CreatorProfileTimelineFeed";
+import {
+    CreatorProfileExperience,
+    CreatorProfileRouteFrame,
+    CreatorProfileTabs,
+} from "@/components/creative-tim/kandydrops/creator/CreatorProfileExperience";
 import { NotFoundSurface } from "@/components/ui/NotFoundSurface";
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { useAuth } from "@/context/AuthContext";
@@ -1340,8 +1344,9 @@ export default function CreatorProfileClient() {
 
     return (
         <CreatorPublicProfileFrame className="min-h-screen pb-6" contentClassName="relative z-10 pt-8 sm:pt-10">
-            <div data-testid="creator-profile-shell">
-                <CreatorProfileHeader
+            <CreatorProfileRouteFrame className={cn("min-h-[calc(100vh-9rem)]", "pb-5")}>
+                <div data-testid="creator-profile-shell">
+                <CreatorProfileExperience
                     canMessageCreator={canMessageCreator}
                     creator={creator}
                     dropsCount={drops.length}
@@ -1382,46 +1387,11 @@ export default function CreatorProfileClient() {
                     </div>
                 ) : null}
 
-                <div
-                    aria-label="Creator profile sections"
-                    className="mb-6 mt-5 flex items-center gap-1 rounded-2xl border border-white/10 bg-black/20 p-1.5 sm:gap-2"
-                    role="tablist"
-                >
-                    <button
-                        aria-controls="creator-profile-drops-panel"
-                        aria-selected={activeTab === "drops"}
-                        id="creator-profile-drops-tab"
-                        role="tab"
-                        type="button"
-                        onClick={() => setActiveTab("drops")}
-                        className={cn(
-                            "min-h-11 flex-1 rounded-xl px-4 text-sm font-bold uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple",
-                            activeTab === "drops"
-                                ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"
-                                : "text-gray-500 hover:bg-white/[0.06] hover:text-white",
-                        )}
-                    >
-                        Drops
-                    </button>
-                    {hasExperiences ? (
-                        <button
-                            aria-controls="creator-profile-experiences-panel"
-                            aria-selected={activeTab === "experiences"}
-                            id="creator-profile-experiences-tab"
-                            role="tab"
-                            type="button"
-                            onClick={() => setActiveTab("experiences")}
-                            className={cn(
-                                "min-h-11 flex-1 rounded-xl px-4 text-sm font-bold uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple",
-                                activeTab === "experiences"
-                                    ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"
-                                    : "text-gray-500 hover:bg-white/[0.06] hover:text-white",
-                            )}
-                        >
-                            Experiences
-                        </button>
-                    ) : null}
-                </div>
+                <CreatorProfileTabs
+                    activeTab={activeTab}
+                    hasExperiences={hasExperiences}
+                    onSelectTab={setActiveTab}
+                />
 
                 <div className="space-y-5">
                     {activeTab === "experiences" && hasExperiences ? (
@@ -1507,7 +1477,8 @@ export default function CreatorProfileClient() {
                         </div>
                     ) : null}
                 </div>
-            </div>
+                </div>
+            </CreatorProfileRouteFrame>
         </CreatorPublicProfileFrame>
     );
 }

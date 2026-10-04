@@ -35,6 +35,7 @@ const bottomNav = readRequired("src/components/Navigation/MobileBottomBar.tsx");
 const chatShell = readRequired("src/components/Chat/ChatRouteShell.tsx");
 const chat = readRequired("src/components/Chat/ChatExperience.tsx");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
+const dropsSurface = readRequired("src/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience.tsx");
 const experiencesClient = readRequired("src/app/experiences/ExperiencesClient.tsx");
 const creatorProfile = readRequired("src/app/creators/[username]/CreatorProfileClient.tsx");
 const profilePage = readRequired("src/app/dashboard/profile/page.tsx");
@@ -93,7 +94,7 @@ requireIncludes(coreLayout, "\"--user-mobile-bottom-nav-reserved-height\"", "Cor
 requireIncludes(coreLayout, "data-user-mobile-shell-route", "Core layout shell debug attribute");
 requireIncludes(coreLayout, "isChatRoute", "Core layout chat bypass");
 requireIncludes(coreLayout, "chat-owned", "Core layout chat-owned shell debug attribute");
-requireIncludes(coreLayout, "\"--root-shell-top-spacing\": USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT", "Core layout chat top spacing");
+requireIncludes(coreLayout, "\"--root-shell-top-spacing\": USER_MOBILE_CHAT_TOP_GAP", "Core layout chat top spacing");
 requireIncludes(coreLayout, "\"--user-mobile-chat-bottom-reserved-height\": USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT", "Core layout chat bottom spacing");
 requireIncludes(coreLayout, "isLegalRoute", "Core layout legal bypass");
 requireIncludes(coreLayout, "ADMIN_SHELL_ROUTE_CLASS", "Core layout admin bypass");
@@ -124,15 +125,24 @@ for (const [file, source] of [
   requireNotIncludes(source, "mt-[-", `${file} negative margin bottom-nav fix`);
 }
 
-requireIncludes(chatShell, "mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT", "Chat route bounded viewport");
+requireIncludes(chatShell, "mainElement.style.height = USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT", "Chat route bounded viewport");
 requireIncludes(chatShell, "--chat-visual-viewport-height", "Chat route bounded viewport");
-requireIncludes(chatShell, "var(--user-mobile-chat-bottom-reserved-height", "Chat route uses chat-owned bottom reservation");
+requireIncludes(chatShell, "mainElement.style.setProperty(\"--user-mobile-chat-bottom-reserved-height\"", "Chat route binds one inner bottom reservation");
+requireIncludes(chatShell, "mainElement.style.setProperty(\"--user-mobile-chat-bottom-reserved-height\", USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT);", "Browser Chat shared bottom reservation");
+requireIncludes(chatShell, "mainElement.style.setProperty(\"--user-mobile-chat-bottom-reserved-height\", USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT);", "Android Chat shared bottom reservation");
+requireIncludes(chatShell, "mainElement.style.setProperty(\"--user-mobile-chat-bottom-reserved-height\", USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT);", "iOS Chat shared bottom reservation");
+requireIncludes(mobileShell, "var(--user-mobile-chat-bottom-reserved-height", "Shared Chat bottom reservation projection");
 requireNotIncludes(chatShell, "100vh", "Chat route bounded viewport");
 requireIncludes(chat, "CHAT_LIST_SCROLL_PADDING_BOTTOM", "Chat messages scroll padding");
 requireIncludes(chat, "CHAT_THREAD_COMPOSER_PADDING_BOTTOM", "Chat composer bottom padding");
 requireIncludes(chat, "data-chat-input-focus-stable=\"true\"", "Chat input focus stability marker");
 requireIncludes(chat, "data-chat-composer-chin=\"compact\"", "Chat compact composer marker");
-requireIncludes(dropsClient, "data-drops-page-density=\"compact-mobile\"", "Drops compact mobile contract");
+requireIncludes(dropsClient, "from \"@/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience\"", "Drops canonical presentation import");
+requireIncludes(dropsClient, "<DropsDiscoveryExperience", "Drops canonical presentation consumer");
+requireIncludes(dropsSurface, "data-drops-page-density=\"creative-tim-editorial\"", "Drops current presentation density marker");
+requireNotIncludes(dropsSurface, "pb-[calc(7.75rem+env(safe-area-inset-bottom))]", "Drops presentation duplicate full bottom reservation");
+requireNotIncludes(dropsSurface, "pb-32", "Drops presentation duplicate hardcoded bottom reservation");
+if (/(?:^|[\s"'\x60])-mt-/u.test(dropsSurface) || /(?:^|[\s"'\x60])mt-\[-/u.test(dropsSurface)) { failures.push("Drops presentation must not compensate bottom-nav spacing with negative margin classes."); }
 requireIncludes(adminSpacing, "duplicateSafeAreaPaddingDetected: false", "Admin shell safe-area debug metadata");
 requireIncludes(notFound, "NOT_FOUND_RETURN_HREF = \"/dashboard\"", "404 return target");
 requireIncludes(notFound, "Return to App", "404 return button copy");

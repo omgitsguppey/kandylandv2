@@ -127,54 +127,67 @@ function buildModuleState(input: {
 
 export function useAdminAnalyticsSnapshotRegistry(
   ranges: AdminAnalyticsSnapshotRegistryRanges,
+  options: { enabled?: boolean } = {},
 ): AdminAnalyticsSnapshotRegistry {
   const platformPulse = useAdminAnalyticsSnapshot({
     moduleKey: "platform_pulse",
     rangeKey: ranges.platformPulse,
+    enabled: options.enabled,
   });
   const audienceSnapshot = useAdminAnalyticsSnapshot({
     moduleKey: "audience_snapshot",
     rangeKey: ranges.audienceSnapshot,
+    enabled: options.enabled,
   });
   const commerceSnapshot = useAdminAnalyticsSnapshot({
     moduleKey: "commerce_snapshot",
     rangeKey: ranges.commerceSnapshot,
+    enabled: options.enabled,
   });
   const livePulse = useAdminAnalyticsSnapshot({
     moduleKey: "live_pulse",
     rangeKey: ranges.livePulse,
+    enabled: options.enabled,
   });
   const journeyFunnel = useAdminAnalyticsSnapshot({
     moduleKey: "journey_funnel",
     rangeKey: ranges.journeyFunnel,
+    enabled: options.enabled,
   });
   const authOutcomes = useAdminAnalyticsSnapshot({
     moduleKey: "auth_outcomes",
     rangeKey: ranges.authOutcomeSplit,
+    enabled: options.enabled,
   });
   const onboardingPerformance = useAdminAnalyticsSnapshot({
     moduleKey: "onboarding_performance",
     rangeKey: ranges.onboardingVelocity,
+    enabled: options.enabled,
   });
   const dailyTaskPipeline = useAdminAnalyticsSnapshot({
     moduleKey: "daily_task_pipeline",
     rangeKey: ranges.dailyTaskPipeline,
+    enabled: options.enabled,
   });
   const notificationFunnel = useAdminAnalyticsSnapshot({
     moduleKey: "notification_funnel",
     rangeKey: ranges.notificationFunnel,
+    enabled: options.enabled,
   });
   const eventMix = useAdminAnalyticsSnapshot({
     moduleKey: "event_mix",
     rangeKey: ranges.eventMix,
+    enabled: options.enabled,
   });
   const liveInteractionStream = useAdminAnalyticsSnapshot({
     moduleKey: "live_interaction_stream",
     rangeKey: ranges.liveInteractionStream,
+    enabled: options.enabled,
   });
   const dataHealthSummary = useAdminAnalyticsSnapshot({
     moduleKey: "data_health_summary",
     rangeKey: ranges.dataHealthSummary,
+    enabled: options.enabled,
   });
 
   return useMemo(() => {

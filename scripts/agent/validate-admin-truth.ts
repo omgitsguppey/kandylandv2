@@ -32,8 +32,15 @@ const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const recoveryEvidenceComponent = read("src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx");
 const debugNow = read("src/app/admin/debug/components/DebugTabNow.tsx");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const audienceSnapshot = read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
 const operationsTab = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
-const commerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const eventMixSection = read("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
+const interactionSnapshotSection = read("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
+const commerceTab = [
+  read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  read("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
+].join("\n");
 const displayStateHelper = read("src/lib/analytics/admin-analytics-display-state.ts");
 
 requireIncludes(packageJson, "\"check:admin-truth\"", "package.json");
@@ -82,8 +89,8 @@ for (const expected of [
 }
 
 for (const [label, source] of [
-  ["Admin Analytics Audience module", audienceTab],
-  ["Admin Analytics Operations module", operationsTab],
+  ["Admin Analytics Audience module", `${audienceTab}\n${audienceSnapshot}`],
+  ["Admin Analytics Operations module", `${operationsTab}\n${eventMixSection}\n${interactionSnapshotSection}`],
   ["Admin Analytics Commerce module", commerceTab],
 ] as const) {
   requireIncludes(source, "data-admin-analytics-snapshot-priority=\"analytics_admin_metric_snapshots\"", label);

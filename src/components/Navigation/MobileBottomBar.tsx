@@ -1,27 +1,31 @@
 "use client";
 
-import { Suspense } from "react";
-import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare, Wallet } from "lucide-react";
+import { Suspense, useEffect, useRef } from "react";
+import { Candy, Home, LayoutDashboard, MessageSquare, Sparkles, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import { KandyMobileNavigationDock } from "@/components/creative-tim/kandydrops/navigation/KandyNavigationPrimitives";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
-import { cn } from "@/lib/utils";
-import { trackEvent } from "@/lib/telemetry";
 import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
 import { isIosStandalonePwa } from "@/lib/device-layout-contract";
+import { trackEvent } from "@/lib/telemetry";
 import {
     USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET,
     USER_MOBILE_BOTTOM_NAV_HEIGHT,
+    USER_MOBILE_BOTTOM_NAV_VISIBILITY_CLASS_NAME,
 } from "@/lib/user-mobile-shell";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
     label: string;
     href: string;
     icon: typeof Home;
-    /** If true, opens purchase modal instead of navigating */
     action?: "purchase";
+    featured?: boolean;
 };
 
 export const MOBILE_BOTTOM_NAV_WALLET_ACTION_CLASSIFICATION = {
@@ -34,13 +38,13 @@ export const MOBILE_BOTTOM_NAV_WALLET_ACTION_CLASSIFICATION = {
 
 const GUEST_NAV_ITEMS: NavItem[] = [
     { label: "Home", href: "/", icon: Home },
-    { label: "Drops", href: "/drops", icon: Candy },
+    { label: "Drops", href: "/drops", icon: Candy, featured: true },
     { label: "Experiences", href: "/experiences", icon: Sparkles },
 ];
 
 const AUTHED_NAV_ITEMS: NavItem[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Drops", href: "/drops", icon: Candy },
+    { label: "Drops", href: "/drops", icon: Candy, featured: true },
     { label: "Chat", href: "/dashboard/chat", icon: MessageSquare },
     { label: "Experiences", href: "/experiences", icon: Sparkles },
     { label: "Wallet", href: "#wallet", icon: Wallet, action: "purchase" },
@@ -53,12 +57,41 @@ function triggerHaptic() {
 }
 
 function MobileBottomBarInner() {
+    const dockRef = useRef<HTMLElement | null>(null);
     const pathname = usePathname();
     const { user, userProfile, loading } = useAuth();
     const { openPurchaseModal } = useUI();
     const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
     const iosPwa = typeof window !== "undefined" ? isIosStandalonePwa() : false;
+
+    useEffect(() => {
+        const dock = dockRef.current;
+        if (!dock) return;
+
+        const root = document.documentElement;
+        const previousHeight = root.style.getPropertyValue("--kd-mobile-bottom-nav-visual-height");
+        const syncHeight = () => {
+            const height = Math.ceil(dock.getBoundingClientRect().height);
+            if (height > 0) {
+                const value = String(height) + "px";
+                if (root.style.getPropertyValue("--kd-mobile-bottom-nav-visual-height") !== value) {
+                    root.style.setProperty("--kd-mobile-bottom-nav-visual-height", value);
+                }
+                dock.setAttribute("data-bottom-nav-visual-height", String(height));
+            } else {
+                root.style.removeProperty("--kd-mobile-bottom-nav-visual-height");
+            }
+        };
+        syncHeight();
+        const observer = typeof ResizeObserver === "function" ? new ResizeObserver(syncHeight) : null;
+        observer?.observe(dock);
+        return () => {
+            observer?.disconnect();
+            if (previousHeight) root.style.setProperty("--kd-mobile-bottom-nav-visual-height", previousHeight);
+            else root.style.removeProperty("--kd-mobile-bottom-nav-visual-height");
+        };
+    }, [authSettled, pathname]);
 
     if (pathname?.startsWith("/admin")) {
         return null;
@@ -67,10 +100,11 @@ function MobileBottomBarInner() {
     if (!authSettled) {
         return (
             <div
-                className="pointer-events-none fixed inset-x-0 z-40 px-3 md:hidden sm:px-4 opacity-0"
+                className={cn("pointer-events-none fixed inset-x-0 z-40 px-3 opacity-0 sm:px-4", USER_MOBILE_BOTTOM_NAV_VISIBILITY_CLASS_NAME)}
+                data-bottom-nav-role="navigation"
+                data-device-layout-contract="2026-05-public-beta"
                 data-device-layout-surface="mobile-bottom-nav"
                 data-hydration-lane="critical"
-                data-bottom-nav-role="navigation"
                 style={{ bottom: USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET, height: USER_MOBILE_BOTTOM_NAV_HEIGHT }}
             />
         );
@@ -81,22 +115,14 @@ function MobileBottomBarInner() {
     const navItems = isSignedIn
         ? AUTHED_NAV_ITEMS.map((item) => item.href === "/dashboard" ? { ...item, href: creatorDashboardHref } : item)
         : GUEST_NAV_ITEMS;
+    const mobileItemClassName = "relative min-h-11 min-w-0 flex-1 flex-col gap-0.5 rounded-2xl p-1 pb-2 text-center text-xs font-medium leading-tight";
 
     return (
         <div
-            className="pointer-events-none fixed inset-x-0 z-40 px-3 md:hidden sm:px-4"
+            className={cn("pointer-events-none fixed inset-x-0 z-40 px-3 sm:px-4", USER_MOBILE_BOTTOM_NAV_VISIBILITY_CLASS_NAME)}
             style={{ bottom: USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET }}
-            data-platform-shell={iosPwa ? "ios-pwa" : "default"}
         >
-            <nav
-                aria-label="Mobile navigation"
-                className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border border-kandy-lilac/20 bg-kandy-void/85 px-3.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_16px_40px_rgba(5,2,11,0.48)] backdrop-blur-2xl"
-                data-device-layout-surface="mobile-bottom-nav"
-                data-hydration-lane="critical"
-                data-bottom-nav-role="navigation"
-                data-bottom-nav-visual-height="56"
-                style={{ WebkitBackdropFilter: "blur(20px)" }}
-            >
+            <KandyMobileNavigationDock platformShell={iosPwa ? "ios-pwa" : "default"} dockRef={dockRef}>
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = item.action
@@ -104,11 +130,18 @@ function MobileBottomBarInner() {
                         : item.href === "/dashboard"
                             ? pathname === item.href
                             : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                    const itemTone = isActive
+                        ? "bg-secondary text-foreground"
+                        : item.featured
+                            ? "text-primary hover:bg-secondary hover:text-foreground"
+                            : "text-muted-foreground hover:bg-secondary hover:text-foreground";
 
                     if (item.action === "purchase") {
                         return (
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
                                 key={item.label}
                                 onClick={() => {
                                     triggerHaptic();
@@ -116,14 +149,11 @@ function MobileBottomBarInner() {
                                     openPurchaseModal();
                                 }}
                                 aria-label="Open wallet"
-                                className={cn(
-                                    "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[0.9rem] px-2 py-1 text-center transition-all duration-200 hover:bg-white/[0.04] hover:text-white active:scale-95",
-                                    "text-gray-300"
-                                )}
+                                className={cn(mobileItemClassName, "text-primary hover:bg-secondary hover:text-foreground")}
                             >
-                                <Icon className="h-3.5 w-3.5 shrink-0" />
-                                <span className="text-[9px] font-semibold leading-none">{item.label}</span>
-                            </button>
+                                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                <span className="max-w-full break-words leading-tight">{item.label}</span>
+                            </Button>
                         );
                     }
 
@@ -133,28 +163,32 @@ function MobileBottomBarInner() {
                             href={item.href}
                             data-onboarding-target={`${item.label.toLowerCase()}-nav`}
                             aria-current={isActive ? "page" : undefined}
+                            aria-label={item.label}
+                            title={item.label}
                             onClick={() => {
                                 triggerHaptic();
-                                trackEvent('navigation_click', { destination: item.href, route: pathname ?? "/", source: 'mobile_bottom_bar', source_component: "mobile_bottom_bar" });
+                                trackEvent("navigation_click", { destination: item.href, route: pathname ?? "/", source: "mobile_bottom_bar", source_component: "mobile_bottom_bar" });
                             }}
-                            className={cn(
-                                "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[0.9rem] px-2 py-1 text-center transition-all duration-200 hover:bg-white/[0.04] hover:text-white active:scale-95",
-                                isActive
-                                    ? "bg-gradient-to-br from-brand-purple/25 via-brand-purple/15 to-brand-pink/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_8px_18px_rgba(178,140,255,0.14)]"
-                                    : "text-gray-300"
-                            )}
+                            className={cn(buttonVariants({ variant: "ghost", size: "sm" }), mobileItemClassName, itemTone)}
                         >
-                            <div className="relative">
-                                <Icon className="h-3.5 w-3.5 shrink-0" />
-                                {item.label === "Chat" && hasUnreadMessages && (
-                                    <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-brand-purple ring-2 ring-kandy-ink/90" />
+                            <span className="relative grid place-items-center">
+                                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                {item.label === "Chat" && hasUnreadMessages ? (
+                                    <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-brand-pink ring-2 ring-kandy-ink/90" />
+                                ) : null}
+                            </span>
+                            <span className="max-w-full break-words leading-tight">{item.label}</span>
+                            <span
+                                aria-hidden="true"
+                                className={cn(
+                                    "absolute inset-x-3 bottom-1 h-0.5 rounded-full transition-opacity",
+                                    isActive ? "bg-foreground opacity-90" : "opacity-0",
                                 )}
-                            </div>
-                            <span className="text-[9px] font-semibold leading-none">{item.label}</span>
+                            />
                         </Link>
                     );
                 })}
-            </nav>
+            </KandyMobileNavigationDock>
         </div>
     );
 }

@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/creative-tim/ui/badge";
+
 import { useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -146,96 +149,40 @@ export function AdminActivityLogPanel({
 
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
-        <div className="space-y-2" data-debug-admin-activity={JSON.stringify(debugMeta)}>
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+        <div className="min-w-0 space-y-4" data-debug-admin-activity={JSON.stringify(debugMeta)}>
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0"><p className="text-sm font-medium text-muted-foreground">Activity evidence</p>{freshnessLabel ? <p className={`mt-1 text-xs ${freshnessLabel.stale ? "text-warning" : "text-muted-foreground"}`}>{freshnessLabel.text}</p> : null}</div>
                 <AdminStatusBadge state={truthState} />
-                {freshnessLabel && (
-                    <span className={`text-[10px] ${freshnessLabel.stale ? "text-amber-400/70" : "text-gray-500"}`}>
-                        {freshnessLabel.text}
-                    </span>
-                )}
             </div>
-            {activity.length === 0 ? (
-                <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400">
-                        No admin actions found in the current window.
-                    </p>
-                </div>
-            ) : (
+            {activity.length === 0 ? <p className="py-6 text-sm leading-6 text-muted-foreground">No admin actions were found in the current source window.</p> : (
                 <>
-                    <div className="divide-y divide-white/6 rounded-xl border border-white/8 bg-black/20 overflow-hidden">
+                    <ol className="min-w-0 divide-y divide-border" aria-label="Admin activity records">
                         {paginated.items.map((item) => {
-                            const relativeLabel = item.timestamp > 0
-                                ? formatDistanceToNow(item.timestamp, { addSuffix: true })
-                                : "Unknown time";
-
+                            const relativeLabel = item.timestamp > 0 ? formatDistanceToNow(item.timestamp, { addSuffix: true }) : "Unknown time";
                             const sourceLabel = item.source === "transactions" ? "Adjustment" : "Admin event";
-                            const sourceBadgeStyle = SOURCE_BADGE_STYLES[item.source] ?? "border-white/10 bg-white/5 text-gray-300";
-
+                            const sourceBadgeStyle = SOURCE_BADGE_STYLES[item.source] ?? "border-border bg-secondary text-secondary-foreground";
                             return (
-                                <div
-                                    key={item.id}
-                                    className="flex items-center gap-2 px-3 py-2 min-h-[36px]"
-                                >
-                                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${sourceBadgeStyle}`}>
-                                        {sourceLabel}
-                                    </span>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-baseline gap-1.5 text-[12px]">
-                                            <span className="truncate font-medium text-white">
-                                                {item.label}
-                                            </span>
-                                            <span className="shrink-0 text-[10px] text-gray-400">
-                                                {item.actorLabel}
-                                            </span>
-                                        </div>
-                                        {(item.targetLabel || item.detail) && (
-                                            <div className="flex items-baseline gap-1.5 text-[10px] text-gray-500 mt-0.5">
-                                                {item.targetLabel && (
-                                                    <span className="text-purple-300/70">
-                                                        → {item.targetLabel}
-                                                    </span>
-                                                )}
-                                                {item.detail && (
-                                                    <span className="truncate">{item.detail}</span>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <span className="hidden shrink-0 text-[10px] text-gray-500 sm:block">
-                                        {relativeLabel}
-                                    </span>
-                                </div>
+                                <li key={item.id} className="min-w-0 py-4">
+                                    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3"><Badge variant="secondary" className={sourceBadgeStyle}>{sourceLabel}</Badge><span className="text-xs text-muted-foreground">{relativeLabel}</span></div>
+                                    <p className="mt-2 wrap-anywhere text-sm font-medium text-foreground">{item.label}</p>
+                                    <dl className="mt-2 grid min-w-0 gap-1 text-xs leading-5">
+                                        <div className="flex min-w-0 flex-wrap gap-x-2"><dt className="text-muted-foreground">Operator</dt><dd className="wrap-anywhere text-foreground">{item.actorLabel}</dd></div>
+                                        {item.targetLabel ? <div className="flex min-w-0 flex-wrap gap-x-2"><dt className="text-muted-foreground">Target</dt><dd className="wrap-anywhere text-foreground">{item.targetLabel}</dd></div> : null}
+                                        {item.detail ? <div className="min-w-0"><dt className="sr-only">Details</dt><dd className="wrap-anywhere text-muted-foreground">{item.detail}</dd></div> : null}
+                                    </dl>
+                                </li>
                             );
                         })}
-                    </div>
-                    {paginated.totalPages > 1 && (
-                        <div className="flex items-center justify-between px-1 text-[11px] text-gray-400">
-                            <span>
-                                Showing {paginated.startIndex + 1}-{paginated.endIndex} of {activity.length}
-                            </span>
-                            <div className="flex items-center gap-1">
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.max(0, c - 1))}
-                                    disabled={paginated.page === 0}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Previous page"
-                                >
-                                    <ChevronLeft size={14} />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))}
-                                    disabled={paginated.page >= paginated.totalPages - 1}
-                                    className="rounded-full border border-white/10 p-1 text-white disabled:opacity-30"
-                                    aria-label="Next page"
-                                >
-                                    <ChevronRight size={14} />
-                                </button>
+                    </ol>
+                    {paginated.totalPages > 1 ? (
+                        <nav aria-label="Admin activity pagination" className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+                            <span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {activity.length}</span>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} aria-label="Previous page"><ChevronLeft aria-hidden="true" size={16} /></Button>
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} aria-label="Next page"><ChevronRight aria-hidden="true" size={16} /></Button>
                             </div>
-                        </div>
-                    )}
+                        </nav>
+                    ) : null}
                 </>
             )}
         </div>

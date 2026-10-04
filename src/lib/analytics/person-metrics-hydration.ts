@@ -16,6 +16,7 @@ import {
   type PersonMetricId,
 } from "./person-metrics-contract";
 import {
+  buildObservedSessionMetricKey,
   buildPersonMetricCandidate,
   shouldCountPersonMetricEvent,
   type PersonMetricCountDecision,
@@ -184,11 +185,12 @@ function sourceEventMap() {
 }
 
 export function buildMaterializedPersonMetricCounts(
-  facts: readonly { eventName: string; timestampMs: number }[],
+  facts: readonly { eventName: string; timestampMs: number; sessionId?: string }[],
 ): PersonMetricCounts {
   const counts = createEmptyPersonMetricCounts();
   const definitionsByEvent = sourceEventMap();
   const activeDayKeys = new Set<string>();
+  const sessionKeys = new Set<string>();
   for (const fact of facts) {
     for (const metric of definitionsByEvent.get(fact.eventName) ?? []) {
       if (metric.id === "active_days") {
@@ -197,10 +199,16 @@ export function buildMaterializedPersonMetricCounts(
         }
         continue;
       }
+      if (metric.id === "sessions") {
+        const key = buildObservedSessionMetricKey(fact.sessionId);
+        if (key) sessionKeys.add(key);
+        continue;
+      }
       counts[metric.id] += 1;
     }
   }
   counts.active_days = activeDayKeys.size;
+  counts.sessions = sessionKeys.size;
   return counts;
 }
 

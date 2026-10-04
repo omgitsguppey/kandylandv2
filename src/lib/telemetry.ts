@@ -2,6 +2,8 @@ import { auth } from "./firebase";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { createAnalyticsEventId } from "./analytics-identifiers";
 import { buildClientTrackingDecision } from "./analytics/client-tracking-policy";
+import { resolveClientTelemetryRetryDelayMs } from "./analytics/client-telemetry-priority";
+import { shouldRetry4xx } from "./route-hardening/route-4xx-mitigation";
 import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { buildClientIdentityLinkRecord, getClientSessionId, readClientIdentityLinkRecord, rememberClientIdentityLink } from "./client-session";
@@ -88,6 +90,10 @@ let telemetryFlushTimeout: number | null = null;
 let telemetryFlushInFlight: Promise<void> | null = null;
 let lifecycleFlushInstalled = false;
 let telemetryQueueUserId: string | null = null;
+let telemetryQueueOwnershipGeneration = 0;
+let telemetryRetryAttempt = 0;
+let telemetryRetryNotBeforeMs = 0;
+let telemetryRetryExhausted = false;
 let telemetryRolloutContext: RolloutTelemetryContext | null = null;
 let telemetryReleaseContext: SanitizedEventParams | null = null;
 
@@ -135,6 +141,11 @@ function clearPersistedTelemetryQueue() {
 export function syncIdentifiedTelemetryOwnership(userId: string | null) {
     ensureTelemetryQueueLoaded();
 
+    if (telemetryQueueUserId !== userId) {
+        telemetryQueueOwnershipGeneration += 1;
+        resetIdentifiedTelemetryRetry();
+    }
+
     if (!userId) {
         telemetryQueue = [];
         telemetryQueueUserId = null;
@@ -161,6 +172,7 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
     eventId?: string;
     eventTimestampMs?: number;
     sessionId?: string;
+    pagePath?: string;
 }) {
     const sanitizedParams = sanitizeEventParams(eventParams) ?? {};
 
@@ -200,7 +212,7 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
     const viewportHeight = Math.round(window.innerHeight || 0);
     const enriched: Record<string, string | number | boolean> = {
         ...sanitizedParams,
-        page_path: window.location.pathname,
+        page_path: options?.pagePath ?? window.location.pathname,
         event_id: eventEnvelope.eventId,
         event_name: eventEnvelope.eventName,
         event_version: eventEnvelope.eventVersion,
@@ -248,7 +260,7 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
             : privacyMetricExclusionReason,
         privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
         ...buildAnalyticsSemanticParams({
-            pagePath: window.location.pathname,
+            pagePath: options?.pagePath ?? window.location.pathname,
             dropId: typeof sanitizedParams.drop_id === "string" ? sanitizedParams.drop_id : undefined,
             dropCategory: typeof sanitizedParams.drop_category === "string" ? sanitizedParams.drop_category : undefined,
         }),
@@ -265,6 +277,7 @@ function getGaDispatchParams(eventParams?: SanitizedEventParams) {
 
 export type GuestAnalyticsIngestTransportOutcome =
     | { status: "accepted"; httpStatus?: number }
+    | { status: "queued_unacknowledged" }
     | { status: "permanent_failure"; httpStatus?: number; reason: string }
     | { status: "retryable_failure"; httpStatus?: number; reason: string };
 
@@ -275,7 +288,7 @@ type GuestAnalyticsIngestResponseBody = {
 };
 
 export function shouldAdvanceGuestAnalyticsQueue(outcome: GuestAnalyticsIngestTransportOutcome) {
-    return outcome.status !== "retryable_failure";
+    return outcome.status === "accepted" || outcome.status === "permanent_failure";
 }
 
 function readGuestAnalyticsFailureReason(body: GuestAnalyticsIngestResponseBody | null, fallback: string) {
@@ -314,7 +327,7 @@ export async function submitGuestAnalyticsIngestPayload(input: {
             if (!accepted) {
                 throw new Error("Guest analytics sendBeacon was rejected");
             }
-            return { status: "accepted" };
+            return { status: "queued_unacknowledged" };
         }
 
         const response = await fetch("/api/analytics/ingest", {
@@ -494,6 +507,25 @@ function clearTelemetryFlushTimeout() {
     telemetryFlushTimeout = null;
 }
 
+function resetIdentifiedTelemetryRetry() {
+    telemetryRetryAttempt = 0;
+    telemetryRetryNotBeforeMs = 0;
+    telemetryRetryExhausted = false;
+}
+
+function scheduleIdentifiedTelemetryFlush() {
+    if (typeof window === "undefined" || telemetryQueue.length === 0 || telemetryRetryExhausted || telemetryFlushTimeout !== null) {
+        return;
+    }
+    const delayMs = telemetryRetryNotBeforeMs > Date.now()
+        ? telemetryRetryNotBeforeMs - Date.now()
+        : IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS;
+    telemetryFlushTimeout = window.setTimeout(() => {
+        telemetryFlushTimeout = null;
+        void flushQueuedTelemetry("scheduled");
+    }, delayMs);
+}
+
 function shouldFlushIdentifiedTelemetryImmediately(
     eventName: string,
     eventParams: SanitizedEventParams | undefined,
@@ -516,18 +548,18 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
     const currentUserId = auth?.currentUser?.uid ?? null;
 
     if (currentUserId && telemetryQueueUserId && telemetryQueueUserId !== currentUserId) {
-        telemetryQueue = [];
-        telemetryQueueUserId = currentUserId;
-        clearPersistedTelemetryQueue();
+        syncIdentifiedTelemetryOwnership(currentUserId);
     }
 
     if (!auth?.currentUser || telemetryQueue.length === 0) {
         if (!auth?.currentUser) {
-            telemetryQueue = [];
-            telemetryQueueUserId = null;
-            clearPersistedTelemetryQueue();
+            syncIdentifiedTelemetryOwnership(null);
         }
         clearTelemetryFlushTimeout();
+        return;
+    }
+
+    if (telemetryRetryExhausted || telemetryRetryNotBeforeMs > Date.now()) {
         return;
     }
 
@@ -543,6 +575,29 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
         return;
     }
 
+    const ownershipGeneration = telemetryQueueOwnershipGeneration;
+    const hasBatchCustody = () => telemetryQueueOwnershipGeneration === ownershipGeneration
+        && telemetryQueueUserId === currentUserId
+        && auth?.currentUser?.uid === currentUserId;
+    const retainForRetry = (httpStatus?: number, retryAfterSeconds?: number) => {
+        telemetryQueue = [...batch, ...telemetryQueue].slice(-50);
+        clearTelemetryFlushTimeout();
+        telemetryRetryAttempt += 1;
+        const delayMs = resolveClientTelemetryRetryDelayMs(telemetryRetryAttempt);
+        telemetryRetryExhausted = delayMs === null;
+        telemetryRetryNotBeforeMs = delayMs === null
+            ? 0
+            : Date.now() + Math.max(delayMs, (retryAfterSeconds ?? 0) * 1_000);
+        persistTelemetryQueue();
+        recordClientDiagnostic("telemetry", "Identified telemetry batch failed", {
+            reason,
+            batchSize: batch.length,
+            ...(httpStatus === undefined ? {} : { httpStatus }),
+            retryAttempt: telemetryRetryAttempt,
+            retryState: telemetryRetryExhausted ? "retry_exhausted" : "backoff",
+        });
+    };
+
     telemetryFlushInFlight = (async () => {
         try {
             const response = await authFetch("/api/analytics/ingest-identified", {
@@ -550,17 +605,47 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
                 body: JSON.stringify({ events: batch }),
                 keepalive: reason === "pagehide" || reason === "visibility",
             });
-            if (!response.ok) {
-                throw new Error(`fetch failed with status ${response.status}`);
+            if (!hasBatchCustody()) {
+                return;
             }
-        } catch (error) {
-            telemetryQueue = [...batch, ...telemetryQueue].slice(-50);
-            persistTelemetryQueue();
-            recordClientDiagnostic("telemetry", "Identified telemetry batch failed", {
-                reason,
-                batchSize: batch.length,
-                message: error instanceof Error ? error.message : String(error),
-            });
+            if (!response.ok) {
+                const responseBody = await readGuestAnalyticsResponseBody(response);
+                if (!hasBatchCustody()) {
+                    return;
+                }
+                const retryAfterHeader = response.headers.get("retry-after")?.trim();
+                const retryAfterCandidate = retryAfterHeader && /^\d+$/u.test(retryAfterHeader) ? Number(retryAfterHeader) : NaN;
+                // Browser timers cannot safely schedule beyond a signed 32-bit millisecond delay.
+                const retryAfterSeconds = Number.isSafeInteger(retryAfterCandidate)
+                    && retryAfterCandidate > 0 && retryAfterCandidate * 1_000 <= 2_147_483_647
+                    ? retryAfterCandidate : undefined;
+                const retryable = responseBody?.permanent !== true && responseBody?.retryable !== false
+                    && (response.status >= 400 && response.status < 500
+                        ? shouldRetry4xx({
+                            route: "/api/analytics/ingest-identified",
+                            method: "POST",
+                            statusCode: response.status,
+                            retryAfterSeconds,
+                            idempotencyKeyPresent: batch.every((event) => Boolean(event.eventId)),
+                        }).retry
+                        : response.status >= 500);
+                if (retryable) {
+                    retainForRetry(response.status, retryAfterSeconds);
+                } else {
+                    resetIdentifiedTelemetryRetry();
+                    recordClientDiagnostic("telemetry", "Identified telemetry batch permanently rejected", {
+                        reason,
+                        httpStatus: response.status,
+                        droppedEvents: batch.length,
+                    });
+                }
+                return;
+            }
+            resetIdentifiedTelemetryRetry();
+        } catch {
+            if (hasBatchCustody()) {
+                retainForRetry();
+            }
         }
     })().finally(() => {
         telemetryFlushInFlight = null;
@@ -568,11 +653,7 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
 
     await telemetryFlushInFlight;
 
-    if (telemetryQueue.length > 0 && typeof window !== "undefined" && telemetryFlushTimeout === null) {
-        telemetryFlushTimeout = window.setTimeout(() => {
-            void flushQueuedTelemetry("scheduled");
-        }, IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS);
-    }
+    scheduleIdentifiedTelemetryFlush();
 }
 
 function ensureTelemetryLifecycleFlush() {
@@ -590,6 +671,9 @@ function ensureTelemetryLifecycleFlush() {
         }
     };
     const flushOnReconnect = () => {
+        if (telemetryRetryExhausted) {
+            resetIdentifiedTelemetryRetry();
+        }
         void flushQueuedTelemetry("immediate");
     };
 
@@ -609,12 +693,10 @@ function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immedi
         return;
     }
 
-    if (telemetryQueueUserId && telemetryQueueUserId !== currentUserId) {
-        telemetryQueue = [];
-        persistTelemetryQueue();
+    if (telemetryQueueUserId !== currentUserId) {
+        syncIdentifiedTelemetryOwnership(currentUserId);
     }
 
-    telemetryQueueUserId = currentUserId;
     ensureTelemetryLifecycleFlush();
     telemetryQueue.push(event);
     if (telemetryQueue.length > 50) {
@@ -627,13 +709,18 @@ function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immedi
         return;
     }
 
-    clearTelemetryFlushTimeout();
-    telemetryFlushTimeout = window.setTimeout(() => {
-        void flushQueuedTelemetry("scheduled");
-    }, IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS);
+    if (telemetryRetryNotBeforeMs === 0 && !telemetryRetryExhausted) {
+        clearTelemetryFlushTimeout();
+    }
+    scheduleIdentifiedTelemetryFlush();
 }
 
-export function trackEvent(eventName: string, eventParams?: Record<string, unknown>) {
+export function trackEvent(eventName: string, eventParams?: Record<string, unknown>, options?: { firstParty?: boolean; expectedUserId?: string | null; eventId?: string; eventTimestampMs?: number; sessionId?: string; pagePath?: string }) {
+    if (options && Object.prototype.hasOwnProperty.call(options, "expectedUserId")
+        && options.expectedUserId !== (auth?.currentUser?.uid ?? null)) {
+        recordClientDiagnostic("telemetry", "Telemetry actor changed before dispatch", { eventName });
+        return;
+    }
     const privacySettings = readPrivacySettingsSnapshot();
     const allowAnonymousAnalytics = canUseAnonymousAnalytics(privacySettings);
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
@@ -657,13 +744,14 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         return;
     }
 
-    const sessionIdForEnvelope = getSessionId();
-    const eventTimestampMsForEnvelope = Date.now();
-    const eventId = createAnalyticsEventId(sessionIdForEnvelope);
+    const sessionIdForEnvelope = options?.sessionId ?? getSessionId();
+    const eventTimestampMsForEnvelope = options?.eventTimestampMs ?? Date.now();
+    const eventId = options?.eventId ?? createAnalyticsEventId(sessionIdForEnvelope);
     const enrichedParams = getEnrichedEventParams(eventNameForDispatch, preparedEvent.enrichedParams, {
         eventId,
         eventTimestampMs: eventTimestampMsForEnvelope,
         sessionId: sessionIdForEnvelope,
+        pagePath: options?.pagePath,
     });
     const gaDispatchParams = getGaDispatchParams(enrichedParams);
     const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
@@ -679,6 +767,7 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     if (
         !preparedEvent.isKnownEvent
         || !auth?.currentUser
+        || options?.firstParty === false
         || (!trackingDecision.mayPersist && !allowIdentifiedAnalytics && !shouldSyncTaskProgress)
     ) {
         return;

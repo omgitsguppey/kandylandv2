@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 import { TELEMETRY_EVENT_OPTIONS } from "../../src/lib/telemetry-catalog";
 import {
@@ -161,6 +162,56 @@ function writeMarkdown(report: TelemetryDependencyGraphReport) {
   writeFileSync(fullPath, lines.join("\n"));
 }
 
+/** Source connectivity only; actual route fixtures and deployed persistence remain separate proof. */
+export function validateTelemetryPersistenceBindings(sources: Record<string, string>) {
+  const parse = (path: string) => ts.createSourceFile(path, sources[path] ?? "", ts.ScriptTarget.Latest, true,
+    path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  const nodes = <T extends ts.Node>(source: ts.SourceFile, match: (node: ts.Node) => node is T) => {
+    const found: T[] = [];
+    const visit = (node: ts.Node) => { if (match(node)) found.push(node); ts.forEachChild(node, visit); };
+    visit(source); return found;
+  };
+  const importedCall = (source: ts.SourceFile, exported: string, module: string) => {
+    const local = nodes(source, ts.isImportDeclaration).flatMap(node => {
+      if (!ts.isStringLiteral(node.moduleSpecifier) || node.moduleSpecifier.text !== module) return [];
+      const bindings = node.importClause?.namedBindings;
+      return bindings && ts.isNamedImports(bindings)
+        ? bindings.elements.filter(item => (item.propertyName ?? item.name).text === exported).map(item => item.name.text) : [];
+    });
+    return nodes(source, ts.isCallExpression).some(node => ts.isIdentifier(node.expression) && local.includes(node.expression.text));
+  };
+  const persistsCollection = (source: ts.SourceFile, collection: string) => {
+    const references = nodes(source, ts.isVariableDeclaration).filter(node => node.initializer && ts.isCallExpression(node.initializer)
+      && ts.isPropertyAccessExpression(node.initializer.expression) && node.initializer.expression.name.text === "doc"
+      && ts.isCallExpression(node.initializer.expression.expression)
+      && node.initializer.expression.expression.expression.getText(source) === "adminDb.collection"
+      && node.initializer.expression.expression.arguments[0]?.getText(source) === collection).map(node => node.name.getText(source));
+    return nodes(source, ts.isCallExpression).some(node => ts.isPropertyAccessExpression(node.expression)
+      && node.expression.name.text === "create" && references.includes(node.arguments[0]?.getText(source)));
+  };
+  const propertyValue = (source: ts.SourceFile, owner: string, property: string, value: string) =>
+    nodes(source, ts.isVariableDeclaration).some(node => node.name.getText(source) === owner && node.initializer
+      && ts.isAsExpression(node.initializer) && ts.isObjectLiteralExpression(node.initializer.expression)
+      && node.initializer.expression.properties.some(member => ts.isPropertyAssignment(member)
+        && member.name.getText(source) === property && ts.isStringLiteral(member.initializer) && member.initializer.text === value));
+  const tracker = parse("src/components/Analytics/DeepTracker.tsx"),client = parse("src/lib/telemetry.ts");
+  const guest = parse("src/app/api/analytics/ingest/route.ts"),identified = parse("src/app/api/analytics/ingest-identified/route.ts");
+  const transport = nodes(client, ts.isFunctionDeclaration).find(node => node.name?.text === "submitGuestAnalyticsIngestPayload");
+  const transportCalls: ts.CallExpression[] = [];
+  if (transport) { const visit = (node: ts.Node) => { if (ts.isCallExpression(node)) transportCalls.push(node); ts.forEachChild(node, visit); }; visit(transport); }
+  const guestTransport = transportCalls.some(node => node.expression.getText(client) === "fetch"
+    && ts.isStringLiteral(node.arguments[0]) && node.arguments[0].text === "/api/analytics/ingest");
+  const timeline = (source: ts.SourceFile) => importedCall(source,"writeBehavioralTimelineProjection","@/lib/server/behavioral-timeline-writer");
+  return {
+    guest: importedCall(tracker,"submitGuestAnalyticsIngestPayload","@/lib/telemetry") && guestTransport
+      && propertyValue(parse("src/lib/analytics/ingest-contract.ts"),"ANALYTICS_INGEST_FIRESTORE_COLLECTIONS","guestBatches","analytics_guest_batches")
+      && persistsCollection(guest,"ANALYTICS_INGEST_FIRESTORE_COLLECTIONS.guestBatches") && timeline(guest),
+    identified: importedCall(identified,"createRuntimeFactFirestoreDocument","@/lib/server/write-runtime-fact")
+      && propertyValue(parse("src/lib/server/analytics-governance.ts"),"ANALYTICS_CANONICAL_COLLECTIONS","runtimeFacts","analytics_event_facts")
+      && persistsCollection(identified,"ANALYTICS_CANONICAL_COLLECTIONS.runtimeFacts") && timeline(identified),
+  };
+}
+
 export function validateTelemetryDependencyGraph(options: { writeReport?: boolean } = {}) {
   const graphClosure = validateTelemetryDependencyGraphClosure(TELEMETRY_EVENT_OPTIONS);
   const unmappedEvents = findUnmappedTelemetryEvents(TELEMETRY_EVENT_OPTIONS);
@@ -179,8 +230,6 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
   const signalDuplicateOrDisconnectedPathsCaught = signalGraph.findings.some((finding) =>
     /duplicate|missing|disconnected|unproven/u.test(finding.classification),
   );
-  const deepTracker = read("src/components/Analytics/DeepTracker.tsx");
-  const telemetryClient = read("src/lib/telemetry.ts");
   const ingestRoute = read("src/app/api/analytics/ingest/route.ts");
   const identifiedIngestRoute = read("src/app/api/analytics/ingest-identified/route.ts");
   const identityLinkRoute = read("src/app/api/analytics/identity-link/route.ts");
@@ -190,6 +239,10 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
   const runtimeWatchTracker = read("src/components/Analytics/RuntimeWatchTracker.tsx");
   const watchSessionRoute = read("src/app/api/viewer/watch-session/route.ts");
   const ga4Truth = read("src/lib/analytics/ga4-truth.ts");
+  const persistence = validateTelemetryPersistenceBindings(Object.fromEntries([
+    "src/components/Analytics/DeepTracker.tsx","src/lib/telemetry.ts","src/app/api/analytics/ingest/route.ts",
+    "src/app/api/analytics/ingest-identified/route.ts","src/lib/analytics/ingest-contract.ts","src/lib/server/analytics-governance.ts",
+  ].map(path => [path, read(path)])));
 
   const priorityLanesClosed = TELEMETRY_DEPENDENCY_GRAPH
     .filter((lane) => lane.costPriority !== "evidence_only")
@@ -201,12 +254,8 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
   const routeClosureFindings = [
     finding(
       "deeptracker-ingest-route",
-      deepTracker.includes("trackEvent(")
-        && !deepTracker.includes("/api/analytics/ingest")
-        && telemetryClient.includes("/api/analytics/ingest")
-        && ingestRoute.includes("analytics_guest_batches")
-        && ingestRoute.includes("writeBehavioralTimelineFacts("),
-      "DeepTracker anonymous telemetry routes through the canonical telemetry client, which reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts.",
+      persistence.guest,
+      "DeepTracker submits guest batches through the canonical telemetry client to the configured guest-batch collection and existing timeline projection owner. This is source connectivity, not transport acknowledgement or deployed persistence.",
       "P0",
     ),
     finding(
@@ -217,7 +266,7 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
     ),
     finding(
       "identified-ingest-event-facts",
-      identifiedIngestRoute.includes("ANALYTICS_CANONICAL_COLLECTIONS.runtimeFacts") && identifiedIngestRoute.includes("writeBehavioralTimelineFacts"),
+      persistence.identified,
       "Identified ingest persists canonical event facts and writes behavioral timeline facts.",
       "P0",
     ),
@@ -393,15 +442,12 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
   return { report, blockingFailures };
 }
 
-const { report, blockingFailures } = validateTelemetryDependencyGraph({ writeReport: true });
-
-if (blockingFailures.length > 0) {
-  for (const failure of blockingFailures) {
-    console.error(`[telemetry-dependency-graph] ${failure}`);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const { report, blockingFailures } = validateTelemetryDependencyGraph({ writeReport: true });
+  if (blockingFailures.length > 0) {
+    for (const failure of blockingFailures) console.error(`[telemetry-dependency-graph] ${failure}`);
+    process.exitCode = 1;
+  } else {
+    console.log(`[telemetry-dependency-graph] ok: ${report.summary.lanesMapped} lanes, ${TELEMETRY_EVENT_OPTIONS.length} catalog events mapped`);
   }
-  process.exitCode = 1;
-} else {
-  console.log(
-    `[telemetry-dependency-graph] ok: ${report.summary.lanesMapped} lanes, ${TELEMETRY_EVENT_OPTIONS.length} catalog events mapped`,
-  );
 }

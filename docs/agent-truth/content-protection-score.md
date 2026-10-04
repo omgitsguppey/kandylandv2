@@ -15,7 +15,6 @@ Admin moderation consumes content-protection findings as evidence, not as fake s
 
 - Full-page locked Drop preview: `src/app/drops/[id]/preview/page.tsx`, `src/components/Drops/LockedDropPreviewClient.tsx`, and `src/components/Drops/LockedDropPreviewView.tsx`
 - Safe preview view model: `src/lib/locked-drop-preview-truth.ts`
-- Legacy fallback: `src/components/DropPreviewModal.tsx`
 - Public Drop feed sanitization: `src/lib/server/drops.ts` and `src/app/api/drops/route.ts`
 - Authenticated content proxy: `src/app/api/drops/content/route.ts`
 - Dashboard viewer route and loader: `src/app/dashboard/viewer/page.tsx`, `src/app/dashboard/viewer/ViewerClient.tsx`, `src/app/dashboard/viewer/hooks/useViewerState.ts`, and `src/app/dashboard/viewer/ViewerHelpers.ts`
@@ -25,7 +24,7 @@ Admin moderation consumes content-protection findings as evidence, not as fake s
 - Public Drop payloads must use `sanitizeDropForClient` so `contentUrl` is blank and `contentUrls` contains only empty placeholders.
 - Locked preview payloads use `toLockedDropPreviewSafeDrop`, which is limited to cover art, title, description, creator, public engagement, media counts, file metadata counts, price, and timer fields.
 - The preview page must expose `data-safe-preview-fields-only="true"` so deterministic audits can verify the route without browser automation.
-- `DropPreviewModal` is legacy fallback only and must not read `drop.contentUrl` or `drop.contentUrls`; file count must come from presentation metadata such as `getDropMediaSummary`.
+- Full-page preview file counts come from safe presentation metadata through `getLockedDropPreviewMediaCounts`; the retired modal is not a protected runtime surface. Physical absence and active entry-point ownership are enforced by `check:drop-preview-legacy-handoff`.
 - `/api/drops/content` may touch raw content URLs only after authenticated, trusted-origin, caller-scoped entitlement checks prove creator ownership or server-written unlock entitlement.
 - Content/media 4xx paths must return typed minimal errors, avoid raw URL leakage, and dedupe repeated missing-entitlement/media-not-found evidence to control cost and log volume.
 - The dashboard viewer can read raw Drop server-side only long enough to pass `sanitizeDropForClient` into the client. The client fetches protected bytes only through `/api/drops/content` after `isAuthorized`.

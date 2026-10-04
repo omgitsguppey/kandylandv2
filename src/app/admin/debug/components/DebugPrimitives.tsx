@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminDebugCardCopy } from "@/lib/admin-debug-summary-cards";
-import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import {
+    ADMIN_NO_SOURCE_LABEL,
     resolveAdminInputTruthState as resolveAdminTruthState,
     type AdminTruthState,
 } from "@/lib/admin-truth-state";
@@ -14,6 +14,23 @@ import { cn } from "@/lib/utils";
 
 /* ─── Shared Tone Type ─── */
 export type PillTone = "neutral" | "good" | "warn" | "bad";
+
+export function toneForPanelStatus(status?: string): PillTone {
+    if (status === "healthy") return "good" as const;
+    if (status === "warn") return "warn" as const;
+    if (status === "fail" || status === "failed") return "bad" as const;
+    return "neutral" as const;
+}
+
+export function truthStateForPanelStatus(status?: string): AdminSurfaceState {
+    if (status === "warn") return "degraded";
+    if (status === "fail" || status === "failed") return "failed";
+    return coerceAdminSurfaceState(status);
+}
+
+export function labelForPanelStatus(status?: string) {
+    return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
+}
 
 export function toneForSourceStatus(status?: string): PillTone {
     if (status === "loaded_with_data" || status === "loaded_empty_with_source_window") return "good";
@@ -77,12 +94,12 @@ function formatDebugPillBadgeLabel(label?: string) {
 /* ─── Pill ─── */
 export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminTruthState | AdminSurfaceState | "loading"; badgeLabel?: string }) {
     const toneClassName = tone === "good"
-        ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
+        ? "text-success"
         : tone === "warn"
-            ? "border-amber-400/20 bg-amber-500/10 text-amber-100"
+            ? "text-warning"
             : tone === "bad"
-                ? "border-red-400/20 bg-red-500/10 text-red-100"
-                : "border-white/10 bg-white/5 text-gray-200";
+                ? "text-destructive"
+                : "text-foreground";
 
     const resolvedTruth = resolveAdminTruthState ({
         truthState,
@@ -91,16 +108,12 @@ export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }:
     });
 
     return (
-        <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", toneClassName)}>
-            <AdminTruthBadge
-                state={resolvedTruth.truthState}
-                label={formatDebugPillBadgeLabel(badgeLabel)}
-                className="py-0 text-[8px] normal-case tracking-normal"
-                pendingInitialLoad={resolvedTruth.pendingInitialLoad}
-                hasUsableValue={resolvedTruth.hasUsableValue}
-            />
-            <span className="text-gray-400">{label}</span>
-            <span className="font-semibold text-white">{value}</span>
+        <div className={cn("flex min-w-0 max-w-full flex-wrap items-baseline gap-x-2 gap-y-1 text-sm", toneClassName)} data-debug-pill-tone={tone}>
+            <span className="min-w-0 wrap-anywhere text-muted-foreground">{label}</span>
+            <span className="min-w-0 wrap-anywhere font-medium tabular-nums">{typeof value === "number" && !resolvedTruth.hasUsableValue ? ADMIN_NO_SOURCE_LABEL : value}</span>
+            <AdminTruthBadge state={resolvedTruth.truthState} label={formatDebugPillBadgeLabel(badgeLabel)}
+                className="max-w-full shrink-0 wrap-anywhere whitespace-normal py-0.5 normal-case tracking-normal"
+                pendingInitialLoad={resolvedTruth.pendingInitialLoad} hasUsableValue={resolvedTruth.hasUsableValue} />
         </div>
     );
 }
@@ -126,28 +139,20 @@ export function StatCard({
     });
 
     return (
-        <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-2.5">
-            <AdminMetricCard
-                label={label}
-                value={value}
-                meta={meta}
-                truthState={resolvedTruth.truthState}
-                hasUsableValue={resolvedTruth.hasUsableValue}
-                pendingInitialLoad={resolvedTruth.pendingInitialLoad}
-                badgeClassName="py-0 text-[8px]"
-                valueClassName="mt-1 text-[1.4rem] md:text-[1.4rem]"
-                className="border-0 bg-transparent p-0"
-            />
+        <div className="min-w-0 space-y-2">
+            <AdminMetricCard label={label} value={resolvedTruth.hasUsableValue ? value : ADMIN_NO_SOURCE_LABEL} meta={meta}
+                truthState={resolvedTruth.truthState} hasUsableValue={resolvedTruth.hasUsableValue}
+                pendingInitialLoad={resolvedTruth.pendingInitialLoad} />
             {copy ? (
-                <details className="mt-2 rounded-xl border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
-                    <summary className="cursor-pointer font-semibold text-gray-100">Explain this</summary>
-                    <div className="mt-2 space-y-1.5">
-                        <p><span className="text-gray-500">What this means:</span> {copy.operatorSummary}</p>
-                        <p><span className="text-gray-500">Why it matters:</span> {copy.whyItMatters}</p>
-                        <p><span className="text-gray-500">What to check next:</span> {copy.recommendedNextCheck}</p>
-                        <p><span className="text-gray-500">Technical evidence:</span> {copy.technicalEvidence}</p>
-                        <p><span className="text-gray-500">Source details:</span> {copy.sourceDetails}</p>
-                    </div>
+                <details className="min-w-0 text-sm text-muted-foreground">
+                    <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Explain this</summary>
+                    <dl className="space-y-3 pb-3 leading-6">
+                        <div><dt className="font-medium text-foreground">What this means</dt><dd className="wrap-anywhere">{copy.operatorSummary}</dd></div>
+                        <div><dt className="font-medium text-foreground">Why it matters</dt><dd className="wrap-anywhere">{copy.whyItMatters}</dd></div>
+                        <div><dt className="font-medium text-foreground">What to check next</dt><dd className="wrap-anywhere">{copy.recommendedNextCheck}</dd></div>
+                        <div><dt className="font-medium text-foreground">Technical evidence</dt><dd className="wrap-anywhere">{copy.technicalEvidence}</dd></div>
+                        <div><dt className="font-medium text-foreground">Source details</dt><dd className="wrap-anywhere">{copy.sourceDetails}</dd></div>
+                    </dl>
                 </details>
             ) : null}
         </div>
@@ -168,31 +173,15 @@ export function Section({
     defaultOpen: boolean;
     children: React.ReactNode;
 }) {
-    const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <section className="overflow-hidden rounded-lg border border-white/10 bg-black/25">
-            <button
-                type="button"
-                onClick={() => setOpen((current) => !current)}
-                className="flex w-full items-start justify-between gap-3 px-3 py-2 text-left"
-                aria-expanded={open}
-            >
-                <div className="min-w-0">
-                    <h2 className="text-[15px] font-bold text-white md:text-base">{title}</h2>
-                    {subtitle ? <p className="mt-0.5 text-[11px] leading-4 text-gray-400 md:text-xs">{subtitle}</p> : null}
-                    {summary ? <div className="mt-2 flex flex-wrap gap-1.5">{summary}</div> : null}
-                </div>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5 text-gray-300">
-                    {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </div>
-            </button>
-            {open ? <div className="border-t border-white/10 px-3 py-2">{children}</div> : null}
-        </section>
+        <AdminDashboardModule title={title} description={subtitle} summary={summary} defaultOpen={defaultOpen}>
+            {children}
+        </AdminDashboardModule>
     );
 }
 
 /* ─── ScrollWrap ─── */
 export function ScrollWrap({ children }: { children: React.ReactNode }) {
-    return <div className="max-h-[24rem] overflow-auto rounded-[1rem] border border-white/10 bg-black/25">{children}</div>;
+    return <div className="max-h-[24rem] min-w-0 overflow-auto">{children}</div>;
 }

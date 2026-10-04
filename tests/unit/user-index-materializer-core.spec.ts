@@ -63,6 +63,9 @@ function fact(input: Partial<UserIndexMaterializerFact> = {}): UserIndexMaterial
     sourceTruth: "client",
     sourceReliability: 0.8,
     consentState: "granted",
+    requestConsentAdmission: {version: admissionVersion, consentMode: "full_behavioral"},
+    includeInGlobalEvents: true,
+    includeInPersonMetrics: true,
     metricEligible: true,
     confidenceInputs: {
       schemaComplete: true,
@@ -161,6 +164,9 @@ function windowReceipt(input: Partial<UserIndexMaterializerWindowReceipt> = {}):
       lineageBlockedCount: 0,
       adminExcludedCount: 0,
       systemExcludedCount: 0,
+      personAdmissionUnverifiedCount: 0,
+      personPrivacyLimitedCount: 0,
+      lineageSourceMissingCount: 0,
     },
     truncatedSubjectCount: 0,
     runtimeCapReached: false,
@@ -370,7 +376,7 @@ describe("user index materializer normalization", () => {
 
     expect(result.accepted.map((item) => item.identityLinkId)).toEqual(["link_1"]);
     expect(result.rejected.map((item) => ({
-      identityLinkId: item.lineage.identityLinkId,
+      identityLinkId: (item.lineage as IdentityLineageIndex).identityLinkId,
       state: item.state,
     }))).toEqual([
       { identityLinkId: "link_missing", state: "owner_version_missing" },
@@ -860,5 +866,133 @@ describe("user index materializer lease and activation lifecycle", () => {
       state: activation,
       sourceFingerprint: "source_a",
     })).toBe(false);
+  });
+});
+
+
+describe("identified ingest primary-operation cost admission", () => {
+  it("uses the exact authenticated batch contract and accounts for one role read", () => {
+    const contract = matchApiCostContract("/api/analytics/ingest-identified");
+    expect(contract).toMatchObject({ routePattern: "/api/analytics/ingest-identified", authRequired: "user", methods: ["POST"], cachePolicy: "no_store", trustedOriginRequired: true, budgetGuardRequired: true });
+    expect(200 + 1 + 5).toBeLessThanOrEqual(contract?.maxExpectedFirestoreReadsPerCall ?? 0);
+    expect(200 + 1 + 120 + 5).toBeLessThanOrEqual(contract?.maxExpectedFirestoreWritesPerCall ?? 0);
+    expect(matchApiCostContract("/api/analytics/identity-link")?.routePattern).not.toBe("/api/analytics/ingest-identified");
+    expect(matchApiCostContract("/api/internal/analytics/materialize-user-index")?.routePattern).toBe("/api/internal/analytics/materialize-user-index");
+  });
+});
+
+// Artifact-only actual normalizer counterexamples; no provider or runtime writes.
+import { RUNTIME_FACT_REQUEST_CONSENT_ADMISSION_VERSION as admissionVersion } from "@/lib/runtime-facts/runtime-fact-contract";
+import { buildUserTrackingIndex as buildTrackingForAdmissionProbe } from "@/lib/user-indexes/user-index-normalizer";
+
+describe("Audience admission source-gap probe", () => {
+  const observed = (overrides: Partial<UserIndexMaterializerFact> = {}) => fact({
+    eventName: "page_viewed", normalizedAction: "page_viewed", timestampMs: Date.now(),
+    anonymousVisitorId: undefined, identityLinkId: undefined,
+    includeInGlobalEvents: true, includeInPersonMetrics: true,
+    requestConsentAdmission: { version: admissionVersion, consentMode: "full_behavioral" },
+    ...overrides,
+  });
+  it("does not turn legacy unknown client history into known-person behavior", () => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [observed({ sourceTruth: "legacy", requestConsentAdmission: undefined })], lineages: [] });
+    expect(result.personFacts).toHaveLength(0);
+  });
+  it("leaves unadmitted client-declared consent out of current person truth", () => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [observed({ requestConsentAdmission: undefined })], lineages: [] });
+    expect(result.personFacts).toHaveLength(0);
+  });
+  it("does not elevate a minimal request marker through a raw granted label", () => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [observed({ requestConsentAdmission: { version: admissionVersion, consentMode: "minimal_analytics" } })], lineages: [] });
+    expect(result.personFacts).toHaveLength(0);
+  });
+  it("does not infer permission from a missing person inclusion flag", () => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [observed({ includeInPersonMetrics: undefined })], lineages: [] });
+    expect(result.personFacts).toHaveLength(0);
+  });
+  it("preserves an admitted ordinary full-behavior person observation", () => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [observed()], lineages: [] });
+    expect(result.personFacts).toHaveLength(1);
+    expect(result.personFacts[0].actorUserId).toBe("user_1");
+  });
+  it("honors explicit canonical person exclusion", () => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [observed({ includeInPersonMetrics: false })], lineages: [] });
+    expect(result.personFacts).toHaveLength(0);
+    expect(result.globalFacts).toHaveLength(1);
+  });
+  it("preserves existing necessary server operation projection without requiring an HTTP marker", () => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [observed({ sourceTruth: "server", eventName: "gumdrops_purchased", normalizedAction: "gumdrops_purchased", consentState: "not_required", requestConsentAdmission: undefined })], lineages: [] });
+    expect(result.personFacts).toHaveLength(1);
+  });
+  it("keeps empty persisted count fields distinct from a proven zero window", () => {
+    const now = Date.now();
+    const result = buildTrackingForAdmissionProbe({ userId: "user_1", facts: [], sourceWindowStartMs: now-1000, sourceWindowEndMs: now });
+    expect(result.actionCounts.total).toBe(0);
+    expect(result.personMetricCounts.page_views).toBe(0);
+    expect(result.dataAvailabilityReason).toBe("insufficient_signal");
+  });
+});
+
+describe("Audience person admission canonical boundary", () => {
+  const admitted = (overrides: Partial<UserIndexMaterializerFact> = {}) => fact({
+    eventName: "page_viewed", normalizedAction: "page_viewed", anonymousVisitorId: undefined, identityLinkId: undefined,
+    includeInGlobalEvents: true, includeInPersonMetrics: true,
+    requestConsentAdmission: { version: admissionVersion, consentMode: "full_behavioral" }, ...overrides,
+  });
+  it.each(["minimal_analytics", "full_analytics"] as const)("keeps lawful %s global observation out of person behavior", consentMode => {
+    const result = normalizeFactsForUserIndexMaterialization({ facts: [admitted({ consentState: "partial", includeInPersonMetrics: false, requestConsentAdmission: {version: admissionVersion, consentMode} })], lineages: [] });
+    expect(result.globalFacts).toHaveLength(1);
+    expect(result.personFacts).toHaveLength(0);
+  });
+  it.each([
+    {version: "future_admission_v9", consentMode: "full_behavioral"},
+    {version: admissionVersion, consentMode: "minimal"},
+    {consentMode: "full_behavioral"},
+  ])("does not admit malformed or unsupported stored marker %j", marker => {
+    const result = normalizeFactsForUserIndexMaterialization({facts: [admitted({requestConsentAdmission: marker as any})], lineages: []});
+    expect(result.personFacts).toHaveLength(0);
+    expect(result.globalFacts[0].sourceTruth).toBe("client");
+  });
+  it("does not coerce a stored nonboolean person declaration", () => {
+    const result = normalizeFactsForUserIndexMaterialization({facts: [admitted({includeInPersonMetrics: "true" as any})], lineages: []});
+    expect(result.personFacts).toHaveLength(0);
+  });
+  it("does not elevate an explicitly narrower stored consent state", () => {
+    const result = normalizeFactsForUserIndexMaterialization({facts: [admitted({consentState: "partial"})], lineages: []});
+    expect(result.personFacts).toHaveLength(0);
+  });
+  it("links a full-consent admitted guest despite its correct direct-person exclusion", () => {
+    const result = normalizeFactsForUserIndexMaterialization({facts: [admitted({factId:"guest_current", actorType:"guest", actorUserId:undefined, anonymousVisitorId:"guest_1", identityLinkId:"link_1", includeInPersonMetrics:false})], lineages:[lineage()]});
+    expect(result.globalFacts).toHaveLength(1);
+    expect(result.personFacts).toHaveLength(1);
+    expect(result.personFacts[0].actorUserId).toBe("user_1");
+  });
+  it("counts admitted guest and identified copies once globally and once for the linked person", () => {
+    const result = normalizeFactsForUserIndexMaterialization({facts: [
+      admitted({factId:"guest_copy", actorType:"guest", actorUserId:undefined, anonymousVisitorId:"guest_1", identityLinkId:"link_1", includeInPersonMetrics:false, timestampMs:1000}),
+      admitted({factId:"user_copy", anonymousVisitorId:"guest_1", identityLinkId:"link_1", timestampMs:1001}),
+    ], lineages:[lineage()]});
+    expect(result.globalFacts).toHaveLength(1);
+    expect(result.personFacts).toHaveLength(1);
+    expect(result.exclusions.linkedCopyExcludedCount).toBe(1);
+  });
+  it("does not accept current owner version as proof of malformed stored lineage shape", () => {
+    const result = partitionIdentityLineagesByOwnerVersion([{...lineage(), sessionIds: "session_1"} as any]);
+    expect(result.accepted).toHaveLength(0);
+    expect(result.rejected).toHaveLength(1);
+  });
+  it("keeps privacy exclusion a clean policy outcome without promoting unverified source", () => {
+    const privacy = deriveUserIndexMaterializerWindowReceipt(windowReceipt({exclusions: {...windowReceipt().exclusions, personPrivacyLimitedCount: 1} as any}));
+    const unavailable = deriveUserIndexMaterializerWindowReceipt(windowReceipt({exclusions: {...windowReceipt().exclusions, personAdmissionUnverifiedCount: 1} as any}));
+    expect(privacy.clean).toBe(true);
+    expect(unavailable.clean).toBe(false);
+  });
+});
+
+describe("Audience person materializer semantic version", () => {
+  it("rejects old clean activation evidence after the admission contract changes", () => {
+    const state = {...buildNextUserIndexMaterializerActivationState({current:null,receipt:windowReceipt()}),
+      sourceFingerprint:"source_a", materializerVersion:"2026.07.user-index-materializer.v3", latestShadowWindowClean:true,
+      consecutiveCleanShadowWindowIds:["old_1","old_2"],latestShadowWindowId:"old_2"};
+    expect(isUserIndexMaterializerActivationReady({state:state as any,sourceFingerprint:"source_a"})).toBe(false);
   });
 });

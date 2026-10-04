@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-11T14:21:09.984Z",
+  "generatedAtUtc": "2026-10-03T01:47:42.430Z",
   "reportKey": "telemetry-dependency-graph",
-  "currentHead": "0d4c92893c289e01e3159450d624e622b9294125",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "lanesMapped": 14,
     "priorityLanesClosed": true,
@@ -158,7 +158,7 @@
     {
       "id": "identity_link",
       "label": "Guest-to-user identity transfer",
-      "producer": "analytics identity-link route and identified ingest identity_linked events",
+      "producer": "canonical analytics identity-link route; identified ingest records observations only",
       "clientEvent": "identity_linked",
       "routeApi": "/api/analytics/identity-link and /api/analytics/ingest-identified",
       "persistenceDestination": "analytics_identity_links and analytics_event_facts",
@@ -511,7 +511,7 @@
       "id": "deeptracker-ingest-route",
       "status": "fixed",
       "severity": "P0",
-      "detail": "DeepTracker anonymous telemetry routes through the canonical telemetry client, which reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts."
+      "detail": "DeepTracker submits guest batches through the canonical telemetry client to the configured guest-batch collection and existing timeline projection owner. This is source connectivity, not transport acknowledgement or deployed persistence."
     },
     {
       "id": "guest-consent-denied-no-write",

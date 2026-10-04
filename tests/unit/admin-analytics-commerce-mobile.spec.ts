@@ -7,8 +7,16 @@ const source = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
   "utf8",
 );
+const viewerJourneySource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
+  "utf8",
+);
 const utilitySource = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.utils.ts"),
+  "utf8",
+);
+const contentConversionSource = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
   "utf8",
 );
 
@@ -32,15 +40,23 @@ describe("Admin analytics commerce mobile consolidation", () => {
   });
 
   it("renders Viewer Journey as one compact mobile view mode at a time", () => {
-    expect(source).toContain("viewerJourneyViewMode");
-    expect(source).toContain("setViewerJourneyViewMode");
-    expect(source).toContain('data-admin-analytics-mobile-view-mode={viewerJourneyViewMode}');
-    expect(source).toContain('data-viewer-journey-table="compact"');
-    expect(source).toContain('viewerJourneyViewMode === "chart"');
-    expect(source).toContain('viewerJourneyViewMode === "table"');
-    expect(source).toContain('viewerJourneyViewMode === "cards"');
-    expect(source).toContain("data-viewer-journey-range={viewerJourneyRange}");
-    expect(source).toContain("data-viewer-journey-source-state={viewerJourneyItems.length > 0 ? \"loaded\" : \"no_sample\"}");
+    expect(source).toContain('import { AdminAnalyticsViewerJourneySection } from "./AdminAnalyticsViewerJourneySection";');
+    expect(source).toContain("const viewerJourneyDisplayItems = viewerJourneyItems.map((item) => ({");
+    expect(source).toContain("label: item.label,");
+    expect(source).toContain("count: item.count,");
+    expect(source).toContain("<AdminAnalyticsViewerJourneySection");
+    expect(source).toContain("viewerJourneyItems={viewerJourneyDisplayItems}");
+    expect(source).toContain("viewerJourneyRange={viewerJourneyRange}");
+    expect(source).toContain("renderSectionRangeControl={renderSectionRangeControl}");
+    expect(viewerJourneySource).toContain("viewerJourneyViewMode");
+    expect(viewerJourneySource).toContain("setViewerJourneyViewMode");
+    expect(viewerJourneySource).toContain('data-admin-analytics-mobile-view-mode={viewerJourneyViewMode}');
+    expect(viewerJourneySource).toContain('data-viewer-journey-table="compact"');
+    expect(viewerJourneySource).toContain('viewerJourneyViewMode === "chart"');
+    expect(viewerJourneySource).toContain('viewerJourneyViewMode === "table"');
+    expect(viewerJourneySource).toContain('viewerJourneyViewMode === "cards"');
+    expect(viewerJourneySource).toContain("data-viewer-journey-range={viewerJourneyRange}");
+    expect(viewerJourneySource).toContain("data-viewer-journey-source-state={viewerJourneyItems.length > 0 ? \"loaded\" : \"no_sample\"}");
   });
 
   it("renders Watch Depth + Tags as one compact mobile view mode at a time", () => {
@@ -68,15 +84,16 @@ describe("Admin analytics commerce mobile consolidation", () => {
   });
 
   it("renders Content Conversion as one compact mobile view mode at a time", () => {
-    expect(source).toContain("contentConversionViewMode");
-    expect(source).toContain("setContentConversionViewMode");
-    expect(source).toContain('data-admin-analytics-mobile-view-mode={contentConversionViewMode}');
-    expect(source).toContain('data-content-conversion-table="compact"');
-    expect(source).toContain('contentConversionViewMode === "chart"');
-    expect(source).toContain('contentConversionViewMode === "table"');
-    expect(source).toContain('contentConversionViewMode === "cards"');
-    expect(source).toContain("data-content-conversion-source-truth={contentConversionModel.sourceTruth}");
-    expect(source).toContain("data-content-conversion-source-state={contentConversionModel.sourceState}");
+    expect(source).toContain("AdminAnalyticsContentConversionSection");
+    expect(contentConversionSource).toContain("contentConversionViewMode");
+    expect(contentConversionSource).toContain("setContentConversionViewMode");
+    expect(contentConversionSource).toContain('data-admin-analytics-mobile-view-mode={contentConversionViewMode}');
+    expect(contentConversionSource).toContain('data-content-conversion-table="compact"');
+    expect(contentConversionSource).toContain('contentConversionViewMode === "chart"');
+    expect(contentConversionSource).toContain('contentConversionViewMode === "table"');
+    expect(contentConversionSource).toContain('contentConversionViewMode === "cards"');
+    expect(contentConversionSource).toContain("data-content-conversion-source-truth={contentConversionModel.sourceTruth}");
+    expect(contentConversionSource).toContain("data-content-conversion-source-state={contentConversionModel.sourceState}");
   });
 
   it("labels missing top-drop conversion samples without raw zero summaries", () => {

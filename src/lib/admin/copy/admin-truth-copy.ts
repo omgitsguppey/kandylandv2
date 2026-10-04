@@ -211,6 +211,10 @@ export function buildDeveloperDebugCopy(input: AdminTruthCopyInput): string {
     input.lastVerifiedAt ? `lastVerifiedAt=${input.lastVerifiedAt}` : null,
     input.refreshStatus ? `refreshStatus=${input.refreshStatus}` : null,
     input.parityStatus ? `parityStatus=${input.parityStatus}` : null,
+    input.unavailableReason ? `unavailableReason=${input.unavailableReason}` : null,
+    input.fallbackReason ? `fallbackReason=${input.fallbackReason}` : null,
+    input.estimatedReason ? `estimatedReason=${input.estimatedReason}` : null,
+    input.staleReason ? `staleReason=${input.staleReason}` : null,
     asFiniteNumber(input.confidence) !== null ? `confidence=${input.confidence}` : null,
     asFiniteNumber(input.issueCount) !== null ? `issueCount=${input.issueCount}` : null,
     input.debugDetails ? `debugDetails=${debugValue(input.debugDetails)}` : null,
@@ -222,12 +226,7 @@ export function buildDeveloperDebugCopy(input: AdminTruthCopyInput): string {
 export function buildOperatorStatusCopy(input: AdminTruthCopyInput): AdminTruthCopy {
   const pattern = ADMIN_COPY_REGISTRY[patternForInput(input)];
   const headline = clampCopy(input.operatorImpact && pattern.key === "technical_debug_only" ? input.operatorImpact : pattern.headline, 90);
-  const shortBody = clampCopy(
-    input.unavailableReason && pattern.key === "no_verified_snapshot"
-      ? "No verified source is ready yet."
-      : pattern.shortBody,
-    120,
-  );
+  const shortBody = clampCopy(pattern.shortBody, 120);
 
   return {
     headline,

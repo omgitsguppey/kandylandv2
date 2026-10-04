@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T14:10:09.853Z",
+  "generatedAt": "2026-10-01T13:34:39.208Z",
   "projectId": "kandydrops-by-ikandy",
   "overallStatus": "repo_only_ready",
   "surfaces": [
@@ -84,13 +84,14 @@
     {
       "surface": "Google Cloud CLI",
       "tool": "gcloud",
-      "authenticated": false,
-      "status": "tool_missing",
+      "authenticated": true,
+      "status": "ok",
+      "principal": "athenarosiejohnson@gmail.com",
       "projectId": "kandydrops-by-ikandy",
-      "canRead": false,
+      "canRead": true,
       "canWrite": false,
       "canMutateProduction": false,
-      "recommendedNextStep": "Install Google Cloud CLI, authenticate read-only access, and set the project to kandydrops-by-ikandy.",
+      "recommendedNextStep": "gcloud can run read-only project and enabled-service checks.",
       "safeReadCommands": [
         "gcloud auth list --format=json",
         "gcloud config get-value project",
@@ -123,13 +124,13 @@
     {
       "surface": "Firebase CLI",
       "tool": "firebase",
-      "authenticated": false,
-      "status": "tool_missing",
+      "authenticated": true,
+      "status": "ok",
       "projectId": "kandydrops-by-ikandy",
-      "canRead": false,
+      "canRead": true,
       "canWrite": false,
       "canMutateProduction": false,
-      "recommendedNextStep": "Install or expose firebase-tools, then authenticate with firebase login.",
+      "recommendedNextStep": "Firebase CLI can read project/app metadata.",
       "safeReadCommands": [
         "firebase login:list --json",
         "firebase projects:list --json",
@@ -137,6 +138,8 @@
         "firebase apphosting:backends:list --project kandydrops-by-ikandy --json"
       ],
       "blockedCommands": [
+        "firebase deploy",
+        "firebase apphosting:backends:delete",
         "firebase deploy",
         "firebase apphosting:backends:delete",
         "gcloud run services update",
@@ -162,13 +165,13 @@
     {
       "surface": "BigQuery CLI",
       "tool": "bq",
-      "authenticated": false,
-      "status": "tool_missing",
+      "authenticated": true,
+      "status": "ok",
       "projectId": "kandydrops-by-ikandy",
-      "canRead": false,
+      "canRead": true,
       "canWrite": false,
       "canMutateProduction": false,
-      "recommendedNextStep": "Install the bq CLI component or use Console for BigQuery dataset metadata checks.",
+      "recommendedNextStep": "BigQuery metadata is readable. Do not run query/load jobs without explicit approval.",
       "safeReadCommands": [
         "bq ls --project_id kandydrops-by-ikandy --format=json"
       ],
@@ -201,13 +204,14 @@
     {
       "surface": "Cloud SQL / Data Connect",
       "tool": "gcloud",
-      "authenticated": false,
-      "status": "manual_required",
+      "authenticated": true,
+      "status": "ok",
+      "principal": "athenarosiejohnson@gmail.com",
       "projectId": "kandydrops-by-ikandy",
-      "canRead": false,
+      "canRead": true,
       "canWrite": false,
       "canMutateProduction": false,
-      "recommendedNextStep": "Use GCP Console or grant Cloud SQL viewer access before auditing Cloud SQL/Data Connect state.",
+      "recommendedNextStep": "Cloud SQL/Data Connect metadata is readable. Do not stop/delete/patch the instance from Codex.",
       "safeReadCommands": [
         "gcloud sql instances describe kandydrops-db --project kandydrops-by-ikandy --format=json",
         "gcloud sql operations list --instance kandydrops-db --limit=5 --project kandydrops-by-ikandy --format=json",
@@ -239,8 +243,9 @@
     {
       "surface": "App Engine",
       "tool": "gcloud",
-      "authenticated": false,
-      "status": "manual_required",
+      "authenticated": true,
+      "status": "unknown",
+      "principal": "athenarosiejohnson@gmail.com",
       "projectId": "kandydrops-by-ikandy",
       "canRead": false,
       "canWrite": false,
@@ -277,13 +282,14 @@
     {
       "surface": "Cloud Run / App Hosting",
       "tool": "gcloud/firebase",
-      "authenticated": false,
-      "status": "manual_required",
+      "authenticated": true,
+      "status": "ok",
+      "principal": "athenarosiejohnson@gmail.com",
       "projectId": "kandydrops-by-ikandy",
-      "canRead": false,
+      "canRead": true,
       "canWrite": false,
       "canMutateProduction": false,
-      "recommendedNextStep": "Fix gcloud/Firebase auth before reading App Hosting metadata.",
+      "recommendedNextStep": "Cloud Run/App Hosting metadata is readable.",
       "safeReadCommands": [
         "gcloud run services list --region us-central1 --project kandydrops-by-ikandy --format=json",
         "firebase apphosting:backends:list --project kandydrops-by-ikandy --json"
@@ -314,13 +320,14 @@
     {
       "surface": "Cloud Scheduler / Functions",
       "tool": "gcloud",
-      "authenticated": false,
-      "status": "manual_required",
+      "authenticated": true,
+      "status": "ok",
+      "principal": "athenarosiejohnson@gmail.com",
       "projectId": "kandydrops-by-ikandy",
-      "canRead": false,
+      "canRead": true,
       "canWrite": false,
       "canMutateProduction": false,
-      "recommendedNextStep": "Grant Scheduler/Functions viewer access or inspect those surfaces in Console.",
+      "recommendedNextStep": "Cloud Scheduler and Functions metadata are readable.",
       "safeReadCommands": [
         "gcloud scheduler jobs list --location us-central1 --project kandydrops-by-ikandy --format=json",
         "gcloud functions list --project kandydrops-by-ikandy --format=json"
@@ -351,16 +358,17 @@
     {
       "surface": "Artifact Registry",
       "tool": "gcloud",
-      "authenticated": false,
-      "status": "manual_required",
+      "authenticated": true,
+      "status": "ok",
+      "principal": "athenarosiejohnson@gmail.com",
       "projectId": "kandydrops-by-ikandy",
-      "canRead": false,
+      "canRead": true,
       "canWrite": false,
       "canMutateProduction": false,
-      "recommendedNextStep": "Grant Artifact Registry reader access or inspect image retention manually.",
+      "recommendedNextStep": "Artifact Registry metadata is readable. Cleanup/delete remains blocked.",
       "safeReadCommands": [
         "gcloud artifacts repositories list --project kandydrops-by-ikandy --format=json",
-        "gcloud artifacts docker images list LOCATION-docker.pkg.dev/PROJECT_ID/REPO --include-tags --format=json"
+        "gcloud artifacts docker images list us-central1-docker.pkg.dev/kandydrops-by-ikandy/firebaseapphosting-images --include-tags --limit=5 --format=json"
       ],
       "blockedCommands": [
         "firebase deploy",
@@ -459,13 +467,9 @@
     }
   ],
   "canCodexRunCloudReadChecks": false,
-  "canCodexSetupWif": false,
-  "manualBootstrapNeeded": true,
-  "missingTools": [
-    "Google Cloud CLI",
-    "Firebase CLI",
-    "BigQuery CLI"
-  ],
+  "canCodexSetupWif": true,
+  "manualBootstrapNeeded": false,
+  "missingTools": [],
   "missingAuth": [],
   "insufficientScopes": [],
   "safeNextCommands": [
@@ -479,7 +483,7 @@
     "gcloud app describe --project kandydrops-by-ikandy --format=json",
     "gcloud app services list --project kandydrops-by-ikandy --format=json",
     "gcloud app versions list --project kandydrops-by-ikandy --format=json",
-    "gcloud artifacts docker images list LOCATION-docker.pkg.dev/PROJECT_ID/REPO --include-tags --format=json",
+    "gcloud artifacts docker images list us-central1-docker.pkg.dev/kandydrops-by-ikandy/firebaseapphosting-images --include-tags --limit=5 --format=json",
     "gcloud artifacts repositories list --project kandydrops-by-ikandy --format=json",
     "gcloud auth list --format=json",
     "gcloud config get-value project",

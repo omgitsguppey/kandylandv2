@@ -6,7 +6,8 @@ import {
   type GuestUserIdentityLinkReason,
 } from "@/lib/analytics/analytics-identity-link";
 import { CONSENT_MODE_VALUES } from "@/lib/privacy/consent-tracking-contract";
-import { canPersistIdentityLink, normalizeConsentMode } from "@/lib/privacy/consent-tracking-policy";
+import { canPersistIdentityLink, restrictConsentMode } from "@/lib/privacy/consent-tracking-policy";
+import { resolveRequestConsentMode } from "@/lib/server/privacy-consent";
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -67,15 +68,15 @@ async function POST_handler(request: NextRequest) {
     return NextResponse.json({ success: false, reason: "invalid_identity_link", retryable: false }, { status: 400 });
   }
 
+  const consentMode = restrictConsentMode(resolveRequestConsentMode(request), parsed.data.consentMode);
   const link = buildIdentityLink({
     guestId: parsed.data.guestId,
     userId: caller.uid,
     sessionId: parsed.data.sessionId,
     linkedAt: parsed.data.linkedAt,
     reason: parsed.data.reason,
-    consentMode: parsed.data.consentMode,
+    consentMode,
   });
-  const consentMode = normalizeConsentMode(parsed.data.consentMode);
   const mergeAllowed = canPersistIdentityLink(consentMode) && link.mergeAllowed && parsed.data.consentState !== "denied";
 
   if (!mergeAllowed) {

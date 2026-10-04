@@ -11,6 +11,7 @@ import {
   summarizeAdminIssueForOperator,
 } from "@/lib/admin/copy/admin-truth-copy";
 import { formatAdminSurfaceStateLabel } from "@/lib/admin-parity";
+import { getAdminTruthStateBadgeLabel } from "@/lib/admin-truth-state";
 
 const BANNED_MAIN_COPY = [
   "failed closed",
@@ -35,6 +36,20 @@ function expectOperatorCopyIsPlain(...values: string[]) {
 }
 
 describe("admin truth copy", () => {
+  it("keeps missing-source copy distinct from an active initial load across badge consumers", () => {
+    expect(getAdminStatusBadgeLabel("unavailable")).toBe(getAdminTruthStateBadgeLabel("unavailable"));
+    expect(getAdminStatusBadgeLabel("unavailable")).toBe("No source");
+    expect(getAdminStatusBadgeLabel("loading")).toBe("Collecting");
+    const missing = buildOperatorStatusCopy({ truthState: "unavailable", unavailableReason: "Maintenance snapshot is missing" });
+    expect(missing.operatorState).toBe("unavailable");
+    expect(missing.badgeLabel).toBe("No source");
+    expect(missing.canSystemRetry).toBe(false);
+    expect(missing.actionLabel).toBe("View source details");
+    expect(missing.shortBody).toBe("No verified source is available.");
+    expect(missing.shortBody).not.toContain("Maintenance snapshot");
+    expect(missing.technicalDetails).toContain("unavailableReason=Maintenance snapshot is missing");
+  });
+
   it("translates refresh delays into verified snapshot operator copy", () => {
     const copy = buildOperatorStatusCopy({
       moduleKey: "admin_analytics",
@@ -94,11 +109,17 @@ describe("admin truth copy", () => {
       technicalState: "purchase_parity_mismatch",
       collectionName: "analytics_aggregate_stats",
       debugDetails: { transactions: 19, telemetry: 1, confidence: 43 },
+      fallbackReason: "snapshot fallback",
+      estimatedReason: "guest estimate",
+      staleReason: "refresh overdue",
     });
 
     expect(debug).toContain("purchase_parity_mismatch");
     expect(debug).toContain("analytics_aggregate_stats");
     expect(debug).toContain("transactions");
+    expect(debug).toContain("fallbackReason=snapshot fallback");
+    expect(debug).toContain("estimatedReason=guest estimate");
+    expect(debug).toContain("staleReason=refresh overdue");
   });
 
   it("builds deterministic Debug explanation fields", () => {

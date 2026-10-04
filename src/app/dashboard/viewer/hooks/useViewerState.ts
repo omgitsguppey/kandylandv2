@@ -37,6 +37,11 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
     const contentObjectUrlRef = useRef<string | null>(null);
     const assetCacheRef = useRef<Map<number, CachedAssetRecord>>(new Map());
     const thumbnailCacheRef = useRef<Map<number, ThumbnailItem>>(new Map());
+    const trackContentLoadedRef = useRef(trackContentLoaded);
+
+    useEffect(() => {
+        trackContentLoadedRef.current = trackContentLoaded;
+    }, [trackContentLoaded]);
 
     // Switch Drop Handling
     useEffect(() => {
@@ -91,7 +96,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
             setResolvedContent(cachedRecord.resolvedContent);
             setContentError(null);
             setContentLoading(false);
-            trackContentLoaded(1, true, cachedRecord.resolvedContent.kind);
+            trackContentLoadedRef.current(1, true, cachedRecord.resolvedContent.kind);
 
             if (!thumbnailCacheRef.current.has(activeIndex)) {
                 void buildThumbnailFromRecord(cachedRecord, currentDrop.imageUrl).then((item) => {
@@ -120,7 +125,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
                 setContentBlobUrl(assetRecord.objectUrl);
                 setResolvedContent(assetRecord.resolvedContent);
                 setContentError(null);
-                trackContentLoaded(performance.now() - startedAt, false, assetRecord.resolvedContent.kind);
+                trackContentLoadedRef.current(performance.now() - startedAt, false, assetRecord.resolvedContent.kind);
 
                 void buildThumbnailFromRecord(assetRecord, currentDrop.imageUrl).then((item) => {
                     if (cancelled) return;
@@ -144,7 +149,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
             cancelled = true;
             controller.abort();
         };
-    }, [activeIndex, assetCount, isAuthorized, drop, trackContentLoaded]);
+    }, [activeIndex, assetCount, isAuthorized, drop]);
 
     // Thumbnail Background Fetcher
     useEffect(() => {

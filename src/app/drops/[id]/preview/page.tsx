@@ -46,9 +46,11 @@ export default async function DropPreviewPage({ params, searchParams }: DropPrev
     const sourceComponent = normalizeSourceComponent(query.source_component) ?? normalizeSourceComponent(query.source) ?? "direct_preview_route";
     const creator = await getPreviewCreator(drop.creatorId);
 
+    const previewDrop = toLockedDropPreviewSafeDrop(drop);
+
     return (
         <LockedDropPreviewClient
-            drop={toLockedDropPreviewSafeDrop(drop)}
+            drop={previewDrop}
             creator={creator}
             sourceComponent={sourceComponent}
         />

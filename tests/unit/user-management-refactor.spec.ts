@@ -452,6 +452,7 @@ describe("user management refactor contract", () => {
 
   it("keeps the admin users UI summary-first and raw rows behind drilldown", () => {
     const adminUsersPage = read("src/app/admin/users/page.tsx");
+    const adminUserDirectory = read("src/components/creative-tim/kandydrops/admin-users/AdminUsersOperations.tsx");
     const adminDebugSummary = read("src/lib/debug/debug-panel-tracking-summary.ts");
     const adminUsersRoute = read("src/app/api/admin/users/route.ts");
 
@@ -461,7 +462,11 @@ describe("user management refactor contract", () => {
     expect(adminUsersPage).toContain("data-admin-user-management-metric-confidence");
     expect(adminUsersPage).toContain("formatOptionalCount(managementSummary.activitySummary.totalEvents)");
     expect(adminUsersPage).not.toContain("behaviorRollup?.totalActions ?? analytics.eventCount ?? 0");
-    expect(adminUsersPage).toContain("<details");
+    expect(adminUsersPage).toContain("<AdminUserDirectory");
+    expect(adminUsersPage).toContain("onLoadDetail=");
+    expect(adminUserDirectory).toContain("<DirectoryBehaviorSummary");
+    expect(adminUserDirectory).toContain("<details");
+    expect(adminUserDirectory).not.toMatch(/<pre[\s\S]{0,200}JSON\.stringify/);
     expect(adminUsersPage).not.toMatch(/<pre[\s\S]{0,200}JSON\.stringify/);
     expect(adminDebugSummary).toContain("user_management");
     expect(adminUsersRoute).toContain('mode === "summary"');

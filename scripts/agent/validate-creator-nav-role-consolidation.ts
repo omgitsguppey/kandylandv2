@@ -58,8 +58,9 @@ function read(relativePath: string) {
 function readCreatorWorkspaceModules() {
   const folder = join(repoRoot, "src/components/Dashboard/creator-workspace");
   if (!existsSync(folder)) return "";
+  const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
   return readdirSync(folder)
-    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .filter((name) => /\.(ts|tsx)$/u.test(name) && workspace.includes(`./creator-workspace/${name.replace(/\.(ts|tsx)$/u, "")}`))
     .sort()
     .map((name) => read(`src/components/Dashboard/creator-workspace/${name}`))
     .join("\n");
@@ -89,6 +90,12 @@ function hasAny(source: string, needles: string[]) {
   return needles.some((needle) => source.includes(needle));
 }
 
+export function hasCreatorNavigationItem(source: string, routeConstant: string, labels: readonly string[]) {
+  const entries = source.match(/\{[^{}]*\}/gu) ?? [];
+  return entries.some((entry) => new RegExp(`\\bhref:\\s*${routeConstant}\\b`, "u").test(entry)
+    && labels.some((label) => entry.includes(`label: "${label}"`)));
+}
+
 function creatorFacingLegacyAudienceCopyExists(source: string) {
   return /all_fans|Audience:\s*Fans|Message your fans|all followers|Tell followers|for followers|blast to all followers/iu.test(source);
 }
@@ -107,8 +114,10 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
   const broadcastManager = read("src/components/Creators/CreatorBroadcastManager.tsx");
   const broadcastsRoute = read("src/app/api/creator/broadcasts/route.ts");
   const subscriptionsRoute = read("src/app/api/creator/subscriptions/route.ts");
-  const profileCreatorTools = read("src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx");
-  const profileState = read("src/app/dashboard/profile/hooks/useProfileState.tsx");
+  const creatorSettingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+  const runway = read("src/components/creative-tim/kandydrops/creator/CreatorOperatingRunway.tsx");
+  const sidebarSurface = read("src/components/creative-tim/kandydrops/navigation/ProfileSidebarSurface.tsx");
+  const dropdownSurface = read("src/components/creative-tim/kandydrops/navigation/KandyProfileMenuSurface.tsx");
   const consolidationDoc = read("docs/agent-truth/creator-nav-role-consolidation.md");
   const creatorSurfaceRoutingDoc = read("docs/agent-truth/creator-surface-routing.md");
   const docs = [
@@ -121,7 +130,7 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     read("docs/agent-truth/creator-settings-source-health.md"),
   ].join("\n");
   const creatorSurface = `${creatorPage}\n${workspace}\n${workspaceModules}`;
-  const creatorUi = `${workspace}\n${workspaceModules}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${profileCreatorTools}\n${profileState}`;
+  const creatorUi = `${workspace}\n${workspaceModules}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${creatorSettingsHub}`;
   const nav = `${sidebar}\n${dropdown}\n${bottomNav}`;
   const userModuleNeedles = ["<DailyCheckIn", "<CreatorDiscoveryRail", "<RecentActivityFeed", "<CollectionList", "Owned / Locked", 'data-library-tabs="owned_locked"'];
 
@@ -146,11 +155,20 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
   const duplicateNavConstantsRemoved = includesAll(nav, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "USER_SETTINGS_ROUTE"])
     && !/href="\/settings"/u.test(`${sidebar}\n${dropdown}`)
     && !/label="Settings"|title="Settings"|aria-label="Open settings"/u.test(`${sidebar}\n${dropdown}`);
-  const accountSettingsLabelCanonical = includesAll(`${sidebar}\n${dropdown}`, ['label="Account Settings"', "href={USER_SETTINGS_ROUTE}"]);
-  const creatorDashboardRouteCanonical = includesAll(nav, ['label="Creator Dashboard"', "href={CREATOR_DASHBOARD_ROUTE}"])
-    && bottomNav.includes("creatorDashboardHref")
-    && bottomNav.includes("CREATOR_DASHBOARD_ROUTE");
-  const creatorSettingsRouteCanonical = includesAll(nav, ['label="Creator Settings"', "href={CREATOR_SETTINGS_ROUTE}"]);
+  const navDataBinding = sidebar.includes("<ProfileSidebarSurface") && dropdown.includes("<KandyProfileMenuSurface")
+    && sidebar.includes("navigationSections={navigationSections}") && dropdown.includes("navigationSections={navigationSections}")
+    && sidebarSurface.includes("href={item.href}") && dropdownSurface.includes("href={item.href}");
+  const accountSettingsLabelCanonical = navDataBinding
+    && hasCreatorNavigationItem(sidebar, "USER_SETTINGS_ROUTE", ["Settings"])
+    && hasCreatorNavigationItem(dropdown, "USER_SETTINGS_ROUTE", ["Settings"])
+    && sidebar.includes('label: "Account and help"') && dropdown.includes('label: "Account care"');
+  const creatorDashboardRouteCanonical = navDataBinding
+    && hasCreatorNavigationItem(sidebar, "CREATOR_DASHBOARD_ROUTE", ["Creator dashboard"])
+    && hasCreatorNavigationItem(dropdown, "CREATOR_DASHBOARD_ROUTE", ["Studio"])
+    && bottomNav.includes("creatorDashboardHref") && bottomNav.includes("CREATOR_DASHBOARD_ROUTE");
+  const creatorSettingsRouteCanonical = navDataBinding
+    && hasCreatorNavigationItem(sidebar, "CREATOR_SETTINGS_ROUTE", ["Creator settings"])
+    && hasCreatorNavigationItem(dropdown, "CREATOR_SETTINGS_ROUTE", ["Creator settings"]);
   const userDashboardModulesBlockedOnCreatorRoute = creatorPage.includes("CreatorDashboardLandingRoute")
     && includesAll(creatorSurface, [
       'data-dashboard-surface="creator_dashboard"',
@@ -184,9 +202,9 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     "followers",
   ]);
   const oldFollowersCopyRemoved = !creatorFacingLegacyAudienceCopyExists(creatorUi);
-  const oldMetricGridRemoved = creatorSurface.includes('data-creator-overview-module="compact_v1"')
-    && creatorSurface.includes('data-creator-dashboard-overview-density="mobile_compact"')
-    && !creatorSurface.includes('data-creator-landing-metric-card="compact_v2"');
+  const oldMetricGridRemoved = workspace.includes("<CreatorOperatingRunway")
+    && runway.includes("data-creator-operating-runway")
+    && !workspace.includes('data-creator-landing-metric-card="compact_v2"');
 
   const doctrineFindings = [
     blockedUnless(routeMatrixCanonical, "route-matrix-doc", "p1", "docs/agent-truth/creator-nav-role-consolidation.md", "Canonical creator/user route matrix is documented."),
@@ -199,7 +217,7 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
   ];
   const navFindings = [
     blockedUnless(duplicateNavConstantsRemoved, "nav-constants-consolidated", "p1", "src/components/Navigation", "Visible nav uses canonical route constants without duplicate account settings literals."),
-    blockedUnless(accountSettingsLabelCanonical, "account-settings-label", "p1", "src/components/Navigation", "Account menus label USER_SETTINGS_ROUTE as Account Settings."),
+    blockedUnless(accountSettingsLabelCanonical, "account-settings-label", "p1", "src/components/Navigation", "Account groups label the canonical USER_SETTINGS_ROUTE item as Settings through the real data-to-surface binding."),
     blockedUnless(creatorDashboardRouteCanonical, "creator-dashboard-nav", "p1", "src/components/Navigation", "Creator Dashboard nav points to /dashboard/creator."),
     blockedUnless(creatorSettingsRouteCanonical, "creator-settings-nav", "p1", "src/components/Navigation", "Creator Settings nav points to /dashboard/creator/settings."),
   ];

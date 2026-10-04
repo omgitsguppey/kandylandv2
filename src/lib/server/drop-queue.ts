@@ -2,13 +2,9 @@ import "server-only";
 
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "./firebase-admin";
+import { LEGACY_QUEUED_DROP_SCAN_LIMIT, DROP_QUEUE_AUTHORITY_VERSION, readQueueSettingsConfig, readSavedQueueSettingsConfig, type QueueSettingsConfig } from "../../../shared/runtime/queue-runtime";
 
-export interface DropQueueConfig {
-  queue: string[];
-  dropsPerDay: number;
-  cooldownDays: number;
-  timesPerDay: string[];
-}
+export type DropQueueConfig = QueueSettingsConfig;
 
 export const DEFAULT_DROP_QUEUE_CONFIG: DropQueueConfig = {
   queue: [],
@@ -16,8 +12,6 @@ export const DEFAULT_DROP_QUEUE_CONFIG: DropQueueConfig = {
   cooldownDays: 7,
   timesPerDay: ["12:00"],
 };
-
-const LEGACY_QUEUED_DROP_SCAN_LIMIT = 1_000;
 
 function normalizeTimesPerDay(timesPerDay: unknown, dropsPerDay: number): string[] {
   const rawTimes = Array.isArray(timesPerDay)
@@ -71,12 +65,13 @@ export async function getResolvedQueueConfig(): Promise<DropQueueConfig> {
     return DEFAULT_DROP_QUEUE_CONFIG;
   }
 
-  const [queueSnap, legacyIds] = await Promise.all([
-    adminDb.collection("adminSettings").doc("dropQueue").get(),
-    getLegacyQueuedDropIds(),
-  ]);
+  const queueSnap = await adminDb.collection("adminSettings").doc("dropQueue").get();
+  const raw = queueSnap.exists ? queueSnap.data() : DEFAULT_DROP_QUEUE_CONFIG;
+  const saved = readSavedQueueSettingsConfig(raw);
+  if (saved) return saved;
 
-  const stored = normalizeQueueConfig(queueSnap.exists ? (queueSnap.data() as Partial<DropQueueConfig>) : DEFAULT_DROP_QUEUE_CONFIG);
+  const legacyIds = await getLegacyQueuedDropIds();
+  const stored = normalizeQueueConfig(raw as Partial<DropQueueConfig>);
   return {
     ...stored,
     queue: Array.from(new Set([...stored.queue, ...legacyIds])),
@@ -89,8 +84,10 @@ export async function saveResolvedQueueConfig(raw: Partial<DropQueueConfig>): Pr
   }
 
   const normalized = normalizeQueueConfig(raw);
-  await adminDb.collection("adminSettings").doc("dropQueue").set(normalized, { merge: true });
-  return normalized;
+  if (!readQueueSettingsConfig(normalized)) throw new Error("Complete drop queue configuration is invalid");
+  const saved: DropQueueConfig = { ...normalized, queueAuthorityVersion: DROP_QUEUE_AUTHORITY_VERSION };
+  await adminDb.collection("adminSettings").doc("dropQueue").set(saved, { merge: true });
+  return saved;
 }
 
 export async function setDropQueueMembership(dropId: string, shouldQueue: boolean): Promise<void> {
@@ -101,12 +98,12 @@ export async function setDropQueueMembership(dropId: string, shouldQueue: boolea
   const queueRef = adminDb.collection("adminSettings").doc("dropQueue");
   const dropRef = adminDb.collection("drops").doc(dropId);
 
-  await Promise.all([
-    queueRef.set({
-      queue: shouldQueue ? FieldValue.arrayUnion(dropId) : FieldValue.arrayRemove(dropId),
-    }, { merge: true }),
-    dropRef.set({
-      rotationConfig: FieldValue.delete(),
-    }, { merge: true }),
-  ]);
+  const batch = adminDb.batch();
+  batch.set(queueRef, {
+    queue: shouldQueue ? FieldValue.arrayUnion(dropId) : FieldValue.arrayRemove(dropId),
+  }, { merge: true });
+  batch.set(dropRef, {
+    rotationConfig: FieldValue.delete(),
+  }, { merge: true });
+  await batch.commit();
 }

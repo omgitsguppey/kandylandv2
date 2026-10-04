@@ -1,7 +1,7 @@
 # Legal Payment User-Trust Copy
 
 Status: Launch audit doctrine  
-Last updated: 2026-05-02  
+Last updated: 2026-10-02  
 Scope: User-facing clarity for GumDrops, wallet refills, unlocks, Drop expiry, notifications, access, and support.
 
 This document is not legal advice. It records product-copy truth and consistency checks so future agents do not invent legal claims or weaken launch-critical user trust.
@@ -11,8 +11,8 @@ This document is not legal advice. It records product-copy truth and consistency
 - GumDrops are currency-like product units for access inside KandyDrops, not cash.
 - Product UI should call them `GumDrops` unless a legal page intentionally quotes the existing legal wording.
 - Bonus, promo, reward, or admin-granted GumDrops must not be presented as cash value, refundable value, or revenue.
-- Purchase UI must show the USD amount, paid base GumDrops, and any bonus GumDrops before checkout.
-- Purchase UI must preserve source-of-funds truth while keeping package rows compact.
+- Package rows must show total delivered GumDrops, package label, USD price, and a purple bonus chip only.
+- Purchased package bonuses remain paid-source GumDrops; they are included in the delivered total and are not reward-source credits. Purchase UI must preserve that canonical source-of-funds truth while keeping package rows compact.
 - Unlock UI must show the GumDrops cost before the user confirms the unlock.
 - Expiration copy must distinguish public Drop availability from owned library access.
 - Notification permission copy must say what notifications are for before asking users to enable them.
@@ -27,7 +27,7 @@ Terms and Privacy:
 
 Wallet refill:
 - `src/components/PurchaseModal.tsx` uses the canonical GumDrop economics helpers.
-- Package rows show paid base GumDrops, USD price, and a compact bonus indicator before checkout.
+- Package rows must show the delivered package total, USD price, and compact purple bonus indicator before checkout. The bonus is included in that total.
 - The success state repeats credited GumDrops and secured USD amount while source-of-funds details remain in backend/admin truth.
 
 Unlock:
@@ -57,7 +57,7 @@ Support:
 - `Refill GumDrops`
 - `Unwrap for 50 GD`
 - `Confirm 50 GD?`
-- `500 GumDrops + bonus`
+- `550 GumDrops · $5.00 · +50 bonus GD`
 - `This action costs 50 GumDrops.`
 - `Expired Drops leave the public Drops page.`
 - `Unwrapped Drops stay in your Library.`
@@ -84,7 +84,7 @@ npm run check:legal-payment-copy
 
 The validator checks:
 - `agent/state/legal-payment-copy-audit.generated.json` exists and records every required clarity lane.
-- Wallet package copy stays compact while backend/admin truth preserves paid-source and bonus-source accounting.
+- Wallet package copy shows the total delivered amount, price, and bonus chip while backend/admin truth preserves paid-source purchase accounting, including package bonuses, separately from non-purchase reward credits.
 - Unlock UI shows cost before action.
 - Terms, Privacy, and Support paths exist or missing state is documented.
 - Bonus/promo copy does not imply cash value.

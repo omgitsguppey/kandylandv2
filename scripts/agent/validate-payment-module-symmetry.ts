@@ -1,6 +1,6 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { listValidatorScopeFiles } from "./validate-agent-takeover-safety-check";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -35,10 +35,7 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 
 function changedFiles() {
   try {
-    return execSync("git diff --name-only HEAD", { cwd: root, encoding: "utf8" })
-      .split(/\r?\n/u)
-      .map((entry) => entry.trim().replace(/\\/gu, "/"))
-      .filter(Boolean);
+    return listValidatorScopeFiles(root);
   } catch (error) {
     failures.push(`Unable to inspect git diff: ${(error as Error).message}`);
     return [];
@@ -47,40 +44,51 @@ function changedFiles() {
 
 const packageJson = readRequired("package.json");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const walletPackagePicker = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
+const walletCheckoutPanel = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletCheckoutPanel.tsx");
 const promoContract = readRequired("src/lib/wallet/purchase-promo-contract.ts");
 const report = readRequired("agent/state/payment-module-symmetry.generated.json");
 const doc = readRequired("docs/agent-truth/payment-module-symmetry.md");
 const packages = readRequired("src/lib/gumdrops-packages.ts");
 const test = readRequired("tests/unit/payment-module-symmetry.spec.ts");
 const currentChanges = changedFiles();
-const paymentModuleEvidence = purchaseModal + report + promoContract;
+const paymentModuleEvidence = purchaseModal + walletPackagePicker + walletCheckoutPanel + report + promoContract;
+const walletDisplayEvidence = purchaseModal + walletPackagePicker;
 
 if (packageJson && !JSON.parse(packageJson).scripts?.["check:payment-module-symmetry"]) {
   failures.push("package.json must expose check:payment-module-symmetry.");
 }
 
 for (const expected of [
-  "function PurchasePackageRow",
-  "function PurchasePromoBadge",
-  "function PurchasePriceBlock",
-  "function PurchaseModalHeader",
-  "data-payment-module-density=\"compact-v2\"",
-  "data-purchase-row-zone=\"icon\"",
-  "data-purchase-row-zone=\"copy\"",
-  "data-purchase-row-zone=\"price\"",
-  "data-purchase-promo-slot=\"reserved\"",
-  "Paid GD",
-  "whitespace-nowrap",
-  "max-w-[6.4rem]",
-  "leading-none",
-  "grid-cols-[2rem_minmax(0,1fr)_6.6rem]",
-  "min-h-[3.45rem]",
-  "mt-2 pt-1.5 pb-0.5 border-t",
   "style={{ layout: \"vertical\", color: \"white\", shape: \"pill\", label: \"paypal\", height: 45 }}",
   "fundingSource={FUNDING.PAYPAL}",
   "expectedDrops: selectedPackage.drops",
 ]) {
   requireIncludes(purchaseModal, expected, "PurchaseModal payment symmetry");
+}
+
+for (const expected of [
+  "export function KandyWalletHeader",
+  "export function KandyWalletPackageOption",
+  "function KandyWalletPromoBadge",
+  "function KandyWalletPriceBlock",
+  "data-payment-module-density=\"compact-v2\"",
+  "data-purchase-row-zone=\"icon\"",
+  "data-purchase-row-zone=\"copy\"",
+  "data-purchase-row-zone=\"price\"",
+  "data-purchase-promo-slot=\"reserved\"",
+  "GumDrops",
+  "<Badge",
+  "max-w-[7.6rem]",
+  "leading-none",
+  "grid-cols-[2.75rem_minmax(0,1fr)]",
+  "<Button",
+  'variant="ghost"',
+  "disabled={disabled}",
+  "aria-pressed={selected}",
+  "border-t border-border",
+]) {
+  requireIncludes(walletPackagePicker, expected, "Canonical wallet package picker symmetry");
 }
 
 for (const expected of [
@@ -102,7 +110,7 @@ for (const forbidden of [
   "bg-emerald",
   "text-emerald",
 ]) {
-  requireNotIncludes(purchaseModal, forbidden, "PurchaseModal payment symmetry");
+  requireNotIncludes(walletDisplayEvidence, forbidden, "Wallet display payment symmetry");
 }
 
 for (const expected of [
@@ -153,18 +161,19 @@ for (const expected of [
   "src/lib/gumdrop-ledger.ts",
   "src/lib/gumdrop-source-of-funds.ts",
   "src/lib/gumdrops-packages.ts",
+  "src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx",
 ]) {
   requireIncludes(test, expected, "Payment module symmetry test protected path list");
 }
 
 requireRegex(
   purchaseModal,
-  /amount=\{pkgEconomics\.paidGumDrops\}[\s\S]*label=\{pkg\.label\}[\s\S]*price=\{pkg\.price\}[\s\S]*promo=\{resolvePurchaseBonusPromoOffer\(pkgEconomics\.bonusGumDrops\)\}/,
+  /amount=\{pkg\.drops\}[\s\S]*label=\{pkg\.label\}[\s\S]*price=\{pkg\.price\}[\s\S]*promo=\{resolvePurchaseBonusPromoOffer\(pkgEconomics\.bonusGumDrops\)\}/,
   "Fixed purchase package rows",
 );
 requireRegex(
   purchaseModal,
-  /amount=\{deriveGumdropEconomics\(customDrops, \(customDrops \/ 1000\) \* 5\)\.paidGumDrops\}[\s\S]*label="King Size Bundle"[\s\S]*promo=\{resolveBundlePromoOffer\(customDrops >= 5000\)\}/,
+  /amount=\{customDrops\}[\s\S]*label="King Size Bundle"[\s\S]*promo=\{resolveBundlePromoOffer\(customDrops >= 5000\)\}/,
   "Bundle purchase package row",
 );
 

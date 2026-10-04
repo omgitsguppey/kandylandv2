@@ -1,24 +1,11 @@
 "use client";
 
-import { RecentActivityFeedFrame } from "./RecentActivityFeedFrame";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-    Activity,
-    ArrowDownLeft,
-    ArrowUpRight,
-    CheckCircle2,
-    ChevronLeft,
-    ChevronRight,
-    Loader2,
-    Search,
-    TriangleAlert,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { KandyRecentActivityExperience } from "@/components/creative-tim/kandydrops/activity/KandyRecentActivityExperience";
 
 import { useAuth } from "@/context/AuthContext";
-import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { reportClientIssue, buildFirestoreClientIssueDetail } from "@/lib/client-error-reporting";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 import { trackEvent } from "@/lib/telemetry";
@@ -26,9 +13,8 @@ import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import { ACTIVITY_SYNC_EVENT } from "@/lib/activity-sync";
 import { USER_RUNTIME_COLLECTION } from "@/lib/platform-config";
-import { getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 
-interface TaskEventRecord {
+export interface TaskEventRecord {
     id: string;
     type: "assigned" | "started" | "completed" | "failed" | "reminder_sent";
     title: string;
@@ -38,7 +24,7 @@ interface TaskEventRecord {
     timestamp: number;
 }
 
-type ActivityItem =
+export type ActivityItem =
     | {
         id: string;
         timestamp: number;
@@ -73,6 +59,8 @@ interface RecentActivityState {
     historyActivities: ActivityItem[];
     loadingHistory: boolean;
     loadingSummary: boolean;
+    summaryError: boolean;
+    retryActivity: () => void;
     paginatedActivities: ActivityItem[];
     searchValue: string;
     setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
@@ -82,38 +70,6 @@ interface RecentActivityState {
 }
 
 const ITEMS_PER_PAGE = 5;
-const POSITIVE_TRANSACTION_TYPES = new Set<Transaction["type"]>([
-    "purchase_currency",
-    "daily_reward",
-    "admin_adjustment",
-    "referral_bonus",
-    "onboarding_reward",
-]);
-
-function renderTransactionLabel(transaction: Transaction) {
-    return getTransactionDisplayLabel(transaction);
-}
-
-function renderTaskEventLabel(taskEvent: TaskEventRecord) {
-    if (taskEvent.type === "assigned") {
-        return `Task ready: ${taskEvent.title}`;
-    }
-
-    if (taskEvent.type === "started") {
-        return `Task in progress: ${taskEvent.title}`;
-    }
-
-    if (taskEvent.type === "completed") {
-        return `Task complete: ${taskEvent.title}`;
-    }
-
-    if (taskEvent.type === "failed") {
-        return `Task reset: ${taskEvent.title}`;
-    }
-
-    return `Task reminder: ${taskEvent.title}`;
-}
-
 function getActivitySearchText(activity: ActivityItem) {
     return [
         activity.label,
@@ -121,10 +77,6 @@ function getActivitySearchText(activity: ActivityItem) {
             ? activity.transaction.description
             : activity.taskEvent.title,
     ].join(" ").toLowerCase();
-}
-
-function getActivityRelativeTime(timestamp: number) {
-    return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
 }
 
 async function fetchRecentActivity(view: ActivityView, etag: string | null) {
@@ -135,6 +87,9 @@ async function fetchRecentActivity(view: ActivityView, etag: string | null) {
 
     const response = await authFetch(`/api/user/activity?view=${view}`, { headers });
     if (response.status === 304) {
+        if (!etag) {
+            throw new Error("Recent activity returned no source snapshot");
+        }
         return {
             activities: [],
             etag,
@@ -143,12 +98,12 @@ async function fetchRecentActivity(view: ActivityView, etag: string | null) {
     }
 
     const result = await response.json() as RecentActivityResponse;
-    if (!response.ok || !result.success) {
+    if (!response.ok || result?.success !== true || !Array.isArray(result.activities)) {
         throw new Error(`Failed to load ${view === "summary" ? "recent activity" : "full activity history"}`);
     }
 
     return {
-        activities: result.activities || [],
+        activities: result.activities,
         etag: response.headers.get("etag"),
         notModified: false,
     } satisfies RecentActivityFetchResult;
@@ -172,231 +127,22 @@ function reportRecentActivityFailure(
     });
 }
 
-function ActivityFeedItem({ item }: { item: ActivityItem }) {
-    if (item.kind === "transaction") {
-        const isPositive = POSITIVE_TRANSACTION_TYPES.has(item.transaction.type);
-
-        return (
-            <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
-                <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple">
-                        {isPositive ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
-                    </div>
-                    <div className="min-w-0">
-                        <p className="line-clamp-1 text-sm font-bold text-white">
-                            {item.label || renderTransactionLabel(item.transaction)}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                            {getActivityRelativeTime(item.timestamp)}
-                        </p>
-                    </div>
-                </div>
-                <div className={isPositive ? "shrink-0 text-sm font-bold text-brand-purple" : "shrink-0 text-sm font-bold text-white"}>
-                    {isPositive ? "+" : "-"}{item.transaction.amount} GD
-                </div>
-            </div>
-        );
-    }
-
-    const completed = item.taskEvent.type === "completed";
-    const failed = item.taskEvent.type === "failed";
-    const neutral = !completed && !failed;
-    const statusLabel = item.taskEvent.type === "assigned"
-        ? "Ready"
-        : item.taskEvent.type === "started"
-            ? `${item.taskEvent.progress}/${item.taskEvent.maxProgress || 1}`
-            : item.taskEvent.type === "reminder_sent"
-                ? "Reminder"
-                : failed
-                    ? "Reset"
-                    : `+${item.taskEvent.reward} GD`;
-
-    return (
-        <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
-            <div className="flex min-w-0 items-center gap-3">
-                <div className={completed
-                    ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple"
-                    : neutral
-                        ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gray-200"
-                        : "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gray-300"}>
-                    {completed
-                        ? <CheckCircle2 className="h-5 w-5" />
-                        : neutral
-                            ? <Activity className="h-5 w-5" />
-                            : <TriangleAlert className="h-5 w-5" />}
-                </div>
-                <div className="min-w-0">
-                    <p className="line-clamp-1 text-sm font-bold text-white">
-                        {item.label || renderTaskEventLabel(item.taskEvent)}
-                    </p>
-                    <p className="text-[10px] text-gray-400">
-                        {getActivityRelativeTime(item.timestamp)}
-                    </p>
-                </div>
-            </div>
-            <div className={completed
-                ? "shrink-0 text-sm font-bold text-brand-purple"
-                : neutral
-                    ? "shrink-0 text-xs font-bold uppercase tracking-[0.14em] text-gray-300"
-                    : "shrink-0 text-xs font-bold uppercase tracking-[0.14em] text-gray-400"}>
-                {statusLabel}
-            </div>
-        </div>
-    );
-}
-
-interface EmptyStateProps {
-    onOpenExperiences: () => void;
-    onUnwrapNow: () => void;
-}
-
-function RecentActivityEmptyState({ onOpenExperiences, onUnwrapNow }: EmptyStateProps) {
-    return (
-        <div className="py-6 text-center">
-            <p className="text-sm text-gray-500">
-                Your recent unlocks, Gum Drop changes, and task history will appear here.
-            </p>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <button
-                    type="button"
-                    onClick={onUnwrapNow}
-                    className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
-                >
-                    Unwrap now
-                </button>
-                <button
-                    type="button"
-                    onClick={onOpenExperiences}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-                >
-                    Open Experiences
-                </button>
-            </div>
-            <div className="mt-4 flex justify-center">
-                <ReportBugButton context="recent-activity-empty" />
-            </div>
-        </div>
-    );
-}
-
-function RecentActivitySummary({ item }: { item: ActivityItem }) {
-    return (
-        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-r from-brand-purple/10 to-white/5 p-3">
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple/80">
-                Latest event
-            </p>
-            <ActivityFeedItem item={item} />
-        </div>
-    );
-}
-
-interface ExpandedActivityViewProps {
-    activities: ActivityItem[];
-    currentPage: number;
-    historyError: boolean;
-    loadingHistory: boolean;
-    onNextPage: () => void;
-    onPreviousPage: () => void;
-    onSearchChange: (value: string) => void;
-    searchValue: string;
-    totalPages: number;
-}
-
-function ExpandedActivityView({
-    activities,
-    currentPage,
-    historyError,
-    loadingHistory,
-    onNextPage,
-    onPreviousPage,
-    onSearchChange,
-    searchValue,
-    totalPages,
-}: ExpandedActivityViewProps) {
-    return (
-        <>
-            <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-                <input
-                    type="search"
-                    value={searchValue}
-                    onChange={(event) => onSearchChange(event.target.value)}
-                    placeholder="Search activity"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/60"
-                />
-            </div>
-
-            <div className="flex items-center justify-between gap-3 px-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">
-                <span>{activities.length} result{activities.length === 1 ? "" : "s"}</span>
-                <span>5 per page</span>
-            </div>
-
-            {loadingHistory ? (
-                <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" aria-hidden="true" />
-                </div>
-            ) : historyError && activities.length === 0 ? (
-                <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
-                    <TriangleAlert className="mx-auto mb-2 h-6 w-6 opacity-60" />
-                    We couldn&apos;t load your full history right now.
-                </div>
-            ) : activities.length === 0 ? (
-                <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
-                    {searchValue.trim()
-                        ? "No activity matches your search yet."
-                        : "No activity has been recorded yet."}
-                </div>
-            ) : (
-                <>
-                    <div className="space-y-3">
-                        {activities.map((activity) => (
-                            <ActivityFeedItem key={activity.id} item={activity} />
-                        ))}
-                    </div>
-
-                    <div className="flex items-center justify-between gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={onPreviousPage}
-                            disabled={currentPage === 1}
-                            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                            Previous
-                        </button>
-                        <span className="text-xs font-medium text-gray-400">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={onNextPage}
-                            disabled={currentPage >= totalPages}
-                            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                            Next
-                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                        </button>
-                    </div>
-                </>
-            )}
-        </>
-    );
-}
-
 function useRecentActivityState(user: AuthenticatedUser, userId: string | null, expanded: boolean): RecentActivityState & { historyError: boolean } {
     const [summaryActivity, setSummaryActivity] = useState<ActivityItem | null>(null);
     const [historyActivities, setHistoryActivities] = useState<ActivityItem[]>([]);
     const [loadingSummary, setLoadingSummary] = useState(true);
+    const [summaryError, setSummaryError] = useState<string | null>(null);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [historyLoaded, setHistoryLoaded] = useState(false);
-    const [historyError, setHistoryError] = useState(false);
+    const [historyError, setHistoryError] = useState<string | null>(null);
     const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const summaryEtagRef = useRef<string | null>(null);
     const historyEtagRef = useRef<string | null>(null);
-    const summaryInFlightRef = useRef(false);
-    const historyInFlightRef = useRef(false);
+    const summaryInFlightRef = useRef<symbol | null>(null);
+    const historyInFlightRef = useRef<symbol | null>(null);
+    const refreshActivityRef = useRef<((view: ActivityView) => Promise<void>) | null>(null);
     const trackedSummaryViewRef = useRef<string | null>(null);
     const expandedRef = useRef(expanded);
     expandedRef.current = expanded;
@@ -422,11 +168,14 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
     useEffect(() => {
         summaryEtagRef.current = null;
         historyEtagRef.current = null;
-        summaryInFlightRef.current = false;
-        historyInFlightRef.current = false;
+        summaryInFlightRef.current = null;
+        historyInFlightRef.current = null;
         setSummaryActivity(null);
         setHistoryActivities([]);
         setHistoryLoaded(false);
+        setHistoryError(null);
+        setSummaryError(null);
+        setLoadingHistory(false);
         setLoadedForUserId(null);
 
         if (!user || !userId) {
@@ -440,6 +189,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
         let cancelled = false;
         let unsubscribeUserRuntime: (() => void) | undefined;
         let sawUserRuntimeSnapshot = false;
+        let hasVerifiedSummary = false;
 
         async function refreshActivity(view: ActivityView) {
             const inFlightRef = view === "summary" ? summaryInFlightRef : historyInFlightRef;
@@ -449,11 +199,24 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 return;
             }
 
-            inFlightRef.current = true;
+            const request = Symbol(view);
+            inFlightRef.current = request;
+            if (view === "summary" && !hasVerifiedSummary) {
+                setLoadingSummary(true);
+            } else if (view === "history") {
+                setLoadingHistory(true);
+            }
             try {
                 const result = await fetchRecentActivity(view, etagRef.current);
                 if (cancelled) {
                     return;
+                }
+
+                if (view === "summary") {
+                    hasVerifiedSummary = true;
+                    setSummaryError(null);
+                } else {
+                    setHistoryError(null);
                 }
 
                 if (result.notModified) {
@@ -475,11 +238,21 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 setHistoryLoaded(true);
                 setLoadedForUserId(currentUserId);
             } catch (error) {
+                if (cancelled) {
+                    return;
+                }
+                if (view === "summary") {
+                    setSummaryError(currentUserId);
+                } else {
+                    setHistoryError(currentUserId);
+                }
                 reportRecentActivityFailure("cache", "Recent activity refresh failed", currentUserId, error, {
                     view,
                 });
             } finally {
-                inFlightRef.current = false;
+                if (inFlightRef.current === request) {
+                    inFlightRef.current = null;
+                }
                 if (cancelled) {
                     return;
                 }
@@ -491,6 +264,8 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 }
             }
         }
+
+        refreshActivityRef.current = refreshActivity;
 
         const subscribeToUserRuntime = async () => {
             try {
@@ -541,6 +316,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
                 unsubscribeUserRuntime = () => observerControl.cleanup();
             } catch (error) {
+                if (cancelled) return;
                 reportRecentActivityFailure(
                     "firebase",
                     "Recent activity runtime setup failed",
@@ -570,6 +346,9 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
         return () => {
             cancelled = true;
+            if (refreshActivityRef.current === refreshActivity) {
+                refreshActivityRef.current = null;
+            }
             window.removeEventListener("focus", refreshRecentActivity);
             window.removeEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -582,45 +361,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
             return;
         }
 
-        if (historyInFlightRef.current) {
-            return;
-        }
-
-        let cancelled = false;
-        setLoadingHistory(true);
-        setHistoryError(false);
-        historyInFlightRef.current = true;
-
-        void (async () => {
-            try {
-                const result = await fetchRecentActivity("history", historyEtagRef.current);
-                if (cancelled) {
-                    return;
-                }
-
-                if (result.notModified) {
-                    setHistoryLoaded(true);
-                    return;
-                }
-
-                historyEtagRef.current = result.etag;
-                setHistoryActivities(result.activities);
-                setHistoryLoaded(true);
-                setLoadedForUserId(userId);
-            } catch (error) {
-                reportRecentActivityFailure("cache", "Recent activity history refresh failed", userId, error);
-                setHistoryError(true);
-            } finally {
-                historyInFlightRef.current = false;
-                if (!cancelled) {
-                    setLoadingHistory(false);
-                }
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
+        void refreshActivityRef.current?.("history");
     }, [expanded, historyLoaded, user, userId]);
 
     useEffect(() => {
@@ -668,9 +409,16 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
     return {
         currentPage,
         historyActivities: scopedHistoryActivities,
-        historyError,
-        loadingHistory,
-        loadingSummary,
+        historyError: Boolean(userId && historyError === userId),
+        loadingHistory: loadingHistory || Boolean(userId && loadedForUserId !== userId && historyError !== userId),
+        loadingSummary: loadingSummary || Boolean(userId && loadedForUserId !== userId && summaryError !== userId),
+        summaryError: Boolean(userId && summaryError === userId),
+        retryActivity: () => {
+            void refreshActivityRef.current?.("summary");
+            if (expandedRef.current || historyLoadedRef.current) {
+                void refreshActivityRef.current?.("history");
+            }
+        },
         paginatedActivities,
         searchValue,
         setCurrentPage,
@@ -691,6 +439,8 @@ export function RecentActivityFeed() {
         historyError,
         loadingHistory,
         loadingSummary,
+        summaryError,
+        retryActivity,
         paginatedActivities,
         searchValue,
         setCurrentPage,
@@ -720,46 +470,36 @@ export function RecentActivityFeed() {
     };
 
     return (
-        <RecentActivityFeedFrame expanded={expanded} onToggleExpanded={handleToggleExpanded}>
-            {loadingSummary ? (
-                <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" aria-hidden="true" />
-                </div>
-            ) : !summaryActivity && !historyActivities.length ? (
-                <RecentActivityEmptyState
-                    onUnwrapNow={() => handleNavigate("/drops", "recent_activity_empty")}
-                    onOpenExperiences={() => handleNavigate("/experiences", "recent_activity_empty")}
-                />
-            ) : (
-                <div className="space-y-3">
-                    {expanded ? (
-                        <ExpandedActivityView
-                            activities={paginatedActivities}
-                            currentPage={currentPage}
-                            historyError={historyError}
-                            loadingHistory={loadingHistory && !historyActivities.length}
-                            onNextPage={() => {
-                                trackEvent("recent_activity_page_changed", { direction: "next" });
-                                setCurrentPage((page) => Math.min(totalPages, page + 1));
-                            }}
-                            onPreviousPage={() => {
-                                trackEvent("recent_activity_page_changed", { direction: "previous" });
-                                setCurrentPage((page) => Math.max(1, page - 1));
-                            }}
-                            onSearchChange={(value) => {
-                                if (value.trim()) {
-                                    trackEvent("recent_activity_searched", { query_length: value.length });
-                                }
-                                setSearchValue(value);
-                            }}
-                            searchValue={searchValue}
-                            totalPages={totalPages}
-                        />
-                    ) : summaryActivity ? (
-                        <RecentActivitySummary item={summaryActivity} />
-                    ) : null}
-                </div>
-            )}
-        </RecentActivityFeedFrame>
+        <KandyRecentActivityExperience
+            expanded={expanded}
+            onToggleExpanded={handleToggleExpanded}
+            loadingSummary={loadingSummary}
+            summaryError={summaryError}
+            onRetry={retryActivity}
+            hasRecordedActivity={Boolean(summaryActivity || historyActivities.length)}
+            summaryActivity={summaryActivity}
+            activities={paginatedActivities}
+            currentPage={currentPage}
+            historyError={historyError}
+            loadingHistory={loadingHistory && !historyActivities.length}
+            searchValue={searchValue}
+            totalPages={totalPages}
+            onSearchChange={(value) => {
+                if (value.trim()) {
+                    trackEvent("recent_activity_searched", { query_length: value.length });
+                }
+                setSearchValue(value);
+            }}
+            onNextPage={() => {
+                trackEvent("recent_activity_page_changed", { direction: "next" });
+                setCurrentPage((page) => Math.min(totalPages, page + 1));
+            }}
+            onPreviousPage={() => {
+                trackEvent("recent_activity_page_changed", { direction: "previous" });
+                setCurrentPage((page) => Math.max(1, page - 1));
+            }}
+            onUnwrapNow={() => handleNavigate("/drops", "recent_activity_empty")}
+            onOpenExperiences={() => handleNavigate("/experiences", "recent_activity_empty")}
+        />
     );
 }

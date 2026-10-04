@@ -7,9 +7,9 @@ import {
 } from "@/lib/release-readiness/final-release-readiness";
 
 describe("final release exit readiness packet", () => {
-  it("keeps beta exit false while formal evidence and operator QA remain", () => {
+  it.each(["2026-07-14T12:00:00.000Z", "2026-07-16T12:00:00.000Z"])("keeps beta exit false while formal evidence and operator QA remain at %s", (generatedAtUtc) => {
     const context = buildReleaseReadinessContext(process.cwd(), {
-      generatedAtUtc: "2026-07-14T12:00:00.000Z",
+      generatedAtUtc,
       currentHead: "head",
       publicBetaScore: {
         currentHead: "head",

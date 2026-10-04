@@ -9,8 +9,6 @@ The Experiences hero must not render redundant explainer cards such as `Daily re
 
 DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.
 
-Dashboard owns the full DailyCheckIn account-status presentation. Do not remove `Welcome back to the Kandy Shop` or `Claim your streak and stay ready to unwrap` from the Dashboard path. Experiences may hide those lines only by passing the shared `experiences` variant.
-
 The Experiences route uses the normal public mobile shell reservation. Do not add page-local safe-area padding, negative margins, transforms, `100vh`, or extra fixed spacers to make the bottom content clear the mobile bottom nav. Browser and standalone PWA modes must share the same component tree.
 
 Validation owner: `npm run check:experiences-compact-layout`.

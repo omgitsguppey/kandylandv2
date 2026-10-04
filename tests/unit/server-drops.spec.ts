@@ -7,15 +7,15 @@ const mockState = vi.hoisted(() => {
     const add = vi.fn();
     const collection = vi.fn(() => ({ orderBy, add }));
 
+    const database = { collection };
     return {
-        adminDb: {
-            collection,
-        },
+        adminDb: database as typeof database | null,
         get,
         limit,
         orderBy,
         collection,
         reset() {
+            this.adminDb = database;
             get.mockReset();
             limit.mockClear();
             orderBy.mockClear();
@@ -25,7 +25,7 @@ const mockState = vi.hoisted(() => {
 });
 
 vi.mock("@/lib/server/firebase-admin", () => ({
-    adminDb: mockState.adminDb,
+    get adminDb() { return mockState.adminDb; },
 }));
 
 vi.mock("@/lib/server/route-diagnostics", () => ({
@@ -86,4 +86,76 @@ describe("getDrops", () => {
             expect.anything(),
         );
     }, 10_000);
+});
+
+describe("getDrops source availability and recovery", () => {
+    beforeEach(() => {
+        mockState.reset();
+    });
+
+    it("keeps a verified empty query distinct from a missing source", async () => {
+        mockState.get.mockResolvedValue({ empty: true, docs: [] });
+        await expect(getDrops()).resolves.toEqual([]);
+        expect(mockState.collection).toHaveBeenCalledWith("drops");
+        expect(mockState.orderBy).toHaveBeenCalledWith("validFrom", "desc");
+        expect(mockState.limit).toHaveBeenCalledWith(1_000);
+        expect(mockState.get).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects when the database source is absent without issuing a query", async () => {
+        mockState.adminDb = null;
+        await expect(getDrops()).rejects.toBeInstanceOf(Error);
+        expect(mockState.collection).not.toHaveBeenCalled();
+        expect(mockState.get).not.toHaveBeenCalled();
+    });
+
+    it("preserves the exact provider failure instead of reporting an empty feed", async () => {
+        const failure = Object.assign(new Error("Firestore read unavailable"), { code: "unavailable" });
+        mockState.get.mockRejectedValue(failure);
+        await expect(getDrops()).rejects.toBe(failure);
+        expect(mockState.get).toHaveBeenCalledTimes(1);
+        const diagnostics = await import("@/lib/server/route-diagnostics");
+        expect(diagnostics.recordRouteWarning).toHaveBeenLastCalledWith("drops-list", "Error fetching drops", failure);
+    });
+
+    it("preserves a synchronous query-construction failure without retrying", async () => {
+        const failure = Object.assign(new Error("Collection setup failed"), { code: "failed-precondition" });
+        mockState.collection.mockImplementationOnce(() => { throw failure; });
+        await expect(getDrops()).rejects.toBe(failure);
+        expect(mockState.collection).toHaveBeenCalledTimes(1);
+        expect(mockState.get).not.toHaveBeenCalled();
+    });
+
+    it("permits a later independent read to recover after a failed read", async () => {
+        const failure = new Error("Temporary source failure");
+        mockState.get.mockRejectedValueOnce(failure).mockResolvedValueOnce({ empty: true, docs: [] });
+        await expect(getDrops()).rejects.toBe(failure);
+        await expect(getDrops()).resolves.toEqual([]);
+        expect(mockState.get).toHaveBeenCalledTimes(2);
+    });
+
+    it("retains public eligibility and content sanitization when the source is available", async () => {
+        const document = (id: string, approvalStatus: string) => ({
+            id,
+            data: () => ({
+                title: id,
+                description: "Public cover only",
+                imageUrl: "https://example.test/cover.jpg",
+                contentUrl: "https://example.test/private.mp4",
+                contentUrls: ["https://example.test/private-1.mp4", "https://example.test/private-2.jpg"],
+                unlockCost: 10,
+                validFrom: 1_000,
+                validUntil: 3_000_000_000_000,
+                status: "active",
+                totalUnlocks: 0,
+                approvalStatus,
+            }),
+        });
+        mockState.get.mockResolvedValue({ empty: false, docs: [document("approved", "approved"), document("pending", "pending_review")] });
+        const drops = await getDrops();
+        expect(drops.map(drop => drop.id)).toEqual(["approved"]);
+        expect(drops[0]).toMatchObject({ contentUrl: "", contentUrls: ["", ""] });
+        expect(mockState.get).toHaveBeenCalledTimes(1);
+        expect(mockState.limit).toHaveBeenCalledWith(1_000);
+    });
 });

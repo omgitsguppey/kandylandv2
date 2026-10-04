@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { createSourceValidatorTaskFixture } from "./utils/source-validator-contract";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -189,4 +192,57 @@ describe("event envelope normalization", () => {
       metadata: { anything: "ignored" },
     }));
   });
+});
+
+
+describe("bounded observed session metadata", () => {
+  const checkpoint = { version: "session_measurement_v1", segmentId: "segment_envelope_fixture_" + "x".repeat(80), sequence: 1, startedAtMs: 1_779_456_000_000, endedAtMs: 1_779_456_030_000, activeMs: 0, idleMs: 30_000, hiddenMs: 0, status: "final" };
+  it("preserves the complete validated compact checkpoint beyond generic string trimming", () => {
+    const serialized = JSON.stringify(checkpoint);
+    expect(serialized.length).toBeGreaterThan(250);
+    expect(stripForbiddenMetadata({ session_measurement: serialized })).toEqual({ session_measurement: serialized });
+  });
+  it("drops invalid or unsupported checkpoints instead of preserving a misleading reserved string", () => {
+    for (const value of ["not a checkpoint", JSON.stringify({ ...checkpoint, version: "old" }), JSON.stringify({ ...checkpoint, activeMs: 1 }), "x".repeat(1_025)]) {
+      expect(stripForbiddenMetadata({ session_measurement: value })).not.toHaveProperty("session_measurement");
+    }
+  });
+  it("keeps the reserved exception bounded to decoded fields rather than arbitrary nested personal data", () => {
+    const result = stripForbiddenMetadata({ session_measurement: JSON.stringify({ ...checkpoint, email: "fan@example.com", provider_payload: { token: "private" } }), email: "fan@example.com", token: "private" });
+    expect(result).toEqual({ session_measurement: JSON.stringify(checkpoint) });
+  });
+  it("retains ordinary metadata redaction and size limits", () => {
+    const result = stripForbiddenMetadata({ safe_label: "x".repeat(300), user_email: "fan@example.com", other_json: JSON.stringify({ email: "fan@example.com" }), phone_label: "+1 (555) 123-4567" });
+    expect(result.safe_label).toHaveLength(250);
+    expect(result).not.toHaveProperty("user_email");
+    expect(result).not.toHaveProperty("other_json");
+    expect(result).not.toHaveProperty("phone_label");
+  });
+});
+
+
+describe("event-envelope-normalization task-bound CLI", () => {
+  const fixture = (allowedSourceFiles: string[] = []) => createSourceValidatorTaskFixture({ validator: "scripts/agent/validate-event-envelope-normalization.ts", report: "agent/state/event-envelope-normalization.generated.json", allowedSourceFiles });
+  it("accepts declared source changes with inherited protected dirt, denies later protected changes and recovers without replacing prior proof", () => {
+    const f = fixture();
+    f.write("fixture.ts", "export const value = 2;\n");
+    const accepted = f.run(); expect(accepted.output).not.toContain("Error:"); expect(accepted.status).toBe(0);
+    const before = f.read(f.report);
+    expect(JSON.parse(before).mutationScope).toMatchObject({ mode: "input_bound_task", changedFiles: ["fixture.ts"], sourceFingerprint: f.fingerprint() });
+    f.write(f.protectedFile, "export const value = 3;\n");
+    const denied = f.run(); expect(denied.status).not.toBe(0); expect(denied.output).toContain("Output scope violation: " + f.protectedFile);
+    expect(f.read(f.report)).toBe(before);
+    f.write(f.protectedFile, "export const value = 2;\n");
+    expect(f.run().status).toBe(0);
+  }, 60_000);
+  it("retains the standalone protected-runtime safeguard", () => {
+    const f = fixture(); const result = f.run([]);
+    expect(result.status).not.toBe(0); expect(result.output).toContain("chatNavPaymentGumdropRuntimeUntouched failed.");
+    expect(JSON.parse(f.read(f.report)).mutationScope).toEqual({ mode: "whole_git_worktree" });
+  }, 60_000);
+  it("rejects an undeclared untracked mutation before publishing a report", () => {
+    const f = fixture(); f.write("unexpected.ts", "export const unexpected = true;\n");
+    const result = f.run(); expect(result.status).not.toBe(0); expect(result.output).toContain("Output scope violation: unexpected.ts");
+    expect(existsSync(join(f.root, f.report))).toBe(false);
+  }, 60_000);
 });

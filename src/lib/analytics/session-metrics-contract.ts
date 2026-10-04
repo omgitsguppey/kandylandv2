@@ -74,3 +74,45 @@ export function buildSessionBounceDebugLane(input: Partial<Omit<SessionBounceDeb
     sourceOfTruth: "src/lib/analytics/session-metrics-engine.ts",
   };
 }
+
+export const SESSION_MEASUREMENT_VERSION = "session_measurement_v1";
+// Matches the existing guest duration limit; this is a client observation, not server time truth.
+export const SESSION_MEASUREMENT_MAX_DURATION_MS = 24 * 60 * 60 * 1000;
+export type SessionMeasurementCheckpoint = {
+  version: typeof SESSION_MEASUREMENT_VERSION;
+  segmentId: string;
+  sequence: number;
+  startedAtMs: number;
+  endedAtMs: number;
+  activeMs: number;
+  idleMs: number;
+  hiddenMs: number;
+  status: "checkpoint" | "final";
+};
+
+export function readSessionMeasurementCheckpoint(value: unknown): SessionMeasurementCheckpoint | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  if (row.version !== SESSION_MEASUREMENT_VERSION
+    || typeof row.segmentId !== "string" || !/^[A-Za-z0-9:_-]{8,200}$/u.test(row.segmentId)
+    || (row.status !== "checkpoint" && row.status !== "final")) return null;
+  const keys = ["sequence", "startedAtMs", "endedAtMs", "activeMs", "idleMs", "hiddenMs"] as const;
+  if (keys.some(key => typeof row[key] !== "number" || !Number.isSafeInteger(row[key]) || (row[key] as number) < 0)) return null;
+  const { sequence, startedAtMs, endedAtMs, activeMs, idleMs, hiddenMs } = row as Record<typeof keys[number], number>;
+  const duration = endedAtMs - startedAtMs;
+  if (sequence < 1 || duration < 0 || duration > SESSION_MEASUREMENT_MAX_DURATION_MS
+    || activeMs + idleMs + hiddenMs !== duration) return null;
+  return { version: SESSION_MEASUREMENT_VERSION, segmentId: row.segmentId, sequence,
+    startedAtMs, endedAtMs, activeMs, idleMs, hiddenMs, status: row.status };
+}
+
+export function readSessionMeasurementFromParams(params: Record<string, unknown> | null | undefined) {
+  const raw = params?.session_measurement;
+  if (typeof raw !== "string" || raw.length > 1024) return null;
+  try { return readSessionMeasurementCheckpoint(JSON.parse(raw)); } catch { return null; }
+}
+
+export function serializeSessionMeasurementCheckpoint(value: unknown) {
+  const checkpoint = readSessionMeasurementCheckpoint(value);
+  return checkpoint ? JSON.stringify(checkpoint) : null;
+}

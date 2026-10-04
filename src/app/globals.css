@@ -2,76 +2,87 @@
 @import "react-loading-skeleton/dist/skeleton.css";
 @plugin "@tailwindcss/typography";
 
-@theme {
-  /* KandyDrops brand palette and Creative Tim semantic surface tokens. */
-  --color-brand-dark: #08040f;
-  --color-brand-purple: #b28cff;
-  --color-brand-pink: #ff6fcf;
-  --color-kandy-ink: #08040f;
-  --color-kandy-void: #12071f;
-  --color-kandy-glass: #1d1030;
-  --color-kandy-lilac: #d9cbff;
+/* Semantic utilities project the single appearance owner below. */
+@theme inline {
+  --font-sans: var(--font-ui);
+  --color-brand-dark: var(--background);
+  --color-brand-purple: var(--primary);
+  --color-brand-pink: var(--brand-pink);
+  --color-kandy-ink: var(--background);
+  --color-kandy-void: var(--card);
+  --color-kandy-glass: var(--popover);
+  --color-kandy-lilac: var(--focus-ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--secondary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--secondary);
+  --color-accent-foreground: var(--foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--focus-ring);
+}
 
-  --color-background: #08040f;
-  --color-foreground: #fff9ff;
-  --color-card: #160b24;
-  --color-card-foreground: #fff9ff;
-  --color-popover: #1a0d29;
-  --color-popover-foreground: #fff9ff;
-  --color-primary: #b28cff;
-  --color-primary-foreground: #150822;
-  --color-secondary: #2a173d;
-  --color-secondary-foreground: #f7f0ff;
-  --color-muted: #21132f;
-  --color-muted-foreground: #cfc1da;
-  --color-accent: #ff6fcf;
-  --color-accent-foreground: #250616;
-  --color-destructive: #ff6b8a;
-  --color-destructive-foreground: #fff8fa;
-  --color-border: #ffffff1a;
-  --color-input: #ffffff1f;
-  --color-ring: #d9cbff;
+:root {
+  color-scheme: dark;
+  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --background: #101014;
+  --card: #1c1c20;
+  --popover: #26262b;
+  --foreground: #f5f5f7;
+  --muted-foreground: #b8b8c2;
+  --primary: #b28cff;
+  --primary-foreground: #211236;
+  --brand-pink: #ff6fcf;
+  --secondary: #303036;
+  --destructive: #ff6b8a;
+  --destructive-foreground: #2b0610;
+  --success: #78d8a2;
+  --warning: #f5cf75;
+  --info: #92b7ff;
+  --border: rgba(255, 255, 255, 0.14);
+  --input: rgba(255, 255, 255, 0.40);
+  --focus-ring: #d9cbff;
+  --navigation-fill: rgba(38, 38, 43, 0.94);
+  --surface: var(--card);
+  --surface-elevated: var(--popover);
+  --surface-border: var(--border);
+  --admin-shell-gap: 1rem;
+  --admin-shell-gap-md: 1.25rem;
 }
 
 html { overscroll-behavior-y: none; }
 
 .admin-shell-route {
-  --root-shell-top-spacing: 4rem;
-}
-
-/* device-layout: intentional_design_exception; admin shell keeps Tailwind md spacing until a broader shell review moves this to a contract tier. */
-@media (min-width: 768px) {
-  .admin-shell-route {
-    --root-shell-top-spacing: 4.75rem;
-  }
-}
-
-:root {
-  --background: #08040f;
-  --foreground: #fff9ff;
-  --surface: #160b24;
-  --surface-elevated: #1d1030;
-  --surface-border: rgba(255, 255, 255, 0.1);
-  --focus-ring: #d9cbff;
-  --admin-shell-gap: 1rem;
-  --admin-shell-gap-md: 1.25rem;
+  /* The sticky navbar is already in document flow. The Admin grid owns its gap. */
+  --root-shell-top-spacing: 0px;
 }
 
 body {
-  background:
-    radial-gradient(circle at 8% -12%, rgba(178, 140, 255, 0.23), transparent 30rem),
-    radial-gradient(circle at 92% 0%, rgba(255, 111, 207, 0.12), transparent 25rem),
-    linear-gradient(150deg, #11091c 0%, var(--background) 46%, #06030a 100%);
+  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), "Avenir Next", "Segoe UI Variable Display", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
 }
 
 ::selection {
-  background: rgba(178, 140, 255, 0.38);
-  color: #fff9ff;
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 
 :focus-visible {
@@ -79,25 +90,76 @@ body {
   outline-offset: 3px;
 }
 
-/* Kandy glass utilities keep depth legible without hiding state. */
+/* Compatibility class for content; navigation owns the translucent layer. */
 .glass-panel {
-  background: linear-gradient(135deg, rgba(41, 23, 62, 0.76), rgba(12, 7, 20, 0.68));
-  border: 1px solid var(--surface-border);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 42px rgba(4, 1, 9, 0.28);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 .glass-button {
-  background: rgba(255, 255, 255, 0.065);
-  border: 1px solid rgba(217, 203, 255, 0.18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--secondary);
+  border: 1px solid var(--border);
 }
 
 .glass-button:active {
-  background: rgba(178, 140, 255, 0.18);
+  background: var(--popover);
+}
+
+/* One functional chrome material. Content surfaces remain opaque. */
+.navigation-material {
+  background: var(--popover);
+  border: 0;
+  color: var(--foreground);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 24px rgba(0, 0, 0, 0.20);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Unknown/unsupported transparency preference keeps the solid base above. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @media (prefers-reduced-transparency: no-preference) {
+    .navigation-material {
+      background: var(--navigation-fill);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .navigation-material {
+    background: var(--popover);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root { --border: rgba(255, 255, 255, 0.5); --input: rgba(255, 255, 255, 0.65); }
+  .navigation-material { background: var(--popover); border: 1px solid var(--border); box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --background: Canvas;
+    --card: Canvas;
+    --popover: Canvas;
+    --foreground: CanvasText;
+    --muted-foreground: CanvasText;
+    --primary: Highlight;
+    --primary-foreground: HighlightText;
+    --secondary: Canvas;
+    --destructive: LinkText;
+    --destructive-foreground: Canvas;
+    --success: CanvasText;
+    --warning: CanvasText;
+    --info: CanvasText;
+    --border: CanvasText;
+    --input: CanvasText;
+    --focus-ring: Highlight;
+  }
+  .navigation-material { background: Canvas; border: 1px solid CanvasText; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 /* Scrollbar - Thinner & Smoother */
@@ -116,10 +178,7 @@ body {
 }
 
 .app-bg {
-  background:
-    radial-gradient(circle at 12% 0%, rgba(178, 140, 255, 0.14), transparent 28rem),
-    radial-gradient(circle at 88% 6%, rgba(255, 111, 207, 0.08), transparent 24rem),
-    var(--background);
+  background: var(--background);
 }
 @keyframes title-marquee-anim {
   0%, 10% { transform: translateX(0); }

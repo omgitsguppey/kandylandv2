@@ -3,6 +3,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
+
 import {
   getBrokenSupportPolicySurfaces,
   getDuplicateSupportPolicyRoutesWithoutRedirect,
@@ -36,15 +38,8 @@ function git(args: string[]) {
   }
 }
 
-function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of git([...args]).split(/\r?\n/u)) {
-      const file = line.trim().replace(/\\/gu, "/");
-      if (file) files.add(file);
-    }
-  }
-  return [...files].sort();
+export function changedFiles(root = ROOT, args: readonly string[] = process.argv.slice(2)) {
+  return listValidatorScopeFiles(root, args);
 }
 
 function includesAll(source: string, snippets: readonly string[]) {
@@ -79,8 +74,9 @@ function main() {
   const currentHead = git(["rev-parse", "HEAD"]) || "unknown";
   const changed = changedFiles();
   const packageJson = JSON.parse(read("package.json")) as { scripts?: Record<string, string> };
-  const supportSafety = read("src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx");
-  const privacyData = read("src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx");
+  const accountPanels = read("src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx");
+  const supportSafety = accountPanels.slice(accountPanels.indexOf("export function KandySupportSafetyPanel"));
+  const privacyData = accountPanels.slice(accountPanels.indexOf("export function KandyPrivacyDataPanel"), accountPanels.indexOf("export function KandySupportSafetyPanel"));
   const settingsContract = read("src/lib/settings/settings-surface-contract.ts");
   const faqPage = read("src/app/faq/page.tsx");
   const faqClient = read("src/app/faq/FAQClient.tsx");
@@ -119,7 +115,7 @@ function main() {
 
   const checks = {
     packageScriptPresent: packageJson.scripts?.["check:support-policy-surface-cleanup"] === "tsx scripts/agent/validate-support-policy-surface-cleanup.ts",
-    contractVersioned: SUPPORT_POLICY_SURFACE_CONTRACT_VERSION === "2026.05.support-policy-surface.1"
+    contractVersioned: SUPPORT_POLICY_SURFACE_CONTRACT_VERSION === "2026.10.support-policy-surface.1"
       && SUPPORT_POLICY_SURFACES.length === 6,
     routeMapCanonical: includesAll(JSON.stringify(SUPPORT_POLICY_SURFACES), [
       '"id":"faq"',
@@ -168,7 +164,7 @@ function main() {
     .filter(([, passed]) => !passed)
     .map(([name]) => `${name} failed.`);
 
-  const report = {
+  const report = withValidatorMutationScope({
     generatedAtUtc,
     reportKey: "support-policy-surface-cleanup",
     status: failures.length === 0 ? "pass" : "fail",
@@ -183,7 +179,7 @@ function main() {
     protectedChanges,
     checks,
     validationFailures: failures,
-  };
+  });
 
   write(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   write(DOC_PATH, [

@@ -1,3 +1,5 @@
+import ts from "typescript";
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -73,16 +75,6 @@ function scoreSnapshot(score: JsonRecord) {
     regressionRisk: readNumber(score.regressionRiskScore, 80),
     overallHealthScore: readNumber(score.healthScore, 80),
   } satisfies Record<ScoreDimension, number>;
-}
-
-function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
 }
 
 function writeJson(path: string, value: unknown) {
@@ -215,7 +207,79 @@ function renderDoc(report: JsonRecord) {
   ].join("\n");
 }
 
+function hasConnectedSessionCloseout(source: string) {
+  const tree = ts.createSourceFile("DeepTracker.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const bindings = new Map<string, string>();
+  for (const statement of tree.statements) {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    const elements = statement.importClause?.namedBindings;
+    if (!elements || !ts.isNamedImports(elements)) continue;
+    for (const element of elements.elements) bindings.set(`${statement.moduleSpecifier.text}:${element.propertyName?.text ?? element.name.text}`, element.name.text);
+  }
+  const track = bindings.get("@/lib/telemetry:trackEvent");
+  const serialize = bindings.get("@/lib/analytics/session-metrics-contract:serializeSessionMeasurementCheckpoint");
+  const close = bindings.get("@/lib/analytics/session-metrics-engine:closeSession");
+  const effect = bindings.get("react:useEffect");
+  if (!track || !serialize || !close || !effect) return false;
+  const calls = (node: ts.Node) => {
+    const result: ts.CallExpression[] = [];
+    const visit = (child: ts.Node) => {
+      if (child !== node && (ts.isArrowFunction(child) || ts.isFunctionExpression(child) || ts.isFunctionDeclaration(child))) return;
+      if (ts.isCallExpression(child)) result.push(child);
+      ts.forEachChild(child, visit);
+    };
+    visit(node);
+    return result;
+  };
+  let connected = false;
+  const inspect = (node: ts.Node) => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === effect) {
+      const body = node.arguments[0];
+      if (body && ts.isArrowFunction(body) && ts.isBlock(body.body)) {
+        const declarations = body.body.statements.flatMap(statement => ts.isVariableStatement(statement) ? [...statement.declarationList.declarations] : []);
+        const declaration = (name: string) => declarations.find(entry => ts.isIdentifier(entry.name) && entry.name.text === name);
+        for (const summary of declarations) {
+          if (!ts.isIdentifier(summary.name) || !summary.initializer || !ts.isArrowFunction(summary.initializer) || !ts.isBlock(summary.initializer.body)) continue;
+          const summaryDeclarations = summary.initializer.body.statements.flatMap(statement => ts.isVariableStatement(statement) ? [...statement.declarationList.declarations] : []);
+          const summaryDeclaration = (name: string) => summaryDeclarations.find(entry => ts.isIdentifier(entry.name) && entry.name.text === name);
+          for (const emitted of calls(summary.initializer.body)) {
+            if (!ts.isIdentifier(emitted.expression) || !emitted.arguments[0] || !ts.isStringLiteral(emitted.arguments[0]) || emitted.arguments[0].text !== "session_closed" || !emitted.arguments[1] || !ts.isObjectLiteralExpression(emitted.arguments[1])) continue;
+            const properties = emitted.arguments[1].properties;
+            const property = (name: string) => properties.find(entry => ts.isPropertyAssignment(entry) && entry.name.getText(tree).replaceAll('"', "").replaceAll("'", "") === name) as ts.PropertyAssignment | undefined;
+            const checkpoint = property("session_measurement")?.initializer;
+            if (!checkpoint || !ts.isCallExpression(checkpoint) || !ts.isIdentifier(checkpoint.expression) || checkpoint.expression.text !== serialize || !checkpoint.arguments[0] || !ts.isIdentifier(checkpoint.arguments[0])) continue;
+            const checkpointSource = summaryDeclaration(checkpoint.arguments[0].text)?.initializer;
+            if (!checkpointSource || !ts.isCallExpression(checkpointSource) || !checkpointSource.arguments[0] || !ts.isStringLiteral(checkpointSource.arguments[0]) || checkpointSource.arguments[0].text !== "final") continue;
+            const active = property("active_ms")?.initializer;
+            if (!active || !ts.isPropertyAccessExpression(active) || !ts.isIdentifier(active.expression) || active.name.text !== "activeMs") continue;
+            const metrics = active.expression.text;
+            const metricSource = summaryDeclaration(metrics)?.initializer;
+            if (!metricSource || !ts.isCallExpression(metricSource) || !ts.isIdentifier(metricSource.expression) || metricSource.expression.text !== close) continue;
+            if (!["idle_ms", "hidden_ms"].every(key => { const value = property(key)?.initializer; return value && ts.isPropertyAccessExpression(value) && ts.isIdentifier(value.expression) && value.expression.text === metrics && value.name.text === (key === "idle_ms" ? "idleMs" : "hiddenMs"); })) continue;
+            const publisher = declaration(emitted.expression.text)?.initializer;
+            if (!publisher || !ts.isArrowFunction(publisher) || !ts.isBlock(publisher.body) || publisher.parameters.length < 2 || !ts.isIdentifier(publisher.parameters[0].name) || !ts.isIdentifier(publisher.parameters[1].name)) continue;
+            const inputEvent = publisher.parameters[0].name.text;
+            const inputParams = publisher.parameters[1].name.text;
+            const forwarded = calls(publisher.body).find(call => ts.isIdentifier(call.expression) && call.expression.text === track && call.arguments[0] && ts.isIdentifier(call.arguments[0]) && call.arguments[0].text === inputEvent && call.arguments[1] && ts.isIdentifier(call.arguments[1]));
+            if (!forwarded || !ts.isIdentifier(forwarded.arguments[1])) continue;
+            const payload = publisher.body.statements.flatMap(statement => ts.isVariableStatement(statement) ? [...statement.declarationList.declarations] : []).find(entry => ts.isIdentifier(entry.name) && entry.name.text === forwarded.arguments[1].getText(tree))?.initializer;
+            if (!payload || !ts.isObjectLiteralExpression(payload) || !payload.properties.some(entry => ts.isSpreadAssignment(entry) && ts.isIdentifier(entry.expression) && entry.expression.text === inputParams)) continue;
+            const pageHide = calls(body.body).find(call => ts.isPropertyAccessExpression(call.expression) && call.expression.name.text === "addEventListener" && call.arguments[0] && ts.isStringLiteral(call.arguments[0]) && call.arguments[0].text === "pagehide" && call.arguments[1] && ts.isIdentifier(call.arguments[1]));
+            if (!pageHide || !ts.isIdentifier(pageHide.arguments[1])) continue;
+            const handler = declaration(pageHide.arguments[1].text)?.initializer;
+            if (handler && ts.isArrowFunction(handler) && calls(handler.body).some(call => ts.isIdentifier(call.expression) && call.expression.text === summary.name.getText(tree))) connected = true;
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, inspect);
+  };
+  inspect(tree);
+  return connected;
+}
+
 function main() {
+  const mutationScope = readValidatorMutationScope();
   const generatedAtUtc = new Date().toISOString();
   const currentHead = run("git", ["rev-parse", "HEAD"]) || "unknown";
   const scoreBefore = scoreSnapshot(readJson(SCORE_PATH));
@@ -275,7 +339,7 @@ function main() {
       ? "No session/bounce score action needed for this dimension."
       : "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence.",
   }]));
-  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const dirtyFiles = (mutationScope ? [] : listValidatorScopeFiles()).map((path) => ({ path, classification: classifyDirtyFile(path) }));
   const sourceFiles = {
     contract: read("src/lib/analytics/session-metrics-contract.ts"),
     engine: read("src/lib/analytics/session-metrics-engine.ts"),
@@ -297,7 +361,7 @@ function main() {
   if (resolveSessionTelemetryPolicy({ eventName: "session_activity_tick", lastActivityTickAtMs: 1_000, nowMs: 2_000 }).shouldEmit) failures.push("heartbeat/tick can spam.");
   if (!metric || !SESSION_METRICS_TELEMETRY_EVENTS.every((eventName) => metric.eventNames.includes(eventName))) failures.push("global/user metrics omit sessions.");
   if (!debugSummary.lanes.some((lane) => lane.id === "session_bounce") || !sourceFiles.debugSummary.includes("Session/bounce")) failures.push("debug lane missing.");
-  if (!sourceFiles.deepTracker.includes('trackEvent("session_closed"')) failures.push("DeepTracker does not emit session closeout telemetry.");
+  if (!hasConnectedSessionCloseout(sourceFiles.deepTracker)) failures.push("DeepTracker does not emit session closeout telemetry.");
   if (!sourceFiles.deepTracker.includes("durationMs >= 15_000")) {
     // Expected cleanup: old page-duration-only engagement threshold is absent.
   } else {
@@ -332,6 +396,7 @@ function main() {
   }
 
   const report = {
+    mutationScope: mutationScope ?? { mode: "whole_git_worktree" as const },
     generatedAtUtc,
     reportKey: "session-bounce-calculation",
     currentHead,

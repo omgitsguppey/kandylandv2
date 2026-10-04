@@ -38,6 +38,24 @@ export const DELETE_ACCOUNT_RETENTION_TARGETS: readonly DeleteAccountRetentionTa
   { targetKey: "provider_external_records", privacyClass: "payment_sensitive", retentionClass: "ledger_required", deleteEligibility: "provider_external", deleteAction: "record external provider action requirement without calling provider", danglingReferencePolicy: "do not imply provider deletion was completed by source-only code" },
 ];
 
+/** Existing self-service deletion cannot dispose of these retained records.
+ * Until their redacted retention workflow is implemented, defer the account
+ * deletion before disabling Auth or deleting private data. Presence is checked
+ * with one caller-scoped document per query; absence is not a retention receipt.
+ */
+export const DELETE_ACCOUNT_RETENTION_REVIEW_QUERIES = [
+  { collection: "transactions", field: "userId", targetKey: "payment_ledger_summaries" },
+  { collection: "paymentLocks", field: "userId", targetKey: "payment_ledger_summaries" },
+  { collection: "security_events", field: "userId", targetKey: "auth_security_diagnostics" },
+  { collection: "creator_ledger_accruals", field: "userId", targetKey: "payment_ledger_summaries" },
+  { collection: "creator_ledger_accruals", field: "creatorId", targetKey: "payment_ledger_summaries" },
+  { collection: "creator_payout_requests", field: "creatorId", targetKey: "payment_ledger_summaries" },
+] as const;
+
+export function requiresAccountDeletionRetentionReview(collection: string, field: string) {
+  return DELETE_ACCOUNT_RETENTION_REVIEW_QUERIES.some((target) => target.collection === collection && target.field === field);
+}
+
 export function validateDeleteAccountRetentionPolicy() {
   const failures: string[] = [];
   for (const stage of DELETE_ACCOUNT_RETENTION_STAGES) {
@@ -48,6 +66,12 @@ export function validateDeleteAccountRetentionPolicy() {
   if (!DELETE_ACCOUNT_RETENTION_TARGETS.some((target) => target.privacyClass === "telemetry_behavioral" && target.deleteEligibility === "anonymize")) failures.push("Behavioral anonymization missing.");
   if (!DELETE_ACCOUNT_RETENTION_TARGETS.some((target) => target.targetKey === "admin_debug_references" && /redact/iu.test(target.deleteAction))) failures.push("Admin/debug redaction missing.");
   if (DELETE_ACCOUNT_RETENTION_TARGETS.some((target) => !target.danglingReferencePolicy)) failures.push("Dangling profile references unclassified.");
+  for (const query of DELETE_ACCOUNT_RETENTION_REVIEW_QUERIES) {
+    const target = DELETE_ACCOUNT_RETENTION_TARGETS.find((entry) => entry.targetKey === query.targetKey);
+    if (!target || !["retain_ledger", "retain_security"].includes(target.deleteEligibility)) {
+      failures.push(`${query.collection}.${query.field} must resolve to its retained policy target.`);
+    }
+  }
   return failures;
 }
 
@@ -59,6 +83,7 @@ export function buildDeleteAccountRetentionPolicyReport(generatedAtUtc = new Dat
     status: validationFailures.length === 0 ? "pass" : "fail",
     deleteRetentionStagesMapped: DELETE_ACCOUNT_RETENTION_STAGES.length,
     retentionTargetsMapped: DELETE_ACCOUNT_RETENTION_TARGETS.length,
+    retentionReviewQueriesMapped: DELETE_ACCOUNT_RETENTION_REVIEW_QUERIES.length,
     validationFailures,
   };
 }

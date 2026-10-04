@@ -1,8 +1,8 @@
 "use client";
 
-import { ShieldCheck } from "lucide-react";
-
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { Card } from "@/components/creative-tim/ui/card";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
 import { useAdminPrivacyPreflight } from "@/hooks/useAdminPrivacyPreflight";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type {
@@ -11,9 +11,13 @@ import type {
     PrivacyPreflightCheck,
     PrivacyPreflightCheckState,
 } from "@/lib/admin-privacy-console";
-import { cn } from "@/lib/utils";
 
-const RANGE_OPTIONS: PrivacyConsoleRange[] = ["1h", "24h", "7d", "30d"];
+const RANGE_OPTIONS: Array<{ value: PrivacyConsoleRange; label: string }> = [
+    { value: "1h", label: "1 hour" },
+    { value: "24h", label: "24 hours" },
+    { value: "7d", label: "7 days" },
+    { value: "30d", label: "30 days" },
+];
 
 function toAdminState(state: PrivacyPreflightCheckState | PrivacyConsoleOverallState) {
     if (state === "pass" || state === "live") return "live" as const;
@@ -30,20 +34,17 @@ function formatLastSeen(value: string | null) {
 
 function buildCheckSummary(check: PrivacyPreflightCheck) {
     const sampleLabel = check.sampleCount === null ? "No count" : `${check.sampleCount} samples`;
-    return `${sampleLabel} · ${check.evidenceState.replace(/_/g, " ")}`;
+    return `${sampleLabel} · Evidence: ${check.evidenceState.replace(/_/g, " ")}`;
+}
+
+function rangeLabel(value: PrivacyConsoleRange) {
+    return RANGE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 }
 
 export function AdminPrivacyPreflight() {
-    const {
-        data,
-        error,
-        isLoading,
-        range,
-        setRange,
-        adminSessionState,
-    } = useAdminPrivacyPreflight();
-
-    const checks = data?.checks ?? [];
+    const { data, error, isLoading, range, setRange, adminSessionState } = useAdminPrivacyPreflight();
+    const sourceData = adminSessionState === "ready" ? data : null;
+    const checks = sourceData?.checks ?? [];
     const isLocalFixtureSourceMissing = adminSessionState === "local_fixture_source_missing";
     const passCount = checks.filter((check) => check.state === "pass").length;
     const reviewCount = checks.filter((check) => check.state === "review" || check.state === "unknown" || check.state === "not_configured").length;
@@ -51,82 +52,95 @@ export function AdminPrivacyPreflight() {
     const quietCount = checks.filter((check) => check.state === "quiet").length;
     const overallState = isLocalFixtureSourceMissing
         ? "unavailable"
-        : data ? toAdminState(data.overallState) : isLoading ? "loading" : error ? "failed" : "unavailable";
-    const safeErrorMessage = error
+        : isLoading || adminSessionState !== "ready" ? "loading"
+            : error ? "failed" : sourceData ? toAdminState(sourceData.overallState) : "unavailable";
+    const safeErrorMessage = adminSessionState === "ready" && error
         ? sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable").operatorMessage
         : null;
     const lastEvidenceAtUtc = checks.reduce<string | null>((latest, check) => {
         if (!check.lastSeenAtUtc) return latest;
-        if (!latest || Date.parse(check.lastSeenAtUtc) > Date.parse(latest)) {
-            return check.lastSeenAtUtc;
-        }
+        if (!latest || Date.parse(check.lastSeenAtUtc) > Date.parse(latest)) return check.lastSeenAtUtc;
         return latest;
     }, null);
 
     return (
         <section
-            className="space-y-4"
-            data-privacy-console-generated-at-utc={data?.generatedAtUtc ?? "pending"}
+            className="min-w-0 space-y-3"
+            data-privacy-console-generated-at-utc={sourceData?.generatedAtUtc ?? "pending"}
             data-privacy-console-range={range}
-            data-privacy-console-overall-state={isLocalFixtureSourceMissing ? "source_missing" : data?.overallState ?? (isLoading ? "loading" : error ? "error" : "unknown")}
+            data-privacy-console-source-range={sourceData?.range ?? "unavailable"}
+            data-privacy-console-overall-state={isLocalFixtureSourceMissing ? "source_missing" : isLoading || adminSessionState !== "ready" ? "loading" : error ? "error" : sourceData?.overallState ?? "unknown"}
         >
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-purple/40 bg-brand-purple/20">
-                        <ShieldCheck className="h-5 w-5 text-brand-purple" />
-                    </div>
-                    <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <h2 className="text-lg font-bold text-white">Privacy &amp; Consent Preflight</h2>
-                            <AdminStatusBadge state={overallState} />
+            <Card className="min-w-0 gap-3 p-4 shadow-none">
+                <div className="flex min-w-0 flex-wrap items-start gap-4">
+                    <div className="min-w-0 flex-[3_1_20rem] space-y-2">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                            <h2 className="text-base font-semibold text-foreground">Evidence summary</h2>
+                            <AdminStatusBadge state={overallState} className="max-w-full whitespace-normal break-words" />
                         </div>
-                        <p className="text-xs text-gray-400">Deterministic view of privacy, consent, duplicate prevention, guest identity, and export truth.</p>
-                        <p className="mt-1 text-xs text-gray-500">
-                            Last evidence: {formatLastSeen(lastEvidenceAtUtc)} · Pass {passCount} · Review {reviewCount} · Error {errorCount} · Quiet {quietCount}
+                        <p id="privacy-evidence-source" className="break-words text-sm text-muted-foreground">
+                            {sourceData
+                                ? `Evidence window: ${rangeLabel(sourceData.range)} · Last evidence: ${formatLastSeen(lastEvidenceAtUtc)}`
+                                : "Privacy source is not loaded yet."}
                         </p>
+                        {sourceData ? (
+                            <dl className="flex min-w-0 flex-wrap gap-x-4 gap-y-1 text-sm">
+                                <div className="flex gap-1"><dt className="text-muted-foreground">Pass</dt><dd className="tabular-nums text-foreground">{passCount}</dd></div>
+                                <div className="flex gap-1"><dt className="text-muted-foreground">Review</dt><dd className="tabular-nums text-foreground">{reviewCount}</dd></div>
+                                <div className="flex gap-1"><dt className="text-muted-foreground">Error</dt><dd className="tabular-nums text-foreground">{errorCount}</dd></div>
+                                <div className="flex gap-1"><dt className="text-muted-foreground">Quiet</dt><dd className="tabular-nums text-foreground">{quietCount}</dd></div>
+                            </dl>
+                        ) : null}
+                    </div>
+                    <div className="min-w-0 flex-[1_1_12rem] space-y-2">
+                        <label htmlFor="privacy-evidence-range" className="block text-sm font-medium text-foreground">Evidence range</label>
+                        <NativeSelect
+                            id="privacy-evidence-range"
+                            value={range}
+                            aria-describedby="privacy-evidence-source"
+                            className="h-auto min-h-11"
+                            onChange={(event) => {
+                                const nextRange = RANGE_OPTIONS.find((option) => option.value === event.target.value);
+                                if (nextRange) setRange(nextRange.value);
+                            }}
+                        >
+                            {RANGE_OPTIONS.map((option) => <NativeSelectOption key={option.value} value={option.value}>{option.label}</NativeSelectOption>)}
+                        </NativeSelect>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    {RANGE_OPTIONS.map((option) => (
-                        <button
-                            key={option}
-                            type="button"
-                            onClick={() => setRange(option)}
-                            className={cn(
-                                "min-h-11 rounded-full border px-3 text-xs font-bold uppercase tracking-[0.18em]",
-                                range === option ? "border-brand-purple/40 bg-brand-purple/15 text-white" : "border-white/10 bg-white/[0.03] text-gray-400",
-                            )}
-                        >
-                            {option}
-                        </button>
-                    ))}
-                </div>
-            </div>
+                {isLoading && adminSessionState === "ready" ? (
+                    <p role="status" className="break-words text-sm text-muted-foreground">
+                        Collecting privacy evidence for {rangeLabel(range)}.
+                        {sourceData ? ` Showing ${rangeLabel(sourceData.range)} until new evidence arrives.` : null}
+                    </p>
+                ) : null}
+            </Card>
 
             {adminSessionState === "waiting_for_admin_session" ? (
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-gray-400">collecting: admin access and source state are resolving.</div>
+                <Card className="min-w-0 gap-0 p-4 text-sm text-muted-foreground shadow-none">collecting: admin access and source state are resolving.</Card>
             ) : null}
             {isLocalFixtureSourceMissing ? (
-                <div
-                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100"
+                <Card
+                    className="min-w-0 gap-1 border border-amber-400/20 p-4 text-sm shadow-none"
                     data-admin-privacy-fixture-boundary="true"
                     data-admin-privacy-fixture-state="source_missing"
                 >
-                    <p className="font-bold">source_missing fixture.</p>
-                    <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                    <p className="font-semibold text-foreground">source_missing fixture.</p>
+                    <p className="break-words leading-6 text-muted-foreground">
                         source_missing: privacy source is not loaded in this fixture. Protected reads stay blocked until verified admin access provides the source.
                     </p>
-                </div>
+                </Card>
             ) : null}
             {safeErrorMessage ? (
-                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100" data-privacy-console-safe-error="true">{safeErrorMessage}</div>
+                <Card role="alert" className="min-w-0 gap-0 break-words border border-destructive/40 p-4 text-sm shadow-none" data-privacy-console-safe-error="true">{safeErrorMessage}</Card>
             ) : null}
 
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-3">
                 {checks.map((check) => (
-                    <article
+                    <Card
+                        role="article"
                         key={check.id}
-                        className="rounded-2xl border border-white/10 bg-black/25 p-4"
+                        className="min-w-0 gap-3 p-4 shadow-none"
                         data-privacy-check-id={check.id}
                         data-privacy-check-state={check.state}
                         data-privacy-check-evidence-state={check.evidenceState}
@@ -135,35 +149,30 @@ export function AdminPrivacyPreflight() {
                         data-privacy-check-reason-code={check.reasonCode}
                         data-privacy-check-source={check.source}
                     >
-                        <div className="flex items-start justify-between gap-3">
-                            <div>
-                                <h3 className="text-sm font-bold text-white">{check.label}</h3>
-                                <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-gray-500">{buildCheckSummary(check)}</p>
-                            </div>
-                            <AdminStatusBadge state={toAdminState(check.state)} />
+                        <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+                            <h3 className="min-w-0 break-words text-base font-semibold text-foreground">{check.label}</h3>
+                            <AdminStatusBadge state={toAdminState(check.state)} className="max-w-full whitespace-normal break-words" />
                         </div>
-                        <p className="mt-3 text-sm font-medium text-white">{check.explanation}</p>
-                        <div className="mt-3 space-y-1 text-xs text-gray-400">
-                            <p>Evidence: {check.evidenceState.replace(/_/g, " ")}</p>
-                            <p>Last seen: {formatLastSeen(check.lastSeenAtUtc)}</p>
-                            <p>Next action: {check.nextAction}</p>
+                        <p className="break-words text-sm text-muted-foreground">{buildCheckSummary(check)}</p>
+                        <p className="break-words text-sm text-foreground">{check.explanation}</p>
+                        <div className="space-y-1 break-words text-sm">
+                            <p className="text-muted-foreground">Last seen: {formatLastSeen(check.lastSeenAtUtc)}</p>
+                            <p className="text-foreground">Next action: {check.nextAction}</p>
                         </div>
-                        <details className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-gray-400">
-                            <summary className="cursor-pointer font-semibold text-gray-300">Details</summary>
-                            <div className="mt-2 space-y-1">
+                        <details className="min-w-0 rounded-md border border-border text-sm text-muted-foreground">
+                            <summary className="min-h-11 cursor-pointer break-words rounded-md px-3 py-3 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Details</summary>
+                            <div className="space-y-1 break-words px-3 pb-3">
                                 <p>Source: {check.source}</p>
                                 <p>Reason: {check.reasonCode}</p>
                                 <p>Severity: {check.severity}</p>
                             </div>
                         </details>
-                    </article>
+                    </Card>
                 ))}
-                {!isLoading && !error && checks.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                        {isLocalFixtureSourceMissing
-                            ? "source_missing: privacy source is not loaded in this fixture."
-                            : "No privacy console evidence is available yet."}
-                    </div>
+                {adminSessionState === "ready" && !isLoading && !error && checks.length === 0 ? (
+                    <Card className="min-w-0 gap-0 border-dashed p-4 text-sm text-muted-foreground shadow-none">
+                        No privacy console evidence is available yet.
+                    </Card>
                 ) : null}
             </div>
         </section>

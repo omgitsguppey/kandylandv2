@@ -1,11 +1,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 type ContentProtectionSeverity = "info" | "minor" | "moderate" | "major" | "critical";
 type ContentProtectionCategory =
   | "locked_preview"
   | "safe_preview_fields"
-  | "legacy_modal"
   | "api_entitlement"
   | "viewer_entitlement"
   | "public_feed_sanitization"
@@ -56,7 +56,6 @@ const checkedFiles = [
   "src/app/drops/[id]/preview/page.tsx",
   "src/components/Drops/LockedDropPreviewClient.tsx",
   "src/components/Drops/LockedDropPreviewView.tsx",
-  "src/components/DropPreviewModal.tsx",
   "src/app/api/drops/route.ts",
   "src/app/api/drops/content/route.ts",
   "src/app/api/drops/unlock/route.ts",
@@ -72,7 +71,6 @@ const checkedFiles = [
 
 const protectedSurfaces = [
   "full-page locked Drop preview",
-  "legacy DropPreviewModal fallback",
   "public Drops feed API",
   "authenticated content proxy",
   "dashboard viewer route",
@@ -222,6 +220,23 @@ function requireOrder(
   }
 }
 
+export function hasViewerSanitizationBoundary(source: string) {
+  const rawDropIndex = source.indexOf("const rawDrop = await getDropRaw(id);");
+  const accessIndex = source.indexOf("const viewerAccess = resolveDropViewAccess({", rawDropIndex + 1);
+  const deniedIndex = source.indexOf("if (!viewerAccess.allowed) {", accessIndex + 1);
+  const deniedRedirectIndex = source.indexOf("redirect(viewerPreviewHref);", deniedIndex + 1);
+  const sanitizedDropIndex = source.indexOf("const drop = sanitizeDropForClient(rawDrop);", deniedRedirectIndex + 1);
+  const clientIndex = source.indexOf("return <ViewerClient drop={drop}", sanitizedDropIndex + 1);
+
+  return rawDropIndex >= 0
+    && accessIndex > rawDropIndex
+    && deniedIndex > accessIndex
+    && deniedRedirectIndex > deniedIndex
+    && sanitizedDropIndex > deniedRedirectIndex
+    && clientIndex > sanitizedDropIndex
+    && !source.includes("drop={rawDrop}");
+}
+
 function collectFindings() {
   const findings: ContentProtectionFinding[] = [];
 
@@ -355,15 +370,19 @@ function collectFindings() {
     escalation: "Potential content exposure must be reviewed as a release blocker.",
   });
 
-  for (const expected of [
-    "const rawDrop = id ? await getDropRaw(id) : null",
-    "const drop = rawDrop ? sanitizeDropForClient(rawDrop) : null",
-    "return <ViewerClient drop={drop}",
-  ]) {
-    requireText(findings, "src/app/dashboard/viewer/page.tsx", expected, {
+  const viewerPage = readIfExists("src/app/dashboard/viewer/page.tsx");
+  if (!viewerPage || !hasViewerSanitizationBoundary(viewerPage)) {
+    addFinding(findings, {
       severity: "critical",
       category: "viewer_entitlement",
-      title: `Viewer server route must sanitize raw Drop before client render: ${expected}`,
+      title: "Viewer server route must gate, sanitize, and project raw Drop data before client render",
+      filePath: "src/app/dashboard/viewer/page.tsx",
+      evidence: [
+        "const rawDrop = await getDropRaw(id);",
+        "resolveDropViewAccess",
+        "const drop = sanitizeDropForClient(rawDrop);",
+        "return <ViewerClient drop={drop}",
+      ],
       suggestedFix: "Keep raw Drop reads server-only and pass only sanitizeDropForClient output into ViewerClient.",
       escalation: "Viewer route content exposure requires security review.",
     });
@@ -422,33 +441,10 @@ function collectFindings() {
     });
   }
 
-  forbidText(findings, "src/components/DropPreviewModal.tsx", "drop.contentUrls", {
-    severity: "major",
-    category: "legacy_modal",
-    title: "Legacy DropPreviewModal reads contentUrls",
-    suggestedFix: "Use getDropMediaSummary/mediaCounts and keep the legacy fallback from touching content URL fields.",
-    escalation: "Legacy preview fallback must remain documented and safe until removed.",
-  });
-  forbidText(findings, "src/components/DropPreviewModal.tsx", "drop.contentUrl", {
-    severity: "major",
-    category: "legacy_modal",
-    title: "Legacy DropPreviewModal reads contentUrl",
-    suggestedFix: "Use getDropMediaSummary/mediaCounts and keep the legacy fallback from touching content URL fields.",
-    escalation: "Legacy preview fallback must remain documented and safe until removed.",
-  });
-  requireText(findings, "src/components/DropPreviewModal.tsx", "Legacy fallback only. Locked Drop preview ownership moved to /drops/[id]/preview.", {
-    severity: "major",
-    category: "legacy_modal",
-    title: "Legacy DropPreviewModal must be marked as fallback",
-    suggestedFix: "Document the modal as legacy fallback or remove it after route migration is complete.",
-    escalation: "Legacy modal ownership must be explicit to avoid reactivating unsafe preview patterns.",
-  });
-
   for (const filePath of [
     "src/app/drops/[id]/preview/page.tsx",
     "src/components/Drops/LockedDropPreviewClient.tsx",
     "src/components/Drops/LockedDropPreviewView.tsx",
-    "src/components/DropPreviewModal.tsx",
     "src/app/dashboard/viewer/page.tsx",
     "src/app/dashboard/viewer/ViewerClient.tsx",
   ]) {
@@ -519,7 +515,7 @@ function statusFor(score: number, criticalCount: number): ContentProtectionRepor
   return "fail";
 }
 
-function buildReport(): ContentProtectionReport {
+export function buildContentProtectionReport(): ContentProtectionReport {
   const findings = collectFindings();
   const criticalCount = findings.filter((finding) => finding.severity === "critical").length;
   const majorCount = findings.filter((finding) => finding.severity === "major").length;
@@ -566,6 +562,8 @@ function printSummary(report: ContentProtectionReport) {
   console.log(`Forbidden by default: ${report.commandBudget.forbiddenCommands.join(", ")}`);
 }
 
-const report = buildReport();
-writeReport(report);
-printSummary(report);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = buildContentProtectionReport();
+  writeReport(report);
+  printSummary(report);
+}

@@ -25,6 +25,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const snapshotComponent = read("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
 const contracts = read("src/lib/admin-analytics-contracts.ts");
 const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const helper = read("src/lib/admin-analytics-audience-snapshot.ts");
@@ -92,30 +93,30 @@ assertIncludes("region demand helper", regionDemandHelper, "Adjusted demand excl
 assertIncludes("region demand helper", regionDemandHelper, "route-level admin exclusion did not hydrate");
 assertIncludes("region demand helper", regionDemandHelper, "Unknown city/country is a data-quality bucket");
 
-assertIncludes("audience component", component, "data-audience-source-state");
-assertIncludes("audience component", component, "resolveAdminAnalyticsGuestEstimateBadgeLabel");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-source-state");
+assertIncludes("audience snapshot component", snapshotComponent, "resolveAdminAnalyticsGuestEstimateBadgeLabel");
 assertIncludes("audience component", component, "buildAdminAnalyticsReturnCadenceBuckets");
-assertIncludes("audience component", component, "data-audience-ga-freshness");
-assertIncludes("audience component", component, "data-audience-first-party-freshness");
-assertIncludes("audience component", component, "data-audience-missing-days-count");
-assertIncludes("audience component", component, "data-audience-recent-gap-days-count");
-assertIncludes("audience component", component, "data-audience-recovery-mode");
-assertIncludes("audience component", component, "data-audience-estimated-share");
-assertIncludes("audience component", component, "data-audience-generated-at-utc");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-ga-freshness");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-first-party-freshness");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-missing-days-count");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-recent-gap-days-count");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-recovery-mode");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-estimated-share");
+assertIncludes("audience snapshot component", snapshotComponent, "data-audience-generated-at-utc");
 assertIncludes("audience component", component, "data-return-cadence-source-truth");
 assertIncludes("audience component", component, "data-return-cadence-tracked-users");
 assertIncludes("audience component", component, "data-return-cadence-generated-at-utc");
 assertIncludes("audience component", component, "Tracked Auth Users");
 assertIncludes("audience component", component, "No verified zero should be displayed");
 assertNotIncludes("audience component", component, "bucket.count / returnCadenceModel.trackedAuthenticatedUsers");
-assertNotIncludes("audience component", component, "const guestBadgeLabel = audienceSnapshotModel.guestEstimateFormulaUsed");
+assertNotIncludes("audience snapshot component", snapshotComponent, "const guestBadgeLabel = audienceSnapshotModel.guestEstimateFormulaUsed");
 assertIncludes("return cadence helper", returnCadenceHelper, "Return cadence is using identified activity fallback because the cadence snapshot has not hydrated.");
-assertIncludes("audience component", component, "label=\"Site users\"");
-assertIncludes("audience component", component, "label=\"Guest Visits\"");
-assertIncludes("audience component", component, 'data-admin-analytics-vendor-source-label="vendor_evidence"');
-assertIncludes("audience component", component, 'data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
-assertIncludes("audience component", component, "audienceSnapshotModel.visibleCopy.map");
-assertIncludes("audience component", component, "formatAudienceSeriesLabel");
+assertIncludes("audience snapshot component", snapshotComponent, "label=\"Site users\"");
+assertIncludes("audience snapshot component", snapshotComponent, "label=\"Guest Visits\"");
+assertIncludes("audience snapshot component", snapshotComponent, 'data-admin-analytics-vendor-source-label="vendor_evidence"');
+assertIncludes("audience snapshot component", snapshotComponent, 'data-admin-analytics-recovery-promotion="debug_only_not_promoted"');
+assertIncludes("audience snapshot component", snapshotComponent, "audienceSnapshotModel.visibleCopy.map");
+assertIncludes("audience snapshot component", snapshotComponent, "formatAudienceSeriesLabel");
 assertIncludes("audience component", component, "data-device-mix-source-truth");
 assertIncludes("audience component", component, "data-device-mix-freshness");
 assertIncludes("audience component", component, "data-device-mix-total-sessions");
@@ -156,7 +157,7 @@ assertIncludes("agent truth doc", doc, "GA users: total users reported by Google
 assertIncludes("agent truth doc", doc, "Estimated guest visits");
 assertIncludes("agent truth doc", doc, "Future agents must not display authenticated-only");
 
-assertNotIncludes("audience component", component, "Waiting for first snapshot");
+assertNotIncludes("audience snapshot component", snapshotComponent, "Waiting for first snapshot");
 
 if (process.exitCode) {
   process.exit(process.exitCode);

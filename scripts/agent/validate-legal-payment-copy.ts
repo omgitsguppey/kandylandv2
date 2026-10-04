@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { resolveBundlePromoOffer, resolvePurchaseBonusPromoOffer } from "../../src/lib/wallet/purchase-promo-contract";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -32,12 +33,6 @@ function requireIncludes(source: string, expected: string, label: string) {
 function requireNotIncludes(source: string, forbidden: string, label: string) {
   if (source.includes(forbidden)) {
     failures.push(`${label} must not include "${forbidden}".`);
-  }
-}
-
-function requireRegex(source: string, pattern: RegExp, label: string) {
-  if (!pattern.test(source)) {
-    failures.push(`${label} must match ${pattern}.`);
   }
 }
 
@@ -78,23 +73,32 @@ const terms = readRequired("src/app/(legal)/terms/page.tsx");
 const privacy = readRequired("src/app/(legal)/privacy/page.tsx");
 const supportPage = readRequired("src/app/dashboard/support/page.tsx");
 const supportInbox = readRequired("src/components/Support/SupportInbox.tsx");
+const supportConversation = readRequired("src/components/creative-tim/kandydrops/support/KandySupportConversation.tsx");
+const supportCanvas = readRequired("src/components/creative-tim/kandydrops/support/KandySupportConversationCanvas.tsx");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const walletPackagePicker = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
 const economics = readRequired("src/lib/gumdrop-economics.ts");
 const packages = readRequired("src/lib/gumdrops-packages.ts");
 const insufficientBalance = readRequired("src/components/InsufficientBalanceModal.tsx");
-const dropPreview = readRequired("src/components/DropPreviewModal.tsx");
+const dropPreviewView = readRequired("src/components/Drops/LockedDropPreviewView.tsx");
+const dropPreviewClient = readRequired("src/components/Drops/LockedDropPreviewClient.tsx");
 const dropCardLayout = readRequired("src/components/DropCardLayout.tsx");
 const dropCardCta = readRequired("src/components/DropCardCta.tsx");
 const onboardingHelpers = readRequired("src/components/Auth/OnboardingHelpers.ts");
 const guidedOnboarding = readRequired("src/components/Auth/GuidedOnboarding.tsx");
+const guidedOnboardingSurface = readRequired("src/components/creative-tim/kandydrops/onboarding/GuidedOnboardingSurface.tsx");
 const notificationPrompt = readRequired("src/components/Dashboard/NotificationPromptBanner.tsx");
-const profileNotifications = readRequired("src/app/dashboard/profile/components/ProfileNotificationsSection.tsx");
-const profilePrivacy = readRequired("src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx");
-const profileSupport = readRequired("src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx");
+const accountPanels = readRequired("src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx");
+const profileNotifications = accountPanels.slice(accountPanels.indexOf("export function KandyNotificationsPanel"), accountPanels.indexOf("export function KandyPrivacyDataPanel"));
+const profilePrivacy = accountPanels.slice(accountPanels.indexOf("export function KandyPrivacyDataPanel"), accountPanels.indexOf("export function KandySupportSafetyPanel"));
+const profileSupport = accountPanels.slice(accountPanels.indexOf("export function KandySupportSafetyPanel"));
 const faqData = readRequired("src/app/faq/faq-data.ts");
 const dropCardParts = readRequired("src/components/DropCardParts.tsx");
 const libraryClient = readRequired("src/app/dashboard/library/LibraryClient.tsx");
+const libraryCollectionWall = readRequired("src/components/creative-tim/kandydrops/signed-in/SignedInLibraryCollectionWall.tsx");
 const viewerClient = readRequired("src/app/dashboard/viewer/ViewerClient.tsx");
+const viewerAccessState = readRequired("src/components/creative-tim/kandydrops/viewer/ViewerAccessState.tsx");
+const viewerAccess = readRequired("src/lib/drop-view-access.ts");
 const notFoundSurface = readRequired("src/components/ui/NotFoundSurface.tsx");
 const fullAudit = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 const repoLedger = readRequired("REPO_MEMORY_LEDGER.md");
@@ -120,7 +124,8 @@ for (const key of [
 requireArray(audit.surfaces, "audit.surfaces", 7);
 requireArray(audit.warnings, "audit.warnings", 1);
 requireIncludes(doc, "This document is not legal advice.", "Legal payment copy doc");
-requireIncludes(doc, "Purchase UI must separate paid GumDrops from bonus GumDrops", "Legal payment copy doc");
+requireIncludes(doc, "Package rows must show total delivered GumDrops, package label, USD price, and a purple bonus chip only.", "Legal payment compact wallet rule");
+requireIncludes(doc, "Purchased package bonuses remain paid-source GumDrops", "Legal payment source-of-funds rule");
 requireIncludes(doc, "Expiration copy must distinguish public Drop availability from owned library access.", "Legal payment copy doc");
 requireIncludes(doc, "npm run check:legal-payment-copy", "Legal payment copy doc");
 requireIncludes(packageJson, "\"check:legal-payment-copy\"", "package scripts");
@@ -149,19 +154,37 @@ for (const expected of [
 requireIncludes(profilePrivacy, "href=\"/privacy\"", "Profile privacy section");
 requireIncludes(profileSupport, "href=\"/dashboard/support\"", "Profile support section");
 requireIncludes(supportPage, "SupportInbox", "Support route page");
-for (const expected of ["Support", "New ticket", "Open tickets", "sourcePath"]) {
-  requireIncludes(supportInbox, expected, "Support inbox");
+for (const expected of [
+  'from "@/components/creative-tim/kandydrops/support/KandySupportConversation"',
+  "<KandySupportConversation",
+  "onComposerOpenChange={setComposerOpen}",
+  "onCreateThread={() => void handleCreateThread()}",
+  "sourcePath: window.location.pathname",
+  "threads={threadList?.threads ?? []}",
+  "setSelectedThreadId(threadId)",
+]) {
+  requireIncludes(supportInbox, expected, "Support controller and actual conversation binding");
+}
+for (const expected of [
+  "Start a support thread", "Send request", "onCreateThread();",
+  "onClick={() => onComposerOpenChange(!composerOpen)}",
+  'aria-label="Support conversations"', "onSelectThread(id);",
+  '<KandySupportConversationCanvas', 'from "@/components/creative-tim/kandydrops/support/KandySupportConversationCanvas"',
+]) {
+  requireIncludes(supportConversation, expected, "Bound Support create and selectable inbox affordances");
+}
+for (const expected of ["Your conversations", "Switch thread", "{switcher}"]) {
+  requireIncludes(supportCanvas, expected, "Bound Support conversation switcher");
 }
 
 for (const expected of [
   "deriveGumdropEconomics",
   "FIXED_GUMDROP_PACKAGES",
-  "pkgEconomics.paidGumDrops",
+  "amount={pkg.drops}",
   "pkgEconomics.bonusGumDrops",
-  "customBundleEconomics.paidGumDrops",
-  "customBundleEconomics.bonusGumDrops",
-  "paid +",
-  "bonus GumDrops",
+  "amount={customDrops}",
+  "promo={resolveBundlePromoOffer(customDrops >= 5000)}",
+  "<KandyWalletPackageOption",
   "PayPalButtons",
   "selectedPackage.price.toFixed(2)",
   "secured",
@@ -179,7 +202,14 @@ for (const expected of [
 for (const expected of ["drops", "priceUsd", "label"]) {
   requireIncludes(packages, expected, "GumDrop package catalog");
 }
-requireRegex(purchaseModal, /bonus\s+GumDrops/i, "Purchase modal visible bonus copy");
+for (const expected of ["GumDrops", "<KandyWalletPromoBadge", "{promo.compactLabel}"]) {
+  requireIncludes(walletPackagePicker, expected, "Bound compact wallet delivered amount and bonus display");
+}
+for (const bonus of [50, 100, 500]) {
+  requireIncludes(resolvePurchaseBonusPromoOffer(bonus)?.compactLabel ?? "", "+" + bonus + " bonus GD", "Canonical wallet explicit bonus offer copy");
+}
+requireIncludes(resolveBundlePromoOffer(true)?.compactLabel ?? "", "2x bonus GD", "Canonical wallet bundle bonus offer copy");
+requireIncludes(purchaseModal, "resolvePurchaseBonusPromoOffer(pkgEconomics.bonusGumDrops)", "Wallet bonus offer binding");
 
 for (const expected of [
   "This action costs",
@@ -189,10 +219,10 @@ for (const expected of [
   requireIncludes(insufficientBalance, expected, "Insufficient balance modal");
 }
 for (const expected of [
-  "Unwrap for {unlockCost} GD",
-  "Confirm {unlockCost} GD?",
+  "Unwrap for ${unlockCost.toLocaleString()} GD",
+  "Confirm ${unlockCost.toLocaleString()} GD?",
 ]) {
-  requireIncludes(dropPreview, expected, "Drop preview unlock copy");
+  requireIncludes(dropPreviewView, expected, "Full-page preview unlock copy");
 }
 requireIncludes(dropCardLayout, "{drop.unlockCost} GD", "Drop card layout");
 requireIncludes(dropCardCta, "Confirm {drop.unlockCost} GD?", "Drop card CTA");
@@ -209,16 +239,48 @@ for (const expected of [
   requireIncludes(faqData, expected, "FAQ copy");
 }
 requireIncludes(dropCardParts, "formatDropCountdown", "Drop card countdown");
-requireIncludes(dropPreview, "formatDropCountdown", "Drop preview countdown");
-requireIncludes(libraryClient, "Your unwrapped library", "Library copy");
-requireIncludes(viewerClient, "You do not have access to this drop.", "Viewer access copy");
+requireIncludes(dropPreviewClient, "formatDropCountdown", "Full-page preview countdown owner");
+for (const expected of [
+  'from "@/components/creative-tim/kandydrops/signed-in/SignedInLibraryCollectionWall"',
+  "<SignedInLibraryCollectionWall", "count={unlockedDrops.length}",
+  "drops.filter((drop) => unlockedIds.has(drop.id))", "No unwrapped Drops yet",
+]) {
+  requireIncludes(libraryClient, expected, "Library actual owned collection binding");
+}
+for (const expected of ["My KandyDrops", "Drops are ready to revisit."]) {
+  requireIncludes(libraryCollectionWall, expected, "Bound Library owned-access copy");
+}
+for (const expected of [
+  'from "@/components/creative-tim/kandydrops/viewer/ViewerAccessState"',
+  "resolveDropViewAccess({", "const isAuthorized = accessState.allowed;",
+]) {
+  requireIncludes(viewerClient, expected, "Viewer canonical access and presentation binding");
+}
+const deniedViewerBranch = viewerClient.slice(viewerClient.indexOf("if (!isAuthorized) {"), viewerClient.indexOf("const viewerStageHeight"));
+for (const expected of [
+  "<ViewerAccessState", 'title="This Drop is not in your collection"',
+  'message="Return to your library or browse Drops to find something new to unwrap."',
+  "Browse Drops", "Open library", "Report access issue",
+]) {
+  requireIncludes(deniedViewerBranch, expected, "Actual denied Viewer copy and recovery");
+}
+requireIncludes(viewerAccessState, "{title}", "Bound Viewer access heading");
+requireIncludes(viewerAccessState, "{message}", "Bound Viewer access explanation");
+requireIncludes(viewerAccess, 'return buildState("denied_not_unwrapped", input, "unlock_required");', "Canonical Viewer missing-entitlement state");
 
+for (const expected of [
+  'from "@/components/creative-tim/kandydrops/onboarding/GuidedOnboardingSurface"',
+  "<GuidedOnboardingSurface", "onEnableNotifications={handleEnableNotifications}",
+]) {
+  requireIncludes(guidedOnboarding, expected, "Guided onboarding actual notification surface binding");
+}
+requireIncludes(guidedOnboardingSurface, "onClick={onEnableNotifications}", "Bound onboarding permission action");
 for (const expected of [
   "Turn on alerts",
   "drops go live",
   "daily loop resets",
 ]) {
-  requireIncludes(guidedOnboarding, expected, "Guided onboarding notification copy");
+  requireIncludes(guidedOnboardingSurface, expected, "Bound Guided onboarding notification purpose copy");
 }
 for (const expected of [
   "Turn on notifications",
@@ -241,7 +303,7 @@ requireIncludes(audit.warnings ? JSON.stringify(audit.warnings) : "", "public_40
 for (const source of [
   ["src/components/PurchaseModal.tsx", purchaseModal],
   ["src/components/InsufficientBalanceModal.tsx", insufficientBalance],
-  ["src/components/DropPreviewModal.tsx", dropPreview],
+  ["src/components/Drops/LockedDropPreviewView.tsx", dropPreviewView],
   ["src/components/DropCardCta.tsx", dropCardCta],
   ["src/app/faq/faq-data.ts", faqData],
 ] as const) {

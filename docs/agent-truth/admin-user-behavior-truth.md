@@ -27,6 +27,7 @@ The admin user surfaces are allowed to load in lanes, but they are not allowed t
 - `src/app/admin/users/page.tsx`
 - `src/app/admin/user/[userId]/page.tsx`
 - `src/components/Admin/AdminStatsBar.tsx`
+- `src/components/creative-tim/kandydrops/admin-users/AdminUsersOperations.tsx`
 - `src/lib/server/admin-user-metrics-snapshot.ts`
 - `src/lib/server/user-behavior-rollup.ts`
 - `src/lib/server/watch-time-rollup.ts`
@@ -35,7 +36,7 @@ The admin user surfaces are allowed to load in lanes, but they are not allowed t
 
 ## Regression Rules
 
-User Management must keep the compact grid marker and must not sprawl back into oversized full-width cards. Summary cards must not show giant `[unavailable]` values when the lane has no fresh snapshot yet; they should keep compact placeholders or last-known values and let the truth badge carry freshness.
+User Management renders the canonical summary KPI array through the existing evidence ribbon and imported `AdminUserMetricCard`. The existing stats reader owns the connected page map, card caller, canonical prop and rendered truth-marker inspection; the behavior reader consumes that inspection. The former `compact-grid` marker, copied viewport column literals and old `Returners` label are historical presentation checks. Current composition follows Admin UI, shared brand and device-layout doctrine. Summary cards must keep compact placeholders or last-known values and explicit source/freshness state when the lane has no current snapshot; missing evidence is not zero.
 
 Realtime transport issues must not erase usable values. If a summary snapshot exists and refresh fails, the page must stay `stale`, `degraded`, `review`, or `delayed` as appropriate. It must not flip a valid number into `ERROR` or `Unavailable`.
 

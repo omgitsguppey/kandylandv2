@@ -25,6 +25,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const contentConversionSection = read("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const contracts = read("src/lib/admin-analytics-contracts.ts");
 const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
@@ -42,7 +43,7 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "commerceSnapshotModel.co
 assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsCommerceBadgeLabel");
 assertIncludes("AdminAnalyticsCommerceTab", component, "buildAdminAnalyticsViewerDrilldownContract");
-assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsContentConversionRowTruthState");
+assertIncludes("AdminAnalyticsCommerceTab", component, "AdminAnalyticsContentConversionSection");
 assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsTopDropIdentityTruthState");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Platform Economy");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Last verified");
@@ -58,11 +59,12 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "promoDiscountUsdValue");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Package Performance");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Package config exists, but no package-specific checkout or purchase data was observed in this range.");
 assertIncludes("AdminAnalyticsCommerceTab", component, "No package config found. Package value basis should come from Platform Economy packages.");
-assertIncludes("AdminAnalyticsCommerceTab", component, "Content Conversion");
-assertIncludes("AdminAnalyticsCommerceTab", component, "No preview/unwrap/drop metadata source available for this range.");
-assertIncludes("AdminAnalyticsCommerceTab", component, "Content conversion is using access rollup fallback because unwrap telemetry is missing.");
-assertIncludes("AdminAnalyticsCommerceTab", component, "data-content-conversion-source-truth");
-assertIncludes("AdminAnalyticsCommerceTab", component, "data-content-conversion-grouping");
+assertIncludes("AdminAnalyticsContentConversionSection", contentConversionSection, "resolveAdminAnalyticsContentConversionRowTruthState");
+assertIncludes("AdminAnalyticsContentConversionSection", contentConversionSection, "Content Conversion");
+assertIncludes("AdminAnalyticsContentConversionSection", contentConversionSection, "No preview/unwrap/drop metadata source available for this range.");
+assertIncludes("AdminAnalyticsContentConversionSection", contentConversionSection, "Content conversion is using access rollup fallback because unwrap telemetry is missing.");
+assertIncludes("AdminAnalyticsContentConversionSection", contentConversionSection, "data-content-conversion-source-truth");
+assertIncludes("AdminAnalyticsContentConversionSection", contentConversionSection, "data-content-conversion-grouping");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Top Drop Conversion");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Drops with enough views to evaluate unwrap conversion.");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-top-drop-conversion-source-truth");

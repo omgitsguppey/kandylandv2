@@ -340,3 +340,91 @@ describe("admin debug summary cards", () => {
         expect(model.score.detail).toContain("14 active diagnostics across 2 clusters");
     });
 });
+
+describe("AI assistant retained source state", () => {
+    const sourceInput = {
+        hasSummary: true,
+        hasError: false,
+        enabled: true,
+        runtimeReady: true,
+        fallbackUsed: false,
+        responseState: "saved" as const,
+        configuredModel: "gemini-summary-fixture",
+        feedStatus: "realtime",
+        latencyMs: 0,
+    };
+
+    it("labels a retained saved response as cached rather than current evidence", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, summaryRetained: true, displayedSummaryFreshness: "fresh" });
+        expect(card.truthState).toBe("cached");
+        expect(card.meta).toContain("last loaded");
+        expect(card.meta).toContain("saved live guidance");
+        expect(card.copy.sourceDetails).toContain("summary polling paused outside AI");
+        expect(card.copy.recommendedNextCheck).toContain("Open AI");
+    });
+
+    it("labels known stale guidance explicitly while retaining its real source", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, summaryRetained: true, displayedSummaryFreshness: "stale" });
+        expect(card.truthState).toBe("stale");
+        expect(card.value).toBe("Refresh due");
+        expect(card.meta).toContain("last loaded");
+        expect(card.technicalEvidence).toContain("saved live guidance");
+        expect(card.meta).not.toContain("current");
+    });
+
+    it("keeps known stale truth explicit while the AI tab resumes polling", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, summaryRetained: false, displayedSummaryFreshness: "stale" });
+        expect(card.truthState).toBe("stale");
+        expect(card.value).toBe("Refresh due");
+        expect(card.copy.sourceDetails).toContain("summary polling active in AI");
+    });
+
+    it("does not promote retained guidance with unknown freshness to live", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, summaryRetained: true, displayedSummaryFreshness: "unknown" });
+        expect(card.truthState).toBe("cached");
+        expect(card.meta).toContain("freshness is unknown");
+        expect(card.meta).not.toContain("current");
+    });
+
+    it("retains deterministic fallback meaning while stating that its response is retained", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, fallbackUsed: true, responseState: "fallback", summaryRetained: true });
+        expect(card.truthState).toBe("fallback");
+        expect(card.meta).toContain("last loaded");
+        expect(card.meta).toContain("deterministic fallback");
+        expect(card.technicalEvidence).not.toContain("live model output");
+    });
+
+    it("does not hide a failed realtime feed behind a cached retained response", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, feedStatus: "failed", summaryRetained: true });
+        expect(card.truthState).toBe("degraded");
+        expect(card.meta).toContain("status feed failed");
+        expect(card.meta).toContain("last loaded");
+    });
+
+    it("does not hide a partially connected realtime feed behind a retained response", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, feedStatus: "partial", summaryRetained: true });
+        expect(card.truthState).toBe("degraded");
+        expect(card.meta).toContain("status feed is partial");
+    });
+
+    it("keeps route failure stronger than retained or stale response metadata", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, hasError: true, summaryRetained: true, displayedSummaryFreshness: "stale" });
+        expect(card.truthState).toBe("failed");
+        expect(card.value).toBe("Unavailable");
+        expect(card.meta).toBe("AI summary could not be loaded.");
+    });
+
+    it("keeps missing response as pending rather than inventing retained evidence", () => {
+        const card = buildAdminDebugAiAssistantCard({ ...sourceInput, hasSummary: false, summaryRetained: true });
+        expect(card.truthState).toBe("loading");
+        expect(card.meta).toBe("Waiting for first AI summary.");
+    });
+
+    it("keeps explicit disabled and runtime-unavailable states authoritative", () => {
+        const disabled = buildAdminDebugAiAssistantCard({ ...sourceInput, enabled: false, summaryRetained: true });
+        const unavailable = buildAdminDebugAiAssistantCard({ ...sourceInput, runtimeReady: false, summaryRetained: true });
+        expect(disabled.value).toBe("Off");
+        expect(unavailable.value).toBe("Runtime unavailable");
+        expect(unavailable.truthState).toBe("failed");
+    });
+});

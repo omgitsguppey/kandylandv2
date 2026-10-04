@@ -1,3 +1,4 @@
+import type { SessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 import type { ActorKind, IdentityConfidence, IdentityState } from "@/lib/analytics/identity-handoff-contract";
 import type { BehavioralEventEntityType, BehavioralNormalizedAction } from "@/lib/behavioral/event-fact-contract";
 
@@ -71,8 +72,9 @@ export interface UserJourneyEvent {
   action: BehavioralNormalizedAction | string;
   objectType: UserJourneyObjectType;
   objectId: string;
-  durationMs: number;
-  activeMs: number;
+  durationMs: number | null;
+  activeMs: number | null;
+  sessionMeasurement?: SessionMeasurementCheckpoint;
   sourceEventName: string;
   previousJourneyEventId: string | null;
   nextExpectedActions: string[];
@@ -98,8 +100,8 @@ export interface UserJourneySessionSummary {
   startedAt: string | null;
   endedAt: string | null;
   totalJourneyEvents: number;
-  totalDurationMs: number;
-  totalActiveMs: number;
+  totalDurationMs: number | null;
+  totalActiveMs: number | null;
   surfaces: string[];
   featureIds: string[];
   conversions: UserJourneyConversionTag[];
@@ -112,7 +114,7 @@ export interface UserJourneyPersonSummary {
   linkedPersonId: string;
   sessionCount: number;
   totalJourneyEvents: number;
-  totalActiveMs: number;
+  totalActiveMs: number | null;
   topFunnels: UserJourneyCoreFunnel[];
   conversionTags: UserJourneyConversionTag[];
   failureTags: UserJourneyFailureTag[];

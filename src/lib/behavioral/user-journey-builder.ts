@@ -1,3 +1,5 @@
+import { readSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
+import { summarizeSessionMeasurementCheckpoints } from "@/lib/analytics/session-metrics-engine";
 import type { ActorKind, IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
 import type { BehavioralEventFact } from "@/lib/behavioral/event-fact-contract";
 import {
@@ -344,8 +346,9 @@ export function buildJourneyEvent(input: BuildJourneyEventInput): UserJourneyEve
       action: input.fact.normalizedAction,
       objectType: step.objectType,
       objectId: objectIdForFact(input.fact),
-      durationMs: journeyDuration.durationMs ?? clampMs(input.fact.durationMs),
-      activeMs: journeyDuration.activeMs ?? clampMs(input.fact.activeMs),
+      durationMs: input.fact.sessionMeasurement ? input.fact.sessionMeasurement.endedAtMs - input.fact.sessionMeasurement.startedAtMs : input.fact.durationMs === undefined ? null : clampMs(input.fact.durationMs),
+      activeMs: input.fact.activeMs === undefined ? null : journeyDuration.activeMs ?? input.fact.activeMs,
+      ...(readSessionMeasurementCheckpoint(input.fact.sessionMeasurement) ? { sessionMeasurement: readSessionMeasurementCheckpoint(input.fact.sessionMeasurement)! } : {}),
       sourceEventName: input.fact.eventName,
       previousJourneyEventId: input.previousJourneyEventId ?? null,
       nextExpectedActions: step.nextExpectedActions,
@@ -384,8 +387,9 @@ export function buildJourneyEvent(input: BuildJourneyEventInput): UserJourneyEve
     action: raw.action,
     objectType: step.objectType ?? raw.objectType,
     objectId: raw.objectId,
-    durationMs: journeyDuration.durationMs ?? clampMs(raw.durationMs),
-    activeMs: journeyDuration.activeMs ?? clampMs(raw.activeMs),
+    durationMs: raw.sessionMeasurement ? raw.sessionMeasurement.endedAtMs - raw.sessionMeasurement.startedAtMs : raw.durationMs === null || raw.durationMs === undefined ? null : clampMs(raw.durationMs),
+    activeMs: raw.activeMs === null || raw.activeMs === undefined ? null : journeyDuration.activeMs ?? raw.activeMs,
+    ...(readSessionMeasurementCheckpoint(raw.sessionMeasurement) ? { sessionMeasurement: readSessionMeasurementCheckpoint(raw.sessionMeasurement)! } : {}),
     sourceEventName: raw.sourceEventName,
     previousJourneyEventId: input.previousJourneyEventId ?? raw.previousJourneyEventId ?? null,
     nextExpectedActions: raw.nextExpectedActions ?? step.nextExpectedActions,
@@ -408,6 +412,18 @@ export function appendJourneyEvent(events: readonly UserJourneyEvent[], event: U
   }];
 }
 
+
+function summarizeJourneyActiveMs(events: readonly UserJourneyEvent[]): number | null {
+  const measurements = events.filter(event => event.sessionMeasurement !== undefined);
+  if (measurements.length > 0) {
+    if (events.some(event => /^(?:session_|page_(?:engaged|passive|bounced|exited))/u.test(event.action) && event.sessionMeasurement === undefined)) return null;
+    return summarizeSessionMeasurementCheckpoints(measurements.map(event => event.sessionMeasurement)).activeMs;
+  }
+  // Old session/page progress is cumulative but has no segment ownership discriminator.
+  if (events.some(event => /^(?:session_|page_(?:engaged|passive|bounced|exited))/u.test(event.action))) return null;
+  return events.some(event => event.activeMs === null) ? null : events.reduce((sum, event) => sum + (event.activeMs ?? 0), 0);
+}
+
 export function summarizeSessionJourney(events: readonly UserJourneyEvent[]): UserJourneySessionSummary {
   const sorted = [...events].sort((left, right) => Date.parse(left.timestamp) - Date.parse(right.timestamp));
   return {
@@ -416,8 +432,10 @@ export function summarizeSessionJourney(events: readonly UserJourneyEvent[]): Us
     startedAt: sorted[0]?.timestamp ?? null,
     endedAt: sorted.at(-1)?.timestamp ?? null,
     totalJourneyEvents: sorted.length,
-    totalDurationMs: sorted.reduce((sum, event) => sum + event.durationMs, 0),
-    totalActiveMs: sorted.reduce((sum, event) => sum + event.activeMs, 0),
+    totalDurationMs: sorted.some(event => /^(?:session_|page_(?:engaged|passive|bounced|exited))/u.test(event.action) && !event.sessionMeasurement) ? null
+      : sorted.some(event => event.sessionMeasurement) ? summarizeSessionMeasurementCheckpoints(sorted.flatMap(event => event.sessionMeasurement ? [event.sessionMeasurement] : [])).durationMs
+        : sorted.some(event => event.durationMs === null) ? null : sorted.reduce((sum, event) => sum + (event.durationMs ?? 0), 0),
+    totalActiveMs: summarizeJourneyActiveMs(sorted),
     surfaces: unique(sorted.map((event) => event.surface).filter(Boolean)),
     featureIds: unique(sorted.map((event) => event.featureId).filter(Boolean)),
     conversions: unique(sorted.map((event) => event.conversionTag).filter((tag): tag is UserJourneyConversionTag => Boolean(tag))),
@@ -435,7 +453,10 @@ export function summarizePersonJourney(events: readonly UserJourneyEvent[]): Use
     linkedPersonId: events.find((event) => event.linkedPersonId !== "unknown")?.linkedPersonId ?? events[0]?.linkedPersonId ?? "unknown",
     sessionCount: sessions.length,
     totalJourneyEvents: events.length,
-    totalActiveMs: events.reduce((sum, event) => sum + event.activeMs, 0),
+    totalActiveMs: (() => {
+      const summaries = sessions.map(sessionId => summarizeJourneyActiveMs(events.filter(event => event.sessionId === sessionId)));
+      return summaries.some(value => value === null) ? null : summaries.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+    })(),
     topFunnels: observedFunnelIds,
     conversionTags: unique(events.map((event) => event.conversionTag).filter((tag): tag is UserJourneyConversionTag => Boolean(tag))),
     failureTags: unique(events.map((event) => event.failureTag).filter((tag): tag is UserJourneyFailureTag => Boolean(tag))),
@@ -473,7 +494,7 @@ export function detectJourneyBreak(input: { previous?: UserJourneyEvent | null; 
       nextAction: "Keep the journey as weak evidence until identity handoff improves.",
     };
   }
-  if (input.next.durationMs === 0 && input.next.activeMs === 0 && input.next.conversionTag === null && input.next.failureTag === null) {
+  if ((input.next.durationMs === null || input.next.durationMs === 0) && (input.next.activeMs === null || input.next.activeMs === 0) && input.next.conversionTag === null && input.next.failureTag === null) {
     return {
       status: "duration_gap",
       reason: "Journey segment has no duration, active time, conversion, or failure context.",

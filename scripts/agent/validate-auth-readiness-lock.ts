@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -177,14 +178,7 @@ function scoreSnapshot(score: Record<string, any>): ScoreSnapshot {
 }
 
 function listDirtyFiles(input?: string[]) {
-  if (input) return input.map((path) => path.replace(/\\/gu, "/")).sort();
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const file of git(args).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean)) {
-      files.add(file.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return input ?? listValidatorScopeFiles();
 }
 
 function hasEvent(runtime: Record<string, any>, eventName: string) {
@@ -665,7 +659,7 @@ function main() {
   const report = buildAuthReadinessLockReport();
   mkdirSync(dirname(join(ROOT, STATE_PATH)), { recursive: true });
   mkdirSync(dirname(join(ROOT, DOC_PATH)), { recursive: true });
-  writeFileSync(join(ROOT, STATE_PATH), `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(join(ROOT, STATE_PATH), `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
   writeFileSync(join(ROOT, DOC_PATH), renderDoc(report));
   if (report.validationFailures.length > 0) {
     console.error("Auth readiness lock validation failed:");

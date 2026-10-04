@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import ts from "typescript";
+import { MAINTENANCE_SCHEDULES } from "../../shared/runtime/maintenance-mode-contract";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -25,6 +27,42 @@ function requireNotIncludes(source: string, needle: string, label: string) {
   }
 }
 
+function hasCanonicalMaterializerSchedule(source: string) {
+  const tree = ts.createSourceFile("daily-task-materializer.ts", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const importName = (module: string, symbol: string) => {
+    for (const statement of tree.statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== module) continue;
+      const bindings = statement.importClause?.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const entry of bindings.elements) if ((entry.propertyName?.text ?? entry.name.text) === symbol) return entry.name.text;
+      }
+    }
+    return null;
+  };
+  const scheduleFactory = importName("firebase-functions/v2/scheduler", "onSchedule");
+  const scheduleRegistry = importName("../../shared/runtime/maintenance-mode-contract.js", "MAINTENANCE_SCHEDULES");
+  if (!scheduleFactory || !scheduleRegistry || !MAINTENANCE_SCHEDULES.materializeDailyTaskResetWindows.schedule) return false;
+  for (const statement of tree.statements) {
+    if (!ts.isVariableStatement(statement) || !statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== "materializeDailyTaskResetWindows") continue;
+      const call = declaration.initializer;
+      if (!call || !ts.isCallExpression(call) || !ts.isIdentifier(call.expression) || call.expression.text !== scheduleFactory) return false;
+      const config = call.arguments[0];
+      if (!config || !ts.isObjectLiteralExpression(config)) return false;
+      const properties = config.properties.filter((entry): entry is ts.PropertyAssignment => ts.isPropertyAssignment(entry) && (ts.isIdentifier(entry.name) || ts.isStringLiteral(entry.name)) && entry.name.text === "schedule");
+      if (properties.length !== 1) return false;
+      const property = properties[0];
+      if (config.properties.slice(config.properties.indexOf(property) + 1).some(ts.isSpreadAssignment)) return false;
+      const value = property?.initializer;
+      return Boolean(value && ts.isPropertyAccessExpression(value) && value.name.text === "schedule"
+        && ts.isPropertyAccessExpression(value.expression) && value.expression.name.text === "materializeDailyTaskResetWindows"
+        && ts.isIdentifier(value.expression.expression) && value.expression.expression.text === scheduleRegistry);
+    }
+  }
+  return false;
+}
+
 const packageJson = JSON.parse(readRequired("package.json") || "{}") as {
   scripts?: Record<string, string>;
 };
@@ -38,7 +76,6 @@ const debugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTabMonitoring.tsx");
 const pipelineModule = readRequired("src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx");
 const adminDebugValidator = readRequired("scripts/agent/validate-admin-debug-control-tower.ts");
-const releaseNotesScript = readRequired("scripts/release/update-public-changelog.ts");
 const taskPipelineDoc = readRequired("docs/agent-truth/admin-analytics-daily-task-pipeline.md");
 
 if (packageJson.scripts?.["check:daily-task-lifecycle"] !== "tsx scripts/agent/validate-daily-task-lifecycle.ts") {
@@ -90,7 +127,9 @@ requireIncludes(taskMaterializeRoute, "auth: \"admin\"", "Task materializer rout
 requireIncludes(taskMaterializeRoute, "TASK_MATERIALIZER_TOKEN", "Task materializer route must allow scheduler token auth");
 requireIncludes(rotateRoute, "rotateUserTasks(uid)", "User rotate route remains on-demand fallback only");
 requireIncludes(functionsTaskMaterializer, "onSchedule", "Functions daily task materializer");
-requireIncludes(functionsTaskMaterializer, "schedule: \"5 0 * * *\"", "Functions daily task materializer reset schedule");
+if (!hasCanonicalMaterializerSchedule(functionsTaskMaterializer)) {
+  failures.push("Functions daily task materializer must connect its exported schedule to the canonical maintenance registry.");
+}
 requireIncludes(functionsTaskMaterializer, "timeZone: \"America/Chicago\"", "Functions daily task materializer must match app/check-in reset timezone");
 requireIncludes(functionsTaskMaterializer, "TASK_MATERIALIZER_ENDPOINT", "Functions daily task materializer endpoint config");
 requireIncludes(functionsTaskMaterializer, "TASK_MATERIALIZER_TOKEN", "Functions daily task materializer token config");
@@ -133,7 +172,7 @@ for (const forbidden of [
 }
 
 requireIncludes(adminDebugValidator, "data-daily-task-activity-loaded-count", "Admin debug validator must enforce task activity loaded fields");
-requireIncludes(releaseNotesScript, "Improved daily task reset reliability so tasks are prepared on the daily schedule.", "Release notes script must include daily task lifecycle copy");
+// Accepted beta release copy is owned by check:release-notes; historical wording is not a task lifecycle invariant.
 requireIncludes(taskPipelineDoc, "dailyTaskWindowId", "Daily task pipeline doctrine");
 requireIncludes(taskPipelineDoc, "daily_window_expired", "Daily task pipeline doctrine");
 requireIncludes(taskCatalog, 'DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL = true', "Task catalog must keep daily check-in outside the random three-task pool by default");

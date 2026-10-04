@@ -1,22 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
-import {
-    onAuthStateChanged,
-    User,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    deleteUser,
-    sendPasswordResetEmail,
-    setPersistence,
-    browserLocalPersistence,
-    signOut,
-} from "firebase/auth";
-import { auth, firebaseClientConfigured } from "@/lib/firebase";
+import type { Auth, User } from "firebase/auth";
 import { CLIENT_RUNTIME_STORAGE_KEYS, readSessionStorageValue } from "@/hooks/client-runtime";
 import { UserProfile } from "@/types/db";
 import { normalizeUserProfile } from "@/lib/user-utils";
@@ -96,6 +81,19 @@ type SignUpResult = {
     signupIntent: SignupIntent;
 };
 
+async function loadFirebaseAuthClient() {
+    const [{ auth, firebaseClientConfigured }, firebaseAuth] = await Promise.all([
+        import("@/lib/firebase"),
+        import("firebase/auth"),
+    ]);
+
+    return {
+        auth,
+        firebaseClientConfigured,
+        firebaseAuth,
+    };
+}
+
 interface AuthIdentityContextType {
     user: User | null;
     signInWithGoogle: (telemetry?: AuthFlowTelemetryInput) => Promise<{ completion: "signed_in" | "redirect_pending"; userId?: string }>;
@@ -138,16 +136,18 @@ type AuthProviderConflictError = Error & {
     authProviderConflict?: AuthProviderConflict;
 };
 
-function ensureAuthPersistence() {
+function ensureAuthPersistence(auth: Auth | null) {
     if (!auth) {
         return Promise.resolve();
     }
 
     if (!persistencePromise) {
-        persistencePromise = setPersistence(auth, browserLocalPersistence).catch((error) => {
-            persistencePromise = null;
-            throw error;
-        });
+        persistencePromise = import("firebase/auth")
+            .then(({ browserLocalPersistence, setPersistence }) => setPersistence(auth, browserLocalPersistence))
+            .catch((error) => {
+                persistencePromise = null;
+                throw error;
+            });
     }
 
     return persistencePromise;
@@ -275,14 +275,18 @@ async function syncGuestConsentIntoAccountProfile(input: {
     };
 }
 
+type AuthProviderProps = {
+    children: ReactNode;
+    initialAdminUiTestSessionValue?: string | null;
+    isLocalPublicPreview?: boolean;
+};
+
 export function AuthProvider({
     children,
     initialAdminUiTestSessionValue = null,
-}: {
-    children: ReactNode;
-    initialAdminUiTestSessionValue?: string | null;
-}) {
-    const initialAdminUiTestSession = initialAdminUiTestSessionValue
+    isLocalPublicPreview = false,
+}: AuthProviderProps) {
+    const initialAdminUiTestSession = !isLocalPublicPreview && initialAdminUiTestSessionValue
         ? resolveAdminUiTestSession({ rawValue: initialAdminUiTestSessionValue })
         : null;
     const initialAdminUiTestSessionReady = initialAdminUiTestSession?.status === "ready"
@@ -300,12 +304,14 @@ export function AuthProvider({
     const manualRegistrationStateRef = useRef<{ uid: string | null; email: string } | null>(null);
     const navigationSessionSyncKeyRef = useRef<string | null>(null);
     const currentAuthUidRef = useRef<string | null>(null);
+    const authRef = useRef<Auth | null>(null);
     const explicitLogoutInFlightRef = useRef(false);
     const navigationSessionFailureInFlightRef = useRef(false);
     const persistenceTelemetryEmittedRef = useRef(false);
     const router = useRouter();
     const pathname = usePathname();
     const pathnameRef = useRef(pathname);
+    const isMaintenanceAdminRoute = pathname === "/maintenance/admin";
 
     useEffect(() => {
         if (!initialAdminUiTestSessionReady || !initialAdminUiTestSession?.user) {
@@ -491,10 +497,12 @@ export function AuthProvider({
                 failureCode,
             });
 
-            if (auth) {
+            const firebaseAuth = authRef.current;
+            if (firebaseAuth) {
                 navigationSessionFailureInFlightRef.current = true;
                 try {
-                    await signOut(auth);
+                    const { signOut } = await import("firebase/auth");
+                    await signOut(firebaseAuth);
                 } catch (signOutError) {
                     reportRealtimeIssue("auth navigation session rollback sign-out failed", signOutError, {
                         userId: input.userId,
@@ -511,6 +519,20 @@ export function AuthProvider({
     }, []);
 
     useEffect(() => {
+        if (isLocalPublicPreview) {
+            currentAuthUidRef.current = null;
+            navigationSessionSyncKeyRef.current = null;
+            setAdminUiTestSessionActive(false);
+            setUser(null);
+            setUserProfile(null);
+            setAuthStateResolved(true);
+            setLoading(false);
+            syncClientSessionOwnership(null);
+            syncIdentifiedTelemetryOwnership(null);
+            syncLastVisitedPathOwner(null);
+            return;
+        }
+
         if (initialAdminUiTestSessionReady) {
             return;
         }
@@ -538,6 +560,9 @@ export function AuthProvider({
 
                 setAdminUiTestSessionActive(false);
 
+                const { auth } = await import("@/lib/firebase");
+                if (cancelled) return;
+                authRef.current = auth;
                 if (!auth) {
                     if (!cancelled) {
                         setAuthStateResolved(true);
@@ -546,7 +571,8 @@ export function AuthProvider({
                     return;
                 }
 
-                await ensureAuthPersistence();
+                await ensureAuthPersistence(auth);
+                if (cancelled) return;
                 if (!persistenceTelemetryEmittedRef.current) {
                     persistenceTelemetryEmittedRef.current = true;
                     emitAuthPersistenceEvent({
@@ -557,6 +583,7 @@ export function AuthProvider({
                     });
                 }
 
+                const { getRedirectResult, onAuthStateChanged } = await import("firebase/auth");
                 try {
                     const redirectResult = await getRedirectResult(auth);
                     if (!cancelled && redirectResult?.user) {
@@ -572,7 +599,9 @@ export function AuthProvider({
                     }
                 }
 
+                if (cancelled) return;
                 unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                    if (cancelled) return;
                     const nextUserId = currentUser?.uid ?? null;
                     const previousUserId = currentAuthUidRef.current;
                     const authIdentityChanged = previousUserId !== nextUserId;
@@ -674,14 +703,27 @@ export function AuthProvider({
             cancelled = true;
             unsubscribe();
         };
-    }, [deleteNavigationSession, emitAuthPersistenceEvent, emitIdentityLinkContinuity, initialAdminUiTestSessionReady]);
+    }, [deleteNavigationSession, emitAuthPersistenceEvent, emitIdentityLinkContinuity, initialAdminUiTestSessionReady, isLocalPublicPreview]);
 
     useEffect(() => {
+        if (isLocalPublicPreview) {
+            navigationSessionSyncKeyRef.current = null;
+            setAdminUiTestSessionActive(false);
+            setUser(null);
+            setUserProfile(null);
+            setLoading(false);
+            syncClientSessionOwnership(null);
+            syncIdentifiedTelemetryOwnership(null);
+            syncLastVisitedPathOwner(null);
+            clearTaskGuidanceStorage();
+            return;
+        }
+
         if (!authStateResolved) {
             return;
         }
 
-        if (pathname === "/maintenance/admin") {
+        if (isMaintenanceAdminRoute) {
             setLoading(false);
             return;
         }
@@ -724,7 +766,7 @@ export function AuthProvider({
                 const profileDocRef = doc(db, "users", currentUserId);
 
                 return onSnapshot(profileDocRef, async (snapshot) => {
-                    if (cancelled || auth?.currentUser?.uid !== currentUserId) {
+                    if (cancelled || authRef.current?.currentUser?.uid !== currentUserId) {
                         return;
                     }
 
@@ -736,6 +778,9 @@ export function AuthProvider({
                                 profile: normalizedProfile,
                             })
                             : null;
+                        if (cancelled || authRef.current?.currentUser?.uid !== currentUserId) {
+                            return;
+                        }
                         autoRegisterInFlight.delete(currentUserId);
 
                         if (profile && (profile.status === "banned" || profile.status === "suspended")) {
@@ -850,7 +895,7 @@ export function AuthProvider({
                     if (!cancelled) {
                         if (shouldRetryProfileSnapshot({
                             profileSnapshotStatus: "reconnecting",
-                            hasAuthUser: auth?.currentUser?.uid === currentUserId,
+                            hasAuthUser: authRef.current?.currentUser?.uid === currentUserId,
                         })) {
                             emitAuthPersistenceEvent({
                                 eventName: "auth_profile_snapshot_reconnect",
@@ -868,8 +913,12 @@ export function AuthProvider({
             };
 
             let internalUnsubscribe: (() => void) | void = undefined;
+            let subscriptionDisposed = false;
             void connect().then((unsub) => {
-                if (unsub) internalUnsubscribe = unsub;
+                if (unsub) {
+                    if (cancelled || subscriptionDisposed) unsub();
+                    else internalUnsubscribe = unsub;
+                }
             }).catch((error) => {
                 if (!cancelled) {
                     observerControl.triggerReconnect(error);
@@ -877,6 +926,7 @@ export function AuthProvider({
             });
 
             return () => {
+                subscriptionDisposed = true;
                 if (internalUnsubscribe) internalUnsubscribe();
             };
         }, (error: unknown) => {
@@ -906,9 +956,14 @@ export function AuthProvider({
             autoRegisterInFlight.delete(currentUserId);
             observerControl.cleanup();
         };
-    }, [adminUiTestSessionActive, authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, pathname, router, user]);
+    }, [adminUiTestSessionActive, authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, isLocalPublicPreview, isMaintenanceAdminRoute, router, user]);
 
     useEffect(() => {
+        if (isLocalPublicPreview) {
+            navigationSessionSyncKeyRef.current = null;
+            return;
+        }
+
         if (!user) {
             navigationSessionSyncKeyRef.current = null;
             return;
@@ -919,7 +974,7 @@ export function AuthProvider({
             return;
         }
 
-        if (pathname === "/maintenance/admin") {
+        if (isMaintenanceAdminRoute) {
             navigationSessionSyncKeyRef.current = null;
             return;
         }
@@ -938,25 +993,31 @@ export function AuthProvider({
                 navigationSessionSyncKeyRef.current = null;
             });
         }
-    }, [adminUiTestSessionActive, pathname, user, userProfile]);
+    }, [adminUiTestSessionActive, isLocalPublicPreview, isMaintenanceAdminRoute, user, userProfile]);
 
     const signInWithGoogle = useCallback(async (telemetry?: AuthFlowTelemetryInput) => {
+        if (isLocalPublicPreview) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
+        const { auth, firebaseClientConfigured, firebaseAuth } = await loadFirebaseAuthClient();
+        authRef.current = auth;
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
         try {
-            await ensureAuthPersistence();
-            const provider = new GoogleAuthProvider();
+            await ensureAuthPersistence(auth);
+            const provider = new firebaseAuth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: "select_account" });
 
             if (shouldPreferRedirectGoogleSignIn()) {
                 setGoogleRedirectPending(true);
-                await signInWithRedirect(auth, provider);
+                await firebaseAuth.signInWithRedirect(auth, provider);
                 return { completion: "redirect_pending" as const };
             }
 
-            const credential = await signInWithPopup(auth, provider);
+            const credential = await firebaseAuth.signInWithPopup(auth, provider);
             if (credential.user.uid) {
                 emitIdentityLinkContinuity(credential.user.uid, "login");
                 await ensureNavigationSessionEstablished({
@@ -974,10 +1035,10 @@ export function AuthProvider({
             const firebaseError = error as { code?: string; message?: string };
 
             if (firebaseError?.code === "auth/popup-blocked") {
-                const provider = new GoogleAuthProvider();
+                const provider = new firebaseAuth.GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: "select_account" });
                 setGoogleRedirectPending(true);
-                await signInWithRedirect(auth, provider);
+                await firebaseAuth.signInWithRedirect(auth, provider);
                 return { completion: "redirect_pending" as const };
             }
 
@@ -996,18 +1057,24 @@ export function AuthProvider({
             toast.error(message);
             throw buildFirebaseLikeAuthError(firebaseError?.code || "auth/google-sign-in-failed", message);
         }
-    }, [emitIdentityLinkContinuity, ensureNavigationSessionEstablished]);
+    }, [emitIdentityLinkContinuity, ensureNavigationSessionEstablished, isLocalPublicPreview]);
 
     const signInWithEmail = useCallback(async (
         identifier: string,
         pass: string,
         telemetry?: AuthFlowTelemetryInput,
     ) => {
+        if (isLocalPublicPreview) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
+        const { auth, firebaseClientConfigured, firebaseAuth } = await loadFirebaseAuthClient();
+        authRef.current = auth;
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
-        await ensureAuthPersistence();
+        await ensureAuthPersistence(auth);
         const preparedLogin = prepareEmailLogin(identifier);
         let resolvedIdentity: Awaited<ReturnType<typeof resolveManualSignInIdentity>>;
         try {
@@ -1037,9 +1104,9 @@ export function AuthProvider({
             });
         }
 
-        let credential: Awaited<ReturnType<typeof signInWithEmailAndPassword>>;
+        let credential: Awaited<ReturnType<typeof firebaseAuth.signInWithEmailAndPassword>>;
         try {
-            credential = await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
+            credential = await firebaseAuth.signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
         } catch (error) {
             const failure = classifyEmailAuthFailure(error);
             const event = buildEmailAuthTelemetry({
@@ -1068,9 +1135,15 @@ export function AuthProvider({
         });
         toast.success("Welcome back!");
         return { userId: credential.user.uid };
-    }, [emitIdentityLinkContinuity, ensureNavigationSessionEstablished]);
+    }, [emitIdentityLinkContinuity, ensureNavigationSessionEstablished, isLocalPublicPreview]);
 
     const signUpWithEmail = useCallback(async (input: SignUpInput, telemetry?: AuthFlowTelemetryInput) => {
+        if (isLocalPublicPreview) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
+        const { auth, firebaseClientConfigured, firebaseAuth } = await loadFirebaseAuthClient();
+        authRef.current = auth;
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
@@ -1120,10 +1193,10 @@ export function AuthProvider({
         };
 
         try {
-            await ensureAuthPersistence();
-            let credential: Awaited<ReturnType<typeof createUserWithEmailAndPassword>>;
+            await ensureAuthPersistence(auth);
+            let credential: Awaited<ReturnType<typeof firebaseAuth.createUserWithEmailAndPassword>>;
             try {
-                credential = await createUserWithEmailAndPassword(auth, normalizedEmail, preparedSignup.password);
+                credential = await firebaseAuth.createUserWithEmailAndPassword(auth, normalizedEmail, preparedSignup.password);
             } catch (error) {
                 const failure = classifyEmailAuthFailure(error);
                 const event = buildEmailAuthTelemetry({
@@ -1211,12 +1284,12 @@ export function AuthProvider({
 
             if (rollbackPlan.deleteFirebaseUser && createdUser && auth.currentUser?.uid === createdUser.uid) {
                 try {
-                    await deleteUser(createdUser);
+                    await firebaseAuth.deleteUser(createdUser);
                 } catch (cleanupError) {
                     reportRealtimeIssue("auth signup rollback delete failed", cleanupError);
                     if (rollbackPlan.signOutAfterDeleteFailure) {
                         try {
-                            await signOut(auth);
+                            await firebaseAuth.signOut(auth);
                         } catch (signOutError) {
                             reportRealtimeIssue("auth signup rollback sign-out failed", signOutError);
                         }
@@ -1232,18 +1305,37 @@ export function AuthProvider({
                 manualRegistrationStateRef.current = null;
             }
         }
-    }, [ensureNavigationSessionEstablished, getPostAuthDestination, pathname, router]);
+    }, [ensureNavigationSessionEstablished, getPostAuthDestination, isLocalPublicPreview, pathname, router]);
 
     const sendPasswordResetLink = useCallback(async (email: string) => {
+        if (isLocalPublicPreview) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
+        const { auth, firebaseClientConfigured, firebaseAuth } = await loadFirebaseAuthClient();
+        authRef.current = auth;
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
-        await ensureAuthPersistence();
-        await sendPasswordResetEmail(auth, normalizeEmailAddress(email));
-    }, []);
+        await ensureAuthPersistence(auth);
+        await firebaseAuth.sendPasswordResetEmail(auth, normalizeEmailAddress(email));
+    }, [isLocalPublicPreview]);
 
     const logout = useCallback(async () => {
+        if (isLocalPublicPreview) {
+            setAdminUiTestSessionActive(false);
+            setUser(null);
+            setUserProfile(null);
+            setLoading(false);
+            setAuthStateResolved(true);
+            syncClientSessionOwnership(null);
+            syncIdentifiedTelemetryOwnership(null);
+            syncLastVisitedPathOwner(null);
+            router.replace("/");
+            return;
+        }
+
         if (adminUiTestSessionActive) {
             clearAdminUiTestSession();
             setAdminUiTestSessionActive(false);
@@ -1259,6 +1351,8 @@ export function AuthProvider({
         }
 
         explicitLogoutInFlightRef.current = true;
+        const { auth, firebaseAuth } = await loadFirebaseAuthClient();
+        authRef.current = auth;
         const authProvider = auth?.currentUser?.providerData[0]?.providerId || "unknown";
         emitAuthPersistenceEvent({
             eventName: "auth_logout_started",
@@ -1292,7 +1386,7 @@ export function AuthProvider({
         }
 
         try {
-            await signOut(auth);
+            await firebaseAuth.signOut(auth);
             emitAuthPersistenceEvent({
                 eventName: "auth_logout_completed",
                 userId: null,
@@ -1306,7 +1400,7 @@ export function AuthProvider({
         } finally {
             explicitLogoutInFlightRef.current = false;
         }
-    }, [adminUiTestSessionActive, deleteNavigationSession, emitAuthPersistenceEvent, router]);
+    }, [adminUiTestSessionActive, deleteNavigationSession, emitAuthPersistenceEvent, isLocalPublicPreview, router]);
 
     const identityValue = useMemo(
         () => ({

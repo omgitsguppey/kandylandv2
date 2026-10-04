@@ -34,7 +34,7 @@ Blocked but referenced is critical. A critical finding means a blocked or non-ca
 
 ## Initial Registry
 
-- `drop-preview-modal-fallback`: `DropPreviewModal` is allowed fallback only. Canonical replacement is the full-page locked Drop preview route.
+- `drop-preview-modal-fallback`: `DropPreviewModal` is blocked and physically removed. Canonical replacement is the full-page locked Drop preview route. `check:drop-preview-legacy-handoff` enforces physical absence and active routing/sharing; historical audit findings remain evidence.
 - `drops-query-modal-flow`: `/drops?drop` is redirect/handoff only and must not restore modal-first preview ownership.
 - `synthetic-view-as-local-projection`: unsafe synthetic/simulative semantics are blocked and removed. Canonical admin creator projection is read-only/local, identifies the Admin actor and target creator, excludes user behavior, and delegates that precise exclusion to `check:admin-projection-analytics-exclusion`.
 - `old-moderation-screenshot-certainty`: blocked. Canonical replacement is theft-risk scoring and evidence-weighted scrape-risk scoring.

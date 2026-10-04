@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -92,13 +93,7 @@ function write(relativePath: string, value: string) {
 }
 
 function currentDirtyFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listValidatorScopeFiles();
 }
 
 function includesAll(source: string, required: readonly string[]) {
@@ -314,7 +309,7 @@ export function validateCreatorMonetizationReadinessLockReport(report: CreatorMo
 }
 
 function writeArtifacts(report: CreatorMonetizationReadinessLockReport) {
-  write(STATE_PATH, `${JSON.stringify(report, null, 2)}\n`);
+  write(STATE_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
   write(DOC_PATH, [
     "# Creator Monetization Readiness Lock",
     "",

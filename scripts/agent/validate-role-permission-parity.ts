@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -5,7 +6,7 @@ import {
   ROLE_PERMISSION_REGISTRY,
   buildRolePermissionParityReport,
 } from "@/lib/parity/role-permission-resolver";
-import { listWorkingTreeFiles, readRepoToolchainState } from "./shared";
+import { readRepoToolchainState } from "./shared";
 
 const STATE_PATH = "agent/state/role-permission-parity.generated.json";
 const DOC_PATH = "docs/agent-truth/role-permission-parity.md";
@@ -82,7 +83,7 @@ ${report.validationFailures.length === 0 ? "- No validation failures." : report.
 }
 
 const toolchain = readRepoToolchainState();
-const dirtyFiles = listWorkingTreeFiles();
+const dirtyFiles = listValidatorScopeFiles();
 
 const baseReport = buildRolePermissionParityReport({
   currentHead: toolchain.currentHead ?? "unknown",
@@ -110,7 +111,7 @@ const report = {
   validationFailures,
 };
 
-writeJson(STATE_PATH, report);
+writeJson(STATE_PATH, withValidatorMutationScope(report));
 writeDoc(DOC_PATH, report);
 
 if (report.validationFailures.length > 0) {

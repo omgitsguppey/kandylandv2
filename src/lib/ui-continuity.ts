@@ -27,8 +27,14 @@ export type UiContinuityResult = {
 };
 
 type JsonErrorBody = {
+  state?: string;
+  success?: boolean;
   error?: string;
   message?: string;
+  code?: string;
+  errorKey?: string;
+  errorCode?: string;
+  retryable?: boolean;
 };
 
 function normalizeErrorMessage(error: unknown, fallback: string) {
@@ -43,7 +49,7 @@ function normalizeErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-export async function readUiJson<T>(response: Response, context: { moduleLabel: string; url: string }) {
+export async function readUiJson<T>(response: Response, context: { moduleLabel: string; url: string; requireSuccess?: boolean }) {
   const text = await response.text();
   let body: JsonErrorBody | T = {} as JsonErrorBody;
 
@@ -51,19 +57,30 @@ export async function readUiJson<T>(response: Response, context: { moduleLabel: 
     try {
       body = JSON.parse(text) as JsonErrorBody | T;
     } catch {
-      throw new Error(`${context.moduleLabel} returned invalid JSON from ${context.url}`);
+      throw Object.assign(new Error(`${context.moduleLabel} returned invalid JSON from ${context.url}`), { status: response.status });
     }
   }
 
-  if (!response.ok) {
-    const typedBody = body as JsonErrorBody;
-    throw new Error(
+  const typedBody: JsonErrorBody = body && typeof body === "object" && !Array.isArray(body)
+    ? body as JsonErrorBody
+    : {};
+  if (!response.ok || typedBody.success === false || (context.requireSuccess === true && typedBody.success !== true)) {
+    throw Object.assign(new Error(
       typeof typedBody.error === "string" && typedBody.error.trim().length > 0
         ? typedBody.error
         : typeof typedBody.message === "string" && typedBody.message.trim().length > 0
           ? typedBody.message
-          : `${context.moduleLabel} request failed (${response.status})`,
-    );
+          : context.requireSuccess === true && response.ok && typedBody.success !== false
+            ? `${context.moduleLabel} returned no success acknowledgement from ${context.url}`
+            : `${context.moduleLabel} request failed (${response.status})`,
+    ), {
+      status: response.status,
+      ...(response.status === 503 && typedBody.state === "maintenance" ? { state: "maintenance" as const } : {}),
+      ...(typeof typedBody.code === "string" ? { code: typedBody.code } : {}),
+      ...(typeof typedBody.errorKey === "string" ? { errorKey: typedBody.errorKey } : {}),
+      ...(typeof typedBody.errorCode === "string" ? { errorCode: typedBody.errorCode } : {}),
+      ...(typeof typedBody.retryable === "boolean" ? { retryable: typedBody.retryable } : {}),
+    });
   }
 
   return body as T;

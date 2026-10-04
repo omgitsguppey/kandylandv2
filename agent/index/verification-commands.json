@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T16:00:11.705Z",
+  "generatedAt": "2026-10-04T00:38:21.681Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -35,10 +35,10 @@
   "gitStatus": "available",
   "toolingDegraded": false,
   "degradationReason": null,
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "currentHeadSource": "git",
-  "generatedAtUtc": "2026-07-14T16:00:11.705Z",
-  "sourceCommit": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "generatedAtUtc": "2026-10-04T00:38:21.681Z",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "freshness": "fresh",
   "baselineStatus": "current",
   "owner": "scripts/agent/build-agent-indexes.ts",

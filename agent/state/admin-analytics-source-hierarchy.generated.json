@@ -1,7 +1,7 @@
 {
   "reportKey": "admin-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-21T14:43:57.863Z",
-  "currentHead": "3c621e97dd853dadf4a3a18defa69c8413d328ce",
+  "generatedAtUtc": "2026-10-03T20:24:33.692Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "fixtureEvidence": {
     "evidenceKind": "source_fixture",
     "scenario": "debug_has_data_analytics_empty_source_agreement_failed",
@@ -154,5 +154,27 @@
       "nextAction": "Counts from app events and supporting analytics do not agree yet. Keep charts held while app event coverage is repaired."
     }
   },
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-maintenance-users-release-20261003",
+    "inputHash": "e04a5b8ba47d97cd2597b17c03fc114374f9fe7cabb81a2bef8be5363a5de358",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "69353e31eb118358ab3fba907914f00f642aaa45ea62718795a6f8a0ef4a8c34",
+    "changedFiles": [
+      "docs/agent-truth/maintenance-mode-cost-contract.md",
+      "middleware.ts",
+      "scripts/check-maintenance-config.ts",
+      "shared/runtime/maintenance-mode-contract.ts",
+      "src/components/creative-tim/kandydrops/admin-users/AdminUsersOperations.tsx",
+      "tests/contracts/maintenance-mode-cost-boundary.spec.ts",
+      "tests/unit/admin-analytics-refresh-route.spec.ts",
+      "tests/unit/admin-mobile-components.spec.tsx",
+      "tests/unit/maintenance-middleware.spec.ts",
+      "tests/unit/maintenance-mode-contract.spec.ts"
+    ],
+    "inheritedDirtySourceFileCount": 597,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

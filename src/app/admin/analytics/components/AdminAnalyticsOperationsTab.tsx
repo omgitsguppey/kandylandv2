@@ -1,4 +1,5 @@
 import React from "react";
+import { buttonVariants } from "@/components/ui/Button";
 import {
   Activity, AlertTriangle, CheckCircle2, Clock3, Eye, Monitor, Route, Share2, Sparkles, Users,
 } from "lucide-react";
@@ -29,6 +30,8 @@ import {
   buildJourneyFunnelChartRows,
   formatAuthFailureReason,
 } from "./AdminAnalyticsOperationsTab.utils";
+import { AdminAnalyticsEventMixSection } from "./AdminAnalyticsEventMixSection";
+import { AdminAnalyticsInteractionSnapshotSection } from "./AdminAnalyticsInteractionSnapshotSection";
 
 export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
@@ -58,7 +61,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter,
-    eventMixTopEvents, eventMixTopComponentContexts, eventMixModel, topComponentContexts,
+    eventMixModel,
     liveInteractionStreamModel
   } = props;
 
@@ -81,11 +84,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
   const [livePulseViewMode, setLivePulseViewMode] = React.useState<AnalyticsViewMode>("cards");
-  const [eventMixViewMode, setEventMixViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [authOutcomeViewMode, setAuthOutcomeViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [journeyFunnelViewMode, setJourneyFunnelViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [guestQualityViewMode, setGuestQualityViewMode] = React.useState<AnalyticsViewMode>("cards");
-  const [liveInteractionViewMode, setLiveInteractionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
   const mobileVisibleLiveSurfaces = livePulseModel.surfaces.slice(0, livePulseModel.mobileSurfaceRowsLimit);
   const hiddenLiveSurfaceCount = Math.max(0, livePulseModel.surfaces.length - mobileVisibleLiveSurfaces.length);
@@ -141,27 +142,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     livePulseModel.guestSnapshotTruthState === "unavailable"
       ? "No guest sample yet"
       : null;
-  const catalogMappingSentence =
-    eventMixModel.eventsNeedingCatalogMapping === null
-      ? ""
-      : `${eventMixModel.eventsNeedingCatalogMapping} need catalog mapping.`;
-  const surfaceContextSentence =
-    eventMixModel.eventsMissingSurfaceContext === null
-      ? ""
-      : `${eventMixModel.eventsMissingSurfaceContext} top events need surface context.`;
-  const eventMixSurfaceContextLabel =
-    eventMixModel.actualSurfaceContextState === "available"
-      ? "Surface context verified"
-      : eventMixModel.actualSurfaceContextState === "partial"
-        ? "Surface context partial"
-        : eventMixModel.actualSurfaceContextState === "unknown"
-          ? "Surface context checking"
-          : "Surface context unavailable";
   const guestEstimateSourceLabel = formatAdminAnalyticsSourceTruthLabel(
     guestBounceQualityModel.estimatedGuestViews.sourceTruth,
-  );
-  const liveInteractionSourceLabel = formatAdminAnalyticsSourceTruthLabel(
-    liveInteractionStreamModel.sourceTruth,
   );
 
   React.useEffect(() => {
@@ -257,14 +239,6 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       __KANDYDROPS_ADMIN_ANALYTICS_GUEST_BOUNCE_QUALITY_DEBUG__?: typeof guestBounceQualityModel;
     }).__KANDYDROPS_ADMIN_ANALYTICS_GUEST_BOUNCE_QUALITY_DEBUG__ = guestBounceQualityModel;
   }, [guestBounceQualityModel]);
-  const eventMixCountLabel = (value: number | null) =>
-    value === null ? firstSnapshotLabel : formatCompactNumber(value);
-  const eventMixShareLabel = (value: number | null) =>
-    value === null ? noShareSampleLabel : formatPercent(value);
-  const eventMixMissingSurfaceLabel = "Surface: missing";
-  const eventMixMissingRouteLabel = "Route: missing";
-  const eventMixInferenceCopy = "Categories are inferred from the event catalog; verified route and surface context is missing for this range.";
-
   React.useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -274,18 +248,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       __KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__?: typeof eventMixModel;
     }).__KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__ = eventMixModel;
   }, [eventMixModel]);
-  const streamCountLabel = (value: number | null) =>
-    value === null ? firstSnapshotLabel : formatCompactNumber(value);
-  const formatLiveStreamRelativeUtc = (timestamp: number | null) =>
-    timestamp ? formatRelativeTime(timestamp, nowMs) : "unknown";
 
   const renderLiveSurfaceRow = (item: typeof livePulseModel.surfaces[number]) => (
     <div
       key={item.key}
-      className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-2.5 py-2 min-h-[3.25rem] md:px-3"
+      className="border-b border-border px-2.5 py-2 min-h-[3.25rem] md:px-3"
     >
       <div className="flex items-center justify-between gap-3">
-        <p className="truncate text-xs font-semibold text-white">
+        <p className="truncate text-xs font-semibold text-foreground">
           {item.label}
         </p>
         <div className="flex items-center gap-2">
@@ -295,11 +265,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           <AdminStatusBadge
             state={item.freshness}
             label={item.freshness === "live" ? "Current" : "Refresh due"}
-            className="max-w-[4.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+            className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
           />
         </div>
       </div>
-      <div className="mt-1.5 hidden h-1 overflow-hidden rounded-full bg-white/10 md:block">
+      <div className="mt-1.5 hidden h-1 overflow-hidden rounded-full bg-white/10 @3xl:block">
         <div
           className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
           style={{
@@ -307,7 +277,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           }}
         />
       </div>
-      <p className="mt-1 text-[10px] text-gray-500">
+      <p className="mt-1 text-xs text-muted-foreground">
         Seen {formatRelativeTime(item.lastSeenAt, nowMs)}
       </p>
     </div>
@@ -317,35 +287,35 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     <div
       key={item.rawId}
       title={item.fullDebugId}
-      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
+      className="border-b border-border grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2"
     >
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-1.5">
-          <p className="truncate text-xs font-semibold text-white">
+          <p className="truncate text-xs font-semibold text-foreground">
             {item.displayLabel}
           </p>
-          <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
+          <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs font-bold text-muted-foreground">
             {item.actorBadgeLabel}
           </span>
-          <span className="shrink-0 rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
+          <span className="shrink-0 rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs font-bold text-muted-foreground">
             {item.purposeLabel}
           </span>
         </div>
-        <p className="mt-1 truncate text-[10px] text-gray-500">
+        <p className="mt-1 truncate text-xs text-muted-foreground">
           {item.routeLabel} - {item.actionLabel}
         </p>
-        <p className="mt-1 truncate text-[10px] text-gray-500">
+        <p className="mt-1 truncate text-xs text-muted-foreground">
           {item.shortUserId} - {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
         </p>
       </div>
       <div className="flex items-center gap-1.5">
-        <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
+        <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
           {item.lastSeenLabel}
         </span>
         <AdminStatusBadge
           state={item.truthState}
           label={item.statusLabel}
-          className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+          className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
         />
       </div>
     </div>
@@ -361,26 +331,26 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     return (
       <div
         key={step.stepKey}
-        className="rounded-[0.9rem] border border-white/10 bg-black/30 px-2.5 py-2 md:px-3"
+        className="border-b border-border px-2.5 py-2 md:px-3"
       >
         <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-white">
+            <p className="truncate text-xs font-semibold text-foreground">
               {step.visibleLabel}
             </p>
-            <p className="mt-0.5 truncate text-[10px] text-gray-500">
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {journeyCountLabel(step.displayedCount)} tracked events - {step.denominatorLabel}
             </p>
-            <p className="mt-0.5 line-clamp-2 text-[10px] leading-4 text-gray-400 md:line-clamp-none">
+            <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-muted-foreground md:line-clamp-none">
               {step.explanation}
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-200">
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-gray-200">
               {percentLabel}
             </span>
             {step.displayedPercent !== null ? (
-              <span className="hidden rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple md:inline-flex">
+              <span className="hidden rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple @3xl:inline-flex">
                 {step.ratioMeaning === "event_volume_ratio"
                   ? "Event ratio"
                   : step.ratioMeaning === "not_comparable"
@@ -392,7 +362,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               <AdminStatusBadge
                 state="degraded"
                 label="Partial"
-                className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
               />
             ) : null}
           </div>
@@ -427,7 +397,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               density="compact"
               defaultExpanded={false}
               rightSlot={(
-                <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                   <AnalyticsViewModeToggle
                     value={livePulseViewMode}
                     onChange={setLivePulseViewMode}
@@ -442,7 +412,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               )}
             >
               <div
-                className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between"
+                className="border-b border-border mb-2.5 flex flex-col gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground @3xl:flex-row @3xl:items-center @3xl:justify-between"
                 data-admin-analytics-snapshot-priority="analytics_admin_metric_snapshots"
                 data-admin-analytics-vendor-source-label="vendor_evidence"
                 data-admin-analytics-raw-ledger-display="debug_only"
@@ -453,11 +423,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <div className="min-w-0">
                   <p>{livePulseCompactStatusLine}</p>
                   {livePulseCompactIssueLine ? (
-                    <p className="mt-1 text-[10px] text-gray-400">{livePulseCompactIssueLine}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{livePulseCompactIssueLine}</p>
                   ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
                     {livePulseModel.refreshState === "refreshing"
                       ? "Refreshing"
                       : livePulseModel.refreshState === "refresh_due"
@@ -467,7 +437,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <AdminStatusBadge
                     state={livePulseTruthState}
                     label={livePulseBadgeLabel}
-                    className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                    className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
                   />
                 </div>
               </div>
@@ -480,7 +450,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 data-live-pulse-source-state={livePulseModel.graphHydrated ? "loaded" : "no_sample"}
               >
               {livePulseViewMode === "cards" ? (
-              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+              <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-2">
                 <MetricCard
                   label="Active Now"
                   value={activeNowValue}
@@ -531,7 +501,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 data-live-pulse-graph-source={livePulseModel.graphSourceLabel}
                 data-live-pulse-refresh-state={livePulseModel.refreshState}
               >
-                <div className="mb-1 flex items-center justify-between gap-2 px-1 text-[10px] text-gray-400">
+                <div className="mb-1 flex items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
                   <span>{livePulseModel.graphSourceLabel}</span>
                   <span>{livePulseModel.graphLegendLabel}</span>
                 </div>
@@ -560,7 +530,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
+                  <div className="border-b border-border flex h-full items-center justify-center px-3 text-center text-xs text-muted-foreground">
                     {livePulseModel.backendSnapshotStatus === "available"
                       ? "Graph needs verified snapshot rows."
                       : liveLoading ? "Graph awaiting first snapshot." : "No verified graph data yet."}
@@ -571,70 +541,70 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
               {livePulseViewMode === "table" ? (
               <div
-                className="grid gap-2 xl:grid-cols-[0.9fr_1.1fr]"
+                className="grid min-w-0 gap-3"
                 data-live-pulse-table="compact"
                 data-live-pulse-graph-source={livePulseModel.graphSourceLabel}
                 data-live-pulse-refresh-state={livePulseModel.refreshState}
               >
-                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:p-3">
+                <div className="border-b border-border p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                       Snapshot surfaces
                     </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
                       {livePulseModel.surfaces.length} lanes
                     </span>
                   </div>
-                  <div className="space-y-2 md:hidden">
+                  <div className="space-y-2 @3xl:hidden">
                     {livePulseModel.surfaces.length > 0 ? (
                       <>
                         {mobileVisibleLiveSurfaces.map(renderLiveSurfaceRow)}
                         {hiddenLiveSurfaceCount > 0 ? (
-                          <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 px-2.5 py-2 text-[11px] text-gray-400">
+                          <div className="border-b border-border px-2.5 py-2 text-xs text-muted-foreground">
                             +{hiddenLiveSurfaceCount} more in Debug
                           </div>
                         ) : null}
                       </>
                     ) : (
-                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
+                      <div className="border-b border-border p-3 text-xs text-muted-foreground">
+                        <AdminStatusBadge state={livePulseTruthState} className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs" />
                         Surface detail needs verified snapshot rows.
                       </div>
                     )}
                   </div>
-                  <div className="hidden space-y-2 md:block">
+                  <div className="hidden space-y-2 @3xl:block">
                     {livePulseModel.surfaces.length > 0 ? (
                       livePulseModel.surfaces.map(renderLiveSurfaceRow)
                     ) : (
-                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
+                      <div className="border-b border-border p-3 text-xs text-muted-foreground">
+                        <AdminStatusBadge state={livePulseTruthState} className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs" />
                         Surface detail needs verified snapshot rows.
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:p-3">
+                <div className="border-b border-border p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                       Active identities
                     </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
                       {livePulseModel.activeIdentities.length} shown
                     </span>
                   </div>
                   <div
-                    className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:hidden"
+                    className="border-b border-border px-3 py-2 text-xs text-muted-foreground @3xl:hidden"
                     data-admin-analytics-mobile-can-show-identity-details={String(livePulseModel.mobileCanShowIdentityDetails)}
                   >
                     {livePulseModel.mobilePrimaryIdentitySummary}
                   </div>
-                  <div className="hidden space-y-1.5 md:block">
+                  <div className="hidden space-y-1.5 @3xl:block">
                     {livePulseModel.activeIdentities.length > 0 ? (
                       livePulseModel.activeIdentities.map(renderActiveIdentityRow)
                     ) : (
-                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        <AdminStatusBadge state={activeUsersTruthState} className="mb-2" />
+                      <div className="border-b border-border p-3 text-xs text-muted-foreground">
+                        <AdminStatusBadge state={activeUsersTruthState} className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs" />
                         {livePulseModel.fakeZeroPrevented
                           ? "No verified active identity rows yet."
                           : "No active identity details are available."}
@@ -653,7 +623,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               icon={Eye}
               density="compact"
               rightSlot={(
-                <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                   <AnalyticsViewModeToggle
                     value={journeyFunnelViewMode}
                     onChange={setJourneyFunnelViewMode}
@@ -668,7 +638,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               )}
             >
               <div
-                className="mb-2 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-4 text-gray-300 md:flex-row md:items-center md:justify-between"
+                className="border-b border-border mb-2 flex flex-col gap-2 px-3 py-2 text-xs leading-4 text-muted-foreground @3xl:flex-row @3xl:items-center @3xl:justify-between"
                 data-admin-analytics-hydration-state={journeyFunnelModel.hydrationState}
                 data-admin-analytics-measurement-mode={journeyFunnelModel.measurementMode}
                 data-admin-analytics-exact-user-funnel-available={String(journeyFunnelModel.exactUserFunnelAvailable)}
@@ -679,25 +649,25 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <AdminStatusBadge
                   state={historicalMetricTruthState}
                   label={journeyFunnelBadgeLabel}
-                  className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                  className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
                 />
               </div>
 
               {!eventChainHasUsableSample ? (
-                <div className="max-h-[8.75rem] space-y-2 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                <div className="border-b border-border max-h-[8.75rem] space-y-2 overflow-hidden px-3 py-2 text-xs leading-4 text-muted-foreground">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold text-white">
+                    <p className="font-semibold text-foreground">
                       {journeyFunnelModel.hydrationState === "unavailable" ? "No event chain source" : "No event sample yet"}
                     </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-300">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-muted-foreground">
                       {journeyFunnelModel.modeLabel}
                     </span>
                   </div>
                   <p>{journeyFunnelModel.unavailableReason}</p>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     Next source step: generate bounded sample activity, refresh snapshots, or inspect Debug.
                   </p>
-                  <p className="text-[10px] text-gray-500" title={journeyFunnelModel.algorithmRecommendation ?? undefined}>
+                  <p className="text-xs text-muted-foreground" title={journeyFunnelModel.algorithmRecommendation ?? undefined}>
                     Exact funnel unavailable until ordered actor/session transitions exist.
                   </p>
                 </div>
@@ -712,7 +682,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 >
                   {journeyFunnelViewMode === "chart" ? (
                     <div
-                      className="h-56 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                      className="rounded-2xl bg-card h-56 p-3"
                       data-journey-funnel-chart="compact"
                       data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}
                       data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}
@@ -752,14 +722,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                   {journeyFunnelViewMode === "table" ? (
                     <div
-                      className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                      className="rounded-2xl bg-card overflow-x-auto"
                       data-journey-funnel-table="compact"
                       data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}
                       data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}
                       data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}
                     >
                       <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Step</th>
                             <th className="px-3 py-2 font-semibold">Events</th>
@@ -768,7 +738,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             <th className="px-3 py-2 font-semibold">Source</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-gray-300">
+                        <tbody className="divide-y divide-white/10 text-muted-foreground">
                           {journeyFunnelModel.steps.map((step) => (
                             <tr
                               key={step.stepKey}
@@ -776,8 +746,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               data-journey-funnel-source-mismatch={String(journeyFunnelModel.sourceMismatchSteps.includes(step.stepKey))}
                             >
                               <td className="max-w-[16rem] px-3 py-2">
-                                <p className="truncate font-semibold text-white">{step.visibleLabel}</p>
-                                <p className="truncate text-[11px] text-gray-500">{step.explanation}</p>
+                                <p className="truncate font-semibold text-foreground">{step.visibleLabel}</p>
+                                <p className="truncate text-xs text-muted-foreground">{step.explanation}</p>
                               </td>
                               <td className="px-3 py-2">{journeyCountLabel(step.displayedCount)}</td>
                               <td className="px-3 py-2">{step.denominatorStep ? journeyPercentLabel(step.displayedPercent) : "Base"}</td>
@@ -792,7 +762,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                   {journeyFunnelViewMode === "cards" ? (
                     <>
-                      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                      <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-2">
                         <MetricCard
                           label="Mode"
                           value={journeyFunnelModel.modeLabel}
@@ -836,17 +806,17 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       </div>
 
                       {journeyFunnelModel.visibleDegradedCopy ? (
-                        <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                        <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
                           {journeyFunnelModel.visibleDegradedCopy}
                         </p>
                       ) : null}
 
                       <div className="space-y-1.5">
-                        <div className="flex items-center justify-between gap-2 px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        <div className="flex items-center justify-between gap-2 px-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                           <span>Supporting Events</span>
                           <span>Separate from the chain</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid gap-2 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                           {journeyFunnelModel.supportingEvents.map((item) => (
                             <MetricCard
                               key={item.stepKey}
@@ -867,7 +837,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                   {eventChainCanRenderDetails && journeyFunnelViewMode === "cards" ? (
                     <details className="space-y-1.5">
-                      <summary className="cursor-pointer rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold text-gray-300">
+                      <summary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>
                         Step details
                       </summary>
                       <div className="mt-2 space-y-1.5">
@@ -876,21 +846,21 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </details>
                   ) : null}
 
-                  <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                  <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
                     {journeyFunnelModel.recommendation}
                   </p>
                 </div>
               )}
             </SectionCard>
 
-            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+            <div className="grid min-w-0 gap-4">
               <SectionCard
                 title="Auth Outcomes"
                 subtitle="Confirmed sign-in attempts, outcomes, and finish timing."
                 icon={Users}
                 density="compact"
                 rightSlot={(
-                  <div className="flex flex-wrap items-center justify-end gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                     <AnalyticsViewModeToggle
                       value={authOutcomeViewMode}
                       onChange={setAuthOutcomeViewMode}
@@ -905,7 +875,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 )}
               >
                 <div
-                  className="mb-2 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-4 text-gray-300 md:flex-row md:items-center md:justify-between"
+                  className="border-b border-border mb-2 flex flex-col gap-2 px-3 py-2 text-xs leading-4 text-muted-foreground @3xl:flex-row @3xl:items-center @3xl:justify-between"
                   data-admin-analytics-auth-hydration-state={authOutcomeModel.hydrationState}
                   data-admin-analytics-auth-measurement-mode={authOutcomeModel.measurementMode}
                   data-admin-analytics-auth-exact-chain-available={String(authOutcomeModel.trackingCapability.exactAttemptChainAvailable)}
@@ -914,13 +884,13 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   title={authOutcomeModel.algorithmRecommendation ?? undefined}
                 >
                   <div className="min-w-0">
-                    <p className="font-semibold text-white">{authOutcomeModel.primarySummary}</p>
+                    <p className="font-semibold text-foreground">{authOutcomeModel.primarySummary}</p>
                     {authOutcomeModel.mobileCompactDetail ? (
-                      <p className="mt-1 text-[10px] text-gray-400">{authOutcomeModel.mobileCompactDetail}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{authOutcomeModel.mobileCompactDetail}</p>
                     ) : null}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
                       {authOutcomeModel.measurementMode === "canonical_attempt_chain"
                         ? "Attempt chain"
                         : authOutcomeModel.measurementMode === "legacy_event_counts"
@@ -932,23 +902,23 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     <AdminStatusBadge
                       state={historicalMetricTruthState}
                       label={authOutcomeBadgeLabel}
-                      className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                      className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
                     />
                   </div>
                 </div>
 
                 {!authHasUsableSample ? (
-                  <div className="max-h-[8.75rem] space-y-2 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                  <div className="border-b border-border max-h-[8.75rem] space-y-2 overflow-hidden px-3 py-2 text-xs leading-4 text-muted-foreground">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="font-semibold text-white">
+                      <p className="font-semibold text-foreground">
                         {authOutcomeModel.hydrationState === "unavailable" ? "No auth outcome source" : "No auth sample yet"}
                       </p>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-300">
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-muted-foreground">
                         {authOutcomeModel.modeLabel}
                       </span>
                     </div>
                     <p>{authOutcomeModel.unavailableReason}</p>
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       Next source step: run bounded email/password and Google login attempts, then refresh.
                     </p>
                   </div>
@@ -962,7 +932,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   >
                     {authOutcomeViewMode === "chart" ? (
                       <div
-                        className="h-56 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                        className="rounded-2xl bg-card h-56 p-3"
                         data-auth-outcomes-chart="compact"
                         data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}
                         data-auth-outcomes-measurement-mode={authOutcomeModel.measurementMode}
@@ -1002,13 +972,13 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                     {authOutcomeViewMode === "table" ? (
                       <div
-                        className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                        className="rounded-2xl bg-card overflow-x-auto"
                         data-auth-outcomes-table="compact"
                         data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}
                         data-auth-outcomes-measurement-mode={authOutcomeModel.measurementMode}
                       >
                         <table className="min-w-full text-left text-xs">
-                          <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                          <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                             <tr>
                               <th className="px-3 py-2 font-semibold">Method</th>
                               <th className="px-3 py-2 font-semibold">Attempts</th>
@@ -1019,10 +989,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               <th className="px-3 py-2 font-semibold">Top failure</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-white/10 text-gray-300">
+                          <tbody className="divide-y divide-white/10 text-muted-foreground">
                             {authOutcomeModel.methodBreakdown.map((item) => (
                               <tr key={`auth-outcomes-method-table-${item.methodKey}`}>
-                                <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">{item.visibleLabel}</td>
+                                <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-foreground">{item.visibleLabel}</td>
                                 <td className="px-3 py-2">{authCountLabel(item.attempts)}</td>
                                 <td className="px-3 py-2">{authCountLabel(item.successes)}</td>
                                 <td className="px-3 py-2">{authCountLabel(item.failures)}</td>
@@ -1035,7 +1005,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             ))}
                             {authOutcomeModel.lifecycleOutcomes.map((item) => (
                               <tr key={`auth-outcomes-lifecycle-table-${item.name}`}>
-                                <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">
+                                <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-foreground">
                                   {item.name === "registration_completed" ? "Registration completed" : "Navigation session established"}
                                 </td>
                                 <td className="px-3 py-2">{authCountLabel(item.count)}</td>
@@ -1053,7 +1023,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                     {authOutcomeViewMode === "cards" ? (
                       <>
-                    <div className="grid grid-cols-2 gap-2 md:hidden">
+                    <div className="grid gap-2 @3xl:hidden min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                       <MetricCard
                         label="Email/password"
                         value={authGroupValue(authOutcomeModel.methodGroups.emailPassword)}
@@ -1076,7 +1046,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       />
                     </div>
 
-                    <div className="hidden grid-cols-2 gap-2 md:grid lg:grid-cols-5">
+                    <div className="hidden gap-2 @3xl:grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                       <MetricCard
                         label="Attempts"
                         value={authCountLabel(authOutcomeModel.attempts.value)}
@@ -1129,28 +1099,28 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       />
                     </div>
 
-                    <div className="mt-2 grid gap-2 md:grid-cols-3">
-                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
-                        <span className="font-semibold text-white">Email/password failure:</span>{" "}
+                    <div className="mt-2 grid gap-2 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+                      <div className="border-b border-border px-3 py-2 text-xs leading-4 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Email/password failure:</span>{" "}
                         {formatAuthFailureReason(authOutcomeModel.methodGroups.emailPassword.topFailureCode)}
                       </div>
-                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
-                        <span className="font-semibold text-white">Google failure:</span>{" "}
+                      <div className="border-b border-border px-3 py-2 text-xs leading-4 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Google failure:</span>{" "}
                         {formatAuthFailureReason(authOutcomeModel.methodGroups.google.topFailureCode)}
                       </div>
-                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
-                        <span className="font-semibold text-white">Most unfinished:</span>{" "}
+                      <div className="border-b border-border px-3 py-2 text-xs leading-4 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Most unfinished:</span>{" "}
                         {authOutcomeModel.mostUnfinishedMethod?.visibleLabel ?? noAuthSampleLabel}
                       </div>
                     </div>
 
                     {authOutcomeModel.timingMissingReason ? (
-                      <p className="mt-2 rounded-[1rem] border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-[11px] leading-4 text-amber-100">
+                      <p className="mt-2 rounded-[1rem] border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-xs leading-4 text-amber-100">
                         {authOutcomeModel.timingMissingReason}
                       </p>
                     ) : null}
-                    <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
-                      <span className="font-semibold text-white">Timing review:</span>{" "}
+                    <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
+                      <span className="font-semibold text-foreground">Timing review:</span>{" "}
                       {authOutcomeModel.timingAvailable
                         ? "Completed attempts include start and finish timestamps."
                         : "Finish timing waits for start and end timestamps."}
@@ -1158,8 +1128,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                     {authCanRenderDetails ? (
                       <>
-                        <details className="mt-2 md:hidden">
-                          <summary className="cursor-pointer rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold text-gray-300">
+                        <details className="mt-2 @3xl:hidden">
+                          <summary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>
                             Method details
                           </summary>
                           <div className="mt-2 space-y-1.5">
@@ -1172,16 +1142,16 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               return (
                                 <div
                                   key={item.methodKey}
-                                  className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-2.5 py-2"
+                                  className="border-b border-border px-2.5 py-2"
                                 >
                                   <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
                                     <div className="min-w-0">
-                                      <p className="truncate text-xs font-semibold text-white">{item.visibleLabel}</p>
-                                      <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                      <p className="truncate text-xs font-semibold text-foreground">{item.visibleLabel}</p>
+                                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
                                         {authCountLabel(item.attempts)} attempts · {authCountLabel(item.failures)} failures
                                       </p>
                                     </div>
-                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold text-brand-purple">
+                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-xs font-bold text-brand-purple">
                                       {formatPercent(item.successRatePct / 100)}
                                     </span>
                                   </div>
@@ -1191,7 +1161,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                     <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
                                   </div>
                                   {item.failureBreakdown[0] ? (
-                                    <p className="mt-1 text-[10px] text-gray-400">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                       Top failure: {formatAuthFailureReason(item.failureBreakdown[0].failureCode)}
                                     </p>
                                   ) : null}
@@ -1201,12 +1171,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           </div>
                         </details>
 
-                        <div className="mt-2 hidden rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:block md:p-3">
+                        <div className="border-b border-border mt-2 hidden p-2.5 @3xl:block md:p-3">
                           <div className="mb-2 flex items-center justify-between gap-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                               Method split
                             </p>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
                               {authOutcomeModel.methodBreakdown.length} methods
                             </span>
                           </div>
@@ -1221,18 +1191,18 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               return (
                                 <div
                                   key={item.methodKey}
-                                  className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
+                                  className="border-b border-border px-3 py-2"
                                 >
                                   <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
                                     <div className="min-w-0">
-                                      <p className="truncate text-xs font-semibold text-white">
+                                      <p className="truncate text-xs font-semibold text-foreground">
                                         {item.visibleLabel}
                                       </p>
-                                      <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
                                         {authCountLabel(item.attempts)} attempts · {authCountLabel(item.successes)} successes · {authCountLabel(item.failures)} failures · {authCountLabel(item.unfinished)} unfinished
                                       </p>
                                     </div>
-                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold text-brand-purple">
+                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-xs font-bold text-brand-purple">
                                       {formatPercent(item.successRatePct / 100)}
                                     </span>
                                   </div>
@@ -1241,7 +1211,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                     <div className="h-full bg-rose-400" style={{ width: `${failureShare * 100}%` }} />
                                     <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
                                   </div>
-                                  <div className="mt-1.5 flex flex-wrap gap-2 text-[10px] text-gray-400">
+                                  <div className="mt-1.5 flex flex-wrap gap-2 text-xs text-muted-foreground">
                                     <span>State: {item.state}</span>
                                     <span>Avg finish: {item.avgFinishMs ? formatDuration(item.avgFinishMs / 1000) : noTimingSampleLabel}</span>
                                     {item.failureBreakdown[0] ? <span>Top failure: {formatAuthFailureReason(item.failureBreakdown[0].failureCode)}</span> : null}
@@ -1252,12 +1222,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           </div>
                         </div>
 
-                        <div className="mt-2 hidden rounded-[1rem] border border-white/10 bg-black/25 p-2.5 md:block md:p-3">
+                        <div className="border-b border-border mt-2 hidden p-2.5 @3xl:block md:p-3">
                           <div className="mb-2 flex items-center justify-between gap-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                               Auth lifecycle outcomes
                             </p>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
                               {authOutcomeModel.lifecycleOutcomes.length} rows
                             </span>
                           </div>
@@ -1265,15 +1235,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             {authOutcomeModel.lifecycleOutcomes.map((item) => (
                               <div
                                 key={item.name}
-                                className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                                className="border-b border-border px-3 py-2 text-xs leading-5 text-muted-foreground"
                               >
-                                <p className="text-xs font-semibold text-white">
+                                <p className="text-xs font-semibold text-foreground">
                                   {item.name === "registration_completed" ? "Registration completed" : "Navigation session established"}
                                 </p>
-                                <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                <p className="mt-0.5 truncate text-xs text-muted-foreground">
                                   {authCountLabel(item.count)} outcomes · {item.state}
                                 </p>
-                                <p className="mt-0.5 text-[10px] leading-4 text-gray-400">
+                                <p className="mt-0.5 text-xs leading-4 text-muted-foreground">
                                   {item.explanation}
                                 </p>
                               </div>
@@ -1307,13 +1277,13 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               />
             </div>
 
-            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+            <div className="grid min-w-0 gap-4">
             <SectionCard
               title="Guest Quality"
               subtitle="Estimated guest traffic, consent-safe guest quality, and signed-in bounce truth."
               icon={Monitor}
               rightSlot={(
-                <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                   <AnalyticsViewModeToggle
                     value={guestQualityViewMode}
                     onChange={setGuestQualityViewMode}
@@ -1328,20 +1298,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               )}
             >
               <div
-                className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between"
+                className="border-b border-border mb-2.5 flex flex-col gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground @3xl:flex-row @3xl:items-center @3xl:justify-between"
                 data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
                 data-guest-quality-chart-collapsed-because-empty={guestBounceQualityModel.chartCollapsedBecauseEmpty}
               >
                 <div className="min-w-0">
                   <p>{guestBounceQualityModel.visibleCopy}</p>
-                  <p className="mt-1 text-[10px] text-gray-400">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {guestBounceQualityModel.summaryFacts.join(" · ")}
                   </p>
                 </div>
                 <AdminStatusBadge
                   state={guestBounceQualityModel.truthState}
                   label={guestBounceQualityModel.badgeLabel}
-                  className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                  className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
                 />
               </div>
 
@@ -1355,7 +1325,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               >
                 {guestQualityViewMode === "chart" ? (
                   <div
-                    className="h-52 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                    className="border-b border-border h-52 p-3"
                     data-guest-quality-chart="compact"
                     data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
                     data-guest-quality-series-state={guestBounceQualityModel.series.state}
@@ -1380,13 +1350,13 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                 {guestQualityViewMode === "table" ? (
                   <div
-                    className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                    className="rounded-2xl bg-card overflow-x-auto"
                     data-guest-quality-table="compact"
                     data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
                     data-guest-quality-series-state={guestBounceQualityModel.series.state}
                   >
                     <table className="min-w-full text-left text-xs">
-                      <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                      <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                         <tr>
                           <th className="px-3 py-2 font-semibold">Signal</th>
                           <th className="px-3 py-2 font-semibold">Value</th>
@@ -1395,9 +1365,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <th className="px-3 py-2 font-semibold">Detail</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/10 text-gray-300">
+                      <tbody className="divide-y divide-white/10 text-muted-foreground">
                         <tr>
-                          <td className="px-3 py-2 font-semibold text-white">{guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}</td>
+                          <td className="px-3 py-2 font-semibold text-foreground">{guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.display}</td>
                           <td className="px-3 py-2" title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}>{guestEstimateSourceLabel}</td>
                           <td className="px-3 py-2" title={guestBounceQualityModel.estimatedGuestViews.freshnessState}>
@@ -1406,14 +1376,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}</td>
                         </tr>
                         <tr>
-                          <td className="px-3 py-2 font-semibold text-white">Guest Quality</td>
+                          <td className="px-3 py-2 font-semibold text-foreground">Guest Quality</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.guestQuality.state === "available" ? guestQualityCountLabel(guestBounceQualityModel.guestQuality.sampleCount) : "No sample"}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.guestQuality.state}</td>
                           <td className="px-3 py-2">{formatRelativeUtc(guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc)}</td>
                           <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.guestQuality.nextAction}</td>
                         </tr>
                         <tr>
-                          <td className="px-3 py-2 font-semibold text-white">Signed-in Bounce</td>
+                          <td className="px-3 py-2 font-semibold text-foreground">Signed-in Bounce</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.display}</td>
                           <td className="px-3 py-2" title={guestBounceQualityModel.signedInBounce.freshnessState}>
                             {signedInBounceFreshnessLabel}
@@ -1427,7 +1397,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 ) : null}
 
                 {guestQualityViewMode === "cards" ? (
-              <div className="grid gap-2 md:grid-cols-3">
+              <div className="grid gap-2 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                 <div
                   data-guest-estimated-views={guestBounceQualityModel.estimatedGuestViews.value}
                   data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}
@@ -1479,458 +1449,50 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 ) : null}
               </div>
 
-              <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-2">
+              <div className="border-b border-border mt-2 grid gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                 <span>
-                  <span className="font-semibold text-white">Updated:</span>{" "}
+                  <span className="font-semibold text-foreground">Updated:</span>{" "}
                   {formatRelativeUtc(guestBounceQualityModel.generatedAtUtc)}
                 </span>
                 <span>
-                  <span className="font-semibold text-white">Series:</span>{" "}
+                  <span className="font-semibold text-foreground">Series:</span>{" "}
                   {guestBounceQualityModel.series.explanation}
                 </span>
               </div>
 
-              <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2 text-[10px] leading-5 text-gray-400 md:grid-cols-3">
+              <div className="border-b border-border mt-2 grid gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                 <span>
-                  <span className="font-semibold text-white">Estimate freshness:</span>{" "}
+                  <span className="font-semibold text-foreground">Estimate freshness:</span>{" "}
                   {guestEstimateFreshnessLabel}
                 </span>
                 <span>
-                  <span className="font-semibold text-white">Last guest batch:</span>{" "}
+                  <span className="font-semibold text-foreground">Last guest batch:</span>{" "}
                   {formatRelativeUtc(guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc)}
                 </span>
                 <span>
-                  <span className="font-semibold text-white">Signed-in sample:</span>{" "}
+                  <span className="font-semibold text-foreground">Signed-in sample:</span>{" "}
                   {guestBounceQualityModel.signedInBounce.sampleCount ?? noGuestSampleLabel}
                 </span>
               </div>
             </SectionCard>
             </div>
 
-            <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-            <SectionCard
-              title="Event Mix"
-              subtitle="Top event activity with catalog inference and verified surface-context truth."
-              icon={Sparkles}
-              rightSlot={(
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <AnalyticsViewModeToggle
-                    value={eventMixViewMode}
-                    onChange={setEventMixViewMode}
-                    options={[
-                      { id: "cards", label: "Cards" },
-                      { id: "chart", label: "Chart" },
-                      { id: "table", label: "Table" },
-                    ]}
-                  />
-                  {renderSectionRangeControl("eventMix")}
-                </div>
-              )}
-            >
-              <div className="grid gap-2.5">
-                <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
-                      <span>{eventMixModel.visibleCopy || eventMixInferenceCopy}</span>
-                    <AdminStatusBadge
-                      state={eventMixModel.truthState}
-                      label={eventMixModel.badgeLabel}
-                      className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                    />
-                  </div>
+            <div className="grid min-w-0 gap-4">
+            <AdminAnalyticsEventMixSection
+              renderSectionRangeControl={renderSectionRangeControl}
+              eventMixModel={eventMixModel}
+              formatCompactNumber={formatCompactNumber}
+              formatPercent={formatPercent}
+            />
 
-                    <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
-                      <span>
-                        <span className="font-semibold text-white">Total:</span>{" "}
-                        {eventMixCountLabel(eventMixModel.totalEventsInRange)} tracked events
-                      </span>
-                    <span>
-                      <span className="font-semibold text-white">Top:</span>{" "}
-                      {eventMixModel.topEvent?.displayLabel ?? "No verified event yet"}
-                    </span>
-                      <span>
-                        <span className="font-semibold text-white">Verified surface context:</span>{" "}
-                        {eventMixSurfaceContextLabel}
-                      </span>
-                    </div>
-
-                    <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
-                      <span>
-                        <span className="font-semibold text-white">Catalog inference:</span>{" "}
-                        {eventMixModel.catalogInferenceState}
-                      </span>
-                      <span data-event-mix-missing-reason="missing verified surface context">
-                        <span className="font-semibold text-white">Missing verified surface context:</span>{" "}
-                        {eventMixModel.eventsMissingSurfaceContext ?? "unknown"}
-                      </span>
-                      <span>
-                        <span className="font-semibold text-white">Unmapped catalog events:</span>{" "}
-                        {eventMixModel.eventsNeedingCatalogMapping ?? "unknown"}
-                      </span>
-                    </div>
-
-                    <div
-                      className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
-                      data-admin-analytics-mobile-view-mode={eventMixViewMode}
-                      data-event-mix-source-mode={eventMixModel.eventMixSourceMode}
-                      data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
-                    >
-                      <div className="mb-2 flex items-center justify-between gap-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                          Ranked event activity
-                      </p>
-                      <span className="text-[10px] text-gray-500">
-                        event count / total counted events
-                      </span>
-                    </div>
-
-                    {eventMixModel.eventRows.length > 0 && eventMixViewMode === "chart" ? (
-                      <div className="h-52 rounded-[0.9rem] border border-white/10 bg-black/25 p-2">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart
-                            data={eventMixModel.eventRows}
-                            margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
-                          >
-                            <defs>
-                              <linearGradient id="eventMixCountFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#c084fc" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#c084fc" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                            <XAxis
-                              dataKey="displayLabel"
-                              stroke="#6b7280"
-                              fontSize={10}
-                              tickLine={false}
-                              axisLine={false}
-                              interval={0}
-                              minTickGap={12}
-                              height={30}
-                            />
-                            <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
-                            <Tooltip content={<AnalyticsTooltip />} />
-                            <Area type="monotone" dataKey="rawCount" name="Events" stroke="#c084fc" strokeWidth={2} fill="url(#eventMixCountFill)" />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    ) : null}
-
-                    {eventMixModel.eventRows.length > 0 && eventMixViewMode === "table" ? (
-                      <div
-                        className="overflow-x-auto rounded-[0.9rem] border border-white/10 bg-black/25"
-                        data-event-mix-table="compact"
-                        data-event-mix-source-mode={eventMixModel.eventMixSourceMode}
-                        data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
-                      >
-                        <table className="min-w-full text-left text-xs">
-                          <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
-                            <tr>
-                              <th className="px-3 py-2 font-semibold">Event</th>
-                              <th className="px-3 py-2 font-semibold">Count</th>
-                              <th className="px-3 py-2 font-semibold">Share</th>
-                              <th className="px-3 py-2 font-semibold">Category</th>
-                              <th className="px-3 py-2 font-semibold">Surface</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/10 text-gray-300">
-                            {eventMixModel.eventRows.map((item) => (
-                              <tr
-                                key={`event-mix-table-${item.eventKey}`}
-                                data-event-mix-event-key={item.eventKey}
-                                data-event-mix-mapping-state={item.mappingState}
-                                data-event-mix-actual-surface-state={item.actualSurfaceState}
-                              >
-                                <td className="max-w-[16rem] px-3 py-2">
-                                  <p className="truncate font-semibold text-white">{item.displayLabel}</p>
-                                  <p className="truncate text-[11px] text-gray-500">{item.eventKey}</p>
-                                </td>
-                                <td className="px-3 py-2">{eventMixCountLabel(item.rawCount)}</td>
-                                <td className="px-3 py-2">{eventMixShareLabel(item.share)}</td>
-                                <td className="px-3 py-2">{item.catalogCategory ?? "missing"}</td>
-                                <td className="px-3 py-2">{item.actualSurface ?? "missing"}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : null}
-
-                    {eventMixViewMode === "cards" ? (
-                      <div className="space-y-1.5">
-                        {eventMixModel.eventRows.length > 0 ? (
-                        eventMixModel.eventRows.map((item) => (
-                          <div
-                            key={item.eventKey}
-                            className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
-                          >
-                            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[10px] font-semibold text-gray-300">
-                                {item.rank}
-                              </span>
-                                <div className="min-w-0">
-                                  <p className="truncate text-xs font-semibold text-white">
-                                    {item.displayLabel}
-                                  </p>
-                                  <div className="mt-1 flex flex-wrap gap-1">
-                                    <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
-                                      Category: {item.catalogCategory ?? "missing"} {item.catalogCategoryState === "inferred" ? "(catalog-inferred)" : item.catalogCategoryState === "verified" ? "(verified)" : ""}
-                                    </span>
-                                    <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
-                                      {item.actualSurface ? `Surface: ${item.actualSurface}` : eventMixMissingSurfaceLabel}
-                                    </span>
-                                    <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
-                                      {item.route ? `Route: ${item.route}` : eventMixMissingRouteLabel}
-                                    </span>
-                                  </div>
-                                  <p className="mt-1 text-[10px] text-gray-500">
-                                    {item.explanation}
-                                  </p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-xs font-bold text-brand-purple">
-                                    {eventMixCountLabel(item.rawCount)}
-                                  </p>
-                                <p className="text-[10px] text-gray-500">
-                                  {eventMixShareLabel(item.share)}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                              <div
-                                className="h-full rounded-full bg-brand-purple"
-                                style={{
-                                  width: `${Math.max(4, Math.min(100, (item.share ?? 0) * 100))}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))
-                        ) : (
-                        <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                          Event mix needs verified event counts.
-                        </div>
-                        )}
-                      </div>
-                    ) : eventMixModel.eventRows.length === 0 ? (
-                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        Event mix needs verified event counts.
-                      </div>
-                    ) : null}
-                  </div>
-
-                    <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                      <span className="font-semibold text-white">Context:</span>{" "}
-                      {eventMixModel.actualSurfaceContextState === "available"
-                        ? "Verified route and surface context available."
-                        : `${eventMixSurfaceContextLabel}. Verified route and surface context are unavailable for this range.`}
-                      {" "}
-                      {catalogMappingSentence}
-                      {" "}
-                      {surfaceContextSentence}
-                    </div>
-                  </div>
-                </SectionCard>
-
-            <SectionCard
-              title="Interaction Snapshot"
-              subtitle="Recent telemetry snapshot with freshness, actor, and task-failure truth."
-              icon={Clock3}
-              rightSlot={(
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <AnalyticsViewModeToggle
-                    value={liveInteractionViewMode}
-                    onChange={setLiveInteractionViewMode}
-                    options={[
-                      { id: "cards", label: "Cards" },
-                      { id: "chart", label: "Chart" },
-                      { id: "table", label: "Table" },
-                    ]}
-                  />
-                  {renderSectionRangeControl("liveInteractionStream")}
-                </div>
-              )}
-            >
-              <div className="grid gap-2.5">
-                <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p>{liveInteractionStreamModel.recommendation}</p>
-                    <p className="mt-1 text-[10px] text-gray-400">{liveInteractionStreamModel.visibleCopy}</p>
-                  </div>
-                  <AdminStatusBadge
-                    state={liveInteractionStreamModel.truthState}
-                    label={liveInteractionStreamModel.badgeLabel}
-                    className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Shown:</span> {streamCountLabel(liveInteractionStreamModel.visibleEventCount)}</span>
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Actors:</span> {streamCountLabel(liveInteractionStreamModel.uniqueActorCount)}</span>
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Failures:</span> {streamCountLabel(liveInteractionStreamModel.failureCount)}</span>
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Admin excl.:</span> {liveInteractionStreamModel.adminExcludedCount}</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Mode:</span> {liveInteractionStreamModel.streamSourceMode.replaceAll("_", " ")}</span>
-                  <span className="min-w-0 truncate" title={liveInteractionStreamModel.sourceTruth}><span className="font-semibold text-white">Source:</span> {liveInteractionSourceLabel}</span>
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Last event:</span> {formatLiveStreamRelativeUtc(liveInteractionStreamModel.lastEventAt)}</span>
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Generated:</span> {liveInteractionStreamModel.generatedAtUtc ? formatRelativeTime(new Date(liveInteractionStreamModel.generatedAtUtc).getTime(), nowMs) : "unknown"}</span>
-                </div>
-
-                {liveInteractionStreamModel.warnings.length > 0 ? (
-                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300">
-                    {liveInteractionStreamModel.warnings.map((warning) => (
-                      <p key={warning}>{warning}</p>
-                    ))}
-                  </div>
-                ) : null}
-
-                <div
-                  className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
-                  data-admin-analytics-mobile-view-mode={liveInteractionViewMode}
-                  data-live-interaction-source-truth={liveInteractionStreamModel.sourceTruth}
-                  data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
-                >
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Recent interaction snapshot
-                    </p>
-                    <span className="text-[10px] text-gray-500">
-                      source / actor / surface truth
-                    </span>
-                  </div>
-
-                  {liveInteractionStreamModel.eventRows.length > 0 && liveInteractionViewMode === "chart" ? (
-                    <div className="h-52 rounded-[0.9rem] border border-white/10 bg-black/25 p-2">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart
-                          data={liveInteractionStreamModel.eventRows}
-                          margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
-                        >
-                          <defs>
-                            <linearGradient id="liveInteractionDuplicateFill" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} />
-                              <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                          <XAxis
-                            dataKey="compactTypeLabel"
-                            stroke="#6b7280"
-                            fontSize={10}
-                            tickLine={false}
-                            axisLine={false}
-                            interval={0}
-                            minTickGap={12}
-                            height={30}
-                          />
-                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
-                          <Tooltip content={<AnalyticsTooltip />} />
-                          <Area type="monotone" dataKey="duplicateCount" name="Grouped events" stroke="#22d3ee" strokeWidth={2} fill="url(#liveInteractionDuplicateFill)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : null}
-
-                  {liveInteractionStreamModel.eventRows.length > 0 && liveInteractionViewMode === "table" ? (
-                    <div
-                      className="overflow-x-auto rounded-[0.9rem] border border-white/10 bg-black/25"
-                      data-live-interaction-table="compact"
-                      data-live-interaction-source-truth={liveInteractionStreamModel.sourceTruth}
-                      data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
-                    >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
-                          <tr>
-                            <th className="px-3 py-2 font-semibold">Event</th>
-                            <th className="px-3 py-2 font-semibold">Actor</th>
-                            <th className="px-3 py-2 font-semibold">Surface</th>
-                            <th className="px-3 py-2 font-semibold">Age</th>
-                            <th className="px-3 py-2 font-semibold">Source</th>
-                            <th className="px-3 py-2 font-semibold">Grouped</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/10 text-gray-300">
-                          {liveInteractionStreamModel.eventRows.map((event) => (
-                            <tr
-                              key={`live-interaction-table-${event.timestamp}-${event.duplicateGroupKey}`}
-                              data-live-interaction-event-key={event.eventKey}
-                              data-live-interaction-event-type={event.eventType}
-                              data-live-interaction-surface-state={event.surfaceState}
-                            >
-                              <td className="max-w-[16rem] px-3 py-2">
-                                <p className="truncate font-semibold text-white">{event.displayLabel}</p>
-                                <p className="truncate text-[11px] text-gray-500">{event.eventKey}</p>
-                              </td>
-                              <td className="px-3 py-2">{event.actorDisplayLabel}</td>
-                              <td className="px-3 py-2">{event.surface}</td>
-                              <td className="px-3 py-2">{formatRelativeTime(event.timestamp, nowMs)}</td>
-                              <td className="px-3 py-2" title={event.sourceTruth}>{formatAdminAnalyticsSourceTruthLabel(event.sourceTruth)}</td>
-                              <td className="px-3 py-2">{event.duplicateCount}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : null}
-
-                  {liveInteractionViewMode === "cards" ? (
-                    <div className="space-y-1.5">
-                      {liveInteractionStreamModel.eventRows.length > 0 ? (
-                        liveInteractionStreamModel.eventRows.map((event) => (
-                        <div
-                          key={`${event.timestamp}-${event.duplicateGroupKey}`}
-                          className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
-                        >
-                          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-                              <div className="min-w-0">
-                                <p className="truncate text-xs font-semibold text-white">
-                                  {event.displayLabel}
-                                  {event.duplicateCount > 1 ? (
-                                    <span className="ml-1 text-[10px] text-brand-purple">
-                                      x{event.duplicateCount}
-                                    </span>
-                                  ) : null}
-                                </p>
-                                <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                                  {event.actorDisplayLabel} / {event.surface} / {formatRelativeTime(event.timestamp, nowMs)}
-                                </p>
-                                <p className="mt-1 text-[10px] text-gray-500">
-                                  {formatAdminAnalyticsSourceTruthLabel(event.sourceTruth)} - {event.surfaceState === "verified" ? "surface verified" : event.surfaceState === "inferred" ? "surface inferred" : "surface missing"} - {event.explanation}
-                                </p>
-                                {event.eventType === "task_failed" && event.failureReason ? (
-                                  <p className="mt-1 text-[10px] text-rose-200">
-                                    Failure: {event.failureReason}
-                                  </p>
-                                ) : null}
-                              </div>
-                              <span
-                                className={cn(
-                                  "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.08em]",
-                                  event.eventType === "task_failed"
-                                    ? "border-rose-400/25 bg-rose-500/10 text-rose-200"
-                                    : "border-brand-purple/25 bg-brand-purple/10 text-brand-purple",
-                                )}
-                                title={event.eventKey}
-                              >
-                              {event.compactTypeLabel}
-                            </span>
-                          </div>
-                        </div>
-                      ))
-                      ) : (
-                        <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                          No user interactions available for this range.
-                        </div>
-                      )}
-                    </div>
-                  ) : liveInteractionStreamModel.eventRows.length === 0 ? (
-                    <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                      No user interactions available for this range.
-                    </div>
-                  ) : null}
-                  </div>
-                </div>
-              </SectionCard>
+            <AdminAnalyticsInteractionSnapshotSection
+              renderSectionRangeControl={renderSectionRangeControl}
+              liveInteractionStreamModel={liveInteractionStreamModel}
+              formatCompactNumber={formatCompactNumber}
+              formatRelativeTime={formatRelativeTime}
+              nowMs={nowMs}
+              emptyCountLabel={firstSnapshotLabel}
+            />
             </div>
           </>
     </>

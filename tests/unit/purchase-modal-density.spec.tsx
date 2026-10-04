@@ -86,23 +86,16 @@ vi.mock("@/lib/client-error-reporting", () => ({
   reportClientIssue: vi.fn(),
 }));
 
-vi.mock("framer-motion", async () => {
-  const ReactModule = await import("react");
-  return {
-    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    motion: new Proxy({}, {
-      get: (_target, tag: string) =>
-        ({ children, initial: _initial, animate: _animate, exit: _exit, transition: _transition, ...props }: Record<string, unknown>) =>
-          ReactModule.createElement(tag, props, children as React.ReactNode),
-    }),
-  };
-});
+
 
 import { PurchaseModal } from "@/components/PurchaseModal";
+import { authFetch } from "@/lib/authFetch";
+vi.mock("canvas-confetti", () => ({ default: vi.fn() }));
 
 describe("PurchaseModal public beta compact density", () => {
   let container: HTMLDivElement;
   let root: Root;
+  const walletDialog = () => document.querySelector<HTMLDivElement>('[role="dialog"][aria-labelledby="purchase-wallet-title"]')!;
 
   beforeEach(() => {
     container = document.createElement("div");
@@ -110,6 +103,7 @@ describe("PurchaseModal public beta compact density", () => {
     root = createRoot(container);
     (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     mockState.trackEvent.mockReset();
+    vi.mocked(authFetch).mockReset();
     mockState.paypalButtonsProps = null;
     mockState.auth.userProfile = {
       ...mockState.auth.userProfile,
@@ -128,6 +122,7 @@ describe("PurchaseModal public beta compact density", () => {
     });
     container.remove();
     vi.unstubAllGlobals();
+    document.body.style.overflow = "";
   });
 
   it("renders explicit source-aware reward and paid balance split", async () => {
@@ -135,10 +130,9 @@ describe("PurchaseModal public beta compact density", () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.textContent).toContain("76k reward GD");
-    expect(container.textContent).toContain("5k paid GD");
-    expect(container.textContent).toMatch(/76k reward GD\s*\|\s*5k paid GD/);
-    expect(container.textContent).not.toContain("80,962 balance");
+    expect(walletDialog().querySelector("[aria-label='Wallet balance: 76k reward GD, 5k paid GD']"))
+      .toBeTruthy();
+    expect(walletDialog().textContent).not.toContain("80,962 balance");
   });
 
   it("uses the canonical legacy balance fallback when split fields are absent", async () => {
@@ -153,8 +147,8 @@ describe("PurchaseModal public beta compact density", () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.textContent).toContain("0 reward GD");
-    expect(container.textContent).toContain("1.5k paid GD");
+    expect(walletDialog().querySelector("[aria-label='Wallet balance: 0 reward GD, 1.5k paid GD']"))
+      .toBeTruthy();
   });
 
   it("removes package source subcopy and uses purple bonus chip styling", async () => {
@@ -162,24 +156,23 @@ describe("PurchaseModal public beta compact density", () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.textContent).not.toMatch(/\d+ paid \+ \d+ bonus GumDrops/);
-    expect(container.textContent).not.toMatch(/\d+ paid GumDrops/);
-    expect(container.textContent).toContain("Paid GD");
-    expect(container.textContent).toContain("+50 bonus GD");
-    expect(container.textContent).toContain("+100 bonus GD");
-    expect(container.textContent).toContain("+500 bonus GD");
-    expect(container.textContent).toContain("2x bonus GD");
-    expect(container.textContent).not.toContain("paid bonus GD");
-    expect(container.textContent).not.toContain("Paid bundle bonus");
-    expect(container.innerHTML).not.toContain("emerald-");
-    expect(container.innerHTML).toContain("border-brand-purple/25");
-    expect(container.innerHTML).toContain("bg-brand-purple/[0.12]");
-    expect(container.querySelector("[data-wallet-density='public-beta-compact']")).toBeTruthy();
-    expect(container.querySelector("[data-wallet-balance-chip='split-source']")).toBeTruthy();
-    expect(container.querySelector("[data-wallet-package-subcopy='removed']")).toBeTruthy();
-    expect(container.querySelector("[data-wallet-bonus-chip-theme='brand-purple']")).toBeTruthy();
-    expect(container.querySelector("[data-payment-module-density='compact-v2']")).toBeTruthy();
-    expect(container.querySelector("[data-purchase-promo-slot='reserved']")).toBeTruthy();
+    expect(walletDialog().textContent).not.toMatch(/\d+ paid \+ \d+ bonus GumDrops/);
+    expect(walletDialog().textContent).not.toMatch(/\d+ paid GumDrops/);
+    expect(walletDialog().textContent).toContain("GumDrops");
+    expect(walletDialog().textContent).toContain("+50 bonus GD");
+    expect(walletDialog().textContent).toContain("+100 bonus GD");
+    expect(walletDialog().textContent).toContain("+500 bonus GD");
+    expect(walletDialog().textContent).toContain("2x bonus GD");
+    expect(walletDialog().textContent).not.toContain("paid bonus GD");
+    expect(walletDialog().textContent).not.toContain("Paid bundle bonus");
+    expect(Array.from(walletDialog().querySelectorAll('[data-slot="badge"]'), (badge) => badge.textContent))
+      .toEqual(["+50 bonus GD", "+100 bonus GD", "+500 bonus GD", "2x bonus GD"]);
+    expect(walletDialog().matches("[data-wallet-density='public-beta-compact']")).toBe(true);
+    expect(walletDialog().matches("[data-wallet-balance-chip='split-source']")).toBe(true);
+    expect(walletDialog().matches("[data-wallet-package-subcopy='removed']")).toBe(true);
+    expect(walletDialog().matches("[data-wallet-bonus-chip-theme='brand-purple']")).toBe(true);
+    expect(walletDialog().querySelector("[data-payment-module-density='compact-v2']")).toBeTruthy();
+    expect(walletDialog().querySelector("[data-purchase-promo-slot='reserved']")).toBeTruthy();
   });
 
   it("renders checkout in PayPal-only single button mode", async () => {
@@ -187,18 +180,18 @@ describe("PurchaseModal public beta compact density", () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.querySelector("[data-wallet-paypal-render-mode='single-funding-source']")).toBeTruthy();
-    expect(container.querySelector("[data-wallet-paypal-funding-source='paypal']")).toBeTruthy();
-    expect(container.querySelector("[data-wallet-paypal-buttons-visible='1']")).toBeTruthy();
-    expect(container.querySelector("[data-wallet-checkout-density='single-button']")).toBeTruthy();
-    expect(container.textContent).not.toMatch(/Pay Later|Debit or Credit Card|Credit Card/);
+    expect(walletDialog().querySelector("[data-wallet-paypal-render-mode='single-funding-source']")).toBeTruthy();
+    expect(walletDialog().querySelector("[data-wallet-paypal-funding-source='paypal']")).toBeTruthy();
+    expect(walletDialog().querySelector("[data-wallet-paypal-buttons-visible='1']")).toBeTruthy();
+    expect(walletDialog().querySelector("[data-wallet-checkout-density='single-button']")).toBeTruthy();
+    expect(walletDialog().textContent).not.toMatch(/Pay Later|Debit or Credit Card|Credit Card/);
     expect(mockState.paypalButtonsProps?.fundingSource).toBe("paypal");
     expect(mockState.paypalButtonsProps?.createOrder).toEqual(expect.any(Function));
     expect(mockState.paypalButtonsProps?.onApprove).toEqual(expect.any(Function));
     expect(mockState.paypalButtonsProps?.onError).toEqual(expect.any(Function));
     expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["5.00", "550", "Sweet Pack"]);
 
-    const firstPackageButton = Array.from(container.querySelectorAll("button"))
+    const firstPackageButton = Array.from(walletDialog().querySelectorAll("button"))
       .find((button) => button.textContent?.includes("Sugar Rush Pack"));
     expect(firstPackageButton).toBeTruthy();
 
@@ -208,4 +201,55 @@ describe("PurchaseModal public beta compact density", () => {
 
     expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["1.00", "100", "Sugar Rush Pack"]);
   });
+
+  it("keeps a permanent dialog name and matching delivered amount after server-confirmed purchase success", async () => {
+    vi.mocked(authFetch).mockResolvedValueOnce(new Response(JSON.stringify({ drops: 550, transactionId: "fixture-ledger" }), { status: 200 }));
+    await act(async () => { root.render(<PurchaseModal isOpen onClose={vi.fn()} />); });
+    const sweetPackage = Array.from(walletDialog().querySelectorAll<HTMLButtonElement>("button[aria-pressed]")).find((button) => button.textContent?.includes("Sweet Pack"))!;
+    expect(sweetPackage.querySelector('[data-purchase-row-zone="copy"] > :first-child > :first-child')?.textContent).toBe("550");
+    expect(sweetPackage.textContent).toContain("GumDrops");
+    expect(sweetPackage.textContent).toContain("+50 bonus GD");
+    expect(sweetPackage.textContent).toContain("$5.00");
+    await act(async () => { await (mockState.paypalButtonsProps?.onApprove as (data: { orderID: string }) => Promise<void>)({ orderID: "fixture-order" }); });
+    expect(vi.mocked(authFetch).mock.calls[0]?.[1]?.body).toBe(JSON.stringify({ orderId: "fixture-order", expectedDrops: 550 }));
+    expect(walletDialog().getAttribute("aria-labelledby")).toBe("purchase-wallet-title");
+    expect(document.getElementById("purchase-wallet-title")?.textContent).toBe("Kandy shop");
+    expect(walletDialog().textContent).toContain("550 GD");
+    expect(walletDialog().textContent).toContain("500 GD");
+    expect(walletDialog().textContent).toContain("+50 paid bonus GD");
+    expect(walletDialog().textContent).toContain("$5.00");
+  });
+
+  it("prevents package changes and dismissal while capture is pending, then recovers after failure", async () => {
+    let settle!: (response: Response) => void;
+    vi.mocked(authFetch).mockImplementationOnce(() => new Promise<Response>((resolve) => { settle = resolve; }));
+    const onClose = vi.fn();
+    await act(async () => { root.render(<PurchaseModal isOpen onClose={onClose} />); });
+    let approval!: Promise<void>;
+    await act(async () => { approval = (mockState.paypalButtonsProps?.onApprove as (data: { orderID: string }) => Promise<void>)({ orderID: "fixture-order" }); });
+    expect(walletDialog().getAttribute("aria-busy")).toBe("true");
+    expect(walletDialog().textContent).toContain("Confirming your payment…");
+    expect(Array.from(walletDialog().querySelectorAll<HTMLButtonElement>("button[aria-pressed]"))).toSatisfy((buttons: HTMLButtonElement[]) => buttons.length === 5 && buttons.every((button) => button.disabled));
+    await act(async () => {
+      const firstPackage = Array.from(walletDialog().querySelectorAll<HTMLButtonElement>("button[aria-pressed]")).find((button) => button.textContent?.includes("Sugar Rush Pack"));
+      firstPackage?.click();
+      walletDialog().querySelector<HTMLButtonElement>('[aria-label="Close modal"]')?.click();
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["5.00", "550", "Sweet Pack"]);
+    await act(async () => { settle(new Response(JSON.stringify({ errorKey: "payment_not_completed" }), { status: 503 })); await approval; });
+    expect(walletDialog().getAttribute("aria-busy")).toBe("false");
+    expect(walletDialog().querySelector('[role="alert"]')).toBeTruthy();
+    expect(Array.from(walletDialog().querySelectorAll<HTMLButtonElement>("button[aria-pressed]")).some((button) => button.disabled)).toBe(false);
+    const retry = Array.from(walletDialog().querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Try again");
+    expect(retry).toBeTruthy();
+    await act(async () => { retry?.click(); });
+    expect(walletDialog().querySelector('[role="alert"]')).toBeNull();
+    expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["5.00", "550", "Sweet Pack"]);
+  });
+
+  it("uses the shared fixed catalog without an empty transport catalog crashing selection",async()=>{const source=vi.fn(async()=>({ok:true,json:async()=>({packages:[]})}));vi.stubGlobal("fetch",source);await act(async()=>{root.render(<PurchaseModal isOpen onClose={vi.fn()}/>);});expect(source).not.toHaveBeenCalled();expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["5.00","550","Sweet Pack"]);expect(walletDialog().textContent).toContain("Sweet Pack");});
+  it("changes package selection without requesting a duplicate catalog",async()=>{const source=vi.fn(()=>new Promise<Response>(()=>{}));vi.stubGlobal("fetch",source);await act(async()=>{root.render(<PurchaseModal isOpen onClose={vi.fn()}/>);});const button=Array.from(walletDialog().querySelectorAll("button")).find(b=>b.textContent?.includes("Sugar Rush Pack"));expect(button).toBeTruthy();await act(async()=>{button?.click();});expect(source).not.toHaveBeenCalled();expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["1.00","100","Sugar Rush Pack"]);});
+  it("retains the captured package after an obsolete external catalog resolves",async()=>{let resolveCatalog!:(r:unknown)=>void;const stale=new Promise(resolve=>{resolveCatalog=resolve;});const source=vi.fn(()=>stale);vi.stubGlobal("fetch",source);let settle!:(r:Response)=>void;vi.mocked(authFetch).mockImplementationOnce(()=>new Promise<Response>(resolve=>{settle=resolve;}));await act(async()=>{root.render(<PurchaseModal isOpen onClose={vi.fn()}/>);});let approval!:Promise<void>;await act(async()=>{approval=(mockState.paypalButtonsProps?.onApprove as (d:{orderID:string})=>Promise<void>)({orderID:"fixture-order"});});await act(async()=>{resolveCatalog({ok:true,json:async()=>({packages:[{drops:777,priceUsd:7,label:"Alternate"}]})});});expect(source).not.toHaveBeenCalled();expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["5.00","550","Sweet Pack"]);expect(vi.mocked(authFetch).mock.calls[0]?.[1]?.body).toBe(JSON.stringify({orderId:"fixture-order",expectedDrops:550}));await act(async()=>{settle(new Response(JSON.stringify({errorKey:"payment_not_completed"}),{status:503}));await approval;});expect(walletDialog().querySelector("[role=alert]")).toBeTruthy();});
 });

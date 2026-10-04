@@ -491,6 +491,24 @@ describe("admin content route", () => {
     expect(file.delete).toHaveBeenCalled();
   });
 
+  it("keeps a missing storage file in the typed not-found response", async () => {
+    const file = mockState.getOrCreateFile("drops/missing.png");
+    await file.delete();
+    const fileId = Buffer.from("drops/missing.png", "utf8").toString("base64url");
+
+    const response = await DELETE(new NextRequest("http://localhost/api/admin/content", {
+      method: "DELETE",
+      body: JSON.stringify({ fileId }),
+    }));
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({
+      errorCode: "file_not_found",
+      resource: "file",
+      rawStorageUrlExposed: false,
+    });
+  });
+
   it("rejects deleting paths outside the drops prefix", async () => {
     const fileId = Buffer.from("avatars/admin.png", "utf8").toString("base64url");
     const request = new NextRequest("http://localhost/api/admin/content", {

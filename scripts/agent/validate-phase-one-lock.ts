@@ -154,8 +154,16 @@ const adminAnalyticsPage = readRequired("src/app/admin/analytics/page.tsx");
 const adminAnalyticsHelpers = readRequired("src/app/admin/analytics/AnalyticsHelpers.tsx");
 const adminAnalyticsState = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
-const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const adminAnalyticsAudienceSnapshot = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
+const adminAnalyticsCommerceTab = [
+  readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"),
+  readRequired("src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx"),
+  readRequired("src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx"),
+].join("\n");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminAnalyticsEventMixSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx");
+const adminAnalyticsInteractionSnapshotSection = readRequired("src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx");
+const adminAnalyticsOperationsModule = `${adminAnalyticsOperationsTab}\n${adminAnalyticsEventMixSection}\n${adminAnalyticsInteractionSnapshotSection}`;
 const adminOverviewContract = readRequired("src/lib/admin-overview.ts");
 const adminAnalyticsContracts = readRequired("src/lib/admin-analytics-contracts.ts");
 const adminTruthState = readRequired("src/lib/admin-truth-state.ts");
@@ -232,8 +240,9 @@ const canonicalUiFiles = [
   adminAnalyticsHelpers,
   adminAnalyticsState,
   adminAnalyticsAudienceTab,
+  adminAnalyticsAudienceSnapshot,
   adminAnalyticsCommerceTab,
-  adminAnalyticsOperationsTab,
+  adminAnalyticsOperationsModule,
   adminOverviewContract,
   adminAnalyticsContracts,
   debugControlTower,
@@ -360,7 +369,7 @@ runSection("Admin pages use canonical snapshots/rollups", () => {
   assertIncludes(adminAnalyticsState, "resolveAdminAnalyticsDisplayState", "Admin analytics state");
   assertIncludes(adminAnalyticsState, "resolveAdminAnalyticsWaitingCopy", "Admin analytics state");
   assertIncludes(adminAnalyticsPage, "useAdminAnalyticsState", "Admin analytics page");
-  for (const source of [adminAnalyticsHelpers, adminAnalyticsAudienceTab, adminAnalyticsCommerceTab, adminAnalyticsOperationsTab]) {
+  for (const source of [adminAnalyticsHelpers, adminAnalyticsAudienceTab, adminAnalyticsCommerceTab, adminAnalyticsOperationsModule]) {
     assertExcludes(source, "const conversionRate =", "Admin analytics tab/helper");
     assertExcludes(source, "const returnedUsers =", "Admin analytics tab/helper");
     assertExcludes(source, "const watchTime", "Admin analytics tab/helper");

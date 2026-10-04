@@ -1223,17 +1223,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     );
     const panelBody = (
                     <>
-                        {resolvedPresentation === "inline" ? (
-                            <header className="shrink-0 border-b border-white/10 bg-black/35 px-4 py-3 md:px-5">
-                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-purple">Drop action</p>
-                                <h2 id={titleId} className="mt-1 text-lg font-black text-white">
-                                    {titleLabel}
-                                </h2>
-                                <p className="mt-1 text-xs text-gray-300">
-                                    Create, edit, or duplicate Drops. Validation stays inside this form.
-                                </p>
-                            </header>
-                        ) : (
+                        {resolvedPresentation === "inline" ? null : (
                             <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
                                 <Dialog.Title className="shrink-0 text-xl font-bold text-white">
                                     {titleLabel}
@@ -1579,17 +1569,16 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     );
 
     if (resolvedPresentation === "inline") {
-        return (
-            <section
-                className={panelClassName}
-                aria-labelledby={titleId}
-                data-admin-drop-create-panel="inline"
-                data-admin-drop-form-presentation="inline"
-            >
-                {panelBody}
-            </section>
-        );
-    }
+    return (
+      <div
+        className="flex min-h-0 flex-1 flex-col"
+        data-admin-drop-create-panel="inline"
+        data-admin-drop-form-presentation="inline"
+      >
+        {panelBody}
+      </div>
+    );
+  }
 
     const panelContent = (
         <Dialog.Content className={panelClassName} aria-describedby={undefined}>

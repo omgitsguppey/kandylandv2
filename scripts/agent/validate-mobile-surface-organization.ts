@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 type Severity = "P0" | "P1" | "P2";
 type FindingStatus = "fixed" | "missing" | "deferred";
@@ -149,9 +150,57 @@ function hasTablePrimaryMobileLayout(source: string) {
   return /<table[\s>]/u.test(source) && !source.includes('data-mobile-drilldown="true"');
 }
 
+// Read organization from the component actually returned by each delegated Admin route.
+// An unused import, sibling helper or orphan marker comment is not a rendered surface.
+const delegatedAdminSurfaces = [
+  { route: "src/app/admin/analytics/page.tsx", path: "src/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas.tsx", name: "AdminAnalyticsEvidenceCanvas" },
+  { route: "src/app/admin/debug/page.tsx", path: "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx", name: "AdminDebugControlCanvas" },
+] as const;
+function activeReturnMarkup(node: ts.FunctionDeclaration, tree: ts.SourceFile) {
+  const expressions: ts.Expression[] = [];
+  function visit(child: ts.Node) {
+    if (child !== node && ts.isFunctionLike(child)) return;
+    if (ts.isReturnStatement(child) && child.expression) expressions.push(child.expression);
+    ts.forEachChild(child, visit);
+  }
+  visit(node);
+  return expressions;
+}
+function activeSurfaceSource(file: string, source: string, files: Record<string, string>) {
+  const owner = delegatedAdminSurfaces.find(value => value.route === file);
+  if (!owner || !source) return source;
+  const route = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  let importedName: string | undefined;
+  for (const statement of route.statements) {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)
+      || statement.moduleSpecifier.text !== "@/" + owner.path.slice(4, -4)
+      || !statement.importClause?.namedBindings || !ts.isNamedImports(statement.importClause.namedBindings)) continue;
+    importedName = statement.importClause.namedBindings.elements.find(value => (value.propertyName ?? value.name).text === owner.name)?.name.text;
+  }
+  const routeFunction = route.statements.find(value => ts.isFunctionDeclaration(value) && value.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DefaultKeyword));
+  let rendered = false;
+  const visit = (node: ts.Node) => {
+    if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText(route) === importedName) rendered = true;
+    ts.forEachChild(node, visit);
+  };
+  if (routeFunction && ts.isFunctionDeclaration(routeFunction)) for (const expression of activeReturnMarkup(routeFunction, route)) visit(expression);
+  const canvas = ts.createSourceFile(owner.path, files[owner.path] ?? "", ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const canvasFunction = canvas.statements.find(value => ts.isFunctionDeclaration(value) && value.name?.text === owner.name
+    && value.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword));
+  if (!importedName || !rendered || !canvasFunction || !ts.isFunctionDeclaration(canvasFunction)) return "__ACTIVE_CANVAS_BINDING_MISSING__";
+  const markup = activeReturnMarkup(canvasFunction, canvas);
+  let duplicatesRootLandmark = false;
+  const inspect = (node: ts.Node) => {
+    if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText(canvas) === "main") duplicatesRootLandmark = true;
+    ts.forEachChild(node, inspect);
+  };
+  for (const expression of markup) inspect(expression);
+  if (duplicatesRootLandmark) return "__DUPLICATED_ROOT_MAIN_LANDMARK__";
+  return markup.map(expression => expression.getText(canvas)).join("\n");
+}
 function allTargetSources(inputs: MobileSurfaceOrganizationInputs) {
   return targetFiles
-    .map((file) => [file, inputs.sources.files[file] ?? ""] as const)
+    .map((file) => [file, activeSurfaceSource(file, inputs.sources.files[file] ?? "", inputs.sources.files)] as const)
     .filter(([, source]) => source.length > 0);
 }
 
@@ -185,7 +234,8 @@ export function buildMobileSurfaceOrganizationReport(
 
   const adminSummaryFirst = adminSources.length > 0
     && adminSources.every(([, source]) => hasSummaryFirst(source))
-    && adminSources.some(([, source]) => source.includes("MetricCard") || source.includes("StatCard"));
+    && adminSources.some(([, source]) => source.includes("MetricCard") || source.includes("StatCard")
+      || (/<dl[\s>]/u.test(source) && source.includes("facts.map(") && source.includes("{fact.value}")));
   const adminRawDetailsDrilldown = adminSources.length > 0
     && adminSources.every(([, source]) => hasDrilldown(source))
     && adminSources.every(([, source]) => !hasTablePrimaryMobileLayout(source));
@@ -288,6 +338,7 @@ export function validateMobileSurfaceOrganizationReport(report: MobileSurfaceOrg
 function readInputs(): MobileSurfaceOrganizationInputs {
   const files = Object.fromEntries([
     ...targetFiles,
+    ...delegatedAdminSurfaces.map(owner => owner.path),
     "tests/unit/mobile-surface-organization.spec.ts",
   ].map((file) => [file, optionalRead(file)]));
   return {

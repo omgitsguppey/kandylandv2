@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 export { SITE_ORIGIN } from "@/lib/site-origin";
@@ -7,6 +7,7 @@ import {
     getFirebaseClientConfigForRuntime,
     getFirebaseRuntimeWarnings,
 } from "@/lib/firebase-runtime";
+import { isLocalPublicPreviewClient } from "@/lib/local-public-preview-client";
 
 type FirebaseClientConfig = ReturnType<typeof getFirebaseClientConfigForRuntime>;
 
@@ -53,12 +54,17 @@ export function normalizeFirebaseClientConfig(): {
     };
 }
 
-const { config: firebaseConfig, isConfigured: firebaseClientConfigured } = normalizeFirebaseClientConfig();
+const localPublicPreview = isLocalPublicPreviewClient();
+const normalizedFirebaseConfig = localPublicPreview
+    ? { config: EMPTY_FIREBASE_CLIENT_CONFIG, isConfigured: false }
+    : normalizeFirebaseClientConfig();
+const firebaseConfig = normalizedFirebaseConfig.config;
+const firebaseClientConfigured = !localPublicPreview && normalizedFirebaseConfig.isConfigured;
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = firebaseClientConfigured ? getAuth(app) : null;
+const app = (localPublicPreview ? null : (!getApps().length ? initializeApp(firebaseConfig) : getApp())) as FirebaseApp;
+const auth = firebaseClientConfigured && app ? getAuth(app) : null;
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && !localPublicPreview) {
     getFirebaseRuntimeWarnings().forEach((warning) => {
         recordClientDiagnostic("firebase", warning);
     });

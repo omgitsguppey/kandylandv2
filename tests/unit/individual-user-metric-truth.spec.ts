@@ -14,7 +14,15 @@ import {
 } from "@/lib/identity-truth/individual-user-metric-truth";
 import { USER_INDEX_MATERIALIZER_CONTRACT_VERSION } from "@/lib/user-indexes/user-tracking-index-contract";
 
+const currentUserTrackingContext = {
+  requestedUserId: "user_1",
+  materializedUserId: "user_1",
+  materializedSourceTruth: "materialized",
+  currentConsentMode: "full_behavioral" as const,
+};
+
 const currentMaterializerProof = {
+  materializedDataAvailabilityReason: "available",
   materializerMetadata: {
     materializerVersion: USER_INDEX_MATERIALIZER_CONTRACT_VERSION,
     sourceFingerprint: "source_current",
@@ -144,6 +152,7 @@ describe("individual user metric truth", () => {
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 100,
       sourceWindowEndMs: 200,
@@ -163,7 +172,7 @@ describe("individual user metric truth", () => {
     });
     expect(provenZero).toMatchObject({
       state: "proven_zero",
-      valuesDisplayable: true,
+      valuesDisplayable: false,
       provenZero: true,
       materializerProofState: "current",
       sourceWindowStartMs: 100,
@@ -177,6 +186,7 @@ describe("individual user metric truth", () => {
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 4,
       sourceWindowStartMs: 100,
       sourceWindowEndMs: 200,
@@ -193,6 +203,7 @@ describe("individual user metric truth", () => {
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 200,
       sourceWindowEndMs: 100,
@@ -221,10 +232,12 @@ describe("individual user metric truth", () => {
 
   it("does not use an old materializer timestamp as zero proof unless evaluation is inside the freshness window", () => {
     const oldEvidence = buildIndividualUserMetricSourceTruth({
+      materializedDataAvailabilityReason: "available",
       directUserSourceCount: 1,
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 100,
       sourceWindowEndMs: 200,
@@ -236,10 +249,12 @@ describe("individual user metric truth", () => {
       currentSourceFingerprint: "source_current",
     });
     const evaluatedInsideWindow = buildIndividualUserMetricSourceTruth({
+      materializedDataAvailabilityReason: "available",
       directUserSourceCount: 1,
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 100,
       sourceWindowEndMs: 200,
@@ -268,10 +283,12 @@ describe("individual user metric truth", () => {
 
   it("treats the freshness tolerance as inclusive and expires proof one millisecond later", () => {
     const buildAt = (evaluatedAtMs: number) => buildIndividualUserMetricSourceTruth({
+      materializedDataAvailabilityReason: "available",
       directUserSourceCount: 1,
       displayedUserCount: 0,
       identityLinkCount: 0,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 1_000,
       sourceWindowEndMs: 2_000,
@@ -297,6 +314,7 @@ describe("individual user metric truth", () => {
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 4,
       sourceWindowStartMs: 1_000,
       sourceWindowEndMs: 2_000,
@@ -325,6 +343,7 @@ describe("individual user metric truth", () => {
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 100,
       sourceWindowEndMs: 200,
@@ -342,6 +361,7 @@ describe("individual user metric truth", () => {
       identityLineageRejectedCount: 1,
       identityLineageOwnerState: "legacy_owner_version",
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 100,
       sourceWindowEndMs: 200,
@@ -420,6 +440,7 @@ describe("individual user metric truth", () => {
       displayedUserCount: 0,
       identityLinkCount: 1,
       materializerDocumentPresent: true,
+      ...currentUserTrackingContext,
       materializedUserCount: 0,
       sourceWindowStartMs: 100,
       sourceWindowEndMs: 200,
@@ -435,5 +456,113 @@ describe("individual user metric truth", () => {
       sourceWindowStartMs: null,
       sourceWindowEndMs: null,
     });
+  });
+});
+
+describe("Audience person source availability boundary", () => {
+  const zeroInput = (availability?: unknown) => ({
+    ...currentUserTrackingContext, directUserSourceCount:0, displayedUserCount:0, identityLinkCount:1, materializerDocumentPresent:true, materializedUserCount:0,
+    sourceWindowStartMs:100, sourceWindowEndMs:200, ...currentMaterializerProof,
+    materializedDataAvailabilityReason:availability,
+  });
+  it.each(["source_disagreement", "insufficient_signal", "legacy_fallback", undefined])("does not promote %s materialized source to a proved zero", availability => {
+    const result = buildIndividualUserMetricSourceTruth(zeroInput(availability));
+    expect(result.provenZero).toBe(false);
+    expect(result.valuesDisplayable).toBe(false);
+  });
+  it("keeps lawful privacy-limited zero counts unavailable without inventing activity", () => {
+    const result = buildIndividualUserMetricSourceTruth(zeroInput("privacy_limited"));
+    expect(result).toMatchObject({state:"permission_blocked", valuesDisplayable:false, provenZero:false});
+  });
+  it("retains a fresh explicitly complete bounded zero source window", () => {
+    expect(buildIndividualUserMetricSourceTruth(zeroInput("available"))).toMatchObject({state:"proven_zero", provenZero:true});
+  });
+  it("preserves independent observed Admin evidence while index source is incomplete", () => {
+    expect(buildIndividualUserMetricSourceTruth({...zeroInput("source_disagreement"),directUserSourceCount:1,displayedUserCount:3})).toMatchObject({state:"hydrated",provenZero:false,valuesDisplayable:true});
+  });
+});
+
+describe("bounded admitted activity serving truth", () => {
+  const activityInput = {
+    ...currentUserTrackingContext,
+    ...currentMaterializerProof,
+    directUserSourceCount: 0,
+    displayedUserCount: 0,
+    identityLinkCount: 0,
+    materializerDocumentPresent: true,
+    materializedUserCount: 4,
+    sourceWindowStartMs: 100,
+    sourceWindowEndMs: 200,
+  };
+
+  it("serves a current admitted count and its exact bounded dates without hydrating detailed metric values", () => {
+    const truth = buildIndividualUserMetricSourceTruth(activityInput);
+    expect(truth).toMatchObject({
+      state: "bridge_missing",
+      valuesDisplayable: false,
+      provenZero: false,
+      admittedActivityUnavailableReason: null,
+      admittedActivity: {
+        userId: "user_1", recordCount: 4, sourceWindowStartMs: 100,
+        sourceWindowEndMs: 200, publishedAtMs: 250,
+        sourceTruth: "materialized", materializerVersion: USER_INDEX_MATERIALIZER_CONTRACT_VERSION,
+        sourceFingerprint: "source_current",
+      },
+    });
+    expect(truth.admittedActivity).not.toHaveProperty("personMetricCounts");
+    expect(truth.admittedActivity).not.toHaveProperty("watchTimeMs");
+    expect(truth.admittedActivity).not.toHaveProperty("purchaseCount");
+    expect(truth.explanation).toContain("detailed");
+  });
+
+  it("limits an empty complete source proof to admitted records and keeps detailed metrics unavailable", () => {
+    expect(buildIndividualUserMetricSourceTruth({ ...activityInput, materializedUserCount: 0 }))
+      .toMatchObject({ state: "proven_zero", provenZero: true, valuesDisplayable: false, admittedActivity: { recordCount: 0 } });
+  });
+
+  it.each([
+    { label: "missing requested UID", change: { requestedUserId: undefined }, reason: "identity_mismatch" },
+    { label: "foreign saved UID", change: { materializedUserId: "another_user" }, reason: "identity_mismatch" },
+    { label: "padded saved UID", change: { materializedUserId: " user_1 " }, reason: "identity_mismatch" },
+    { label: "old contract", change: { materializerMetadata: { ...currentMaterializerProof.materializerMetadata, materializerVersion: "old" } }, reason: "materializer_proof_missing" },
+    { label: "missing current fingerprint", change: { currentSourceFingerprint: undefined }, reason: "materializer_proof_missing" },
+    { label: "foreign fingerprint", change: { currentSourceFingerprint: "other" }, reason: "materializer_proof_missing" },
+    { label: "expired window", change: { evaluatedAtMs: 200 + INDIVIDUAL_USER_METRIC_PROVEN_ZERO_FRESHNESS_TOLERANCE_MS + 1, materializerMetadata: { ...currentMaterializerProof.materializerMetadata, publishedAtMs: 200 } }, reason: "materializer_stale" },
+    { label: "future window", change: { sourceWindowEndMs: 300 }, reason: "materializer_stale" },
+    { label: "reversed window", change: { sourceWindowStartMs: 201 }, reason: "materializer_stale" },
+    { label: "missing publication", change: { materializerMetadata: { ...currentMaterializerProof.materializerMetadata, publishedAtMs: undefined } }, reason: "materializer_stale" },
+    { label: "privacy-excluded coverage", change: { materializedDataAvailabilityReason: "privacy_limited" }, reason: "privacy_limited" },
+    { label: "source-incomplete coverage", change: { materializedDataAvailabilityReason: "source_disagreement" }, reason: "source_incomplete" },
+    { label: "missing coverage", change: { materializedDataAvailabilityReason: undefined }, reason: "source_incomplete" },
+    { label: "legacy source", change: { materializedSourceTruth: "legacy_fallback" }, reason: "source_unverified" },
+    { label: "missing source", change: { materializedSourceTruth: undefined }, reason: "source_unverified" },
+  ])("does not display a bounded count with $label", ({ change, reason }) => {
+    const truth = buildIndividualUserMetricSourceTruth({ ...activityInput, ...change });
+    expect(truth.admittedActivity).toBeNull();
+    expect(truth.admittedActivityUnavailableReason).toBe(reason);
+    expect(truth.valuesDisplayable).toBe(false);
+    expect(truth.provenZero).toBe(false);
+  });
+
+  it.each([undefined, null, "4", -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, 201])(
+    "does not turn malformed or over-cap count %s into activity or a zero proof", materializedUserCount => {
+      const truth = buildIndividualUserMetricSourceTruth({ ...activityInput, materializedUserCount });
+      expect(truth.admittedActivity).toBeNull();
+      expect(truth.admittedActivityUnavailableReason).toBe("count_invalid");
+      expect(truth.provenZero).toBe(false);
+      expect(truth.valuesDisplayable).toBe(false);
+    },
+  );
+
+  it.each(["necessary_only", "minimal_analytics", "full_analytics", "unknown"] as const)(
+    "keeps the mixed person record aggregate unavailable under current %s consent", currentConsentMode => {
+      expect(buildIndividualUserMetricSourceTruth({ ...activityInput, currentConsentMode }))
+        .toMatchObject({ state: "permission_blocked", admittedActivity: null, admittedActivityUnavailableReason: "privacy_limited", valuesDisplayable: false });
+    },
+  );
+
+  it("retains independently observed legacy values when the admitted index is unavailable", () => {
+    expect(buildIndividualUserMetricSourceTruth({ ...activityInput, directUserSourceCount: 1, displayedUserCount: 3, materializedDataAvailabilityReason: "source_disagreement" }))
+      .toMatchObject({ state: "hydrated", valuesDisplayable: true, provenZero: false, admittedActivity: null, admittedActivityUnavailableReason: "source_incomplete" });
   });
 });

@@ -1,13 +1,10 @@
 "use client";
 
 import { Pill, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
+import { formatDebugCompactNumber as compactNumber } from "./DebugNumber";
 
 export interface DebugAdvancedDriftProps {
     data: any;
-}
-
-function compactNumber(value?: number) {
-    return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
 }
 
 function toneForGuardrailState(state?: string) {

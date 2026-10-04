@@ -35,6 +35,9 @@ const mediaLimitServer = readRequired("src/lib/server/chat-media-limit-policy.ts
 const prepareRoute = readRequired("src/app/api/chat/attachments/prepare/route.ts");
 const completeRoute = readRequired("src/app/api/chat/attachments/complete/route.ts");
 const chatServer = readRequired("src/lib/server/chat.ts");
+const navigationPrimitives = readRequired("src/components/creative-tim/kandydrops/navigation/KandyNavigationPrimitives.tsx");
+const transcript = readRequired("src/components/creative-tim/kandydrops/chat/ChatTranscriptSurface.tsx");
+const newMessageModal = readRequired("src/components/creative-tim/kandydrops/chat/ChatNewMessageModal.tsx");
 
 requireIncludes(deviceLayout, "isIosStandalonePwa", "iOS PWA detection");
 requireIncludes(deviceLayout, "isIosUserAgent", "iOS detection");
@@ -46,13 +49,17 @@ requireIncludes(shell, "--kd-ios-pwa-safe-bottom", "iOS PWA chat shell vars");
 requireIncludes(shell, "--kd-ios-pwa-chat-bottom-gap", "iOS PWA chat shell vars");
 requireIncludes(shell, "--kd-ios-pwa-shell-lift", "iOS PWA chat shell vars");
 requireIncludes(mobileShell, "USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT", "iOS PWA shell token");
-requireIncludes(bottomNav, "data-platform-shell={iosPwa ? \"ios-pwa\" : \"default\"}", "iOS PWA nav marker");
+requireIncludes(bottomNav, "<KandyMobileNavigationDock platformShell={iosPwa ? \"ios-pwa\" : \"default\"}", "iOS PWA dock platform projection");
+requireIncludes(navigationPrimitives, "data-platform-shell={platformShell}", "iOS PWA dock platform marker");
 
+requireIncludes(chat, "from \"@/components/creative-tim/kandydrops/chat/ChatTranscriptSurface\"", "Chat transcript presentation import");
+requireIncludes(chat, "<ChatTranscriptSurface", "Chat transcript presentation consumer");
+requireIncludes(chat, "mediaPreviewStyle={CHAT_MEDIA_PREVIEW_STYLE}", "Chat media preview policy binding");
 requireIncludes(chat, "restoreChatBottomAnchor", "Bottom anchor helper");
 requireIncludes(chat, "chat_bottom_anchor_restored", "Bottom anchor telemetry");
-requireIncludes(chat, "data-chat-media-density=\"compact-v2\"", "Media compact marker");
-requireIncludes(chat, "data-chat-media-kind=\"image\"", "Media kind marker");
-requireIncludes(chat, "data-chat-media-kind=\"video\"", "Media kind marker");
+requireIncludes(transcript, "data-chat-media-density=\"compact-v2\"", "Media compact marker");
+requireIncludes(transcript, "data-chat-media-kind=\"image\"", "Media kind marker");
+requireIncludes(transcript, "data-chat-media-kind=\"video\"", "Media kind marker");
 
 requireIncludes(mediaLimitClient, "CHAT_MEDIA_LIMIT_BYTES_DEFAULT = 25 * 1024 * 1024", "Client media limits");
 requireIncludes(mediaLimitClient, "CHAT_MEDIA_LIMIT_BYTES_FAN_PASS = 500 * 1024 * 1024", "Fan pass media limit");
@@ -68,8 +75,12 @@ requireIncludes(chatServer, "fanPassActive:", "Chat pricing fan pass truth");
 requireIncludes(chatServer, "subscriberFreeChatApplies", "Paid GD gate preserved");
 requireNotIncludes(chat, "isAndroidPwaChatShell ? \"ios-pwa\"", "No Android/iOS branch mixing");
 
-requireIncludes(chat, "data-new-message-sheet-platform={isIosPwaChatShell ? \"ios-pwa\" : \"default\"}", "iOS PWA new message sheet marker");
-requireIncludes(chat, "data-new-message-sheet-safe=\"above-bottom-nav\"", "New message sheet bottom-nav-safe marker");
+requireIncludes(chat, "from \"@/components/creative-tim/kandydrops/chat/ChatNewMessageModal\"", "New message presentation import");
+requireIncludes(chat, "<ChatNewMessageModal", "New message presentation consumer");
+requireIncludes(chat, "iosPwa={isIosPwaChatShell}", "New message canonical iOS platform binding");
+requireIncludes(chat, "sheetStyle={newMessageSheetStyle}", "New message shell spacing binding");
+requireIncludes(newMessageModal, "data-new-message-sheet-platform={iosPwa ? \"ios-pwa\" : \"default\"}", "iOS PWA new message sheet marker");
+requireIncludes(newMessageModal, "data-new-message-sheet-safe=\"above-bottom-nav\"", "New message sheet bottom-nav-safe marker");
 requireIncludes(chat, "Start a creator chat", "Chat list empty state copy");
 requireIncludes(chat, "Follow a creator first", "No-follow empty state copy");
 requireIncludes(chat, "Say hey to", "Thread empty state copy");

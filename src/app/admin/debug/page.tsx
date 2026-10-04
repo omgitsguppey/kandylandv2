@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { AdminDebugControlCanvas } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas";
+import { AdminDebugEvidenceBoundary } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugEvidenceBoundary";
 
 import { useAuth } from "@/context/AuthContext";
 import { useAdminAiAssistantRealtime } from "./hooks/useAdminAiAssistantRealtime";
@@ -24,6 +24,7 @@ import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 
 import { DebugTabNow } from "./components/DebugTabNow";
+import { formatRecentActivity as formatRelative, formatWindowHours } from "./components/DebugTime";
 import { DebugTabActions } from "./components/DebugTabActions";
 import { DebugTabMonitoring } from "./components/DebugTabMonitoring";
 import { DebugTabInfrastructure } from "./components/DebugTabInfrastructure";
@@ -59,7 +60,7 @@ import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
-import { resolveAdminInputTruthState, type AdminTruthState } from "@/lib/admin-truth-state";
+import { type AdminTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
 
 type DebugTabId = AdminDebugTabOption;
@@ -74,22 +75,6 @@ const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }
 ];
 
 const ADMIN_DEBUG_PREFERENCES_REFRESH_INTERVAL_MS = 0;
-
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
-
-function formatWindowHours(windowMs?: number) {
-    if (!windowMs) return "current";
-    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
-}
 
 function getAdminDebugSafeErrorMessage(error: unknown, fallback: string) {
     const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
@@ -151,76 +136,7 @@ function CompactDebugStatusRail({
     items: CompactDebugSummaryItem[];
     detailItems: CompactDebugDetailItem[];
 }) {
-    return (
-        <section
-            className="rounded-lg border border-white/10 bg-black/25 p-2.5"
-            data-admin-debug-summary="compact"
-            data-mobile-organization="summary-first"
-            data-admin-debug-detail-density="single_evidence_drawer"
-            data-admin-debug-detail-card-count={detailItems.length}
-        >
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                {items.map((item) => {
-                    const resolvedTruth = resolveAdminInputTruthState({
-                        truthState: item.truthState,
-                        value: item.value,
-                        pendingInitialLoad: item.truthState === "loading",
-                    });
-
-                    return (
-                        <div key={item.label} className="min-w-0 rounded-md border border-white/10 bg-white/[0.035] px-2.5 py-2">
-                            <div className="flex items-center justify-between gap-2">
-                                <p className="truncate text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
-                                <AdminTruthBadge
-                                    state={resolvedTruth.truthState}
-                                    className="py-0 text-[8px]"
-                                    pendingInitialLoad={resolvedTruth.pendingInitialLoad}
-                                    hasUsableValue={resolvedTruth.hasUsableValue}
-                                />
-                            </div>
-                            <p className="mt-1 truncate text-sm font-black text-white">{item.value}</p>
-                            <p className="mt-0.5 truncate text-[11px] text-gray-400">{item.meta}</p>
-                        </div>
-                    );
-                })}
-            </div>
-            <details className="mt-2 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
-                <summary className="min-h-8 cursor-pointer pt-1.5 font-semibold text-gray-100">Evidence details</summary>
-                <div className="mt-2 divide-y divide-white/10">
-                    {detailItems.map((item) => {
-                        const resolvedTruth = resolveAdminInputTruthState({
-                            truthState: item.truthState,
-                            value: item.value,
-                            pendingInitialLoad: item.truthState === "loading",
-                        });
-
-                        return (
-                            <div key={item.label} className="grid gap-2 py-2 md:grid-cols-[minmax(0,0.75fr)_minmax(0,1.4fr)_minmax(0,1fr)]">
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <AdminTruthBadge
-                                            state={resolvedTruth.truthState}
-                                            className="py-0 text-[8px]"
-                                            pendingInitialLoad={resolvedTruth.pendingInitialLoad}
-                                            hasUsableValue={resolvedTruth.hasUsableValue}
-                                        />
-                                        <p className="truncate font-semibold text-white">{item.label}</p>
-                                    </div>
-                                    <p className="mt-1 truncate text-sm font-black text-white">{item.value}</p>
-                                    <p className="truncate text-[11px] text-gray-500">{item.meta}</p>
-                                </div>
-                                <p className="text-[11px] leading-4 text-gray-300">{item.copy.operatorSummary}</p>
-                                <div className="min-w-0 text-[11px] leading-4 text-gray-400">
-                                    <p className="truncate"><span className="text-gray-500">Next:</span> {item.copy.recommendedNextCheck}</p>
-                                    <p className="truncate"><span className="text-gray-500">Source:</span> {item.copy.sourceDetails}</p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </details>
-        </section>
-    );
+    return <AdminDebugEvidenceBoundary items={items} detailItems={detailItems} />;
 }
 
 export default function DebugConsole() {
@@ -239,6 +155,7 @@ export default function DebugConsole() {
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
     const focusRefreshAtRef = useRef(0);
+    const aiTabWasActiveRef = useRef(false);
 
     const { data, error, isLoading, mutate } = useAdminPollingSWR<any>(isLocalAdminUiTestSession ? null : "/api/admin/debug", 60000, {
         keepPreviousData: false,
@@ -261,9 +178,19 @@ export default function DebugConsole() {
         keepPreviousData: true,
         },
     );
-    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>(isLocalAdminUiTestSession ? null : "/api/admin/debug/assistant", 15000, {
-        keepPreviousData: false,
-    });
+    const { data: aiDebugData, error: aiDebugError, isValidating: aiDebugIsValidating, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>(
+        isLocalAdminUiTestSession ? null : "/api/admin/debug/assistant",
+        activeTab === "ai" ? 15000 : 0,
+        { keepPreviousData: false },
+    );
+    useEffect(() => {
+        const aiTabIsActive = activeTab === "ai";
+        const enteredAiTab = aiTabIsActive && !aiTabWasActiveRef.current;
+        aiTabWasActiveRef.current = aiTabIsActive;
+        if (enteredAiTab && !isLocalAdminUiTestSession && !aiDebugIsValidating) {
+            void mutateAiDebug();
+        }
+    }, [activeTab, aiDebugIsValidating, isLocalAdminUiTestSession, mutateAiDebug]);
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview({ enabled: !isLocalAdminUiTestSession });
 
     const revalidatePrimaryDebugTruth = useCallback(() => {
@@ -555,6 +482,8 @@ export default function DebugConsole() {
         () => buildAdminDebugAiAssistantCard({
             hasSummary: Boolean(aiDebugData),
             hasError: Boolean(aiDebugError),
+            summaryRetained: activeTab !== "ai",
+            displayedSummaryFreshness: aiDebugData?.displayed_summary_freshness,
             enabled: aiDebugData?.enabled,
             runtimeReady: aiDebugData?.runtime_ready,
             fallbackUsed: aiDebugData?.fallback_used,
@@ -563,7 +492,7 @@ export default function DebugConsole() {
             feedStatus: aiAssistantRealtime.feedStatus,
             latencyMs: aiDebugData?.latency_ms,
         }),
-        [aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
+        [activeTab, aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
     );
     const opsCanonicalState = useMemo(() => deriveOpsHealthCanonicalState({
         canonicalStateStatus: data?.opsHealth?.canonicalState?.status,
@@ -988,55 +917,26 @@ export default function DebugConsole() {
         }
     };
 
-    const renderTabControls = () => {
-        return (
-            <div className="flex w-full flex-wrap items-center gap-2 pb-2">
-                {DEBUG_TABS.map((tab) => {
-                    const Icon = tab.icon;
-                    const active = activeTab === tab.id;
-                    return (
-                        <button
-                            key={tab.id}
-                            type="button"
-                            onClick={() => handleActiveTabChange(tab.id)}
-                            aria-pressed={active}
-                            className={cn(
-                                "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
-                                active ? "border-brand-purple/40 bg-brand-purple/20 text-white" : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
-                            )}
-                        >
-                            <Icon className="h-3.5 w-3.5" />
-                            {tab.label}
-                        </button>
-                    );
-                })}
-            </div>
-        );
-    };
-
     return (
-        <div
-            className="space-y-4 md:space-y-6"
-            data-mobile-organization="summary-first"
-            data-mobile-drilldown="true"
-            data-desktop-flow-collapsed="true"
-            data-admin-mobile-surface="debug"
-            data-admin-debug-sprawl-reduction="target-75-95"
-        >
-            <PageViewEvent eventName="admin_debug_viewed" />
-            <AdminPageHeader
-                eyebrow="Admin Debug"
-                title="Debug Console"
-                compact
-                actions={(
-                    <div className="flex items-center gap-2">
-                        <div className={cn("h-2 w-2 rounded-full", sourceStateTone, sourceStateLabel === "Live" ? "animate-pulse" : "")} />
-                        <span className={cn("text-xs font-semibold uppercase tracking-widest", sourceStateTextClass)}>{sourceStateLabel}</span>
-                    </div>
-                )}
-            />
-
-            {isLocalAdminUiTestSession ? (
+        <AdminDebugControlCanvas
+            title="Control Tower"
+            subtitle="Prioritize the current action, verify the evidence boundary, then open only the workstream needed to resolve it."
+            statusLabel={sourceStateLabel}
+            statusClassName={cn(sourceStateTone, sourceStateLabel === "Live" ? "animate-pulse" : "")}
+            statusTextClassName={sourceStateTextClass}
+            tabs={DEBUG_TABS}
+            activeTab={activeTab}
+            onTabChange={(tabId) => handleActiveTabChange(tabId as DebugTabId)}
+            priorityAction={{
+                label: "Open actions",
+                value: openActionsCard.count,
+                meta: openActionsCard.meta,
+                truthState: openActionsCard.truthState,
+            }}
+            beforeContent={<PageViewEvent eventName="admin_debug_viewed" />}
+            evidenceBoundary={(
+                <>
+                    {isLocalAdminUiTestSession ? (
                 <div
                     className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
                     data-admin-debug-fixture-boundary="true"
@@ -1047,16 +947,13 @@ export default function DebugConsole() {
                     AI assistant signals, repair actions, and balance adjustments wait for a real
                     admin session with verified evidence.
                 </div>
-            ) : null}
-
-            <CompactDebugStatusRail items={compactSummaryItems} detailItems={detailItems} />
-
-            {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
-            {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300 sm:p-4" data-mobile-residual-cleanup="score-impact"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
-
-            <div data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-                {renderTabControls()}
-            </div>
+                    ) : null}
+                    <CompactDebugStatusRail items={compactSummaryItems} detailItems={detailItems} />
+                    {error ? <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
+                    {(isLoading || overviewLoading) && !data ? <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3 text-sm text-gray-300 sm:p-4" data-mobile-residual-cleanup="score-impact"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
+                </>
+            )}
+        >
 
             {activeTab === "now" ? (
                 <DebugTabNow
@@ -1128,6 +1025,6 @@ export default function DebugConsole() {
             ) : activeTab === "advanced" ? (
                 <DebugTabAdvanced data={data} />
             ) : null}
-        </div>
+        </AdminDebugControlCanvas>
     );
 }

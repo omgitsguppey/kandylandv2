@@ -10,12 +10,15 @@ import {
     PencilLine,
     ShieldCheck,
     Sparkles,
-    UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { CreatorAgreementReview } from "@/components/Creators/CreatorAgreementReview";
+import { CreatorOnboardingCanvas } from "@/components/creative-tim/kandydrops/creator/CreatorOnboardingCanvas";
+import { CreatorApplicationJourney } from "@/components/creative-tim/kandydrops/creator/CreatorApplicationJourney";
+import { CreatorApplicationStepRail } from "@/components/creative-tim/kandydrops/creator/CreatorApplicationStepRail";
+import { CreatorVerificationPackage } from "@/components/creative-tim/kandydrops/creator/CreatorVerificationPackage";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
@@ -94,11 +97,11 @@ const CREATOR_LEGAL_STATUS_LABELS: Record<string, string> = {
     legal_signed: "Agreement complete",
 };
 
-const CREATOR_INTAKE_PANEL_CLASS_NAME = "rounded-[1.75rem] border border-white/10 bg-[#120a20]/85 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl";
-const CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-transform hover:scale-[1.01] disabled:opacity-50";
-const CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200 transition-colors hover:border-white/20 hover:bg-white/[0.06]";
-const CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-full bg-white px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-gray-100";
-const CREATOR_INTAKE_STATUS_PILL_CLASS_NAME = "rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-semibold text-gray-200";
+const CREATOR_INTAKE_PANEL_CLASS_NAME = "rounded-[1.75rem] border border-white/10 bg-[#120b20]/85 p-5 shadow-[0_20px_55px_rgba(0,0,0,0.3)] ring-1 ring-white/[0.025] backdrop-blur-xl sm:p-6";
+const CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-purple px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/25 transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50";
+const CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-zinc-200 transition-colors hover:border-brand-purple/30 hover:bg-white/[0.06] hover:text-white";
+const CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME = "inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-zinc-100";
+const CREATOR_INTAKE_STATUS_PILL_CLASS_NAME = "rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs font-semibold text-zinc-200";
 
 function formatStatusLabel(value: string | undefined) {
     if (!value) {
@@ -526,161 +529,119 @@ export default function CreatorWaitlistPage() {
     };
 
     return (
-        <main className="min-h-screen bg-[#0b0614] px-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-28 text-white sm:px-6">
+        <CreatorOnboardingCanvas>
             <PageViewEvent
                 eventName="creator_waitlist_viewed"
                 eventParams={{ component_name: "creator_waitlist_page", creator_lane: "waitlist" }}
             />
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-                <section className="overflow-hidden rounded-[2rem] border border-white/15 bg-[#160d28]/90 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
-                    <span className="inline-flex rounded-full border border-brand-purple/30 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-100">
-                        Kreator Experiences
-                    </span>
-
-                    {loading ? (
-                        <div className="mt-6 space-y-3">
-                            <div className="h-6 w-40 animate-pulse rounded-full bg-white/10" />
-                            <div className="h-4 w-full animate-pulse rounded-full bg-white/10" />
-                            <div className="h-4 w-4/5 animate-pulse rounded-full bg-white/10" />
-                        </div>
-                    ) : !user ? (
-                        <div className="mt-6">
-                            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Start your creator application</h1>
-                            <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-300 sm:text-base">
-                                Apply once, then track the real review, legal, and ID steps here.
-                            </p>
-                            <div className="mt-6 flex flex-wrap gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => openAuthModal("creator_signup")}
-                                    className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
-                                >
-                                    Start creator application
-                                </button>
-                                <Link
-                                    href="/faq"
-                                    className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
-                                >
-                                    Learn about KandyDrops
-                                </Link>
-                            </div>
-                        </div>
-                    ) : !creatorApplication ? (
-                        <div className="mt-6">
-                            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">No creator application found</h1>
-                            <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-300 sm:text-base">
-                                This account has no active creator application, so start one now or open creator support if it should already be in review.
-                            </p>
-                            <div className="mt-6 flex flex-wrap gap-3">
-                                <Link
-                                    href="/dashboard/support?category=creator_application&subject=Creator%20application%20support"
-                                    className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
-                                >
-                                    Open creator support
-                                </Link>
-                                <Link
-                                    href={creatorSupportHref}
-                                    className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
-                                >
-                                    Contact creator support
-                                </Link>
-                            </div>
-                        </div>
-                    ) : (
+            <CreatorApplicationJourney
+                loading={loading}
+                stage={loading ? "Checking your account" : creatorApplication ? statusSummary.stage : "Application access"}
+                blockerCount={creatorApplication ? blockingReasonDetails.length : undefined}
+                heading={loading
+                    ? "Checking your account"
+                    : !user
+                        ? "Start your creator application"
+                        : !creatorApplication
+                            ? "No creator application found"
+                            : "Creator application status"}
+                description={loading
+                    ? "We are confirming the current creator application state."
+                    : !user
+                        ? "Apply once, then track the real review, legal, and ID steps here."
+                        : !creatorApplication
+                            ? "This account has no active creator application, so start one now or open creator support if it should already be in review."
+                            : "This page is the live source of truth for your creator stage, legal review, ID review, and approval status."}
+                primaryActions={!loading && !user ? (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => openAuthModal("creator_signup")}
+                            className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
+                        >
+                            Start creator application
+                        </button>
+                        <Link href="/faq" className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}>
+                            Learn about KandyDrops
+                        </Link>
+                    </>
+                ) : !loading && user && !creatorApplication ? (
+                    <>
+                        <Link
+                            href="/dashboard/support?category=creator_application&subject=Creator%20application%20support"
+                            className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
+                        >
+                            Open creator support
+                        </Link>
+                        <Link href={creatorSupportHref} className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}>
+                            Contact creator support
+                        </Link>
+                    </>
+                ) : undefined}
+                summary={creatorApplication ? (
+                    <div className="flex flex-wrap gap-2">
+                        <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
+                            Stage: {statusSummary.stage}
+                        </span>
+                        <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
+                            Timeline: {CREATOR_REVIEW_TIMELINE_COPY}
+                        </span>
+                        <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
+                            Legal {formatStatusLabel(creatorApplication.legalStatus)}
+                        </span>
+                        <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
+                            ID {idPresentation.label}
+                        </span>
+                    </div>
+                ) : undefined}
+                stageRail={creatorApplication ? (
+                    <CreatorApplicationStepRail
+                        blockerCount={blockingReasonDetails.length}
+                        currentStage={statusSummary.stage}
+                        legalStatus={formatStatusLabel(creatorApplication.legalStatus)}
+                        idStatus={idPresentation.label}
+                        stageHistory={stageHistory
+                            .map((entry) => ({ label: entry.label, at: Number(entry.at) }))
+                            .filter((entry) => Number.isFinite(entry.at) && entry.at > 0)}
+                    />
+                ) : undefined}
+                currentAction={creatorApplication ? {
+                    title: currentAction?.title ?? "Review your creator application",
+                    description: currentAction?.description ?? "Use the verified stage and checklist below to see what needs your attention.",
+                    actions: (
                         <>
-                            <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                                Creator application status
-                            </h1>
-                            <p className="mt-4 max-w-3xl text-sm leading-6 text-gray-300 sm:text-base">
-                                This page is the live source of truth for your creator stage, legal review, ID review, and approval status.
-                            </p>
-
-                            <div className="mt-5 flex flex-wrap gap-2">
-                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
-                                    Stage: {statusSummary.stage}
-                                </span>
-                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
-                                    Timeline: {CREATOR_REVIEW_TIMELINE_COPY}
-                                </span>
-                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
-                                    Legal {formatStatusLabel(creatorApplication.legalStatus)}
-                                </span>
-                                <span className={CREATOR_INTAKE_STATUS_PILL_CLASS_NAME}>
-                                    ID {idPresentation.label}
-                                </span>
-                            </div>
-
-                            <div className="mt-6 grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
-                                <div className="rounded-[1.75rem] border border-brand-purple/30 bg-brand-purple/10 p-5 shadow-lg shadow-brand-purple/10">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">What to do now</p>
-                                    <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
-                                        {currentAction?.title}
-                                    </h2>
-                                    <p className="mt-3 text-sm leading-6 text-gray-200">
-                                        {currentAction?.description}
-                                    </p>
-                                    <div className="mt-5 flex flex-wrap gap-3">
-                                        {statusSummary.stage === "Approved" ? (
-                                            <Link
-                                                href="/dashboard/profile"
-                                                className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}
-                                            >
-                                                Open creator dashboard
-                                            </Link>
-                                        ) : null}
-                                        {!introAcknowledged ? (
-                                            <a
-                                                href="#creator-intro"
-                                                className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}
-                                            >
-                                                Review creator intro
-                                            </a>
-                                        ) : null}
-                                        {contractReady && !creatorContractSigned ? (
-                                            <a
-                                                href="#creator-contract"
-                                                className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}
-                                            >
-                                                Review agreement
-                                            </a>
-                                        ) : null}
-                                        {canSubmitId ? (
-                                            <a
-                                                href="#creator-id-upload"
-                                                className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
-                                            >
-                                                Go to ID upload
-                                            </a>
-                                        ) : null}
-                                        {canEditApplication ? (
-                                            <a
-                                                href="#creator-application-edit"
-                                                className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
-                                            >
-                                                Revise application
-                                            </a>
-                                        ) : null}
-                                        <Link
-                                            href={creatorSupportHref}
-                                            className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
-                                        >
-                                            Contact creator support
-                                        </Link>
-                                    </div>
-                                </div>
-
-                                <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-5">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Review facts</p>
-                                    <p className="mt-4 text-sm leading-6 text-gray-300">
-                                        Manual approval is required, status is stage-based, and this page stays your source of truth until approval.
-                                    </p>
-                                </div>
-                            </div>
+                            {statusSummary.stage === "Approved" ? (
+                                <Link href="/dashboard/profile" className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}>
+                                    Open creator dashboard
+                                </Link>
+                            ) : null}
+                            {!introAcknowledged ? (
+                                <a href="#creator-intro" className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}>
+                                    Review creator intro
+                                </a>
+                            ) : null}
+                            {contractReady && !creatorContractSigned ? (
+                                <a href="#creator-contract" className={CREATOR_INTAKE_LIGHT_ACTION_CLASS_NAME}>
+                                    Review agreement
+                                </a>
+                            ) : null}
+                            {canSubmitId ? (
+                                <a href="#creator-id-upload" className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}>
+                                    Go to ID upload
+                                </a>
+                            ) : null}
+                            {canEditApplication ? (
+                                <a href="#creator-application-edit" className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}>
+                                    Revise application
+                                </a>
+                            ) : null}
+                            <Link href={creatorSupportHref} className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}>
+                                Contact creator support
+                            </Link>
                         </>
-                    )}
-                </section>
-
-                {creatorApplication ? (
+                    ),
+                } : null}
+                statusFacts={creatorApplication ? (
                     <section className="grid gap-4 md:grid-cols-3">
                         <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <div className="flex items-center gap-2 text-base font-bold text-white">
@@ -694,7 +655,7 @@ export default function CreatorWaitlistPage() {
                                         ? "Your creator agreement is ready."
                                         : creatorApplication.adminSignatureStatus !== "signature_signed"
                                             ? "Waiting on admin countersign."
-                                        : "Legal review complete."}
+                                            : "Legal review complete."}
                             </p>
                             <p className="mt-2 text-sm leading-6 text-gray-400">
                                 {creatorApplication.contractDocumentStatus !== "contract_sent"
@@ -703,7 +664,7 @@ export default function CreatorWaitlistPage() {
                                         ? "Review the summary and sign the in-app agreement here."
                                         : creatorApplication.adminSignatureStatus !== "signature_signed"
                                             ? "Your signature is on file, and admin countersign is still pending."
-                                        : "Your signed legal record is attached to this application."}
+                                            : "Your signed legal record is attached to this application."}
                             </p>
                         </article>
 
@@ -713,9 +674,7 @@ export default function CreatorWaitlistPage() {
                                 ID verification
                             </div>
                             <p className="mt-3 text-sm font-semibold text-white">{idPresentation.label}</p>
-                            <p className="mt-2 text-sm leading-7 text-gray-400">
-                                {idPresentation.description}
-                            </p>
+                            <p className="mt-2 text-sm leading-7 text-gray-400">{idPresentation.description}</p>
                         </article>
 
                         <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
@@ -739,9 +698,8 @@ export default function CreatorWaitlistPage() {
                             )}
                         </article>
                     </section>
-                ) : null}
-
-                {creatorApplication ? (
+                ) : undefined}
+                checklist={creatorApplication ? (
                     <section className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                         <div className="flex items-start justify-between gap-3">
                             <div>
@@ -770,10 +728,9 @@ export default function CreatorWaitlistPage() {
                             )}
                         </div>
                     </section>
-                ) : null}
-
-                {creatorApplication ? (
-                    <section className="grid gap-4 md:grid-cols-[0.95fr_1.05fr]">
+                ) : undefined}
+                primaryWorkflow={creatorApplication ? (
+                    <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
                         <article id="creator-intro" className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <Sparkles className="h-5 w-5 text-brand-purple" />
@@ -782,7 +739,7 @@ export default function CreatorWaitlistPage() {
                             <p className="mt-3 text-sm leading-6 text-gray-400">
                                 Acknowledge this intro before identity and contract review continue.
                             </p>
-                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
                                 <div className="rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">For creators</p>
                                     <div className="mt-3 space-y-2 text-sm leading-6 text-gray-300">
@@ -802,45 +759,46 @@ export default function CreatorWaitlistPage() {
                                         Acknowledged on {new Date(creatorApplication.introAcknowledgedAt!).toLocaleString()}
                                     </span>
                                 ) : (
-                                    <button type="button" onClick={() => void handleIntroAcknowledgement()} disabled={acknowledgingIntro} className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}>
+                                    <button
+                                        type="button"
+                                        onClick={() => void handleIntroAcknowledgement()}
+                                        disabled={acknowledgingIntro}
+                                        className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
+                                    >
                                         {acknowledgingIntro ? "Saving..." : "Acknowledge creator intro"}
                                     </button>
                                 )}
                             </div>
                         </article>
 
-                        <CreatorAgreementReview
-                            application={creatorApplication}
-                            currentUserId={user?.uid ?? null}
-                            currentUserEmail={user?.email ?? null}
-                            signingContract={signingContract}
-                            onSign={handleContractSignature}
-                        />
-                    </section>
-                ) : null}
-
-                {creatorApplication ? (
-                    <section className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
-                        <h2 className="text-base font-bold text-white">Stage history</h2>
-                        <p className="mt-2 text-sm leading-6 text-gray-400">
-                            Stage history only shows backend-backed milestones on this application.
-                        </p>
-                        <div className="mt-4 space-y-3">
-                            {stageHistory.map((entry) => (
-                                <div key={`${entry.label}-${entry.at}`} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
-                                    <p className="text-sm font-semibold text-white">{entry.label}</p>
-                                    <p className="mt-1 text-xs text-gray-400">{new Date(entry.at!).toLocaleString()}</p>
-                                </div>
-                            ))}
+                        <div id="creator-contract">
+                            <CreatorAgreementReview
+                                application={creatorApplication}
+                                currentUserId={user?.uid ?? null}
+                                currentUserEmail={user?.email ?? null}
+                                signingContract={signingContract}
+                                onSign={handleContractSignature}
+                            />
                         </div>
                     </section>
-                ) : null}
-
-                {creatorApplication && canEditApplication ? (
-                    <section
-                        id="creator-application-edit"
-                        className={CREATOR_INTAKE_PANEL_CLASS_NAME}
-                    >
+                ) : undefined}
+                verification={creatorApplication && canSubmitId ? (
+                    <CreatorVerificationPackage
+                        accept={ID_UPLOAD_ACCEPT}
+                        hasSelectedFiles={hasSelectedFiles}
+                        requirements={ID_UPLOAD_REQUIREMENTS}
+                        summary={idSummary.complete
+                            ? `All ${idSummary.count} required verification files are ready for review.`
+                            : `${idSummary.count} of ${ID_UPLOAD_REQUIREMENTS.length} verification files are attached. Add the remaining files when you are ready.`}
+                        uploadButtonLabel={uploadButtonLabel}
+                        uploading={uploadingId}
+                        uploadCards={uploadCards}
+                        onFileSelect={(side, file) => handleSelectIdFile(side, file)}
+                        onUpload={() => void handleIdUpload()}
+                    />
+                ) : undefined}
+                revision={creatorApplication && canEditApplication ? (
+                    <section id="creator-application-edit" className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                         <div className="flex items-start gap-2 text-base font-bold text-white">
                             <PencilLine className="mt-0.5 h-5 w-5 text-brand-purple" />
                             Revise your application
@@ -900,99 +858,13 @@ export default function CreatorWaitlistPage() {
                             >
                                 {savingApplication ? "Saving..." : "Save application changes"}
                             </button>
-                            <Link
-                                href={creatorSupportHref}
-                                className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
-                            >
+                            <Link href={creatorSupportHref} className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}>
                                 Contact creator support
                             </Link>
                         </div>
                     </section>
-                ) : null}
-
-                {creatorApplication && canSubmitId ? (
-                    <section
-                        id="creator-id-upload"
-                        className="rounded-[1.75rem] border border-brand-purple/30 bg-brand-purple/10 p-5 shadow-lg shadow-brand-purple/10 backdrop-blur-xl"
-                    >
-                        <h2 className="flex items-center gap-2 text-base font-bold text-white">
-                            <UploadCloud className="h-5 w-5 text-brand-purple" />
-                            Upload your verification package
-                        </h2>
-                        <p className="mt-3 text-sm leading-6 text-gray-300">
-                            Upload the four required verification files from this page when ID review opens.
-                        </p>
-
-                        <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                            {ID_UPLOAD_REQUIREMENTS.map((requirement) => (
-                                <div key={requirement} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-gray-200">
-                                    {requirement}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mt-4 grid gap-3 md:grid-cols-2">
-                            {uploadCards.map((card) => (
-                                <div key={card.side} className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-white">{card.title}</p>
-                                            <p className="mt-1 text-xs leading-6 text-gray-400">{card.description}</p>
-                                        </div>
-                                        {card.uploadedDocument ? (
-                                            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-200">
-                                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                                Uploaded
-                                            </span>
-                                        ) : (
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
-                                                Needed
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <label className="mt-4 block">
-                                        <span className="sr-only">{card.title}</span>
-                                        <input
-                                            type="file"
-                                            accept={ID_UPLOAD_ACCEPT}
-                                            onChange={(event) => handleSelectIdFile(card.side, event.target.files?.[0] ?? null)}
-                                            className="min-h-11 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none file:mr-3 file:rounded-full file:border-0 file:bg-brand-purple file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
-                                        />
-                                    </label>
-
-                                    {card.selectedFile ? (
-                                        <p className="mt-3 text-xs text-gray-300">Ready to upload: {card.selectedFile.name}</p>
-                                    ) : card.uploadedDocument ? (
-                                        <p className="mt-3 text-xs text-emerald-200">Current file: {card.uploadedDocument.fileName}</p>
-                                    ) : (
-                                        <p className="mt-3 text-xs text-gray-500">No file selected yet.</p>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-xs leading-6 text-gray-300">
-                                {idSummary.count === 0
-                                    ? "No verification files have been received yet."
-                                    : idSummary.complete
-                                        ? "The full verification package is uploaded and ready for review."
-                                        : "Part of the verification package is in. Upload the remaining files to finish this step."}
-                            </p>
-                            <button
-                                type="button"
-                                onClick={() => void handleIdUpload()}
-                                disabled={uploadingId || !hasSelectedFiles}
-                                className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
-                            >
-                                {uploadingId ? "Uploading..." : uploadButtonLabel}
-                            </button>
-                        </div>
-                    </section>
-                ) : null}
-
-                {creatorApplication ? (
+                ) : undefined}
+                secondary={creatorApplication ? (
                     <section className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
                         <article className={CREATOR_INTAKE_PANEL_CLASS_NAME}>
                             <h2 className="flex items-center gap-2 text-base font-bold text-white">
@@ -1013,23 +885,17 @@ export default function CreatorWaitlistPage() {
                                 Use creator support if this page looks stuck or the stage does not match what you were told.
                             </p>
                             <div className="mt-4 flex flex-wrap gap-3">
-                                <Link
-                                    href={creatorSupportHref}
-                                    className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}
-                                >
+                                <Link href={creatorSupportHref} className={CREATOR_INTAKE_PRIMARY_ACTION_CLASS_NAME}>
                                     Open creator support
                                 </Link>
-                                <Link
-                                    href="/dashboard/profile"
-                                    className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}
-                                >
+                                <Link href="/dashboard/profile" className={CREATOR_INTAKE_SECONDARY_ACTION_CLASS_NAME}>
                                     Open profile
                                 </Link>
                             </div>
                         </article>
                     </section>
-                ) : null}
-            </div>
-        </main>
+                ) : undefined}
+            />
+        </CreatorOnboardingCanvas>
     );
 }

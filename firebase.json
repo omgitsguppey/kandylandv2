@@ -14,6 +14,36 @@
       "region": "us-central1"
     }
   },
+  "apphosting": [
+    {
+      "backendId": "kandydrops",
+      "rootDir": ".",
+      "alwaysDeployFromSource": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".next",
+        ".firebase",
+        ".env*",
+        "**/.env*",
+        "*.pem",
+        "**/*.pem",
+        "service-account.json",
+        "**/service-account*.json",
+        "output",
+        "coverage",
+        "test-results",
+        "playwright-report",
+        "lighthouse-results",
+        "qa-screenshots",
+        "scratch",
+        ".jules",
+        ".Jules",
+        "functions/node_modules",
+        "functions/lib"
+      ]
+    }
+  ],
   "storage": {
     "rules": "storage.rules"
   },

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T16:00:11.701Z",
+  "generatedAt": "2026-10-04T00:38:21.673Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -203,7 +203,7 @@
       "path_prefixes": [
         "functions/src",
         "functions/package.json",
-        "functions/pnpm-lock.yaml"
+        "functions/package-lock.json"
       ],
       "description": "functions surface map entry.",
       "runtime_sensitivity": "high",
@@ -220,10 +220,10 @@
       ],
       "related_deploy_or_rules_surfaces": [
         "functions/package.json",
-        "functions/pnpm-lock.yaml"
+        "functions/package-lock.json"
       ],
       "danger_notes": [
-        "Functions lockfile drift can break deployment or verification."
+        "Functions npm lockfile drift can break deployment or verification."
       ]
     },
     {

@@ -32,7 +32,6 @@ const unlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const unlockWatchContract = readRequired("src/lib/commerce/unlock-watch-parity-contract.ts");
 const previewClient = readRequired("src/components/Drops/LockedDropPreviewClient.tsx");
 const dropCard = readRequired("src/components/DropCard.tsx");
-const previewModal = readRequired("src/components/DropPreviewModal.tsx");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
 const adminHistoricalRoute = readRequired("src/app/api/admin/analytics/historical/route.ts");
@@ -70,7 +69,6 @@ requireIncludes(previewClient, 'trackEvent("drop_preview_unlock_success_state_vi
 requireIncludes(previewClient, 'sourceTruth: "client_supporting"', "Locked drop preview client supporting truth");
 requireExcludes(previewClient, 'trackEvent("unlock_drop_success"', "Locked drop preview client");
 requireExcludes(dropCard, "trackEvent('unlock_drop_success'", "Drop card");
-requireExcludes(previewModal, 'trackEvent("unlock_drop_success"', "Legacy preview modal");
 
 requireIncludes(telemetryCatalog, '{ eventName: "drop_unwrapped"', "Telemetry catalog drop unlock server fact");
 requireIncludes(telemetryCatalog, '{ eventName: "entitlement_granted"', "Telemetry catalog entitlement fact");

@@ -14,6 +14,30 @@ export type FirestoreClientIssue = {
     recovery: string;
 };
 
+export type FirestoreClientRetryDecision = {
+    retryable: boolean;
+    reason: "transient" | "cancelled" | "permanent" | "quota_recovery_required" | "client_state_recovery_required";
+};
+
+/** Read recovery only (one-shot reads and listeners). Registration or request completion alone does not verify source freshness. Never replay writes with this decision. */
+export function classifyFirestoreClientRetry(error: unknown): FirestoreClientRetryDecision {
+    if (analyzeFirestoreClientIssue(error)?.kind === "internal_assertion") {
+        return { retryable: false, reason: "client_state_recovery_required" };
+    }
+    const rawCode = error && typeof error === "object" && "code" in error ? error.code : null;
+    const code = typeof rawCode === "string" ? rawCode.replace(/^firestore\//, "") : null;
+    if (code === "cancelled" || (error instanceof Error && error.name === "AbortError")) {
+        return { retryable: false, reason: "cancelled" };
+    }
+    if (code === "resource-exhausted") {
+        return { retryable: false, reason: "quota_recovery_required" };
+    }
+    if (code === null || ["unavailable", "deadline-exceeded", "aborted", "unknown"].includes(code)) {
+        return { retryable: true, reason: "transient" };
+    }
+    return { retryable: false, reason: "permanent" };
+}
+
 function getErrorMessage(error: unknown) {
     if (error instanceof Error && error.message.trim().length > 0) {
         return error.message.trim();
@@ -83,14 +107,17 @@ export function buildFirestoreClientIssueDetail(error: unknown, detail?: Record<
 }
 
 export function buildFirestoreClientFallbackMessage(scope: string, error: unknown) {
-    const issue = analyzeFirestoreClientIssue(error);
-    if (issue?.kind === "internal_assertion") {
-        return `${scope} live updates hit a Firestore client state failure. Realtime may be momentarily interrupted.`;
+    const recovery = classifyFirestoreClientRetry(error);
+    if (recovery.reason === "client_state_recovery_required") {
+        return `${scope} live updates paused after a connection state failure. Reopen this view to reconnect.`;
     }
 
-    if ((error as any)?.code === "resource-exhausted") {
+    if (recovery.reason === "quota_recovery_required") {
         return `${scope} live updates paused due to quota limits.`;
     }
 
-    return `${scope} live updates are temporarily out of sync. Firebase is attempting restoration.`;
+    if (!recovery.retryable) {
+        return `${scope} live updates paused. Check access or the source before reopening this view.`;
+    }
+    return `${scope} live updates are out of sync. Reopen this view if they do not recover.`;
 }

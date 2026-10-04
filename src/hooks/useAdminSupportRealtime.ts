@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { authFetch } from "@/lib/authFetch";
+import { readUiJson } from "@/lib/ui-continuity";
 import {
   normalizeSupportThreadCategory,
   normalizeSupportThreadStatus,
@@ -25,6 +26,13 @@ type AdminSupportThreadDetailResponse = {
   success: boolean;
   thread: SupportThreadRecord | null;
   messages: SupportMessageRecord[];
+};
+
+type AdminSupportMessageState = {
+  threadId: string | null;
+  messages: SupportMessageRecord[];
+  isLoading: boolean;
+  error: Error | null;
 };
 
 const EMPTY_SUMMARY: AdminSupportThreadListSummary = {
@@ -73,54 +81,52 @@ function normalizeSummary(summary: Partial<AdminSupportThreadListSummary> | unde
   }, { ...EMPTY_SUMMARY });
 }
 
-function buildAdminSupportError(url: string, status: number, fallback?: string) {
-  const safeFallback = fallback && fallback !== "Internal server error" ? fallback : undefined;
-
-  if (status === 401 || status === 403) {
-    if (url.includes("/api/admin/support/threads/")) {
-      return new Error("Support message detail route returned forbidden.");
-    }
-    return new Error("Admin support thread read was blocked. Check admin role, support_threads rules, and admin support API route.");
-  }
-
-  if (url.includes("/api/admin/support/threads/")) {
-    return new Error(safeFallback || "Support dashboard expected nested messages but received no messages.");
-  }
-
-  return new Error(safeFallback || "Support thread list failed for admin route.");
-}
-
 async function readAdminSupportJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await authFetch(url, init);
-  const body = await response.json().catch(() => ({})) as T & { error?: string };
-  if (!response.ok) {
-    throw buildAdminSupportError(url, response.status, body.error);
-  }
-  return body;
+  return readUiJson<T>(response, { moduleLabel: "Admin support", url, requireSuccess: true });
 }
 
 export function useAdminSupportRealtime(selectedThreadId: string | null, options: { enabled?: boolean } = {}) {
   const enabled = options.enabled !== false;
   const mountedRef = useRef(true);
+  const enabledRef = useRef(enabled);
+  const selectedThreadRef = useRef(selectedThreadId);
+  const threadRequestRef = useRef(0);
+  const messageRequestRef = useRef(0);
   const [threads, setThreads] = useState<SupportThreadRecord[]>([]);
-  const [messages, setMessages] = useState<SupportMessageRecord[]>([]);
-  const [summary, setSummary] = useState<AdminSupportThreadListSummary>(EMPTY_SUMMARY);
+  const [messageState, setMessageState] = useState<AdminSupportMessageState>({threadId:null, messages:[], isLoading:false, error:null});
+  const [summary, setSummary] = useState<AdminSupportThreadListSummary | null>(null);
   const [isLoadingThreads, setIsLoadingThreads] = useState(true);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [threadsError, setThreadsError] = useState<Error | null>(null);
-  const [messagesError, setMessagesError] = useState<Error | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      threadRequestRef.current += 1;
+      messageRequestRef.current += 1;
     };
   }, []);
 
+  useEffect(() => {
+    enabledRef.current = enabled;
+    return () => {
+      threadRequestRef.current += 1;
+      messageRequestRef.current += 1;
+    };
+  }, [enabled]);
+
+  useEffect(() => {
+    selectedThreadRef.current = selectedThreadId;
+    return () => { messageRequestRef.current += 1; };
+  }, [selectedThreadId]);
+
   const refreshThreads = useCallback(async () => {
-    if (!enabled) {
+    if (!mountedRef.current) return;
+    const requestId = ++threadRequestRef.current;
+    if (!enabled || !enabledRef.current) {
       setThreads([]);
-      setSummary(EMPTY_SUMMARY);
+      setSummary(null);
       setThreadsError(null);
       setIsLoadingThreads(false);
       return;
@@ -129,41 +135,61 @@ export function useAdminSupportRealtime(selectedThreadId: string | null, options
     setIsLoadingThreads(true);
     try {
       const body = await readAdminSupportJson<AdminSupportThreadListResponse>("/api/admin/support/threads?status=all");
-      const nextThreads = (body.threads ?? []).map(normalizeThread);
-      if (!mountedRef.current) {
+      if (!Array.isArray(body.threads)) {
+        throw new Error("Support thread list did not return a verified snapshot.");
+      }
+      if (body.summary && ["total", "openCount", "waitingOnUserCount", "resolvedCount"].some((key) => {
+        const value = body.summary?.[key as keyof AdminSupportThreadListSummary];
+        return typeof value !== "number" || !Number.isInteger(value) || value < 0;
+      })) {
+        throw new Error("Support thread list returned an incomplete summary.");
+      }
+      const nextThreads = body.threads.map(normalizeThread);
+      if (!mountedRef.current || !enabledRef.current || requestId !== threadRequestRef.current) {
         return;
       }
       setThreads(nextThreads);
       setSummary(normalizeSummary(body.summary, nextThreads));
       setThreadsError(null);
     } catch (error) {
-      if (!mountedRef.current) {
+      if (!mountedRef.current || !enabledRef.current || requestId !== threadRequestRef.current) {
         return;
       }
       setThreadsError(error instanceof Error ? error : new Error("Support thread list failed for admin route."));
     } finally {
-      if (mountedRef.current) {
+      if (mountedRef.current && enabledRef.current && requestId === threadRequestRef.current) {
         setIsLoadingThreads(false);
       }
     }
   }, [enabled]);
 
   const refreshMessages = useCallback(async () => {
-    if (!enabled || !selectedThreadId) {
-      setMessages([]);
-      setMessagesError(null);
-      setIsLoadingMessages(false);
+    if (!mountedRef.current) return;
+    if (!enabled || !enabledRef.current || !selectedThreadId) {
+      messageRequestRef.current += 1;
+      setMessageState({threadId:null, messages:[], isLoading:false, error:null});
       return;
     }
+    // An older action may finish after the operator selected another thread.
+    if (selectedThreadRef.current !== selectedThreadId) return;
+    const requestId = ++messageRequestRef.current;
+    const isCurrentRequest = () => mountedRef.current && enabledRef.current
+      && requestId === messageRequestRef.current && selectedThreadRef.current === selectedThreadId;
 
-    setIsLoadingMessages(true);
+    setMessageState((current) => ({threadId:selectedThreadId, messages:current.threadId === selectedThreadId ? current.messages : [], isLoading:true, error:null}));
     try {
       const body = await readAdminSupportJson<AdminSupportThreadDetailResponse>(`/api/admin/support/threads/${selectedThreadId}`);
-      if (!mountedRef.current) {
+      if (!Array.isArray(body.messages) || (body.thread && body.thread.id !== selectedThreadId)
+        || body.messages.some((message) => !message || message.threadId !== selectedThreadId)) {
+        throw new Error("Support thread detail did not return messages for the selected thread.");
+      }
+      if (!body.thread) {
+        throw new Error("The selected support thread is no longer available.");
+      }
+      if (!isCurrentRequest()) {
         return;
       }
-      setMessages(body.messages ?? []);
-      setMessagesError(null);
+      setMessageState({threadId:selectedThreadId, messages:body.messages, isLoading:false, error:null});
       if (body.thread) {
         const normalized = normalizeThread(body.thread);
         setThreads((current) => {
@@ -174,13 +200,13 @@ export function useAdminSupportRealtime(selectedThreadId: string | null, options
         });
       }
     } catch (error) {
-      if (!mountedRef.current) {
+      if (!isCurrentRequest()) {
         return;
       }
-      setMessagesError(error instanceof Error ? error : new Error("Support thread detail failed for admin route."));
+      setMessageState((current) => ({...current, isLoading:false, error:error instanceof Error ? error : new Error("Support thread detail failed for admin route.")}));
     } finally {
-      if (mountedRef.current) {
-        setIsLoadingMessages(false);
+      if (isCurrentRequest()) {
+        setMessageState((current) => ({...current, isLoading:false}));
       }
     }
   }, [enabled, selectedThreadId]);
@@ -198,16 +224,18 @@ export function useAdminSupportRealtime(selectedThreadId: string | null, options
     void refreshMessages();
   }, [refreshMessages]);
 
-  const stableSummary = useMemo(() => summary, [summary]);
+  const activeMessageState = enabled && messageState.threadId === selectedThreadId
+    ? messageState
+    : { messages:[], isLoading:Boolean(enabled && selectedThreadId), error:null };
 
   return {
     threads,
-    messages,
-    summary: stableSummary,
+    messages: activeMessageState.messages,
+    summary,
     isLoadingThreads,
-    isLoadingMessages,
+    isLoadingMessages: activeMessageState.isLoading,
     threadsError,
-    messagesError,
+    messagesError: activeMessageState.error,
     refreshThreads,
     refreshMessages,
     refreshAll,

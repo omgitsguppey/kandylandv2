@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -162,13 +163,7 @@ function write(path: string, value: string) {
 }
 
 function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listValidatorScopeFiles();
 }
 
 function trackedFiles() {
@@ -406,7 +401,7 @@ function main() {
   };
 
   let compactOutput = compactPersonMetricsHydrationOutput(output);
-  let serializedReport = `${JSON.stringify(compactOutput, null, 2)}\n`;
+  let serializedReport = `${JSON.stringify(withValidatorMutationScope(compactOutput), null, 2)}\n`;
   if (serializedReport.length > 100_000) {
     failures.push("person metrics hydration generated report is too large; keep full detail in source-derived validation, not generated state.");
     output.status = "fail";
@@ -414,7 +409,7 @@ function main() {
     output.canClearSourceGate = false;
     output.validationFailures = [...new Set(failures)];
     compactOutput = compactPersonMetricsHydrationOutput(output);
-    serializedReport = `${JSON.stringify(compactOutput, null, 2)}\n`;
+    serializedReport = `${JSON.stringify(withValidatorMutationScope(compactOutput), null, 2)}\n`;
   }
   write(REPORT_PATH, serializedReport);
   write(DOC_PATH, renderDoc(output));

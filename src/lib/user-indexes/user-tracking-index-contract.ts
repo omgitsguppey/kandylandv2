@@ -1,4 +1,5 @@
-import type { ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION } from "@/lib/analytics/identity-link-contract";
+import { ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION, classifyAnalyticsIdentityLineageOwnerVersion } from "@/lib/analytics/identity-link-contract";
+import { CONSENT_MODE_VALUES } from "@/lib/privacy/consent-tracking-contract";
 import type { BehavioralConsentState } from "@/lib/behavioral/behavioral-timeline-contract";
 import type { ConsentMode } from "@/lib/privacy/consent-tracking-contract";
 import type { PersonMetricCounts } from "@/lib/analytics/person-metrics-contract";
@@ -139,6 +140,24 @@ export type IdentityLineageIndex = {
   updatedAtMs: number;
 };
 
+/** Decode persisted linkage before it can authorize person attribution. No history is rewritten. */
+export function readIdentityLineageIndex(value: unknown): IdentityLineageIndex | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const identifier = (candidate: unknown) => typeof candidate === "string" && candidate.trim().length > 0;
+  const timestamp = (candidate: unknown) => typeof candidate === "number" && Number.isFinite(candidate) && candidate >= 0;
+  if (classifyAnalyticsIdentityLineageOwnerVersion(record.ownerKeyVersion) !== "current"
+    || !identifier(record.identityLinkId) || !identifier(record.userId) || !identifier(record.anonymousVisitorId)
+    || !Array.isArray(record.sessionIds) || record.sessionIds.length === 0 || !record.sessionIds.every(identifier)
+    || !timestamp(record.linkedAtMs) || !timestamp(record.updatedAtMs)
+    || !["granted", "denied", "partial", "not_required", "unknown"].includes(record.consentState as string)
+    || !CONSENT_MODE_VALUES.some(mode => mode === record.consentMode)
+    || typeof record.mergeAllowed !== "boolean" || typeof record.personLevelBehaviorAllowed !== "boolean"
+    || typeof record.confidence !== "number" || !Number.isFinite(record.confidence) || record.confidence < 0 || record.confidence > 1
+    || !["full_behavioral_consent", "identity_link_allowed_behavior_blocked", "blocked_by_consent_mode"].includes(record.linkageConfidenceSource as string)) return null;
+  return { ...record, ownerKeyVersion: ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION, sessionIds: [...record.sessionIds] } as IdentityLineageIndex;
+}
+
 export const USER_INDEX_COLLECTIONS = {
   userTrackingIndexes: "user_tracking_indexes",
   guestTrackingIndexes: "guest_tracking_indexes",
@@ -154,7 +173,7 @@ export const USER_INDEX_COLLECTIONS = {
   userIndexShadowPublications: "user_index_shadow_publications",
 } as const;
 
-export const USER_INDEX_MATERIALIZER_CONTRACT_VERSION = "2026.07.user-index-materializer.v3";
+export const USER_INDEX_MATERIALIZER_CONTRACT_VERSION = "2026.10.user-index-materializer.v4";
 export const USER_INDEX_MATERIALIZER_ACTIVATION_DOCUMENT_ID = "activation";
 export const USER_INDEX_MATERIALIZER_MAX_REQUESTS_PER_RUN = 5;
 export const USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT = 200;
@@ -211,6 +230,9 @@ export type UserIndexMaterializerExclusionCounts = {
   lineageBlockedCount: number;
   adminExcludedCount: number;
   systemExcludedCount: number;
+  personAdmissionUnverifiedCount: number;
+  personPrivacyLimitedCount: number;
+  lineageSourceMissingCount: number;
 };
 
 export type UserIndexMaterializerWindowReceipt = {

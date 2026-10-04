@@ -1,6 +1,6 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { listValidatorScopeFiles } from "./validate-agent-takeover-safety-check";
 
 const ROOT = process.cwd();
 const ARTIFACT = "agent/state/human-error-surface-wiring.generated.json";
@@ -31,10 +31,6 @@ function read(path: string) {
 function fail(message: string): never {
   console.error(`[human-error-surface-wiring] ${message}`);
   process.exit(1);
-}
-
-function gitOutput(command: string) {
-  return execSync(command, { cwd: ROOT, encoding: "utf8" }).trim();
 }
 
 if (!existsSync(join(ROOT, ARTIFACT))) fail(`missing ${ARTIFACT}`);
@@ -83,7 +79,7 @@ const noticeSource = read("src/components/errors/HumanErrorNotice.tsx");
 if (!noticeSource.includes("reward GumDrops added")) fail("bug reward copy must say reward GumDrops");
 if (noticeSource.includes("purchased GumDrops added")) fail("bug reward copy must not say purchased GumDrops");
 
-const changed = gitOutput("git diff --name-only HEAD").split(/\r?\n/u).filter(Boolean);
+const changed = listValidatorScopeFiles();
 const phaseFiveAllowedAdminDebugFiles = new Set([
   "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
   "src/app/api/admin/debug/bug-reports/route.ts",

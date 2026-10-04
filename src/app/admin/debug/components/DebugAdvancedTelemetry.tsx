@@ -1,24 +1,11 @@
 "use client";
 
 import { Pill, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
+import { formatDebugCompactNumber as compactNumber } from "./DebugNumber";
+import { formatRecentActivity as formatRelative } from "./DebugTime";
 
 export interface DebugAdvancedTelemetryProps {
     data: any;
-}
-
-function compactNumber(value?: number) {
-    return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
-}
-
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
 }
 
 function toneForSeverity(severity?: string) {

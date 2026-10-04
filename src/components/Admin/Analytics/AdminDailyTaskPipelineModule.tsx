@@ -32,6 +32,7 @@ export function AdminDailyTaskPipelineModule(props: {
     }, [props.model]);
 
     const formatCount = (value: number | null) => value === null ? "Waiting" : value.toLocaleString();
+    const formatPartitionCount = (value: number | null) => value === null ? "Not separated by source" : value.toLocaleString();
     const formatRate = (value: number | null) => value === null ? NO_RATE_SAMPLE_LABEL : props.formatPercent(value);
     const formatSpeed = (value: number | null) => value === null ? NO_TIMING_SAMPLE_LABEL : props.formatDuration(value);
     const lifecycleProgressWidth = (metric: AdminTaskPipelineMetric) => {
@@ -124,11 +125,14 @@ export function AdminDailyTaskPipelineModule(props: {
                         ) : null}
 
                         <details className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-400">
-                            <summary className="cursor-pointer font-semibold text-gray-300">
+                            <summary className="min-h-11 cursor-pointer py-3 font-semibold text-gray-300">
                                 Source and delta checks
                             </summary>
                             <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
                                 <span>Stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedCount)}</span></span>
+                                <span>Active stuck assigned: <span className="text-white">{formatPartitionCount(props.model.stuckAssignedBreakdown.activeCurrentWindow)}</span></span>
+                                <span>Historical stuck assigned: <span className="text-white">{formatPartitionCount(props.model.stuckAssignedBreakdown.historicalUnstarted)}</span></span>
+                                <span>Expired unstarted: <span className="text-white">{formatPartitionCount(props.model.stuckAssignedBreakdown.expiredUnstarted)}</span></span>
                                 <span>Started open: <span className="text-white">{formatCount(props.model.startedNotCompletedCount)}</span></span>
                                 <span>Orphan starts: <span className="text-white">{formatCount(props.model.orphanStartedCount)}</span></span>
                                 <span>Orphan completions: <span className="text-white">{formatCount(props.model.orphanCompletedCount)}</span></span>
@@ -136,7 +140,7 @@ export function AdminDailyTaskPipelineModule(props: {
                                 <span>Timing partial: <span className="text-white">{props.model.checks.timingPartial}</span></span>
                             </div>
                             <p className="mt-2 text-gray-500">
-                                {staleSnapshotCopy} {props.model.checks.pipelineDeltaExplanation}
+                                {staleSnapshotCopy} {props.model.checks.pipelineDeltaExplanation} {props.model.stuckAssignedBreakdown.explanation}
                             </p>
                         </details>
                     </>

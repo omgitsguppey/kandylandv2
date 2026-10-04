@@ -28,13 +28,14 @@ describe("support policy surface cleanup", () => {
       isolationCheck: "protectedSurfacesUntouched",
       expectedIsolationFailure: "protectedSurfacesUntouched failed.",
     });
+    expect(JSON.parse(read("agent/state/support-policy-surface-cleanup.generated.json")).mutationScope).toEqual({ mode: "whole_git_worktree" });
   }, 30000);
 
   it("declares canonical trust routes with honest implementation states", async () => {
     expect(existsSync(join(root, "src/lib/support-policy/support-policy-surface-contract.ts"))).toBe(true);
     const contract = await import("../../src/lib/support-policy/support-policy-surface-contract");
 
-    expect(contract.SUPPORT_POLICY_SURFACE_CONTRACT_VERSION).toBe("2026.05.support-policy-surface.1");
+    expect(contract.SUPPORT_POLICY_SURFACE_CONTRACT_VERSION).toBe("2026.10.support-policy-surface.1");
     expect(contract.SUPPORT_POLICY_DEBUG_LANE.laneId).toBe("support_policy_surface_health");
     expect(contract.SUPPORT_POLICY_SURFACES.map((surface: { id: string }) => surface.id)).toEqual([
       "faq",
@@ -52,8 +53,9 @@ describe("support policy surface cleanup", () => {
   });
 
   it("keeps Account Settings trust links on canonical working surfaces", () => {
-    const supportSafety = read("src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx");
-    const privacyData = read("src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx");
+    const accountPanels = read("src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx");
+    const supportSafety = accountPanels.slice(accountPanels.indexOf("export function KandySupportSafetyPanel"));
+    const privacyData = accountPanels.slice(accountPanels.indexOf("export function KandyPrivacyDataPanel"), accountPanels.indexOf("export function KandySupportSafetyPanel"));
     const settingsContract = read("src/lib/settings/settings-surface-contract.ts");
     const dataRoute = read("src/app/api/user/data/route.ts");
 

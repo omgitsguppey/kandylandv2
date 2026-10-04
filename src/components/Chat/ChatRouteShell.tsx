@@ -2,11 +2,12 @@
 
 import { useEffect } from "react";
 import {
+    USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT,
-    USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT,
+    USER_MOBILE_CHAT_ANDROID_PWA_MAIN_VIEWPORT_HEIGHT,
     USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT,
-    USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT,
-    USER_MOBILE_CHAT_VIEWPORT_HEIGHT,
+    USER_MOBILE_CHAT_IOS_PWA_MAIN_VIEWPORT_HEIGHT,
+    USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT,
 } from "@/lib/user-mobile-shell";
 import { DEVICE_VIEWPORT_QUERIES, isAndroidStandalonePwa, isIosStandalonePwa } from "@/lib/device-layout-contract";
 
@@ -32,7 +33,6 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         const previousIosPwaSafeBottom = documentElement.style.getPropertyValue("--kd-ios-pwa-safe-bottom");
         const previousIosPwaChatBottomGap = documentElement.style.getPropertyValue("--kd-ios-pwa-chat-bottom-gap");
         const previousIosPwaShellLift = documentElement.style.getPropertyValue("--kd-ios-pwa-shell-lift");
-        const previousMobileBottomNavOffset = documentElement.style.getPropertyValue("--kd-mobile-bottom-nav-bottom-offset");
         const previousPlatformShell = documentElement.getAttribute("data-platform-shell");
         const previousDocumentOverflow = documentElement.style.overflow;
         const previousDocumentOverscrollY = documentElement.style.overscrollBehaviorY;
@@ -44,6 +44,7 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         const previousMainMaxHeight = mainElement?.style.maxHeight ?? "";
         const previousMainMinHeight = mainElement?.style.minHeight ?? "";
         const previousMainBoxSizing = mainElement?.style.boxSizing ?? "";
+        const previousMainFlex = mainElement?.style.flex ?? "";
         const previousMainPaddingBottom = mainElement?.style.paddingBottom ?? "";
         const previousMainChatBottomReservedHeight = mainElement?.style.getPropertyValue("--user-mobile-chat-bottom-reserved-height") ?? "";
         let frameId: number | null = null;
@@ -80,11 +81,13 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
                 const bottomNav = document.querySelector('nav[aria-label="Mobile navigation"]');
                 const bottomNavElement = bottomNav instanceof HTMLElement ? bottomNav : null;
                 const bottomNavRect = bottomNavElement?.getBoundingClientRect() ?? null;
-                const navGap = 8;
-                const bottomNavHeight = bottomNavRect ? Math.max(0, Math.round(bottomNavRect.height)) : 56;
-                const viewportBottom = viewportHeight;
-                const safeBottom = Math.max(0, Math.round(window.innerHeight - viewportHeight));
-                const navBottomOffset = Math.max(0, viewportBottom - (bottomNavRect?.bottom ?? viewportBottom - navGap));
+                // CoreLayoutWrapper owns the fixed navigation offset. Chat only
+                // reserves the dock portion and gap inside its visible viewport.
+                const visibleNavTop = bottomNavRect ? Math.max(0, Math.min(viewportHeight, bottomNavRect.top)) : viewportHeight;
+                const visibleNavBottom = bottomNavRect ? Math.max(0, Math.min(viewportHeight, bottomNavRect.bottom)) : viewportHeight;
+                const bottomNavHeight = Math.max(0, Math.round(visibleNavBottom - visibleNavTop));
+                const navBottomOffset = bottomNavHeight > 0 ? Math.max(0, Math.round(viewportHeight - visibleNavBottom)) : 0;
+                const safeBottom = navBottomOffset;
 
                 documentElement.style.setProperty("--kd-ios-pwa-visual-height", `${viewportHeight}px`);
                 documentElement.style.setProperty("--kd-ios-pwa-bottom-nav-height", `${bottomNavHeight}px`);
@@ -92,36 +95,39 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
                 documentElement.style.setProperty("--kd-ios-pwa-bottom-nav-y", `${navBottomOffset}px`);
                 documentElement.style.setProperty("--kd-ios-pwa-chat-bottom-gap", "10px");
                 documentElement.style.setProperty("--kd-ios-pwa-shell-lift", "6px");
-                documentElement.style.setProperty("--kd-mobile-bottom-nav-bottom-offset", `${navBottomOffset}px`);
             }
 
             if (!mainElement) {
                 return;
             }
 
+            // The explicit viewport height is authoritative while Chat owns main.
+            mainElement.style.flex = "none";
             mainElement.style.boxSizing = "border-box";
             mainElement.style.overflow = "hidden";
             mainElement.style.overscrollBehaviorY = "none";
             if (androidPwa) {
-                mainElement.style.height = USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT;
-                mainElement.style.maxHeight = USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT;
+                mainElement.style.height = USER_MOBILE_CHAT_ANDROID_PWA_MAIN_VIEWPORT_HEIGHT;
+                mainElement.style.maxHeight = USER_MOBILE_CHAT_ANDROID_PWA_MAIN_VIEWPORT_HEIGHT;
             } else if (iosPwaShell) {
-                mainElement.style.height = USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT;
-                mainElement.style.maxHeight = USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT;
+                mainElement.style.height = USER_MOBILE_CHAT_IOS_PWA_MAIN_VIEWPORT_HEIGHT;
+                mainElement.style.maxHeight = USER_MOBILE_CHAT_IOS_PWA_MAIN_VIEWPORT_HEIGHT;
             } else {
-                mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
-                mainElement.style.maxHeight = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
+                mainElement.style.height = USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT;
+                mainElement.style.maxHeight = USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT;
             }
             mainElement.style.minHeight = "0";
-            if (androidPwa) {
+            // ChatExperience owns the one inner dock reservation. The outer main
+            // remains bounded below the in-flow navbar and adds no second spacer.
+            mainElement.style.paddingBottom = "0px";
+            if (!compactViewportQuery.matches) {
+                mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", "0px");
+            } else if (androidPwa) {
                 mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT);
-                mainElement.style.paddingBottom = USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT;
             } else if (iosPwaShell) {
                 mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT);
-                mainElement.style.paddingBottom = USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT;
             } else {
-                mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", "0px");
-                mainElement.style.paddingBottom = "0px";
+                mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT);
             }
 
             if (window.scrollY !== 0) {
@@ -142,6 +148,31 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         };
 
         syncChatViewportShell();
+        // Keep the existing measurement owner attached across deferred dock mounts.
+        let observedBottomNav: HTMLElement | null = null;
+        const bottomNavObserver = typeof ResizeObserver === "function" ? new ResizeObserver(scheduleChatViewportShellSync) : null;
+        const attachBottomNav = (resync = true) => {
+            const node = document.querySelector('nav[aria-label="Mobile navigation"]');
+            const next = node instanceof HTMLElement ? node : null;
+            if (next === observedBottomNav) return;
+            if (observedBottomNav) bottomNavObserver?.unobserve(observedBottomNav);
+            observedBottomNav = next;
+            if (next) bottomNavObserver?.observe(next);
+            if (resync) scheduleChatViewportShellSync();
+        };
+        attachBottomNav(false);
+        const bottomNavMountObserver = typeof MutationObserver === "function" ? new MutationObserver((records) => {
+            const dockChanged = records.some((record) =>
+                Array.from(record.addedNodes).some((node) => node instanceof Element && (
+                    node.matches('nav[aria-label="Mobile navigation"]') ||
+                    node.querySelector('nav[aria-label="Mobile navigation"]') !== null
+                )) || Array.from(record.removedNodes).some((node) =>
+                    observedBottomNav !== null && (node === observedBottomNav || node.contains(observedBottomNav))
+                )
+            );
+            if (dockChanged) attachBottomNav();
+        }) : null;
+        bottomNavMountObserver?.observe(body, { childList: true, subtree: true });
         visualViewport?.addEventListener("resize", scheduleChatViewportShellSync, { passive: true });
         visualViewport?.addEventListener("scroll", scheduleChatViewportShellSync, { passive: true });
         compactViewportQuery.addEventListener("change", scheduleChatViewportShellSync);
@@ -157,6 +188,8 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             if (debounceTimer !== null) {
                 window.clearTimeout(debounceTimer);
             }
+            bottomNavMountObserver?.disconnect();
+            bottomNavObserver?.disconnect();
             visualViewport?.removeEventListener("resize", scheduleChatViewportShellSync);
             visualViewport?.removeEventListener("scroll", scheduleChatViewportShellSync);
             compactViewportQuery.removeEventListener("change", scheduleChatViewportShellSync);
@@ -213,11 +246,6 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             } else {
                 documentElement.style.removeProperty("--kd-ios-pwa-shell-lift");
             }
-            if (previousMobileBottomNavOffset) {
-                documentElement.style.setProperty("--kd-mobile-bottom-nav-bottom-offset", previousMobileBottomNavOffset);
-            } else {
-                documentElement.style.removeProperty("--kd-mobile-bottom-nav-bottom-offset");
-            }
             if (previousPlatformShell) {
                 documentElement.setAttribute("data-platform-shell", previousPlatformShell);
             } else {
@@ -235,6 +263,7 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
                 mainElement.style.maxHeight = previousMainMaxHeight;
                 mainElement.style.minHeight = previousMainMinHeight;
                 mainElement.style.boxSizing = previousMainBoxSizing;
+                mainElement.style.flex = previousMainFlex;
                 mainElement.style.paddingBottom = previousMainPaddingBottom;
                 if (previousMainChatBottomReservedHeight) {
                     mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", previousMainChatBottomReservedHeight);

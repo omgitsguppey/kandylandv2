@@ -113,8 +113,13 @@ for (const field of ["operatorSummary", "technicalEvidence", "recommendedNextChe
 const mainUiFiles = [
   "src/app/admin/analytics/page.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsContentConversionSection.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsViewerJourneySection.tsx",
   "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsEventMixSection.tsx",
+  "src/app/admin/analytics/components/AdminAnalyticsInteractionSnapshotSection.tsx",
   "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
   "src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx",
   "src/components/Admin/AdminModuleVerificationCard.tsx",
@@ -129,7 +134,7 @@ const userProblemStateFiles = [
   "src/components/ErrorBoundary.tsx",
   "src/components/PurchaseModal.tsx",
   "src/components/DropCard.tsx",
-  "src/components/DropPreviewModal.tsx",
+  "src/components/Drops/LockedDropPreviewClient.tsx",
   "src/components/Navigation/NotificationBell.tsx",
   "src/components/ui/NotFoundSurface.tsx",
 ];
@@ -217,7 +222,7 @@ for (const [file, helper] of [
   ["src/components/ErrorBoundary.tsx", "getPageProblemCopy"],
   ["src/components/PurchaseModal.tsx", "getPaymentProblemCopy"],
   ["src/components/DropCard.tsx", "getUnlockProblemCopy"],
-  ["src/components/DropPreviewModal.tsx", "getUnlockProblemCopy"],
+  ["src/components/Drops/LockedDropPreviewClient.tsx", "getUnlockProblemCopy"],
   ["src/components/Navigation/NotificationBell.tsx", "getNotificationProblemCopy"],
 ] as const) {
   const content = read(file);

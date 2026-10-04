@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -11,7 +12,7 @@ import {
   buildSurfaceStateParityReport,
   classifyRawSurfaceStateCopy,
 } from "@/lib/parity/surface-state-resolver";
-import { listTrackedFiles, listWorkingTreeFiles, readRepoToolchainState } from "./shared";
+import { listTrackedFiles, readRepoToolchainState } from "./shared";
 
 const ROOT = process.cwd();
 const STATE_PATH = path.join(ROOT, "agent/state/surface-state-parity.generated.json");
@@ -105,7 +106,7 @@ const rawErrorCopyFindings = scanRawStateCopy();
 const report = buildSurfaceStateParityReport({
   generatedAtUtc,
   currentHead,
-  dirtyFiles: listWorkingTreeFiles(),
+  dirtyFiles: listValidatorScopeFiles(),
   rawErrorCopyFindings,
 });
 
@@ -143,7 +144,7 @@ const finalReport = {
 
 mkdirSync(path.dirname(STATE_PATH), { recursive: true });
 mkdirSync(path.dirname(DOC_PATH), { recursive: true });
-writeFileSync(STATE_PATH, `${JSON.stringify(finalReport, null, 2)}\n`);
+writeFileSync(STATE_PATH, `${JSON.stringify(withValidatorMutationScope(finalReport), null, 2)}\n`);
 writeFileSync(DOC_PATH, buildMarkdown(finalReport));
 
 if (finalReport.status !== "pass") {

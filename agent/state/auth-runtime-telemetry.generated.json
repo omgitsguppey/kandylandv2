@@ -1,7 +1,7 @@
 {
   "reportKey": "auth-runtime-telemetry",
-  "generatedAtUtc": "2026-07-16T04:23:55.495Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-02T21:16:23.090Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "eventFamilies": [
     "auth_surface_viewed",
@@ -157,58 +157,58 @@
     "redactionPolicy": "metadata_stripped_and_email_hash_only"
   },
   "validationFailures": [],
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "passed": true,
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "scoreBefore": {
-    "sourceHealth": 83.6,
-    "runtimeHealth": 50.22,
-    "evidenceCompleteness": 45,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
     "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 63.18
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreAfter": {
-    "sourceHealth": 83.6,
-    "runtimeHealth": 50.22,
-    "evidenceCompleteness": 45,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
     "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 63.18
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 83.6,
-      "after": 83.6,
+      "before": 100,
+      "after": 100,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth runtime-specific score action required."
     },
     "runtimeHealth": {
-      "before": 50.22,
-      "after": 50.22,
+      "before": 0,
+      "after": 0,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
     },
     "evidenceCompleteness": {
-      "before": 45,
-      "after": 45,
+      "before": 50,
+      "after": 50,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
     },
     "freshness": {
-      "before": 59.38,
-      "after": 59.38,
+      "before": 91.22,
+      "after": 91.22,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
+      "status": "target_met",
+      "nextExactAction": "No auth runtime-specific score action required."
     },
     "costRisk": {
       "before": 92.5,
@@ -218,15 +218,15 @@
       "nextExactAction": "No auth runtime-specific score action required."
     },
     "regressionRisk": {
-      "before": 94,
-      "after": 94,
+      "before": 90,
+      "after": 90,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth runtime-specific score action required."
     },
     "overallHealthScore": {
-      "before": 63.18,
-      "after": 63.18,
+      "before": 55.1,
+      "after": 55.1,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost gates; auth runtime telemetry is source-wired."
@@ -241,32 +241,7 @@
     "unexpectedLogoutTracked": true,
     "adminDebugAuthLaneVisible": true
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/auth-persistence-stability.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/email-password-auth-refactor.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/auth-persistence-stability.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/email-password-auth-refactor.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    }
-  ],
+  "dirtyFiles": [],
   "staleAuthTelemetryLogic": [
     {
       "reference": "auth_sign_in_attempted/auth_sign_in_success/auth_sign_in_failed",
@@ -288,5 +263,16 @@
   "nextExactSteps": [
     "Attach deployed runtime auth smoke evidence before clearing formal runtime gates.",
     "Keep admin auth runtime summaries redacted and drilldown-only for raw details."
-  ]
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-admin-pulse-release-successor-20261002",
+    "inputHash": "975f18bd22f8848de4306be79dc18fd6db31bdf5f137cd09a14d51f5df279488",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "34fdd046aedbb9fbe8ef66166533bb578932cc71502f28debe00ed83edea066e",
+    "changedFiles": [],
+    "inheritedDirtySourceFileCount": 379,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

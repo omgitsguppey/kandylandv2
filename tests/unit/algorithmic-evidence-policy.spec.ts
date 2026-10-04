@@ -166,7 +166,7 @@ describe("algorithmic evidence policy", () => {
   });
 
   it("does not let UI source coverage gaps block non-UI beta health dimensions", () => {
-    const report = buildPublicBetaScoreReport([], {
+    const options = {
       commandBudget: buildPublicBetaCommandBudget(),
       evidence: {
         requiredReports: [{
@@ -206,12 +206,30 @@ describe("algorithmic evidence policy", () => {
         realUsageConfidenceEvidence: realUsageConfidence,
         adminTruthSampleEvidence: adminSourceSample,
       },
+    } satisfies NonNullable<Parameters<typeof buildPublicBetaScoreReport>[1]>;
+    const report = buildPublicBetaScoreReport([], options);
+    const currentUiReport = buildPublicBetaScoreReport([], {
+      ...options,
+      evidence: {
+        ...options.evidence,
+        uiSurfaceCoverageEvidence: {
+          ...options.evidence.uiSurfaceCoverageEvidence,
+          status: "not_required", passed: true,
+          detail: "UI source coverage is outside this comparison fixture.",
+          evidence: ["uiSurfaceCoverageArtifactStatus=not_required"],
+        },
+      },
     });
 
-    expect(report.readinessStatus).toBe("Source evidence required");
+    expect(report.readinessStatus).toBe("External proof required");
+    expect(report.operatorDecision.sourceReadiness.status).toBe("verification_due");
+    expect(report.operatorDecision.actionQueues.sourceFixes).toEqual([]);
+    expect(report.operatorDecision.releaseReadiness.ready).toBe(false);
+    expect(report.operatorDecision.actionQueues.externalProof.length).toBeGreaterThan(0);
     expect(report.launchBlockers.join("\n")).not.toContain("Visual QA required");
-    expect(report.runtimeHealthScore).toBeGreaterThan(55);
-    expect(report.evidenceCompletenessScore).toBeGreaterThan(50);
+    expect(report.runtimeHealthScore).toBe(currentUiReport.runtimeHealthScore);
+    expect(report.sourceHealthScore).toBe(currentUiReport.sourceHealthScore);
+    expect(report.runtimeHealthScore).toBe(0); // This fixture contains no observed runtime activity.
     expect(report.nuancedScoreExplanation.join("\n")).toContain("Deterministic UI surface coverage is the default UI readiness lane");
   });
 });

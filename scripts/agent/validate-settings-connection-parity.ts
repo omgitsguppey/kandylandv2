@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 import { getDisconnectedSettings, getSettingsDebugLaneSummary, SETTINGS_SURFACE_ITEMS, SETTINGS_TELEMETRY_EVENTS } from "@/lib/settings/settings-surface-contract";
 
@@ -23,15 +25,8 @@ function git(args: string[]) {
   }
 }
 
-function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of git([...args]).split(/\r?\n/u)) {
-      const file = line.trim().replace(/\\/gu, "/");
-      if (file) files.add(file);
-    }
-  }
-  return [...files].sort();
+export function changedFiles(root = ROOT, args: readonly string[] = process.argv.slice(2)) {
+  return listValidatorScopeFiles(root, args);
 }
 
 function includesAll(source: string, snippets: string[]) {
@@ -53,12 +48,14 @@ function main() {
   const changed = changedFiles();
   const contract = read("src/lib/settings/settings-surface-contract.ts");
   const accountPage = read("src/components/Settings/UserSettingsPage.tsx");
-  const privacySection = read("src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx");
-  const notificationSection = read("src/app/dashboard/profile/components/ProfileNotificationsSection.tsx");
-  const supportSection = read("src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx");
+  const accountPanels = read("src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx");
+  const privacySection = accountPanels.slice(accountPanels.indexOf("export function KandyPrivacyDataPanel"), accountPanels.indexOf("export function KandySupportSafetyPanel"));
+  const notificationSection = accountPanels.slice(accountPanels.indexOf("export function KandyNotificationsPanel"), accountPanels.indexOf("export function KandyPrivacyDataPanel"));
+  const supportSection = accountPanels.slice(accountPanels.indexOf("export function KandySupportSafetyPanel"));
   const profileState = read("src/app/dashboard/profile/hooks/useProfileState.tsx");
-  const primitives = read("src/app/dashboard/profile/components/ProfilePrimitives.tsx");
+  const primitives = read("src/components/creative-tim/kandydrops/account/AccountSettingsPanel.tsx");
   const creatorHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+  const creatorDeck = read("src/components/creative-tim/kandydrops/creator/CreatorSettingsControlDeck.tsx");
   const creatorRoute = read("src/app/api/creator/settings/route.ts");
   const userProfileRoute = read("src/app/api/user/profile/route.ts");
   const userDataRoute = read("src/app/api/user/data/route.ts");
@@ -162,12 +159,16 @@ function main() {
       "profileDropsVisible",
       "profileBroadcastsVisible",
     ]),
-    routeLabelsClear: accountPage.includes("Creator tools moved to Creator Settings.")
-      && creatorHub.includes("Creator dashboard settings")
+    routeLabelsClear: accountPage.includes("Open Creator Settings")
+      && accountPage.includes("href={CREATOR_SETTINGS_ROUTE}")
+      && creatorHub.includes("<CreatorSettingsControlDeck")
+      && creatorDeck.includes("<h1")
       && !/>\s*Settings\s*</u.test(visibleSource),
     noCreatorOnlyControlsInAccountSettings: !accountPage.includes("CreatorDashboardSettingsHub")
       && !privacySection.includes("Fan Pass")
-      && !supportSection.includes("Fan Pass"),
+      && !supportSection.includes("Fan Pass")
+      && !profileState.includes("/api/creator/")
+      && !profileState.includes("setCreatorSettings"),
     rawInternalServerErrorHidden: !visibleSource.includes("Internal server error") && !profileState.includes("Internal server error") && !creatorHub.includes("Internal server error"),
     staleDuplicateLogicRemovedOrClassified: staleScriptRemoved
       && SETTINGS_SURFACE_ITEMS.every((item) => (item as { staleConflictStatus: string }).staleConflictStatus !== "unsafe_unknown")
@@ -179,7 +180,7 @@ function main() {
     .filter(([, passed]) => !passed)
     .map(([name]) => `${name} failed.`);
 
-  const report = {
+  const report = withValidatorMutationScope({
     generatedAtUtc,
     reportKey: "settings-connection-parity",
     status: failures.length === 0 ? "pass" : "fail",
@@ -205,7 +206,7 @@ function main() {
     protectedSurfaceChanges,
     checks,
     validationFailures: failures,
-  };
+  });
 
   write(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   write(DOC_PATH, [
@@ -253,4 +254,6 @@ function main() {
   console.log("Settings connection parity validation passed.");
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

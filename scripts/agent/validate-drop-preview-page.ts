@@ -36,7 +36,6 @@ const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
 const dropCard = readRequired("src/components/DropCard.tsx");
 const featuredCarousel = readRequired("src/components/FeaturedCarousel.tsx");
 const libraryClient = readRequired("src/app/dashboard/library/LibraryClient.tsx");
-const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const mobileShellDoc = readRequired("docs/agent-truth/mobile-shell-safe-area.md");
 const dropsDoc = readRequired("docs/agent-truth/drops-mobile-refinement.md");
@@ -88,7 +87,6 @@ requireIncludes(dropsClient, "router.push(`/drops/${encodeURIComponent(drop.id)}
 requireIncludes(dropCard, "onPreview(drop, \"compact_drop_card\")", "Drop card source handoff");
 requireIncludes(featuredCarousel, "onSelectDrop(drop, \"compact_featured_carousel\")", "Featured source handoff");
 requireNotIncludes(dropsClient, "DropPreviewModal", "Drops client modal ownership");
-requireIncludes(dropPreviewModal, "Legacy fallback only", "DropPreviewModal deprecation marker");
 
 for (const [source, label] of [
   [routePage + routeLoading + previewClient + previewView, "Preview page files"],
@@ -117,7 +115,10 @@ for (const eventName of [
 
 const doctrineNote = "Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet.";
 requireIncludes(mobileShellDoc, doctrineNote, "Mobile shell doctrine");
-requireIncludes(dropsDoc, doctrineNote, "Drops mobile doctrine");
+const dropsDocContent = dropsDoc.replace(/<!--[\s\S]*?-->/gu, "");
+if (!/\[[^\]\n]+\]\((?:\.\/)?drop-preview-page\.md(?:#[A-Za-z0-9_-]+)?\)/u.test(dropsDocContent)) {
+  failures.push("Drops mobile doctrine must link to the canonical Drop preview document.");
+}
 requireIncludes(previewDoc, doctrineNote, "Drop preview doctrine");
 requireIncludes(packageJson, "\"check:drop-preview-page\": \"tsx scripts/agent/validate-drop-preview-page.ts\"", "package.json");
 

@@ -1133,7 +1133,6 @@ export interface HistoricalAnalyticsResponse {
   cacheRevalidating?: boolean;
   staleButVerified?: boolean;
   retainedBeyondStaleTtl?: boolean;
-  requiresSetup?: boolean;
   error?: string;
   issues?: string[];
   verification?: unknown;
@@ -1278,7 +1277,6 @@ export interface HistoricalAnalyticsResponse {
 export interface RealtimeAnalyticsResponse {
   success: boolean;
   generatedAtMs?: number;
-  requiresSetup?: boolean;
   error?: string;
   issues?: string[];
   totalActive?: number;

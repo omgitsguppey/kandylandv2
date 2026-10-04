@@ -1,9 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { CheckCircle2, Loader2, Sparkles, Users } from "lucide-react";
 
 import { useAuthIdentity, useAuthLoading } from "@/context/AuthContext";
 import { useUIActions } from "@/context/UIContext";
@@ -20,12 +17,9 @@ import {
     explainCreatorProfileRouteMissing,
     type CreatorDiscoveryProfile,
 } from "@/lib/creator-public-pages";
-import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 import { dispatchActivitySync } from "@/lib/activity-sync";
-import { TitleMarquee } from "@/components/ui/TitleMarquee";
-import { CompactNumber } from "@/components/ui/CompactNumber";
-import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
+import { KandyCreatorDiscoveryCard, KandyCreatorDiscoveryEmpty, KandyCreatorDiscoverySkeleton, KandyCreatorDiscoveryView } from "@/components/creative-tim/kandydrops/creator-discovery/CreatorDiscoveryPresentation";
 import {
     buildDiscoveryImpressionKey,
     createDiscoveryTrackingSessionId,
@@ -59,70 +53,8 @@ const HOME_RELATIONSHIP_IDLE_DELAY_MS = 650;
 const HOME_CREATOR_SPOTLIGHT_TITLE = "CREATOR SPOTLIGHT";
 const HOME_CREATOR_SPOTLIGHT_SUPPORT = "Follow creators to unwrap drops and exclusive experiences.";
 
-function initialsFor(name: string) {
-    return name
-        .split(" ")
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() || "")
-        .join("") || "C";
-}
-
 function CreatorDiscoveryRailSkeleton({ compact, surface }: { compact: boolean; surface: CreatorDiscoveryRailProps["surface"] }) {
-    const isHomeSpotlight = surface === "home";
-
-    return (
-        <section
-            data-home-section={surface === "home" ? "creator-spotlight" : undefined}
-            data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
-            className={cn(
-                "relative overflow-hidden [content-visibility:auto]",
-                isHomeSpotlight
-                    ? "rounded-[2rem] border border-purple-200/20 bg-[radial-gradient(circle_at_14%_0%,rgba(192,132,252,0.28),transparent_35%),linear-gradient(145deg,rgba(20,12,35,0.94),rgba(5,4,12,0.98))] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.12)] [contain-intrinsic-size:360px] sm:rounded-[2.35rem] sm:p-6"
-                    : "glass-panel rounded-[1.7rem] border border-white/10 p-2 [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
-                compact ? "space-y-2" : "space-y-3",
-            )}
-        >
-            <div className="flex items-start justify-between gap-3">
-                <div>
-                    <div className={cn(
-                        "inline-flex items-center gap-2 text-[10px] font-bold uppercase text-white",
-                        isHomeSpotlight ? "tracking-[0.24em] text-purple-100/85" : "rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 tracking-[0.16em]",
-                    )}>
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Creator spotlight
-                    </div>
-                    <div className={cn("h-4 animate-pulse rounded bg-white/10", isHomeSpotlight ? "mt-4 w-56" : "mt-3 w-48")} />
-                </div>
-            </div>
-
-            <div className={cn("overflow-x-auto", isHomeSpotlight ? "mt-2 pb-1.5" : "mt-2 pb-1")}>
-                <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : isHomeSpotlight ? "gap-4 pr-5" : "pr-4")}>
-                    {Array.from({ length: 4 }).map((_, index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                                "flex flex-col items-center justify-between animate-pulse border motion-reduce:animate-none",
-                                isHomeSpotlight
-                                    ? "min-h-[18rem] w-[14rem] rounded-[1.55rem] border-white/10 bg-white/[0.055] px-4 py-5"
-                                    : "rounded-[1.45rem] border-white/5 bg-white/5",
-                                !isHomeSpotlight && (compact
-                                    ? "aspect-square w-[7.25rem] px-2.5 py-4"
-                                    : "aspect-square w-[8.75rem] px-3 py-5"),
-                            )}
-                        >
-                            <div className={cn("rounded-full bg-white/10", isHomeSpotlight ? "h-28 w-28" : compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]")} />
-                            <div className="mt-auto flex w-full flex-col items-center gap-2">
-                                <div className="h-3 w-16 rounded bg-white/10" />
-                                <div className="h-2 w-12 rounded bg-white/10" />
-                            </div>
-                            <div className={cn("mt-2 rounded-full bg-white/10", isHomeSpotlight ? "h-12 w-full" : "h-7 w-16")} />
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
+    return <KandyCreatorDiscoverySkeleton compact={compact} surface={surface} />;
 }
 
 function CreatorDiscoveryRailEmpty({
@@ -134,55 +66,8 @@ function CreatorDiscoveryRailEmpty({
     surface: CreatorDiscoveryRailProps["surface"];
     title?: string;
 }) {
-    const isHomeSpotlight = surface === "home";
-    const emptyTitle = surface === "dashboard"
-        ? "Creator spotlight opens as creators go live"
-        : surface === "drops"
-            ? "No creator spotlights are active here yet"
-            : surface === "home"
-                ? "Creator spotlight"
-                : "No creator experiences are ready here yet";
-    const emptySupport = surface === "dashboard"
-        ? "As approved creator profiles come online, the dashboard will pin the ones you follow first and then recommend the rest."
-        : surface === "drops"
-            ? "As creator drops go live, this rail will surface the creators behind them without mixing admin tooling into fan discovery."
-            : surface === "home"
-                ? "Discover top creators and their exclusive experiences right here."
-                : "Creator experiences only appear here once the underlying profile and fan actions are ready.";
-
-    return (
-        <section
-            data-home-section={surface === "home" ? "creator-spotlight" : undefined}
-            data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
-            className={cn(
-                "relative overflow-hidden [content-visibility:auto]",
-                isHomeSpotlight
-                    ? "rounded-[2rem] border border-purple-200/20 bg-[radial-gradient(circle_at_14%_0%,rgba(192,132,252,0.28),transparent_35%),linear-gradient(145deg,rgba(20,12,35,0.94),rgba(5,4,12,0.98))] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.12)] [contain-intrinsic-size:360px] sm:rounded-[2.35rem] sm:p-6"
-                    : "glass-panel rounded-[1.7rem] border border-white/10 p-2 [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
-                compact ? "space-y-2" : "space-y-3",
-            )}
-        >
-            <div className={cn(
-                "inline-flex items-center gap-2 text-[10px] font-bold uppercase text-white",
-                isHomeSpotlight ? "tracking-[0.24em] text-purple-100/85" : "rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 tracking-[0.16em]",
-            )}>
-                <Sparkles className="h-3.5 w-3.5" />
-                {title || "Creator spotlight"}
-            </div>
-            <div className={cn(
-                "rounded-[1.7rem] border border-dashed px-4 py-5 text-center sm:py-6",
-                isHomeSpotlight ? "border-purple-200/15 bg-black/28 sm:px-6 sm:py-8" : "border-white/10 bg-black/25",
-            )}>
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400">
-                    <Users className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-lg font-black text-white">{emptyTitle}</h3>
-                <p className="mt-2 text-sm leading-6 text-gray-400">{emptySupport}</p>
-            </div>
-        </section>
-    );
+    return <KandyCreatorDiscoveryEmpty compact={compact} surface={surface} title={title} />;
 }
-
 function CreatorDiscoveryRailView({
     compact,
     creators,
@@ -204,16 +89,11 @@ function CreatorDiscoveryRailView({
     trackingSessionId: string;
     onFollowToggle: (creator: CreatorCard) => void;
 }) {
-    const isHomeSpotlight = surface === "home";
-    const spotlightTitle = title || (isHomeSpotlight ? HOME_CREATOR_SPOTLIGHT_TITLE : "Creator spotlight");
-    const homeAvatarPixels = 112;
-    const defaultAvatarPixels = 72;
     const actor = useMemo(() => ({
         uid: userId ?? "",
         role: userId ? "user" : "guest",
     }), [userId]);
     const currentRoute = surface === "home" ? "/" : `/${surface}`;
-    const imagePolicy = useMemo(() => getImageLoadingPolicy("home_creator_rail"), []);
     const creatorCardRefs = useRef(new Map<string, HTMLElement>());
     const trackedCreatorImpressionKeysRef = useRef(new Set<string>());
     const setCreatorCardRef = useCallback((creatorId: string, node: HTMLElement | null) => {
@@ -309,234 +189,76 @@ function CreatorDiscoveryRailView({
     }, [creators, currentRoute, surface, trackingSessionId, userId]);
 
     return (
-        <section
-            data-home-section={surface === "home" ? "creator-spotlight" : undefined}
-            data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
-            className={cn(
-                "relative overflow-hidden [content-visibility:auto]",
-                isHomeSpotlight
-                    ? "rounded-[2rem] border border-purple-200/20 bg-[radial-gradient(circle_at_16%_0%,rgba(192,132,252,0.3),transparent_32%),linear-gradient(145deg,rgba(20,12,35,0.96),rgba(5,4,12,0.98)_58%,rgba(28,12,45,0.9))] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.38),0_0_42px_rgba(168,85,247,0.16),inset_0_1px_0_rgba(255,255,255,0.12)] [contain-intrinsic-size:420px] sm:rounded-[2.35rem] sm:p-6"
-                    : "glass-panel rounded-[1.7rem] border border-white/10 p-2 [contain-intrinsic-size:300px] sm:rounded-[2rem] sm:p-4",
-                compact ? "space-y-2" : isHomeSpotlight ? "space-y-5" : "space-y-3",
-            )}
+        <KandyCreatorDiscoveryView
+            compact={compact}
+            surface={surface}
+            support={support}
+            title={title}
         >
-            {isHomeSpotlight ? (
-                <>
-                    <div className="pointer-events-none absolute -left-10 -top-14 h-36 w-56 rounded-full bg-brand-purple/25 blur-3xl motion-reduce:hidden" />
-                    <div className="pointer-events-none absolute -right-16 top-8 h-40 w-40 rounded-full bg-fuchsia-500/15 blur-3xl motion-reduce:hidden" />
-                    <div className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10" />
-                </>
-            ) : null}
+            {creators.map((creator, index) => {
+                const creatorRouteInput = {
+                    uid: creator.uid,
+                    creatorId: creator.uid,
+                    username: creator.username,
+                    creatorUsername: creator.username,
+                };
+                const creatorProfileHref = buildCreatorPublicHref(creatorRouteInput);
+                const missingProfileReason = creatorProfileHref ? "" : explainCreatorProfileRouteMissing(creatorRouteInput);
 
-            <div className="relative flex items-start justify-between gap-3">
-                <div>
-                    <div
-                        className={cn(
-                            "inline-flex items-center gap-2 font-black uppercase text-white",
-                            isHomeSpotlight
-                                ? "text-[11px] tracking-[0.24em] text-purple-100/85"
-                                : "rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] tracking-[0.16em]",
-                        )}
-                    >
-                        <Sparkles className={cn(isHomeSpotlight ? "h-4.5 w-4.5 text-purple-200" : "h-3.5 w-3.5")} />
-                        {spotlightTitle}
-                    </div>
-                    {support ? (
-                        <p
-                            className={cn(
-                                "max-w-2xl",
-                                isHomeSpotlight
-                                    ? "mt-4 text-base font-medium leading-7 text-gray-300 sm:text-lg"
-                                    : "mt-1 text-[13px] leading-5 text-gray-400 sm:mt-1.5 sm:text-sm sm:leading-6",
-                            )}
-                        >
-                            {support}
-                        </p>
-                    ) : null}
-                </div>
-                {!isHomeSpotlight ? (
-                <div className="hidden shrink-0 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right sm:block">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">Surface</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{surface}</p>
-                </div>
-                ) : null}
-            </div>
-
-            <div className={cn("relative overflow-x-auto", isHomeSpotlight ? "pb-1.5" : "pb-0.5 sm:pb-1")}>
-                <div className={cn("flex min-w-max", compact ? "gap-3 pr-2" : isHomeSpotlight ? "gap-4 pr-5" : "gap-3 pr-4")}>
-                    {creators.map((creator, index) => {
-                        const creatorRouteInput = {
-                            uid: creator.uid,
-                            creatorId: creator.uid,
-                            username: creator.username,
-                            creatorUsername: creator.username,
-                        };
-                        const creatorProfileHref = buildCreatorPublicHref(creatorRouteInput);
-                        const missingProfileReason = creatorProfileHref ? "" : explainCreatorProfileRouteMissing(creatorRouteInput);
-                        const avatarPixels = isHomeSpotlight ? homeAvatarPixels : defaultAvatarPixels;
-                        const profileContent = (
-                            <>
-                                <div
-                                    className={cn(
-                                        "rounded-full transition-transform group-hover:scale-105",
-                                        isHomeSpotlight ? "p-[3px] shadow-[0_0_22px_rgba(168,85,247,0.58)]" : "p-[2px]",
-                                        creator.following ? "bg-white/10" : "bg-gradient-to-tr from-brand-purple via-purple-400 to-fuchsia-500",
-                                    )}
-                                >
-                                    <div
-                                        data-creator-spotlight-avatar-frame={isHomeSpotlight ? "fixed" : undefined}
-                                        className={cn(
-                                            "flex items-center justify-center overflow-hidden rounded-full bg-zinc-900",
-                                            isHomeSpotlight
-                                                ? "h-28 w-28 border-[4px] border-black/80"
-                                                : "border-[3px] border-black",
-                                            !isHomeSpotlight && (compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]"),
-                                        )}
-                                    >
-                                        {creator.photoURL ? (
-                                            <Image
-                                                src={creator.photoURL}
-                                                alt={creator.username || creator.displayName}
-                                                width={avatarPixels}
-                                                height={avatarPixels}
-                                                loading={imagePolicy.loading}
-                                                preload={imagePolicy.preload}
-                                                fetchPriority={imagePolicy.fetchPriority}
-                                                quality={imagePolicy.quality}
-                                                sizes={isHomeSpotlight ? `${homeAvatarPixels}px` : imagePolicy.sizes}
-                                                decoding="async"
-                                                data-creator-spotlight-image={isHomeSpotlight ? "stable-frame" : undefined}
-                                                className="h-full w-full object-cover"
-                                                {...getImagePolicyDataAttributes(imagePolicy)}
-                                            />
-                                        ) : (
-                                            <span className="text-sm font-black text-white">
-                                                {initialsFor(creator.username || creator.displayName)}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex w-full flex-col items-center">
-                                    <div className={cn("flex max-w-full items-center justify-center", isHomeSpotlight ? "gap-1.5" : "gap-1")}>
-                                        <TitleMarquee
-                                            title={creator.username ? `@${creator.username.replace(/^@+/, "")}` : creator.displayName}
-                                            delaySeed={creator.uid.charCodeAt(0) % 6}
-                                            className={cn(
-                                                "max-w-full font-bold tracking-tight text-white",
-                                                isHomeSpotlight ? "text-base sm:text-lg" : compact ? "text-[11px]" : "text-[12px]",
-                                            )}
-                                        />
-                                        {creator.isVerified ? <CheckCircle2 className={cn("shrink-0 text-brand-purple", isHomeSpotlight ? "h-4.5 w-4.5" : "h-3.5 w-3.5")} /> : null}
-                                    </div>
-                                    <p className={cn("mt-1", isHomeSpotlight ? "text-sm font-semibold text-gray-300" : "text-gray-400", compact ? "text-[10px]" : !isHomeSpotlight && "text-[11px]")}>
-                                        <CompactNumber value={Math.max(creator.followerCount ?? 0, 0)} /> followers
-                                    </p>
-                                </div>
-                            </>
-                        );
-
-                        return (
-                            <article
-                                key={creator.uid}
-                                ref={(node) => setCreatorCardRef(creator.uid, node)}
-                                data-creator-id={creator.uid}
-                                data-creator-rail-position={index + 1}
-                                className={cn(
-                                    "group flex shrink-0 flex-col justify-between text-center",
-                                    isHomeSpotlight
-                                        ? "min-h-[18rem] w-[14rem] rounded-[1.55rem] border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.09),rgba(255,255,255,0.035))] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_14px_34px_rgba(0,0,0,0.38)] transition-transform duration-300 hover:-translate-y-1 motion-reduce:transform-none"
-                                        : "rounded-[1.45rem] border border-white/5 bg-white/[0.03]",
-                                    !isHomeSpotlight && (compact
-                                        ? "aspect-square w-[6.9rem] gap-1.5 px-2 py-2"
-                                        : "aspect-square w-[8.35rem] gap-2 px-2.5 py-2.5 sm:w-[8.75rem] sm:gap-2.5 sm:px-3 sm:py-3"),
-                                )}
-                            >
-                                {creatorProfileHref ? (
-                                    <Link
-                                        href={creatorProfileHref}
-                                        onClick={() => {
-                                            const relationshipPayload = buildCreatorRelationshipTelemetryPayload({
-                                                eventName: "creator_card_clicked",
-                                                viewerUserId: userId,
-                                                creatorId: creator.uid,
-                                                surface,
-                                                sourceComponent: "creator_discovery_rail",
-                                                relationshipState: classifyCreatorRelationshipState({
-                                                    viewerUserId: userId,
-                                                    creatorId: creator.uid,
-                                                    following: creator.following === true,
-                                                }),
-                                                recommendationSource: creator.following ? "relationship_route" : "deterministic_recommendation",
-                                                route: currentRoute,
-                                                position: index + 1,
-                                            });
-                                            trackEvent("creator_profile_link_clicked", buildCreatorProfileLinkTelemetryPayload({
-                                                actor,
-                                                creator: creatorRouteInput,
-                                                href: creatorProfileHref,
-                                                routeSource: "creator_discovery",
-                                                currentRoute,
-                                            }));
-                                            trackEvent("creator_card_clicked", relationshipPayload);
-                                            if (!creator.following) {
-                                                trackEvent("creator_recommendation_clicked", {
-                                                    ...relationshipPayload,
-                                                    event_name: "creator_recommendation_clicked",
-                                                    recommendation_source: "deterministic_recommendation",
-                                                });
-                                            }
-                                            trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
-                                                creatorId: creator.uid,
-                                                creatorUsername: creator.username,
-                                                surface,
-                                            }));
-                                        }}
-                                        className={cn(
-                                            "flex w-full flex-col items-center rounded-[1.2rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10091e]",
-                                            isHomeSpotlight ? "gap-4" : "gap-2",
-                                        )}
-                                        data-creator-profile-route-source="canonical-builder"
-                                    >
-                                        {profileContent}
-                                    </Link>
-                                ) : (
-                                    <div
-                                        className={cn("flex w-full flex-col items-center", isHomeSpotlight ? "gap-4" : "gap-2")}
-                                        aria-disabled="true"
-                                        title={missingProfileReason || "Creator profile unavailable"}
-                                        data-creator-profile-missing-reason={missingProfileReason || "unknown"}
-                                    >
-                                        {profileContent}
-                                    </div>
-                                )}
-
-                                {userId === creator.uid ? null : (
-                                    <button
-                                        type="button"
-                                        onClick={() => onFollowToggle(creator)}
-                                        disabled={pendingCreatorId === creator.uid}
-                                        className={cn(
-                                            "inline-flex items-center justify-center rounded-full border font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10091e] disabled:cursor-not-allowed disabled:opacity-60",
-                                            isHomeSpotlight
-                                                ? "min-h-12 w-full px-5 py-3 text-base shadow-[0_0_22px_rgba(168,85,247,0.34),inset_0_1px_0_rgba(255,255,255,0.22)]"
-                                                : compact ? "min-h-7 px-3 py-1.5 text-[10px]" : "min-h-8 px-3.5 py-1.5 text-[11px]",
-                                            creator.following
-                                                ? "border-brand-purple/60 bg-black text-brand-purple"
-                                                : isHomeSpotlight
-                                                    ? "border-purple-300/45 bg-gradient-to-r from-violet-500 via-brand-purple to-fuchsia-500 text-white"
-                                                    : "border-brand-purple/30 bg-brand-purple/15 text-white",
-                                        )}
-                                    >
-                                        {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : creator.following ? "Following" : "Follow"}
-                                    </button>
-                                )}
-                            </article>
-                        );
-                    })}
-                </div>
-            </div>
-        </section>
+                return (
+                    <KandyCreatorDiscoveryCard
+                        key={creator.uid}
+                        creator={creator}
+                        compact={compact}
+                        surface={surface}
+                        position={index + 1}
+                        cardRef={(node) => setCreatorCardRef(creator.uid, node)}
+                        profileHref={creatorProfileHref}
+                        missingProfileReason={missingProfileReason}
+                        isPending={pendingCreatorId === creator.uid}
+                        isSelf={userId === creator.uid}
+                        onFollow={() => onFollowToggle(creator)}
+                        onProfileClick={() => {
+                            const relationshipPayload = buildCreatorRelationshipTelemetryPayload({
+                                eventName: "creator_card_clicked",
+                                viewerUserId: userId,
+                                creatorId: creator.uid,
+                                surface,
+                                sourceComponent: "creator_discovery_rail",
+                                relationshipState: classifyCreatorRelationshipState({
+                                    viewerUserId: userId,
+                                    creatorId: creator.uid,
+                                    following: creator.following === true,
+                                }),
+                                recommendationSource: creator.following ? "relationship_route" : "deterministic_recommendation",
+                                route: currentRoute,
+                                position: index + 1,
+                            });
+                            trackEvent("creator_profile_link_clicked", buildCreatorProfileLinkTelemetryPayload({
+                                actor,
+                                creator: creatorRouteInput,
+                                href: creatorProfileHref,
+                                routeSource: "creator_discovery",
+                                currentRoute,
+                            }));
+                            trackEvent("creator_card_clicked", relationshipPayload);
+                            if (!creator.following) {
+                                trackEvent("creator_recommendation_clicked", {
+                                    ...relationshipPayload,
+                                    event_name: "creator_recommendation_clicked",
+                                    recommendation_source: "deterministic_recommendation",
+                                });
+                            }
+                            trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
+                                creatorId: creator.uid,
+                                creatorUsername: creator.username,
+                                surface,
+                            }));
+                        }}
+                    />
+                );
+            })}
+        </KandyCreatorDiscoveryView>
     );
 }
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
@@ -17,11 +18,11 @@ import { CREATOR_DROP_ROUTE_STATE } from "@/lib/creator-profile-routing";
 import { buildBugReportContext, getSafePreviousRoute, resolveClientActionError } from "@/lib/errors/client-error-adapter";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
 import type { CreatorApplication, UserProfile } from "@/types/db";
+import { CreatorAccessStateSection } from "@/components/creative-tim/kandydrops/creator/CreatorAccessStateSection";
+import { CreatorOperatingRunway, type CreatorRunwayFact } from "@/components/creative-tim/kandydrops/creator/CreatorOperatingRunway";
 import { CreatorWorkspaceFrame } from "./CreatorWorkspaceFrame";
 import { CreatorActionQueuePanel } from "./creator-workspace/CreatorActionQueuePanel";
 import { CreatorBroadcastCard } from "./creator-workspace/CreatorBroadcastCard";
-import { CreatorDashboardOverviewModule, type CreatorOverviewMetric } from "./creator-workspace/CreatorDashboardOverviewModule";
-import { CreatorDashboardQuickActions } from "./creator-workspace/CreatorDashboardQuickActions";
 import { CreatorDashboardSourceNotice, CreatorWorkspaceStatusPill } from "./creator-workspace/CreatorDashboardSourceNotice";
 import { CreatorFanPassCrmPanel } from "./creator-workspace/CreatorFanPassCrmPanel";
 import {
@@ -340,18 +341,17 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const overviewStatus = settingsSourceNotice
         ? settingsSourceNotice.state === "not_configured" ? "Setup needed" : "Partial source"
         : creatorStats ? "Live" : "Loading";
-    const overviewMetrics: CreatorOverviewMetric[] = [
-        { label: "Balance", value: creatorStats ? `${formatDashboardMetric(creatorStats.earningsGd)} GD` : "Unavailable", detail: creatorStats ? `$${cashValueUsd} value` : "Value unavailable", tone: "brand" },
-        { label: "Action needed", value: creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable", detail: "Requests, bookings, messages", tone: "action" },
-        { label: "Followers", value: formatDashboardMetric(creatorStats?.followerCount), detail: formatFollowerSourceDetail(fanCountSource), tone: "neutral" },
-        { label: "Content views", value: formatDashboardMetric(creatorStats?.profileViewsCount), detail: "Views tracked separately", tone: "muted" },
-        { label: "Content", value: formatDashboardMetric(creatorContentCount), detail: "Owned or assigned drops", tone: "neutral" },
-        { label: "Messages", value: formatDashboardMetric(unreadMessagesCount), detail: "Unread", tone: "muted" },
-        { label: "Requests", value: formatDashboardMetric(creatorStats?.openRequests), detail: "Open", tone: "muted" },
-        { label: "Bookings", value: formatDashboardMetric(creatorStats?.bookedCalls), detail: "Booked", tone: "muted" },
-        { label: "Fan Pass", value: formatDashboardMetric(creatorStats?.activeSubscribers), detail: "Active", tone: "muted" },
+    const runwayFacts: CreatorRunwayFact[] = [
+        { label: "Balance", value: creatorStats ? `${formatDashboardMetric(creatorStats.earningsGd)} GD` : "Unavailable", detail: creatorStats ? `$${cashValueUsd} value` : "Value unavailable" },
+        { label: "Action needed", value: creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable", detail: "Requests, bookings, messages" },
+        { label: "Followers", value: formatDashboardMetric(creatorStats?.followerCount), detail: formatFollowerSourceDetail(fanCountSource) },
+        { label: "Content views", value: formatDashboardMetric(creatorStats?.profileViewsCount), detail: "Views tracked separately" },
+        { label: "Content", value: formatDashboardMetric(creatorContentCount), detail: "Owned or assigned drops" },
+        { label: "Messages", value: formatDashboardMetric(unreadMessagesCount), detail: "Unread" },
+        { label: "Requests", value: formatDashboardMetric(creatorStats?.openRequests), detail: "Open" },
+        { label: "Bookings", value: formatDashboardMetric(creatorStats?.bookedCalls), detail: "Booked" },
+        { label: "Fan Pass", value: formatDashboardMetric(creatorStats?.activeSubscribers), detail: "Active" },
     ];
-    const recentThread = threads.length > 0 ? threads[0] : null;
     const submitSettingsBug = (error: NonNullable<typeof settingsModuleError>) => {
         settingsBugReporter.submit(error.descriptor, buildBugReportContext({
             descriptor: error.descriptor,
@@ -379,11 +379,12 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             data-report-issue-safe-offset="bottom-nav"
         >
             {isProjectionMode ? (
-                <div className="mb-4 rounded-2xl border border-brand-purple/30 bg-brand-purple/10 px-4 py-3 text-sm text-white">
+                <div className="mb-4 rounded-[1.5rem] border border-brand-purple/30 bg-brand-purple/10 px-4 py-4 text-sm text-white">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                            <p className="font-bold">Admin projection</p>
-                            <p className="mt-1 text-xs text-white/75">
+                            <p className="text-xs font-bold uppercase tracking-widest text-purple-200">Admin projection</p>
+                            <p className="mt-1 font-bold">Viewing {projectionDisplayName}&apos;s creator workspace</p>
+                            <p className="mt-1 text-sm text-white/75">
                                 Read-only creator dashboard preview for {projectionDisplayName}. Writes are blocked.
                             </p>
                         </div>
@@ -393,69 +394,70 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             ) : null}
 
             {!isCreatorOperator ? (
-                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <p className="text-sm font-bold text-white">{onboardingSummary.label}</p>
-                            <p className="mt-1 text-xs text-gray-400">{onboardingSummary.summary}</p>
-                        </div>
-                        <div className="flex gap-2">
+                <CreatorAccessStateSection
+                    eyebrow="Creator access"
+                    heading={onboardingSummary.label}
+                    summary={onboardingSummary.summary}
+                    status={
+                        <>
                             <CreatorWorkspaceStatusPill label={onboardingSummary.stage} tone={creatorApplication?.approvalStatus === "creator_approved" ? "good" : blockingReasons.length > 0 ? "warn" : "neutral"} />
                             {creatorApplication?.readyForApproval ? <CreatorWorkspaceStatusPill label="Ready" tone="good" /> : null}
                             {typeof creatorApplication?.queuePosition === "number" && creatorApplication.queuePosition > 0 ? (
-                                <CreatorWorkspaceStatusPill label={`#${creatorApplication.queuePosition} in queue`} />
+                                <CreatorWorkspaceStatusPill label={"#" + creatorApplication.queuePosition + " in queue"} />
                             ) : null}
-                            <Link href="/creators/waitlist" className="inline-flex min-h-11 items-center rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[11px] font-bold text-white">
-                                View app
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+                        </>
+                    }
+                    action={
+                        <Link href="/creators/waitlist" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/[0.16]">
+                            View application <ArrowUpRight className="h-4 w-4" />
+                        </Link>
+                    }
+                />
             ) : (
-                <div className="space-y-3 sm:space-y-4">
-                    <CreatorDashboardQuickActions unreadMessagesCount={unreadMessagesCount} recentThread={recentThread} isProjectionMode={isProjectionMode} />
-
-                    <CreatorDashboardSourceNotice
+                <CreatorOperatingRunway
+                    actionNeededCount={actionNeededCount}
+                    connection={
+                        <CreatorBroadcastCard
+                            broadcastDraft={broadcastDraft}
+                            broadcastSourceReady={broadcastSourceReady}
+                            broadcastCapabilitySource={broadcastCapabilitySource}
+                            busy={busyAction === "broadcast:send"}
+                            isProjectionMode={isProjectionMode}
+                            onDraftChange={setBroadcastDraft}
+                            onSend={handleBroadcastSend}
+                        />
+                    }
+                    context={
+                        <CreatorFanPassCrmPanel
+                            subscriptions={subscriptions}
+                            subscriptionsModuleError={moduleErrors.subscriptions}
+                        />
+                    }
+                    facts={runwayFacts}
+                    isProjectionMode={isProjectionMode}
+                    nextAction={
+                        <CreatorActionQueuePanel
+                            requests={requests}
+                            bookings={bookings}
+                            bookingsModuleError={moduleErrors.bookings}
+                            bookingsModuleState={moduleState.bookings}
+                            busyAction={busyAction}
+                            isProjectionMode={isProjectionMode}
+                            onRequestAction={handleRequestAction}
+                            onBookingAction={handleBookingAction}
+                        />
+                    }
+                    overviewStatus={overviewStatus}
+                    projectionDisplayName={projectionDisplayName}
+                    sourceNotice={
+                        <CreatorDashboardSourceNotice
                         settingsModuleError={settingsModuleError}
                         settingsSourceNotice={settingsSourceNotice}
                         moduleErrorEntries={moduleErrorEntries}
                         onSubmitSettingsBug={submitSettingsBug}
-                    />
-
-                    <div className="grid gap-2 sm:gap-4 xl:grid-cols-[1fr_280px]">
-                        <CreatorDashboardOverviewModule
-                            metrics={overviewMetrics}
-                            overviewStatus={overviewStatus}
-                            fanCountSource={fanCountSource}
                         />
-
-                        <div className="flex flex-col gap-2.5 sm:gap-3">
-                            <CreatorBroadcastCard
-                                broadcastDraft={broadcastDraft}
-                                broadcastSourceReady={broadcastSourceReady}
-                                broadcastCapabilitySource={broadcastCapabilitySource}
-                                busy={busyAction === "broadcast:send"}
-                                isProjectionMode={isProjectionMode}
-                                onDraftChange={setBroadcastDraft}
-                                onSend={handleBroadcastSend}
-                            />
-                            <CreatorActionQueuePanel
-                                requests={requests}
-                                bookings={bookings}
-                                bookingsModuleError={moduleErrors.bookings}
-                                bookingsModuleState={moduleState.bookings}
-                                busyAction={busyAction}
-                                isProjectionMode={isProjectionMode}
-                                onRequestAction={handleRequestAction}
-                                onBookingAction={handleBookingAction}
-                            />
-                            <CreatorFanPassCrmPanel
-                                subscriptions={subscriptions}
-                                subscriptionsModuleError={moduleErrors.subscriptions}
-                            />
-                        </div>
-                    </div>
-                </div>
+                    }
+                />
             )}
         </CreatorWorkspaceFrame>
     );
@@ -467,10 +469,10 @@ export function CreatorDashboardLandingRoute() {
     if (loading || !userProfile) {
         return (
             <div className="mx-auto w-full max-w-5xl px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:px-4 sm:pt-4 sm:pb-8" data-creator-landing-mobile-density="compact_v2">
-                <div className="h-24 rounded-2xl bg-white/5 sm:h-36" />
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+                <div className="h-32 rounded-[1.75rem] border border-white/5 bg-white/5 sm:h-40" />
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {Array.from({ length: 6 }).map((_, index) => (
-                        <div key={index} className="h-[72px] rounded-xl bg-white/5 sm:h-32 sm:rounded-2xl" />
+                        <div key={index} className="h-28 rounded-2xl border border-white/5 bg-white/5 sm:h-32" />
                     ))}
                 </div>
             </div>
@@ -478,7 +480,7 @@ export function CreatorDashboardLandingRoute() {
     }
     return (
         <main
-            className="mx-auto w-full max-w-5xl px-3 pt-3 sm:px-4 sm:pt-4"
+            className="min-h-[calc(100dvh-var(--root-shell-top-spacing,5rem))] bg-[#08050d] px-3 pt-3 sm:px-4 sm:pt-5"
             data-dashboard-surface="creator_dashboard"
             data-creator-dashboard-route="landing"
             data-creator-dashboard-content-boundary="creator_only"
@@ -490,7 +492,7 @@ export function CreatorDashboardLandingRoute() {
             data-bottom-nav-safe="true"
             data-report-issue-safe-offset="bottom-nav"
         >
-            <CreatorWorkspacePanel userProfile={userProfile} />
+            <div className="mx-auto w-full max-w-6xl"><CreatorWorkspacePanel userProfile={userProfile} /></div>
         </main>
     );
 }

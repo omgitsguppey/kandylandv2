@@ -179,6 +179,12 @@ export function findProductFacingCoinsVocabularyIndex(source: string) {
   return indexes.length > 0 ? Math.min(...indexes) : undefined;
 }
 
+export function hasCanonicalWalletDensityEvidence(walletSource: string, walletFrameSource: string) {
+  return /<KandyWalletModalFrame\b/u.test(walletSource)
+    && walletFrameSource.includes('data-wallet-density="public-beta-compact"')
+    && !walletSource.includes("emerald");
+}
+
 function pushFinding(findings: CodebaseHardeningFindingInput[], finding: CodebaseHardeningFindingInput) {
   findings.push(finding);
 }
@@ -443,6 +449,7 @@ function scanPaymentWalletAndEconomy(root: string, findings: CodebaseHardeningFi
   const creator = readIfExists(root, "src/lib/server/creator-experiences.ts");
   const unlock = readIfExists(root, "src/app/api/drops/unlock/route.ts");
   const wallet = readIfExists(root, "src/components/PurchaseModal.tsx");
+  const walletFrame = readIfExists(root, "src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx");
 
   if (capture?.source.includes('economics.bonusGumDrops, "reward"') || capture?.source.includes("economics.bonusGumDrops, 'reward'")) {
     pushFinding(findings, {
@@ -491,7 +498,7 @@ function scanPaymentWalletAndEconomy(root: string, findings: CodebaseHardeningFi
       humanReadableEscalation: "Unlock and payment behavior cannot be auto-repaired.",
     });
   }
-  if (wallet && (!wallet.source.includes("data-wallet-density=\"public-beta-compact\"") || wallet.source.includes("emerald"))) {
+  if (wallet && !hasCanonicalWalletDensityEvidence(wallet.source, walletFrame?.source ?? "")) {
     pushFinding(findings, {
       domain: "paymentWalletAndEconomyTruth",
       severity: "moderate",
@@ -512,7 +519,6 @@ function scanContentProtection(root: string, findings: CodebaseHardeningFindingI
   const lockedPreviewFiles = [
     "src/components/Drops/LockedDropPreviewView.tsx",
     "src/lib/locked-drop-preview-truth.ts",
-    "src/components/DropPreviewModal.tsx",
   ];
   for (const filePath of lockedPreviewFiles) {
     const file = readIfExists(root, filePath);
@@ -771,23 +777,7 @@ function scanSupportNotificationsChat(root: string, findings: CodebaseHardeningF
 }
 
 function scanLegacyOrphans(root: string, findings: CodebaseHardeningFindingInput[]) {
-  const modal = readIfExists(root, "src/components/DropPreviewModal.tsx");
   const drops = readIfExists(root, "src/app/drops/DropsClient.tsx");
-  if (modal && !modal.source.includes("Legacy fallback only") && !modal.source.includes('data-drop-preview-legacy-fallback="true"')) {
-    pushFinding(findings, {
-      domain: "legacyOrphanCleanup",
-      severity: "major",
-      filePath: modal.filePath,
-      title: "DropPreviewModal is not marked as legacy fallback",
-      evidence: ["Full-page locked preview is canonical; modal fallback must be explicitly deprecated."],
-      expectedRule: "Legacy preview modal remains only as documented fallback and must not own locked preview entry points.",
-      actualPattern: "missing legacy fallback marker",
-      canAutofix: false,
-      autofixConfidence: 0,
-      suggestedFix: "Add explicit legacy marker/comment only after confirming canonical entry points route to full-page preview.",
-      humanReadableEscalation: "Route migration cleanup must not delete fallback before validators confirm no dependency.",
-    });
-  }
   if (drops && drops.source.includes("setPreviewDrop") && !drops.source.includes("/preview")) {
     pushFinding(findings, {
       domain: "legacyOrphanCleanup",
@@ -796,7 +786,7 @@ function scanLegacyOrphans(root: string, findings: CodebaseHardeningFindingInput
       line: lineOf(drops.source, "setPreviewDrop"),
       title: "Drops page may still own modal preview flow",
       evidence: ["/drops?drop= should redirect/handoff to full-page preview for locked Drops."],
-      expectedRule: "Locked preview entry points prefer /drops/[id]/preview; modal is legacy fallback only.",
+      expectedRule: "Locked preview entry points use /drops/[id]/preview; the retired modal must not return.",
       actualPattern: "setPreviewDrop without preview route handoff evidence",
       canAutofix: false,
       autofixConfidence: 0,

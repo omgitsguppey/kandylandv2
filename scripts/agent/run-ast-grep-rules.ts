@@ -47,15 +47,10 @@ const LOCKED_PREVIEW_FILES = [
   "src/lib/locked-drop-preview-truth.ts",
 ] as const;
 
-const LEGACY_PREVIEW_TIMER_FILES = [
-  "src/components/DropPreviewModal.tsx",
-] as const;
-
 const SHELL_CRITICAL_FILES = unique([
   ...PUBLIC_SHELL_FILES,
   ...CHAT_FILES,
   ...LOCKED_PREVIEW_FILES,
-  ...LEGACY_PREVIEW_TIMER_FILES,
 ]);
 
 const SAFE_AREA_TARGET_FILES = unique([
@@ -73,11 +68,6 @@ const allowedSetIntervalContexts = [
     filePath: "src/components/Chat/ChatExperience.tsx",
     contains: "heartbeatTimer = window.setInterval",
     reason: "existing chat presence heartbeat",
-  },
-  {
-    filePath: "src/components/DropPreviewModal.tsx",
-    contains: "const interval = window.setInterval(updateTimer, 1000)",
-    reason: "legacy modal countdown timer",
   },
 ] as const;
 

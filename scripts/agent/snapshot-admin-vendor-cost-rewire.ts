@@ -603,6 +603,7 @@ function buildRuntimeAwareIssues(root: string) {
   const historicalRoute = readText(root, "src/app/api/admin/analytics/historical/route.ts");
   const debugRoute = readText(root, "src/app/api/admin/debug/route.ts");
   const audienceTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+  const audienceSnapshot = readText(root, "src/app/admin/analytics/components/AdminAnalyticsAudienceSnapshotSection.tsx");
   const operationsTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
   const commerceTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
   const displayStateHelper = readText(root, "src/lib/analytics/admin-analytics-display-state.ts");
@@ -630,8 +631,8 @@ function buildRuntimeAwareIssues(root: string) {
     && debugRoute.includes("recovery_evidence_debug_first");
   const moduleVendorLabelsPresent = displayStateHelper.includes("Estimated from vendor analytics")
     && displayStateHelper.includes("Debug-only recovery evidence")
-    && audienceTab.includes('data-admin-analytics-vendor-source-label="vendor_evidence"')
-    && audienceTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"")
+    && audienceSnapshot.includes('data-admin-analytics-vendor-source-label="vendor_evidence"')
+    && audienceSnapshot.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"")
     && operationsTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
     && operationsTab.includes("data-admin-analytics-raw-ledger-display=\"debug_only\"")
     && operationsTab.includes("data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}")

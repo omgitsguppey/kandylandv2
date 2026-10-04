@@ -10,7 +10,6 @@ import {
     type ChatThreadRecord,
 } from "@/lib/chat";
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
-import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 
@@ -29,21 +28,25 @@ export function useChatUnreadStatus() {
         viewerUid: user?.uid || "",
         profile: userProfile,
     });
+    const isLocalPreview = typeof window !== "undefined" && ["localhost", "127.0.0.1", "0.0.0.0"].includes(window.location.hostname);
     const subscriptionKey =
         user && userProfile && preferRealtime ? `${user.uid}:${viewerRole}` : null;
 
     useEffect(() => {
-        if (!subscriptionKey || !user) {
+        if (!subscriptionKey || !user || isLocalPreview) {
             realtimeIssueReportedAtRef.current = null;
             return;
         }
 
         const viewerField = viewerRole === "creator" ? "creatorId" : "userId";
         let cancelled = false;
-        
-        const observerControl = createAutoHealingObserver(
-            () => {
-                return onSnapshot(
+        let observerControl: ReturnType<typeof createAutoHealingObserver> | null = null;
+
+        void import("@/lib/firebase-data").then(({ db }) => {
+            if (cancelled) return;
+
+            observerControl = createAutoHealingObserver(
+                () => onSnapshot(
                     query(
                         collection(db, CHAT_COLLECTIONS.threads),
                         where(viewerField, "==", user.uid),
@@ -65,32 +68,32 @@ export function useChatUnreadStatus() {
                     },
                     (error) => {
                         if (cancelled) return;
-                        observerControl.triggerReconnect(error);
+                        observerControl?.triggerReconnect(error);
+                    },
+                ),
+                (error: unknown) => {
+                    if (cancelled) return;
+                    const now = Date.now();
+                    if (!realtimeIssueReportedAtRef.current || now - realtimeIssueReportedAtRef.current > 30000) {
+                        realtimeIssueReportedAtRef.current = now;
+                        reportRealtimeIssue("chat unread status", error, {
+                            userId: user.uid,
+                            ...buildFirestoreClientIssueDetail(error, {
+                                fallbackMessage: buildFirestoreClientFallbackMessage("Chat unread badge", error),
+                                path: `${CHAT_COLLECTIONS.threads}`,
+                            }) as Record<string, string>,
+                        });
                     }
-                );
-            },
-            (error: unknown) => {
-                if (cancelled) return;
-                const now = Date.now();
-                if (!realtimeIssueReportedAtRef.current || now - realtimeIssueReportedAtRef.current > 30000) {
-                    realtimeIssueReportedAtRef.current = now;
-                    reportRealtimeIssue("chat unread status", error, {
-                        userId: user.uid,
-                        ...buildFirestoreClientIssueDetail(error, {
-                            fallbackMessage: buildFirestoreClientFallbackMessage("Chat unread badge", error),
-                            path: `${CHAT_COLLECTIONS.threads}`
-                        }) as Record<string, string>,
-                    });
-                }
-            },
-            5000 // Fixed 5s retry interval like ChatExperience
-        );
+                },
+                5000,
+            );
+        });
 
         return () => {
             cancelled = true;
-            observerControl.cleanup();
+            observerControl?.cleanup();
         };
-    }, [subscriptionKey, user, viewerRole]);
+    }, [isLocalPreview, subscriptionKey, user, viewerRole]);
 
     return {
         hasUnreadMessages:

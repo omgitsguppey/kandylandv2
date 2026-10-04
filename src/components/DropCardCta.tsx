@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, Lock, Loader2, Unlock, Wallet } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type { User } from "firebase/auth";
 
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { DropCtaState } from "@/lib/drop-card-visibility";
 import type { Drop } from "@/types/db";
@@ -12,6 +13,7 @@ interface DropCardCtaProps {
     drop: Drop;
     user: User | null;
     isUnlocked: boolean;
+    accessLoading?: boolean;
     canAfford: boolean;
     ctaState: DropCtaState;
     unlocking: boolean;
@@ -24,6 +26,7 @@ export function DropCardCta({
     drop,
     user,
     isUnlocked,
+    accessLoading = false,
     canAfford,
     ctaState,
     unlocking,
@@ -31,66 +34,60 @@ export function DropCardCta({
     onUnlock,
     onHaptic,
 }: DropCardCtaProps) {
-    if (isUnlocked) {
+    if (isUnlocked && !accessLoading) {
         return (
             <Link
                 href={`/dashboard/viewer?id=${drop.id}`}
                 onClick={onHaptic}
-                className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.7rem] border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-[0_0_12px_rgba(164,118,255,0.24)] transition-all active:scale-95 md:px-4 md:py-2 md:text-xs"
+                className={cn(buttonVariants({ variant: "brand" }), "w-full flex-wrap gap-2 px-1 whitespace-normal [overflow-wrap:anywhere]")}
+                data-drop-card-cta="view"
             >
-                <Unlock className="h-3 w-3" />
-                View Content
+                <span className="min-w-0 max-w-full">View Content</span>
             </Link>
         );
     }
 
     return (
-        <button
+        <Button
+            variant={confirming ? "default" : "brand"}
             type="button"
             onClick={onUnlock}
-            disabled={unlocking}
-            aria-busy={unlocking}
-            className={cn(
-                "relative flex min-h-11 w-full items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-[0.7rem] border px-2.5 py-1.5 text-[10px] font-bold shadow-lg transition-all active:scale-95 md:px-4 md:py-2 md:text-xs",
-                !canAfford
-                    ? "border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 text-white shadow-[0_0_15px_rgba(164,118,255,0.3)] hover:opacity-95"
-                    : confirming
-                        ? "border-white bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.22)]"
-                        : "border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] hover:opacity-95",
-                "disabled:cursor-not-allowed disabled:opacity-50",
-            )}
+            disabled={accessLoading || unlocking}
+            aria-busy={accessLoading || unlocking}
+            className="w-full flex-wrap gap-2 px-1 whitespace-normal [overflow-wrap:anywhere]"
+            data-drop-card-cta={ctaState}
         >
-            {unlocking ? (
+            {accessLoading ? (
                 <>
-                    <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />
-                    <span>Unwrapping...</span>
+                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                    <span className="min-w-0 max-w-full">Checking access</span>
+                </>
+            ) : unlocking ? (
+                <>
+                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                    <span className="min-w-0 max-w-full">Unwrapping...</span>
                 </>
             ) : !user || ctaState === "create_profile" ? (
                 <>
-                    <Lock className="h-3 w-3" />
-                    <span>Create account to unwrap</span>
+                    <span className="min-w-0 max-w-full">Create account to unwrap</span>
                 </>
             ) : ctaState === "preview" ? (
                 <>
-                    <Eye className="h-3 w-3" />
-                    <span>Preview cover</span>
+                    <span className="min-w-0 max-w-full">Preview cover</span>
                 </>
             ) : !canAfford || ctaState === "refill" ? (
                 <>
-                    <Wallet className="h-3 w-3" />
-                    <span>Refill to unwrap</span>
+                    <span className="min-w-0 max-w-full">Refill to unwrap</span>
                 </>
             ) : confirming ? (
                 <>
-                    <Lock className="h-3 w-3" />
-                    <span>Confirm {drop.unlockCost} GD?</span>
+                    <span className="min-w-0 max-w-full">Confirm {drop.unlockCost} GD?</span>
                 </>
             ) : (
                 <>
-                    <Lock className="h-3 w-3" />
-                    <span>Unwrap</span>
+                    <span className="min-w-0 max-w-full">Unwrap</span>
                 </>
             )}
-        </button>
+        </Button>
     );
 }

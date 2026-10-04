@@ -5,8 +5,12 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
+import { usePageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Card } from "@/components/creative-tim/ui/card";
+import { SignedInDashboardHeader } from "@/components/creative-tim/kandydrops/signed-in/SignedInDashboardHeader";
+import { SignedInDashboardJourney } from "@/components/creative-tim/kandydrops/signed-in/SignedInDashboardJourney";
 import { useAuth } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { useDrops } from "@/hooks/useDrops";
@@ -16,7 +20,6 @@ import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
 import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
 import { getMobileSkeletonClass } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
-import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
 
 const userOverviewModuleClassName = getMobileModuleClassNames("user", "overview");
@@ -24,129 +27,127 @@ const userOverviewSkeletonClassName = getMobileSkeletonClass("user", "overview")
 const userListSkeletonClassName = getMobileSkeletonClass("user", "list");
 
 const RecentActivityFeed = dynamic(
-    () => import("@/components/Dashboard/RecentActivityFeed").then((mod) => mod.RecentActivityFeed),
-    {
-        loading: () => (
-            <div
-                className={`${userOverviewModuleClassName} mt-3 lg:mt-8`}
-                data-mobile-density="compact"
-                data-mobile-sprawl-guard="true"
-            >
-                <div className="h-5 w-40 rounded-lg bg-white/10" />
-                <div className="mt-3 h-20 rounded-2xl bg-white/5" />
-            </div>
-        ),
-    },
+  () => import("@/components/Dashboard/RecentActivityFeed").then((mod) => mod.RecentActivityFeed),
+  {
+    loading: () => (
+      <div
+        className={`${userOverviewModuleClassName} mt-3 lg:mt-8`}
+        data-mobile-density="compact"
+        data-mobile-sprawl-guard="true"
+      >
+        <div className="h-5 w-40 rounded-lg bg-muted" />
+        <div className="mt-3 h-20 rounded-2xl bg-muted" />
+      </div>
+    ),
+  },
 );
 
 interface DashboardClientProps {
-    drops: Drop[];
-    creatorRailProfiles: CreatorDiscoveryProfile[];
+  drops: Drop[];
+  creatorRailProfiles: CreatorDiscoveryProfile[];
 }
 
-
-
 export default function DashboardClient({ drops, creatorRailProfiles }: DashboardClientProps) {
-    const { userProfile, loading } = useAuth();
-    const router = useRouter();
-    const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
-    const { drops: liveActiveDrops, nowMs } = useDrops(["active"], initialActiveDrops);
-    const visibleDrops = useMemo(
-        () => mergeResolvedDropsById(drops, liveActiveDrops, nowMs),
-        [drops, liveActiveDrops, nowMs],
-    );
-    const isCreatorPrimaryDashboard = userProfile?.role === "creator";
+  const { user, userProfile, loading } = useAuth();
+  const { openPurchaseModal } = useUI();
+  const router = useRouter();
+  const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
+  const { drops: liveActiveDrops, nowMs } = useDrops(["active"], initialActiveDrops);
+  const visibleDrops = useMemo(
+    () => mergeResolvedDropsById(drops, liveActiveDrops, nowMs),
+    [drops, liveActiveDrops, nowMs],
+  );
+  const profileReady = !loading && Boolean(user && userProfile?.uid === user.uid);
+  const isCreatorPrimaryDashboard = profileReady && userProfile?.role === "creator";
+  const profileBalance = Number(userProfile?.gumDropsBalance ?? 0);
+  const gumDropsBalance = Number.isFinite(profileBalance) ? Math.max(0, profileBalance) : 0;
 
-    useEffect(() => {
-        if (!userProfile) {
-            return;
-        }
+  usePageViewEvent({
+    eventName: "dashboard_viewed",
+    actor: { id: user?.uid ?? null, loading },
+    ready: profileReady,
+  });
 
-        trackEvent("dashboard_viewed");
-    }, [userProfile]);
-
-    useEffect(() => {
-        if (!isCreatorPrimaryDashboard) {
-            return;
-        }
-
-        router.replace(CREATOR_DASHBOARD_ROUTE);
-    }, [isCreatorPrimaryDashboard, router]);
-
-    if (loading || !userProfile) {
-        return (
-            <div
-                className="relative isolate mx-auto w-full max-w-7xl overflow-x-clip px-3 sm:px-4"
-                data-mobile-density="compact"
-                data-mobile-sprawl-guard="true"
-                data-mobile-organization="summary-first"
-                data-mobile-drilldown="true"
-                data-desktop-flow-collapsed="true"
-                data-user-dashboard-loading-staged="true"
-            >
-
-                <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
-                    <div className="space-y-3 md:space-y-5">
-                        <div className={userOverviewSkeletonClassName} data-mobile-skeleton="user-dashboard-overview" />
-                        <div className={userListSkeletonClassName} data-mobile-skeleton="user-dashboard-list" />
-                    </div>
-                    <div className="lg:col-span-2">
-                        <div
-                            className={`${userListSkeletonClassName} min-h-[13rem]`}
-                            data-mobile-skeleton="user-dashboard-collection"
-                        />
-                    </div>
-                </div>
-            </div>
-        );
+  useEffect(() => {
+    if (!isCreatorPrimaryDashboard) {
+      return;
     }
 
-    if (isCreatorPrimaryDashboard) {
-        return (
-            <div
-                className="mx-auto w-full max-w-5xl px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:px-4 sm:pt-4"
-                data-dashboard-surface="creator_redirect"
-                data-creator-dashboard-route-boundary="redirect_to_creator_dashboard"
-                data-user-dashboard-modules-rendered="false"
-            >
-                <Card className="!gap-0 !rounded-2xl !border-white/10 !bg-black/50 !p-0 text-sm text-white shadow-[0_16px_44px_rgba(0,0,0,0.22)] backdrop-blur-xl">
-                  <div className="px-4 py-3">
-                    Opening Creator Dashboard...
-                  </div>
-                </Card>
-            </div>
-        );
-    }
+    router.replace(CREATOR_DASHBOARD_ROUTE);
+  }, [isCreatorPrimaryDashboard, router]);
 
-
-
+  if (!profileReady || !userProfile) {
     return (
-        <div
-            id="dashboard-home"
-            tabIndex={-1}
-            className="relative isolate scroll-mt-24 mx-auto w-full max-w-7xl overflow-x-clip px-3 sm:px-4 outline-none"
-            data-onboarding-page="dashboard"
-            data-dashboard-surface="user_dashboard"
-            data-mobile-density="compact"
-            data-mobile-sprawl-guard="true"
-            data-mobile-organization="summary-first"
-            data-mobile-drilldown="true"
-            data-desktop-flow-collapsed="true"
-            data-user-dashboard-loading-staged="true"
-        >
-            <div className="pointer-events-none absolute inset-x-8 top-0 -z-10 h-72 rounded-full bg-brand-purple/10 blur-[110px] motion-reduce:hidden" aria-hidden="true" />
-            <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
-                <div className="space-y-3 md:space-y-5">
-                    <DailyCheckIn />
-                    <CreatorDiscoveryRail surface="dashboard" compact initialCreators={creatorRailProfiles} />
-
-                    <RecentActivityFeed />
-                </div>
-
-                <div className="lg:col-span-2">
-                    <CollectionList drops={visibleDrops} userProfile={userProfile} currentTimeMs={nowMs} />
-                </div>
-            </div>
+      <div
+        className="mx-auto w-full min-w-0 max-w-7xl px-4"
+        data-mobile-density="compact"
+        data-mobile-sprawl-guard="true"
+        data-mobile-organization="summary-first"
+        data-mobile-drilldown="true"
+        data-desktop-flow-collapsed="true"
+        data-user-dashboard-loading-staged="true"
+      >
+        <div className="space-y-4 sm:space-y-5">
+          <div className={userOverviewSkeletonClassName} data-mobile-skeleton="user-dashboard-overview" />
+          <div className={userListSkeletonClassName} data-mobile-skeleton="user-dashboard-now" />
+          <div
+            className={`${userListSkeletonClassName} min-h-[13rem]`}
+            data-mobile-skeleton="user-dashboard-collection"
+          />
         </div>
+      </div>
     );
+  }
+
+  if (isCreatorPrimaryDashboard) {
+    return (
+      <div
+        className="mx-auto w-full max-w-5xl px-3 pb-[calc(env(safe-area-inset-bottom)+9rem)] pt-3 sm:px-4 sm:pt-4"
+        data-dashboard-surface="creator_redirect"
+        data-creator-dashboard-route-boundary="redirect_to_creator_dashboard"
+        data-user-dashboard-modules-rendered="false"
+      >
+        <Card className="min-w-0 gap-0 p-4 text-sm" role="status">
+          <p>Opening Creator Dashboard...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      id="dashboard-home"
+      tabIndex={-1}
+      className="mx-auto w-full min-w-0 max-w-7xl scroll-mt-24 px-4 pb-8 outline-none"
+      data-onboarding-page="dashboard"
+      data-dashboard-surface="user_dashboard"
+      data-mobile-density="compact"
+      data-mobile-sprawl-guard="true"
+      data-mobile-organization="summary-first"
+      data-mobile-drilldown="true"
+      data-desktop-flow-collapsed="true"
+      data-user-dashboard-loading-staged="true"
+    >
+      <SignedInDashboardJourney
+        header={(
+          <SignedInDashboardHeader
+            gumDropsBalance={gumDropsBalance}
+            onWalletPress={() => openPurchaseModal()}
+          />
+        )}
+        now={<DailyCheckIn />}
+        yourKandy={(
+          <main>
+            <CollectionList drops={visibleDrops} userProfile={userProfile} currentTimeMs={nowMs} />
+          </main>
+        )}
+        keepExploring={(
+          <>
+            <CreatorDiscoveryRail surface="dashboard" compact initialCreators={creatorRailProfiles} />
+            <RecentActivityFeed />
+          </>
+        )}
+      />
+    </div>
+  );
 }

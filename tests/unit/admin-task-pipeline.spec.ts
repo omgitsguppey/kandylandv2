@@ -48,6 +48,11 @@ describe("buildAdminTaskPipelineModel", () => {
       failureAfterStartPct: null,
     });
     expect(model.stuckAssignedCount).toBe(40);
+    expect(model.stuckAssignedBreakdown).toMatchObject({
+      activeCurrentWindow: null,
+      historicalUnstarted: null,
+      expiredUnstarted: null,
+    });
     expect(model.startedNotCompletedCount).toBe(15);
     expect(model.guidanceTelemetryState).toBe("available");
     expect(model.completionSpeedConsolidated).toBe(true);

@@ -17,6 +17,8 @@ export const ADMIN_TRUTH_STATES = [
 
 export type AdminTruthState = (typeof ADMIN_TRUTH_STATES)[number];
 
+export const ADMIN_NO_SOURCE_LABEL = "No source" as const;
+
 type TruthLikeState =
   | AdminTruthState
   | AdminSurfaceState
@@ -298,7 +300,7 @@ export function getAdminTruthStateBadgeLabel(
   if (state === "legacy_fallback") return "Legacy";
   if (state === "blocked") return "Blocked";
   if (state === "review") return "Review";
-  return "No source";
+  return ADMIN_NO_SOURCE_LABEL;
 }
 
 export function getAdminTruthStateDescription(state: AdminTruthState) {

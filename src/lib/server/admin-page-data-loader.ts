@@ -1,8 +1,10 @@
 import { formatDistanceToNow } from "date-fns";
 
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { buildOperatorStatusCopy } from "@/lib/admin/copy/admin-truth-copy";
 import {
   resolveAdminTruthState,
+  hasUsableAdminTruthValue,
   type AdminTruthState,
 } from "@/lib/admin-truth-state";
 import type { AdminOverviewResponse } from "@/lib/admin-overview";
@@ -40,22 +42,28 @@ export function buildAdminOverviewPageData(input: {
 }): AdminOverviewPageData {
   const issueCount = input.data?.overviewIssues?.length ?? input.data?.issues?.length ?? 0;
   const truthSnapshot = input.data?.truthSnapshot ?? null;
+  const overviewUnavailable = input.data?.verification?.status === "unavailable";
+  const hasOverviewValue = !overviewUnavailable && Boolean(input.data?.platformPulse?.some((metric) =>
+    metric.freshnessState !== "unavailable" && metric.freshnessState !== "unknown" && hasUsableAdminTruthValue(metric.primaryValue),
+  ));
   const lastServerConfirmedAt = input.data?.realtimeDebugMeta?.lastServerConfirmedAt;
   const lastTransactionAt = input.data?.freshness.lastTransactionAt;
-  const serverUpdateLabel = lastServerConfirmedAt && lastServerConfirmedAt > 0
+  const serverUpdateLabel = overviewUnavailable ? "Overview data unavailable" : lastServerConfirmedAt && lastServerConfirmedAt > 0
     ? `Last server update ${formatDistanceToNow(lastServerConfirmedAt, { addSuffix: true })}`
     : lastTransactionAt && lastTransactionAt > 0
       ? `Last server update ${formatDistanceToNow(lastTransactionAt, { addSuffix: true })}`
       : "No server update yet";
-  const truthLabel = input.data?.truthNotes?.overview ?? "Collecting activity";
+  const truthLabel = overviewUnavailable
+    ? buildOperatorStatusCopy({ truthState: "unavailable" }).shortBody
+    : input.data?.truthNotes?.overview ?? "Collecting activity";
   const fallbackState = input.error ? "failed" : input.isLoading ? "loading" : "unavailable";
   const fallbackMessage = input.error?.message
     ?? (input.isLoading ? "Loading overview snapshot." : "Overview snapshot has no verified source yet.");
   const truthState = resolveAdminTruthState({
-    hasUsableValue: Boolean(truthSnapshot || input.data?.platformPulse?.length),
+    hasUsableValue: hasOverviewValue,
     sourceConfigured: true,
     transportState: input.error ? "failed" : input.isLoading && !input.data ? "loading" : undefined,
-    valueState: truthSnapshot?.sourceFreshness,
+    valueState: overviewUnavailable ? "unavailable" : input.data?.verification?.status ?? truthSnapshot?.sourceFreshness,
     reviewRequired: issueCount > 0,
   });
 

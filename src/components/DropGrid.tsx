@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { memo, useMemo } from "react";
+import { Button, buttonVariants } from "@/components/ui/Button";
 
 import { DropCard } from "@/components/DropCard";
 import { PromoCard } from "@/components/PromoCard";
-import { Card } from "@/components/creative-tim/ui/card";
+import { KandyEditorialPromotionInterlude, KandyEditorialReleaseCollection, KandyEditorialReleaseSkeleton } from "@/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCollection";
 import { useAuth } from "@/context/AuthContext";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { resolveDropLifecycleStatus } from "@/lib/drop-status";
@@ -19,6 +20,8 @@ interface DropGridProps {
     drops: Drop[];
     loading?: boolean;
     isSearching?: boolean;
+    error?: string | null;
+    onClearFilters?: () => void;
     onSelectDrop: (drop: Drop, sourceComponent?: string) => void;
     impressionTrackingSurface?: string;
     impressionTrackingSessionId?: string;
@@ -28,6 +31,8 @@ export const DropGrid = memo(function DropGrid({
     drops: propDrops,
     loading: propLoading,
     isSearching,
+    error,
+    onClearFilters,
     onSelectDrop,
     impressionTrackingSurface,
     impressionTrackingSessionId,
@@ -51,73 +56,42 @@ export const DropGrid = memo(function DropGrid({
             })),
         [drops],
     );
+    const getGridSpanClass = (_ratio: "1:1" | "16:9" | "9:16") => "min-w-0";
 
-    const getGridSpanClass = (ratio: "1:1" | "16:9" | "9:16") => {
-        if (ratio === "16:9") {
-            return "col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4";
-        }
-
-        if (ratio === "9:16") {
-            return "col-span-1";
-        }
-
-        return "col-span-1 md:col-span-1 lg:col-span-2";
-    };
-
-    if (loading) {
-        return (
-            <div
-                className="grid grid-cols-2 gap-2 pb-6 sm:gap-3 md:grid-cols-3 md:gap-5 md:pb-0 lg:grid-cols-4"
-                data-drops-grid-density="compact-mobile"
-            >
-                {Array.from({ length: 8 }).map((_, idx) => (
-                    <div
-                        key={idx}
-                        className="col-span-1 h-[190px] animate-pulse rounded-[1.15rem] bg-white/5 md:h-[330px] md:rounded-[1.35rem]"
-                    />
-                ))}
-            </div>
-        );
+    if (loading && drops.length === 0) {
+        return <KandyEditorialReleaseSkeleton itemCount={8} embedded />;
     }
+
+    const sourceNotice = error ? (
+        <p role="alert" className="rounded-xl bg-destructive/10 p-4 text-sm leading-relaxed text-destructive">
+            {drops.length > 0
+                ? "The collection couldn’t refresh. You can keep browsing the loaded Drops."
+                : "The collection couldn’t load. You can return to Drops to try again."}
+        </p>
+    ) : null;
 
     if (drops.length === 0) {
         return (
-            <div className="w-full py-6 md:py-10" data-drops-grid-density="compact-mobile">
-                <Card className="relative mx-auto max-w-xl overflow-hidden rounded-[1.35rem] border-white/10 bg-white/[0.035] !gap-0 !p-0 text-center shadow-[0_12px_30px_rgba(0,0,0,0.18)] md:rounded-[1.6rem]">
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-purple/10 via-transparent to-white/[0.03]" />
-
-                    <div className="relative px-5 py-6 md:px-6 md:py-8">
-                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border border-white/10 bg-zinc-900/80 text-sm font-black text-white/45 shadow-inner">
-                            KD
+            <div className="min-w-0 space-y-4" data-drops-grid-density="compact-mobile">
+                {sourceNotice}
+                <section className="min-w-0 space-y-4">
+                        <h3 className="text-xl font-semibold tracking-tight [overflow-wrap:anywhere]">{isSearching ? "No loaded Drops match these filters." : "No loaded releases."}</h3>
+                        <p className="text-sm leading-relaxed text-muted-foreground">{isSearching ? "Clear the filters or try another search." : "Explore Experiences while there are no releases displayed here."}</p>
+                        <div className="flex min-w-0 flex-wrap gap-2">
+                            {isSearching && onClearFilters ? <Button type="button" variant="brand" className="max-w-full whitespace-normal" onClick={onClearFilters}>Clear filters</Button> : null}
+                            <Link href="/experiences" className={cn(buttonVariants({ variant: "ghost" }), "max-w-full flex-wrap px-1 whitespace-normal [overflow-wrap:anywhere]")}>Browse Experiences</Link>
                         </div>
-
-                        <h3 className="mb-2 text-lg font-black tracking-tight text-white md:text-2xl">
-                            {isSearching ? "No matching Drops" : "No Drops right now"}
-                        </h3>
-
-                        <p className="mx-auto max-w-sm text-sm leading-relaxed text-gray-400 md:text-base">
-                            {isSearching
-                                ? "Try a shorter search or switch filters."
-                                : "Fresh drops are not available right now. Explore live experiences while the next batch lands."}
-                        </p>
-
-                        {!isSearching ? (
-                            <Link
-                                href="/experiences"
-                                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-[0.85rem] border border-brand-purple/40 bg-brand-purple px-4 text-sm font-bold text-white shadow-[0_8px_22px_rgba(164,118,255,0.2)] transition-transform active:scale-[0.98]"
-                            >
-                                Browse Experiences
-                            </Link>
-                        ) : null}
-                    </div>
-                </Card>
+                </section>
             </div>
         );
     }
 
     return (
+        <div className="min-w-0 space-y-4">
+        {sourceNotice}
+        <KandyEditorialReleaseCollection>
         <div
-            className="grid grid-cols-2 items-start gap-2 pb-6 sm:gap-3 md:grid-cols-3 md:gap-5 md:pb-0 lg:grid-cols-4"
+            className="contents"
             data-drops-grid-density="compact-mobile"
         >
             {dropEntries.map(({ drop, aspectRatio }, index) => {
@@ -126,10 +100,13 @@ export const DropGrid = memo(function DropGrid({
                 return (
                     <div key={drop.id} id={`drop-${drop.id}`} className={cn("h-full scroll-mt-32", getGridSpanClass(aspectRatio))}>
                         {drop.type === "promo" || drop.type === "external" ? (
-                            <PromoCard drop={drop} />
+                            <KandyEditorialPromotionInterlude>
+                                <PromoCard drop={drop} />
+                            </KandyEditorialPromotionInterlude>
                         ) : (
                             <DropCard
                                 drop={drop}
+                                presentation="shelf"
                                 user={user}
                                 isUnlocked={isUnlocked}
                                 onPreview={onSelectDrop}
@@ -142,6 +119,8 @@ export const DropGrid = memo(function DropGrid({
                     </div>
                 );
             })}
+        </div>
+        </KandyEditorialReleaseCollection>
         </div>
     );
 });

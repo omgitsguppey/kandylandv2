@@ -1,7 +1,7 @@
 # Mobile Residual Score Impact
 
-Generated: 2026-05-21T02:36:34.230Z
-Current code version: d21c3e879ee17c77af614c0d4843f6044cc19259
+Generated: 2026-08-29T04:08:31.300Z
+Current code version: fde24e265d1a33a3915e59b7af74af5113ddfde3
 
 ## Summary
 
@@ -19,7 +19,7 @@ Current code version: d21c3e879ee17c77af614c0d4843f6044cc19259
 | ID | Category | Surface | Impact | Status | Path |
 | --- | --- | --- | --- | --- | --- |
 | admin-debug-loading-density | admin debug/truth route | admin | P1 | fixed | src/app/admin/debug/page.tsx |
-| user-dashboard-recent-activity-density | user-critical route | user | P1 | fixed | src/components/Dashboard/RecentActivityFeed.tsx |
+| user-dashboard-recent-activity-density | user-critical route | user | P1 | fixed | src/components/creative-tim/kandydrops/activity/KandyRecentActivityExperience.tsx |
 | user-dashboard-daily-task-empty-density | user-critical route | user | P1 | fixed | src/components/Dashboard/DailyTasksModule.tsx |
 | user-library-empty-state-density | profile/drop route | user | P1 | fixed | src/components/Dashboard/CollectionList.tsx |
 | creator-profile-empty-timeline-density | creator-critical route | creator | P1 | fixed | src/app/creators/[username]/CreatorProfileClient.tsx |

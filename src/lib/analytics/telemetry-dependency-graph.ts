@@ -146,7 +146,7 @@ export const TELEMETRY_DEPENDENCY_GRAPH: TelemetryDependencyLane[] = [
   {
     id: "identity_link",
     label: "Guest-to-user identity transfer",
-    producer: "analytics identity-link route and identified ingest identity_linked events",
+    producer: "canonical analytics identity-link route; identified ingest records observations only",
     clientEvent: "identity_linked",
     routeApi: "/api/analytics/identity-link and /api/analytics/ingest-identified",
     persistenceDestination: "analytics_identity_links and analytics_event_facts",

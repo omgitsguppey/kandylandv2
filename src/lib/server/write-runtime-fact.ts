@@ -1,6 +1,7 @@
+import { readSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 import "server-only";
 
-import type { RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
+import { readRuntimeFactRequestConsentAdmission, type RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
 
 function readString(params: Record<string, unknown>, ...keys: string[]) {
   for (const key of keys) {
@@ -51,8 +52,10 @@ export function createRuntimeFactFirestoreDocument(input: {
   trackingOrigin: string;
 }) {
   const fact = input.runtimeFact;
+  const requestConsentAdmission = readRuntimeFactRequestConsentAdmission(fact.requestConsentAdmission);
 
   return {
+    ...(readSessionMeasurementCheckpoint(fact.sessionMeasurement) ? { sessionMeasurement: readSessionMeasurementCheckpoint(fact.sessionMeasurement)! } : {}),
     eventId: fact.eventId,
     eventName: fact.canonicalEventName,
     rawEventName: fact.rawEventName,
@@ -64,6 +67,7 @@ export function createRuntimeFactFirestoreDocument(input: {
     pagePath: fact.route,
     source_component: fact.source_component,
     runtimeFactVersion: fact.runtimeFactVersion,
+    ...(requestConsentAdmission ? { requestConsentAdmission } : {}),
     sourceTruth: fact.sourceTruth,
     confidence: fact.confidence,
     sourceConfidence: fact.confidence,
