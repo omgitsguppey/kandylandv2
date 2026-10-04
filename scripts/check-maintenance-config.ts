@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import {
   MAINTENANCE_MODE_ENV,
+  MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH,
+  isMaintenanceBlockedAdminApiPath,
   MAINTENANCE_SQL_POLICY,
   MAINTENANCE_SCHEDULES,
   isMaintenanceStateActive,
@@ -59,9 +61,9 @@ requireText(appHosting, "minInstances: 0", "App Hosting configuration");
 requireText(appHosting, `variable: ${MAINTENANCE_MODE_ENV}`, "App Hosting configuration");
 requireText(appHosting, 'value: "1"', "App Hosting configuration");
 requireText(firebase, '"source": "functions"', "Firebase Functions configuration");
-requireText(read("functions/src/index.ts"), "minInstances: 0", "Functions global minimum-instance configuration");
+requireText(read("functions/src/firebase-runtime.ts"), "minInstances: 0", "Functions bootstrap minimum-instance configuration");
 requireText(middleware, "isMaintenanceModeEnabled", "middleware maintenance gate");
-requireText(middleware, "MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH", "middleware analytics-refresh block");
+requireText(middleware, "isMaintenanceBlockedAdminApiPath(pathname, request.method)", "middleware method-aware analytics maintenance boundary");
 requireText(appMaintenance, "../../shared/runtime/maintenance-mode-contract", "Next maintenance-state owner");
 requireText(functionsMaintenance, "../../shared/runtime/maintenance-mode-contract.js", "Functions maintenance-state owner");
 requireText(functionsMaintenance, "isMaintenanceStateActive(getMaintenanceModeState())", "Functions fail-closed maintenance decision");
@@ -69,6 +71,14 @@ requireText(functionsEnvExample, `${MAINTENANCE_MODE_ENV}=0`, "Functions environ
 requireText(maintenanceGuard, "shouldSkipScheduledWork()", "scheduled-job maintenance guard");
 requireCondition(!maintenanceGuard.includes("firebase-admin"), "scheduled-job maintenance guard must remain Firebase-free");
 requireText(dataConnect, `instanceId: "${MAINTENANCE_SQL_POLICY.canonicalRepoMirrorInstance}"`, "canonical Data Connect mirror configuration");
+
+requireCondition(!isMaintenanceBlockedAdminApiPath(MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH, "GET"), "only the exact stored-snapshot GET may reach the maintenance ticket gate");
+for (const method of [undefined, "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "get"]) {
+  requireCondition(isMaintenanceBlockedAdminApiPath(MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH, method), "analytics snapshot method must remain blocked: " + String(method));
+}
+for (const path of ["/api/admin/analytics", "/api/admin/analytics/refresh/", "/api/admin/analytics/refresh-extra", "/api/admin/analytics/refresh/raw", "/api/admin/analytics/realtime", "/api/admin/analytics/live", "/api/admin/ai", "/api/admin/debug/assistant"]) {
+  requireCondition(isMaintenanceBlockedAdminApiPath(path, "GET"), "unreviewed analytics/AI GET must remain maintenance-blocked: " + path);
+}
 
 const expectedStateCases: Array<[string | undefined, ReturnType<typeof resolveMaintenanceModeState>, boolean]> = [
   ["1", "on", true],

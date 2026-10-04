@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCreatorNavRoleConsolidationReport,
   validateCreatorNavRoleConsolidationReport,
+  hasCreatorNavigationItem,
   type CreatorNavRoleConsolidationReport,
 } from "../../scripts/agent/validate-creator-nav-role-consolidation";
 
@@ -22,8 +23,9 @@ function readIfExists(path: string) {
 
 function readCreatorWorkspaceModules() {
   const folder = join(root, "src/components/Dashboard/creator-workspace");
+  const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
   return readdirSync(folder)
-    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .filter((name) => /\.(ts|tsx)$/u.test(name) && workspace.includes(`./creator-workspace/${name.replace(/\.(ts|tsx)$/u, "")}`))
     .sort()
     .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
     .join("\n");
@@ -39,12 +41,16 @@ describe("creator nav and role consolidation", () => {
     expect(routing).toContain('CREATOR_DASHBOARD_ROUTE = "/dashboard/creator"');
     expect(routing).toContain('CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings"');
     expect(routing).toContain('USER_SETTINGS_ROUTE = "/settings"');
-    expect(sidebar).toContain("href={CREATOR_DASHBOARD_ROUTE}");
-    expect(sidebar).toContain("href={CREATOR_SETTINGS_ROUTE}");
-    expect(sidebar).toContain("href={USER_SETTINGS_ROUTE}");
-    expect(dropdown).toContain("href={USER_SETTINGS_ROUTE}");
-    expect(sidebar).toContain('label="Account Settings"');
-    expect(dropdown).toContain('label="Account Settings"');
+    expect(hasCreatorNavigationItem(sidebar, "CREATOR_DASHBOARD_ROUTE", ["Creator dashboard"])).toBe(true);
+    expect(hasCreatorNavigationItem(dropdown, "CREATOR_DASHBOARD_ROUTE", ["Studio"])).toBe(true);
+    expect(hasCreatorNavigationItem(sidebar, "CREATOR_SETTINGS_ROUTE", ["Creator settings"])).toBe(true);
+    expect(hasCreatorNavigationItem(dropdown, "CREATOR_SETTINGS_ROUTE", ["Creator settings"])).toBe(true);
+    expect(hasCreatorNavigationItem(sidebar, "USER_SETTINGS_ROUTE", ["Settings"])).toBe(true);
+    expect(hasCreatorNavigationItem(dropdown, "USER_SETTINGS_ROUTE", ["Settings"])).toBe(true);
+    expect(sidebar).toContain("navigationSections={navigationSections}");
+    expect(dropdown).toContain("navigationSections={navigationSections}");
+    expect(read("src/components/creative-tim/kandydrops/navigation/ProfileSidebarSurface.tsx")).toContain("href={item.href}");
+    expect(read("src/components/creative-tim/kandydrops/navigation/KandyProfileMenuSurface.tsx")).toContain("href={item.href}");
     expect(bottomNav).toContain("creatorDashboardHref");
     expect(bottomNav).toContain("CREATOR_DASHBOARD_ROUTE");
   });
@@ -75,9 +81,8 @@ describe("creator nav and role consolidation", () => {
     const fanPassManager = read("src/components/Creators/CreatorFanPassManager.tsx");
     const subscriberRow = read("src/components/Creators/FanPassSubscriberRow.tsx");
     const broadcastManager = read("src/components/Creators/CreatorBroadcastManager.tsx");
-    const profileCreatorTools = read("src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx");
-    const profileState = read("src/app/dashboard/profile/hooks/useProfileState.tsx");
-    const combinedCreatorUi = `${workspace}\n${workspaceModules}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${profileCreatorTools}\n${profileState}`;
+    const creatorSettingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+    const combinedCreatorUi = `${workspace}\n${workspaceModules}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${creatorSettingsHub}`;
 
     expect(combinedCreatorUi).toContain('data-fan-pass-crm="mobile_v1"');
     expect(fanPassManager).toContain('data-fan-pass-crm="mobile_v1"');
@@ -92,9 +97,14 @@ describe("creator nav and role consolidation", () => {
   it("keeps the compact overview and removes old standalone metric grids", () => {
     const workspace = `${read("src/components/Dashboard/CreatorWorkspacePanel.tsx")}\n${readCreatorWorkspaceModules()}`;
 
-    expect(workspace).toContain('data-creator-overview-module="compact_v1"');
-    expect(workspace).toContain('data-creator-dashboard-overview-density="mobile_compact"');
-    expect(workspace).toContain('data-creator-dashboard-content-scope="creator_owned_or_assigned"');
+    expect(workspace).toContain("<CreatorOperatingRunway");
+    expect(read("src/components/creative-tim/kandydrops/creator/CreatorOperatingRunway.tsx")).toContain("data-creator-operating-runway");
+    expect(read("src/app/api/creator/settings/route.ts")).toContain('contentCountScope: "creator_owned_or_assigned"');
+    expect(read("src/app/api/creator/settings/route.ts")).toContain("shouldCountDropForCreatorDashboard(drop, creatorId)");
+    expect(workspace).toContain("creatorStats?.contentCount ?? creatorStats?.liveDropsCount");
+    expect(workspace).toContain('detail: "Owned or assigned drops"');
+    expect(workspace).toContain("facts={runwayFacts}");
+    expect(read("src/components/creative-tim/kandydrops/creator/CreatorOperatingRunway.tsx")).toContain("{fact.value}");
     expect(workspace).not.toContain('data-creator-landing-metric-card="compact_v2"');
   });
 
@@ -121,6 +131,12 @@ describe("creator nav and role consolidation", () => {
     expect(report.summary.normalUserDashboardPreserved).toBe(true);
     expect(report.summary.fanPassCrmUsesReadableIdentity).toBe(true);
     expect(report.summary.broadcastAudienceExplicit).toBe(true);
+  });
+
+  it("binds a navigation label to its own route rather than another entry", () => {
+    const mismatched = '{ href: USER_SETTINGS_ROUTE, label: "Other" }, { href: "/unrelated", label: "Settings" }';
+    expect(hasCreatorNavigationItem(mismatched, "USER_SETTINGS_ROUTE", ["Settings"])).toBe(false);
+    expect(hasCreatorNavigationItem('{ href: USER_SETTINGS_ROUTE, icon: Settings, label: "Settings" }', "USER_SETTINGS_ROUTE", ["Settings"])).toBe(true);
   });
 
   it("fails validation if creator dashboard can leak user modules", () => {

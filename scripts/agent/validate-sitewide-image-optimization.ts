@@ -71,7 +71,6 @@ function assertNoRawImgInCriticalFiles() {
         "src/components/CreatorDiscoveryRail.tsx",
         "src/components/DropCardLayout.tsx",
         "src/components/FeaturedCarousel.tsx",
-        "src/components/DropPreviewModal.tsx",
         "src/components/Drops/LockedDropPreviewView.tsx",
         "src/components/Creators/CreatorProfileHeader.tsx",
         "src/components/Creators/CreatorUpdatesFeed.tsx",
@@ -141,7 +140,6 @@ function validateCriticalComponents() {
         "src/components/DropCardLayout.tsx",
         "src/components/FeaturedCarousel.tsx",
         "src/components/Drops/LockedDropPreviewView.tsx",
-        "src/components/DropPreviewModal.tsx",
         "src/components/HomeDropTicker.tsx",
         "src/components/CreatorDiscoveryRail.tsx",
         "src/components/Creators/CreatorProfileHeader.tsx",
@@ -154,8 +152,23 @@ function validateCriticalComponents() {
         "src/app/dashboard/viewer/components/ThumbnailsSlider.tsx",
     ];
     for (const file of policyComponents) {
-        assertIncludes(file, "getImageLoadingPolicy", "critical image component must use shared policy");
-        assertIncludes(file, "getImagePolicyDataAttributes", "critical image component must expose debug image attributes");
+        const source = read(file);
+        if (source.includes("getImageLoadingPolicy") && source.includes("getImagePolicyDataAttributes")) {
+            continue;
+        }
+
+        if (file === "src/components/CreatorDiscoveryRail.tsx") {
+            const presentation = read("src/components/creative-tim/kandydrops/creator-discovery/CreatorDiscoveryPresentation.tsx");
+            if (
+                source.includes("<KandyCreatorDiscoveryCard")
+                && presentation.includes("getImageLoadingPolicy")
+                && presentation.includes("getImagePolicyDataAttributes")
+            ) {
+                continue;
+            }
+        }
+
+        fail(`critical image surface must use the shared policy directly or through its canonical presentation owner (${file})`);
     }
 
     assertNotIncludes("src/components/DropGrid.tsx", "priority={index < 4}", "drop grid must not preload/high-priority repeated cards");
@@ -169,7 +182,6 @@ function validateCriticalComponents() {
 function validateLockedPreviewSafety() {
     const lockedFiles = [
         "src/components/Drops/LockedDropPreviewView.tsx",
-        "src/components/DropPreviewModal.tsx",
         "src/app/drops/[id]/preview/page.tsx",
     ];
     for (const file of lockedFiles) {

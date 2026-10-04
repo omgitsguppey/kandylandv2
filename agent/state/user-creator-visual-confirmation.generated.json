@@ -1,14 +1,14 @@
 {
-  "generatedAtUtc": "2026-06-19T16:51:55.943Z",
+  "generatedAtUtc": "2026-10-02T18:29:30.613Z",
   "reportKey": "user-creator-visual-confirmation",
-  "currentHead": "1fb8629efe28ef390f48ccf6733f22b6afc174e8",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
-    "routesChecked": 12,
+    "routesChecked": 14,
     "reproductionEvidenceAttached": false,
-    "sourceCoveredRoutes": 12,
+    "sourceCoveredRoutes": 14,
     "visualIssuesFound": 0,
     "visualIssuesFixed": 3,
-    "deferredReproductionChecks": 12,
+    "deferredReproductionChecks": 14,
     "forbiddenAdminBackendDrift": 0,
     "forbiddenPaymentRuntimeDrift": 0,
     "p0Count": 0,
@@ -18,18 +18,23 @@
   "routes": [
     {
       "route": "/",
+      "routeKind": "composition",
+      "primaryCanvas": "src/components/Landing/PublicHomeExperience.tsx",
       "surface": "user",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/page.tsx",
         "src/app/HomeClient.tsx",
+        "src/components/Landing/PublicHomeExperience.tsx",
         "src/components/Navigation/ProfileDropdown.tsx"
       ],
       "status": "source_checked"
     },
     {
       "route": "/drops",
+      "routeKind": "composition",
+      "primaryCanvas": "src/app/drops/DropsClient.tsx",
       "surface": "user",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
@@ -41,6 +46,8 @@
     },
     {
       "route": "/drops/[id]/preview",
+      "routeKind": "composition",
+      "primaryCanvas": "src/components/Drops/LockedDropPreviewView.tsx",
       "surface": "user",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
@@ -51,50 +58,94 @@
     },
     {
       "route": "/dashboard",
+      "routeKind": "composition",
+      "primaryCanvas": "src/app/dashboard/DashboardClient.tsx",
       "surface": "user",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/dashboard/layout.tsx",
+        "src/app/dashboard/DashboardClient.tsx",
         "src/components/Navigation/ProfileSidebar.tsx"
       ],
       "status": "source_checked"
     },
     {
       "route": "/dashboard/creator",
+      "routeKind": "composition",
+      "primaryCanvas": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
       "surface": "creator",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
+        "src/app/dashboard/creator/page.tsx",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/components/creative-tim/kandydrops/creator/CreatorOperatingRunway.tsx"
+      ],
+      "status": "source_checked"
+    },
+    {
+      "route": "/dashboard/creator/settings",
+      "routeKind": "composition",
+      "primaryCanvas": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "surface": "creator",
+      "confirmationMode": "source_coverage",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/dashboard/creator/settings/page.tsx",
         "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Creators/CreatorBroadcastManager.tsx"
+        "src/components/creative-tim/kandydrops/creator/CreatorSettingsControlDeck.tsx"
+      ],
+      "status": "source_checked"
+    },
+    {
+      "route": "/settings",
+      "routeKind": "composition",
+      "primaryCanvas": "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+      "surface": "user",
+      "confirmationMode": "source_coverage",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/settings/page.tsx",
+        "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+        "src/components/Settings/UserSettingsPage.tsx",
+        "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx",
+        "src/components/creative-tim/kandydrops/account/AccountSettingsPanel.tsx"
       ],
       "status": "source_checked"
     },
     {
       "route": "/dashboard/profile",
+      "routeKind": "redirect_alias",
+      "primaryCanvas": "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+      "redirectTarget": "/settings",
       "surface": "user",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
-        "src/app/dashboard/profile/components/ProfileProfileSection.tsx",
-        "src/app/dashboard/profile/components/ProfilePrimitives.tsx"
+        "src/app/dashboard/profile/page.tsx",
+        "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx"
       ],
       "status": "source_checked"
     },
     {
       "route": "/dashboard/settings",
+      "routeKind": "redirect_alias",
+      "primaryCanvas": "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx",
+      "redirectTarget": "/settings",
       "surface": "user",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/dashboard/settings/page.tsx",
-        "src/components/Navigation/ProfileSidebar.tsx"
+        "src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx"
       ],
       "status": "source_checked"
     },
     {
       "route": "/dashboard/library",
+      "routeKind": "composition",
+      "primaryCanvas": "src/app/dashboard/library/LibraryClient.tsx",
       "surface": "user",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
@@ -105,6 +156,8 @@
     },
     {
       "route": "/dashboard/chat",
+      "routeKind": "composition",
+      "primaryCanvas": "src/components/Chat/ChatExperience.tsx",
       "surface": "shared_shell",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
@@ -115,6 +168,8 @@
     },
     {
       "route": "/creators/[username]",
+      "routeKind": "composition",
+      "primaryCanvas": "src/app/creators/[username]/CreatorProfileClient.tsx",
       "surface": "creator",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
@@ -126,6 +181,8 @@
     },
     {
       "route": "Beta release notes drawer",
+      "routeKind": "shared_surface",
+      "primaryCanvas": "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx",
       "surface": "release_notes",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
@@ -136,6 +193,8 @@
     },
     {
       "route": "Mobile nav/sidebar/profile dropdown",
+      "routeKind": "shared_surface",
+      "primaryCanvas": "src/components/Navigation/ProfileSidebar.tsx",
       "surface": "shared_shell",
       "confirmationMode": "source_coverage",
       "evidencePaths": [],
@@ -199,7 +258,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_drops",
@@ -212,7 +271,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_drops_id_preview",
@@ -225,7 +284,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_dashboard",
@@ -238,7 +297,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_dashboard_creator",
@@ -251,7 +310,33 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
+    },
+    {
+      "key": "ui_source_surface_dashboard_creator_settings",
+      "severity": "P2",
+      "title": "UI source coverage remains the first check for /dashboard/creator/settings.",
+      "fileOrSurface": "/dashboard/creator/settings",
+      "status": "deferred",
+      "ownerLane": "ui-source-coverage",
+      "evidence": [
+        "source-confirmed",
+        "visual reproduction optional"
+      ],
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
+    },
+    {
+      "key": "ui_source_surface_settings",
+      "severity": "P2",
+      "title": "UI source coverage remains the first check for /settings.",
+      "fileOrSurface": "/settings",
+      "status": "deferred",
+      "ownerLane": "ui-source-coverage",
+      "evidence": [
+        "source-confirmed",
+        "visual reproduction optional"
+      ],
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_dashboard_profile",
@@ -264,7 +349,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_dashboard_settings",
@@ -277,7 +362,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_dashboard_library",
@@ -290,7 +375,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_dashboard_chat",
@@ -303,7 +388,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_creators_username",
@@ -316,7 +401,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_beta_release_notes_drawer",
@@ -329,7 +414,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     },
     {
       "key": "ui_source_surface_mobile_nav_sidebar_profile_dropdown",
@@ -342,7 +427,7 @@
         "source-confirmed",
         "visual reproduction optional"
       ],
-      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser reproduction."
     }
   ],
   "forbiddenDriftCheck": [
@@ -360,8 +445,22 @@
     }
   ],
   "nextFixOrder": [
-    "Fix every source-reported UI gap before optional browser or screenshot reproduction.",
+    "Fix every source-reported UI gap before optional browser reproduction.",
     "Use browser viewing or screenshots only to reproduce a specific source-reported issue.",
     "Keep reproductionEvidenceAttached=false unless an optional reproduction artifact is attached for a source-reported issue."
-  ]
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-account-responsive-release-20261002",
+    "inputHash": "8d2428af888cdcf736b750ec5061f8c40977617fc4bf81b263b3d8ced79a4284",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "41be66efd851cf1d9248cc1392c93631afa52f483ad39b44cdcc5f73ae9b60a6",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 332,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

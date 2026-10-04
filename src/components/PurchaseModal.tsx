@@ -5,7 +5,8 @@ import { FUNDING, PayPalButtons, usePayPalScriptReducer } from "@paypal/react-pa
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/creative-tim/ui/card";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
@@ -21,7 +22,6 @@ import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { formatCompactGd, resolveWalletBalanceSplit } from "@/lib/gumdrop-formatting";
-import { createStaleRequestGuard } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import { getPaymentProblemCopy } from "@/lib/problem-state-copy";
 import {
   resolveBundlePromoOffer,
@@ -66,8 +66,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user, userProfile, setUserProfile } = useAuth();
   const { preferredPurchaseDrops } = useUI();
   const router = useRouter();
-  const [packagesList, setPackagesList] = useState<PurchasePackage[]>(PACKAGES);
-  const [packagesLoaded, setPackagesLoaded] = useState(false);
   const [networkOnline, setNetworkOnline] = useState(true);
   
   const [selectedPackage, setSelectedPackage] = useState<PurchasePackage>(PACKAGES[1]);
@@ -84,9 +82,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const paypalLoading = isPending;
   const paypalFailed = false;
   const hasTrackedOpenRef = useRef(false);
-  const modalRef = useRef<HTMLDivElement | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const packagesRequestGuardRef = useRef(createStaleRequestGuard());
   const legacyPaymentDescriptor = useMemo(() => {
     if (!error) {
       return null;
@@ -123,43 +118,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isOpen || packagesLoaded) return;
-    const requestId = packagesRequestGuardRef.current.next();
-    const controller = new AbortController();
-    fetch('/api/wallet/packages', { signal: controller.signal })
-      .then(res => res.json())
-      .then(data => {
-         if (!packagesRequestGuardRef.current.isFresh(requestId)) return;
-         if (data.packages && Array.isArray(data.packages)) {
-             const loaded = data.packages.map((entry: any) => ({
-                 drops: entry.drops,
-                 price: entry.priceUsd,
-                 label: entry.label,
-             }));
-             setPackagesList(loaded);
-             if (!loaded.find((p: any) => p.drops === selectedPackage.drops)) {
-                 setSelectedPackage(loaded[1] || loaded[0]);
-             }
-         }
-      })
-      .catch((err) => {
-        if (controller.signal.aborted) return;
-        reportClientIssue({
-          channel: "payments",
-          severity: "warn",
-          message: "Failed to load dynamic wallet packages",
-          error: err,
-          consoleLabel: "[Wallet] Failed to load dynamic packages",
-        });
-      })
-      .finally(() => {
-        if (packagesRequestGuardRef.current.isFresh(requestId)) {
-          setPackagesLoaded(true);
-        }
-      });
-    return () => controller.abort();
-  }, [isOpen, packagesLoaded, selectedPackage.drops]);
   const isBundleSelected = selectedPackage.label === "King Size Bundle";
   const canDecreaseBundle = customDrops > 5000;
   const canIncreaseBundle = customDrops < 100000;
@@ -171,13 +129,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     wallet_density: "public-beta-compact" as const,
     source_component: "purchase_modal",
   }), [walletBalanceSplit.freeGd, walletBalanceSplit.paidGd, walletBalanceSplit.totalGd]);
-
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 
   const closeModal = useCallback((source: string = "wallet_modal_close") => {
     if (isOpen && !success) {
@@ -209,67 +160,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     success,
     walletDensityPayload,
   ]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const focusTimer = window.setTimeout(() => {
-      closeButtonRef.current?.focus();
-    }, 0);
-
-    return () => window.clearTimeout(focusTimer);
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        closeModal("wallet_escape_key");
-        return;
-      }
-
-      if (event.key !== "Tab" || !modalRef.current) {
-        return;
-      }
-
-      const focusableElements = Array.from(
-        modalRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true");
-
-      if (focusableElements.length === 0) {
-        event.preventDefault();
-        return;
-      }
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-      if (!firstElement || !lastElement) {
-        return;
-      }
-
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-        return;
-      }
-
-      if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [closeModal, isOpen]);
 
   const continueFromSuccess = useCallback((destination: string, source: string) => {
     trackEvent("navigation_click", {
@@ -348,7 +238,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
 
   const resolvePreferredPackage = useCallback((drops: number): PurchasePackage => {
     const normalizedDrops = Math.max(1, Math.floor(drops));
-    const exactPackage = packagesList.find((pkg) => pkg.drops === normalizedDrops);
+    const exactPackage = PACKAGES.find((pkg) => pkg.drops === normalizedDrops);
     if (exactPackage) {
       return exactPackage;
     }
@@ -362,8 +252,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       };
     }
 
-    return packagesList.find((pkg) => pkg.drops >= normalizedDrops) ?? packagesList[packagesList.length - 1];
-  }, [packagesList]);
+    return PACKAGES.find((pkg) => pkg.drops >= normalizedDrops) ?? PACKAGES[PACKAGES.length - 1];
+  }, []);
 
   useEffect(() => {
     if (!isOpen || !preferredPurchaseDrops) {
@@ -511,19 +401,20 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   return (
     <KandyWalletModalFrame
       isOpen={isOpen}
-      onBackdropClick={() => closeModal("wallet_backdrop")}
-      dialogRef={modalRef}
+      busy={processing}
+      onRequestClose={closeModal}
       closeControl={(
-        <button
-          ref={closeButtonRef}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          disabled={processing}
           aria-label="Close modal"
           onClick={() => closeModal("wallet_close_button")}
-          className={cn(
-            "absolute right-3 top-3 z-30 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-violet-100 shadow-inner shadow-white/10 transition hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-200/70",
-          )}
+          className="absolute right-2 top-2"
         >
-          <X className="h-5 w-5" />
-        </button>
+          <X className="h-5 w-5" aria-hidden="true" />
+        </Button>
       )}
     >
       <GuestComponentBlur
@@ -541,18 +432,19 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         paidBalanceLabel={formatCompactGd(walletBalanceSplit.paidGd)}
                       />
 
-                      <div className="flex flex-col gap-1.5 mb-2" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
-                        {packagesList.map((pkg) => {
+                      <Card className="gap-0 overflow-hidden py-0 shadow-none" aria-label="Refill packages" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
+                        {PACKAGES.map((pkg) => {
                           const isSelected = selectedPackage.drops === pkg.drops;
                           const pkgEconomics = deriveGumdropEconomics(pkg.drops, pkg.price);
                           return (
                             <KandyWalletPackageOption
                               key={pkg.drops}
-                              amount={pkgEconomics.paidGumDrops}
+                              amount={pkg.drops}
                               label={pkg.label}
                               price={pkg.price}
                               promo={resolvePurchaseBonusPromoOffer(pkgEconomics.bonusGumDrops)}
                               selected={isSelected}
+                              disabled={processing}
                               onSelect={() => {
                                 setSelectedPackage(pkg);
                                 trackEvent("purchase_package_selected", {
@@ -568,14 +460,14 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             />
                           );
                         })}
-                      </div>
 
                       <KandyWalletPackageOption
-                        amount={deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops}
+                        amount={customDrops}
                         label="King Size Bundle"
                         price={(customDrops / 1000) * 5}
                         promo={resolveBundlePromoOffer(customDrops >= 5000)}
                         selected={isBundleSelected}
+                        disabled={processing}
                         aria-label={`Select King Size Bundle with ${customDrops.toLocaleString()} Gum Drops`}
                         onSelect={() => {
                           selectBundlePackage(customDrops);
@@ -584,13 +476,14 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         {isBundleSelected ? (
                           <KandyWalletBundleStepper
                             sizeLabel={String(customDrops / 1000) + "k"}
-                            canDecrease={canDecreaseBundle}
-                            canIncrease={canIncreaseBundle}
+                            canDecrease={canDecreaseBundle && !processing}
+                            canIncrease={canIncreaseBundle && !processing}
                             onDecrease={() => updateBundleDrops(-1000)}
                             onIncrease={() => updateBundleDrops(1000)}
                           />
                         ) : null}
                             </KandyWalletPackageOption>
+                      </Card>
                           </>
                         )}
                         review={(
@@ -601,24 +494,25 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         )}
                         provider={(
                           <KandyWalletCheckoutProvider>
+                            {processing ? <p role="status" className="text-sm text-muted-foreground">Confirming your payment…</p> : null}
 {!networkOnline ? (
-                          <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-3 text-xs text-orange-200 text-center font-medium">
+                          <div className="rounded-xl border border-border bg-secondary p-3 text-sm text-foreground text-center">
                             You are offline. Please check your network to complete the purchase.
                           </div>
                         ) : !PAYPAL_READY ? (
-                          <div className="rounded-xl border border-brand-purple/30 bg-brand-purple/10 p-3 text-xs text-brand-purple text-center">
+                          <div className="rounded-xl border border-border bg-secondary p-3 text-sm text-foreground text-center">
                             Checkout is unavailable right now. Please try again later.
                           </div>
                         ) : paypalFailed ? (
-                          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200 text-center">
+                          <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive text-center">
                             We couldn&apos;t load the payment provider right now. Close and reopen Wallet to retry.
                           </div>
                         ) : !paypalReady || paypalLoading ? (
                           <div
-                            className="rounded-xl border border-white/10 bg-white/5 p-2.5"
+                            className="rounded-xl border border-border bg-secondary p-2.5"
                             data-wallet-checkout-density="single-button"
                           >
-                            <div className="h-[45px] w-full bg-white/10 rounded-full animate-pulse" />
+                            <div className="h-[45px] w-full bg-muted rounded-full animate-pulse motion-reduce:animate-none" />
                           </div>
                         ) : (
                           <div

@@ -40,7 +40,7 @@ export function buildDependencyToolchainPolicyReport(options: { generatedAtUtc?:
       { id: "framework_updates_separate_window", status: "separate_window_required", rule: "Framework updates require a separate test window.", validator: "check:dependency-toolchain-policy" },
       { id: "audit_is_advisory", status: "classified", rule: "npm audit output is advisory and classified, not blindly patched.", validator: "check:dependency-toolchain-policy" },
     ],
-    remainingGaps: ["No dependency versions changed in this pass."],
+    remainingGaps: ["Installed/deployed dependency verification is outside this policy classification report."],
   };
 }
 

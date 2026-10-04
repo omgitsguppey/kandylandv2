@@ -142,7 +142,7 @@ export function calculateJourneyStepDuration(input: {
   const endedAtMs = numberMs(input.endedAtMs);
   const activeMs = input.activeMs === null || input.activeMs === undefined ? null : numberMs(input.activeMs);
   if (!startedAtMs || !endedAtMs) {
-    return activeMs && activeMs > 0
+    return activeMs !== null
       ? { durationMs: null, activeMs, confidence: "weak", reason: "active_only" }
       : { durationMs: null, activeMs: null, confidence: "unavailable", reason: "missing_end" };
   }
@@ -150,7 +150,7 @@ export function calculateJourneyStepDuration(input: {
   const durationMs = endedAtMs - startedAtMs;
   return {
     durationMs,
-    activeMs: activeMs === null ? durationMs : Math.min(activeMs, durationMs),
+    activeMs: activeMs === null ? null : Math.min(activeMs, durationMs),
     confidence: "exact",
     reason: "bounded_events",
   };

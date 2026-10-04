@@ -2,9 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
+import { DEVICE_PRIMARY_NAVIGATION_CLASSES, DEVICE_LAYOUT_COMPONENT_SIZING } from "@/lib/device-layout-contract";
+import { USER_MOBILE_BOTTOM_NAV_MIN_HEIGHT } from "@/lib/user-mobile-shell";
 
-import { cn } from "@/lib/utils";
+import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+} from "@/components/creative-tim/ui/navigation-menu";
 
 export type KandyDesktopNavigationItem = {
     label: string;
@@ -24,6 +31,7 @@ type KandyDesktopNavigationProps = {
 type KandyMobileNavigationDockProps = {
     children: ReactNode;
     platformShell: "default" | "ios-pwa";
+    dockRef: RefObject<HTMLElement | null>;
 };
 
 function resolveActiveHref(items: KandyDesktopNavigationItem[], pathname: string | null) {
@@ -37,26 +45,25 @@ function resolveActiveHref(items: KandyDesktopNavigationItem[], pathname: string
         ?.href ?? null;
 }
 
+export function KandyBrandMark() {
+    return (
+        <Image
+            src="/logo-k-monogram.png"
+            alt=""
+            width={44}
+            height={44}
+            preload
+            className="size-11 shrink-0 object-contain"
+        />
+    );
+}
+
 export function KandyBrandLockup() {
     return (
         <span className="flex min-w-0 items-center gap-2">
-            <span
-                aria-hidden="true"
-                className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-md border border-white/20 bg-white/[0.08]"
-            >
-                <span className="absolute inset-1 rounded-sm border border-white/20" />
-                <Image
-                    src="/candy-main.svg"
-                    alt=""
-                    width={44}
-                    height={44}
-                    priority
-                    className="relative h-9 w-9 object-contain p-1"
-                />
-            </span>
+            <KandyBrandMark />
             <span className="hidden min-w-0 flex-col sm:flex">
-                <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/50">Kandy</span>
-                <span className="-mt-1 font-serif text-lg font-black tracking-tight text-white">Drops</span>
+                <span className="text-lg font-semibold tracking-tight text-foreground">KandyDrops</span>
             </span>
         </span>
     );
@@ -64,7 +71,7 @@ export function KandyBrandLockup() {
 
 export function KandyTopNavigationFrame({ children }: KandyTopNavigationFrameProps) {
     return (
-        <div className="mx-auto flex min-h-12 max-w-7xl items-center justify-between gap-3">
+        <div className={DEVICE_PRIMARY_NAVIGATION_CLASSES.frame}>
             {children}
         </div>
     );
@@ -74,46 +81,50 @@ export function KandyDesktopNavigation({ items, pathname, onNavigate }: KandyDes
     const activeHref = resolveActiveHref(items, pathname);
 
     return (
-        <div aria-label="Primary navigation" className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
-            <div className="flex items-center gap-1 border-x border-white/10 px-2">
-                {items.map((item) => {
-                    const isActive = item.href === activeHref;
+        <div className={DEVICE_PRIMARY_NAVIGATION_CLASSES.expanded}>
+            <NavigationMenu aria-label="Primary navigation" viewport={false} className="max-w-full">
+                <NavigationMenuList className="flex-wrap gap-1">
+                    {items.map((item) => {
+                        const isActive = item.href === activeHref;
 
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            aria-current={isActive ? "page" : undefined}
-                            onClick={() => onNavigate(item.href)}
-                            className={cn(
-                                "inline-flex min-h-10 items-center border-b-2 border-transparent px-3 text-sm font-semibold transition-colors",
-                                isActive
-                                    ? "border-white text-white"
-                                    : "text-gray-400 hover:text-white",
-                            )}
-                        >
-                            {item.label}
-                        </Link>
-                    );
-                })}
-            </div>
+                        return (
+                            <NavigationMenuItem key={item.href}>
+                                <NavigationMenuLink
+                                    asChild
+                                    active={isActive}
+                                    className="min-h-11 flex-row items-center rounded-full px-4 py-2 font-medium text-foreground motion-reduce:transition-none"
+                                >
+                                    <Link
+                                        href={item.href}
+                                        aria-current={isActive ? "page" : undefined}
+                                        onClick={() => onNavigate(item.href)}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        );
+                    })}
+                </NavigationMenuList>
+            </NavigationMenu>
         </div>
     );
 }
 
-export function KandyMobileNavigationDock({ children, platformShell }: KandyMobileNavigationDockProps) {
+export function KandyMobileNavigationDock({ children, platformShell, dockRef }: KandyMobileNavigationDockProps) {
     return (
         <nav
+            ref={dockRef}
             aria-label="Mobile navigation"
-            className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl border border-white/15 bg-[#0a0a0b]/95 shadow-2xl shadow-black/45 backdrop-blur-2xl"
+            className="navigation-material pointer-events-auto relative mx-auto max-w-7xl overflow-hidden rounded-3xl"
             data-bottom-nav-role="navigation"
-            data-bottom-nav-visual-height="56"
+            data-bottom-nav-min-visual-height={DEVICE_LAYOUT_COMPONENT_SIZING.bottomNavVisualHeightPx}
             data-device-layout-contract="2026-05-public-beta"
             data-device-layout-surface="mobile-bottom-nav"
             data-hydration-lane="critical"
             data-platform-shell={platformShell}
         >
-            <div className="relative flex h-14 items-center justify-between gap-1 px-2">{children}</div>
+            <div className="relative flex items-stretch justify-between gap-1 px-2 py-1" style={{ minHeight: USER_MOBILE_BOTTOM_NAV_MIN_HEIGHT }}>{children}</div>
         </nav>
     );
 }

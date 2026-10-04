@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -148,13 +149,7 @@ function scoreSnapshot(): ScoreSnapshot {
 }
 
 function dirtyFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const file of shell("git", args).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean)) {
-      files.add(file.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listValidatorScopeFiles();
 }
 
 export function classifyEmailPasswordAuthDirtyFile(path: string): DirtyClassification {
@@ -421,7 +416,7 @@ function writeDoc(report: EmailPasswordAuthReport) {
 }
 
 const report = buildReport();
-write(STATE_PATH, `${JSON.stringify(report, null, 2)}\n`);
+write(STATE_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
 writeDoc(report);
 
 if (report.validationFailures.length > 0) {

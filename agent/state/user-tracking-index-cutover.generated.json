@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T17:03:40.492Z",
+  "generatedAt": "2026-10-03T02:55:35.513Z",
   "status": "pass",
   "score": 100,
   "checks": [
@@ -76,7 +76,7 @@
     {
       "id": "materialization_registry_updated",
       "pass": true,
-      "detail": "The existing materialization registry names the v3 worker and its serving outputs."
+      "detail": "The existing materialization registry derives the current worker version and names its serving outputs."
     },
     {
       "id": "ephemeral_retention_metadata",

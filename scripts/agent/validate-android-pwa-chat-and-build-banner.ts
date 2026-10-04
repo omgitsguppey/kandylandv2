@@ -48,7 +48,8 @@ for (const needle of [
 
 requireIncludes(chatExperience, "data-platform-shell={isIosPwaChatShell ? \"ios-pwa\" : isAndroidPwaChatShell ? \"android-pwa\" : \"default\"}", "Platform PWA chat marker");
 requireIncludes(chatExperience, "isAndroidStandalonePwa()", "Android PWA chat detection use");
-requireIncludes(chatExperience, "var(--kd-android-pwa-bottom-nav-height", "Android PWA chat bottom spacing");
+requireIncludes(chatExperience, "? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET", "ChatExperience consumes the single platform-resolved bottom reservation");
+requireIncludes(chatRouteShell, "mainElement.style.setProperty(\"--user-mobile-chat-bottom-reserved-height\", USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT)", "Android PWA chat bottom reservation owner");
 
 for (const needle of [
   "USER_MOBILE_CHAT_ANDROID_PWA_VISUAL_HEIGHT",

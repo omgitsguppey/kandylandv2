@@ -59,6 +59,8 @@ interface RecentActivityState {
     historyActivities: ActivityItem[];
     loadingHistory: boolean;
     loadingSummary: boolean;
+    summaryError: boolean;
+    retryActivity: () => void;
     paginatedActivities: ActivityItem[];
     searchValue: string;
     setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
@@ -85,6 +87,9 @@ async function fetchRecentActivity(view: ActivityView, etag: string | null) {
 
     const response = await authFetch(`/api/user/activity?view=${view}`, { headers });
     if (response.status === 304) {
+        if (!etag) {
+            throw new Error("Recent activity returned no source snapshot");
+        }
         return {
             activities: [],
             etag,
@@ -93,12 +98,12 @@ async function fetchRecentActivity(view: ActivityView, etag: string | null) {
     }
 
     const result = await response.json() as RecentActivityResponse;
-    if (!response.ok || !result.success) {
+    if (!response.ok || result?.success !== true || !Array.isArray(result.activities)) {
         throw new Error(`Failed to load ${view === "summary" ? "recent activity" : "full activity history"}`);
     }
 
     return {
-        activities: result.activities || [],
+        activities: result.activities,
         etag: response.headers.get("etag"),
         notModified: false,
     } satisfies RecentActivityFetchResult;
@@ -126,16 +131,18 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
     const [summaryActivity, setSummaryActivity] = useState<ActivityItem | null>(null);
     const [historyActivities, setHistoryActivities] = useState<ActivityItem[]>([]);
     const [loadingSummary, setLoadingSummary] = useState(true);
+    const [summaryError, setSummaryError] = useState<string | null>(null);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [historyLoaded, setHistoryLoaded] = useState(false);
-    const [historyError, setHistoryError] = useState(false);
+    const [historyError, setHistoryError] = useState<string | null>(null);
     const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const summaryEtagRef = useRef<string | null>(null);
     const historyEtagRef = useRef<string | null>(null);
-    const summaryInFlightRef = useRef(false);
-    const historyInFlightRef = useRef(false);
+    const summaryInFlightRef = useRef<symbol | null>(null);
+    const historyInFlightRef = useRef<symbol | null>(null);
+    const refreshActivityRef = useRef<((view: ActivityView) => Promise<void>) | null>(null);
     const trackedSummaryViewRef = useRef<string | null>(null);
     const expandedRef = useRef(expanded);
     expandedRef.current = expanded;
@@ -161,11 +168,14 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
     useEffect(() => {
         summaryEtagRef.current = null;
         historyEtagRef.current = null;
-        summaryInFlightRef.current = false;
-        historyInFlightRef.current = false;
+        summaryInFlightRef.current = null;
+        historyInFlightRef.current = null;
         setSummaryActivity(null);
         setHistoryActivities([]);
         setHistoryLoaded(false);
+        setHistoryError(null);
+        setSummaryError(null);
+        setLoadingHistory(false);
         setLoadedForUserId(null);
 
         if (!user || !userId) {
@@ -179,6 +189,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
         let cancelled = false;
         let unsubscribeUserRuntime: (() => void) | undefined;
         let sawUserRuntimeSnapshot = false;
+        let hasVerifiedSummary = false;
 
         async function refreshActivity(view: ActivityView) {
             const inFlightRef = view === "summary" ? summaryInFlightRef : historyInFlightRef;
@@ -188,11 +199,24 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 return;
             }
 
-            inFlightRef.current = true;
+            const request = Symbol(view);
+            inFlightRef.current = request;
+            if (view === "summary" && !hasVerifiedSummary) {
+                setLoadingSummary(true);
+            } else if (view === "history") {
+                setLoadingHistory(true);
+            }
             try {
                 const result = await fetchRecentActivity(view, etagRef.current);
                 if (cancelled) {
                     return;
+                }
+
+                if (view === "summary") {
+                    hasVerifiedSummary = true;
+                    setSummaryError(null);
+                } else {
+                    setHistoryError(null);
                 }
 
                 if (result.notModified) {
@@ -214,11 +238,21 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 setHistoryLoaded(true);
                 setLoadedForUserId(currentUserId);
             } catch (error) {
+                if (cancelled) {
+                    return;
+                }
+                if (view === "summary") {
+                    setSummaryError(currentUserId);
+                } else {
+                    setHistoryError(currentUserId);
+                }
                 reportRecentActivityFailure("cache", "Recent activity refresh failed", currentUserId, error, {
                     view,
                 });
             } finally {
-                inFlightRef.current = false;
+                if (inFlightRef.current === request) {
+                    inFlightRef.current = null;
+                }
                 if (cancelled) {
                     return;
                 }
@@ -230,6 +264,8 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 }
             }
         }
+
+        refreshActivityRef.current = refreshActivity;
 
         const subscribeToUserRuntime = async () => {
             try {
@@ -280,6 +316,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
                 unsubscribeUserRuntime = () => observerControl.cleanup();
             } catch (error) {
+                if (cancelled) return;
                 reportRecentActivityFailure(
                     "firebase",
                     "Recent activity runtime setup failed",
@@ -309,6 +346,9 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
         return () => {
             cancelled = true;
+            if (refreshActivityRef.current === refreshActivity) {
+                refreshActivityRef.current = null;
+            }
             window.removeEventListener("focus", refreshRecentActivity);
             window.removeEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -321,45 +361,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
             return;
         }
 
-        if (historyInFlightRef.current) {
-            return;
-        }
-
-        let cancelled = false;
-        setLoadingHistory(true);
-        setHistoryError(false);
-        historyInFlightRef.current = true;
-
-        void (async () => {
-            try {
-                const result = await fetchRecentActivity("history", historyEtagRef.current);
-                if (cancelled) {
-                    return;
-                }
-
-                if (result.notModified) {
-                    setHistoryLoaded(true);
-                    return;
-                }
-
-                historyEtagRef.current = result.etag;
-                setHistoryActivities(result.activities);
-                setHistoryLoaded(true);
-                setLoadedForUserId(userId);
-            } catch (error) {
-                reportRecentActivityFailure("cache", "Recent activity history refresh failed", userId, error);
-                setHistoryError(true);
-            } finally {
-                historyInFlightRef.current = false;
-                if (!cancelled) {
-                    setLoadingHistory(false);
-                }
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
+        void refreshActivityRef.current?.("history");
     }, [expanded, historyLoaded, user, userId]);
 
     useEffect(() => {
@@ -407,9 +409,16 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
     return {
         currentPage,
         historyActivities: scopedHistoryActivities,
-        historyError,
-        loadingHistory,
-        loadingSummary,
+        historyError: Boolean(userId && historyError === userId),
+        loadingHistory: loadingHistory || Boolean(userId && loadedForUserId !== userId && historyError !== userId),
+        loadingSummary: loadingSummary || Boolean(userId && loadedForUserId !== userId && summaryError !== userId),
+        summaryError: Boolean(userId && summaryError === userId),
+        retryActivity: () => {
+            void refreshActivityRef.current?.("summary");
+            if (expandedRef.current || historyLoadedRef.current) {
+                void refreshActivityRef.current?.("history");
+            }
+        },
         paginatedActivities,
         searchValue,
         setCurrentPage,
@@ -430,6 +439,8 @@ export function RecentActivityFeed() {
         historyError,
         loadingHistory,
         loadingSummary,
+        summaryError,
+        retryActivity,
         paginatedActivities,
         searchValue,
         setCurrentPage,
@@ -463,6 +474,8 @@ export function RecentActivityFeed() {
             expanded={expanded}
             onToggleExpanded={handleToggleExpanded}
             loadingSummary={loadingSummary}
+            summaryError={summaryError}
+            onRetry={retryActivity}
             hasRecordedActivity={Boolean(summaryActivity || historyActivities.length)}
             summaryActivity={summaryActivity}
             activities={paginatedActivities}

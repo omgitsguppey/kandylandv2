@@ -23,6 +23,7 @@ import { BehavioralVerdictCard } from "@/components/Admin/BehavioralVerdictCard"
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminUserDetailMasthead, AdminUsersOperations } from "@/components/creative-tim/kandydrops/admin-users/AdminUsersOperations";
+import { NativeSelect } from "@/components/creative-tim/ui/native-select";
 import {
     buildEngagementBehavioralExplanation,
     buildRecommendationBehavioralExplanation,
@@ -335,7 +336,7 @@ function formatIndividualMetricState(state: UserMetricHydrationStatus) {
         bridge_missing: "Bridge missing",
         materializer_missing: "Materializer missing",
         permission_blocked: "Permission blocked",
-        proven_zero: "Proven zero",
+        proven_zero: "Detailed metrics unavailable",
     };
 
     return labels[state];
@@ -537,6 +538,13 @@ export default function AdminUserAnalyticsPage() {
     const individualMetricStateLabel = formatIndividualMetricState(individualMetricState);
     const individualMetricValuesDisplayable = analytics?.individualMetricTruth?.valuesDisplayable === true;
     const individualMetricProvenZero = analytics?.individualMetricTruth?.provenZero === true;
+    const receivedAdmittedActivity = analytics?.individualMetricTruth?.admittedActivity ?? null;
+    const admittedActivity = receivedAdmittedActivity?.userId === userId && targetUser?.uid === userId
+        ? receivedAdmittedActivity
+        : null;
+    const admittedActivityUnavailableReason = receivedAdmittedActivity && !admittedActivity
+        ? "identity_mismatch"
+        : analytics?.individualMetricTruth?.admittedActivityUnavailableReason ?? "source_missing";
     const metricSourceAvailable = Boolean(analytics?.metricSourceLabel || analytics)
         && individualMetricValuesDisplayable;
     const metricTruthState = resolveAdminTruthState({
@@ -788,6 +796,7 @@ export default function AdminUserAnalyticsPage() {
                 user={targetUser}
                 joinedLabel={format(targetUser.createdAt, "PPP")}
                 onBack={() => router.back()}
+                sourceAvailable={!isLocalAdminUserDetailFixture}
             />
             {isLocalAdminUserDetailFixture ? (
                 <div
@@ -846,6 +855,18 @@ export default function AdminUserAnalyticsPage() {
                             ? analytics?.metricSourceLabel || "Observed individual user source."
                             : `${individualMetricStateLabel}: ${analytics?.individualMetricTruth?.explanation || "Individual user evidence is unavailable; missing values are not zero."}`}
                         {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
+                        <p className="mt-2" data-admitted-activity-state={admittedActivity ? "available" : admittedActivityUnavailableReason}>
+                            {admittedActivity ? (
+                                <>
+                                    Recorded activity: {admittedActivity.recordCount.toLocaleString()} admitted activity record{admittedActivity.recordCount === 1 ? "" : "s"} from{" "}
+                                    <time dateTime={new Date(admittedActivity.sourceWindowStartMs).toISOString()}>{new Date(admittedActivity.sourceWindowStartMs).toLocaleString(undefined, { timeZoneName: "short" })}</time>{" "}
+                                    to{" "}<time dateTime={new Date(admittedActivity.sourceWindowEndMs).toISOString()}>{new Date(admittedActivity.sourceWindowEndMs).toLocaleString(undefined, { timeZoneName: "short" })}</time>.
+                                    {" "}This count does not establish detailed metric or all-history coverage.
+                                </>
+                            ) : (
+                                <>Recorded activity unavailable: {admittedActivityUnavailableReason}.</>
+                            )}
+                        </p>
                     </div>
                     <div
                         className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
@@ -1395,7 +1416,9 @@ export default function AdminUserAnalyticsPage() {
                         <Play className="h-4 w-4 text-brand-purple" /> Top Viewed Drops
                     </h3>
                     <div className="space-y-3">
-                        {(analytics?.topViewedDrops?.length || 0) === 0 ? (
+                        {!individualMetricValuesDisplayable ? (
+                            <p className="text-sm text-gray-500">{individualMetricStateLabel}: individual viewing evidence is unavailable.</p>
+                        ) : (analytics?.topViewedDrops?.length || 0) === 0 ? (
                             <p className="text-sm text-gray-500">No library viewing has been tracked for this user yet.</p>
                         ) : (
                             analytics!.topViewedDrops.map((dropEntry) => (
@@ -1429,23 +1452,23 @@ export default function AdminUserAnalyticsPage() {
                             <ShieldAlert className="h-4 w-4 text-brand-purple" /> Security handoff
                         </span>
                         <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                            {securitySummary?.allTimeCount ?? securityEvents.length} flags
+                            {formatProfileMetricLabel(securitySummary?.allTimeCount)} flags
                         </span>
                     </summary>
                     <div className="mb-4 grid gap-3 sm:grid-cols-3">
                         <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
                             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">All time flags</p>
-                            <p className="mt-2 text-2xl font-black text-white">{securitySummary?.allTimeCount ?? securityEvents.length}</p>
+                            <p className="mt-2 text-2xl font-black text-white">{formatProfileMetricLabel(securitySummary?.allTimeCount)}</p>
                             <p className="mt-1 text-xs text-gray-500">Includes historical counters carried forward from legacy flags.</p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
                             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Last 30 days</p>
-                            <p className="mt-2 text-2xl font-black text-white">{securitySummary?.last30DaysCount ?? filteredSecurityEvents.length}</p>
+                            <p className="mt-2 text-2xl font-black text-white">{formatProfileMetricLabel(securitySummary?.last30DaysCount)}</p>
                             <p className="mt-1 text-xs text-gray-500">Recent viewer protection alerts in the last month.</p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
                             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Latest flag</p>
-                            <p className="mt-2 text-sm font-bold text-white">{securitySummary?.lastViolationReason || "No flags recorded"}</p>
+                            <p className="mt-2 text-sm font-bold text-white">{securitySummary && !isLocalAdminUserDetailFixture ? securitySummary.lastViolationReason || "No flags recorded" : "No source"}</p>
                             <p className="mt-1 text-xs text-gray-500">
                                 {securitySummary?.lastViolationAt
                                     ? `${typeof securitySummary.lastViolationAt === "string"
@@ -1479,29 +1502,27 @@ export default function AdminUserAnalyticsPage() {
                     <div className="mb-4 grid gap-3 sm:grid-cols-2">
                         <label className="space-y-2 text-left">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Severity</span>
-                            <select
+                            <NativeSelect
                                 value={securitySeverityFilter}
                                 onChange={(event) => setSecuritySeverityFilter(event.target.value)}
-                                className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
                             >
                                 <option value="all">All severities</option>
                                 <option value="high">High</option>
                                 <option value="medium">Medium</option>
                                 <option value="low">Low</option>
-                            </select>
+                            </NativeSelect>
                         </label>
                         <label className="space-y-2 text-left">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Reason</span>
-                            <select
+                            <NativeSelect
                                 value={securityReasonFilter}
                                 onChange={(event) => setSecurityReasonFilter(event.target.value)}
-                                className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
                             >
                                 <option value="all">All reasons</option>
                                 {securityReasonOptions.map((reason) => (
                                     <option key={reason.reason} value={reason.reason}>{reason.label}</option>
                                 ))}
-                            </select>
+                            </NativeSelect>
                         </label>
                     </div>
                     {securitySummary?.reasons?.length ? (
@@ -1514,8 +1535,10 @@ export default function AdminUserAnalyticsPage() {
                         </div>
                     ) : null}
                     <div className="space-y-3">
-                        {filteredSecurityEvents.length === 0 ? (
-                            <p className="text-sm text-gray-500">No viewer protection issues have been logged for this account.</p>
+                        {isLocalAdminUserDetailFixture || (!securitySummary && securityEvents.length === 0) ? (
+                            <p className="text-sm text-gray-500">No source: account security evidence is unavailable.</p>
+                        ) : filteredSecurityEvents.length === 0 ? (
+                            <p className="text-sm text-gray-500">No viewer protection issues match this filter.</p>
                         ) : (
                             filteredSecurityEvents.map((event) => (
                                 <div key={event.id} className="rounded-2xl border border-white/5 bg-black/35 px-4 py-3">

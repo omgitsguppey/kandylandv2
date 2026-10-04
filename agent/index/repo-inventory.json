@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T02:33:44.605Z",
+  "generatedAt": "2026-10-04T00:38:21.662Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,9 +15,9 @@
     "scripts/repo-inventory.ts"
   ],
   "reportCompleteness": "capped",
-  "totalFindingCount": 5022,
+  "totalFindingCount": 5036,
   "emittedFindingCount": 12,
-  "omittedFindingCount": 5010,
+  "omittedFindingCount": 5024,
   "capReason": "The complete inventory is derived live from source discovery; the tracked index retains bounded high-risk examples and complete aggregate counts.",
   "capStrategy": "top_risk",
   "capLimit": 12,
@@ -35,10 +35,10 @@
   "gitStatus": "available",
   "toolingDegraded": false,
   "degradationReason": null,
-  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "currentHeadSource": "git",
-  "generatedAtUtc": "2026-08-29T02:33:44.605Z",
-  "sourceCommit": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+  "generatedAtUtc": "2026-10-04T00:38:21.662Z",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "freshness": "fresh",
   "baselineStatus": "current",
   "owner": "scripts/agent/build-agent-indexes.ts",
@@ -48,7 +48,7 @@
   "cleanupPolicy": "regenerate",
   "cleanupCommand": "npm run agent:index",
   "sourceTruthRole": "generated_snapshot",
-  "dirtyFileCount": 189,
+  "dirtyFileCount": 768,
   "items": [
     {
       "stable_id": "file__src__lib__activity-sync-ts",
@@ -244,17 +244,17 @@
     }
   ],
   "counts": {
-    "total": 5022,
+    "total": 5036,
     "emitted": 12,
-    "omitted": 5010,
+    "omitted": 5024,
     "byDomain": [
       {
         "domainClass": "tests",
-        "count": 989
+        "count": 1006
       },
       {
         "domainClass": "repo_intelligence_tooling",
-        "count": 844
+        "count": 849
       },
       {
         "domainClass": "other",
@@ -266,11 +266,11 @@
       },
       {
         "domainClass": "agent_state",
-        "count": 622
+        "count": 625
       },
       {
         "domainClass": "component",
-        "count": 235
+        "count": 233
       },
       {
         "domainClass": "server_helper",
@@ -281,20 +281,20 @@
         "count": 134
       },
       {
-        "domainClass": "app_surface",
-        "count": 75
+        "domainClass": "admin_surface",
+        "count": 78
       },
       {
         "domainClass": "repo_tooling",
         "count": 72
       },
       {
-        "domainClass": "admin_surface",
-        "count": 71
-      },
-      {
         "domainClass": "agent_docs",
         "count": 69
+      },
+      {
+        "domainClass": "app_surface",
+        "count": 67
       },
       {
         "domainClass": "functions_runtime",
@@ -321,20 +321,20 @@
         "count": 15
       },
       {
-        "domainClass": "workflow_tooling",
-        "count": 14
-      },
-      {
         "domainClass": "public_asset",
-        "count": 12
-      },
-      {
-        "domainClass": "functions_config",
-        "count": 9
+        "count": 13
       },
       {
         "domainClass": "documentation",
         "count": 8
+      },
+      {
+        "domainClass": "functions_config",
+        "count": 7
+      },
+      {
+        "domainClass": "workflow_tooling",
+        "count": 7
       },
       {
         "domainClass": "playbook",
@@ -364,11 +364,11 @@
     "byPrefix": [
       {
         "prefix": "src/app",
-        "count": 280
+        "count": 279
       },
       {
         "prefix": "src/components",
-        "count": 235
+        "count": 233
       },
       {
         "prefix": "src/hooks",
@@ -388,11 +388,11 @@
       },
       {
         "prefix": "scripts",
-        "count": 916
+        "count": 921
       },
       {
         "prefix": "tests",
-        "count": 989
+        "count": 1006
       },
       {
         "prefix": "agent/index",
@@ -404,7 +404,7 @@
       },
       {
         "prefix": "agent/state",
-        "count": 622
+        "count": 625
       }
     ]
   }

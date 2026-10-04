@@ -1,3 +1,8 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { createSourceValidatorTaskFixture } from "./utils/source-validator-contract";
+import { readSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
+import { summarizeSessionMeasurementCheckpoints } from "@/lib/analytics/session-metrics-engine";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -151,4 +156,78 @@ describe("session bounce calculation", () => {
     expect(lane.label).toBe("Session/bounce");
     expect(debugSummary.lanes.some((entry) => entry.id === "session_bounce")).toBe(true);
   });
+});
+
+
+describe("bounded session checkpoint custody", () => {
+  const measured = (overrides: Record<string, unknown> = {}) => ({ version: "session_measurement_v1", segmentId: "segment_measurement_fixture", sequence: 1, startedAtMs: 1_000, endedAtMs: 31_000, activeMs: 10_000, idleMs: 20_000, hiddenMs: 0, status: "checkpoint", ...overrides });
+  it("retains a measured zero while rejecting missing and invalid measurements", () => {
+    expect(readSessionMeasurementCheckpoint(measured({ activeMs: 0, idleMs: 30_000 }))?.activeMs).toBe(0);
+    for (const input of [undefined, {}, measured({ activeMs: -1 }), measured({ activeMs: Infinity }), measured({ idleMs: 30_001 }), measured({ version: "old" }), measured({ sequence: 0 }), measured({ endedAtMs: 100_000_000 })]) {
+      expect(readSessionMeasurementCheckpoint(input)).toBeNull();
+    }
+  });
+  it("uses the latest cumulative checkpoint without adding earlier snapshots or retries", () => {
+    expect(summarizeSessionMeasurementCheckpoints([measured(), measured(), measured({ sequence: 2, endedAtMs: 61_000, activeMs: 25_000, idleMs: 30_000, hiddenMs: 5_000, status: "final" })])).toMatchObject({ activeMs: 25_000, idleMs: 30_000, hiddenMs: 5_000, durationMs: 60_000, segmentCount: 1, status: "available" });
+  });
+  it("orders checkpoints by sequence instead of delivery order", () => {
+    expect(summarizeSessionMeasurementCheckpoints([measured({ sequence: 2, endedAtMs: 61_000, activeMs: 40_000, idleMs: 20_000 }), measured()]).activeMs).toBe(40_000);
+  });
+  it("adds separate sequential route segments once", () => {
+    expect(summarizeSessionMeasurementCheckpoints([measured(), measured({ segmentId: "second_segment_fixture", startedAtMs: 31_000, endedAtMs: 51_000, activeMs: 5_000, idleMs: 15_000 })])).toMatchObject({ activeMs: 15_000, durationMs: 50_000, segmentCount: 2 });
+  });
+  it("does not label an unobserved interval as zero", () => {
+    expect(summarizeSessionMeasurementCheckpoints([])).toMatchObject({ activeMs: null, status: "source_missing" });
+    expect(summarizeSessionMeasurementCheckpoints([measured(), undefined])).toMatchObject({ activeMs: null, status: "partial" });
+  });
+  it("rejects cumulative regressions and conflicting retry bodies", () => {
+    for (const conflict of [measured({ activeMs: 9_000, idleMs: 21_000 }), measured({ sequence: 2, endedAtMs: 61_000, activeMs: 5_000, idleMs: 55_000 }), measured({ sequence: 2, startedAtMs: 2_000, endedAtMs: 62_000, activeMs: 40_000, idleMs: 20_000 })]) {
+      expect(summarizeSessionMeasurementCheckpoints([measured(), conflict])).toMatchObject({ activeMs: null, conflictCount: 1 });
+    }
+  });
+  it("does not add overlapping differently named segments as complete time", () => {
+    expect(summarizeSessionMeasurementCheckpoints([measured(), measured({ segmentId: "overlap_segment_fixture" })])).toMatchObject({ activeMs: null, conflictCount: 1, status: "partial" });
+  });
+});
+
+
+describe("final checkpoint ownership", () => {
+  it("rejects a later sequence after final closeout without labeling the contradiction as absent", () => {
+    const checkpoint = { version: "session_measurement_v1", segmentId: "segment_final_fixture", sequence: 1, startedAtMs: 1_000, endedAtMs: 31_000, activeMs: 10_000, idleMs: 20_000, hiddenMs: 0, status: "final" };
+    expect(summarizeSessionMeasurementCheckpoints([checkpoint, { ...checkpoint, sequence: 2, endedAtMs: 41_000, idleMs: 30_000 }])).toMatchObject({ status: "partial", activeMs: null, conflictCount: 1 });
+  });
+});
+
+
+describe("session-bounce-calculation task-bound CLI", () => {
+  const fixture = (allowedSourceFiles: string[] = []) => createSourceValidatorTaskFixture({ validator: "scripts/agent/validate-session-bounce-calculation.ts", report: "agent/state/session-bounce-calculation.generated.json", allowedSourceFiles });
+  it("accepts declared source changes with inherited protected dirt, denies later protected changes and recovers without replacing prior proof", () => {
+    const f = fixture();
+    f.write("fixture.ts", "export const value = 2;\n");
+    const accepted = f.run(); expect(accepted.output).not.toContain("Error:"); expect(accepted.status).toBe(0);
+    const before = f.read(f.report);
+    expect(JSON.parse(before).mutationScope).toMatchObject({ mode: "input_bound_task", changedFiles: ["fixture.ts"], sourceFingerprint: f.fingerprint() });
+    f.write(f.protectedFile, "export const value = 3;\n");
+    const denied = f.run(); expect(denied.status).not.toBe(0); expect(denied.output).toContain("Output scope violation: " + f.protectedFile);
+    expect(f.read(f.report)).toBe(before);
+    f.write(f.protectedFile, "export const value = 2;\n");
+    expect(f.run().status).toBe(0);
+  }, 60_000);
+  it("retains the standalone protected-runtime safeguard", () => {
+    const f = fixture(); const result = f.run([]);
+    expect(result.status).not.toBe(0); expect(result.output).toContain("dirty files are unclassified.");
+    expect(JSON.parse(f.read(f.report)).mutationScope).toEqual({ mode: "whole_git_worktree" });
+  }, 60_000);
+  it("rejects an undeclared untracked mutation before publishing a report", () => {
+    const f = fixture(); f.write("unexpected.ts", "export const unexpected = true;\n");
+    const result = f.run(); expect(result.status).not.toBe(0); expect(result.output).toContain("Output scope violation: unexpected.ts");
+    expect(existsSync(join(f.root, f.report))).toBe(false);
+  }, 60_000);
+  it("rejects a disconnected closeout despite a literal decoy and accepts an equivalent emitter binding", () => {
+    const file = "src/components/Analytics/DeepTracker.tsx", f = fixture([file]), before = f.read(file);
+    f.write(file, before.replace('trackObservedEvent("session_closed",', 'trackObservedEvent("disconnected_closeout",') + '\n// trackEvent("session_closed", {});\n');
+    const failed = f.run(); expect(failed.status).not.toBe(0); expect(failed.output).toContain("DeepTracker does not emit session closeout telemetry.");
+    f.write(file, before.replaceAll("trackObservedEvent", "emitMeasuredEvent"));
+    expect(f.run().status).toBe(0);
+  }, 60_000);
 });

@@ -8,10 +8,10 @@ import { KandyErrorStateSurface } from "@/components/creative-tim/kandydrops/app
 
 export default function Error({
     error,
-    reset,
+    retry,
 }: {
     error: Error & { digest?: string };
-    reset: () => void;
+    retry: () => void;
 }) {
     const problemCopy = getPageProblemCopy(error);
 
@@ -25,7 +25,7 @@ export default function Error({
             body={problemCopy.body}
             actionLabel={problemCopy.actionLabel}
             onReload={() => window.location.reload()}
-            onReset={reset}
+            onReset={retry}
         />
     );
 }

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 
+import { Card } from "@/components/creative-tim/ui/card";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
@@ -9,10 +10,10 @@ import { cn } from "@/lib/utils";
 type AdminMetricTone = "neutral" | "good" | "warn" | "bad";
 
 function getToneClasses(tone: AdminMetricTone) {
-  if (tone === "good") return "border-emerald-400/20 bg-emerald-500/10";
-  if (tone === "warn") return "border-amber-400/20 bg-amber-500/10";
-  if (tone === "bad") return "border-red-400/20 bg-red-500/10";
-  return "border-white/10 bg-white/[0.04]";
+  if (tone === "good") return "border border-emerald-400/20";
+  if (tone === "warn") return "border border-amber-400/20";
+  if (tone === "bad") return "border border-red-400/20";
+  return "";
 }
 
 export function AdminMetricCard({
@@ -45,17 +46,17 @@ export function AdminMetricCard({
   icon?: ReactNode;
 }) {
   return (
-    <div
-      className={cn("min-w-0 overflow-hidden rounded-[1.1rem] border p-3", getToneClasses(tone), className)}
+    <Card
+      className={cn("min-w-0 gap-0 p-3 shadow-none", getToneClasses(tone), className)}
       data-admin-metric-card-state={truthState}
       data-admin-metric-card-has-value={hasUsableValue ? "true" : "false"}
     >
-      <div className="flex items-center justify-between gap-2">
-        <p className="flex min-w-0 items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-gray-400">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+        <p className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-muted-foreground">
           {icon}
-          <span className="truncate">{label}</span>
+          <span className="min-w-0 break-words">{label}</span>
         </p>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-1 *:min-w-0 *:max-w-full *:whitespace-normal *:break-words">
           {auxiliaryBadges}
           {showTruthBadge ? (
             <AdminTruthBadge
@@ -67,8 +68,8 @@ export function AdminMetricCard({
           ) : null}
         </div>
       </div>
-      <div className={cn("mt-1.5 break-words text-xl font-black text-white md:text-2xl", valueClassName)}>{value}</div>
-      {meta ? <div className="mt-1 break-words text-xs text-gray-400">{meta}</div> : null}
-    </div>
+      <div className={cn("mt-2 break-words text-2xl font-semibold tabular-nums text-card-foreground", valueClassName)}>{value}</div>
+      {meta ? <div className="mt-1 break-words text-sm text-muted-foreground">{meta}</div> : null}
+    </Card>
   );
 }

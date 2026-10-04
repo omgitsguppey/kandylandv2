@@ -1,4 +1,3 @@
-// turbo-all
 # Sync Codebase Ledgers & Audits Workflow
 
 This workflow is an explicit governance/ledger maintenance lane. Do not run it for ordinary source fixes, UI cleanup, validator passes, or external-audit intake unless the task specifically asks to synchronize ledgers, changes doctrine/governance, promotes or retires an owner/validator lane, changes verification policy, or an owning validator requires durable memory writeback.

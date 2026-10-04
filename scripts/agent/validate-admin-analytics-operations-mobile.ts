@@ -105,7 +105,6 @@ for (const needle of [
   "mobileVisibleLiveSurfaces",
   "+{hiddenLiveSurfaceCount} more in Debug",
   "data-admin-analytics-mobile-can-show-identity-details",
-  "hidden space-y-1.5 md:block",
   "density=\"compact\"",
 ]) {
   requireIncludes(operationsTab, needle, "Live Pulse compact mobile rendering");
@@ -113,7 +112,9 @@ for (const needle of [
 
 requireIncludes(primitives, 'density?: "default" | "compact"', "SectionCard density prop");
 requireIncludes(primitives, "density = \"default\"", "SectionCard density default");
-requireIncludes(primitives, "h-7 w-7 rounded-[0.8rem]", "SectionCard compact icon density");
+if (!/<Icon\s[^>]*aria-hidden="true"/u.test(primitives)) failures.push("SectionCard icon must remain decorative while the named disclosure owns the hit target.");
+if (!/<div className="hidden [^"]*@(?:3xl|min-\[48rem\]):block">\s*\{livePulseModel\.activeIdentities\.length/u.test(operationsTab)) failures.push("Active identity details must remain bound to the available-container presentation boundary.");
+requireIncludes(primitives, "aria-controls={contentId}", "SectionCard actual disclosure connection");
 
 for (const needle of [
   "modeLabel).not.toBe(\"Failed\")",

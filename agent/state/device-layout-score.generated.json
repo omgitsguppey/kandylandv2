@@ -1,7 +1,7 @@
 {
-  "score": 100,
-  "status": "clean",
-  "generatedAt": "2026-07-14T16:05:17.936Z",
+  "score": 90,
+  "status": "pass",
+  "generatedAt": "2026-10-04T00:35:05.261Z",
   "repoRoot": "C:\\Users\\uylus\\Documents\\KandyDrops_Final",
   "displayModeCoverage": [
     "browser",
@@ -21,10 +21,23 @@
     "wide-desktop:1440-1599",
     "ultra-wide:1600-infinity"
   ],
-  "findings": [],
+  "findings": [
+    {
+      "title": "Chat shell does not reference a dynamic viewport or shared chat viewport token",
+      "severity": "major",
+      "category": "viewport",
+      "filePath": "src/components/Chat/ChatRouteShell.tsx",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "escalation": "Chat viewport ownership must be reviewed because keyboard behavior requires runtime verification.",
+      "docsBasis": "google",
+      "id": "device-layout-viewport-1jvll9g",
+      "scoreImpact": -10
+    }
+  ],
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "criticalCount": 0,
-  "majorCount": 0,
-  "summary": "Device layout contract is clean."
+  "majorCount": 1,
+  "summary": "Device layout score found 1 finding(s), 0 critical, 1 major. 0 deterministic safe autofix(es) are available."
 }

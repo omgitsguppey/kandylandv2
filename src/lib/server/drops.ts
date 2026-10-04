@@ -19,7 +19,7 @@ export function sanitizeDropForClient(drop: Drop): Drop {
 
 export const getDrops = cache(async (): Promise<Drop[]> => {
     try {
-        if (!adminDb) return [];
+        if (!adminDb) throw new Error("Database not available");
         const snapshot = await adminDb.collection("drops")
             .orderBy("validFrom", "desc")
             .limit(PUBLIC_DROPS_READ_LIMIT)
@@ -48,7 +48,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
         return drops;
     } catch (error) {
         recordRouteWarning("drops-list", "Error fetching drops", error);
-        return [];
+        throw error;
     }
 });
 

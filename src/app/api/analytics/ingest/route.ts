@@ -1,3 +1,4 @@
+import { SESSION_METRICS_TELEMETRY_EVENTS, readSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
@@ -30,7 +31,8 @@ import {
     type AnalyticsIngestFailureReason,
 } from "@/lib/analytics/ingest-contract";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { CONSENT_MODE_VALUES } from "@/lib/privacy/consent-tracking-contract";
+import { CONSENT_MODE_VALUES, type ConsentMode } from "@/lib/privacy/consent-tracking-contract";
+import { canTrackEvent, restrictConsentMode, deriveAnalyticsConsentState } from "@/lib/privacy/consent-tracking-policy";
 import {
     ACTOR_KINDS,
     IDENTITY_CONFIDENCE_VALUES,
@@ -48,6 +50,7 @@ import { buildBehavioralEventFactRollup } from "@/lib/server/event-fact-rollup";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 import {
     RUNTIME_FACT_CONTRACT_VERSION,
+    readRuntimeFactRequestConsentAdmission,
     type RuntimeFact,
     type RuntimeFactDiagnostic,
 } from "@/lib/runtime-facts/runtime-fact-contract";
@@ -72,6 +75,7 @@ const GuestSemanticEventNameSchema = z.enum([
     "semantic_page_passive",
     "semantic_page_bounced",
     "semantic_page_exited",
+    ...SESSION_METRICS_TELEMETRY_EVENTS,
 ]);
 
 const TelemetryEventSchema = z.object({
@@ -86,7 +90,8 @@ const TelemetryEventSchema = z.object({
     x: z.number().optional(),
     y: z.number().optional(),
     scrollDepthPercent: z.number().min(0).max(100).optional(),
-    durationMs: z.number().max(86400000).optional(),
+    durationMs: z.number().min(0).max(86400000).optional(),
+    sessionMeasurement: z.custom<NonNullable<ReturnType<typeof readSessionMeasurementCheckpoint>>>((value) => readSessionMeasurementCheckpoint(value) !== null).optional(),
     interactionState: z.enum(["engaged", "passive"]).optional(),
     exitIntent: z.enum(["bounce", "exit"]).optional(),
     clickCount: z.number().optional(),
@@ -224,13 +229,13 @@ async function reportAnalyticsIngestFailure(error: unknown) {
 
 function buildGuestBehavioralTimelineFacts(input: {
     runtimeFacts: readonly RuntimeFact[];
-    globalPrivacyControl: boolean;
+    consentMode: ConsentMode;
 }) {
     return input.runtimeFacts
         .filter((fact) => fact.metricEligible || fact.metricExclusionReason.includes("privacy"))
         .map((runtimeFact) => mapRuntimeFactToBehavioralTimelineFact({
             runtimeFact,
-            consentState: input.globalPrivacyControl ? "partial" : "granted",
+            consentState: deriveAnalyticsConsentState(input.consentMode),
         }));
 }
 
@@ -239,8 +244,11 @@ function readStoredGuestTimelineFacts(input: {
     batchId: string;
     anonymousVisitorId: string;
 }) {
-    if (!Array.isArray(input.value)) return [];
-    return input.value.filter((candidate): candidate is BehavioralTimelineFact => {
+    if (!input.value || typeof input.value !== "object" || Array.isArray(input.value)) return [];
+    const record = input.value as Record<string, unknown>;
+    const originalAdmission = readRuntimeFactRequestConsentAdmission(record.requestConsentAdmission);
+    if (!Array.isArray(record.behavioralTimelineProjectionFacts)) return [];
+    return record.behavioralTimelineProjectionFacts.filter((candidate): candidate is BehavioralTimelineFact => {
         if (!candidate || typeof candidate !== "object") return false;
         const fact = candidate as Partial<BehavioralTimelineFact>;
         return typeof fact.factId === "string"
@@ -253,7 +261,14 @@ function readStoredGuestTimelineFacts(input: {
             && Number.isFinite(fact.timestampMs)
             && Boolean(fact.target && typeof fact.target === "object")
             && Boolean(fact.confidenceInputs && typeof fact.confidenceInputs === "object");
-    }).slice(0, MAX_ANALYTICS_EVENTS_PER_PAYLOAD);
+    }).slice(0, MAX_ANALYTICS_EVENTS_PER_PAYLOAD).map((fact) => {
+        // Recovery requires agreement with original batch admission; current consent never attests an older row.
+        const { requestConsentAdmission: savedAdmission, ...storedFact } = fact;
+        const projectedAdmission = readRuntimeFactRequestConsentAdmission(savedAdmission);
+        const requestConsentAdmission = originalAdmission && projectedAdmission?.consentMode === originalAdmission.consentMode
+            ? originalAdmission : null;
+        return { ...storedFact, ...(requestConsentAdmission ? { requestConsentAdmission } : {}) };
+    });
 }
 
 async function writeGuestBehavioralTimelineProjection(input: {
@@ -364,13 +379,19 @@ async function POST_handler(request: NextRequest) {
             return buildAnalyticsIngestFailureResponse(reason);
         }
 
+        const consentMode = restrictConsentMode(resolveRequestConsentMode(request), parsed.data.consentMode);
         const consentFilteredEvents = parsed.data.events.map((event) => ({
             event,
-            allowed: requestAllowsAnonymousAnalytics(request, resolveGuestConsentEventName(event)),
+            allowed: requestAllowsAnonymousAnalytics(request, resolveGuestConsentEventName(event))
+                && canTrackEvent(resolveGuestConsentEventName(event), consentMode),
         }));
-        const consentAcceptedEvents = consentFilteredEvents
+        const consentAcceptedEvents: Array<z.infer<typeof TelemetryEventSchema>> = consentFilteredEvents
             .filter((result) => result.allowed)
-            .map((result) => result.event);
+            .map(({ event }) => {
+                if (consentMode === "full_behavioral") return event;
+                const { sessionMeasurement: _blockedMeasurement, ...admittedEvent } = event;
+                return admittedEvent;
+            });
         const consentDroppedEventCount = consentFilteredEvents.length - consentAcceptedEvents.length;
 
         if (consentAcceptedEvents.length === 0) {
@@ -388,7 +409,6 @@ async function POST_handler(request: NextRequest) {
         }
 
         const { sessionId, actorKind, identityState, identityConfidence } = parsed.data;
-        const consentMode = resolveRequestConsentMode(request);
         const events = consentAcceptedEvents;
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
         const canonicalAnonymousVisitorId = resolveCanonicalGuestAnonymousVisitorId({
@@ -446,8 +466,12 @@ async function POST_handler(request: NextRequest) {
                 validationFindings: result.validation.findings,
             }));
         const acceptedSanitizedEvents = acceptedEventEnvelopeResults.map((result) => result.event);
-        const runtimeFactResults = acceptedSanitizedEvents.map((event, index) => normalizeAnonymousRuntimeFact({
-            eventId: `${batchId}:${index}`,
+        const runtimeFactResults = acceptedEventEnvelopeResults.map(({ event, eventEnvelope }) => normalizeAnonymousRuntimeFact({
+            eventId: eventEnvelope.eventId,
+            sessionMeasurement: event.sessionMeasurement,
+            sourceOrigin: "accepted_current_guest_ingest",
+            acceptedEventName: eventEnvelope.eventName,
+            requestConsentMode: consentMode,
             timestampMs: event.timestamp,
             sessionId: sessionId || sessionKey,
             anonymousVisitorId: canonicalAnonymousVisitorId,
@@ -462,16 +486,17 @@ async function POST_handler(request: NextRequest) {
         const runtimeFacts = runtimeFactResults
             .map((result) => result.fact)
             .filter((fact): fact is RuntimeFact => Boolean(fact));
+        const requestConsentAdmission = readRuntimeFactRequestConsentAdmission(runtimeFacts[0]?.requestConsentAdmission);
         const runtimeDiagnostics = runtimeFactResults
             .map((result) => result.diagnostic)
             .filter((diagnostic): diagnostic is RuntimeFactDiagnostic => Boolean(diagnostic));
         const proposedTimelineFacts = buildGuestBehavioralTimelineFacts({
             runtimeFacts,
-            globalPrivacyControl,
+            consentMode,
         });
-        const behavioralEventResults = acceptedSanitizedEvents.map((event, index) => normalizeBehavioralEventFactWithDiagnostics({
-            eventId: `${batchId}:${index}`,
-            eventName: resolveGuestEnvelopeEventName(event),
+        const behavioralEventResults = acceptedEventEnvelopeResults.map(({ event, eventEnvelope }) => normalizeBehavioralEventFactWithDiagnostics({
+            eventId: eventEnvelope.eventId,
+            eventName: eventEnvelope.eventName,
             params: {
                 route: event.path,
                 page_path: event.path,
@@ -484,6 +509,7 @@ async function POST_handler(request: NextRequest) {
                 target_id: event.targetId,
                 target_tag: event.targetTag,
                 duration_ms: event.durationMs,
+                ...(event.sessionMeasurement ? { session_measurement: JSON.stringify(readSessionMeasurementCheckpoint(event.sessionMeasurement)), active_ms: event.sessionMeasurement.activeMs } : {}),
             },
             timestamp: event.timestamp,
             sessionId: sessionId || sessionKey,
@@ -518,7 +544,7 @@ async function POST_handler(request: NextRequest) {
                 return {
                     deduped: true,
                     timelineFacts: readStoredGuestTimelineFacts({
-                        value: existingBatchSnapshot.data()?.behavioralTimelineProjectionFacts,
+                        value: existingBatchSnapshot.data(),
                         batchId,
                         anonymousVisitorId: canonicalAnonymousVisitorId,
                     }),
@@ -590,6 +616,7 @@ async function POST_handler(request: NextRequest) {
                 eventEnvelopes: acceptedEventEnvelopeResults.map((result) => result.eventEnvelope).slice(0, 50),
                 quarantinedEventEnvelopes: quarantinedEventEnvelopes.slice(0, 50),
                 runtimeFactVersion: runtimeFacts.length > 0 ? RUNTIME_FACT_CONTRACT_VERSION : "",
+                ...(requestConsentAdmission ? { requestConsentAdmission } : {}),
                 runtimeFacts: runtimeFacts.slice(0, 50),
                 behavioralTimelineProjectionFacts: proposedTimelineFacts,
                 behavioralTimelineProjectionFactCount: proposedTimelineFacts.length,

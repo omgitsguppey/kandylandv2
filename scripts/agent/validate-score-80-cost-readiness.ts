@@ -5,7 +5,9 @@ import { fileURLToPath } from "node:url";
 
 import type { PublicBetaCostReadiness } from "../../src/lib/agent-score/core";
 import { scoreCostReadiness, scoreCostReadinessLaneStatus } from "../../src/lib/agent-score/evidence-quality";
-import { classifyGeneratedArtifactFromGit } from "../../src/lib/agent-score/generated-artifact-version-policy";
+import { validateCostRiskEvidenceReport, type CostRiskEvidenceReport } from "../../src/lib/cost/cost-risk-evidence-classifier";
+import { validateGeneratedChildReportEvidence, validateGeneratedReportEnvelope, withGeneratedReportEnvelope } from "./generated-report-envelope";
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import {
   classifyCostOwnerReviewLanes,
   costOwnerReviewLanesToScoreInput,
@@ -63,6 +65,7 @@ export type Score80CostReadinessReport = {
     detail: string;
   }>;
   nextExactSteps: string[];
+  sourceDependencyFailures?: string[];
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -71,69 +74,7 @@ const ROOT = join(__dirname, "..", "..");
 const ARTIFACT_PATH = "agent/state/score-80-cost-readiness.generated.json";
 const DOC_PATH = "docs/agent-truth/score-80-cost-readiness.md";
 const CREATOR_DASHBOARD_COST_INVENTORY_PATH = "agent/state/creator-dashboard-error-cost-inventory.generated.json";
-const COST_ARTIFACT_PATHS = {
-  finalCostAuditLock: "agent/state/final-cost-audit-lock.generated.json",
-  cloudSqlGeminiCostGuards: "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-  analyticsCostRuntimeInventory: "agent/state/analytics-cost-runtime-inventory.generated.json",
-  finalTelemetryClosureLock: "agent/state/final-telemetry-closure-lock.generated.json",
-  costOwnerReviewSourceClosure: "agent/state/cost-owner-review-source-closure.generated.json",
-  costRiskOwnerReviewClosure: "agent/state/cost-risk-owner-review-closure.generated.json",
-  costRiskExitPass: "agent/state/cost-risk-exit-pass.generated.json",
-  creatorDashboardErrorCostInventory: CREATOR_DASHBOARD_COST_INVENTORY_PATH,
-} as const satisfies Partial<Record<keyof Score80CostReadinessArtifacts, string>>;
-const COST_ARTIFACT_OWNERS: Record<string, string[]> = {
-  [COST_ARTIFACT_PATHS.finalCostAuditLock]: [
-    "scripts/agent/validate-final-cost-audit-lock.ts",
-    "scripts/agent/validate-global-cost-surfaces.ts",
-    "src/lib/server",
-    "src/app/api",
-    "functions/src",
-  ],
-  [COST_ARTIFACT_PATHS.cloudSqlGeminiCostGuards]: [
-    "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
-    "scripts/agent/sync-sql.ts",
-    "dataconnect",
-    "src/app/api/admin/ai",
-    "src/lib/admin-ai",
-  ],
-  [COST_ARTIFACT_PATHS.analyticsCostRuntimeInventory]: [
-    "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
-    "src/app/api/analytics",
-    "src/lib/analytics",
-    "functions/src/analytics",
-  ],
-  [COST_ARTIFACT_PATHS.finalTelemetryClosureLock]: [
-    "scripts/agent/validate-final-telemetry-closure-lock.ts",
-    "src/lib/telemetry.ts",
-    "src/lib/analytics",
-    "src/app/api/analytics",
-    "functions/src/analytics",
-  ],
-  [COST_ARTIFACT_PATHS.costOwnerReviewSourceClosure]: [
-    "scripts/agent/validate-cost-owner-review-source-closure.ts",
-    "src/lib/cost/cost-owner-review-classifier.ts",
-    "agent/state/final-cost-audit-lock.generated.json",
-    "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-    "agent/state/analytics-cost-runtime-inventory.generated.json",
-    "agent/state/final-telemetry-closure-lock.generated.json",
-  ],
-  [COST_ARTIFACT_PATHS.costRiskOwnerReviewClosure]: [
-    "scripts/agent/validate-cost-risk-owner-review-closure.ts",
-    "src/lib/cost/cost-owner-review-classifier.ts",
-    "agent/state/cost-owner-review-source-closure.generated.json",
-  ],
-  [COST_ARTIFACT_PATHS.costRiskExitPass]: [
-    "scripts/agent/validate-cost-risk-exit-pass.ts",
-    "src/lib/cost/cost-owner-review-classifier.ts",
-    "agent/state/cost-risk-owner-review-closure.generated.json",
-    "agent/state/cost-owner-review-source-closure.generated.json",
-  ],
-  [COST_ARTIFACT_PATHS.creatorDashboardErrorCostInventory]: [
-    "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
-    "src/components/Creators",
-    "src/app/api/creator",
-  ],
-};
+const CANONICAL_COST_PATH = "agent/state/cost-risk-owner-review-closure.generated.json";
 
 function safeExec(command: string, args: string[], root = ROOT) {
   try {
@@ -168,10 +109,6 @@ function numberValue(value: unknown, fallback = 0) {
 
 function stringValue(value: unknown) {
   return typeof value === "string" ? value : "";
-}
-
-function artifactHead(artifact: JsonRecord | null | undefined) {
-  return stringValue(artifact?.sourceCommit) || stringValue(artifact?.currentHead);
 }
 
 function artifactCurrent(
@@ -227,6 +164,7 @@ function staleArtifactsFor(
   return stale;
 }
 
+// Historical artifact compatibility only; live repository readers use the canonical projection below.
 export function buildScore80CostReadinessReport(input: {
   generatedAtUtc: string;
   currentHead: string;
@@ -478,7 +416,18 @@ export function validateScore80CostReadinessReport(report: Score80CostReadinessR
   if (String(report.costReadiness.geminiCloudAssistCostReadiness.status) === "source_inventory_complete") {
     failures.push("Gemini/Cloud Assist owner-review cannot be treated as pass from source guards alone.");
   }
-  if (!route4xxEvidence.includes("final-telemetry-closure-lock")) {
+  failures.push(...(report.sourceDependencyFailures ?? []));
+  const canonicalRouteProof = route4xxEvidence.includes(`canonicalSource=${CANONICAL_COST_PATH}`)
+    && route4xxEvidence.includes("retry4xxClassified=true");
+  const historicalRouteProof = report.sourceDependencyFailures === undefined && (
+    route4xxEvidence.includes("final-telemetry-closure-lock")
+    || (route4xxEvidence.includes("sourcePath=src/lib/server/route-4xx-classifier.ts")
+      && route4xxEvidence.includes("finalCostCurrent=true")
+      && route4xxEvidence.includes("analyticsRuntimeCurrent=true")
+      && route4xxEvidence.includes("route4xxSourceReady=true")
+      && route4xxEvidence.includes("retry4xxClassified=true"))
+  );
+  if (!historicalRouteProof && !canonicalRouteProof) {
     failures.push("route4xx readiness ignores latest telemetry/ingest closure.");
   }
   if (!/source readiness/iu.test(report.costRiskScoreExplanation) || !/external billing evidence/iu.test(report.costRiskScoreExplanation)) {
@@ -495,44 +444,95 @@ export function validateScore80CostReadinessReport(report: Score80CostReadinessR
 
 export function buildScore80CostReadinessFromRepo(root = ROOT): Score80CostReadinessReport {
   const head = currentHead(root);
-  const artifacts = {
-    finalCostAuditLock: readJson(root, "agent/state/final-cost-audit-lock.generated.json"),
-    cloudSqlGeminiCostGuards: readJson(root, "agent/state/cloud-sql-gemini-cost-guards.generated.json"),
-    globalCostSurfaces: readJson(root, "agent/state/global-cost-surfaces.generated.json"),
-    billingSpikeRadar: readJson(root, "agent/state/billing-spike-radar.generated.json"),
-    analyticsHotPathCostReduction: readJson(root, "agent/state/analytics-hot-path-cost-reduction.generated.json"),
-    scheduledRuntimeCostReduction: readJson(root, "agent/state/scheduled-runtime-cost-reduction.generated.json"),
-    adminAnalyticsDebugCostReduction: readJson(root, "agent/state/admin-analytics-debug-cost-reduction.generated.json"),
-    creatorDashboardErrorCostInventory: readJson(root, CREATOR_DASHBOARD_COST_INVENTORY_PATH),
-    analyticsCostRuntimeInventory: readJson(root, "agent/state/analytics-cost-runtime-inventory.generated.json"),
-    finalTelemetryClosureLock: readJson(root, "agent/state/final-telemetry-closure-lock.generated.json"),
-    costOwnerReviewSourceClosure: readJson(root, "agent/state/cost-owner-review-source-closure.generated.json"),
-    costRiskOwnerReviewClosure: readJson(root, "agent/state/cost-risk-owner-review-closure.generated.json"),
-    costRiskExitPass: readJson(root, "agent/state/cost-risk-exit-pass.generated.json"),
-  } satisfies Score80CostReadinessArtifacts;
-  const artifactCurrentByImpact = Object.fromEntries(
-    Object.entries(COST_ARTIFACT_PATHS).map(([key, path]) => {
-      const artifact = artifacts[key as keyof Score80CostReadinessArtifacts];
-      const headFromArtifact = artifactHead(artifact);
-      if (!artifact || !headFromArtifact) return [key, false];
-      try {
-        return [key, !classifyGeneratedArtifactFromGit({
-          cwd: root,
-          artifactPath: path,
-          artifactHead: headFromArtifact,
-          ownedSourcePaths: COST_ARTIFACT_OWNERS[path] ?? [],
-        }).needsRefresh];
-      } catch {
-        return [key, false];
-      }
-    }),
-  ) as Partial<Record<keyof Score80CostReadinessArtifacts, boolean>>;
-  return buildScore80CostReadinessReport({
-    generatedAtUtc: new Date().toISOString(),
+  const canonical = readJson(root, CANONICAL_COST_PATH);
+  const sourceDependencyFailures = validateGeneratedChildReportEvidence({
+    report: canonical,
+    expectedReportKey: "cost-risk-owner-review-closure",
     currentHead: head,
-    artifacts,
-    artifactCurrentByImpact,
+    requireSourceGate: true,
+    repositoryRoot: root,
   });
+  let costReadiness: PublicBetaCostReadiness | null = null;
+  if (sourceDependencyFailures.length === 0) {
+    try {
+      sourceDependencyFailures.push(...validateGeneratedReportEnvelope(canonical!));
+      const report = canonical as unknown as CostRiskEvidenceReport;
+      sourceDependencyFailures.push(...validateCostRiskEvidenceReport(report));
+      const projected = costOwnerReviewLanesToScoreInput(report.lanes);
+      if (JSON.stringify(projected) !== JSON.stringify(report.costReadiness)) {
+        sourceDependencyFailures.push("Canonical cost projection differs from its owning lanes.");
+      }
+      if (sourceDependencyFailures.length === 0) costReadiness = projected;
+    } catch {
+      sourceDependencyFailures.push("Canonical cost report has malformed source lanes.");
+    }
+  }
+  const laneKeys = ["cloudRunCostReadiness", "cloudSqlCostReadiness", "geminiCloudAssistCostReadiness", "route4xxReadiness"] as const;
+  if (!costReadiness) {
+    costReadiness = Object.fromEntries(laneKeys.map((key) => [key, {
+      status: "missing_inventory",
+      detail: "Current canonical source cost proof is unavailable; refresh its owning validator.",
+      evidence: [CANONICAL_COST_PATH, ...sourceDependencyFailures],
+      blocksBetaExit: true,
+    }])) as PublicBetaCostReadiness;
+  } else {
+    costReadiness = structuredClone(costReadiness);
+    for (const lane of Object.values(costReadiness)) {
+      lane.evidence.push(`canonicalSource=${CANONICAL_COST_PATH}`);
+    }
+  }
+  const score = scoreCostReadiness(costReadiness);
+  const valid = sourceDependencyFailures.length === 0;
+  const ownerReviewLanes = laneKeys.filter((key) => key !== "route4xxReadiness"
+    && (!valid || costReadiness[key].evidence.includes("externalReviewRequired=true")));
+  const ignoredLegacyArtifacts = [
+    "agent/state/final-cost-audit-lock.generated.json",
+    "agent/state/cost-owner-review-source-closure.generated.json",
+    "agent/state/cost-risk-exit-pass.generated.json",
+    CREATOR_DASHBOARD_COST_INVENTORY_PATH,
+  ].filter((file) => existsSync(join(root, file)));
+  return {
+    generatedAtUtc: new Date().toISOString(),
+    reportKey: "score-80-cost-readiness",
+    currentHead: head,
+    sourceCommit: head,
+    summary: {
+      latestCostLocksPreferred: valid,
+      externalOwnerReviewStillRequired: ownerReviewLanes.length > 0,
+      sourceCostReadinessScore: score.score,
+      costRiskScore: score.score,
+      staleCreatorDashboardInventoryIgnored: ignoredLegacyArtifacts.includes(CREATOR_DASHBOARD_COST_INVENTORY_PATH),
+      cloudRunSourceReady: valid && costReadiness.cloudRunCostReadiness.status === "source_guarded_external_review_remaining",
+      cloudSqlOwnerReview: ownerReviewLanes.includes("cloudSqlCostReadiness"),
+      geminiOwnerReview: ownerReviewLanes.includes("geminiCloudAssistCostReadiness"),
+      route4xxSourceReady: valid && costReadiness.route4xxReadiness.status === "source_ready_retry_storm_guarded",
+      p0Count: valid ? 0 : 1,
+      p1Count: ownerReviewLanes.length,
+      p2Count: 0,
+    },
+    costReadiness,
+    costRiskScore: score.score,
+    costRiskScoreExplanation: `Cost risk score ${score.score} projects canonical source readiness only; external billing evidence and owner review remain separate.`,
+    externalOwnerReviewStillRequired: ownerReviewLanes.length > 0,
+    sourceReadinessSignals: [
+      `canonicalCostSourceCurrent=${valid}`,
+      `cloudRunSourceReady=${valid && costReadiness.cloudRunCostReadiness.status === "source_guarded_external_review_remaining"}`,
+      `route4xxSourceReady=${valid && costReadiness.route4xxReadiness.status === "source_ready_retry_storm_guarded"}`,
+    ],
+    staleArtifacts: valid ? [] : [CANONICAL_COST_PATH],
+    ignoredLegacyArtifacts,
+    ownerReviewLanes,
+    validatorResults: [{
+      command: "npm run check:cost-risk-owner-review-closure",
+      status: valid ? "pass" : "failed_or_not_run",
+      artifactPath: CANONICAL_COST_PATH,
+      detail: valid ? "Validated canonical current-byte source cost proof; external reviews remain required." : sourceDependencyFailures.join("; "),
+    }],
+    nextExactSteps: valid
+      ? [...(canonical as unknown as CostRiskEvidenceReport).nextExactSteps]
+      : ["Refresh canonical source cost proof before scoring; historical reports cannot restore a rejected gate."],
+    sourceDependencyFailures,
+  };
 }
 
 function renderDoc(report: Score80CostReadinessReport) {
@@ -579,20 +579,28 @@ ${report.nextExactSteps.map((step) => `- ${step}`).join("\n")}
 }
 
 function changedForbiddenFiles(root = ROOT) {
-  const changed = safeExec("git", ["diff", "--name-only", "--", "src/components/Chat", "src/app/dashboard/chat", "src/components/Navigation", "src/components/Navbar.tsx", "src/components/BottomNav.tsx", "src/components/TopNav.tsx"], root);
-  return changed.split(/\r?\n/u).filter(Boolean);
+  const forbidden = ["src/components/Chat", "src/app/dashboard/chat", "src/components/Navigation", "src/components/Navbar.tsx", "src/components/BottomNav.tsx", "src/components/TopNav.tsx"];
+  return listValidatorScopeFiles(root).filter((file) => forbidden.some((path) => file === path || file.startsWith(path + "/")));
 }
 
 function main() {
   const report = buildScore80CostReadinessFromRepo(ROOT);
-  mkdirSync(join(ROOT, "agent/state"), { recursive: true });
-  mkdirSync(join(ROOT, "docs/agent-truth"), { recursive: true });
-  writeFileSync(join(ROOT, ARTIFACT_PATH), `${JSON.stringify(report, null, 2)}\n`);
-  writeFileSync(join(ROOT, DOC_PATH), renderDoc(report));
-
   const failures = validateScore80CostReadinessReport(report);
   const forbiddenChanges = changedForbiddenFiles();
   if (forbiddenChanges.length > 0) failures.push(`Forbidden chat/nav files changed: ${forbiddenChanges.join(", ")}`);
+  const artifact = withValidatorMutationScope(withGeneratedReportEnvelope(report, {
+    evidenceClass: "source_snapshot",
+    status: failures.length ? "fail" : "pass",
+    canClearSourceGate: failures.length === 0,
+    validationFailures: failures,
+    nextExactSteps: report.nextExactSteps,
+    doesNotProve: ["External billing acceptance", "Deployed runtime", "Provider settlement", "Authoritative admin activity"],
+  }));
+  mkdirSync(join(ROOT, "agent/state"), { recursive: true });
+  mkdirSync(join(ROOT, "docs/agent-truth"), { recursive: true });
+  writeFileSync(join(ROOT, ARTIFACT_PATH), `${JSON.stringify(artifact, null, 2)}\n`);
+  writeFileSync(join(ROOT, DOC_PATH), renderDoc(report));
+
   if (failures.length > 0) {
     console.error("Score 80 cost readiness validation failed:");
     for (const failure of failures) console.error(`- ${failure}`);

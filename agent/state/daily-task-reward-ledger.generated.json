@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-07-16T04:25:21.078Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-03T04:08:45.062Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "scoreBefore": {
     "sourceHealth": 0,
     "runtimeHealth": 0,
@@ -62,32 +62,7 @@
     "failedGrantCount": 0,
     "rawDetailsCollapsedByDefault": true
   },
-  "dirtyFileClassifications": [
-    {
-      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-reset-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    }
-  ],
+  "dirtyFileClassifications": [],
   "scoreImpactByDimension": {
     "sourceHealth": {
       "before": 0,
@@ -135,7 +110,7 @@
   "validationFailures": [],
   "reportKey": "daily-task-reward-ledger",
   "status": "pass",
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "evidenceClass": "source_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -152,5 +127,21 @@
   "passed": true,
   "sourceStatus": "pass",
   "sourceValidationFailures": [],
-  "isolationFailures": []
+  "isolationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-daily-claim-source-repair-20261002",
+    "inputHash": "fe7fec97f4c95aaef0c13df2ecb60365c5633d2337d7908d8064f32e8da2589b",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "ee166f9284914e61fb9dcbd9d6a81ee9d5cfdffdab0391222a162b1ce082d2f2",
+    "changedFiles": [
+      "src/components/Dashboard/DailyCheckIn.tsx",
+      "src/lib/ui-continuity.ts",
+      "tests/unit/daily-checkin-variant.spec.tsx",
+      "tests/unit/ui-continuity.spec.ts"
+    ],
+    "inheritedDirtySourceFileCount": 463,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

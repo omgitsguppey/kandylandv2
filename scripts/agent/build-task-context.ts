@@ -37,6 +37,18 @@ const NOISE_TOKENS = new Set([
   "without",
 ]);
 
+export function selectAllowedTaskFiles(candidates: string[], forbidden: string[], limit = 16): string[] {
+  const normalizedRules = forbidden.map((rule) => rule.toLowerCase().replace(/\\/g, "/").replace(/\/+$/u, ""));
+  return Array.from(new Set(candidates))
+    .filter((candidate) => {
+      const path = candidate.toLowerCase().replace(/\\/g, "/");
+      return !normalizedRules.some((rule) => rule.includes("/")
+        ? path === rule || path.startsWith(`${rule}/`)
+        : path.includes(rule));
+    })
+    .slice(0, limit);
+}
+
 type TaskSignals = {
   pathNeedles: string[];
   helperFamilyNeedles: string[];
@@ -717,11 +729,12 @@ export function buildTaskContext() {
     fileHints,
   });
   const likelyTouchedPaths = likelyTouchedFiles.map((entry) => entry.path);
-  const allowedFiles = Array.from(new Set([...fileHints, ...likelyTouchedPaths, ...likelyAdjacentHelpers.map((entry) => entry.path)])).slice(0, 16);
   const forbiddenFiles = Array.from(new Set([
     ...verificationPlan.forbiddenSurfaces,
     ...taskSignals.forbiddenPathNeedles,
   ])).slice(0, 16);
+  const allowedFiles = selectAllowedTaskFiles([...fileHints, ...likelyTouchedPaths, ...likelyAdjacentHelpers.map((entry) => entry.path)], forbiddenFiles);
+  const safeAdjacentHelpers = selectAllowedTaskFiles(likelyAdjacentHelpers.map((entry) => entry.path), forbiddenFiles, 8);
   const payload = {
     ...createMetadata([
       "agent/index/repo-inventory.json",
@@ -763,10 +776,10 @@ export function buildTaskContext() {
     coldContextFiles,
     likelyTouchedFiles: likelyTouchedFiles.map((entry) => entry.path),
     likelyAdjacentFiles,
-    likelyAdjacentHelpers: likelyAdjacentHelpers.map((entry) => entry.path),
+    likelyAdjacentHelpers: safeAdjacentHelpers,
     governanceConsultFull: governanceTruth.filter((entry) => entry.consultMode === "full").map((entry) => entry.path),
     governanceConsultSelective: governanceTruth.filter((entry) => entry.consultMode === "selective" || entry.consultMode === "historical_only").map((entry) => entry.path),
-    canonicalHelpersToReuse: likelyAdjacentHelpers.map((entry) => entry.path),
+    canonicalHelpersToReuse: safeAdjacentHelpers,
     relevantKnownPitfalls: relevantPitfalls.map((entry) => entry.title),
     requiredVerificationCommands: Array.from(new Set(verificationSelection.required)),
     optionalVerificationCommands: Array.from(new Set(verificationSelection.optional)),

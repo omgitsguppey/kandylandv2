@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-07-03T08:23:34.390Z",
+  "generatedAtUtc": "2026-10-01T20:48:51.206Z",
   "reportKey": "cloud-sql-gemini-cost-guards",
-  "currentHead": "aed727632c288e5196d31b162f759b496275ddb1",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "cloudSqlRuntimeDetected": false,
     "cloudSqlExternalBillingObserved": true,
@@ -170,5 +170,39 @@
     "Owner-review Vertex/Gemini billing in GCP and map service accounts to the admin AI routes or Cloud Assist usage.",
     "Keep SQL mirror sync manual-only; require approval env, reason, and dry-run for local verification.",
     "Add cache/idempotency before any future repeated same-prompt Gemini or Vertex lane."
-  ]
+  ],
+  "status": "pass",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Owner-review Cloud SQL billing in GCP to identify whether Data Connect mirror, App Hosting, or another external process owns spend.",
+    "Owner-review Vertex/Gemini billing in GCP and map service accounts to the admin AI routes or Cloud Assist usage.",
+    "Keep SQL mirror sync manual-only; require approval env, reason, and dry-run for local verification.",
+    "Add cache/idempotency before any future repeated same-prompt Gemini or Vertex lane."
+  ],
+  "validationFailures": [],
+  "doesNotProve": [
+    "Current billing, provider outcomes, deployed SQL/AI use or production recovery."
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

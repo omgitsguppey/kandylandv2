@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import {
   API_COST_CONTRACTS,
@@ -177,6 +178,44 @@ function lineOf(source: string, needle: string) {
 
 function excerptOf(source: string, needle: string) {
   return source.split(/\r?\n/u).find((line) => line.includes(needle))?.trim();
+}
+
+function escapeRegexLiteral(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function getFirestoreDeleteReceiverPattern(source: string) {
+  const receivers = new Set<string>();
+  for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:await\s+)?(?:[A-Za-z_$][\w$]*\.)?batch\(\)/gu)) {
+    receivers.add(match[1]);
+  }
+  for (const match of source.matchAll(/\b(?:[A-Za-z_$][\w$]*\.)?runTransaction\(\s*async\s*\(\s*([A-Za-z_$][\w$]*)/gu)) {
+    receivers.add(match[1]);
+  }
+
+  return receivers.size > 0
+    ? [...receivers].map(escapeRegexLiteral).join("|")
+    : null;
+}
+
+function findFirestoreDeleteCall(source: string) {
+  const receiverPattern = getFirestoreDeleteReceiverPattern(source);
+  if (!receiverPattern) return null;
+
+  return source.match(new RegExp(`\\b(?:${receiverPattern})\\.delete\\s*\\(`, "u"))?.[0] ?? null;
+}
+
+export function hasUnboundedFirestoreDeleteFanout(source: string) {
+  const receiverPattern = getFirestoreDeleteReceiverPattern(source);
+  if (!receiverPattern || !findFirestoreDeleteCall(source)) return false;
+
+  const hasDeleteInsideIteration = new RegExp(
+    `(?:\\.forEach\\s*\\(|\\.map\\s*\\(|\\bfor\\s*\\(|\\bwhile\\s*\\()[\\s\\S]{0,1200}?\\b(?:${receiverPattern})\\.delete\\s*\\(`,
+    "u",
+  ).test(source);
+  const hasVisibleBound = /\.limit\(\s*\d+\s*\)|MAX_|BATCH|limit\s*=/u.test(source);
+
+  return hasDeleteInsideIteration && !hasVisibleBound;
 }
 
 function stableHash(input: string) {
@@ -708,11 +747,8 @@ function scanFirestoreRisks(findings: GoogleCostFinding[], routes: RouteSummary[
       });
     }
 
-    const deleteLoops = [...file.source.matchAll(/batch\.delete\(|\.delete\(\)/gu)]
-      .filter((match) => !file.source.slice(Math.max(0, (match.index ?? 0) - "FieldValue".length), match.index).endsWith("FieldValue"));
-    const hasDeleteFanout = /batch\.delete\(|forEach\([\s\S]{0,240}\.delete\(\)|\.map\([\s\S]{0,240}\.delete\(\)|for\s*\([^)]*\)[\s\S]{0,240}\.delete\(\)/u.test(file.source);
-    if (deleteLoops.length > 0 && (hasDeleteFanout || deleteLoops.length > 1) && !/\.limit\(\s*\d+\s*\)|MAX_|BATCH|limit\s*=/u.test(file.source)) {
-      const first = deleteLoops[0][0];
+    if (hasUnboundedFirestoreDeleteFanout(file.source)) {
+      const first = findFirestoreDeleteCall(file.source) ?? "Firestore delete";
       addFinding(findings, {
         severity: "major",
         category: "firestore",
@@ -912,7 +948,7 @@ function scanCloudRun(findings: GoogleCostFinding[], routes: RouteSummary[]) {
   }
 }
 
-function buildReport(): GoogleCostBleedReport {
+export function buildGoogleCostBleedReport(): GoogleCostBleedReport {
   const findings: GoogleCostFinding[] = [];
   const routes = buildRouteSummaries();
   const sourceFiles = readSourceFiles([...walkFiles("src"), ...walkFiles("functions/src"), ...walkFiles("scripts")]);
@@ -987,6 +1023,8 @@ function printSummary(report: GoogleCostBleedReport) {
   console.log(`Forbidden by default: ${report.commandBudget.forbiddenCommands.join(", ")}`);
 }
 
-const report = buildReport();
-writeReport(report);
-printSummary(report);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = buildGoogleCostBleedReport();
+  writeReport(report);
+  printSummary(report);
+}

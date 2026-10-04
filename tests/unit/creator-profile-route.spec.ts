@@ -73,6 +73,7 @@ const mockState = vi.hoisted(() => {
     users,
     drops,
     relationships,
+    maintenance: false,
     guardApiRequest: vi.fn(),
     handleApiError: vi.fn(),
     recordRouteWarning: vi.fn(),
@@ -83,6 +84,7 @@ const mockState = vi.hoisted(() => {
       users.clear();
       drops.clear();
       relationships.splice(0, relationships.length);
+      this.maintenance = false;
       this.guardApiRequest.mockReset();
       this.handleApiError.mockReset();
       this.recordRouteWarning.mockClear();
@@ -92,6 +94,10 @@ const mockState = vi.hoisted(() => {
 
 vi.mock("@/lib/server/firebase-admin", () => ({
   adminDb: mockState.adminDb,
+}));
+
+vi.mock("@/lib/maintenance-mode", () => ({
+  isMaintenanceModeEnabled: () => mockState.maintenance,
 }));
 
 vi.mock("@/lib/server/request-guard", () => ({
@@ -170,5 +176,25 @@ describe("GET /api/creators/[username]", () => {
     });
     expect(JSON.stringify(payload)).not.toContain("protected.mp4");
     expect(JSON.stringify(payload)).not.toContain("token=secret");
+    expect(mockState.users.get("creator_1")?.ref.update).toHaveBeenCalledWith({
+      profileViewsCount: { op: "increment", value: 1 },
+    });
+    expect(response.headers.get("cache-control")).toContain("public");
+  });
+
+  it("does not count maintenance admin previews or cache them publicly", async () => {
+    mockState.maintenance = true;
+    const response = await GET(
+      new NextRequest("http://localhost/api/creators/creator"),
+      { params: Promise.resolve({ username: "creator" }) },
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.creator.username).toBe("creator");
+    expect(payload.drops).toHaveLength(1);
+    expect(JSON.stringify(payload)).not.toContain("protected.mp4");
+    expect(mockState.users.get("creator_1")?.ref.update).not.toHaveBeenCalled();
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
 });

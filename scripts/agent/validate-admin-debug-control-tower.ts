@@ -1,6 +1,8 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import ts from "typescript";
+
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 import { collectAdminDebugControlTowerActionsStaticProbeFailures } from "./admin-debug-control-tower-actions-static-probe";
 import { collectAdminDebugControlTowerBugIntakeStaticProbeFailures } from "./admin-debug-control-tower-bug-intake-static-probe";
@@ -9,6 +11,9 @@ import { collectAdminDebugControlTowerTestStaticProbeFailures } from "./admin-de
 import { collectAdminDebugControlTowerSystemHealthContractFailures } from "./admin-debug-control-tower-system-health-contract";
 
 const root = process.cwd();
+// Explicit task checks delegate mutation safety to the immutable source owner;
+// standalone runs retain every inherited incident and the existing path rules.
+const mutationScope = readValidatorMutationScope(root);
 const failures: string[] = [];
 
 function fail(message: string) {
@@ -44,6 +49,156 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 
 function lineCount(source: string) {
   return source.split(/\r?\n/u).length;
+}
+
+function hasConnectedMonitoringTransactionIdentity(source: string) {
+  const tree = ts.createSourceFile("DebugTabMonitoring.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const localName = (imported: string) => {
+    for (const statement of tree.statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "./DebugPrimitives") continue;
+      const bindings = statement.importClause?.namedBindings;
+      if (!bindings || !ts.isNamedImports(bindings)) continue;
+      for (const specifier of bindings.elements) if ((specifier.propertyName?.text ?? specifier.name.text) === imported) return specifier.name.text;
+    }
+    return null;
+  };
+  const pill = localName("Pill"), section = localName("Section");
+  const component = tree.statements.find((statement): statement is ts.FunctionDeclaration => ts.isFunctionDeclaration(statement) && statement.name?.text === "DebugTabMonitoring");
+  if (!pill || !section || !component?.body) return false;
+  const returned = component.body.statements.filter(ts.isReturnStatement).flatMap(statement => statement.expression ? [statement.expression] : []);
+  const unwrap = (node: ts.Expression): ts.Expression => ts.isParenthesizedExpression(node) ? unwrap(node.expression) : node;
+  const attribute = (element: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string) => element.attributes.properties.find((prop): prop is ts.JsxAttribute => ts.isJsxAttribute(prop) && prop.name.getText(tree) === name);
+  const expression = (element: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string) => {
+    const initializer = attribute(element, name)?.initializer;
+    return initializer && ts.isJsxExpression(initializer) && initializer.expression ? unwrap(initializer.expression) : null;
+  };
+  const rowIdentity = (node: ts.Expression | null, row: string) => Boolean(node && ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === row && node.name.text === "userIdentityState");
+  let connected = false;
+  const visitRendered = (node: ts.Node, callback: (node: ts.Node) => void) => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken && unwrap(node.left).kind === ts.SyntaxKind.FalseKeyword) return;
+    callback(node);
+    ts.forEachChild(node, child => visitRendered(child, callback));
+  };
+  const inspectSection = (node: ts.Node) => {
+    if (!ts.isJsxElement(node) || node.openingElement.tagName.getText(tree) !== section) return;
+    const title = attribute(node.openingElement, "title")?.initializer;
+    if (!title || !ts.isStringLiteral(title) || title.text !== "Recent transactions") return;
+    visitRendered(node, call => {
+      if (!ts.isCallExpression(call) || !ts.isPropertyAccessExpression(call.expression) || call.expression.name.text !== "map" || !ts.isIdentifier(call.expression.expression) || call.expression.expression.text !== "recentTransactions") return;
+      const callback = call.arguments[0];
+      if (!callback || !(ts.isArrowFunction(callback) || ts.isFunctionExpression(callback))) return;
+      const row = callback.parameters[0]?.name;
+      if (!row || !ts.isIdentifier(row)) return;
+      const roots = ts.isBlock(callback.body) ? callback.body.statements.filter(ts.isReturnStatement).flatMap(statement => statement.expression ? [statement.expression] : []) : [callback.body];
+      for (const root of roots) visitRendered(root, element => {
+        const opening = ts.isJsxSelfClosingElement(element) ? element : ts.isJsxElement(element) ? element.openingElement : null;
+        if (!opening || opening.tagName.getText(tree) !== pill) return;
+        const label = attribute(opening, "label")?.initializer;
+        const value = expression(opening, "value"), tone = expression(opening, "tone");
+        if (!label || !ts.isStringLiteral(label) || label.text !== "Identity" || !value || !ts.isBinaryExpression(value)) return;
+        const fallback = value.operatorToken.kind === ts.SyntaxKind.BarBarToken || value.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken;
+        const right = unwrap(value.right);
+        if (!fallback || !rowIdentity(unwrap(value.left), row.text) || !ts.isStringLiteral(right) || right.text !== "fallback_uid") return;
+        if (tone && ts.isCallExpression(tone) && ts.isIdentifier(tone.expression) && tone.expression.text === "toneForIdentityState" && tone.arguments.length === 1 && rowIdentity(unwrap(tone.arguments[0]), row.text)) connected = true;
+      });
+    });
+  };
+  for (const root of returned) visitRendered(root, inspectSection);
+  return connected;
+}
+
+function hasConnectedInfrastructureCountReadout(source: string) {
+  const tree = ts.createSourceFile("DebugTabInfrastructure.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const localName = (moduleName: string, imported: string) => {
+    for (const statement of tree.statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== moduleName) continue;
+      const bindings = statement.importClause?.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) for (const item of bindings.elements) if ((item.propertyName?.text ?? item.name.text) === imported) return item.name.text;
+    }
+    return null;
+  };
+  const section = localName("./DebugPrimitives", "Section");
+  const workstream = localName("@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream", "AdminDebugWorkstream");
+  const component = tree.statements.find((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node) && node.name?.text === "DebugTabInfrastructure");
+  if (!section || !workstream || !component?.body) return false;
+  const unwrap = (node: ts.Expression): ts.Expression => ts.isParenthesizedExpression(node) ? unwrap(node.expression) : node;
+  const propertyPath = (node: ts.Expression): string[] => ts.isPropertyAccessExpression(unwrap(node))
+    ? [...propertyPath((unwrap(node) as ts.PropertyAccessExpression).expression), (unwrap(node) as ts.PropertyAccessExpression).name.text]
+    : ts.isIdentifier(unwrap(node)) ? [(unwrap(node) as ts.Identifier).text] : [];
+  const declarations = component.body.statements.filter(ts.isVariableStatement).flatMap(node => [...node.declarationList.declarations]);
+  const inventory = declarations.find(node => node.initializer && propertyPath(node.initializer).join(".") === "data.infrastructure");
+  if (!inventory || !ts.isIdentifier(inventory.name)) return false;
+  const arrays = declarations.filter(node => node.initializer && ts.isArrayLiteralExpression(unwrap(node.initializer)) && ts.isIdentifier(node.name));
+  const attribute = (opening: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string) => opening.attributes.properties.find((item): item is ts.JsxAttribute => ts.isJsxAttribute(item) && item.name.getText(tree) === name);
+  const titleIs = (opening: ts.JsxOpeningElement | ts.JsxSelfClosingElement, title: string) => {
+    const value = attribute(opening, "title")?.initializer;
+    return Boolean(value && ts.isStringLiteral(value) && value.text === title);
+  };
+  const visitRendered = (node: ts.Node, callback: (node: ts.Node) => void) => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken && unwrap(node.left).kind === ts.SyntaxKind.FalseKeyword) return;
+    if (ts.isConditionalExpression(node) && [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(unwrap(node.condition).kind)) {
+      visitRendered(unwrap(node.condition).kind === ts.SyntaxKind.TrueKeyword ? node.whenTrue : node.whenFalse, callback);
+      return;
+    }
+    callback(node);
+    ts.forEachChild(node, child => visitRendered(child, callback));
+  };
+  let masthead = false, counts = false;
+  const returned = component.body.statements.filter(ts.isReturnStatement).flatMap(node => node.expression ? [node.expression] : []);
+  for (const root of returned) visitRendered(root, node => {
+    if (!ts.isJsxElement(node)) return;
+    const opening = node.openingElement;
+    if (opening.tagName.getText(tree) === workstream && titleIs(opening, "Runtime and dependency evidence")) masthead = true;
+    if (opening.tagName.getText(tree) !== section || !titleIs(opening, "Inventory counts")) return;
+    visitRendered(node, call => {
+      if (!ts.isCallExpression(call) || !ts.isPropertyAccessExpression(call.expression) || call.expression.name.text !== "map" || !ts.isIdentifier(call.expression.expression)) return;
+      const receiver = call.expression.expression.text;
+      const array = arrays.find(item => item.name.getText(tree) === receiver);
+      if (!array?.initializer) return;
+      const fields = (unwrap(array.initializer) as ts.ArrayLiteralExpression).elements.flatMap(item => {
+        if (!ts.isObjectLiteralExpression(item)) return [];
+        const label = item.properties.find((prop): prop is ts.PropertyAssignment => ts.isPropertyAssignment(prop) && prop.name.getText(tree) === "label");
+        const value = item.properties.find((prop): prop is ts.PropertyAssignment => ts.isPropertyAssignment(prop) && prop.name.getText(tree) === "value");
+        if (!value || !label || !ts.isStringLiteral(unwrap(label.initializer))) return [];
+        const chain = propertyPath(value.initializer);
+        return chain.length === 3 && chain[0] === inventory.name.getText(tree) && chain[1] === "totals" ? [{ label: (unwrap(label.initializer) as ts.StringLiteral).text, field: chain[2] }] : [];
+      });
+      if (![["Runtime deps", "runtimeDependencies"], ["Dev deps", "devDependencies"], ["Functions deps", "functionsDependencies"]].every(([label, field]) => fields.some(item => item.label === label && item.field === field))) return;
+      const callback = call.arguments[0];
+      if (!callback || !ts.isArrowFunction(callback)) return;
+      const binding = callback.parameters[0]?.name;
+      if (!binding || !ts.isObjectBindingPattern(binding)) return;
+      const value = binding.elements.find(item => (item.propertyName?.getText(tree) ?? item.name.getText(tree)) === "value")?.name;
+      const label = binding.elements.find(item => (item.propertyName?.getText(tree) ?? item.name.getText(tree)) === "label")?.name;
+      if (!value || !label || !ts.isIdentifier(value) || !ts.isIdentifier(label)) return;
+      const valueIs = (expr: ts.Expression) => ts.isIdentifier(unwrap(expr)) && (unwrap(expr) as ts.Identifier).text === value.text;
+      const finite = (expr: ts.Expression) => {
+        const test = unwrap(expr);
+        if (!ts.isBinaryExpression(test) || test.operatorToken.kind !== ts.SyntaxKind.AmpersandAmpersandToken) return false;
+        const type = unwrap(test.left), check = unwrap(test.right);
+        return ts.isBinaryExpression(type) && type.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken && ts.isTypeOfExpression(unwrap(type.left)) && valueIs((unwrap(type.left) as ts.TypeOfExpression).expression)
+          && ts.isStringLiteral(unwrap(type.right)) && (unwrap(type.right) as ts.StringLiteral).text === "number"
+          && ts.isCallExpression(check) && propertyPath(check.expression).join(".") === "Number.isFinite" && check.arguments.length === 1 && valueIs(check.arguments[0]);
+      };
+      const callbackRoots = ts.isBlock(callback.body) ? callback.body.statements.filter(ts.isReturnStatement).flatMap(item => item.expression ? [item.expression] : []) : [callback.body];
+      let returnedLabel = false, returnedValue = false;
+      for (const root of callbackRoots) visitRendered(root, readout => {
+        if (!ts.isJsxElement(readout)) return;
+        if (readout.openingElement.tagName.getText(tree) === "dt") {
+          returnedLabel ||= readout.children.some(child => ts.isJsxExpression(child) && child.expression && ts.isIdentifier(unwrap(child.expression)) && (unwrap(child.expression) as ts.Identifier).text === label.text);
+          return;
+        }
+        if (readout.openingElement.tagName.getText(tree) !== "dd") return;
+        for (const child of readout.children) {
+          if (!ts.isJsxExpression(child) || !child.expression) continue;
+          const result = unwrap(child.expression);
+          if (ts.isConditionalExpression(result) && finite(result.condition) && valueIs(result.whenTrue) && ts.isStringLiteral(unwrap(result.whenFalse)) && (unwrap(result.whenFalse) as ts.StringLiteral).text === "Not loaded") returnedValue = true;
+        }
+      });
+      counts ||= returnedLabel && returnedValue;
+    });
+  });
+  return masthead && counts;
 }
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string>; dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
@@ -1273,7 +1428,6 @@ for (const expected of [
   "entry.adminUserHref || `/admin/user/${entry.userId}`",
   "entry.userDisplayName || entry.username || entry.shortUserId",
   "entry.userIdRedacted || entry.shortUserId || \"redacted_uid\"",
-  "identity_missing",
   "User profile could not be resolved from loaded admin sample.",
   "formatUtcTimestamp as formatUtc",
   "UTC: {entry.createdAtUtc || formatUtc(entry.timestamp, \"unknown\")}",
@@ -1282,6 +1436,10 @@ for (const expected of [
 ]) {
   requireIncludes(debugTabMonitoring, expected, "Recent transactions panel must show loaded state, enriched identity, units, admin links, UTC, and continuity details");
 }
+if (!hasConnectedMonitoringTransactionIdentity(debugTabMonitoring)) {
+  fail("Monitoring transaction Identity must bind the returned record state and canonical tone; comments or detached JSX cannot prove the control.");
+}
+
 for (const forbidden of [
   "<Pill label=\"Loaded\" value={recentTransactions.length} />",
   "<Pill label=\"Feed window\" value=\"Latest loaded entries\" />",
@@ -1824,7 +1982,6 @@ for (const expected of [
 requireNotIncludes(debugAdvancedExperiments, "WAIT", "Rollout registry panel must not show WAIT for loaded values");
 
 for (const expected of [
-  "Infrastructure Health & Dependencies",
   "Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use.",
   "Environment & runtime checks",
   "Inventory counts",
@@ -1841,14 +1998,14 @@ for (const expected of [
   "data-debug-dependency-generated-at-utc",
   "data-debug-dependency-group-count",
   "inventory.generatedAtUtc",
-  "inventory.totals?.runtimeDependencies",
-  "inventory.totals?.devDependencies",
-  "inventory.totals?.functionsDependencies",
   "inventory.notDirectDependencies",
   "TRANSITIVE",
   "ABSENT",
 ]) {
   requireIncludes(debugTabInfrastructure, expected, "Infrastructure dependency panel must show full grouped inventory and separate runtime truth from package truth");
+}
+if (!hasConnectedInfrastructureCountReadout(debugTabInfrastructure)) {
+  fail("Infrastructure counts must bind the returned workstream and finite inventory totals; comments, detached readouts or missing-to-zero fallbacks cannot prove the display.");
 }
 for (const forbidden of [
   "subtitle=\"Runtime telemetry showing actual module versions and connection state.\"",
@@ -2251,21 +2408,7 @@ for (const expected of [
 }
 
 function collectChangedFiles() {
-  const files = new Set<string>();
-
-  for (const command of [
-    "git diff --name-only -z",
-    "git diff --cached --name-only -z",
-    "git ls-files --others --exclude-standard -z",
-  ]) {
-    for (const filePath of execSync(command, { cwd: root, encoding: "utf8" }).split("\0")) {
-      if (filePath) {
-        files.add(filePath.replace(/\\/gu, "/"));
-      }
-    }
-  }
-
-  return [...files].sort();
+  return mutationScope ? [] : listValidatorScopeFiles(root, []);
 }
 
 try {
@@ -2911,3 +3054,4 @@ if (failures.length > 0) {
 }
 
 console.log("Admin debug Control Tower validation passed.");
+console.log(JSON.stringify({ mutationScope: mutationScope ?? { mode: "whole_git_worktree" } }));

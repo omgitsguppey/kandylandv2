@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T02:33:44.836Z",
+  "generatedAt": "2026-10-04T00:38:22.420Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -23,8 +23,7 @@
       "symptom_pattern": "Install or deploy failures complaining that lockfiles are out of date with package manifests.",
       "affected_surfaces": [
         "package.json",
-        "package-lock.json",
-        "functions/pnpm-lock.yaml"
+        "package-lock.json"
       ],
       "prevention_rule": "Treat tracked lockfiles as source truth and resynchronize every affected workspace when dependency changes land.",
       "detection_hint": "Run continuity and lockfile-aware verification after dependency edits.",

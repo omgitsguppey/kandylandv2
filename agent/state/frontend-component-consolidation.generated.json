@@ -1,19 +1,19 @@
 {
   "reportKey": "frontend-component-consolidation",
-  "generatedAtUtc": "2026-08-29T04:19:29.065Z",
-  "currentHead": "740dc2b5fb2a41b2f9762c847679fa8db9a08912",
-  "componentsAudited": 361,
+  "generatedAtUtc": "2026-10-04T00:35:51.556Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "componentsAudited": 355,
   "bloatedComponentsFound": [
     "src/components/Chat/ChatExperience.tsx",
     "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
     "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
     "src/app/creators/[username]/CreatorProfileClient.tsx",
     "src/app/admin/users/page.tsx",
     "src/app/admin/roster/page.tsx",
     "src/components/Admin/CreateDropModal.tsx",
-    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-    "src/app/admin/user/[userId]/page.tsx"
+    "src/app/admin/user/[userId]/page.tsx",
+    "src/context/AuthContext.tsx",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"
   ],
   "componentFindings": [
     {
@@ -30,7 +30,7 @@
     },
     {
       "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "lineCount": 3292,
+      "lineCount": 3285,
       "useStateCount": 5,
       "useEffectCount": 10,
       "directTelemetryCalls": 0,
@@ -42,24 +42,12 @@
     },
     {
       "path": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-      "lineCount": 2320,
+      "lineCount": 2037,
       "useStateCount": 1,
       "useEffectCount": 1,
       "directTelemetryCalls": 0,
       "directBackendCalls": 0,
       "directBusinessMath": true,
-      "duplicateLoadingState": false,
-      "duplicateMobileLogic": false,
-      "action": "split_component"
-    },
-    {
-      "path": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-      "lineCount": 1939,
-      "useStateCount": 0,
-      "useEffectCount": 6,
-      "directTelemetryCalls": 0,
-      "directBackendCalls": 0,
-      "directBusinessMath": false,
       "duplicateLoadingState": false,
       "duplicateMobileLogic": false,
       "action": "split_component"
@@ -78,7 +66,7 @@
     },
     {
       "path": "src/app/admin/users/page.tsx",
-      "lineCount": 1509,
+      "lineCount": 1513,
       "useStateCount": 11,
       "useEffectCount": 4,
       "directTelemetryCalls": 1,
@@ -113,26 +101,38 @@
       "action": "split_component"
     },
     {
-      "path": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-      "lineCount": 1545,
-      "useStateCount": 3,
-      "useEffectCount": 4,
-      "directTelemetryCalls": 0,
-      "directBackendCalls": 0,
-      "directBusinessMath": false,
-      "duplicateLoadingState": false,
-      "duplicateMobileLogic": false,
-      "action": "split_component"
-    },
-    {
       "path": "src/app/admin/user/[userId]/page.tsx",
-      "lineCount": 1572,
+      "lineCount": 1595,
       "useStateCount": 3,
       "useEffectCount": 1,
       "directTelemetryCalls": 0,
       "directBackendCalls": 1,
       "directBusinessMath": true,
       "duplicateLoadingState": true,
+      "duplicateMobileLogic": false,
+      "action": "split_component"
+    },
+    {
+      "path": "src/context/AuthContext.tsx",
+      "lineCount": 1476,
+      "useStateCount": 3,
+      "useEffectCount": 5,
+      "directTelemetryCalls": 10,
+      "directBackendCalls": 6,
+      "directBusinessMath": true,
+      "duplicateLoadingState": true,
+      "duplicateMobileLogic": false,
+      "action": "split_component"
+    },
+    {
+      "path": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+      "lineCount": 1501,
+      "useStateCount": 0,
+      "useEffectCount": 6,
+      "directTelemetryCalls": 0,
+      "directBackendCalls": 0,
+      "directBusinessMath": false,
+      "duplicateLoadingState": false,
       "duplicateMobileLogic": false,
       "action": "split_component"
     }
@@ -150,24 +150,42 @@
     "mobile density -> device layout contract"
   ],
   "duplicateLocalStateRemoved": 16,
-  "directTelemetryCallsReduced": 261,
+  "directTelemetryCallsReduced": 255,
   "hydrationRaceRisksFixed": 13,
   "mobileHardcodeRisksReduced": 3,
-  "netAdditions": 0,
-  "netDeletions": 0,
+  "netAdditions": 34826,
+  "netDeletions": 30332,
   "remainingGaps": [
     "src/components/Chat/ChatExperience.tsx: split_component",
     "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx: split_component",
     "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx: split_component",
-    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx: split_component",
     "src/app/creators/[username]/CreatorProfileClient.tsx: split_component",
     "src/app/admin/users/page.tsx: split_component",
     "src/app/admin/roster/page.tsx: split_component",
     "src/components/Admin/CreateDropModal.tsx: split_component",
-    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx: split_component",
-    "src/app/admin/user/[userId]/page.tsx: split_component"
+    "src/app/admin/user/[userId]/page.tsx: split_component",
+    "src/context/AuthContext.tsx: split_component",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx: split_component"
   ],
   "unsafeUnknowns": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-viewer-strobe-release-v2-20261003",
+    "inputHash": "45abb16a79373f8b5c5ebd576093920ac4806f04b0cdae9663a38c35b5fea9bb",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "1536453fd2507b3ab963cabd5d05afa46f0005f9674f15bfd9bba9a6d30eb5e5",
+    "changedFiles": [
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/debug-cockpit-batch10-shared.ts",
+      "scripts/agent/validate-content-media-pipeline.ts",
+      "src/app/dashboard/viewer/hooks/useViewerState.ts",
+      "tests/unit/viewer-entitlement-hardening.spec.ts",
+      "tests/unit/viewer-file-tracking.spec.ts"
+    ],
+    "inheritedDirtySourceFileCount": 602,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  },
   "gitStatus": "available",
   "currentHeadSource": "git",
   "toolingDegraded": false,

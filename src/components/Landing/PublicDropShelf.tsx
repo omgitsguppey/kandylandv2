@@ -31,15 +31,15 @@ export function PublicDropShelf({ drops, presentation }: PublicDropShelfProps) {
 
         if (!featuredDrop) {
             return (
-                <div className="border border-dashed border-white/14 bg-black/15 px-5 py-10 text-center">
-                    <p className="text-sm font-bold text-white">The next Drop is being prepared.</p>
-                    <p className="mt-2 text-sm leading-6 text-white/58">Come back when the shelf is live.</p>
+                <div className="min-w-0 rounded-lg bg-muted p-4 text-center [overflow-wrap:anywhere]">
+                    <p className="text-sm font-medium text-foreground">No featured Drop is available right now.</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Explore creators or check back for future releases.</p>
                 </div>
             );
         }
 
         return (
-            <div data-home-shelf="featured" className="[&_[data-drop-card-root]]:shadow-none">
+            <div data-home-shelf="featured">
                 <DropCard
                     drop={featuredDrop}
                     presentation="feature"
@@ -56,22 +56,18 @@ export function PublicDropShelf({ drops, presentation }: PublicDropShelfProps) {
     return (
         <section
             data-home-section="drop-shelf"
-            data-home-density="editorial-mobile-v1"
-            className="border-b border-white/10 px-4 py-12 sm:px-6 sm:py-16 lg:px-8"
-            aria-labelledby="home-live-drops-title"
+            data-home-density="content-first"
+            className="border-t border-border"
+            aria-labelledby="home-drops-title"
         >
-            <div className="mx-auto max-w-7xl">
-                <header className="mb-8 flex flex-col gap-5 border-b border-white/10 pb-7 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="max-w-2xl">
-                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/48">The live shelf</p>
-                        <h2 id="home-live-drops-title" className="mt-3 text-2xl font-black tracking-[-0.045em] text-white sm:text-3xl">
-                            Pick the one you will keep.
-                        </h2>
-                        <p className="mt-3 max-w-xl text-sm leading-6 text-white/60 sm:text-base">
-                            Every card is a real live Drop. Preview the public cover, then unwrap only what belongs in your library.
-                        </p>
-                    </div>
-                    <p className="text-sm font-semibold text-white/68">Browse at your pace</p>
+            <div className="mx-auto min-w-0 w-full max-w-6xl px-4 py-8 sm:py-12 [overflow-wrap:anywhere]">
+                <header className="mb-6 space-y-2 sm:mb-8">
+                    <h2 id="home-drops-title" className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                        More Drops
+                    </h2>
+                    <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+                        Preview a Drop before you unwrap it.
+                    </p>
                 </header>
 
                 {drops.length > 0 ? (
@@ -91,10 +87,10 @@ export function PublicDropShelf({ drops, presentation }: PublicDropShelfProps) {
                         )}
                     />
                 ) : (
-                    <div className="border border-dashed border-white/14 px-7 py-10 text-center sm:px-10">
-                        <p className="text-lg font-black text-white">The next shelf is on its way.</p>
-                        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/58">
-                            No additional public Drops are live right now. Check back when a creator releases the next one.
+                    <div className="min-w-0 rounded-xl bg-muted p-4 text-center [overflow-wrap:anywhere]">
+                        <p className="text-base font-medium text-foreground">No additional Drops are available right now.</p>
+                        <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+                            Check back for future releases from creators.
                         </p>
                     </div>
                 )}

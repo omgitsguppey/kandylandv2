@@ -1,95 +1,109 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 
-import { Button } from "@/components/ui/Button";
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { Card } from "@/components/creative-tim/ui/card";
+import { usePageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { SignedInLibraryCollectionWall } from "@/components/creative-tim/kandydrops/signed-in/SignedInLibraryCollectionWall";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
 import { useAuth } from "@/context/AuthContext";
 import { trackEvent } from "@/lib/telemetry";
-import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
-import { getMobileSkeletonClass } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import type { Drop } from "@/types/db";
-
-const userLibraryModuleClassName = getMobileModuleClassNames("user", "list");
-const userLibrarySkeletonClassName = getMobileSkeletonClass("user", "list");
 
 interface LibraryClientProps {
   drops: Drop[];
 }
 
+const defaultBrowsing = { searchQuery: "", selectedCategory: "All", gridCols: 2 as 2 | 3 };
+
 export function LibraryClient({ drops }: LibraryClientProps) {
-  const { userProfile, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const targetDropId = searchParams.get("drop")?.trim() || "";
+  const profileReady = Boolean(!authLoading && user && userProfile?.uid === user.uid);
+  const ownershipKnown = profileReady && Array.isArray(userProfile?.unlockedContent);
+  const ownerStamp = useMemo(() => ({ uid: user?.uid ?? null }), [user?.uid]);
   const unlockedIds = useMemo(() => {
     const source = userProfile?.unlockedContent;
-    return Array.isArray(source) ? new Set(source) : new Set<string>();
-  }, [userProfile?.unlockedContent]);
-
+    return ownershipKnown && Array.isArray(source) ? new Set(source) : new Set<string>();
+  }, [ownershipKnown, userProfile?.unlockedContent]);
   const unlockedDrops = useMemo(() => drops.filter((drop) => unlockedIds.has(drop.id)), [drops, unlockedIds]);
-  const router = useRouter();
+  const currentOwner = useRef<{ stamp: typeof ownerStamp; ids: Set<string> } | null>(null);
+  const targetHandoff = useRef<{ stamp: typeof ownerStamp; id: string } | null>(null);
+
+  useLayoutEffect(() => {
+    const frame = ownershipKnown ? { stamp: ownerStamp, ids: unlockedIds } : null;
+    currentOwner.current = frame;
+    return () => {
+      if (currentOwner.current === frame) currentOwner.current = null;
+    };
+  }, [ownerStamp, ownershipKnown, unlockedIds]);
+
+  usePageViewEvent({
+    eventName: "library_viewed",
+    actor: { id: user?.uid ?? null, loading: authLoading },
+    ready: profileReady,
+  });
 
   useEffect(() => {
-    if (!userProfile) {
+    if (!targetDropId) {
+      targetHandoff.current = null;
       return;
     }
-
-    trackEvent("library_viewed");
-  }, [userProfile]);
-
-  useEffect(() => {
-    if (authLoading || !targetDropId || !unlockedIds.has(targetDropId)) {
+    if (authLoading || !ownershipKnown || currentOwner.current?.stamp !== ownerStamp || !unlockedIds.has(targetDropId)) {
       return;
     }
-
+    if (targetHandoff.current?.stamp === ownerStamp && targetHandoff.current.id === targetDropId) {
+      return;
+    }
+    targetHandoff.current = { stamp: ownerStamp, id: targetDropId };
     router.replace(`/dashboard/viewer?id=${encodeURIComponent(targetDropId)}`);
-  }, [authLoading, router, targetDropId, unlockedIds]);
+  }, [authLoading, ownerStamp, ownershipKnown, router, targetDropId, unlockedIds]);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [gridCols, setGridCols] = useState<2 | 3>(2);
+  const [browsing, setBrowsing] = useState({ ...defaultBrowsing, ownerStamp });
+  const { searchQuery, selectedCategory, gridCols } = browsing.ownerStamp === ownerStamp ? browsing : defaultBrowsing;
+  const updateBrowsing = (patch: Partial<typeof defaultBrowsing>) => {
+    if (currentOwner.current?.stamp !== ownerStamp) return false;
+    setBrowsing((previous) => ({
+      ...(previous.ownerStamp === ownerStamp ? previous : defaultBrowsing),
+      ...patch,
+      ownerStamp,
+    }));
+    return true;
+  };
 
   const filteredDrops = useMemo(() => {
     const filtered: Drop[] = [];
     const lowerSearch = searchQuery ? searchQuery.toLowerCase() : "";
     const filteringCategory = selectedCategory !== "All";
-
     for (const drop of unlockedDrops) {
-      if (filteringCategory && drop.creatorId !== selectedCategory) {
-        continue;
-      }
+      if (filteringCategory && drop.creatorId !== selectedCategory) continue;
       if (lowerSearch) {
         const titleMatches = drop.title.toLowerCase().includes(lowerSearch);
         const creatorMatches = Boolean(drop.creatorId?.toLowerCase().includes(lowerSearch));
-        if (!titleMatches && !creatorMatches) {
-          continue;
-        }
+        if (!titleMatches && !creatorMatches) continue;
       }
       filtered.push(drop);
     }
-
     return filtered;
   }, [unlockedDrops, searchQuery, selectedCategory]);
 
   const categories = useMemo(() => {
-    const base = ["All"];
     const creators = new Set<string>();
-    unlockedDrops.forEach((drop) => {
-      if (drop.creatorId) {
-        creators.add(drop.creatorId);
-      }
-    });
-    return [...base, ...Array.from(creators).sort()];
+    unlockedDrops.forEach((drop) => { if (drop.creatorId) creators.add(drop.creatorId); });
+    return ["All", ...Array.from(creators).sort()];
   }, [unlockedDrops]);
 
-  if (authLoading) {
+  if (authLoading || !user) {
     return (
-      <div
-        className="animate-pulse rounded-3xl border border-white/10 bg-slate-950/80 p-5 shadow-2xl shadow-black/20 md:p-7"
+      <Card
+        className="@container/library min-w-0 gap-4 px-4"
+        role="status"
         data-mobile-density="compact"
         data-mobile-sprawl-guard="true"
         data-mobile-skeleton="user-library-route"
@@ -98,23 +112,29 @@ export function LibraryClient({ drops }: LibraryClientProps) {
         data-user-library-surface="my-kandydrops"
         data-user-library-loading-stable="true"
       >
-        <div className="mb-6">
-          <div className="mb-3 h-4 w-24 rounded bg-brand-purple/20" />
-          <div className="mb-3 h-9 w-56 rounded-xl bg-white/10" />
-          <div className="h-4 w-64 max-w-full rounded bg-white/5" />
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <h1 className="text-2xl font-semibold tracking-tight">My KandyDrops</h1>
+        <p className="text-sm text-muted-foreground">Loading your collection…</p>
+        <div className="grid grid-cols-1 gap-4 @lg/library:grid-cols-2 @5xl/library:grid-cols-3" aria-hidden="true">
           {[1, 2, 3, 4].map((item) => (
-            <div key={item} className={userLibrarySkeletonClassName} />
+            <div key={item} className="min-h-24 animate-pulse rounded-md bg-muted motion-reduce:animate-none" />
           ))}
         </div>
-      </div>
+      </Card>
     );
   }
 
+  const catalogMissing = ownershipKnown && unlockedIds.size > 0 && unlockedDrops.length === 0;
+  const collectionAvailable = ownershipKnown && !catalogMissing;
+  const partialCatalog = collectionAvailable && unlockedDrops.length < unlockedIds.size;
+  const unavailableMessage = !profileReady
+    ? "Your account details are unavailable. Reload to try again."
+    : !ownershipKnown
+      ? "Your collection details are unavailable. Reload to try again."
+      : "Your owned Drops could not be loaded. Reload to try again.";
+
   return (
     <div
-      className="relative space-y-5 overflow-hidden px-2 pb-8 md:px-0 lg:space-y-6 lg:pb-10"
+      className="min-w-0 space-y-6"
       data-mobile-density="compact"
       data-mobile-sprawl-guard="true"
       data-mobile-organization="summary-first"
@@ -123,54 +143,53 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     >
       <SignedInLibraryCollectionWall
         count={unlockedDrops.length}
+        collectionAvailable={collectionAvailable}
+        sourceNotice={partialCatalog ? "Some owned Drops are unavailable in this collection." : undefined}
         categories={categories}
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={(category) => { updateBrowsing({ selectedCategory: category }); }}
         searchQuery={searchQuery}
         onSearchChange={(query) => {
+          if (!updateBrowsing({ searchQuery: query })) return;
           if (query.length > 2) trackEvent("library_search", { query });
-          setSearchQuery(query);
         }}
         gridCols={gridCols}
-        onGridColsChange={setGridCols}
+        onGridColsChange={(value) => { updateBrowsing({ gridCols: value }); }}
         hasDrops={unlockedDrops.length > 0}
         hasResults={filteredDrops.length > 0}
-        emptyContent={(
-          <div className={`${userLibraryModuleClassName} border-y border-white/10 py-10 text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-purple/30 bg-brand-purple/10 shadow-inner shadow-brand-purple/10">
-              <Lock className="h-6 w-6 text-brand-purple md:h-8 md:w-8" />
-            </div>
-            <p className="mb-2 text-sm font-semibold text-brand-purple">Start your collection</p>
-            <h2 className="mb-2 text-2xl font-semibold text-white">No unwrapped Drops yet</h2>
-            <p className="mx-auto mb-6 max-w-md text-sm leading-6 text-slate-300">
-              Browse available Drops to start building your collection.
-            </p>
-            <Link href="/drops">
-              <Button variant="brand" className="min-h-11 rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-brand-purple/25">
-                Browse Drops
-              </Button>
-            </Link>
-          </div>
+        emptyContent={collectionAvailable ? (
+          <Card className="items-center gap-3 px-4 text-center" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+            <Lock className="size-6 text-muted-foreground" aria-hidden="true" />
+            <h2 className="text-xl font-semibold">No unwrapped Drops yet</h2>
+            <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">Browse available Drops to start building your collection.</p>
+            <Link href="/drops" className={buttonVariants({ variant: "brand" })}>Browse Drops</Link>
+          </Card>
+        ) : (
+          <Card className="items-start gap-3 px-4" role="status" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+            <h2 className="text-xl font-semibold">Collection unavailable</h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">{unavailableMessage}</p>
+            <Button variant="outline" onClick={() => window.location.reload()}>Reload collection</Button>
+          </Card>
         )}
         noResultsContent={(
-          <div className="border-y border-white/10 py-10 text-center" data-mobile-density="compact" data-mobile-sprawl-guard="true">
-            <p className="text-sm text-slate-300">No Drops match that search or filter.</p>
-          </div>
+          <Card className="items-start gap-3 px-4" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+            <p className="text-sm leading-relaxed text-muted-foreground">No Drops match that search or filter.</p>
+            <Button variant="outline" onClick={() => { updateBrowsing({ searchQuery: "", selectedCategory: "All" }); }}>Clear search and filters</Button>
+          </Card>
         )}
       >
-        {filteredDrops.map((drop, index) => (
-          <div
+        {filteredDrops.map((drop) => (
+          <OwnedDropGalleryCard
             key={drop.id}
-            className={gridCols === 2 ? (index === 0 ? "sm:col-span-2 xl:col-span-12" : "xl:col-span-6") : (index < 2 ? "sm:col-span-2 xl:col-span-6" : "xl:col-span-4")}
-          >
-            <OwnedDropGalleryCard
-              drop={drop}
-              isUnlocked
-              onOpen={() => {
-                router.push(`/dashboard/viewer?id=${drop.id}`);
-              }}
-            />
-          </div>
+            drop={drop}
+            isUnlocked
+            onOpen={() => {
+              const owner = currentOwner.current;
+              if (owner?.stamp !== ownerStamp || !owner.ids.has(drop.id)) return false;
+              router.push(`/dashboard/viewer?id=${drop.id}`);
+              return true;
+            }}
+          />
         ))}
       </SignedInLibraryCollectionWall>
     </div>

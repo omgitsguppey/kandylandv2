@@ -1,6 +1,6 @@
 {
   "reportKey": "route-4xx-mitigation",
-  "generatedAtUtc": "2026-05-27T06:02:04.086Z",
+  "generatedAtUtc": "2026-10-03T11:25:39.838Z",
   "status": "pass",
   "defaultWriteMode": "hourly_rollup",
   "retryPolicy": "permanent_client_errors_do_not_retry",
@@ -11,5 +11,5 @@
     "Rate limits retry only after Retry-After/backoff.",
     "Validation/auth/permission/not-found permanent errors do not retry by default."
   ],
-  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c"
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8"
 }

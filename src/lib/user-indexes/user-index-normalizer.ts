@@ -1,3 +1,5 @@
+import { readRuntimeFactRequestConsentAdmission } from "@/lib/runtime-facts/runtime-fact-contract";
+import { canUseBehavioralSignals } from "@/lib/privacy/consent-tracking-policy";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 import type {
   GuestTrackingIndex,
@@ -12,6 +14,7 @@ import type {
   UserIndexMaterializerExclusionCounts,
 } from "@/lib/user-indexes/user-tracking-index-contract";
 import {
+  readIdentityLineageIndex,
   USER_INDEX_MATERIALIZER_LINKED_COPY_WINDOW_MS,
   USER_INDEX_MATERIALIZER_MAX_FACTS_PER_SUBJECT,
 } from "@/lib/user-indexes/user-tracking-index-contract";
@@ -691,9 +694,11 @@ function dedupeLinkedGuestIdentifiedCopies(candidates: PersonFactCandidate[]) {
 export function normalizeFactsForUserIndexMaterialization(input: {
   facts: readonly UserIndexMaterializerFact[];
   lineages: readonly IdentityLineageIndex[];
+  lineageSourceMissingCount?: number;
 }): NormalizedUserIndexFacts {
   const exact = dedupeExactUserIndexFactReplays(input.facts);
-  const lineageMaps = buildLineageMaps(input.lineages);
+  const currentLineages = input.lineages.map(readIdentityLineageIndex).filter((lineage): lineage is IdentityLineageIndex => lineage !== null);
+  const lineageMaps = buildLineageMaps(currentLineages);
   const globalFacts: UserIndexMaterializerFact[] = [];
   const personCandidates: PersonFactCandidate[] = [];
   const exclusions: UserIndexMaterializerExclusionCounts = {
@@ -703,6 +708,9 @@ export function normalizeFactsForUserIndexMaterialization(input: {
     lineageBlockedCount: 0,
     adminExcludedCount: 0,
     systemExcludedCount: 0,
+    personAdmissionUnverifiedCount: 0,
+    personPrivacyLimitedCount: 0,
+    lineageSourceMissingCount: Math.max(0, input.lineages.length - currentLineages.length) + Math.max(0, Math.trunc(input.lineageSourceMissingCount ?? 0)),
   };
 
   for (const fact of exact.facts) {
@@ -716,6 +724,25 @@ export function normalizeFactsForUserIndexMaterialization(input: {
     }
     if (fact.includeInGlobalEvents !== false) globalFacts.push(fact);
 
+    // Global/legacy diagnostic output retains its existing source semantics above.
+    // HTTP person behavior must carry the server's current consent admission.
+    const trustedServerFact = fact.sourceTruth === "server" || fact.sourceTruth === "canonical";
+    const admission = readRuntimeFactRequestConsentAdmission(fact.requestConsentAdmission);
+    if (!trustedServerFact) {
+      if (!admission || fact.sourceTruth !== "client") {
+        exclusions.personAdmissionUnverifiedCount += 1;
+        continue;
+      }
+      if (!canUseBehavioralSignals(admission.consentMode)) {
+        exclusions.personPrivacyLimitedCount += 1;
+        continue;
+      }
+      if (fact.consentState !== "granted") {
+        exclusions.personAdmissionUnverifiedCount += 1;
+        continue;
+      }
+    }
+
     const actorUserId = cleanMaterializerString(fact.actorUserId);
     const anonymousVisitorId = cleanMaterializerString(fact.anonymousVisitorId);
     const identityLinkId = cleanMaterializerString(fact.identityLinkId);
@@ -724,22 +751,34 @@ export function normalizeFactsForUserIndexMaterialization(input: {
     const ownerUserIds = lineage ? Array.from(lineage.ownerUserIds) : [];
     if (ownerUserIds.length > 1 || (actorUserId && ownerUserIds.length === 1 && ownerUserIds[0] !== actorUserId)) {
       exclusions.identityConflictExcludedCount += 1;
+      exclusions.personAdmissionUnverifiedCount += 1;
       continue;
     }
 
     let personUserId = actorUserId;
     let identityKind: PersonFactCandidate["identityKind"] = "identified";
     const linkedIdentityContext = Boolean(anonymousVisitorId || identityLinkId);
-    if (personUserId && fact.includeInPersonMetrics === false) continue;
+    if (personUserId && fact.includeInPersonMetrics !== true) {
+      if (fact.includeInPersonMetrics !== false) exclusions.personAdmissionUnverifiedCount += 1;
+      continue;
+    }
     if (linkedIdentityContext) {
+      // A normal unlinked guest is a valid guest-only observation, not a broken bridge.
+      if (!personUserId && !identityLinkId && !lineage) continue;
       const eligibleSession = Boolean(sessionId && lineage?.eligibleSessionIds.has(sessionId));
-      if (
-        !lineage
-        || lineage.personAttributionAllowed !== true
-        || !eligibleSession
-        || fact.consentState !== "granted"
-      ) {
+      if (!lineage || !eligibleSession) {
         exclusions.lineageBlockedCount += 1;
+        exclusions.personAdmissionUnverifiedCount += 1;
+        continue;
+      }
+      if (lineage.personAttributionAllowed !== true) {
+        exclusions.lineageBlockedCount += 1;
+        exclusions.personPrivacyLimitedCount += 1;
+        continue;
+      }
+      if (fact.consentState !== "granted") {
+        exclusions.lineageBlockedCount += 1;
+        exclusions.personAdmissionUnverifiedCount += 1;
         continue;
       }
     }

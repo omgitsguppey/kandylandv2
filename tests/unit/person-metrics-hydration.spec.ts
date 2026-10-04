@@ -1,3 +1,4 @@
+import { buildMaterializedPersonMetricCounts } from "@/lib/analytics/person-metrics-hydration";
 import { describe, expect, it } from "vitest";
 
 import type { CanonicalEventEnvelope } from "@/lib/analytics/event-envelope-contract";
@@ -471,5 +472,51 @@ describe("person metrics hydration", () => {
     expect(report.userParityGaps).toEqual([]);
     expect(Object.values(report.userParityStatus).every((metric) => metric.state === "collecting")).toBe(true);
     expect(report.missingHydration.every((metric) => metric.missingProducer === null && metric.missingBridge === null)).toBe(true);
+  });
+});
+
+
+describe("observed session counting", () => {
+  it("counts one observed session across all progress event names and delivery retries", () => {
+    const eventNames = ["session_started", "session_activity_tick", "session_meaningful_interaction", "session_closed", "session_bounced", "session_engaged"];
+    const facts = eventNames.map((eventName, index) => ({ eventName, timestampMs: 1_000 + index, sessionId: "sess_one" }));
+    expect(buildMaterializedPersonMetricCounts([...facts, ...facts]).sessions).toBe(1);
+    expect(buildMaterializedPersonMetricCounts([...facts, { ...facts[0], sessionId: "sess_two" }]).sessions).toBe(2);
+  });
+  it("does not fabricate session identities for old rows without a session id", () => {
+    expect(buildMaterializedPersonMetricCounts([{ eventName: "session_closed", timestampMs: 1_000 }]).sessions).toBe(0);
+  });
+  it("hydrates one session in global and signed-in scopes across different progress events", () => {
+    const report = hydratePersonMetrics({ envelopes: ["session_started", "session_activity_tick", "session_closed"].map((eventName, index) => envelope({ eventName, eventId: "session_progress_" + index, sessionId: "sess_shared", consentMode: "full_behavioral" })) });
+    expect(report.scopes.global.metrics.sessions.count).toBe(1);
+    expect(report.scopes.signedIn.metrics.sessions.count).toBe(1);
+  });
+  it("preserves two different canonical sessions for one signed-in person", () => {
+    const report = hydratePersonMetrics({ envelopes: [envelope({ eventName: "session_started", eventId: "one", sessionId: "sess_one", consentMode: "full_behavioral" }), envelope({ eventName: "session_closed", eventId: "two", sessionId: "sess_two", consentMode: "full_behavioral" })] });
+    expect(report.scopes.global.metrics.sessions.count).toBe(2);
+    expect(report.scopes.signedIn.metrics.sessions.count).toBe(2);
+  });
+});
+
+
+describe("missing session identity", () => {
+  it("keeps a session fact with no canonical id collecting rather than proving zero", () => {
+    const report = hydratePersonMetrics({ envelopes: [{ ...envelope({ eventName: "session_closed", eventId: "session_missing_id", consentMode: "full_behavioral" }), sessionId: null }] });
+    expect(report.metricStatus.sessions).toMatchObject({ state: "collecting", count: 0, provenZero: false });
+    expect(report.scopes.global.metrics.sessions.provenZero).toBe(false);
+    expect(report.scopes.signedIn.metrics.sessions.provenZero).toBe(false);
+  });
+});
+
+
+describe("session handoff scope continuity", () => {
+  it("counts one canonical session globally and once for its linked person after guest progress and authenticated closeout", () => {
+    const guest = envelope({ eventName: "session_started", eventId: "guest_session_start", sessionId: "sess_handoff", guestId: "subject_handoff", userRef: null, actorKind: "guest", identityState: "guest_full_behavioral", identityConfidence: "weak", consentMode: "full_behavioral" });
+    const linked = envelope({ eventName: "session_closed", eventId: "identified_session_close", sessionId: "sess_handoff", guestId: "subject_handoff", userRef: { kind: "user", id: "user_handoff" }, linkId: "link_handoff", actorKind: "signed_in_user", identityState: "logged_in_linked_guest", identityConfidence: "linked", consentMode: "full_behavioral" });
+    // Explicitly preserve the guest's null userRef rather than the convenience fixture default.
+    const report = hydratePersonMetrics({ envelopes: [{ ...guest, userRef: null }, linked, linked] });
+    expect(report.scopes.global.metrics.sessions.count).toBe(1);
+    expect(report.scopes.linkedPerson.metrics.sessions.count).toBe(1);
+    expect(report.validation.duplicateGuestUserCountsSuppressed).toBeGreaterThan(0);
   });
 });

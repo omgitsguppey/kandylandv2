@@ -1,7 +1,7 @@
 "use client";
 
 import { Drop } from "@/types/db";
-import { useEffect, useState, memo, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useState, memo, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 
@@ -9,8 +9,12 @@ import { toast } from "sonner";
 import { User } from "firebase/auth";
 
 import { authFetch } from "@/lib/authFetch";
+import { readUiJson } from "@/lib/ui-continuity";
+import { createStaleRequestGuard } from "@/lib/frontend-hardening/ui/loading-state-contract";
+import { hasUnwrappedDrop } from "@/lib/drop-view-access";
+import { applyUnlockedDropPreviewProfilePatch } from "@/lib/locked-drop-preview-profile";
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
-import { useUserProfile } from "@/context/AuthContext";
+import { useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
@@ -59,37 +63,58 @@ function DropCardBase({
     const { userProfile, setUserProfile } = useUserProfile();
     const { viewAsState } = useAdminViewAs();
     const { openAuthModal, openPurchaseModal } = useUI();
-    const [unlocking, setUnlocking] = useState(false);
-    const [confirming, setConfirming] = useState(false);
+    const { loading: authLoading } = useAuthLoading();
+    const profileReady = !authLoading && Boolean(user?.uid && userProfile?.uid === user.uid);
+    const activeProfile = profileReady ? userProfile : null;
+    const actorUid = profileReady ? user?.uid ?? null : null;
+    const accessLoading = authLoading || Boolean(user && !profileReady);
+    const hasUnlockedDrop = profileReady && (isUnlocked || hasUnwrappedDrop(activeProfile, drop.id));
+    const [unlockState, setUnlockState] = useState({ actorUid, dropId: drop.id, unlocking: false, confirming: false, error: null as string | null });
+    const stateIsCurrent = unlockState.actorUid === actorUid && unlockState.dropId === drop.id;
+    const unlocking = stateIsCurrent && unlockState.unlocking;
+    const confirming = stateIsCurrent && unlockState.confirming;
+    const error = stateIsCurrent ? unlockState.error : null;
+    const unlockGuardRef = useRef(createStaleRequestGuard());
+    const unlockScopeRef = useRef({ actorUid: null as string | null, dropId: drop.id, mounted: false, pendingRequestId: null as number | null });
+
+    useLayoutEffect(() => {
+        unlockGuardRef.current.next();
+        unlockScopeRef.current = { actorUid, dropId: drop.id, mounted: true, pendingRequestId: null };
+        setUnlockState({ actorUid, dropId: drop.id, unlocking: false, confirming: false, error: null });
+        return () => {
+            unlockGuardRef.current.next();
+            unlockScopeRef.current.mounted = false;
+            unlockScopeRef.current.pendingRequestId = null;
+        };
+    }, [actorUid, drop.id]);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const cardRef = useRef<HTMLDivElement | null>(null);
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
     const viewAsCreatorId = viewAsState?.adminViewingAsRole === "creator" ? viewAsState.adminViewingAsUserId : null;
-    const profileCreatorId = userProfile?.role === "creator" ? userProfile.uid : null;
+    const profileCreatorId = activeProfile?.role === "creator" ? activeProfile.uid : null;
     const activeCreatorId = viewAsCreatorId ?? profileCreatorId;
     const visibilityState = useMemo(
         () =>
             resolveDropCardVisibilityState({
                 drop,
                 isAuthenticated: Boolean(user),
-                isUnlocked,
-                gumDropsBalance: userProfile?.gumDropsBalance,
-                actorUserId: user?.uid ?? userProfile?.uid ?? null,
+                isUnlocked: hasUnlockedDrop,
+                gumDropsBalance: activeProfile?.gumDropsBalance,
+                actorUserId: user?.uid ?? null,
                 activeCreatorId,
             }),
-        [activeCreatorId, drop, isUnlocked, user, userProfile?.gumDropsBalance, userProfile?.uid],
+        [activeCreatorId, activeProfile?.gumDropsBalance, drop, hasUnlockedDrop, user],
     );
 
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
         if (confirming) {
-            timeout = setTimeout(() => setConfirming(false), 3500);
+            timeout = setTimeout(() => setUnlockState((current) => current.actorUid === actorUid && current.dropId === drop.id ? { ...current, confirming: false } : current), 3500);
         }
         return () => clearTimeout(timeout);
-    }, [confirming]);
+    }, [actorUid, confirming, drop.id]);
 
     useEffect(() => {
         setImageError(false);
@@ -99,7 +124,7 @@ function DropCardBase({
     useDropCardImpression({
         cardRef,
         drop,
-        isUnlocked,
+        isUnlocked: hasUnlockedDrop,
         aspectRatio: resolvedRatio,
         impressionTrackingSurface,
         impressionTrackingSessionId,
@@ -120,7 +145,7 @@ function DropCardBase({
     const totalViews = getDropViewCount(drop);
 
     // Handle unlocking flow
-    if (drop.validUntil && Date.now() > drop.validUntil && !isUnlocked) {
+    if (drop.validUntil && Date.now() > drop.validUntil && !hasUnlockedDrop) {
         return null;
     }
 
@@ -135,7 +160,7 @@ function DropCardBase({
             source_component: "compact_drop_card",
             drop_id: drop.id,
             drop_category: drop.type,
-            is_unlocked: !!isUnlocked,
+            is_unlocked: hasUnlockedDrop,
             drop_tags: (drop.tags || []).join("|"),
             card_aspect_ratio: resolvedRatio,
             ui_density: DROPS_MOBILE_UI_DENSITY,
@@ -146,6 +171,7 @@ function DropCardBase({
     };
 
     const handleUnlock = async () => {
+        if (accessLoading) return;
         if (visibilityState.shouldShowCreatorShareCta) {
             handlePreviewOpen();
             return;
@@ -156,9 +182,10 @@ function DropCardBase({
             return;
         }
 
-        if (unlocking || isUnlocked) return;
+        const scope = unlockScopeRef.current;
+        if (!actorUid || !scope.mounted || scope.actorUid !== actorUid || scope.dropId !== drop.id || scope.pendingRequestId !== null || unlocking || hasUnlockedDrop) return;
 
-        const balance = userProfile?.gumDropsBalance ?? 0;
+        const balance = activeProfile?.gumDropsBalance ?? 0;
         if (balance < drop.unlockCost) {
             trackEvent("drop_unwrap_intent_blocked_by_funds", {
                 source_component: "compact_drop_card",
@@ -177,7 +204,7 @@ function DropCardBase({
         }
 
         if (!confirming) {
-            setConfirming(true);
+            setUnlockState((current) => ({ ...current, confirming: true }));
             triggerHaptic();
             trackEvent("drop_unlock_attempted", {
                 source_component: "compact_drop_card",
@@ -192,9 +219,13 @@ function DropCardBase({
             return;
         }
 
-        setConfirming(false);
-        setUnlocking(true);
-        setError(null);
+        const requestId = unlockGuardRef.current.next();
+        scope.pendingRequestId = requestId;
+        const isCurrentUnlock = () => unlockScopeRef.current.mounted
+            && unlockScopeRef.current.actorUid === actorUid
+            && unlockScopeRef.current.dropId === drop.id
+            && unlockGuardRef.current.isFresh(requestId);
+        setUnlockState((current) => isCurrentUnlock() ? { ...current, confirming: false, unlocking: true, error: null } : current);
 
         try {
             triggerHaptic();
@@ -203,47 +234,24 @@ function DropCardBase({
                 body: JSON.stringify({ dropId: drop.id }),
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                if (result.alreadyUnlocked) {
-                    toast.info("Already unwrapped!");
-                    return;
-                }
-                throw new Error(result.error || "Unlock failed");
-            }
-
-            if (userProfile) {
-                const unwrappedAt = Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
-
-                setUserProfile((currentProfile) => {
-                    if (!currentProfile) {
-                        return currentProfile;
-                    }
-
-                    const currentUnlocked = Array.isArray(currentProfile.unlockedContent) ? currentProfile.unlockedContent : [];
-                    const nextUnlockedContent = currentUnlocked.includes(drop.id) ? currentUnlocked : [...currentUnlocked, drop.id];
-
-                    return {
-                        ...currentProfile,
-                        gumDropsBalance: result.newBalance !== undefined ? result.newBalance : currentProfile.gumDropsBalance - drop.unlockCost,
-                        unlockedContent: nextUnlockedContent,
-                        unlockedContentTimestamps: {
-                            ...(currentProfile.unlockedContentTimestamps || {}),
-                            [drop.id]: unwrappedAt,
-                        },
-                    };
-                });
-            }
+            if (!isCurrentUnlock()) return;
+            const result = await readUiJson<Record<string, unknown>>(response, { moduleLabel: "Drop unwrap", url: "/api/drops/unlock", requireSuccess: true });
+            if (!isCurrentUnlock()) return;
+            const unwrappedAt = typeof result.unwrappedAt === "number" && Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
+            setUserProfile((currentProfile) => isCurrentUnlock() && currentProfile?.uid === actorUid
+                ? applyUnlockedDropPreviewProfilePatch({ currentProfile, dropId: drop.id, unlockCost: drop.unlockCost, newBalance: result.newBalance, unwrappedAt })
+                : currentProfile);
 
             dispatchActivitySync();
             showUnwrapSuccessToast({
                 dropTitle: drop.title,
                 onTaste: () => {
+                    if (!isCurrentUnlock()) return;
                     router.push(`/dashboard/viewer?id=${drop.id}`);
                 },
             });
         } catch (err: unknown) {
+            if (!isCurrentUnlock()) return;
             const problemCopy = getUnlockProblemCopy(err);
             reportClientIssue({
                 channel: "payments",
@@ -255,9 +263,12 @@ function DropCardBase({
             toast.error(problemCopy.headline, {
                 description: problemCopy.body,
             });
-            setError(problemCopy.body);
+            setUnlockState((current) => isCurrentUnlock() ? { ...current, error: problemCopy.body } : current);
         } finally {
-            setUnlocking(false);
+            if (isCurrentUnlock() && unlockScopeRef.current.pendingRequestId === requestId) {
+                unlockScopeRef.current.pendingRequestId = null;
+                setUnlockState((current) => isCurrentUnlock() ? { ...current, unlocking: false } : current);
+            }
         }
     };
 
@@ -265,7 +276,8 @@ function DropCardBase({
         <DropCardCta
             drop={drop}
             user={user}
-            isUnlocked={isUnlocked}
+            isUnlocked={hasUnlockedDrop}
+            accessLoading={accessLoading}
             canAfford={visibilityState.canAfford}
             ctaState={visibilityState.ctaState}
             unlocking={unlocking}
@@ -279,6 +291,7 @@ function DropCardBase({
     const hasProductCoverBlur = visibilityState.shouldBlurCover;
     const imagePolicy = getImageLoadingPolicy("drops_grid", {
         dropGridLayout: resolvedRatio === "16:9" ? "wide" : "standard",
+        intrinsicLayout: true,
     });
     const imageTreatmentClassName = cn(
         imageLoaded ? "scale-100" : "scale-105 blur-md",

@@ -100,3 +100,15 @@ describe("problem-state copy", () => {
     expectVisibleCopyIsHuman(copy.headline, copy.body);
   });
 });
+
+
+describe("unconfirmed unwrap recovery", () => {
+  it.each([new Error("Drop unwrap returned no success acknowledgement"), new TypeError("Failed to fetch")])("does not claim no charge for an unknown settlement: %s", (reason) => {
+    const result = getUnlockProblemCopy(reason);
+    expect(result.headline).toBe("Unwrap could not be confirmed.");
+    expect(result.body).toContain("Check My KandyDrops and your balance");
+    expect(result.body).not.toContain("were not charged");
+    expect(result.actionLabel).toBe("Open My KandyDrops");
+    expectVisibleCopyIsHuman(result.headline, result.body);
+  });
+});

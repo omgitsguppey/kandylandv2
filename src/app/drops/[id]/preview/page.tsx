@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { LockedDropPreviewClient } from "@/components/Drops/LockedDropPreviewClient";
-import { DropPreviewExperienceFrame } from "@/components/creative-tim/kandydrops/drops/DropPreviewExperienceFrame";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { getDrop } from "@/lib/server/drops";
 import { toLockedDropPreviewSafeDrop, type LockedDropPreviewCreator } from "@/lib/locked-drop-preview-truth";
@@ -50,13 +49,11 @@ export default async function DropPreviewPage({ params, searchParams }: DropPrev
     const previewDrop = toLockedDropPreviewSafeDrop(drop);
 
     return (
-        <DropPreviewExperienceFrame drop={previewDrop} creator={creator}>
-            <LockedDropPreviewClient
-                drop={previewDrop}
-                creator={creator}
-                sourceComponent={sourceComponent}
-            />
-        </DropPreviewExperienceFrame>
+        <LockedDropPreviewClient
+            drop={previewDrop}
+            creator={creator}
+            sourceComponent={sourceComponent}
+        />
     );
 }
 

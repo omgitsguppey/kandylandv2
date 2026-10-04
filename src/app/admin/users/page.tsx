@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Clock3, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search, Shield, Ban, Plus, MessageSquare, DollarSign, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
@@ -626,7 +626,11 @@ export default function UserManagementPage() {
             behavior: {
                 loaded: Boolean(analytics),
                 engagement: engagementExplanation.verdict,
+                engagementReason: engagementExplanation.reasons[0] ?? engagementExplanation.summary,
                 value: valueExplanation.verdict,
+                valueReason: valueExplanation.reasons[0] ?? valueExplanation.summary,
+                mathMode: behaviorRollup?.mathCalibration?.activeMode ?? "unavailable",
+                mathVerdict: behaviorRollup?.mathCalibration?.verdict ?? "unavailable",
                 availability: getBehaviorAvailabilityLabel(behaviorRollup) ?? valueExplanation.statusLabel ?? engagementExplanation.statusLabel ?? "No recent signal",
                 issueCount: behaviorRollup?.issues.length ?? 0,
                 consent: managementSummary?.consentMode.mode.replace(/_/g, " ") ?? "consent unknown",

@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -35,13 +36,7 @@ function write(path: string, value: string) {
 }
 
 function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listValidatorScopeFiles();
 }
 
 function trackedFiles() {
@@ -230,7 +225,7 @@ function main() {
     validationFailures: [...new Set(failures)],
   };
 
-  write(REPORT_PATH, `${JSON.stringify(output, null, 2)}\n`);
+  write(REPORT_PATH, `${JSON.stringify(withValidatorMutationScope(output), null, 2)}\n`);
   write(DOC_PATH, renderDoc(output));
 
   if (output.validationFailures.length > 0) {

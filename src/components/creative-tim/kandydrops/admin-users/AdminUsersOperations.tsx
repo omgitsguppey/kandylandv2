@@ -4,24 +4,27 @@ import type { ComponentProps, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Activity,
   AlertTriangle,
   ArrowLeft,
   Ban,
   CalendarDays,
   CheckCircle,
   ChevronRight,
-  Clock3,
   DollarSign,
   Edit2,
   Lock,
   ScrollText,
-  TrendingUp,
-  Users,
 } from "lucide-react";
 
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
+import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
+import { Badge } from "@/components/creative-tim/ui/badge";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/creative-tim/ui/card";
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { ADMIN_NO_SOURCE_LABEL } from "@/lib/admin-truth-state";
 import type { AdminReviewBadgeDecision } from "@/lib/behavioral/review-badge-rules";
 import type { UserProfile } from "@/types/db";
 
@@ -45,26 +48,13 @@ export function AdminUsersOperatorEntryBand({
 }: AdminUsersOperatorEntryBandProps) {
   return (
     <section
-      className="relative overflow-hidden border border-fuchsia-200/15 bg-[linear-gradient(120deg,rgba(67,27,103,0.62),rgba(15,8,28,0.94)_54%,rgba(22,10,39,0.88))] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:px-6"
+      className="min-w-0"
       data-admin-users-operator-entry="source-aware"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute -right-12 top-0 h-32 w-32 rounded-full bg-fuchsia-300/15 blur-3xl" />
-      <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
-        <div className="max-w-3xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-100/58">{eyebrow}</p>
-          <h1 className="mt-2 text-2xl font-black tracking-[-0.04em] text-white sm:text-3xl">{title}</h1>
-          <p className="mt-2 text-sm leading-6 text-violet-100/70">{subtitle}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Admin users work modes">
-          {controls}
-        </div>
-      </div>
-      {sourceSignals ? (
-        <div className="relative mt-4 border-t border-white/10 pt-3">
-          <p className="text-[9px] font-black uppercase tracking-[0.16em] text-violet-200/48">Source signals</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">{sourceSignals}</div>
-        </div>
-      ) : null}
+      <AdminPageHeader compact eyebrow={eyebrow} title={title} subtitle={subtitle}
+        actions={<div className="flex flex-wrap gap-2" role="group" aria-label="Admin users work modes">{controls}</div>}
+        topSlot={sourceSignals ? <div className="flex flex-wrap gap-2" aria-label="Source signals">{sourceSignals}</div> : undefined}
+      />
     </section>
   );
 }
@@ -86,27 +76,17 @@ export function AdminUsersOperations({
   title,
 }: AdminUsersOperationsProps) {
   return (
-    <section
-      className={[
-        "relative isolate overflow-hidden rounded-[2.25rem] border border-fuchsia-200/15 bg-[radial-gradient(circle_at_8%_0%,rgba(178,140,255,0.2),transparent_28%),radial-gradient(circle_at_92%_20%,rgba(255,111,207,0.12),transparent_24%),linear-gradient(145deg,rgba(24,10,42,0.98),rgba(8,5,15,0.99))] p-4 shadow-[0_30px_90px_rgba(4,0,14,0.48)] sm:p-6",
-        mode === "dossier"
-          ? "[&_.glass-panel]:rounded-none [&_.glass-panel]:border-x-0 [&_.glass-panel]:border-b-0 [&_.glass-panel]:border-t [&_.glass-panel]:border-white/10 [&_.glass-panel]:bg-transparent [&_.glass-panel]:px-0 [&_.glass-panel]:py-6"
-          : "",
-        className || "",
-      ].join(" ")}
+    <Card
+      className={className}
       data-admin-users-operations-canvas={mode}
     >
-      <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-20 h-64 w-64 rounded-full bg-brand-purple/20 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-[-3rem] h-60 w-60 rounded-full bg-fuchsia-300/12 blur-3xl" />
-      <div className="relative space-y-5">
-        <header className="border-b border-white/10 pb-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-100/58">{eyebrow}</p>
-          <p className="mt-2 text-xl font-black tracking-[-0.035em] text-white sm:text-2xl">{title}</p>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-violet-100/68">{description}</p>
-        </header>
-        <div className="space-y-5">{children}</div>
-      </div>
-    </section>
+      <CardHeader>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{eyebrow}</p>
+        <CardTitle><h2 className="text-xl font-semibold">{title}</h2></CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="min-w-0 space-y-4">{children}</CardContent>
+    </Card>
   );
 }
 
@@ -118,7 +98,11 @@ type OnboardingBadge = {
 type DirectoryBehavior = {
   loaded: boolean;
   engagement: string;
+  engagementReason: string;
   value: string;
+  valueReason: string;
+  mathMode: string;
+  mathVerdict: string;
   availability: string;
   issueCount: number;
   consent: string;
@@ -183,7 +167,7 @@ export function AdminUserMetricCard({
 }: AdminUserMetricCardProps) {
   return (
     <article
-      className="relative min-h-[8.75rem] overflow-hidden rounded-[1.35rem] border border-fuchsia-200/10 bg-[linear-gradient(145deg,rgba(59,21,84,0.72),rgba(17,8,31,0.92)_58%,rgba(10,6,20,0.96))] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_32px_rgba(6,0,16,0.24)]"
+      className="min-w-0"
       title={title}
       data-admin-metric-state={state}
       data-admin-metric-source={source}
@@ -198,27 +182,23 @@ export function AdminUserMetricCard({
       data-admin-users-kpi-reason={reason}
       data-admin-users-kpi-generated-at-utc={generatedAtUtc}
     >
-      <div className="pointer-events-none absolute -right-7 -top-7 h-20 w-20 rounded-full bg-fuchsia-300/10 blur-2xl" />
-      <div className="relative flex min-h-5 items-start justify-between gap-2">
-        <p className="min-w-0 text-[10px] font-black uppercase tracking-[0.16em] text-fuchsia-100/55">{label}</p>
-        <div className="flex shrink-0 items-center gap-1">
-          <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
-          <AdminTruthBadge
-            state={state}
-            className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
-            pendingInitialLoad={pendingInitialLoad}
-            hasUsableValue={hasUsableValue}
-          />
-        </div>
-      </div>
-      <p className="relative mt-2 truncate text-2xl font-black leading-none tracking-tight text-white">{primaryValue}</p>
-      <div className="relative mt-2 space-y-1">
-        <p className="line-clamp-2 text-[11px] leading-4 text-violet-100/76">{secondaryValue || "No additional source explanation supplied."}</p>
-        <div className="flex flex-wrap gap-x-2 gap-y-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-violet-200/45">
-          <span>{sourceDetail}</span>
-          <span>{footerReason}</span>
-        </div>
-      </div>
+      <AdminMetricCard
+        label={label}
+        value={primaryValue}
+        truthState={state}
+        pendingInitialLoad={pendingInitialLoad}
+        hasUsableValue={hasUsableValue}
+        auxiliaryBadges={<AdminReviewBadge decision={reviewDecision} />}
+        meta={
+          <div className="min-w-0 space-y-2">
+            <p className="break-words leading-relaxed">{secondaryValue || "No additional source explanation supplied."}</p>
+            <div className="flex min-w-0 flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground">
+              <span className="min-w-0 break-words">{sourceDetail}</span>
+              <span className="min-w-0 break-words">{footerReason}</span>
+            </div>
+          </div>
+        }
+      />
     </article>
   );
 }
@@ -253,43 +233,43 @@ function RoleBadge({ role }: { role?: UserProfile["role"] }) {
   );
 }
 
-function DirectoryBehaviorSummary({ record, mode }: { record: AdminUserDirectoryRecord; mode: "table" | "card" }) {
+function DirectoryBehaviorSummary({ record }: { record: AdminUserDirectoryRecord }) {
   const { behavior } = record;
 
   if (!behavior.loaded) return null;
 
   return (
     <div
-      className={mode === "table" ? "space-y-2" : "grid grid-cols-2 gap-2"}
+      className="min-w-0 space-y-3"
       data-admin-users-loading-lane="behavioralDetail"
       data-user-behavior-rollup-source={behavior.source}
       data-user-behavior-rollup-confidence={behavior.confidence}
     >
-      <div className={mode === "table" ? "flex items-center justify-between gap-2" : "col-span-2 flex items-center justify-between gap-2"}>
-        <div className="min-w-0">
-          <p className="text-xs font-bold text-white">{behavior.engagement} / {behavior.value}</p>
-          <p className="mt-1 text-[10px] text-violet-100/45">{behavior.availability} / {behavior.issueCount} issues</p>
+      <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+        <p className="min-w-0 break-words text-base font-semibold">{behavior.engagement} / {behavior.value}</p>
+        <div className="flex min-w-0 max-w-full flex-wrap gap-1 *:min-w-0 *:max-w-full *:whitespace-normal *:break-words">
+          <AdminReviewBadge decision={behavior.reviewDecision} className="text-xs tracking-normal" />
         </div>
-        <AdminReviewBadge decision={behavior.reviewDecision} className="shrink-0 px-1.5 py-0 text-[8px] tracking-[0.08em]" />
       </div>
-      <div className={mode === "table" ? "flex flex-wrap gap-1.5" : "contents"}>
-        <span className="rounded-xl border border-white/10 bg-black/25 px-2 py-1 text-[10px] font-semibold text-violet-100/80">Consent: {behavior.consent}</span>
-        <span className="rounded-xl border border-white/10 bg-black/25 px-2 py-1 text-[10px] font-semibold text-violet-100/80">{behavior.lowConfidence} low-confidence</span>
+      <div className="space-y-2 break-words text-sm leading-relaxed text-muted-foreground">
+        <p>Engagement: {behavior.engagementReason}</p>
+        <p>Value: {behavior.valueReason}</p>
       </div>
-      {mode === "card" ? (
-        <>
-          <span className="rounded-xl border border-white/10 bg-black/25 px-2 py-2 text-[10px] text-violet-100/70"><Users className="mr-1 inline h-3 w-3 text-fuchsia-200/70" />{behavior.activityEvents} events</span>
-          <span className="rounded-xl border border-white/10 bg-black/25 px-2 py-2 text-[10px] text-violet-100/70"><TrendingUp className="mr-1 inline h-3 w-3 text-fuchsia-200/70" />{behavior.unwraps} unwraps</span>
-          <span className="rounded-xl border border-white/10 bg-black/25 px-2 py-2 text-[10px] text-violet-100/70"><Clock3 className="mr-1 inline h-3 w-3 text-fuchsia-200/70" />{behavior.watchTime} watch</span>
-          <span className="rounded-xl border border-white/10 bg-black/25 px-2 py-2 text-[10px] text-violet-100/70"><Activity className="mr-1 inline h-3 w-3 text-fuchsia-200/70" />{behavior.engagement}</span>
-        </>
-      ) : null}
-      <details className={mode === "table" ? "rounded-xl border border-white/10 bg-black/25 px-2.5 py-2" : "col-span-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2"}>
-        <summary className="cursor-pointer text-[10px] font-black uppercase tracking-[0.12em] text-violet-100/70">Metric source</summary>
-        <div className="mt-2 space-y-1 text-[10px] leading-4 text-violet-100/58">
+      <p className="break-words text-sm text-muted-foreground">{behavior.availability} / {behavior.issueCount} issues</p>
+      <p className="break-words text-sm text-muted-foreground">Source: {behavior.source} / {behavior.confidence}</p>
+      <p className="break-words text-sm text-muted-foreground">Consent: {behavior.consent} / {behavior.lowConfidence} low-confidence</p>
+      <details className="min-w-0 border-t border-border pt-2">
+        <summary className="min-h-11 cursor-pointer content-center break-words text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Metric source</summary>
+        <div className="mt-3 space-y-3 break-words text-sm leading-relaxed text-muted-foreground">
+          <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3">
+            <div><dt>Recorded events</dt><dd className="text-foreground">{behavior.activityEvents}</dd></div>
+            <div><dt>Unwraps</dt><dd className="text-foreground">{behavior.unwraps}</dd></div>
+            <div><dt>Watch time</dt><dd className="text-foreground">{behavior.watchTime}</dd></div>
+          </dl>
           <p>Activity: {behavior.activitySource}</p>
           <p>Wallet: {behavior.walletSource}</p>
           <p>Missing: {behavior.missingMetric}</p>
+          <p data-user-behavior-math-mode={behavior.mathMode}>Math: {behavior.mathMode} / {behavior.mathVerdict}</p>
         </div>
       </details>
     </div>
@@ -334,163 +314,90 @@ export function AdminUserDirectory({
   const emptyLabel = searchQuery.trim() ? "No users match \"" + searchQuery.trim() + "\"." : "No users found.";
 
   return (
-    <section className="border-t border-white/10 pt-6" aria-labelledby="admin-user-directory-heading" data-admin-user-directory-presentation="operations-ledger">
-      <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-fuchsia-100/52">Roster operations</p>
-          <h2 id="admin-user-directory-heading" className="mt-1 text-lg font-black tracking-tight text-white">User directory records</h2>
-          <p className="mt-1 text-xs leading-5 text-violet-100/62">Identity, permissions, wallet, behavior, and protection controls stay attached to each record.</p>
-        </div>
-        <div className="inline-flex w-fit items-center gap-2 rounded-2xl border border-fuchsia-200/15 bg-fuchsia-300/10 px-3 py-2 text-xs font-bold text-fuchsia-50">
-          <Users className="h-4 w-4 text-fuchsia-200" />
-          {loading ? "Refreshing records" : String(records.length) + " shown"}
-        </div>
+    <section className="min-w-0 border-t border-border pt-6" aria-labelledby="admin-user-directory-heading" data-admin-user-directory-presentation="operations-ledger">
+      <div className="flex flex-wrap items-baseline justify-between gap-3 pb-4">
+        <h2 id="admin-user-directory-heading" className="text-lg font-semibold">User directory records</h2>
+        <p className="text-sm text-muted-foreground" role="status">{loading ? "Refreshing records" : String(records.length) + " shown"}</p>
       </div>
+      {loading ? (
+        <div className="py-12" role="status" aria-label="Loading user records"><p className="text-sm text-muted-foreground">Loading user records</p></div>
+      ) : records.length === 0 ? (
+        <p className="py-12 text-sm text-muted-foreground" role="status">{emptyLabel}</p>
+      ) : (
+        <ul className="min-w-0 divide-y divide-border" role="list">
+          {records.map((record) => {
+            const { user, behavior } = record;
+            const status = user.status || "active";
+            const hasFlags = (user.securityFlags?.ripAttempts ?? 0) > 0;
 
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[1050px] text-left">
-          <thead className="bg-black/25">
-            <tr className="border-b border-white/10 text-[10px] font-black uppercase tracking-[0.15em] text-violet-100/48">
-              <th className="px-5 py-3">Identity</th>
-              <th className="px-4 py-3">Access</th>
-              <th className="px-4 py-3">Wallet</th>
-              <th className="px-4 py-3">Observed behavior</th>
-              <th className="px-4 py-3">Lifecycle</th>
-              <th className="px-4 py-3">Protection</th>
-              <th className="px-5 py-3 text-right">Controls</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/10">
-            {loading ? (
-              <tr><td colSpan={7} className="px-5 py-14 text-center"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-fuchsia-200/20 border-t-fuchsia-200" aria-label="Loading user records" /></td></tr>
-            ) : records.length === 0 ? (
-              <tr><td colSpan={7} className="px-5 py-14 text-center text-sm text-violet-100/55">{emptyLabel}</td></tr>
-            ) : records.map((record) => {
-              const { user, behavior } = record;
-              const status = user.status || "active";
-              const hasFlags = (user.securityFlags?.ripAttempts ?? 0) > 0;
-
-              return (
-                <tr key={user.uid} className="group bg-transparent transition-colors hover:bg-fuchsia-200/[0.035]">
-                  <td className="px-5 py-4 align-top">
-                    <div className="flex min-w-[12rem] items-start gap-3">
-                      <UserAvatar user={user} size="sm" />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="truncate text-sm font-black text-white">{user.username ? "@" + user.username : user.displayName || "No name"}</p>
-                          {user.isVerified ? <CheckCircle className="h-3.5 w-3.5 shrink-0 text-fuchsia-200" aria-label="Verified" /> : null}
-                          <button type="button" onClick={() => onEditUsername(user)} className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl text-violet-100/45 transition-colors hover:bg-white/10 hover:text-white" title="Edit username" aria-label="Edit username"><Edit2 className="h-3.5 w-3.5" /></button>
-                        </div>
-                        <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-[0.12em] text-violet-100/45">{user.username ? user.displayName : user.uid.slice(0, 8)}</p>
-                        <p className="mt-1 max-w-[13rem] truncate text-xs text-violet-100/56">{user.email}</p>
-                      </div>
+            return (
+              <li key={user.uid} className="min-w-0 py-6">
+                <article className="min-w-0 space-y-5" aria-labelledby={"directory-user-" + user.uid}>
+                  <div className="flex min-w-0 flex-wrap items-start gap-3">
+                    <UserAvatar user={user} size="lg" />
+                    <div className="min-w-0 flex-1 basis-48 space-y-1">
+                      <h3 id={"directory-user-" + user.uid} className="break-words text-base font-semibold">{user.displayName || (user.username ? "@" + user.username : "No name")}</h3>
+                      {user.username ? <p className="break-words text-sm text-muted-foreground">{"@" + user.username}</p> : null}
+                      <p className="break-all text-sm text-muted-foreground">{user.email}</p>
                     </div>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    <div className="flex max-w-[12rem] flex-wrap gap-1.5">
-                      <RoleBadge role={user.role} />
-                      <span className={["inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em]", getStatusColor(user.status)].join(" ")}>{status}</span>
-                      <span className={["inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em]", record.onboarding.className].join(" ")}>{record.onboarding.label}</span>
-                      <span className="inline-flex rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-violet-100/70">{record.guestLinkLabel}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    <div className="min-w-[8rem]">
-                      <div className="flex items-center gap-1.5">
-                        <p className="font-mono text-sm font-black text-fuchsia-100">{user.gumDropsBalance} GD</p>
-                        <button type="button" onClick={() => onEditBalance(user)} className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl text-violet-100/45 transition-colors hover:bg-fuchsia-200/10 hover:text-fuchsia-100" title="Edit balance" aria-label="Edit balance"><Edit2 className="h-3.5 w-3.5" /></button>
-                        <button type="button" onClick={() => onViewHistory(user)} className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl text-violet-100/45 transition-colors hover:bg-white/10 hover:text-white" title="View history" aria-label="View history"><ScrollText className="h-3.5 w-3.5" /></button>
-                      </div>
-                      <div className="mt-2 space-y-1 text-[10px] text-violet-100/48"><p>{user.unlockedContent?.length || 0} unlocked</p><p>{user.notificationSettings?.browserPushEnabled ? "Push on" : "Push off"}</p></div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    {behavior.loaded ? (
-                      <DirectoryBehaviorSummary record={record} mode="table" />
-                    ) : (
-                      <button type="button" onClick={() => onLoadDetail(user)} className="inline-flex min-h-11 items-center rounded-xl border border-fuchsia-200/15 bg-fuchsia-200/[0.06] px-3 text-xs font-bold text-fuchsia-50 transition-colors hover:bg-fuchsia-200/[0.12] disabled:cursor-not-allowed disabled:opacity-50" data-admin-users-loading-lane="selectedUser" disabled={selectedDetailUserId === user.uid}>{selectedDetailUserId === user.uid ? "Loading detail" : "Load detail"}</button>
-                    )}
-                  </td>
-                  <td className="px-4 py-4 align-top"><div className="min-w-[9rem] space-y-1 text-[10px] text-violet-100/55"><p>{record.joined}</p>{record.lastSeen ? <p>{record.lastSeen}</p> : null}{record.lastPurchase ? <p>{record.lastPurchase}</p> : null}</div></td>
-                  <td className="px-4 py-4 align-top">
-                    {hasFlags ? (
-                      <button type="button" onClick={() => onViewSecurity(user)} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-rose-300/20 bg-rose-400/10 px-3 text-xs font-black text-rose-100 transition-colors hover:bg-rose-400/20" title="View security dossier" aria-label="View security dossier"><AlertTriangle className="h-3.5 w-3.5" />{user.securityFlags?.ripAttempts} flags</button>
-                    ) : (
-                      <span className="inline-flex rounded-xl border border-emerald-300/10 bg-emerald-400/[0.06] px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-emerald-100/75">Clean</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    <div className="flex min-w-[13rem] flex-wrap justify-end gap-1.5">
-                      {user.role !== "creator" ? <button type="button" onClick={() => onPromoteCreator(user)} className="inline-flex min-h-10 items-center rounded-xl border border-white/10 bg-white/5 px-2.5 text-[10px] font-black uppercase tracking-[0.1em] text-violet-100/75 transition-colors hover:bg-white/10 hover:text-white" title="Promote to creator" aria-label="Promote to creator">Creator</button> : null}
-                      <button type="button" onClick={() => onToggleVerification(user)} className={["inline-flex min-h-10 items-center rounded-xl border px-2.5 text-[10px] font-black uppercase tracking-[0.1em] transition-colors", user.isVerified ? "border-fuchsia-200/20 bg-fuchsia-200/[0.1] text-fuchsia-100" : "border-white/10 bg-white/5 text-violet-100/70 hover:text-white"].join(" ")} title={user.isVerified ? "Remove verification badge" : "Add verification badge"} aria-label={user.isVerified ? "Remove verification badge" : "Add verification badge"}>Verify</button>
-                      <Link href={"/admin/user/" + user.uid} className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-fuchsia-200/20 bg-fuchsia-200/[0.1] px-3 text-[10px] font-black uppercase tracking-[0.1em] text-fuchsia-50 transition-colors hover:bg-fuchsia-200/[0.16]" title="Open user analytics" aria-label="Open user analytics">Detail <ChevronRight className="h-3.5 w-3.5" /></Link>
-                      {status === "active" ? (
-                        <><button type="button" onClick={() => onSetStatus(user, "suspend")} className="inline-flex min-h-10 items-center rounded-xl border border-white/10 bg-white/5 px-2.5 text-[10px] font-black uppercase tracking-[0.1em] text-violet-100/70 transition-colors hover:bg-white/10 hover:text-white" title="Suspend user" aria-label="Suspend user">Suspend</button><button type="button" onClick={() => onSetStatus(user, "ban")} className="inline-flex min-h-10 items-center rounded-xl border border-rose-300/15 bg-rose-400/[0.06] px-2.5 text-[10px] font-black uppercase tracking-[0.1em] text-rose-100/80 transition-colors hover:bg-rose-400/[0.14]" title="Ban user" aria-label="Ban user">Ban</button></>
-                      ) : (
-                        <button type="button" onClick={() => onSetStatus(user, "activate")} className="inline-flex min-h-10 items-center rounded-xl border border-emerald-300/15 bg-emerald-400/[0.06] px-2.5 text-[10px] font-black uppercase tracking-[0.1em] text-emerald-100/85 transition-colors hover:bg-emerald-400/[0.14]" title="Reactivate user" aria-label="Reactivate user">Reactivate</button>
-                      )}
-                      <button type="button" onClick={() => onOpenContent(user)} className="inline-flex min-h-10 items-center rounded-xl border border-white/10 bg-black/20 px-2.5 text-[10px] font-black uppercase tracking-[0.1em] text-violet-100/70 transition-colors hover:bg-white/10 hover:text-white" title="Manage content access" aria-label="Manage content access"><Lock className="h-3.5 w-3.5" /></button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="grid gap-3 py-4 md:hidden">
-        {loading ? (
-          <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-12 text-center"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-fuchsia-200/20 border-t-fuchsia-200" aria-label="Loading user records" /></div>
-        ) : records.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-black/25 px-4 py-12 text-center text-sm text-violet-100/55">{emptyLabel}</div>
-        ) : records.map((record) => {
-          const { user, behavior } = record;
-          const status = user.status || "active";
-          const hasFlags = (user.securityFlags?.ripAttempts ?? 0) > 0;
-
-          return (
-            <article key={user.uid} className="relative overflow-hidden rounded-[1.45rem] border border-white/10 bg-[linear-gradient(140deg,rgba(71,28,99,0.42),rgba(12,8,24,0.88))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-fuchsia-300/10 blur-3xl" />
-              <div className="relative flex items-start gap-3">
-                <UserAvatar user={user} size="lg" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0"><div className="flex items-center gap-1.5"><p className="truncate text-base font-black text-white">{user.username ? "@" + user.username : user.displayName || "No name"}</p>{user.isVerified ? <CheckCircle className="h-4 w-4 shrink-0 text-fuchsia-200" aria-label="Verified" /> : null}</div><p className="mt-1 truncate font-mono text-[10px] text-violet-100/50">{user.email}</p></div>
-                    <button type="button" onClick={() => onEditUsername(user)} className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/25 text-violet-100/65" title="Edit username" aria-label="Edit username"><Edit2 className="h-4 w-4" /></button>
+                    <Link href={"/admin/user/" + user.uid} className={buttonVariants({ variant: "outline", size: "sm", className: "max-w-full gap-2 whitespace-normal" })} title="Open user analytics" aria-label="Open user analytics">Open detail <ChevronRight className="size-4 shrink-0" aria-hidden="true" /></Link>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-1.5"><RoleBadge role={user.role} /><span className={["inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em]", getStatusColor(user.status)].join(" ")}>{status}</span><span className={["inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em]", record.onboarding.className].join(" ")}>{record.onboarding.label}</span></div>
-                </div>
-              </div>
-              <div className="relative mt-4 grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-white/10 bg-black/25 px-3 py-2.5"><p className="text-[10px] font-black uppercase tracking-[0.13em] text-violet-100/45">Wallet</p><p className="mt-1 font-mono text-sm font-black text-fuchsia-100">{user.gumDropsBalance} GD</p><p className="mt-1 text-[10px] text-violet-100/52">{user.unlockedContent?.length || 0} unlocked</p></div>
-                <div className="rounded-xl border border-white/10 bg-black/25 px-3 py-2.5"><p className="text-[10px] font-black uppercase tracking-[0.13em] text-violet-100/45">Lifecycle</p><p className="mt-1 text-xs font-bold text-white">{record.joined}</p><p className="mt-1 text-[10px] text-violet-100/52">{record.lastSeen || "No tracked activity"}</p></div>
-              </div>
-              <div className="relative mt-3 rounded-[1.15rem] border border-white/10 bg-black/25 p-3">
-                {behavior.loaded ? <DirectoryBehaviorSummary record={record} mode="card" /> : <button type="button" onClick={() => onLoadDetail(user)} className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-fuchsia-200/15 bg-fuchsia-200/[0.06] px-3 text-xs font-bold text-fuchsia-50 disabled:cursor-not-allowed disabled:opacity-50" data-admin-users-loading-lane="selectedUser" disabled={selectedDetailUserId === user.uid}>{selectedDetailUserId === user.uid ? "Loading behavior detail" : "Load behavior detail"}</button>}
-              </div>
-              {hasFlags ? (
-                <button type="button" onClick={() => onViewSecurity(user)} className="relative mt-3 flex min-h-11 w-full items-center justify-between rounded-xl border border-rose-300/20 bg-rose-400/[0.09] px-3 text-left text-sm font-bold text-rose-100"><span className="inline-flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> {user.securityFlags?.ripAttempts} security flags</span><span className="text-[10px] font-black uppercase tracking-[0.12em]">Review</span></button>
-              ) : <p className="relative mt-3 text-[10px] font-black uppercase tracking-[0.12em] text-emerald-100/65">Protection status: clean</p>}
-              <div className="relative mt-4 grid grid-cols-4 gap-2">
-                <button type="button" onClick={() => onEditBalance(user)} className="flex min-h-14 flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-[10px] font-black uppercase tracking-[0.08em] text-violet-100/75"><DollarSign className="mb-1 h-4 w-4 text-fuchsia-200" /> Balance</button>
-                <button type="button" onClick={() => onOpenContent(user)} className="flex min-h-14 flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-[10px] font-black uppercase tracking-[0.08em] text-violet-100/75"><Lock className="mb-1 h-4 w-4 text-fuchsia-200" /> Content</button>
-                <button type="button" onClick={() => onViewHistory(user)} className="flex min-h-14 flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-[10px] font-black uppercase tracking-[0.08em] text-violet-100/75"><ScrollText className="mb-1 h-4 w-4 text-fuchsia-200" /> History</button>
-                <button type="button" onClick={() => onSetStatus(user, "ban")} className="flex min-h-14 flex-col items-center justify-center rounded-xl border border-rose-300/15 bg-rose-400/[0.06] text-[10px] font-black uppercase tracking-[0.08em] text-rose-100/85"><Ban className="mb-1 h-4 w-4" /> Ban</button>
-              </div>
-              <Link href={"/admin/user/" + user.uid} className="relative mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-fuchsia-200/20 bg-fuchsia-200/[0.12] px-4 text-xs font-black uppercase tracking-[0.11em] text-fuchsia-50">Open detail <ChevronRight className="h-4 w-4" /></Link>
-              <div className="relative mt-3 grid grid-cols-[1fr_auto] gap-2">
-                <select value={user.role || "user"} onChange={(event) => onChangeRole(user, event.target.value as ManagedRole)} className="min-h-11 rounded-xl border border-white/10 bg-black/30 px-3 text-center text-xs font-black uppercase tracking-[0.1em] text-fuchsia-100 outline-none"><option value="user">User role</option><option value="creator">Creator role</option><option value="admin">Admin role</option></select>
-                <button type="button" onClick={() => onToggleVerification(user)} className={["min-h-11 rounded-xl border px-3 text-[10px] font-black uppercase tracking-[0.08em]", user.isVerified ? "border-fuchsia-200/20 bg-fuchsia-200/[0.1] text-fuchsia-100" : "border-white/10 bg-white/5 text-violet-100/70"].join(" ")}>{user.isVerified ? "Verified" : "Verify"}</button>
-              </div>
-              <div className="relative mt-2 grid grid-cols-2 gap-2">
-                {status === "active" ? <button type="button" onClick={() => onSetStatus(user, "suspend")} className="min-h-11 rounded-xl border border-white/10 bg-white/[0.045] px-3 text-[10px] font-black uppercase tracking-[0.1em] text-violet-100/75">Suspend</button> : <button type="button" onClick={() => onSetStatus(user, "activate")} className="min-h-11 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.06] px-3 text-[10px] font-black uppercase tracking-[0.1em] text-emerald-100/85">Reactivate</button>}
-                {user.role !== "creator" ? <button type="button" onClick={() => onPromoteCreator(user)} className="min-h-11 rounded-xl border border-white/10 bg-white/[0.045] px-3 text-[10px] font-black uppercase tracking-[0.1em] text-violet-100/75">Make creator</button> : <span className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-black/20 px-3 text-[10px] font-black uppercase tracking-[0.1em] text-violet-100/48">Creator role</span>}
-              </div>
-            </article>
-          );
-        })}
-      </div>
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 break-words text-sm">
+                    <span className="text-muted-foreground">{user.role || "user"} role</span>
+                    <Badge variant="secondary" className={["min-w-0 max-w-full whitespace-normal break-words text-sm", getStatusColor(user.status)].join(" ")}>{status}</Badge>
+                    {user.isVerified ? <span className="inline-flex min-w-0 items-center gap-1"><CheckCircle className="size-4 shrink-0 text-primary" aria-hidden="true" />Verified</span> : null}
+                    <span className="text-muted-foreground">{record.onboarding.label}</span>
+                  </div>
+                  <div className="flex min-w-0 flex-wrap gap-x-6 gap-y-2 break-words text-sm text-muted-foreground">
+                    <p>GumDrops: <span className="font-semibold text-foreground">{user.gumDropsBalance} GD</span></p>
+                    <p>Joined: {record.joined}</p>
+                  </div>
+                  {hasFlags ? (
+                    <Button variant="danger" size="sm" type="button" onClick={() => onViewSecurity(user)} className="max-w-full gap-2 whitespace-normal" title="View security dossier" aria-label="View security dossier"><AlertTriangle className="size-4 shrink-0" aria-hidden="true" />{user.securityFlags?.ripAttempts} security flags · Review</Button>
+                  ) : <p className="break-words text-sm text-muted-foreground">No security flags recorded</p>}
+                  {behavior.loaded ? <DirectoryBehaviorSummary record={record} /> : (
+                    <Button variant="outline" size="sm" type="button" onClick={() => onLoadDetail(user)} className="max-w-full whitespace-normal" data-admin-users-loading-lane="selectedUser" disabled={selectedDetailUserId === user.uid}>{selectedDetailUserId === user.uid ? "Loading detail" : "Load detail"}</Button>
+                  )}
+                  <details className="min-w-0 border-t border-border pt-2">
+                    <summary className="min-h-11 cursor-pointer content-center break-words text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Account details and actions</summary>
+                    <div className="mt-4 min-w-0 space-y-5">
+                      <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-4 break-words text-sm">
+                        <div><dt className="text-muted-foreground">User ID</dt><dd className="break-all font-mono">{user.uid}</dd></div>
+                        <div><dt className="text-muted-foreground">Guest link</dt><dd>{record.guestLinkLabel}</dd></div>
+                        <div><dt className="text-muted-foreground">Unlocked Drops</dt><dd>{user.unlockedContent?.length || 0}</dd></div>
+                        <div><dt className="text-muted-foreground">Browser notifications</dt><dd>{user.notificationSettings?.browserPushEnabled ? "Push on" : "Push off"}</dd></div>
+                        <div><dt className="text-muted-foreground">Last activity</dt><dd>{record.lastSeen || "No tracked activity"}</dd></div>
+                        {record.lastPurchase ? <div><dt className="text-muted-foreground">Last purchase</dt><dd>{record.lastPurchase}</dd></div> : null}
+                      </dl>
+                      <div className="flex min-w-0 flex-wrap gap-2" role="group" aria-label="Account management">
+                        <Button variant="ghost" size="sm" type="button" onClick={() => onEditUsername(user)} className="max-w-full gap-2 whitespace-normal"><Edit2 className="size-4 shrink-0" aria-hidden="true" />Edit username</Button>
+                        <Button variant="ghost" size="sm" type="button" onClick={() => onEditBalance(user)} className="max-w-full gap-2 whitespace-normal"><DollarSign className="size-4 shrink-0" aria-hidden="true" />Edit balance</Button>
+                        <Button variant="ghost" size="sm" type="button" onClick={() => onViewHistory(user)} className="max-w-full gap-2 whitespace-normal"><ScrollText className="size-4 shrink-0" aria-hidden="true" />View history</Button>
+                        <Button variant="ghost" size="sm" type="button" onClick={() => onOpenContent(user)} className="max-w-full gap-2 whitespace-normal"><Lock className="size-4 shrink-0" aria-hidden="true" />Manage content access</Button>
+                      </div>
+                      <div className="min-w-0 space-y-3 border-t border-border pt-4">
+                        <label className="grid min-w-0 gap-2 text-sm font-medium" htmlFor={"directory-role-" + user.uid}>Account role
+                          <NativeSelect id={"directory-role-" + user.uid} value={user.role || "user"} onChange={(event) => onChangeRole(user, event.target.value as ManagedRole)} className="h-auto min-h-11 py-2">
+                            <NativeSelectOption value="user">User role</NativeSelectOption>
+                            <NativeSelectOption value="creator">Creator role</NativeSelectOption>
+                            <NativeSelectOption value="admin">Admin role</NativeSelectOption>
+                          </NativeSelect>
+                        </label>
+                        <div className="flex min-w-0 flex-wrap gap-2" role="group" aria-label="Access management">
+                          {user.role !== "creator" ? <Button variant="ghost" size="sm" type="button" onClick={() => onPromoteCreator(user)} className="max-w-full whitespace-normal" title="Promote to creator" aria-label="Promote to creator">Make creator</Button> : null}
+                          <Button variant="ghost" size="sm" type="button" onClick={() => onToggleVerification(user)} className="max-w-full whitespace-normal" title={user.isVerified ? "Remove verification badge" : "Add verification badge"} aria-label={user.isVerified ? "Remove verification badge" : "Add verification badge"}>{user.isVerified ? "Remove verification" : "Verify"}</Button>
+                          {status === "active" ? <Button variant="ghost" size="sm" type="button" onClick={() => onSetStatus(user, "suspend")} className="max-w-full whitespace-normal">Suspend</Button> : <Button variant="ghost" size="sm" type="button" onClick={() => onSetStatus(user, "activate")} className="max-w-full whitespace-normal">Reactivate</Button>}
+                          {status === "active" ? <Button variant="danger" size="sm" type="button" onClick={() => onSetStatus(user, "ban")} className="max-w-full gap-2 whitespace-normal"><Ban className="size-4 shrink-0" aria-hidden="true" />Ban</Button> : null}
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                </article>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
@@ -499,40 +406,45 @@ export function AdminUserDetailMasthead({
   user,
   joinedLabel,
   onBack,
+  sourceAvailable = true,
 }: {
   user: UserProfile;
   joinedLabel: string;
   onBack: () => void;
+  sourceAvailable?: boolean;
 }) {
   const status = user.status || "active";
+  const balanceLabel = sourceAvailable && typeof user.gumDropsBalance === "number" && Number.isFinite(user.gumDropsBalance)
+    ? `${user.gumDropsBalance} GD` : ADMIN_NO_SOURCE_LABEL;
+  const unlockLabel = sourceAvailable && Array.isArray(user.unlockedContent) ? user.unlockedContent.length : ADMIN_NO_SOURCE_LABEL;
 
   return (
-    <section className="relative overflow-hidden border-b border-white/10 pb-6" data-admin-user-detail-presentation="operations-dossier">
-      <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-fuchsia-300/15 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 left-1/3 h-44 w-44 rounded-full bg-violet-400/10 blur-3xl" />
-      <div className="relative flex flex-col gap-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 text-sm font-bold text-violet-100/78 transition-colors hover:bg-white/10 hover:text-white"><ArrowLeft className="h-4 w-4" /> Back to roster</button>
-          <div className="flex flex-wrap gap-2"><RoleBadge role={user.role} /><span className={["inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em]", status === "active" ? "border-emerald-300/20 bg-emerald-400/10 text-emerald-100" : "border-rose-300/20 bg-rose-400/10 text-rose-100"].join(" ")}>{status}</span></div>
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="flex min-w-0 items-start gap-4">
-            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[1.35rem] border border-fuchsia-200/25 bg-black/30 text-2xl font-black text-fuchsia-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
-              {user.photoURL ? <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="64px" className="object-cover" /> : (user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
+    <section className="min-w-0" data-admin-user-detail-presentation="operations-dossier">
+      <AdminPageHeader
+        compact
+        eyebrow="Account operator record"
+        title={user.displayName || user.email || "User"}
+        subtitle={user.username ? "@" + user.username : "No public username"}
+        actions={<><Button type="button" variant="outline" onClick={onBack}><ArrowLeft className="mr-2 size-4" aria-hidden="true" />Back to roster</Button><RoleBadge role={user.role} /><span className="text-sm">{status}</span></>}
+        topSlot={
+          <div className="space-y-4">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted text-lg font-semibold">
+                {user.photoURL ? <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="48px" className="object-cover" /> : (user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
+              </div>
+              <div className="min-w-0 space-y-1 break-words text-sm text-muted-foreground">
+                <p>{user.email || "No email"}</p>
+                <p className="break-all font-mono text-xs">{user.uid}</p>
+                <p className="flex items-center gap-1"><CalendarDays className="size-4 shrink-0" aria-hidden="true" />Joined {joinedLabel}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-fuchsia-100/55">Account operator record</p>
-              <h1 className="mt-1 truncate text-2xl font-black tracking-tight text-white sm:text-3xl">{user.displayName || user.email || "User"}</h1>
-              <p className="mt-2 text-sm font-bold text-fuchsia-100">{user.username ? "@" + user.username : "No public username"}</p>
-              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-violet-100/62"><span className="max-w-full truncate font-mono">{user.email || "No email"}</span><span className="break-all font-mono text-violet-100/45">{user.uid}</span><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5 text-fuchsia-200/75" /> Joined {joinedLabel}</span></div>
-            </div>
+            <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-4">
+              <div><dt className="text-sm text-muted-foreground">Current balance</dt><dd className="mt-1 text-lg font-semibold">{balanceLabel}</dd></div>
+              <div><dt className="text-sm text-muted-foreground">Unlocked Drops</dt><dd className="mt-1 text-lg font-semibold">{unlockLabel}</dd></div>
+            </dl>
           </div>
-          <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
-            <div className="min-w-40 rounded-full border border-white/10 bg-black/25 px-4 py-2.5"><p className="text-[10px] font-black uppercase tracking-[0.14em] text-violet-100/45">Current balance</p><p className="mt-1 text-lg font-black text-fuchsia-100">{user.gumDropsBalance ?? 0} GD</p></div>
-            <div className="min-w-40 rounded-full border border-white/10 bg-black/25 px-4 py-2.5"><p className="text-[10px] font-black uppercase tracking-[0.14em] text-violet-100/45">Unlocked Drops</p><p className="mt-1 text-lg font-black text-white">{user.unlockedContent?.length ?? 0}</p></div>
-          </div>
-        </div>
-      </div>
+        }
+      />
     </section>
   );
 }

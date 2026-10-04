@@ -1,28 +1,25 @@
+---
+description: "Audit a scoped KandyDrops dependency change without turning routine work into an upgrade sweep."
+---
+
 # Dependency Audit Workflow
 
-This workflow guides the agent and developers through auditing dependencies, ensuring their runtime truth, and safely updating them across the KandyDrops monolith.
+Use this only for an explicit dependency/security window or a focused compatibility finding. The authoritative state is the relevant manifest plus its lockfile; installed `node_modules` and generated reports are supporting evidence, not the contract.
 
-## Context
-KandyDrops uses critical Google Cloud and Firebase dependencies that must be kept in sync with the live environment. Outdated versions can cause security vulnerabilities or API compatibility issues. However, updates must be audited to ensure they do not introduce breaking changes or conflicts.
+1. Identify the affected package owner, runtime, manifest, lockfile, and consumer paths before changing a version. Do not bundle unrelated dependency upgrades.
 
-## Workflow
+2. Check the existing dependency owners:
+   `npm run check:deps`
+   `npm run check:dependency-truth`
 
-1. **Check for Outdated Packages**
-   - Run `npm run check:outdated` or `npx npm-check-updates` to see what is old.
-   - Do not blindly apply all major updates.
+3. For a confirmed change, inspect upstream release/security notes and license/compatibility impact. Preserve root and Functions package-manager boundaries; do not hand-edit a lockfile or introduce a new package script/validator when an existing owner covers the lane.
 
-2. **Verify Critical Truth**
-   - Run `npm run check:dependency-truth`
-   - This script checks if the installed versions of critical packages (e.g., `firebase`, `firebase-admin`, `@google-cloud/vertexai`) match their expected constraints in `package.json` and are actually present in `node_modules`.
+   For deployed-source compatibility recovery, trace the artifact's actual selected locked package manager separately from the current checkout. Prove a frozen production install before switching managers or resolving versions. Explicitly deny unwanted dependency lifecycle scripts through that installed manager's supported policy, while keeping unreviewed scripts failing. Omit an inactive stage lock only after tracing install, dependency inspection, framework injection, scripts and runtime consumers; retain the original archive and leave the repository lock owner intact. Local install/import proof still requires separate provider build and serving agreement.
 
-3. **Safe Updating**
-   - Use `npm install <package>@latest` for targeted updates.
-   - Always run `npm run check:consistency` after updating dependencies to catch type errors, test failures, or lint issues.
+4. Run the smallest relevant verification after the manifest and lockfile are coherent:
+   `npm run typecheck`
+   `npm run check:consistency`
 
-4. **Update the Telemetry / Admin Panel**
-   - When introducing a new critical SDK (e.g., a new GCP service package), modify `src/app/api/admin/debug/route.ts` to include its version in the `dependencyHealth` payload.
-   - This ensures the Admin Debug panel's "Infrastructure & Dependencies" section stays truthful.
+5. Treat package, lockfile, CI, deployment, Firebase, payment, and provider changes as release-risk. Record the owner, environment, rollback path, cost class, and unresolved advisory separately from source behavior.
 
-5. **Commit and Push**
-   - Document any major version upgrades in the commit message.
-   - Verify pipeline tests pass before merging.
+6. Do not install, remove, publish, push, merge, deploy, or call a provider merely because this workflow names a dependency. Those actions need the task's explicit authority.

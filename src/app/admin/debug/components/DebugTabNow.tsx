@@ -87,7 +87,7 @@ export function DebugTabNow({
     );
     return (
         <div
-            className="space-y-3"
+            className="min-w-0 space-y-6"
             data-admin-debug-now-layout="triage_strip_plus_source_drawer"
             data-admin-debug-now-density="single_drilldown_drawer"
             data-admin-debug-now-detail-default="collapsed"
@@ -106,7 +106,7 @@ export function DebugTabNow({
                 defaultOpen={false}
                 summary={currentSourceSummary}
             >
-                <div className="space-y-3">
+                <div className="min-w-0 space-y-6">
                     <div
                         data-debug-health-freshness={healthFreshnessState}
                         data-debug-health-generated-at-utc={healthGeneratedAtUtc}
@@ -123,7 +123,7 @@ export function DebugTabNow({
                             data-admin-debug-health-summary-card-count="4"
                             data-admin-debug-raw-samples-default="collapsed"
                         >
-                            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                            <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-x-6 gap-y-4">
                                 {[
                                     {
                                         label: "Route pipeline",
@@ -154,12 +154,12 @@ export function DebugTabNow({
                                         truthState: systemHealthNow.runtimeWarnings.truthState,
                                     },
                                 ].map((item) => (
-                                    <div key={item.label} className="min-w-0 rounded-md border border-white/10 bg-white/[0.035] px-2.5 py-2">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{item.label}</p>
+                                    <div key={item.label} className="min-w-0 space-y-2 border-b border-border py-4">
+                                        <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+                                            <p className="min-w-0 wrap-anywhere text-sm font-medium text-muted-foreground">{item.label}</p>
                                             <Pill label="State" value={item.value} tone={item.tone} truthState={item.truthState} />
                                         </div>
-                                        <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-gray-400">{item.detail}</p>
+                                        <p className="mt-1 wrap-anywhere text-sm leading-6 text-muted-foreground">{item.detail}</p>
                                     </div>
                                 ))}
                             </div>
@@ -171,7 +171,7 @@ export function DebugTabNow({
                                 summary={
                                     <>
                                         <Pill label="Route failures" value={systemHealthNow.routeFailures.value} tone={systemHealthNow.routeFailures.tone} truthState={systemHealthNow.routeFailures.truthState} />
-                                        <Pill label="Writers needing review" value={(data?.opsHealth?.materializers || []).filter((materializer: any) => materializer.status !== "healthy").length} tone={(data?.opsHealth?.materializers || []).some((materializer: any) => materializer.status !== "healthy") ? "warn" : "good"} />
+                                        <Pill label="Writers needing review" value={(data?.opsHealth?.materializers || []).filter((materializer: any) => materializer.status !== "healthy").length} tone={(data?.opsHealth?.materializers || []).some((materializer: any) => materializer.status !== "healthy") ? "warn" : "good"} truthState={systemHealthNow.writers.truthState} />
                                         <Pill label="Diagnostic clusters" value={systemHealthNow.diagnostics.clusters.length} tone={systemHealthNow.diagnostics.clusters.length ? "warn" : "good"} truthState={systemHealthNow.diagnostics.truthState} />
                                     </>
                                 }
@@ -179,10 +179,10 @@ export function DebugTabNow({
                                 <div className="space-y-2 text-sm">
                                     {systemHealthNow.diagnostics.clusters.length ? (
                                         <div className="space-y-1.5">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Diagnostic clusters</p>
+                                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Diagnostic clusters</p>
                                             {systemHealthNow.diagnostics.clusters.slice(0, 3).map((cluster) => (
-                                                <div key={cluster.id} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
-                                                    <p className="font-semibold text-white">{cluster.fingerprint}</p>
+                                                <div key={cluster.id} className="min-w-0 space-y-1 border-b border-border py-3 text-sm text-muted-foreground">
+                                                    <p className="font-semibold text-foreground">{cluster.fingerprint}</p>
                                                     <p>{cluster.severity} | {cluster.count}x | lastSeenAtUtc {formatUtc(cluster.lastSeenAt)}</p>
                                                     <p>{cluster.sourceRouteOrComponent} | {cluster.suggestedValidator}</p>
                                                 </div>
@@ -190,56 +190,56 @@ export function DebugTabNow({
                                         </div>
                                     ) : null}
 
-                                    <div className="rounded-md border border-white/10 bg-white/[0.03] p-3">
-                                        <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0 space-y-3 border-t border-border py-4">
+                                        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                                             <div>
-                                                <p className="font-semibold text-white">Route failure sample</p>
-                                                <p className="mt-1 text-xs text-gray-400">Recent route failures from the loaded health sample.</p>
+                                                <p className="font-semibold text-foreground">Route failure sample</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">Recent route failures from the loaded health sample.</p>
                                             </div>
                                             <Pill label="Failures" value={systemHealthNow.routeFailures.value} tone={systemHealthNow.routeFailures.tone} truthState={systemHealthNow.routeFailures.truthState} />
                                         </div>
                                         {(data?.opsHealth?.pipeline?.routes || []).length ? (
                                             <div className="mt-2 space-y-1.5">
                                                 {(data?.opsHealth?.pipeline?.routes || []).slice(0, 6).map((route: any) => (
-                                                    <div key={route.routeKey} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-black/20 px-3 py-2 text-xs">
+                                                    <div key={route.routeKey} className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-border py-3 text-sm">
                                                         <div>
-                                                            <p className="font-semibold text-white">{route.label}</p>
-                                                            <p className="text-gray-400">{route.routeKey}</p>
+                                                            <p className="font-semibold text-foreground">{route.label}</p>
+                                                            <p className="text-muted-foreground">{route.routeKey}</p>
                                                         </div>
                                                         <Pill label="Failures" value={route.count} tone={route.count ? "warn" : "good"} />
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="mt-2 text-sm text-gray-300">{systemHealthNow.routeFailures.emptyDetail}</p>
+                                            <p className="mt-2 text-sm text-muted-foreground">{systemHealthNow.routeFailures.emptyDetail}</p>
                                         )}
                                     </div>
 
-                                    <div className="rounded-md border border-white/10 bg-white/[0.03] p-3">
-                                        <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0 space-y-3 border-t border-border py-4">
+                                        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                                             <div>
-                                                <p className="font-semibold text-white">Downstream writers needing review</p>
-                                                <p className="mt-1 text-xs text-gray-400">Only tracked writer jobs are represented here.</p>
+                                                <p className="font-semibold text-foreground">Downstream writers needing review</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">Only tracked writer jobs are represented here.</p>
                                             </div>
-                                            <Pill label="Needs review" value={(data?.opsHealth?.materializers || []).filter((materializer: any) => materializer.status !== "healthy").length} tone={(data?.opsHealth?.materializers || []).some((materializer: any) => materializer.status !== "healthy") ? "warn" : "good"} />
+                                            <Pill label="Needs review" value={(data?.opsHealth?.materializers || []).filter((materializer: any) => materializer.status !== "healthy").length} tone={(data?.opsHealth?.materializers || []).some((materializer: any) => materializer.status !== "healthy") ? "warn" : "good"} truthState={systemHealthNow.writers.truthState} />
                                         </div>
                                         {(data?.opsHealth?.materializers || []).length ? (
                                             <div className="mt-2 space-y-1.5">
                                                 {(data?.opsHealth?.materializers || []).slice(0, 6).map((materializer: any) => (
-                                                    <div key={materializer.key} className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
+                                                    <div key={materializer.key} className="min-w-0 space-y-2 border-b border-border py-3">
                                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                                             <div>
-                                                                <p className="font-semibold text-white">{materializer.label}</p>
-                                                                <p className="text-xs text-gray-400">{materializer.engine}</p>
+                                                                <p className="font-semibold text-foreground">{materializer.label}</p>
+                                                                <p className="text-xs text-muted-foreground">{materializer.engine}</p>
                                                             </div>
                                                             <Pill label="Status" value={labelForPanelStatus(materializer.status)} tone={toneForPanelStatus(materializer.status)} truthState={truthStateForPanelStatus(materializer.status)} />
                                                         </div>
-                                                        <p className="mt-1 text-xs text-gray-300">{materializer.detail}</p>
+                                                        <p className="mt-1 text-xs text-muted-foreground">{materializer.detail}</p>
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="mt-2 text-sm text-gray-300">No downstream materializer sample is loaded right now.</p>
+                                            <p className="mt-2 text-sm text-muted-foreground">No downstream materializer sample is loaded right now.</p>
                                         )}
                                     </div>
                                 </div>

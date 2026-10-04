@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-vi.mock("@/lib/server/firebase-admin", () => ({
-    adminAuth: { verifyIdToken: vi.fn() },
-    adminDb: null,
-}));
+const roleSdk = vi.hoisted(() => ({ db: null as unknown, verifyIdToken: vi.fn(), get: vi.fn(), recordDebugEvidence: vi.fn(async () => undefined) }));
+vi.mock("@/lib/server/firebase-admin", () => ({ adminAuth: { verifyIdToken: roleSdk.verifyIdToken }, get adminDb() { return roleSdk.db; } }));
+vi.mock("@/lib/server/debug-evidence-store", () => ({ recordDebugEvidence: roleSdk.recordDebugEvidence }));
 vi.mock("@/lib/server/rate-limit", () => ({
     RateLimitError: class MockRateLimitError extends Error {},
     buildRateLimitResponse: vi.fn(),
 }));
 
-import { AuthError, handleApiError } from "@/lib/server/auth";
+import { NextRequest } from "next/server";
+import { AuthError, handleApiError, readCurrentAnalyticsProfileRole, verifyAuth, verifyAdmin } from "@/lib/server/auth";
 
 describe("handleApiError", () => {
     beforeEach(() => {
@@ -75,5 +75,32 @@ describe("handleApiError", () => {
             errorCode: "not_found",
             resource: "creator",
         });
+    });
+});
+
+
+describe("identified current-profile admission in the existing auth owner", () => {
+    beforeEach(() => {
+        roleSdk.db = { collection: vi.fn((collection: string) => ({ doc: vi.fn((uid: string) => { expect(collection).toBe("users"); expect(uid).toBe("verified_user"); return { get: roleSdk.get }; }) })) };
+        roleSdk.get.mockReset(); roleSdk.verifyIdToken.mockReset(); roleSdk.recordDebugEvidence.mockClear();
+        roleSdk.verifyIdToken.mockResolvedValue({ uid: "verified_user", email: "user@example.invalid", admin: true });
+    });
+    const request = () => new NextRequest("http://localhost/api/analytics/ingest-identified", { headers: { authorization: "Bearer verified_token" } });
+    it.each(["user", "creator", "admin"])("reads the exact recognized profile role %s once", async role => {
+        roleSdk.get.mockResolvedValue({ exists: true, data: () => ({ role }) }); expect(await readCurrentAnalyticsProfileRole("verified_user")).toBe(role); expect(roleSdk.get).toHaveBeenCalledTimes(1);
+    });
+    it("keeps generic token verification free from profile reads", async () => {
+        expect(await verifyAuth(request())).toMatchObject({ uid: "verified_user", isAdmin: true }); expect(roleSdk.get).not.toHaveBeenCalled(); expect(roleSdk.verifyIdToken).toHaveBeenCalledWith("verified_token", true);
+    });
+    it("keeps existing verifyAdmin profile authorization and its one exact read", async () => {
+        roleSdk.get.mockResolvedValue({ exists: true, data: () => ({ role: "user" }) }); await expect(verifyAdmin(request())).rejects.toMatchObject({ status: 403, diagnosticClass: "permission_denied" });
+        roleSdk.get.mockClear(); roleSdk.get.mockResolvedValue({ exists: true, data: () => ({ role: "admin" }) }); expect(await verifyAdmin(request())).toMatchObject({ uid: "verified_user", isAdmin: true }); expect(roleSdk.get).toHaveBeenCalledTimes(1);
+    });
+    it("classifies unknown profile authority without leaking provider data", async () => {
+        roleSdk.get.mockResolvedValue({ exists: true, data: () => ({ role: "owner_admin", privateValue: "secret" }) });
+        await expect(readCurrentAnalyticsProfileRole("verified_user")).rejects.toMatchObject({ status: 403, diagnosticClass: "role_unknown" });
+    });
+    it("classifies a configured-but-unavailable database as transient", async () => {
+        roleSdk.db = null; await expect(readCurrentAnalyticsProfileRole("verified_user")).rejects.toMatchObject({ status: 503, diagnosticClass: "provider_config_failure" }); expect(roleSdk.get).not.toHaveBeenCalled();
     });
 });

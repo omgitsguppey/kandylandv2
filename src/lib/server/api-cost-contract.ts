@@ -186,6 +186,15 @@ export const API_COST_CONTRACTS: ApiCostContract[] = [
     notes: "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached.",
   },
   {
+    routePattern: "/api/analytics/ingest-identified",
+    methods: ["POST"], costClass: "firestore_write", ratePolicy: "ANALYTICS_WRITE",
+    cachePolicy: "no_store", authRequired: "user", trustedOriginRequired: true, budgetGuardRequired: true,
+    maxExpectedCallsPerUserPerMinute: 30,
+    maxExpectedFirestoreReadsPerCall: 206,
+    maxExpectedFirestoreWritesPerCall: 326,
+    notes: "128 KiB / 200-event admitted batch: at most 200 exact idempotency reads and one current-profile role read, plus at most five existing materializer outbox reads. Primary publication is at most 200 facts, one active-user update, 120 timeline facts and five outbox writes. Denied/unsupported/dedup-only batches do not read the profile. Rate-limit, sampled diagnostics and route-health control work retain their separate global cost owners; no raw scan or polling.",
+  },
+  {
     routePattern: "/api/analytics/**",
     methods: [...ALL_API_METHODS],
     costClass: "firestore_write",

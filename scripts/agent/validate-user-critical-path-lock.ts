@@ -1,4 +1,15 @@
 import { execFileSync } from "node:child_process";
+import * as ts from "typescript";
+
+import {
+  findSourceFunction,
+  hasJsxAttribute,
+  hasRenderedExpression,
+  readSourceAst,
+  someSourceNode,
+  sourceExpressionIs,
+  sourceRenderNodes,
+} from "./validate-behavioral-truth-source";
 
 import {
   ROOT,
@@ -106,12 +117,63 @@ function assertExcludes(source: string, forbidden: string, label: string) {
 
 function runSection(name: string, fn: () => void) {
   const start = failures.length;
-  fn();
+  try {
+    fn();
+  } catch (error) {
+    failures.push(`${name}: source inspection could not establish the contract: ${(error as Error).message}`);
+  }
   validationResults.push({
     name,
     status: failures.length > start ? "fail" : "pass",
     failures: failures.slice(start),
   });
+}
+
+function importName(source: ts.SourceFile, moduleName: string, exportName: string) {
+  for (const statement of source.statements) {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)
+      || statement.moduleSpecifier.text !== moduleName || statement.importClause?.isTypeOnly) continue;
+    if (exportName === "default") return statement.importClause?.name?.text;
+    const bindings = statement.importClause?.namedBindings;
+    if (bindings && ts.isNamedImports(bindings)) {
+      return bindings.elements.find(element => !element.isTypeOnly
+        && (element.propertyName?.text ?? element.name.text) === exportName)?.name.text;
+    }
+  }
+}
+
+type Element = ts.JsxOpeningElement | ts.JsxSelfClosingElement;
+function renderedElement(nodes: readonly ts.Node[], tag: string | undefined, predicate: (element: Element) => boolean = () => true) {
+  return Boolean(tag && someSourceNode(nodes, node => (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node))
+    && ts.isIdentifier(node.tagName) && node.tagName.text === tag && predicate(node)));
+}
+
+function attributeExpression(element: Element, name: string) {
+  const attribute = element.attributes.properties.find((property): property is ts.JsxAttribute =>
+    ts.isJsxAttribute(property) && property.name.getText() === name);
+  return attribute?.initializer && (ts.isJsxExpression(attribute.initializer)
+    ? attribute.initializer.expression : attribute.initializer);
+}
+
+function attributeIs(element: Element, name: string, value: string) {
+  const expression = attributeExpression(element, name);
+  return Boolean(expression && (ts.isStringLiteral(expression) ? expression.text === value : sourceExpressionIs(expression, value)));
+}
+
+function calls(nodes: readonly ts.Node[] | ts.Node | undefined, name: string | undefined, args: readonly string[] = []) {
+  return Boolean(name && someSourceNode(nodes, node => ts.isCallExpression(node)
+    && (ts.isIdentifier(node.expression) ? node.expression.text === name : sourceExpressionIs(node.expression, name))
+    && node.arguments.length === args.length && args.every((argument, index) => sourceExpressionIs(node.arguments[index], argument))));
+}
+
+function readableAttribute(element: Element, name: string) {
+  const value = attributeExpression(element, name);
+  return Boolean(value && ts.isStringLiteral(value) && value.text.trim().length > 4);
+}
+
+function renderedOwner(entry: ts.SourceFile, nodes: readonly ts.Node[], moduleName: string, exportName: string, ownerPath: string) {
+  return renderedElement(nodes, importName(entry, moduleName, exportName))
+    ? sourceRenderNodes(readSourceAst(ownerPath, ROOT), exportName) : [];
 }
 
 function readRequired(relativePath: string) {
@@ -126,8 +188,6 @@ function readRequired(relativePath: string) {
 const packageJson = readRequired("package.json");
 const homePage = readRequired("src/app/page.tsx");
 const homeClient = readRequired("src/app/HomeClient.tsx");
-const hero = readRequired("src/components/Hero.tsx");
-const homeHeroActions = readRequired("src/components/Landing/HomeHeroActions.tsx");
 const dashboardPage = readRequired("src/app/dashboard/page.tsx");
 const dashboardClient = readRequired("src/app/dashboard/DashboardClient.tsx");
 const dailyCheckIn = readRequired("src/components/Dashboard/DailyCheckIn.tsx");
@@ -150,17 +210,40 @@ const problemStateCopy = readRequired("src/lib/problem-state-copy.ts");
 const authContext = readRequired("src/context/AuthContext.tsx");
 
 runSection("Guest home CTA leads to signup and dashboard", () => {
-  assertIncludes(homePage, "HomeClient", "Home page");
-  assertIncludes(homePage, "Hero", "Home page");
-  assertIncludes(homeClient, 'const nextPath = "/dashboard";', "Home client");
-  assertIncludes(homeClient, "router.replace(nextPath)", "Home client");
+  const page = readSourceAst("src/app/page.tsx", ROOT);
+  const pageNodes = sourceRenderNodes(page);
+  const experience = readSourceAst("src/components/Landing/PublicHomeExperience.tsx", ROOT);
+  const experienceNodes = renderedOwner(page, pageNodes, "@/components/Landing/PublicHomeExperience", "PublicHomeExperience", "src/components/Landing/PublicHomeExperience.tsx");
+  const actions = readSourceAst("src/components/Landing/PublicHomeActions.tsx", ROOT);
+  const actionNodes = renderedOwner(experience, experienceNodes, "./PublicHomeActions", "PublicHomeActions", "src/components/Landing/PublicHomeActions.tsx");
+  const uiActions = importName(actions, "@/context/UIContext", "useUIActions");
+  let signupAction: string | undefined;
+  someSourceNode(findSourceFunction(actions, "PublicHomeActions")?.body, node => {
+    if (!ts.isVariableDeclaration(node) || !ts.isObjectBindingPattern(node.name) || !calls(node.initializer, uiActions)) return false;
+    const action = node.name.elements.find(element => (element.propertyName?.getText() ?? element.name.getText()) === "openAuthModal");
+    if (action && ts.isIdentifier(action.name)) signupAction = action.name.text;
+    return false;
+  });
+  assert(renderedElement(pageNodes, importName(page, "./HomeClient", "default")), "Home must render its authenticated redirect owner.");
+  assert(actionNodes.length > 0, "Home must render the canonical public account actions through its experience body.");
+  assert(renderedElement(actionNodes, importName(actions, "@/components/ui/Button", "Button"), element =>
+    calls(attributeExpression(element, "onClick"), signupAction, ['"signup"'])), "Home signup must be bound to the rendered primary action from its canonical UIActions hook.");
+  assert(renderedElement(actionNodes, importName(actions, "next/link", "default"), element =>
+    attributeIs(element, "href", "/dashboard")), "Home signed-in account action must link to Dashboard.");
+  const client = readSourceAst("src/app/HomeClient.tsx", ROOT);
+  const preferredPath = importName(client, "@/lib/creator-application", "getPreferredAuthenticatedPathForProfile");
+  const redirect = findSourceFunction(client, "default");
+  assert(someSourceNode(redirect?.body, node => {
+    if (!ts.isIfStatement(node) || !sourceExpressionIs(node.expression, "!loading && user && userProfile && !isAdmin")) return false;
+    let pathName: string | undefined;
+    someSourceNode(node.thenStatement, child => {
+      if (ts.isVariableDeclaration(child) && ts.isIdentifier(child.name) && child.initializer
+        && calls(child.initializer, preferredPath, ["userProfile", "user.uid"])) pathName = child.name.text;
+      return false;
+    });
+    return Boolean(pathName && calls(node.thenStatement, "router.replace", [pathName]));
+  }), "Home redirect must use the canonical profile- and UID-bound preferred path after account readiness, retaining Admin browsing.");
   assertIncludes(homeClient, 'Returning you to your dashboard', "Home client");
-  assertIncludes(homeHeroActions, 'openAuthModal("signup")', "Home hero actions");
-  assertIncludes(homeHeroActions, 'Link href="/dashboard"', "Home hero actions");
-  assertIncludes(homeHeroActions, "Unwrap Your KandyDrops", "Home hero actions");
-  assertIncludes(homeHeroActions, "See How It Works", "Home hero actions");
-  assertIncludes(hero, "HomeHeroActions", "Hero");
-  assertIncludes(hero, "Live Now", "Hero");
 });
 
 runSection("Logged-in users land on dashboard", () => {
@@ -178,7 +261,8 @@ runSection("Dashboard check-in stays compact and functional", () => {
   assertIncludes(dailyCheckIn, 'data-onboarding-target="daily-reward-claim"', "Daily check-in");
   assertIncludes(dailyCheckIn, "Claimed ${reward} Reward GD!", "Daily check-in");
   assertIncludes(dailyCheckIn, "Come back after reset for", "Daily check-in");
-  assertIncludes(dailyCheckIn, "Daily Reward GD", "Daily check-in");
+  const dailyNodes = sourceRenderNodes(readSourceAst("src/components/Dashboard/DailyCheckIn.tsx", ROOT), "DailyCheckIn");
+  assert(someSourceNode(dailyNodes, node => ts.isJsxText(node) && node.text.includes("Reward GD")), "Daily check-in must visibly identify Reward GD in its current body.");
   assertIncludes(dailyCheckIn, "Claim", "Daily check-in");
 });
 
@@ -216,19 +300,64 @@ runSection("Preview explains what to do before unlock", () => {
 });
 
 runSection("Wallet opens from refill gates and preserves source-aware balances", () => {
-  assertIncludes(purchaseModal, 'data-wallet-density="public-beta-compact"', "Purchase modal");
-  assertIncludes(purchaseModal, 'data-wallet-balance-chip="split-source"', "Purchase modal");
-  assertIncludes(purchaseModal, "resolveWalletBalanceSplit", "Purchase modal");
-  assertIncludes(purchaseModal, "formatCompactGd(freeGd)", "Purchase modal");
-  assertIncludes(purchaseModal, "formatCompactGd(paidGd)", "Purchase modal");
+  const modal = readSourceAst("src/components/PurchaseModal.tsx", ROOT);
+  const modalNodes = sourceRenderNodes(modal, "PurchaseModal");
+  const frameNodes = renderedOwner(modal, modalNodes, "@/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame", "KandyWalletModalFrame", "src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx");
+  assert(hasJsxAttribute(frameNodes, "data-wallet-density", "public-beta-compact")
+    && hasJsxAttribute(frameNodes, "data-wallet-balance-chip", "split-source"), "Wallet must render its canonical compact split-source frame.");
+  const balanceReader = importName(modal, "@/lib/gumdrop-formatting", "resolveWalletBalanceSplit");
+  const formatter = importName(modal, "@/lib/gumdrop-formatting", "formatCompactGd");
+  let splitName: string | undefined;
+  someSourceNode(findSourceFunction(modal, "PurchaseModal")?.body, node => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer
+      && calls(node.initializer, balanceReader, ["userProfile"])) splitName = node.name.text;
+    return false;
+  });
+  const headerName = importName(modal, "@/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker", "KandyWalletHeader");
+  const headerNodes = renderedOwner(modal, modalNodes, "@/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker", "KandyWalletHeader", "src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
+  assert(Boolean(splitName && formatter && renderedElement(modalNodes, headerName, element =>
+    calls(attributeExpression(element, "rewardBalanceLabel"), formatter, [splitName + ".freeGd"])
+    && calls(attributeExpression(element, "paidBalanceLabel"), formatter, [splitName + ".paidGd"]))
+    && hasRenderedExpression(headerNodes, "rewardBalanceLabel") && hasRenderedExpression(headerNodes, "paidBalanceLabel")),
+    "Wallet must display separate formatted reward and paid balances from the canonical profile balance reader.");
   assertIncludes(purchaseModal, "toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`)", "Purchase modal");
   assertIncludes(purchaseModal, "router.push(destination)", "Purchase modal");
   assertIncludes(purchaseModal, "dispatchActivitySync()", "Purchase modal");
 });
 
 runSection("Unlock creates entitlement and routes to viewer/library", () => {
-  assertIncludes(lockedPreviewClient, "entitlementId", "Locked preview client");
-  assertIncludes(lockedPreviewClient, 'drop-entitlement:${user.uid}:${drop.id}', "Locked preview client");
+  const preview = readSourceAst("src/components/Drops/LockedDropPreviewClient.tsx", ROOT);
+  const previewNodes = sourceRenderNodes(preview, "LockedDropPreviewClient");
+  const handler = findSourceFunction(preview, "handleCtaClick");
+  const decoder = importName(preview, "@/lib/ui-continuity", "readUiJson");
+  assert(renderedElement(previewNodes, importName(preview, "@/components/Drops/LockedDropPreviewView", "LockedDropPreviewView"), element =>
+    attributeIs(element, "onCtaClick", "handleCtaClick")), "Preview unwrap must remain bound to its canonical action handler.");
+  let resultName: string | undefined;
+  someSourceNode(handler?.body, node => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer
+      && ts.isAwaitExpression(node.initializer) && ts.isCallExpression(node.initializer.expression)) {
+      const call = node.initializer.expression;
+      if (ts.isIdentifier(call.expression) && call.expression.text === decoder
+        && sourceExpressionIs(call.arguments[0], "response") && call.arguments[1]
+        && someSourceNode(call.arguments[1], property => ts.isPropertyAssignment(property)
+          && property.name.getText() === "requireSuccess" && property.initializer.kind === ts.SyntaxKind.TrueKeyword)) resultName = node.name.text;
+    }
+    return false;
+  });
+  const identifiers = new Map<string, string>();
+  someSourceNode(handler?.body, node => {
+    if (!resultName || !ts.isVariableDeclaration(node) || !ts.isIdentifier(node.name) || !node.initializer) return false;
+    for (const field of ["transactionId", "entitlementId"]) {
+      if (sourceExpressionIs(node.initializer, `typeof ${resultName}.${field} === "string" ? ${resultName}.${field}.trim() : null`)) identifiers.set(field, node.name.text);
+    }
+    return false;
+  });
+  assert(Boolean(resultName && identifiers.size === 2 && someSourceNode(handler?.body, node => ts.isCallExpression(node)
+    && ts.isIdentifier(node.expression) && node.expression.text === "setUnlockState" && someSourceNode(node.arguments, child =>
+      ts.isObjectLiteralExpression(child) && ["transactionId", "entitlementId"].every(field => child.properties.some(property =>
+        ts.isShorthandPropertyAssignment(property) ? property.name.text === identifiers.get(field)
+          : ts.isPropertyAssignment(property) && property.name.getText() === field && sourceExpressionIs(property.initializer, identifiers.get(field)!)))))),
+    "Preview confirmed entitlement and transaction IDs must come from its strict successful server response, never a client reconstruction.");
   assertIncludes(lockedPreviewClient, "router.push(truth.libraryOpenHref)", "Locked preview client");
   assertIncludes(dropCard, "showUnwrapSuccessToast", "Drop card");
   assertIncludes(dropCard, "router.push(`/dashboard/viewer?id=${drop.id}`)", "Drop card");
@@ -238,9 +367,28 @@ runSection("Unlock creates entitlement and routes to viewer/library", () => {
 });
 
 runSection("Viewer opens unlocked content only", () => {
-  assertIncludes(viewerClient, "Sign in Required", "Viewer client");
-  assertIncludes(viewerClient, "Not Authorized", "Viewer client");
-  assertIncludes(viewerClient, "You do not have access to this drop.", "Viewer client");
+  const viewer = readSourceAst("src/app/dashboard/viewer/ViewerClient.tsx", ROOT);
+  const viewerNodes = sourceRenderNodes(viewer, "ViewerClient");
+  const owner = findSourceFunction(viewer, "ViewerClient");
+  const accessName = importName(viewer, "@/lib/drop-view-access", "resolveDropViewAccess");
+  assert(Boolean(accessName && someSourceNode(owner?.body, node => ts.isVariableDeclaration(node)
+    && ts.isIdentifier(node.name) && node.name.text === "accessState" && someSourceNode(node.initializer, child => ts.isCallExpression(child)
+      && ts.isIdentifier(child.expression) && child.expression.text === accessName))
+    && someSourceNode(owner?.body, node => ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
+      && node.name.text === "isAuthorized" && sourceExpressionIs(node.initializer, "accessState.allowed"))),
+    "Viewer authorization must remain derived from canonical Drop access truth.");
+  const stateName = importName(viewer, "@/components/creative-tim/kandydrops/viewer/ViewerAccessState", "ViewerAccessState");
+  const frameName = importName(viewer, "./components/ViewerFrame", "ViewerFrame");
+  let frameStart = Number.POSITIVE_INFINITY;
+  renderedElement(viewerNodes, frameName, element => { frameStart = Math.min(frameStart, element.pos); return true; });
+  const statements: readonly ts.Statement[] = owner?.body && ts.isBlock(owner.body) ? owner.body.statements : [];
+  for (const condition of ['accessState.status === "denied_not_logged_in"', 'accessState.status === "denied_drop_missing" || !drop', 'accessState.status === "error" || contentError', "!isAuthorized"]) {
+    const branch = statements.find((statement): statement is ts.IfStatement => ts.isIfStatement(statement) && sourceExpressionIs(statement.expression, condition));
+    const branchNodes = branch ? viewerNodes.filter(node => node.pos >= branch.thenStatement.pos && node.end <= branch.thenStatement.end) : [];
+    assert(Boolean(branch && branch.end < frameStart && renderedElement(branchNodes, stateName, element =>
+      readableAttribute(element, "title") && readableAttribute(element, "message"))), `Viewer must return a human recovery state before content for ${condition}.`);
+  }
+  assert(Number.isFinite(frameStart), "Viewer must keep its authorized content frame.");
   assertIncludes(viewerHelpers, "fetchSecureContent", "Viewer helpers");
   assertIncludes(viewerHelpers, 'cache: "no-store"', "Viewer helpers");
   assertIncludes(viewerHelpers, 'throw new Error(typeof result?.error === "string" ? result.error : "Failed to load content securely")', "Viewer helpers");
@@ -248,8 +396,20 @@ runSection("Viewer opens unlocked content only", () => {
 });
 
 runSection("Chat guidance and paid-GD copy are present", () => {
-  assertIncludes(chatExperience, "Follow creators to start chatting", "Chat experience");
-  assertIncludes(chatExperience, "No followed creators yet", "Chat experience");
+  const chat = readSourceAst("src/components/Chat/ChatExperience.tsx", ROOT);
+  const chatNodes = sourceRenderNodes(chat, "ChatExperience");
+  const pickerName = importName(chat, "@/components/creative-tim/kandydrops/chat/ChatNewMessageModal", "ChatNewMessageModal");
+  const pickerNodes = renderedOwner(chat, chatNodes, "@/components/creative-tim/kandydrops/chat/ChatNewMessageModal", "ChatNewMessageModal", "src/components/creative-tim/kandydrops/chat/ChatNewMessageModal.tsx");
+  assert(renderedElement(chatNodes, pickerName, element => attributeIs(element, "creators", "followedCreators")
+    && attributeIs(element, "onSelectCreator", "openThreadComposer") && attributeIs(element, "open", "composePickerOpen")),
+    "Chat picker must be rendered with followed creators and the canonical compose action.");
+  const picker = readSourceAst("src/components/creative-tim/kandydrops/chat/ChatNewMessageModal.tsx", ROOT);
+  assert(renderedElement(pickerNodes, importName(picker, "next/link", "default"), element => attributeIs(element, "href", "/experiences"))
+    && someSourceNode(pickerNodes, node => ts.isJsxText(node) && node.text.includes("No followed creators yet")),
+    "Chat empty picker must expose human follow guidance and Creator discovery.");
+  assert(renderedElement(chatNodes, importName(chat, "next/link", "default"), element => attributeIs(element, "href", "/experiences")
+    && calls(attributeExpression(element, "onClick"), "handleNoFollowCreatorsCtaClick", ['"find_creators"'])),
+    "Chat empty inbox must bind Creator discovery to its current follow guidance action.");
   assertIncludes(chatExperience, "Support stays separate", "Chat experience");
   assertIncludes(chatExperience, "Paid GumDrops allow you to send a text, pic, or vid straight to your favorite creator!", "Chat experience");
   assertIncludes(chatExperience, "You need more paid GumDrops before you can send this creator message.", "Chat experience");
@@ -261,8 +421,18 @@ runSection("Chat guidance and paid-GD copy are present", () => {
 });
 
 runSection("Support and bug-report escape hatches are available", () => {
-  assertIncludes(supportInbox, "In-site support inbox", "Support inbox");
-  assertIncludes(supportInbox, "New ticket", "Support inbox");
+  const inbox = readSourceAst("src/components/Support/SupportInbox.tsx", ROOT);
+  const inboxNodes = sourceRenderNodes(inbox, "SupportInbox");
+  const conversationName = importName(inbox, "@/components/creative-tim/kandydrops/support/KandySupportConversation", "KandySupportConversation");
+  const conversationNodes = renderedOwner(inbox, inboxNodes, "@/components/creative-tim/kandydrops/support/KandySupportConversation", "KandySupportConversation", "src/components/creative-tim/kandydrops/support/KandySupportConversation.tsx");
+  assert(renderedElement(inboxNodes, conversationName, element => attributeIs(element, "composerOpen", "composerOpen")
+    && attributeIs(element, "onComposerOpenChange", "setComposerOpen")
+    && calls(attributeExpression(element, "onCreateThread"), "handleCreateThread")),
+    "Support inbox must render its actual composer state and create handler.");
+  assert(renderedElement(conversationNodes, "button", element => calls(attributeExpression(element, "onClick"), "onComposerOpenChange", ["!composerOpen"]))
+    && renderedElement(conversationNodes, "form", element => calls(attributeExpression(element, "onSubmit"), "onCreateThread"))
+    && renderedElement(conversationNodes, "button", element => attributeIs(element, "type", "submit")
+      && attributeIs(element, "disabled", "submitting || createDisabled")), "Support must expose a connected new-request form and guarded submit control.");
   assertIncludes(supportInbox, "Support tickets could not be loaded right now.", "Support inbox");
   assertIncludes(supportInbox, "This support ticket could not be loaded right now.", "Support inbox");
   assertIncludes(supportInbox, "Support ticket could not be created right now.", "Support inbox");
@@ -327,19 +497,16 @@ function buildReport(changedFilesSinceLastUserCriticalPathLock: string[]): UserC
     promoReadinessNotes:
       status === "pass"
         ? [
-            "User-facing Phase 1 is promo-ready when the lock stays green on the current tree.",
-            "Any new user-facing copy or journey change should rerun the targeted checks before public promo.",
+            "This lock establishes current source integration only; it does not establish provider, payment, runtime, device or public-promo readiness.",
+            "Any changed journey dependency requires the affected targeted checks before its source result can be reused.",
             "Admin/debug surfaces remain out of scope for this lock.",
           ]
         : [
-            "User-facing Phase 1 is not promo-ready until the critical blockers are cleared.",
+            "Current user-journey source integration remains incomplete until these blockers are cleared; broader acceptance remains separately required.",
           ],
     validationResults,
   };
 }
-
-const provisionalReport = buildReport([]);
-writeJsonFile(REPORT_PATH, provisionalReport as unknown as Json);
 
 const changedFilesSinceLastUserCriticalPathLock = gitChangedFiles();
 const report = buildReport(changedFilesSinceLastUserCriticalPathLock);

@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -184,14 +185,7 @@ function defaultNextAction(dimension: ScoreDimension) {
 }
 
 function listDirtyFiles(input?: string[]) {
-  if (input) return input.map((path) => path.replace(/\\/gu, "/")).sort();
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const file of git(args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(file.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return input ?? listValidatorScopeFiles();
 }
 
 export function classifyDailyTaskDebugScoreLockDirtyFile(path: string) {
@@ -767,7 +761,7 @@ ${report.validationFailures.length ? report.validationFailures.map((failure) => 
 
 function main() {
   const report = buildDailyTaskDebugScoreLockReport();
-  write(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
+  write(REPORT_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
   write(DOC_PATH, renderDoc(report));
   if (report.validationFailures.length > 0) {
     console.error("Daily task debug score lock validation failed:");

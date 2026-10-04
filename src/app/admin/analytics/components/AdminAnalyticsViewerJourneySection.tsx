@@ -40,7 +40,7 @@ export function AdminAnalyticsViewerJourneySection(
       subtitle="How far users move from preview to opening, meaningful watch, completion, and return."
       icon={PlayCircle}
       rightSlot={
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
           <AnalyticsViewModeToggle
             value={viewerJourneyViewMode}
             onChange={setViewerJourneyViewMode}
@@ -104,13 +104,13 @@ export function AdminAnalyticsViewerJourneySection(
 
         {viewerJourneyItems.length > 0 && viewerJourneyViewMode === "table" ? (
           <div
-            className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+            className="rounded-2xl bg-card overflow-x-auto"
             data-viewer-journey-table="compact"
             data-viewer-journey-range={viewerJourneyRange}
             data-viewer-journey-source-state={viewerJourneyItems.length > 0 ? "loaded" : "no_sample"}
           >
             <table className="min-w-full text-left text-xs">
-              <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.14em] text-gray-500">
+              <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2 font-semibold">Step</th>
                   <th className="px-3 py-2 font-semibold">Events</th>
@@ -118,10 +118,10 @@ export function AdminAnalyticsViewerJourneySection(
                   <th className="px-3 py-2 font-semibold">State</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10 text-gray-300">
+              <tbody className="divide-y divide-white/10 text-muted-foreground">
                 {viewerJourneyItems.map((item) => (
                   <tr key={`viewer-journey-row-${item.label}`}>
-                    <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">{item.label}</td>
+                    <td className="max-w-[14rem] min-w-0 whitespace-normal wrap-anywhere px-3 py-2 font-semibold text-foreground">{item.label}</td>
                     <td className="px-3 py-2 text-brand-purple">{item.count.toLocaleString()}</td>
                     <td className="px-3 py-2">{viewerJourneyRange}</td>
                     <td className="px-3 py-2">{item.count > 0 ? "Observed" : "No sample"}</td>
@@ -133,23 +133,23 @@ export function AdminAnalyticsViewerJourneySection(
         ) : null}
 
         {viewerJourneyItems.length > 0 && viewerJourneyViewMode === "cards" ? (
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-2 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
             {viewerJourneyItems.map((item, index) => (
               <div
                 key={`viewer-journey-card-${item.label}`}
-                className="rounded-[1rem] border border-white/10 bg-white/[0.035] p-3"
+                className="border-b border-border p-3"
               >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Step {index + 1}</p>
-                <p className="mt-1 truncate text-sm font-semibold text-white">{item.label}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Step {index + 1}</p>
+                <p className="mt-1 min-w-0 whitespace-normal wrap-anywhere text-sm font-semibold text-foreground">{item.label}</p>
                 <p className="mt-2 text-xl font-black text-brand-purple">{item.count.toLocaleString()}</p>
-                <p className="mt-1 text-[11px] text-gray-500">{item.count > 0 ? "Observed in selected range." : "No sample in selected range."}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{item.count > 0 ? "Observed in selected range." : "No sample in selected range."}</p>
               </div>
             ))}
           </div>
         ) : null}
 
         {viewerJourneyItems.length === 0 || !viewerJourneyItems.some((item) => item.count > 0) ? (
-          <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+          <div className="border-b border-border p-5 text-sm text-muted-foreground">
             Viewer journey loaded without any tracked viewer activity.
           </div>
         ) : null}

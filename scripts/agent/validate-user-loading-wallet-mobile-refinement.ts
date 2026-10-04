@@ -1,4 +1,6 @@
 import { execFileSync } from "node:child_process";
+import ts from "typescript";
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,6 +18,7 @@ export type UserLoadingWalletMobileRefinementReport = {
   generatedAtUtc: string;
   reportKey: "user-loading-wallet-mobile-refinement";
   currentHead: string;
+  mutationScope?: ReturnType<typeof readValidatorMutationScope> | { mode: "whole_git_worktree" };
   summary: {
     mobileDependenciesPresent: boolean;
     protectedNavChatUntouched: boolean;
@@ -57,9 +60,7 @@ export type UserLoadingWalletMobileRefinementInputs = {
   };
 };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const repoRoot = join(__dirname, "..", "..");
+const repoRoot = process.cwd();
 const artifactRelativePath = "agent/state/user-loading-wallet-mobile-refinement.generated.json";
 const docsRelativePath = "docs/agent-truth/user-loading-wallet-mobile-refinement.md";
 
@@ -84,9 +85,11 @@ const forbiddenRuntimePatterns = [
 
 const targetFiles = [
   "src/components/PurchaseModal.tsx",
+  "src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx",
   "src/app/dashboard/DashboardClient.tsx",
   "src/app/dashboard/library/LibraryClient.tsx",
   "src/app/drops/loading.tsx",
+  "src/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCollection.tsx",
   "src/app/drops/[id]/preview/loading.tsx",
   "tests/unit/user-loading-wallet-mobile-refinement.spec.ts",
 ];
@@ -102,16 +105,6 @@ function optionalRead(relativePath: string) {
 
 function read(relativePath: string) {
   return readFileSync(join(repoRoot, relativePath), "utf8");
-}
-
-function changedFiles() {
-  const unstaged = execFileSync("git", ["diff", "--name-only"], { cwd: repoRoot, encoding: "utf8" })
-    .split(/\r?\n/u)
-    .filter(Boolean);
-  const staged = execFileSync("git", ["diff", "--cached", "--name-only"], { cwd: repoRoot, encoding: "utf8" })
-    .split(/\r?\n/u)
-    .filter(Boolean);
-  return Array.from(new Set([...unstaged, ...staged])).map((file) => file.replaceAll("\\", "/"));
 }
 
 function finding(id: string, ok: boolean, detail: string, severity: Severity = "P1"): Finding {
@@ -145,17 +138,101 @@ function hasLargeSkeletonTokens(source: string) {
   return /\bh-44\b|min-h-\[21rem\]|\bh-40\b|\bh-32\b/u.test(source);
 }
 
-function walletRuntimeMarkersPresent(source: string) {
-  return source.includes('data-wallet-runtime-logic-unchanged="true"')
+function sourceTree(source: string) {
+  return ts.createSourceFile("surface.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+}
+
+function importedName(tree: ts.SourceFile, moduleName: string, exportName: string) {
+  for (const statement of tree.statements) {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== moduleName) continue;
+    const bindings = statement.importClause?.namedBindings;
+    if (!bindings || !ts.isNamedImports(bindings)) continue;
+    for (const entry of bindings.elements) if ((entry.propertyName ?? entry.name).text === exportName) return entry.name.text;
+  }
+  return null;
+}
+
+function containsNode(tree: ts.Node, predicate: (node: ts.Node) => boolean): boolean {
+  if (predicate(tree)) return true;
+  return ts.forEachChild(tree, (node) => containsNode(node, predicate) || undefined) ?? false;
+}
+
+function hasAttribute(node: ts.JsxOpeningElement | ts.JsxSelfClosingElement, name: string, value: string) {
+  return node.attributes.properties.some((attribute) => ts.isJsxAttribute(attribute)
+    && attribute.name.getText() === name && attribute.initializer && ts.isStringLiteral(attribute.initializer)
+    && attribute.initializer.text === value);
+}
+
+function namedJsx(node: ts.Node, name: string | null): node is ts.JsxOpeningElement | ts.JsxSelfClosingElement {
+  return Boolean(name && (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText() === name);
+}
+
+function walletFrameConnected(source: string, frame: string) {
+  const tree = sourceTree(source), frameTree = sourceTree(frame);
+  const frameName = importedName(tree, "@/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame", "KandyWalletModalFrame");
+  const contentName = importedName(frameTree, "@/components/creative-tim/ui/dialog", "DialogContent");
+  return containsNode(tree, (node) => namedJsx(node, frameName))
+    && containsNode(frameTree, (node) => namedJsx(node, contentName)
+      && hasAttribute(node, "data-wallet-loading-stable", "true")
+      && hasAttribute(node, "data-wallet-runtime-logic-unchanged", "true"));
+}
+
+function walletRuntimeMarkersPresent(source: string, frame: string) {
+  return walletFrameConnected(source, frame)
     && source.includes("PayPalButtons")
     && source.includes("fundingSource={FUNDING.PAYPAL}")
     && source.includes("data-wallet-paypal-render-mode");
 }
 
-function walletStableMarkersPresent(source: string) {
-  return source.includes('data-wallet-loading-stable="true"')
-    && source.includes("createStaleRequestGuard")
-    && source.includes("AbortController");
+function walletStableMarkersPresent(source: string, frame: string) {
+  const tree = sourceTree(source);
+  const fixed = importedName(tree, "@/lib/gumdrops-packages", "FIXED_GUMDROP_PACKAGES");
+  const catalogNames: string[] = [];
+  containsNode(tree, (node) => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer
+      && ts.isCallExpression(node.initializer) && ts.isPropertyAccessExpression(node.initializer.expression)
+      && node.initializer.expression.name.text === "map" && node.initializer.expression.expression.getText() === fixed) catalogNames.push(node.name.text);
+    return false;
+  });
+  const rendersCatalog = containsNode(tree, (node) => ts.isCallExpression(node)
+    && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "map"
+    && catalogNames.includes(node.expression.expression.getText()));
+  const duplicateCatalogRead = containsNode(tree, (node) => ts.isCallExpression(node)
+    && node.arguments.some((argument) => ts.isStringLiteral(argument) && argument.text === "/api/wallet/packages"));
+  return walletFrameConnected(source, frame) && rendersCatalog && !duplicateCatalogRead;
+}
+
+function libraryStableLoadingPresent(source: string) {
+  const tree = sourceTree(source);
+  const card = importedName(tree, "@/components/creative-tim/ui/card", "Card");
+  return containsNode(tree, (node) => ts.isIfStatement(node)
+    && containsNode(node.expression, (part) => ts.isIdentifier(part) && part.text === "authLoading")
+    && containsNode(node.thenStatement, (part) => namedJsx(part, card)
+      && hasAttribute(part, "role", "status")
+      && hasAttribute(part, "data-user-library-loading-stable", "true")
+      && hasAttribute(part, "data-mobile-density", "compact")
+      && hasAttribute(part, "data-mobile-skeleton", "user-library-route"))
+    && containsNode(node.thenStatement, (part) => ts.isJsxText(part) && part.text.includes("Loading your collection")))
+    && !hasLargeSkeletonTokens(source);
+}
+
+function dropsLoadingPresent(route: string, collection: string) {
+  const tree = sourceTree(route), collectionTree = sourceTree(collection);
+  if (!hasLargeSkeletonTokens(route) && containsNode(tree, (node) => ts.isReturnStatement(node) && Boolean(node.expression
+    && containsNode(node.expression, (part) => (ts.isJsxOpeningElement(part) || ts.isJsxSelfClosingElement(part))
+      && hasAttribute(part, "data-mobile-density", "compact"))))) return true;
+  const skeleton = importedName(tree, "@/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCollection", "KandyEditorialReleaseSkeleton");
+  const returnedSkeleton = containsNode(tree, (node) => ts.isReturnStatement(node) && Boolean(node.expression
+    && containsNode(node.expression, (part) => namedJsx(part, skeleton) && part.attributes.properties.some((attribute) =>
+      ts.isJsxAttribute(attribute) && attribute.name.getText() === "itemCount" && attribute.initializer
+      && ts.isJsxExpression(attribute.initializer) && attribute.initializer.expression
+      && ts.isNumericLiteral(attribute.initializer.expression) && Number(attribute.initializer.expression.text) === 4))));
+  const actualSkeletonBody = collectionTree.statements.find((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node) && node.name?.text === "KandyEditorialReleaseSkeleton");
+  return Boolean(returnedSkeleton && actualSkeletonBody?.body && !hasLargeSkeletonTokens(actualSkeletonBody.body.getText())
+    && containsNode(actualSkeletonBody.body, (node) => (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node))
+      && hasAttribute(node, "data-mobile-density", "editorial-release")
+      && hasAttribute(node, "data-mobile-skeleton", "drops-editorial-release")
+      && hasAttribute(node, "aria-label", "Loading KandyDrops")));
 }
 
 function walletDensityMarkersPresent(source: string) {
@@ -170,10 +247,12 @@ export function buildUserLoadingWalletMobileRefinementReport(
   inputs: UserLoadingWalletMobileRefinementInputs,
 ): UserLoadingWalletMobileRefinementReport {
   const purchaseModal = inputs.sources.files["src/components/PurchaseModal.tsx"] ?? "";
+  const walletFrame = inputs.sources.files["src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx"] ?? "";
   const dashboard = inputs.sources.files["src/app/dashboard/DashboardClient.tsx"] ?? "";
   const library = inputs.sources.files["src/app/dashboard/library/LibraryClient.tsx"] ?? "";
   const dropsLoading = inputs.sources.files["src/app/drops/loading.tsx"] ?? "";
   const previewLoading = inputs.sources.files["src/app/drops/[id]/preview/loading.tsx"] ?? "";
+  const releaseCollection = inputs.sources.files["src/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCollection.tsx"] ?? "";
   const changedProtected = inputs.changedFiles.filter(isProtectedPath);
   const changedRuntime = inputs.changedFiles.filter(isForbiddenRuntimePath);
 
@@ -205,19 +284,19 @@ export function buildUserLoadingWalletMobileRefinementReport(
   ];
 
   const walletFindings = [
-    finding("wallet-runtime-logic-marker", walletRuntimeMarkersPresent(purchaseModal), "Wallet modal keeps PayPal runtime markers and declares runtime logic unchanged.", "P0"),
+    finding("wallet-runtime-logic-marker", walletRuntimeMarkersPresent(purchaseModal, walletFrame), "Wallet modal keeps PayPal runtime markers and declares runtime logic unchanged.", "P0"),
     finding("wallet-mobile-density-compact", walletDensityMarkersPresent(purchaseModal), "Wallet modal uses compact mobile density and avoids oversized wallet tokens.", "P1"),
-    finding("wallet-loading-stable", walletStableMarkersPresent(purchaseModal), "Wallet package metadata loading uses stale-request and abort protection.", "P1"),
+    finding("wallet-loading-stable", walletStableMarkersPresent(purchaseModal, walletFrame), "Wallet renders the canonical fixed package catalog without a duplicate metadata request; payment callback guards remain separately owned.", "P1"),
   ];
 
   const userDashboardFindings = [
     finding("dashboard-staged-loading", dashboard.includes('data-user-dashboard-loading-staged="true"'), "User dashboard declares staged loading instead of optional-module blocking.", "P1"),
     finding("dashboard-modules-preserved", dashboardModulesPreserved(dashboard), "Daily Rewards, My KandyDrops collection, Recent Activity, and Creator Spotlight modules remain source-visible.", "P0"),
-    finding("library-loading-stable", library.includes('data-user-library-loading-stable="true"') && library.includes("getMobileSkeletonClass"), "My KandyDrops library loading is compact and stable.", "P1"),
+    finding("library-loading-stable", libraryStableLoadingPresent(library), "Auth loading returns the connected sourced Card status branch with compact skeleton, human loading state and no oversized skeleton tokens.", "P1"),
   ];
 
   const loadingFindings = [
-    finding("drops-loading-compact", dropsLoading.includes('data-mobile-density="compact"') && !hasLargeSkeletonTokens(dropsLoading), "Drops route skeleton is compact on mobile.", "P1"),
+    finding("drops-loading-compact", dropsLoadingPresent(dropsLoading, releaseCollection), "Drops route returns its actual bounded four-item skeleton owner without oversized height tokens; legacy compact route support is retained.", "P1"),
     finding("preview-loading-compact", previewLoading.includes('data-mobile-density="compact"') && !hasLargeSkeletonTokens(previewLoading), "Drop preview skeleton is compact on mobile.", "P1"),
   ];
 
@@ -279,7 +358,7 @@ export function validateUserLoadingWalletMobileRefinementReport(report: UserLoad
   if (!report.summary.protectedNavChatUntouched) failures.push("protected nav/chat files changed.");
   if (!report.summary.walletRuntimeLogicUnchanged) failures.push("wallet runtime/payment files changed beyond UI scale or runtime marker missing.");
   if (!report.summary.walletMobileDensityCompact) failures.push("wallet mobile density marker missing or oversized wallet tokens remain.");
-  if (!report.summary.walletLoadingStable) failures.push("wallet loading stale-request guard missing.");
+  if (!report.summary.walletLoadingStable) failures.push("wallet fixed catalog or connected modal loading state missing, or duplicate catalog transport remains.");
   if (!report.summary.userDashboardStagedLoading) failures.push("user dashboard still blocks on optional modules.");
   if (!report.summary.userDashboardModulesPreserved) failures.push("user dashboard modules removed or no longer source-visible.");
   if (!report.summary.userLibraryLoadingStable) failures.push("My KandyDrops library loading marker missing.");
@@ -290,12 +369,12 @@ export function validateUserLoadingWalletMobileRefinementReport(report: UserLoad
   return failures;
 }
 
-function readInputs(): UserLoadingWalletMobileRefinementInputs {
+function readInputs(changedFiles: string[]): UserLoadingWalletMobileRefinementInputs {
   const files = Object.fromEntries(targetFiles.map((file) => [file, optionalRead(file)]));
   return {
     currentHead: currentHead(),
     generatedAtUtc: new Date().toISOString(),
-    changedFiles: changedFiles(),
+    changedFiles,
     openPrActions: [
       "Preserved PR #274: broad monolith governance doc PR outside this scoped wallet/mobile pass and mentions protected chat.",
     ],
@@ -356,7 +435,8 @@ function renderMarkdown(report: UserLoadingWalletMobileRefinementReport) {
 }
 
 function main() {
-  const report = buildUserLoadingWalletMobileRefinementReport(readInputs());
+  const mutationScope = readValidatorMutationScope(repoRoot);
+  const report = { ...buildUserLoadingWalletMobileRefinementReport(readInputs(mutationScope ? [] : listValidatorScopeFiles(repoRoot, []))), mutationScope: mutationScope ?? { mode: "whole_git_worktree" as const } };
   writeJson(artifactRelativePath, report);
   renderMarkdown(report);
   const failures = validateUserLoadingWalletMobileRefinementReport(report);

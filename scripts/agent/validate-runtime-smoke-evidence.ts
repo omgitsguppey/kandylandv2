@@ -142,6 +142,10 @@ export function validateRuntimeSmokeEvidenceDocument(
   }
   if (doc.status !== "complete") return failures;
 
+  if (doc.evidenceClass === "generated_snapshot" || doc.evidenceClass === "source_snapshot" || doc.canClearRuntimeGate === false) {
+    failures.push("runtime complete evidence cannot be a source or reachability diagnostic.");
+  }
+
   if (!isValidUtc(doc.capturedAtUtc)) {
     failures.push("runtime smoke complete evidence must include a valid capturedAtUtc.");
   } else {
@@ -186,6 +190,7 @@ export function validateRuntimeSmokeEvidenceDocument(
     if (!["pass", "fail", "blocked"].includes(String(check.status))) {
       failures.push(`runtime smoke check "${String(check.route ?? "unknown")}" must use pass, fail, or blocked status.`);
     }
+    if (check.status !== "pass") failures.push(`runtime smoke complete check "${String(check.route ?? "unknown")}" must pass.`);
     if (!isRelativeEvidencePath(check.artifactPath)) {
       failures.push(`runtime smoke check "${String(check.route ?? "unknown")}" artifactPath must be a relative path.`);
       continue;
@@ -292,7 +297,7 @@ export function buildRuntimeSmokeEvidenceReport(
       phaseOneStatusCap: passed ? "Ready" : "Runtime unverified",
       recommendedAction: passed
         ? "Keep deployed route/runtime evidence fresh."
-        : "Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed route/runtime evidence; do not treat local source validators as deployed runtime evidence.",
+        : "Attach current deployment-revision and exercised behavior evidence. capture:truthful-evidence --runtime-smoke provides reachability diagnostics only.",
     },
     evidenceItems: [
       `runtimeEvidence.status=${result.status}`,

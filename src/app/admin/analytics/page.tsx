@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -11,12 +11,11 @@ import {
   Smartphone,
 } from "lucide-react";
 
-import {
-  AnalyticsViewModeToggle,
-  type AnalyticsViewMode,
-} from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminAnalyticsEvidenceCanvas } from "@/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { Card } from "@/components/creative-tim/ui/card";
+import { Button } from "@/components/ui/Button";
 import type {
   AdminAnalyticsConsumerDisplayState,
   AdminAnalyticsSourceHierarchy,
@@ -435,8 +434,7 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalSourceLabel, analyticsOverviewDisplayMetrics, adminAnalyticsSourceHierarchy } = state;
-  const [mobileViewMode, setMobileViewMode] = useState<AnalyticsViewMode>("chart");
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalSourceLabel, analyticsOverviewDisplayMetrics, adminAnalyticsSourceHierarchy } = state;
   const overviewSnapshotUnavailable = isKnownOverviewSnapshotUnavailable(blockingAnalyticsError);
   const sourceHierarchy: AdminAnalyticsSourceHierarchySummary = adminAnalyticsSourceHierarchy ?? {
     status: "unavailable",
@@ -639,18 +637,6 @@ export default function AdminAnalyticsPage() {
     ? sourceRecoverySummaryParts.join(" - ")
     : showPanelRecovery ? `${connectedPanelCount}/${totalPanelCount} connected` : "";
 
-  if (needsSetup) {
-    return (
-      <AdminAnalyticsEvidenceCanvas mode="setup">
-        <div className="mx-auto max-w-xl border-l-2 border-red-400 bg-red-500/10 px-5 py-6">
-          <AlertTriangle className="h-7 w-7 text-red-400" />
-          <h2 className="mt-4 text-2xl font-bold text-white">Analytics Needs GA Setup</h2>
-          <p className="mt-3 text-sm leading-6 text-gray-300">Add <code>GA_PROPERTY_ID</code> to the environment so the admin analytics console can query Google Analytics 4.</p>
-        </div>
-      </AdminAnalyticsEvidenceCanvas>
-    );
-  }
-
   return (
     <>
       <PageViewEvent eventName="admin_analytics_viewed" />
@@ -664,7 +650,7 @@ export default function AdminAnalyticsPage() {
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
-              <span className="font-semibold text-white">source_missing fixture.</span>{" "}
+              <span className="font-semibold text-foreground">source_missing fixture.</span>{" "}
               Layout works here; analytics data waits for verified snapshots from a real
               admin session.
             </p>
@@ -673,60 +659,58 @@ export default function AdminAnalyticsPage() {
         ) : null}
         evidence={(
           <div
-        className="border-l-2 border-white/15 bg-black/20 px-3 py-3"
+        className="min-w-0 space-y-3"
         data-admin-analytics-recovery-range="all"
-        data-admin-analytics-mobile-view-mode={mobileViewMode}
         data-mobile-drilldown="true"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Data status</p>
-            <p className="mt-1 text-xs font-semibold text-white">
+            <h2 className="text-sm font-medium text-foreground">Data status</h2>
+            <p className="mt-1 wrap-anywhere text-sm font-medium text-foreground">
               {activeTabLabel} view - {historicalSourceLabel || "Historical source pending"}
             </p>
-            <p className="mt-1 text-[11px] leading-4 text-gray-400">
+            <p className="mt-1 wrap-anywhere text-sm leading-6 text-muted-foreground">
               {formatLaunchRecoveryStatusLine(state.launchRecoverySummary, launchRecoveryRange?.label)}
             </p>
           </div>
-          <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />
         </div>
         <div
-          className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] leading-4 text-gray-300"
+          className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-x-4 gap-y-2 text-sm leading-6 text-muted-foreground"
           data-admin-analytics-status-summary="compact"
           data-admin-analytics-source-hierarchy={sourceHierarchy.status}
         >
-          <p className="min-w-0 font-medium text-white">{dataStatusSummary.join(" - ")}</p>
-          <p className="min-w-0 text-gray-400">{sourceQualitySummary.join(" - ")}</p>
+          <p className="min-w-0 wrap-anywhere font-medium text-foreground">{dataStatusSummary.join(" - ")}</p>
+          <p className="min-w-0 wrap-anywhere text-muted-foreground">{sourceQualitySummary.join(" - ")}</p>
         </div>
         {sourceDetailItems.length > 0 || showPanelRecovery ? (
           <details
-            className="mt-2 rounded-md border border-white/10 bg-black/25 px-2.5 py-2 text-xs text-gray-200"
+            className="min-w-0 border-t border-border text-sm text-muted-foreground"
             data-admin-analytics-source-recovery="compact"
             title={sourceDetailItems.length > 0 ? sourceDetailItems.join(" | ") : undefined}
           >
-            <summary className="min-h-9 cursor-pointer pt-1 font-semibold text-gray-100">
-              <span className="text-white">Source status</span>
-              <p className="mt-1 text-[11px] font-medium leading-4 text-gray-300">{sourceRecoverySummary}</p>
+            <summary className="min-h-11 cursor-pointer content-center py-3 font-medium text-foreground">
+              <span className="wrap-anywhere">Source and recovery details</span>
             </summary>
-            <div className="mt-2 space-y-2 text-[11px] text-gray-300">
+            <div className="min-w-0 space-y-4 pb-3 text-sm leading-6 text-muted-foreground">
+              {sourceRecoverySummary ? <p className="min-w-0 wrap-anywhere">{sourceRecoverySummary}</p> : null}
               {sourceDetailItems.length > 0 ? (
-                <ul className="grid gap-1 sm:grid-cols-2">
+                <ul className="grid min-w-0 gap-2">
                   {sourceDetailItems.map((item) => (
-                    <li key={item} className="rounded-md border border-white/10 bg-black/20 px-2 py-1">
+                    <li key={item} className="min-w-0 wrap-anywhere border-b border-border py-2 last:border-0">
                       {item}
                     </li>
                   ))}
                 </ul>
               ) : null}
               {showPanelRecovery ? (
-                <div className="space-y-2">
+                <div className="min-w-0 space-y-3">
                   {panelRecoveryTruthGroups.length > 0 ? (
-                    <ul className="grid gap-1 pl-0 sm:grid-cols-3">
+                    <ul className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-x-4 gap-y-2 pl-0">
                       {panelRecoveryTruthGroups.map((item) => {
                         return (
                           <li
                             key={item.label}
-                            className="list-none rounded-md border border-white/10 bg-black/20 px-2 py-1"
+                            className="min-w-0 list-none wrap-anywhere"
                             data-panel-recovery-truth-state={item.primaryState}
                             data-panel-recovery-truth-states={item.states.join(",")}
                           >
@@ -738,10 +722,10 @@ export default function AdminAnalyticsPage() {
                   ) : null}
                   {panelRecoveryActions.length > 0 ? (
                     <div>
-                      <p className="font-semibold text-gray-100">Next action</p>
+                      <h3 className="text-sm font-medium text-foreground">Next action</h3>
                       <ul className="mt-1 list-disc space-y-1 pl-4">
                       {panelRecoveryActions.slice(0, 3).map((action) => (
-                        <li key={action} title={action}>{formatPanelRecoveryAction(action)}</li>
+                        <li key={action} className="min-w-0 wrap-anywhere" title={action}>{formatPanelRecoveryAction(action)}</li>
                       ))}
                       </ul>
                     </div>
@@ -761,35 +745,26 @@ export default function AdminAnalyticsPage() {
         ]}
         filters={(
           <div className="flex flex-wrap items-end justify-between gap-3" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-            <label className="min-w-[14rem] flex-1 sm:max-w-xs">
-              <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.18em] text-purple-200">Evidence lens</span>
-              <select
+            <label className="min-w-0 w-full sm:max-w-xs">
+              <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-purple-200">Evidence lens</span>
+              <NativeSelect
                 value={activeTab}
                 onChange={(event) => setActiveTab(event.target.value as typeof activeTab)}
-                className="min-h-12 w-full rounded-2xl border border-white/12 bg-black/30 px-3 text-sm font-bold text-white outline-none transition focus:border-brand-purple/60 focus:ring-2 focus:ring-brand-purple/25"
               >
-                {TAB_OPTIONS.map((tab) => <option key={tab.id} value={tab.id}>{tab.label}</option>)}
-              </select>
+                {TAB_OPTIONS.map((tab) => <NativeSelectOption key={tab.id} value={tab.id}>{tab.label}</NativeSelectOption>)}
+              </NativeSelect>
             </label>
             <div className="flex flex-wrap items-center gap-2">
-              <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />
               {viewerUserFilter ? (
-                <button
-                  type="button"
-                  onClick={handleClearAllFilters}
-                  className="min-h-11 rounded-xl border border-white/15 bg-black/40 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
-                >
+                <Button variant="outline" type="button" onClick={handleClearAllFilters}>
                   Clear filter
-                </button>
+                </Button>
               ) : null}
             </div>
           </div>
         )}
         alerts={(
           <>
-            <span className="sr-only" data-admin-analytics-overview-status={overviewSnapshotUnavailable ? "snapshot-unavailable" : "connected"}>
-              {overviewSnapshotUnavailable ? "Overview snapshot unavailable. Showing available confirmed metrics." : "Overview snapshot connected."}
-            </span>
             {primaryBlockingAnalyticsError && (
         <div className="border-l-2 border-red-400 bg-red-500/10 px-4 py-4">
           <p className="text-sm font-medium text-red-300">
@@ -816,10 +791,10 @@ export default function AdminAnalyticsPage() {
         <div className="border-l-2 border-white/15 bg-white/[0.03] px-4 py-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-foreground">
                 No analytics landed for this window yet.
               </p>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {activeViewerFilter
                   ? `No tracked events matched ${activeViewerFilter.startsWith("@") ? activeViewerFilter : `@${activeViewerFilter}`} in ${range.toUpperCase()}.`
                   : `No tracked events were found in ${range.toUpperCase()}.`}{" "}
@@ -830,13 +805,9 @@ export default function AdminAnalyticsPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               {viewerUserFilter ? (
-                <button
-                  type="button"
-                  onClick={handleClearViewerFilter}
-                  className="rounded-full border border-white/15 bg-black/40 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-white/30 hover:text-white"
-                >
+                <Button variant="outline" type="button" onClick={handleClearViewerFilter}>
                   Clear viewer filter
-                </button>
+                </Button>
               ) : null}
             </div>
           </div>
@@ -848,18 +819,19 @@ export default function AdminAnalyticsPage() {
         <div className="flex min-h-[20vh] items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
-            <p className="text-sm text-gray-500">Syncing analytics...</p>
+            <p className="text-sm text-muted-foreground">Syncing analytics...</p>
           </div>
         </div>
         ) : null}
       >
-      <div className="space-y-3 md:space-y-5" data-mobile-drilldown="true" data-admin-analytics-view-mode={mobileViewMode}>
+      <div className="min-w-0 space-y-4" data-mobile-drilldown="true">
         {state.activeTab === "operations" ? <AdminAnalyticsOperationsTab {...state} /> : null}
         {state.activeTab === "audience" ? <AdminAnalyticsAudienceTab {...state} /> : null}
         {state.activeTab === "commerce" ? <AdminAnalyticsCommerceTab {...state} /> : null}
 
-        <details className="rounded-[1.1rem] border border-white/10 bg-black/35 p-3" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-          <summary className="cursor-pointer text-sm font-bold text-white">Tasks and notifications</summary>
+        <Card className="min-w-0 gap-0 p-4 shadow-none" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
+        <details>
+          <summary className="min-h-11 cursor-pointer content-center py-2 text-sm font-medium">Tasks and notifications</summary>
           <div className="mt-3">
             <AdminTaskAndNotificationModules
               renderSectionRangeControl={state.renderSectionRangeControl}
@@ -870,6 +842,7 @@ export default function AdminAnalyticsPage() {
             />
           </div>
         </details>
+        </Card>
 
         </div>
       </AdminAnalyticsEvidenceCanvas>

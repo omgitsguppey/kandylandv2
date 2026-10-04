@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { createSourceValidatorTaskFixture } from "./utils/source-validator-contract";
 import { describe, expect, it } from "vitest";
 
 import { getPersonMetricDefinition } from "@/lib/analytics/person-metrics-contract";
@@ -228,4 +231,90 @@ describe("user journey behavioral intelligence", () => {
     expect(debugLane.rawDetailsDefaultOpen).toBe(false);
     expect(debugSummary.lanes.some((lane) => lane.id === "user_journey")).toBe(true);
   });
+});
+
+
+describe("session progress journey truth", () => {
+  const measured = (overrides: Record<string, unknown> = {}) => ({ version: "session_measurement_v1", segmentId: "segment_measurement_fixture", sequence: 1, startedAtMs: 1_000, endedAtMs: 31_000, activeMs: 10_000, idleMs: 20_000, hiddenMs: 0, status: "checkpoint", ...overrides });
+  function progress(eventName: string, params: Record<string, unknown>, eventId = eventName) {
+    return buildJourneyEvent({ fact: normalizeBehavioralEventFact({ eventName, eventId, timestamp: 61_000, userId: "user_measurement", sessionId: "sess_measurement", params: { route: "/drops", source_component: "DeepTracker", ...params }, source: "client" })! });
+  }
+  it("retains explicit idle-only active zero in the real normalizer and builder", () => {
+    expect(progress("semantic_page_passive", { duration_ms: 300_000, active_ms: 0 }).activeMs).toBe(0);
+  });
+  it("keeps absent activity unknown even when page duration is known", () => {
+    expect(progress("semantic_page_passive", { duration_ms: 300_000 }).activeMs).toBeNull();
+  });
+  it("selects one cumulative segment across tick, closeout, semantic labels and replays", () => {
+    const tick = progress("session_activity_tick", { session_measurement: JSON.stringify(measured()) });
+    const checkpoint = measured({ sequence: 2, endedAtMs: 61_000, activeMs: 25_000, idleMs: 30_000, hiddenMs: 5_000, status: "final" });
+    const closed = progress("session_closed", { session_measurement: JSON.stringify(checkpoint) });
+    const label = progress("semantic_page_engaged", { session_measurement: JSON.stringify(checkpoint) });
+    const summary = summarizeSessionJourney([label, tick, closed, closed]);
+    expect(summary.totalActiveMs).toBe(25_000);
+    expect(summarizePersonJourney([tick, closed, label]).totalActiveMs).toBe(25_000);
+  });
+  it("does not infer complete segment totals from unversioned legacy cumulative samples", () => {
+    const events = [progress("session_activity_tick", { active_ms: 15_000 }), progress("session_closed", { active_ms: 30_000 })];
+    expect(summarizeSessionJourney(events).totalActiveMs).toBeNull();
+    expect(summarizePersonJourney(events).totalActiveMs).toBeNull();
+  });
+});
+
+
+describe("session checkpoint completeness",()=>{
+ function event(name:string,params:Record<string,unknown>) { return buildJourneyEvent({fact:normalizeBehavioralEventFact({eventName:name,eventId:name,timestamp:31_000,userId:"user_measurement",sessionId:"sess_measurement",params:{route:"/drops",...params},source:"client"})!}); }
+ const measured={version:"session_measurement_v1",segmentId:"segment_complete_fixture",sequence:2,startedAtMs:1_000,endedAtMs:31_000,activeMs:0,idleMs:30_000,hiddenMs:0,status:"final"};
+ it("retains absent duration rather than fabricating zero or inferring elapsed from active",()=>{expect(event("semantic_page_viewed",{}).durationMs).toBeNull();expect(event("semantic_target_clicked",{active_ms:1_000}).durationMs).toBeNull();});
+ it("retains measured duration zero",()=>{expect(event("semantic_page_passive",{duration_ms:0,active_ms:0}).durationMs).toBe(0);});
+ it("does not sum repeated cumulative duration or active time",()=>{const closed=event("session_closed",{session_measurement:JSON.stringify(measured)});const label=event("semantic_page_passive",{session_measurement:JSON.stringify(measured)});expect(summarizeSessionJourney([closed,label,closed])).toMatchObject({totalDurationMs:30_000,totalActiveMs:0});});
+ it("keeps a mixed legacy and measured cumulative window incomplete",()=>{const old=event("session_activity_tick",{active_ms:10_000});const current=event("session_closed",{session_measurement:JSON.stringify(measured)});expect(summarizeSessionJourney([old,current])).toMatchObject({totalDurationMs:null,totalActiveMs:null});});
+ it("keeps absent optional media index distinct from recorded media zero",()=>{const absent=normalizeBehavioralEventFact({eventName:"file_viewed",eventId:"media_absent",userId:"user_media",sessionId:"sess_media",params:{route:"/dashboard/viewer"},source:"client"})!;expect(absent.mediaIndex).toBeUndefined();const zero=normalizeBehavioralEventFact({eventName:"file_viewed",eventId:"media_zero",userId:"user_media",sessionId:"sess_media",params:{route:"/dashboard/viewer",media_index:0},source:"client"})!;expect(zero.mediaIndex).toBe(0);});
+});
+
+
+describe("nullable duration recovery", () => {
+  it("reports missing duration context at the existing journey break owner", () => {
+    const fact = normalizeBehavioralEventFact({ eventName: "semantic_page_viewed", eventId: "page_missing_duration", timestamp: 31_000, userId: "user_measurement", sessionId: "sess_measurement", params: { route: "/drops" }, source: "client" })!;
+    const next = buildJourneyEvent({ fact });
+    const previous = { ...next, journeyEventId: "previous_known", nextExpectedActions: ["page_viewed"] };
+    expect(detectJourneyBreak({ previous, next })).toMatchObject({ status: "duration_gap" });
+  });
+});
+
+
+describe("user-journey-behavioral-intelligence task-bound CLI", () => {
+  const fixture = (allowedSourceFiles: string[] = []) => createSourceValidatorTaskFixture({ validator: "scripts/agent/validate-user-journey-behavioral-intelligence.ts", report: "agent/state/user-journey-behavioral-intelligence.generated.json", allowedSourceFiles });
+  it("accepts declared source changes with inherited protected dirt, denies later protected changes and recovers without replacing prior proof", () => {
+    const f = fixture();
+    f.write("fixture.ts", "export const value = 2;\n");
+    const accepted = f.run(); expect(accepted.output).not.toContain("Error:"); expect(accepted.status).toBe(0);
+    const before = f.read(f.report);
+    expect(JSON.parse(before).mutationScope).toMatchObject({ mode: "input_bound_task", changedFiles: ["fixture.ts"], sourceFingerprint: f.fingerprint() });
+    f.write(f.protectedFile, "export const value = 3;\n");
+    const denied = f.run(); expect(denied.status).not.toBe(0); expect(denied.output).toContain("Output scope violation: " + f.protectedFile);
+    expect(f.read(f.report)).toBe(before);
+    f.write(f.protectedFile, "export const value = 2;\n");
+    expect(f.run().status).toBe(0);
+  }, 60_000);
+  it("retains the standalone protected-runtime safeguard", () => {
+    const f = fixture(); const result = f.run([]);
+    expect(result.status).not.toBe(0); expect(result.output).toContain("dirty files are unclassified.");
+    expect(JSON.parse(f.read(f.report)).mutationScope).toEqual({ mode: "whole_git_worktree" });
+  }, 60_000);
+  it("rejects an undeclared untracked mutation before publishing a report", () => {
+    const f = fixture(); f.write("unexpected.ts", "export const unexpected = true;\n");
+    const result = f.run(); expect(result.status).not.toBe(0); expect(result.output).toContain("Output scope violation: unexpected.ts");
+    expect(existsSync(join(f.root, f.report))).toBe(false);
+  }, 60_000);
+  it("rejects missing legacy field consumption and invented missing activity at the actual normalizer before recovery", () => {
+    const file = "src/lib/behavioral/normalize-event-fact.ts", f = fixture([file]), before = f.read(file);
+    const original = "const activeMs = readOptionalNumber(merged, ...BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS);";
+    expect(before).toContain(original);
+    f.write(file, before.replace(original, "const activeMs = undefined; // active_ms"));
+    let failed = f.run(); expect(failed.status).not.toBe(0); expect(failed.output).toContain("legacy active-duration aliases are not consumed");
+    f.write(file, before.replace(original, "const activeMs = readOptionalNumber(merged, ...BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS) ?? 0;"));
+    failed = f.run(); expect(failed.status).not.toBe(0); expect(failed.output).toContain("event facts collapse missing activity into measured zero.");
+    f.write(file, before); expect(f.run().status).toBe(0);
+  }, 60_000);
 });

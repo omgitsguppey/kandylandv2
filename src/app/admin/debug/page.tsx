@@ -155,6 +155,7 @@ export default function DebugConsole() {
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
     const focusRefreshAtRef = useRef(0);
+    const aiTabWasActiveRef = useRef(false);
 
     const { data, error, isLoading, mutate } = useAdminPollingSWR<any>(isLocalAdminUiTestSession ? null : "/api/admin/debug", 60000, {
         keepPreviousData: false,
@@ -177,9 +178,19 @@ export default function DebugConsole() {
         keepPreviousData: true,
         },
     );
-    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>(isLocalAdminUiTestSession ? null : "/api/admin/debug/assistant", 15000, {
-        keepPreviousData: false,
-    });
+    const { data: aiDebugData, error: aiDebugError, isValidating: aiDebugIsValidating, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>(
+        isLocalAdminUiTestSession ? null : "/api/admin/debug/assistant",
+        activeTab === "ai" ? 15000 : 0,
+        { keepPreviousData: false },
+    );
+    useEffect(() => {
+        const aiTabIsActive = activeTab === "ai";
+        const enteredAiTab = aiTabIsActive && !aiTabWasActiveRef.current;
+        aiTabWasActiveRef.current = aiTabIsActive;
+        if (enteredAiTab && !isLocalAdminUiTestSession && !aiDebugIsValidating) {
+            void mutateAiDebug();
+        }
+    }, [activeTab, aiDebugIsValidating, isLocalAdminUiTestSession, mutateAiDebug]);
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview({ enabled: !isLocalAdminUiTestSession });
 
     const revalidatePrimaryDebugTruth = useCallback(() => {
@@ -471,6 +482,8 @@ export default function DebugConsole() {
         () => buildAdminDebugAiAssistantCard({
             hasSummary: Boolean(aiDebugData),
             hasError: Boolean(aiDebugError),
+            summaryRetained: activeTab !== "ai",
+            displayedSummaryFreshness: aiDebugData?.displayed_summary_freshness,
             enabled: aiDebugData?.enabled,
             runtimeReady: aiDebugData?.runtime_ready,
             fallbackUsed: aiDebugData?.fallback_used,
@@ -479,7 +492,7 @@ export default function DebugConsole() {
             feedStatus: aiAssistantRealtime.feedStatus,
             latencyMs: aiDebugData?.latency_ms,
         }),
-        [aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
+        [activeTab, aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
     );
     const opsCanonicalState = useMemo(() => deriveOpsHealthCanonicalState({
         canonicalStateStatus: data?.opsHealth?.canonicalState?.status,

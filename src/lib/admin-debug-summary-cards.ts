@@ -442,6 +442,8 @@ export function buildAdminDebugOpenActionsCard(input: {
 export function buildAdminDebugAiAssistantCard(input: {
     hasSummary: boolean;
     hasError: boolean;
+    summaryRetained?: boolean;
+    displayedSummaryFreshness?: "fresh" | "stale" | "unknown";
     enabled?: boolean;
     runtimeReady?: boolean;
     fallbackUsed?: boolean;
@@ -536,6 +538,32 @@ export function buildAdminDebugAiAssistantCard(input: {
                 technicalEvidence,
                 sourceDetails: baseSourceDetails,
                 technicalState: "ai_assistant_runtime_unavailable",
+                routeName: "/api/admin/debug/assistant",
+            }),
+        };
+    }
+
+    if (input.summaryRetained || input.displayedSummaryFreshness === "stale") {
+        const knownStale = input.displayedSummaryFreshness === "stale";
+        const retainedSource = input.fallbackUsed ? "deterministic fallback" : input.responseState === "saved" ? "saved live guidance" : "live model output";
+        const sourceState = input.summaryRetained ? "summary polling paused outside AI" : "summary polling active in AI";
+        const feedState = feedStatus === "failed" ? "Assistant status feed failed. " : feedStatus === "partial" ? "Assistant status feed is partial. " : "";
+        const freshnessState = knownStale ? "Refresh due. " : input.displayedSummaryFreshness === "unknown" ? "Summary freshness is unknown. " : "";
+        const meta = `${feedState}${freshnessState}Showing the last loaded ${retainedSource}.`;
+        const technicalEvidence = `${baseSourceDetails} | ${sourceState} | ${retainedSource} | summaryFreshness=${input.displayedSummaryFreshness || "unknown"}`;
+        return {
+            value: knownStale ? "Refresh due" : input.fallbackUsed ? "Last loaded fallback" : "Last loaded summary",
+            meta,
+            truthState: (feedStatus === "failed" || feedStatus === "partial" ? "degraded" : knownStale ? "stale" : input.fallbackUsed ? "fallback" : "cached") as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: meta,
+                whyItMatters: "Retained guidance describes its last bounded response; current route and status evidence remains separate.",
+                recommendedNextCheck: input.summaryRetained ? "Open AI to refresh saved status and review the summary timestamp." : "Review the summary timestamp before using the guidance. Live generation remains an explicit action.",
+                technicalEvidence,
+                sourceDetails: `${baseSourceDetails} | ${sourceState}`,
+                technicalState: knownStale ? "ai_assistant_summary_stale" : "ai_assistant_summary_retained",
+                sourceMode: input.fallbackUsed ? "fallback" : "snapshot",
                 routeName: "/api/admin/debug/assistant",
             }),
         };

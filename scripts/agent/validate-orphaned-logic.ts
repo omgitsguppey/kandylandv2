@@ -190,7 +190,6 @@ if (report) {
   }
   for (const requiredFile of [
     "src/app/drops/[id]/preview/page.tsx",
-    "src/components/DropPreviewModal.tsx",
     "src/hooks/useDrops.ts",
     "src/lib/user-mobile-shell.ts",
     "src/lib/telemetry-catalog.ts",
@@ -239,7 +238,6 @@ const dropPreviewDocs = readRequired("docs/agent-truth/drop-preview-page.md");
 const launchTriageDocs = readRequired("docs/agent-truth/launch-pr-triage.md");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
-const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
 const userMobileShell = readRequired("src/lib/user-mobile-shell.ts");
 const supportDocs = readRequired("docs/agent-truth/support-recovery-flows.md");
 const audit = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
@@ -288,7 +286,6 @@ for (const source of [scorer]) {
 }
 
 requireIncludes(dropPreviewDocs, "Locked Drop preview is a dedicated full-page conversion surface", "drop preview doctrine");
-requireIncludes(dropPreviewModal, "Legacy fallback only. Locked Drop preview ownership moved to /drops/[id]/preview.", "legacy DropPreviewModal marker");
 requireIncludes(dropsClient, "/preview?source_component=", "DropsClient full-page preview routing");
 requireNotIncludes(dropsClient, "DropPreviewModal", "DropsClient locked preview ownership");
 requireIncludes(userMobileShell, "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = CHAT_LIST_CONTROLS_BOTTOM_OFFSET", "chat floating offset token");

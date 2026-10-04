@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Candy, Home, LayoutDashboard, MessageSquare, Sparkles, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { KandyMobileNavigationDock } from "@/components/creative-tim/kandydrops/navigation/KandyNavigationPrimitives";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
@@ -15,6 +16,7 @@ import { trackEvent } from "@/lib/telemetry";
 import {
     USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET,
     USER_MOBILE_BOTTOM_NAV_HEIGHT,
+    USER_MOBILE_BOTTOM_NAV_VISIBILITY_CLASS_NAME,
 } from "@/lib/user-mobile-shell";
 import { cn } from "@/lib/utils";
 
@@ -55,12 +57,41 @@ function triggerHaptic() {
 }
 
 function MobileBottomBarInner() {
+    const dockRef = useRef<HTMLElement | null>(null);
     const pathname = usePathname();
     const { user, userProfile, loading } = useAuth();
     const { openPurchaseModal } = useUI();
     const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
     const iosPwa = typeof window !== "undefined" ? isIosStandalonePwa() : false;
+
+    useEffect(() => {
+        const dock = dockRef.current;
+        if (!dock) return;
+
+        const root = document.documentElement;
+        const previousHeight = root.style.getPropertyValue("--kd-mobile-bottom-nav-visual-height");
+        const syncHeight = () => {
+            const height = Math.ceil(dock.getBoundingClientRect().height);
+            if (height > 0) {
+                const value = String(height) + "px";
+                if (root.style.getPropertyValue("--kd-mobile-bottom-nav-visual-height") !== value) {
+                    root.style.setProperty("--kd-mobile-bottom-nav-visual-height", value);
+                }
+                dock.setAttribute("data-bottom-nav-visual-height", String(height));
+            } else {
+                root.style.removeProperty("--kd-mobile-bottom-nav-visual-height");
+            }
+        };
+        syncHeight();
+        const observer = typeof ResizeObserver === "function" ? new ResizeObserver(syncHeight) : null;
+        observer?.observe(dock);
+        return () => {
+            observer?.disconnect();
+            if (previousHeight) root.style.setProperty("--kd-mobile-bottom-nav-visual-height", previousHeight);
+            else root.style.removeProperty("--kd-mobile-bottom-nav-visual-height");
+        };
+    }, [authSettled, pathname]);
 
     if (pathname?.startsWith("/admin")) {
         return null;
@@ -69,7 +100,7 @@ function MobileBottomBarInner() {
     if (!authSettled) {
         return (
             <div
-                className="pointer-events-none fixed inset-x-0 z-40 px-3 opacity-0 sm:px-4 md:hidden"
+                className={cn("pointer-events-none fixed inset-x-0 z-40 px-3 opacity-0 sm:px-4", USER_MOBILE_BOTTOM_NAV_VISIBILITY_CLASS_NAME)}
                 data-bottom-nav-role="navigation"
                 data-device-layout-contract="2026-05-public-beta"
                 data-device-layout-surface="mobile-bottom-nav"
@@ -84,14 +115,14 @@ function MobileBottomBarInner() {
     const navItems = isSignedIn
         ? AUTHED_NAV_ITEMS.map((item) => item.href === "/dashboard" ? { ...item, href: creatorDashboardHref } : item)
         : GUEST_NAV_ITEMS;
-    const mobileItemClassName = "relative flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl px-1 text-center text-xs font-semibold leading-none transition-all duration-200 active:scale-95";
+    const mobileItemClassName = "relative min-h-11 min-w-0 flex-1 flex-col gap-0.5 rounded-2xl p-1 pb-2 text-center text-xs font-medium leading-tight";
 
     return (
         <div
-            className="pointer-events-none fixed inset-x-0 z-40 px-3 sm:px-4 md:hidden"
+            className={cn("pointer-events-none fixed inset-x-0 z-40 px-3 sm:px-4", USER_MOBILE_BOTTOM_NAV_VISIBILITY_CLASS_NAME)}
             style={{ bottom: USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET }}
         >
-            <KandyMobileNavigationDock platformShell={iosPwa ? "ios-pwa" : "default"}>
+            <KandyMobileNavigationDock platformShell={iosPwa ? "ios-pwa" : "default"} dockRef={dockRef}>
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = item.action
@@ -100,15 +131,17 @@ function MobileBottomBarInner() {
                             ? pathname === item.href
                             : pathname === item.href || pathname?.startsWith(`${item.href}/`);
                     const itemTone = isActive
-                        ? "bg-gradient-to-b from-brand-purple/45 via-brand-purple/25 to-brand-pink/15 text-white shadow-lg shadow-brand-purple/20"
+                        ? "bg-secondary text-foreground"
                         : item.featured
-                            ? "bg-white/10 text-kandy-lilac shadow-inner shadow-white/10 hover:bg-white/15 hover:text-white"
-                            : "text-gray-300 hover:bg-white/5 hover:text-white";
+                            ? "text-primary hover:bg-secondary hover:text-foreground"
+                            : "text-muted-foreground hover:bg-secondary hover:text-foreground";
 
                     if (item.action === "purchase") {
                         return (
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
                                 key={item.label}
                                 onClick={() => {
                                     triggerHaptic();
@@ -116,11 +149,11 @@ function MobileBottomBarInner() {
                                     openPurchaseModal();
                                 }}
                                 aria-label="Open wallet"
-                                className={cn(mobileItemClassName, "text-kandy-lilac hover:bg-white/5 hover:text-white")}
+                                className={cn(mobileItemClassName, "text-primary hover:bg-secondary hover:text-foreground")}
                             >
-                                <Icon className="h-4 w-4 shrink-0" />
-                                <span className="max-w-full truncate">{item.label}</span>
-                            </button>
+                                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                <span className="max-w-full break-words leading-tight">{item.label}</span>
+                            </Button>
                         );
                     }
 
@@ -136,20 +169,20 @@ function MobileBottomBarInner() {
                                 triggerHaptic();
                                 trackEvent("navigation_click", { destination: item.href, route: pathname ?? "/", source: "mobile_bottom_bar", source_component: "mobile_bottom_bar" });
                             }}
-                            className={cn(mobileItemClassName, itemTone)}
+                            className={cn(buttonVariants({ variant: "ghost", size: "sm" }), mobileItemClassName, itemTone)}
                         >
                             <span className="relative grid place-items-center">
-                                <Icon className="h-4 w-4 shrink-0" />
+                                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                                 {item.label === "Chat" && hasUnreadMessages ? (
                                     <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-brand-pink ring-2 ring-kandy-ink/90" />
                                 ) : null}
                             </span>
-                            <span className="max-w-full truncate">{item.label}</span>
+                            <span className="max-w-full break-words leading-tight">{item.label}</span>
                             <span
                                 aria-hidden="true"
                                 className={cn(
                                     "absolute inset-x-3 bottom-1 h-0.5 rounded-full transition-opacity",
-                                    isActive ? "bg-white opacity-90" : "opacity-0",
+                                    isActive ? "bg-foreground opacity-90" : "opacity-0",
                                 )}
                             />
                         </Link>

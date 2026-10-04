@@ -1,28 +1,42 @@
 {
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-directory-control-labels-source-20261002",
+    "inputHash": "dd9c5b796ee3ba6d0f946dee0f5980abd5829c8866eb5d2fe41aa14e24bf137b",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "0ccd43d9d337359b4a9d699ac4e4685a6901d109d8f17e3ea968b55219e7bc84",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "src/components/creative-tim/kandydrops/admin-users/AdminUsersOperations.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 433,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  },
   "reportKey": "session-journey-duration-math",
-  "generatedAtUtc": "2026-05-26T10:33:30.413Z",
-  "currentHead": "9fd4c85c9501f272c720d8fab25a142bd3534e43",
+  "generatedAtUtc": "2026-10-03T01:48:01.852Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "productionReadsRequired": false,
   "mutationAllowed": false,
   "fakeSessionEndsUsed": false,
   "scoreBefore": {
     "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
+    "costRisk": 92.5,
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreAfter": {
     "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
+    "costRisk": 92.5,
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "debugLane": {
     "label": "Session math",
@@ -82,167 +96,14 @@
   },
   "openPullRequests": [
     {
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
-      "mergeStateStatus": "CLEAN",
+      "number": 0,
+      "title": "GitHub open PR evidence not queried",
+      "url": "",
+      "mergeStateStatus": "EXTERNAL_EVIDENCE_REQUIRED",
       "isDraft": false,
-      "classification": "onboarding_telemetry_external_review_required"
-    },
-    {
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "doctrine_governance_external_review_required"
-    },
-    {
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "architecture_refactor_external_review_required"
-    },
-    {
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "security_patch_external_review_required"
-    },
-    {
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "performance_patch_external_review_required"
-    },
-    {
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "accessibility_patch_external_review_required"
+      "classification": "external_evidence_required"
     }
   ],
-  "dirtyFiles": [
-    {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/session-journey-duration-math.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/session-journey-duration-math.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-session-bounce-calculation.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-session-journey-duration-math.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/session-metrics-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/user-journey-builder.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/session-journey-math.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/session-journey-duration-math.spec.ts",
-      "classification": "test_artifact_expected"
-    }
-  ],
+  "dirtyFiles": [],
   "validationFailures": []
 }

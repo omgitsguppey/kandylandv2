@@ -383,7 +383,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                             <p className="text-xs font-bold uppercase tracking-widest text-purple-200">Admin projection</p>
-                            <p className="mt-1 font-bold">Viewing {projectionDisplayName}'s creator workspace</p>
+                            <p className="mt-1 font-bold">Viewing {projectionDisplayName}&apos;s creator workspace</p>
                             <p className="mt-1 text-sm text-white/75">
                                 Read-only creator dashboard preview for {projectionDisplayName}. Writes are blocked.
                             </p>

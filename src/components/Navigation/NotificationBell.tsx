@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
+  Dialog, DialogTrigger, DialogPrimitiveContent, DialogTitle, DialogDescription,
+} from "@/components/creative-tim/ui/dialog";
+import { Button } from "@/components/ui/Button";
+import {
   Bell,
   Check,
   CheckCircle,
@@ -21,6 +25,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { USER_NAVIGATION_PANEL_MAX_HEIGHT } from "@/lib/user-mobile-shell";
 import { trackEvent } from "@/lib/telemetry";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
@@ -40,40 +45,34 @@ interface NotificationNote {
   };
 }
 
-export function getNotificationPanelStyle(): CSSProperties {
+function getNotificationPanelStyle(): CSSProperties {
   return {
     width: "min(22rem, calc(100vw - max(1rem, env(safe-area-inset-left)) - max(1rem, env(safe-area-inset-right))))",
-    maxHeight: "min(30rem, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 5rem))",
-    WebkitBackdropFilter: "blur(30px)",
-    backdropFilter: "blur(30px)",
+    maxHeight: USER_NAVIGATION_PANEL_MAX_HEIGHT,
   };
 }
 
-function getTypePill(type: string) {
+function getNotificationType(type: string) {
   switch (type) {
     case "success":
       return {
         label: "Ready",
         icon: CheckCircle,
-        className: "bg-brand-purple/20 text-white border-brand-purple/30",
       };
     case "warning":
       return {
         label: "Heads up",
         icon: TriangleAlert,
-        className: "bg-white/10 text-white border-white/15",
       };
     case "error":
       return {
         label: "Issue",
         icon: XCircle,
-        className: "bg-red-500/15 text-red-100 border-red-500/30",
       };
     default:
       return {
         label: "Info",
         icon: Info,
-        className: "bg-white/10 text-white border-white/15",
       };
   }
 }
@@ -195,7 +194,7 @@ function formatNotificationTimestamp(note: NotificationNote) {
 function NotificationThumbnail({ note }: { note: NotificationNote }) {
   if (note.dropContext?.previewImageUrl) {
     return (
-      <div className="relative h-12 w-12 overflow-hidden rounded-[1.1rem] border border-white/10 bg-black/50 shadow-inner shadow-black/25">
+      <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-border bg-card">
         <Image
           src={note.dropContext.previewImageUrl}
           alt={note.dropContext.dropTitle || note.title}
@@ -209,20 +208,19 @@ function NotificationThumbnail({ note }: { note: NotificationNote }) {
 
   if (isTaskRelatedNotification(note)) {
     return (
-      <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-[1rem] border border-brand-purple/20 bg-brand-purple/12 text-brand-purple">
+      <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-secondary text-primary">
         <TriangleAlert className="h-4.5 w-4.5" />
       </div>
     );
   }
 
-  const pill = getTypePill(note.type);
-  const Icon = pill.icon;
+  const Icon = getNotificationType(note.type).icon;
   const fallbackLetter = (note.title.trim()[0] || "K").toUpperCase();
 
   return (
-    <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-[1rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.35),rgba(20,20,24,0.95)_72%)]">
-      <span className="text-lg font-black text-white/90">{fallbackLetter}</span>
-      <div className="absolute bottom-1 right-1 rounded-full border border-white/15 bg-black/60 p-1 text-brand-purple">
+    <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-secondary">
+      <span className="text-lg font-semibold text-foreground">{fallbackLetter}</span>
+      <div className="absolute bottom-1 right-1 rounded-full border border-border bg-popover p-1 text-primary">
         <Icon className="h-2.5 w-2.5" />
       </div>
     </div>
@@ -243,8 +241,6 @@ function NotificationItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
-  const pill = getTypePill(note.type);
-  const PillIcon = pill.icon;
   const subject = getNotificationSubject(note);
   const details = getNotificationDetails(note, subject);
   const expandable = details.length > 0;
@@ -332,7 +328,7 @@ function NotificationItem({
   };
 
   return (
-    <div className="rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-2 shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition-colors hover:bg-white/[0.08]">
+    <div className="rounded-2xl border border-border bg-card p-2 shadow-sm transition-colors hover:bg-secondary">
       <div className="flex gap-2">
         <NotificationThumbnail note={note} />
 
@@ -340,72 +336,72 @@ function NotificationItem({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
-                  KandyDrops
+                <span className="text-xs font-medium text-muted-foreground">
+                  KandyDrops · {getNotificationType(note.type).label}
                 </span>
               </div>
-              <p className="mt-0.5 text-sm font-semibold leading-5 text-white">{note.title}</p>
+              <p className="mt-0.5 text-sm font-semibold leading-5 text-foreground">{note.title}</p>
               {isExpanded && subject ? (
-                <p className="mt-1 text-[11px] font-medium text-gray-400">
+                <p className="mt-1 text-sm font-medium text-muted-foreground">
                   {subject}
                 </p>
               ) : null}
               {isExpanded && details ? (
-                <p className="mt-2 text-[11px] leading-5 text-gray-300">
+                <p className="mt-2 text-sm leading-5 text-muted-foreground">
                   {details}
                 </p>
               ) : null}
             </div>
 
             <div className="flex shrink-0 flex-col items-end gap-1.5">
-              <span className="text-right text-[10px] font-medium text-gray-500">
+              <span className="text-right text-xs font-medium text-muted-foreground">
                 {deliveredAt}
               </span>
               {relativeTime ? (
-                <span className="text-[10px] text-gray-600">{relativeTime}</span>
+                <span className="text-xs text-muted-foreground">{relativeTime}</span>
               ) : null}
-              <button
+              <Button variant="ghost" size="sm"
                 type="button"
                 aria-label={isRead ? "Already read" : "Mark as read"}
                 onClick={() => {
                   void handleMarkAsRead();
                 }}
                 disabled={isPending || isRead}
-                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 text-[9px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10 disabled:cursor-default disabled:opacity-70"
+                className="gap-1 text-xs"
                 title="Mark as read"
               >
                 <Check className="h-3 w-3" />
                 {isRead ? "Viewed" : "Read"}
-              </button>
+              </Button>
             </div>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {(note.dropContext || note.link) ? (
-              <button
+              <Button variant="brand" size="sm"
                 type="button"
                 aria-label="Open details"
                 onClick={() => {
                   void openNotification();
                 }}
                 disabled={isPending}
-                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1 text-[10px] font-bold text-black transition-opacity hover:opacity-90 disabled:opacity-75"
+                className="gap-1.5 text-xs"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 {getNotificationActionLabel(note)}
-              </button>
+              </Button>
             ) : null}
 
             {expandable ? (
-              <button
+              <Button variant="ghost" size="sm"
                 type="button"
                 aria-expanded={isExpanded}
                 onClick={handleToggleExpanded}
-                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/10"
+                className="gap-1.5 text-xs"
               >
                 <ChevronDown aria-hidden="true" className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
                 {isExpanded ? "Less" : "Details"}
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>
@@ -418,7 +414,6 @@ export function NotificationBell() {
   const { user } = useAuthIdentity();
   const [isOpen, setIsOpen] = useState(false);
   const [isClearingAll, setIsClearingAll] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const { isConstrained, isVerySlow } = useNetworkConditions();
   const warmReady = useDeferredClientReady({
     delayMs: isVerySlow ? 1_500 : isConstrained ? 900 : 450,
@@ -430,17 +425,6 @@ export function NotificationBell() {
   });
   const notificationProblem = error ? getNotificationProblemCopy(error) : null;
   const panelStyle = getNotificationPanelStyle();
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     function handleOpenRequest() {
@@ -456,18 +440,15 @@ export function NotificationBell() {
     return () => window.removeEventListener(CLIENT_RUNTIME_EVENTS.openNotifications, handleOpenRequest);
   }, [unreadCount]);
 
-  const toggleDropdown = () => {
-    setIsOpen((current) => {
-      const next = !current;
-      if (next) {
-        trackEvent("notifications_dropdown_opened", {
-          unread_count: unreadCount,
-          source: "notification_bell",
-          source_component: "notification_bell",
-        });
-      }
-      return next;
-    });
+  const handleOpenChange = (next: boolean) => {
+    if (next && !isOpen) {
+      trackEvent("notifications_dropdown_opened", {
+        unread_count: unreadCount,
+        source: "notification_bell",
+        source_component: "notification_bell",
+      });
+    }
+    setIsOpen(next);
   };
 
   const handleMarkAllAsRead = async () => {
@@ -487,42 +468,44 @@ export function NotificationBell() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
+    <Dialog open={isOpen} onOpenChange={handleOpenChange} modal={false}>
+    <div className="static md:relative">
+      <DialogTrigger asChild>
+      <Button variant="ghost" size="icon"
         aria-expanded={isOpen}
-        onClick={toggleDropdown}
+        type="button"
         data-onboarding-target="notification-bell"
         aria-label="Notifications"
         title="View notifications"
-        className="relative flex h-11 w-11 items-center justify-center rounded-full bg-black/20 text-gray-300 transition-colors hover:bg-black/40 hover:text-white"
+        className="relative"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 ? (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full border border-white/20 bg-brand-purple px-1 text-[10px] font-black text-white shadow-lg">
+          <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full border border-border bg-primary px-1 text-xs font-semibold text-primary-foreground">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
-      </button>
+      </Button>
+      </DialogTrigger>
 
-      <div
+      <DialogPrimitiveContent
         className={cn(
-          "absolute right-0 top-full z-50 mt-3 flex origin-top-right flex-col overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#111114]/95 shadow-2xl shadow-black/70 transition-all duration-200",
-          isOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-2 scale-95 opacity-0",
+          "absolute right-[max(1rem,env(safe-area-inset-right))] top-full z-50 mt-3 flex flex-col md:right-0 overflow-hidden rounded-2xl border border-border bg-popover text-foreground shadow-lg",
         )}
         style={panelStyle}
       >
-        <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3.5">
+        <div className="border-b border-border bg-card px-4 py-3.5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-500">Inbox</p>
-              <h3 className="mt-1 text-sm font-bold text-white">Notifications</h3>
-              <p className="mt-1 text-[11px] text-gray-400">
+              <p className="text-xs font-medium text-muted-foreground">Inbox</p>
+              <DialogTitle asChild><h3 className="mt-1 text-base font-semibold text-foreground">Notifications</h3></DialogTitle>
+              <DialogDescription asChild><p className="mt-1 text-sm text-muted-foreground">
                 {unreadCount > 0 ? `${unreadCount} unread updates` : "You are all caught up"}
-              </p>
+              </p></DialogDescription>
             </div>
 
             {unreadCount > 0 ? (
-              <button
+              <Button variant="ghost" size="sm"
                 type="button"
                 aria-label="Clear all notifications"
                 title="Clear all notifications"
@@ -530,11 +513,11 @@ export function NotificationBell() {
                   void handleMarkAllAsRead();
                 }}
                 disabled={isClearingAll}
-                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
+                className="gap-1 text-xs"
               >
                 <Sparkles className="h-3 w-3" />
                 Clear all
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>
@@ -542,24 +525,24 @@ export function NotificationBell() {
         <div className="flex-1 space-y-2 overflow-y-auto p-2.5 custom-scrollbar">
           {!user ? (
             <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/5 text-brand-purple">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-secondary text-primary">
                 <Bell className="h-6 w-6" />
               </div>
-              <p className="text-sm font-semibold text-white">No notifications yet</p>
-              <p className="mt-1 text-xs leading-6 text-gray-500">
+              <p className="text-sm font-semibold text-foreground">No notifications yet</p>
+              <p className="mt-1 text-xs leading-6 text-muted-foreground">
                 We will drop updates here when something new is ready to unwrap.
               </p>
             </div>
           ) : loading ? (
             <div className="space-y-2 px-1 py-2">
               {[0, 1, 2].map((index) => (
-                <div key={index} className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-3">
+                <div key={index} className="rounded-2xl border border-border bg-card p-3">
                   <div className="flex gap-3">
-                    <div className="h-12 w-12 shrink-0 rounded-[1.1rem] bg-white/10" />
+                    <div className="h-12 w-12 shrink-0 rounded-xl bg-secondary" />
                     <div className="min-w-0 flex-1 space-y-2">
-                      <div className="h-3.5 w-24 rounded-full bg-white/10" />
-                      <div className="h-4 w-3/4 rounded-full bg-white/10" />
-                      <div className="h-3 w-1/2 rounded-full bg-white/5" />
+                      <div className="h-3.5 w-24 rounded-full bg-secondary" />
+                      <div className="h-4 w-3/4 rounded-full bg-secondary" />
+                      <div className="h-3 w-1/2 rounded-full bg-secondary" />
                     </div>
                   </div>
                 </div>
@@ -567,26 +550,26 @@ export function NotificationBell() {
             </div>
           ) : notificationProblem ? (
             <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/5 text-brand-purple">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-secondary text-primary">
                 <TriangleAlert className="h-6 w-6" />
               </div>
-              <p className="text-sm font-semibold text-white">{notificationProblem.headline}</p>
-              <p className="mt-1 text-xs leading-6 text-gray-500">{notificationProblem.body}</p>
-              <button
+              <p className="text-sm font-semibold text-foreground">{notificationProblem.headline}</p>
+              <p className="mt-1 text-xs leading-6 text-muted-foreground">{notificationProblem.body}</p>
+              <Button variant="ghost" size="sm"
                 type="button"
                 onClick={() => dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true)}
-                className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
+                className="mt-4 text-xs"
               >
                 {notificationProblem.actionLabel}
-              </button>
+              </Button>
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/5 text-brand-purple">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-secondary text-primary">
                 <Bell className="h-6 w-6" />
               </div>
-              <p className="text-sm font-semibold text-white">No notifications yet</p>
-              <p className="mt-1 text-xs leading-6 text-gray-500">
+              <p className="text-sm font-semibold text-foreground">No notifications yet</p>
+              <p className="mt-1 text-xs leading-6 text-muted-foreground">
                 We will drop updates here when something new is ready to unwrap.
               </p>
             </div>
@@ -602,7 +585,8 @@ export function NotificationBell() {
             ))
           )}
         </div>
-      </div>
+      </DialogPrimitiveContent>
     </div>
+    </Dialog>
   );
 }

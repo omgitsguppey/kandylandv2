@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -102,9 +103,7 @@ function readNumber(value: unknown, fallback = 0) {
 }
 
 function listDirtyFiles() {
-  const changed = git(["diff", "--name-only"]).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean);
-  const untracked = git(["ls-files", "--others", "--exclude-standard"]).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean);
-  return [...new Set([...changed, ...untracked])].sort();
+  return listValidatorScopeFiles();
 }
 
 export function classifyChatTelemetryAdminTruthDirtyFile(path: string): DirtyClassification {
@@ -362,7 +361,7 @@ function writeReport(report: ChatTelemetryAdminTruthReport) {
   const docPath = join(repoRoot, DOC_PATH);
   mkdirSync(dirname(statePath), { recursive: true });
   mkdirSync(dirname(docPath), { recursive: true });
-  writeFileSync(statePath, `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(statePath, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
   writeFileSync(docPath, [
     "# Chat Telemetry Admin Truth",
     "",

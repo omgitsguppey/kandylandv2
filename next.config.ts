@@ -3,6 +3,7 @@ import withBundleAnalyzer from "@next/bundle-analyzer";
 import { getAllowedRemoteImagePatterns } from "./src/lib/media-hosts";
 
 const nextConfig: NextConfig = {
+  agentRules: false,
   compress: true,
   experimental: {
     optimizePackageImports: ["lucide-react", "date-fns", "framer-motion"],

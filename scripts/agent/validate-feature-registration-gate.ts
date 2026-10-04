@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { readdirSync, statSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -39,13 +40,7 @@ function walkRoutes(dir: string, output: string[] = []) {
 }
 
 function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const file of run("git", [...args]).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean)) {
-      files.add(file.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listValidatorScopeFiles();
 }
 
 function renderDoc(report: ReturnType<typeof buildFeatureRegistrationGateReport>) {
@@ -139,7 +134,7 @@ const output = {
   validationFailures: failures,
 };
 
-write(REPORT_PATH, `${JSON.stringify(output, null, 2)}\n`);
+write(REPORT_PATH, `${JSON.stringify(withValidatorMutationScope(output), null, 2)}\n`);
 write(DOC_PATH, renderDoc(output));
 
 if (failures.length > 0) {

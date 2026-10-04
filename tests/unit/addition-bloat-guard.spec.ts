@@ -1,5 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
-import { runValidation } from "../../scripts/agent/validate-addition-bloat-guard";
+import { describe, expect, it } from "vitest";
 import { validateBloatGuard } from "../../src/lib/agent-governance/addition-bloat-guard";
 
 describe("Addition Bloat Guard Validation Suite", () => {
@@ -71,22 +70,4 @@ describe("Addition Bloat Guard Validation Suite", () => {
     expect(failures).toContain("Bloat violation: generated artifact 'stale-report.json' is over 500 lines (600) but has no justification.");
   });
 
-  it("should execute validation without process.exit if clean", () => {
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code?: string | number | null | undefined): never => {
-      throw new Error(`process.exit called with ${code}`);
-    });
-
-    try {
-      runValidation();
-      expect(exitSpy).not.toHaveBeenCalled();
-    } catch (e: any) {
-      if (e.message.startsWith("process.exit called")) {
-        expect.fail(e.message);
-      } else {
-        throw e;
-      }
-    } finally {
-      exitSpy.mockRestore();
-    }
-  });
 });

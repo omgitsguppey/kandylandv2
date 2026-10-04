@@ -34,13 +34,15 @@ const files = {
   creatorWorkspacePanel: join(repoRoot, "src", "components", "Dashboard", "CreatorWorkspacePanel.tsx"),
   profileHook: join(repoRoot, "src", "app", "dashboard", "profile", "hooks", "useProfileState.tsx"),
   profilePage: join(repoRoot, "src", "app", "dashboard", "profile", "page.tsx"),
-  profileProfileSection: join(repoRoot, "src", "app", "dashboard", "profile", "components", "ProfileProfileSection.tsx"),
-  profileAccountSection: join(repoRoot, "src", "app", "dashboard", "profile", "components", "ProfileAccountSection.tsx"),
-  profileNotificationsSection: join(repoRoot, "src", "app", "dashboard", "profile", "components", "ProfileNotificationsSection.tsx"),
-  profilePrivacySection: join(repoRoot, "src", "app", "dashboard", "profile", "components", "ProfilePrivacyDataSection.tsx"),
-  profileCreatorEarningsSection: join(repoRoot, "src", "app", "dashboard", "profile", "components", "ProfileCreatorEarningsSection.tsx"),
-  profileCreatorToolsSection: join(repoRoot, "src", "app", "dashboard", "profile", "components", "ProfileCreatorToolsSection.tsx"),
+  accountSettings: join(repoRoot, "src", "components", "Settings", "UserSettingsPage.tsx"),
+  accountPanels: join(repoRoot, "src", "components", "creative-tim", "kandydrops", "account", "AccountSettingsPanels.tsx"),
+  creatorSettingsHub: join(repoRoot, "src", "components", "Creators", "CreatorDashboardSettingsHub.tsx"),
+  creatorSettingsDeck: join(repoRoot, "src", "components", "creative-tim", "kandydrops", "creator", "CreatorSettingsControlDeck.tsx"),
+  creatorLandingPage: join(repoRoot, "src", "app", "dashboard", "creator", "page.tsx"),
+  creatorBroadcastCard: join(repoRoot, "src", "components", "Dashboard", "creator-workspace", "CreatorBroadcastCard.tsx"),
+  creatorActionQueue: join(repoRoot, "src", "components", "Dashboard", "creator-workspace", "CreatorActionQueuePanel.tsx"),
   creatorSettingsRoute: join(repoRoot, "src", "app", "api", "creator", "settings", "route.ts"),
+  creatorDropsRoute: join(repoRoot, "src", "app", "api", "creator", "drops", "route.ts"),
   creatorRequestsRoute: join(repoRoot, "src", "app", "api", "creator", "requests", "route.ts"),
   creatorBookingsRoute: join(repoRoot, "src", "app", "api", "creator", "bookings", "route.ts"),
   creatorBroadcastsRoute: join(repoRoot, "src", "app", "api", "creator", "broadcasts", "route.ts"),
@@ -97,13 +99,15 @@ function validate(): LockReport {
   const creatorWorkspacePanel = read(files.creatorWorkspacePanel);
   const profileHook = read(files.profileHook);
   const profilePage = read(files.profilePage);
-  const profileProfileSection = read(files.profileProfileSection);
-  const profileAccountSection = read(files.profileAccountSection);
-  const profileNotificationsSection = read(files.profileNotificationsSection);
-  const profilePrivacySection = read(files.profilePrivacySection);
-  const profileCreatorEarningsSection = read(files.profileCreatorEarningsSection);
-  const profileCreatorToolsSection = read(files.profileCreatorToolsSection);
+  const accountSettings = read(files.accountSettings);
+  const accountPanels = read(files.accountPanels);
+  const creatorSettingsHub = read(files.creatorSettingsHub);
+  const creatorSettingsDeck = read(files.creatorSettingsDeck);
+  const creatorLandingPage = read(files.creatorLandingPage);
+  const creatorBroadcastCard = read(files.creatorBroadcastCard);
+  const creatorActionQueue = read(files.creatorActionQueue);
   const creatorSettingsRoute = read(files.creatorSettingsRoute);
+  const creatorDropsRoute = read(files.creatorDropsRoute);
   const creatorRequestsRoute = read(files.creatorRequestsRoute);
   const creatorBookingsRoute = read(files.creatorBookingsRoute);
   const creatorBroadcastsRoute = read(files.creatorBroadcastsRoute);
@@ -132,15 +136,12 @@ function validate(): LockReport {
     },
     {
       key: "dashboard-uses-projection",
-      label: "Dashboard reads projection state",
-      ok: includesAll(dashboardClient, [
-        "useAdminViewAs",
-        "Boolean(viewAsState)",
-        "<CreatorWorkspacePanel userProfile={userProfile} />",
-      ]),
-      evidence: [
-        "Dashboard mounts the creator workspace when projection mode is active.",
-      ],
+      label: "Creator landing owns projection without stacking the user dashboard",
+      ok: includesAll(creatorLandingPage, ["CreatorDashboardLandingRoute"])
+        && includesAll(creatorWorkspacePanel, ["useAdminViewAs", "Boolean(viewAsState)", "<CreatorWorkspacePanel userProfile={userProfile} />"])
+        && dashboardClient.includes("router.replace(CREATOR_DASHBOARD_ROUTE)")
+        && !dashboardClient.includes("CreatorWorkspacePanel"),
+      evidence: ["The dedicated Creator route mounts its real projection owner; the normal user dashboard retains its separate route boundary."],
     },
     {
       key: "workspace-read-path",
@@ -158,57 +159,55 @@ function validate(): LockReport {
     },
     {
       key: "workspace-write-blocks",
-      label: "Creator workspace blocks destructive actions in projection",
+      label: "Creator workspace blocks current mutation affordances in projection",
       ok: includesAll(creatorWorkspacePanel, [
         "Creator dashboard is read-only in admin projection.",
-        "disabled={broadcastDraft.trim().length < 4 || isProjectionMode}",
-        "Create drop",
-      ]),
-      evidence: [
-        "Projection mode disables broadcast, request, booking, and create-drop actions.",
-      ],
+        "<CreatorBroadcastCard",
+        "<CreatorActionQueuePanel",
+        "isProjectionMode={isProjectionMode}",
+        "if (isProjectionMode)",
+      ]) && creatorBroadcastCard.includes("disabled={broadcastDraft.trim().length < 4 || isProjectionMode}")
+        && creatorActionQueue.includes("disabled={busyAction !== null || isProjectionMode}")
+        && includesAll(creatorDropsRoute, ["requireCreator(caller.uid)", "if (!isCreatorRole(data.role))", "requireCreator: true"]),
+      evidence: ["The real controller guards request, booking and broadcast handlers; delegated current controls disable those actions in projection. Creator Drop mutations independently require the authenticated caller's Creator role and retain the canonical service guard."],
     },
     {
-      key: "profile-hook-projection",
-      label: "Profile hook treats projection as read-only",
-      ok: includesAll(profileHook, [
+      key: "account-isolated-from-creator-projection",
+      label: "Account state remains separate from Creator projection",
+      ok: includesAll(profileHook, ["const isCreatorProjectionActive = false", "accountReady", "observedUserProfile?.uid === user.uid"])
+        && !profileHook.includes("useAdminViewAs")
+        && !profileHook.includes("/api/creator/")
+        && !accountSettings.includes("CreatorDashboardSettingsHub")
+        && profilePage.includes('redirect("/settings")'),
+      evidence: ["The actual Account hook owns the resolved caller's matching profile only; Creator data, reads and projection state remain in the Creator workspace."],
+    },
+    {
+      key: "creator-settings-ui-readonly",
+      label: "Current Creator settings projection blocks writes and preserves visible state",
+      ok: includesAll(creatorSettingsHub, [
         "useAdminViewAs",
-        "isCreatorProjectionActive",
-        "Creator dashboard is read-only in admin projection.",
-        "projectionCreatorId",
-      ]),
-      evidence: [
-        "Profile state now loads projected creator data and blocks creator writes.",
-      ],
-    },
-    {
-      key: "profile-ui-readonly",
-      label: "Creator dashboard profile sections show read-only banners and disabled controls",
-      ok: includesAll(profilePage, [
-        "Admin projection",
-        "Read-only preview",
-        "!state.isCreatorProjectionActive",
-      ]) && includesAll(profileProfileSection, ["Read-only admin projection"]) &&
-        includesAll(profileAccountSection, ["Read-only admin projection"]) &&
-        includesAll(profileNotificationsSection, ["Read-only admin projection"]) &&
-        includesAll(profilePrivacySection, ["Read-only admin projection"]) &&
-        includesAll(profileCreatorEarningsSection, ["Read-only admin projection"]) &&
-        includesAll(profileCreatorToolsSection, ["Read-only admin projection"]),
-      evidence: [
-        "Profile page and creator-specific sections now present compact read-only copy instead of silent write affordances.",
-      ],
+        "viewAsState?.adminViewingAsUserId",
+        "currentSurfaceSettings?.projection?.readOnly === true",
+        "isReadOnlyProjection",
+        "readOnly={isReadOnlyProjection}",
+        "isReadOnly={isReadOnlyProjection}",
+        "<CreatorSettingsControlDeck",
+      ]) && includesAll(creatorSettingsDeck, ["isReadOnly", "Read-only"])
+        && includesAll(accountPanels, ["KandyProfilePanel", "KandyAccountDetailsPanel", "KandyNotificationsPanel", "KandyPrivacyDataPanel"]),
+      evidence: ["Current Creator managers and the delegated settings deck render the server projection state; inactive Profile section banners are retired rather than counted as production projection proof."],
     },
     {
       key: "creator-api-projection-read",
       label: "Creator API routes read projected creator data",
-      ok: includesAll(creatorSettingsRoute, ["readAdminCreatorProjectionContext", "projection", "creatorId = projection?.targetCreatorId"]) &&
-        includesAll(creatorRequestsRoute, ["readAdminCreatorProjectionContext", "effectiveCallerSnap", "targetCreatorId"]) &&
-        includesAll(creatorBookingsRoute, ["readAdminCreatorProjectionContext", "projectionCreatorId"]) &&
-        includesAll(creatorBroadcastsRoute, ["readAdminCreatorProjectionContext", "projection"]) &&
-        includesAll(creatorSubscriptionsRoute, ["subscribers", "readAdminCreatorProjectionContext"]) &&
-        includesAll(chatThreadsRoute, ["readAdminCreatorProjectionContext", "viewerUid = projection?.targetCreatorId"]),
+      ok: includesAll(creatorSettingsRoute, ["readAdminCreatorProjectionContext", "const creatorId = projection?.targetCreatorId || caller.uid", "requireCreator(creatorId)"]) &&
+        includesAll(creatorRequestsRoute, ["readAdminCreatorProjectionContext", "projectionCreatorId = projection?.targetCreatorId", "queryCreatorId = projectionCreatorId", '.where(field, "==", queryValue)']) &&
+        includesAll(creatorBookingsRoute, ["readAdminCreatorProjectionContext", "projectionCreatorId = projection?.targetCreatorId", "creatorId = projectionCreatorId"]) &&
+        includesAll(creatorBroadcastsRoute, ["readAdminCreatorProjectionContext", "creatorId = projection?.targetCreatorId"]) &&
+        includesAll(creatorSubscriptionsRoute, ["subscribers", "readAdminCreatorProjectionContext", "creatorId = projection?.targetCreatorId"]) &&
+        includesAll(chatThreadsRoute, ["readAdminCreatorProjectionContext", "viewerUid = projection?.targetCreatorId || caller.uid", "effectiveCallerSnap = projection"])
+        && [creatorSettingsRoute, creatorRequestsRoute, creatorBookingsRoute, creatorBroadcastsRoute, creatorSubscriptionsRoute].every((source) => includesAll(source, ["if (projection)", "return buildAdminCreatorProjectionReadOnlyResponse()"])),
       evidence: [
-        "Server routes now read the projected creator's data instead of treating the admin session as the creator's own account.",
+        "Each current route binds read queries to the validated projection target; its mutation handlers return the canonical read-only response before writes. Chat separately binds its viewer and effective profile to the target.",
       ],
     },
     {

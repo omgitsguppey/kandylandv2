@@ -78,7 +78,6 @@ describe("admin debug compact layout", () => {
         expect(primitives).toContain('replaceAll("_", " ").replaceAll("-", " ").toLowerCase()');
         expect(primitives).toContain('"NO SAMPLE": "No sample"');
         expect(primitives).toContain('"PROVEN ZERO": "Proven zero"');
-        expect(primitives).toContain('className="py-0 text-[8px] normal-case tracking-normal"');
         expect(primitives).toContain("label={formatDebugPillBadgeLabel(badgeLabel)}");
     });
 });

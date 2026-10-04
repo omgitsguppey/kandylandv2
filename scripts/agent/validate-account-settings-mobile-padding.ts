@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -21,15 +23,8 @@ function git(args: string[]) {
   }
 }
 
-function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of git([...args]).split(/\r?\n/u)) {
-      const file = line.trim().replace(/\\/gu, "/");
-      if (file) files.add(file);
-    }
-  }
-  return [...files].sort();
+export function changedFiles(root = ROOT, args: readonly string[] = process.argv.slice(2)) {
+  return listValidatorScopeFiles(root, args);
 }
 
 function write(path: string, value: string) {
@@ -42,6 +37,9 @@ function main() {
   const currentHead = git(["rev-parse", "HEAD"]) || "unknown";
   const changed = changedFiles();
   const page = read("src/components/Settings/UserSettingsPage.tsx");
+  const center = read("src/components/creative-tim/kandydrops/account/KandyAccountCenter.tsx");
+  const shell = read("src/components/CoreLayoutWrapper.tsx");
+  const mobileShell = read("src/lib/user-mobile-shell.ts");
   const packageJson = JSON.parse(read("package.json")) as { scripts?: Record<string, string> };
   const protectedChanges = changed.filter((file) =>
     file === "src/components/Feedback/GlobalBugReportTrigger.tsx"
@@ -59,30 +57,37 @@ function main() {
     bottomSafetyPreserved: page.includes('data-account-settings-bottom-safe="true"')
       && page.includes('data-settings-bottom-safe="true"')
       && page.includes('data-delete-account-visible-above-floating-actions="true"')
-      && page.includes("USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET")
-      && page.includes("env(safe-area-inset-bottom)")
+      && page.includes("USER_MOBILE_BOTTOM_NAV_SAFE_GAP")
+      && page.includes('data-account-settings-nav-reservation="root-owned"')
+      && page.includes("calc(2.75rem +")
+      && shell.includes("USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT")
+      && mobileShell.includes("env(safe-area-inset-bottom)")
+      && !page.includes("env(safe-area-inset-bottom)")
       && page.includes("scroll-padding-bottom"),
-    shellPaddingAppliedToContainerOnly: page.includes("px-[var(--account-settings-shell-side-padding)]")
-      && page.includes("sm:px-0")
-      && page.includes("-mx-[var(--account-settings-shell-side-padding)]"),
+    shellPaddingAppliedToContainerOnly: center.includes("<UserSettingsPage />")
+      && center.includes("mx-auto w-full max-w-4xl px-4")
+      && !/(?:sm|md|lg|xl|2xl):px-/u.test(center)
+      && page.includes('ACCOUNT_SETTINGS_SHELL_SIDE_PADDING = "0rem"')
+      && page.includes("px-[var(--account-settings-shell-side-padding)]")
+      && !page.includes("-mx-"),
     reportIssueAndNavUntouched: protectedChanges.length === 0,
   };
   const failures = Object.entries(checks)
     .filter(([, passed]) => !passed)
     .map(([name]) => `${name} failed.`);
-  const report = {
+  const report = withValidatorMutationScope({
     generatedAtUtc,
     reportKey: "account-settings-mobile-padding",
     status: failures.length === 0 ? "pass" : "fail",
     currentHead,
     accountSettingsFileChanged: "src/components/Settings/UserSettingsPage.tsx",
-    sidePaddingFix: "Added shell-scoped side padding with a sticky-header counter margin so mobile cards align with inset app shell chrome.",
+    sidePaddingFix: "The single Account center owns horizontal insets; the child settings form has zero additional side inset and no compensating negative margin.",
     bottomPaddingStatus: "preserved",
     protectedChanges,
     changedFiles: changed,
     checks,
     validationFailures: failures,
-  };
+  });
 
   write(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   write(DOC_PATH, [
@@ -94,8 +99,8 @@ function main() {
     "",
     "## Summary",
     "",
-    "- Account Settings now declares side-padding parity with the app shell.",
-    "- The existing bottom-safe padding for Delete Account remains in place.",
+    "- The single Account center owns horizontal insets; the inner settings form does not add a second inset.",
+    "- Root navigation reserves the safe area; Account adds only the existing report chip clearance for Delete Account.",
     "- Report issue, top nav, bottom nav, and chat files remain untouched.",
     "",
     "## Checks",
@@ -117,4 +122,6 @@ function main() {
   console.log("Account settings mobile padding validation passed.");
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

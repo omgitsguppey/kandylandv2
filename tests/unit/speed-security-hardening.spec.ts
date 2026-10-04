@@ -14,6 +14,7 @@ import {
 } from "../../scripts/agent/score-speed-security-hardening";
 import {
   findProductFacingCoinsVocabularyIndex,
+  hasCanonicalWalletDensityEvidence,
   hasCanonicalTelemetrySourceComponentEvidence,
 } from "../../scripts/agent/score-codebase-hardening";
 
@@ -327,6 +328,26 @@ describe("speed-security hardening scanner helpers", () => {
     expect(findProductFacingCoinsVocabularyIndex('import { Coins } from "lucide-react"; const icon = <Coins />;')).toBeUndefined();
     expect(findProductFacingCoinsVocabularyIndex('const label = "Coins available";')).toBeTypeOf("number");
     expect(findProductFacingCoinsVocabularyIndex('<span>Coins available</span>')).toBeTypeOf("number");
+  });
+
+  it("reads wallet density from the canonical modal frame and still rejects legacy emerald styling", () => {
+    const root = process.cwd();
+    const walletSource = readFileSync(join(root, "src/components/PurchaseModal.tsx"), "utf8");
+    const walletFrameSource = readFileSync(
+      join(root, "src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx"),
+      "utf8",
+    );
+
+    expect(hasCanonicalWalletDensityEvidence(walletSource, walletFrameSource)).toBe(true);
+    expect(hasCanonicalWalletDensityEvidence(
+      walletSource,
+      walletFrameSource.replace('data-wallet-density="public-beta-compact"', "missing-wallet-density-marker"),
+    )).toBe(false);
+    expect(hasCanonicalWalletDensityEvidence(
+      walletSource.replace(/<KandyWalletModalFrame\b/u, "<section"),
+      walletFrameSource,
+    )).toBe(false);
+    expect(hasCanonicalWalletDensityEvidence(`${walletSource}\nconst legacyChip = \"emerald\";`, walletFrameSource)).toBe(false);
   });
 
   it("keeps the analytics fixes source-visible to the scanner", () => {

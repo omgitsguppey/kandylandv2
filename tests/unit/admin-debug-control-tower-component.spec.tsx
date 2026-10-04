@@ -192,10 +192,7 @@ const mockState = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/authFetch", () => ({
-    authFetch: vi.fn(async () => ({
-        ok: true,
-        json: async () => mockState.payload,
-    })),
+    authFetch: vi.fn(async () => new Response(JSON.stringify(mockState.payload), { status: 200, headers: { "Content-Type": "application/json" } })),
 }));
 
 vi.mock("@/lib/client-error-reporting", () => ({
@@ -203,6 +200,7 @@ vi.mock("@/lib/client-error-reporting", () => ({
 }));
 
 describe("DebugControlTower", () => {
+    function isInsideClosedDetail(element: Element | null) { return !!element?.closest("details:not([open])"); }
     let container: HTMLDivElement;
     let root: Root;
 
@@ -218,6 +216,39 @@ describe("DebugControlTower", () => {
             root.unmount();
         });
         container.remove();
+    });
+
+
+    it("keeps the actual current issue and next action visible before raw source detail", async () => {
+        await act(async () => { root.render(<DebugControlTower />); await Promise.resolve(); });
+        const issue=Array.from(container.querySelectorAll("p")).find(node=>node.textContent==="Support message detail route returned forbidden.");
+        const action=Array.from(container.querySelectorAll("p")).find(node=>node.textContent==="Runtime SQL must stay out of product routes.");
+        expect(issue).toBeTruthy(); expect(action).toBeTruthy();
+        expect(isInsideClosedDetail(issue??null)).toBe(false);
+        expect(isInsideClosedDetail(action??null)).toBe(false);
+        const raw=container.querySelector("details[data-debug-report-source='source-detail']");
+        expect(raw).not.toHaveAttribute("open");
+        const privacy=Array.from(container.querySelectorAll("summary")).find(node=>node.textContent==="Evidence handling");
+        expect(privacy?.closest("details")).not.toHaveAttribute("open");
+        expect(container.textContent).not.toContain("secret support body");
+    });
+    it("preserves the real selected report filter through closing and reopening source detail", async () => {
+        await act(async () => { root.render(<DebugControlTower />); await Promise.resolve(); });
+        const source=container.querySelector("details[data-debug-report-source='source-detail']") as HTMLDetailsElement;
+        const filters=Array.from(container.querySelectorAll("summary")).find(node=>node.textContent?.startsWith("Filters and evidence rows"))?.closest("details") as HTMLDetailsElement;
+        source.open=true; filters.open=true;
+        const cost=Array.from(container.querySelectorAll("button")).find(node=>node.textContent==="Cost")!;
+        await act(async () => { cost.click(); });
+        expect(cost).toHaveAttribute("aria-pressed","true");
+        expect(container.querySelector("[data-debug-report-source='beta_readiness']")).toBeNull();
+        expect(container.querySelector("[data-debug-report-source='money_cost']")).toBeTruthy();
+        source.open=false;source.open=true;
+        expect(cost).toHaveAttribute("aria-pressed","true");
+        const all=Array.from(container.querySelectorAll("button")).find(node=>node.textContent==="All")!;
+        await act(async () => { all.click(); });
+        expect(all).toHaveAttribute("aria-pressed","true");
+        expect(cost).toHaveAttribute("aria-pressed","false");
+        expect(container.querySelector("[data-debug-report-source='beta_readiness']")).toBeTruthy();
     });
 
     it("keeps launch-ready posture live when only a non-blocking advisory remains", () => {

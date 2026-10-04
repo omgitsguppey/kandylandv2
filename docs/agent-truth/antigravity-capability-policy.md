@@ -17,4 +17,4 @@ This policy governs the execution capabilities, allowed activities, and hard lim
 
 ## Constraints & Memory Rules
 1. **Compact Context First**: Compact indexes (`agent/index/`) and registries must be checked before running broad terminal searches like recursive `grep`.
-2. **Post-Task Memory Writeback**: Always write back task conclusions, mistakes discovered, and newly established prevention rules to `REPO_MEMORY_LEDGER.md` and `AGENTS.md`.
+2. **Triggered Memory Writeback**: Update the durable repo owner when doctrine/governance changes, an owner or validator lane is promoted or retired, verification policy changes, or an owning validator requires it. Ordinary source fixes do not create a mandatory ledger entry.

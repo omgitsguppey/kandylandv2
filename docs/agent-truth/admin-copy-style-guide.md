@@ -13,12 +13,13 @@ Admin copy has two audiences. Primary admin UI is for operators; Debug is for de
 - Collecting activity
 - Needs review
 - Unavailable
+- No source
 - No sample
 - Source mismatch
 - Open in Debug
 - Refresh
 
-Short badges must use only plain labels: Current, Updated, Refreshing, Delayed, Estimate, Partial, Collecting, Review, Error, Cached.
+Short badges use the labels owned by `ADMIN_OPERATOR_BADGE_LABELS` in `src/lib/admin/copy/admin-copy-registry.ts`. The missing-source label is shared with `ADMIN_NO_SOURCE_LABEL` in `src/lib/admin-truth-state.ts`. Collecting activity applies to an active initial load; a settled response with no usable source displays No source. Inspect source details and maintenance state before requesting a refresh.
 
 ## Debug-Only Terms
 
@@ -78,7 +79,7 @@ For Admin Overview, Admin Analytics, and Admin Debug launch work:
 - A verified snapshot means the main UI must not show generic Waiting.
 - Event Mix visible copy says ranked event activity; raw event keys belong in Debug.
 - Commerce copy must state that promo and bonus GD are excluded from revenue when revenue is shown.
-- Admin Overview truth labels are Updated, Last verified data, Refreshing overview, Refresh due, and Collecting overview activity.
+- Admin Overview truth labels follow the shared state/copy owners. Loading may show Collecting activity; a missing overview displays No source and an unavailable data-update label. Receipt time does not prove a source update.
 
 ## User Problem-State Copy
 

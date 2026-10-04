@@ -6,7 +6,8 @@ import { FileText, MessageSquare, ShieldCheck, ShieldAlert } from "lucide-react"
 import { AdminEvidenceMediaPreview } from "@/components/Admin/AdminEvidenceMediaPreview";
 import { AdminModerationSecurityAlerts } from "@/components/Admin/AdminModerationSecurityAlerts";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-import { AdminModerationWorkspaceAccent } from "@/components/creative-tim/kandydrops/admin-moderation/AdminModerationWorkspaceAccent";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
 import { useAdminModerationRealtime } from "@/hooks/useAdminModerationRealtime";
 import { buildAdminModerationControlTowerModel } from "@/lib/admin-moderation-control-tower";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
@@ -169,32 +170,28 @@ export function AdminModerationConsole() {
 
     return (
         <div
-            className="relative isolate space-y-5 overflow-hidden py-1"
+            className="min-w-0 space-y-4"
             data-admin-moderation-v2="real-risk-workspace"
             data-moderation-truth-state={isLocalFixtureSourceMissing ? "source_missing" : model.truthState}
             data-moderation-alert-count={model.unresolvedAlerts}
             data-moderation-selected-alert-id={model.selectedAlert?.id || "none"}
         >
-            <AdminModerationWorkspaceAccent />
             <PageViewEvent eventName="admin_moderation_viewed" />
-            <header className="relative grid gap-5 border-y border-fuchsia-300/20 bg-gradient-to-r from-fuchsia-500/[0.13] via-[#0b0711]/90 to-violet-500/[0.08] px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_19rem] xl:items-end">
-                <div className="max-w-2xl">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200/70">Kandy risk operations</p>
-                    <h1 className="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl">Risk posture and casefiles</h1>
-                    <p className="mt-2 text-sm leading-6 text-gray-400">Creator chat review and server-backed security alerts are kept in one evidence-first decision lane.</p>
-                </div>
-                <label className="grid gap-2 border-l-2 border-fuchsia-300/55 bg-black/20 px-4 py-3">
-                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-fuchsia-100/70">Evidence lens</span>
-                    <select
+            <AdminPageHeader compact eyebrow="Kandy risk operations" title="Risk posture and casefiles"
+                subtitle="Creator chat review and server-backed security alerts are kept in one evidence-first decision lane."
+                topSlot={(
+                <label className="grid gap-2 text-sm font-medium">
+                    Evidence lens
+                    <NativeSelect
                         value={filter}
                         onChange={(event) => setFilter(event.target.value as (typeof FILTERS)[number])}
-                        className="min-h-11 w-full border border-white/15 bg-[#130b1d] px-3 text-sm font-bold text-white outline-none transition-colors focus:border-fuchsia-300/60"
                         aria-label="Moderation evidence filter"
                     >
-                        {FILTERS.map((item) => <option key={item} value={item}>{item}</option>)}
-                    </select>
+                        {FILTERS.map((item) => <NativeSelectOption key={item} value={item}>{item}</NativeSelectOption>)}
+                    </NativeSelect>
                 </label>
-            </header>
+                )}
+            />
 
             {isLocalFixtureSourceMissing ? (
                 <div

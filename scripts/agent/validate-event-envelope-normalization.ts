@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -23,16 +24,6 @@ function gitOutput(command: string) {
   } catch {
     return "";
   }
-}
-
-function listChangedFiles() {
-  const names = new Set<string>();
-  for (const command of ["git diff --name-only", "git diff --cached --name-only", "git ls-files --others --exclude-standard"]) {
-    for (const line of gitOutput(command).split(/\r?\n/u)) {
-      if (line.trim()) names.add(line.trim());
-    }
-  }
-  return [...names].sort();
 }
 
 function writeJson(path: string, value: unknown) {
@@ -85,9 +76,10 @@ function writeDoc(report: {
 }
 
 function main() {
+  const mutationScope = readValidatorMutationScope();
   const generatedAtUtc = new Date().toISOString();
   const currentHead = gitOutput("git rev-parse HEAD") || "unknown";
-  const changedFiles = listChangedFiles();
+  const changedFiles = (mutationScope ? [] : listValidatorScopeFiles());
   const failures: string[] = [];
 
   const contractSource = read("src/lib/analytics/event-envelope-contract.ts");
@@ -188,6 +180,7 @@ function main() {
   }
 
   const report = {
+    mutationScope: mutationScope ?? { mode: "whole_git_worktree" as const },
     reportKey: "event-envelope-normalization",
     generatedAtUtc,
     currentHead,

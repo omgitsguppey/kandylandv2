@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -10,8 +10,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { authFetch } from "@/lib/authFetch";
+import { readUiJson } from "@/lib/ui-continuity";
+import { createStaleRequestGuard } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import { recordClientBreadcrumb, recordClientDiagnostic } from "@/lib/client-diagnostics";
-import { resolveDropViewAccess, telemetryEventForDropViewAccess } from "@/lib/drop-view-access";
+import { hasUnwrappedDrop, resolveDropViewAccess, telemetryEventForDropViewAccess } from "@/lib/drop-view-access";
 import { formatDropCountdown } from "@/lib/drop-countdown";
 import { buildPreviewTelemetryPayload } from "@/lib/drop-preview-telemetry";
 import {
@@ -41,10 +43,19 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     const { viewAsState } = useAdminViewAs();
     const { openAuthModal, openPurchaseModal } = useUI();
     const nowMs = useNow({ intervalMs: 1_000 });
-    const [unlocking, setUnlocking] = useState(false);
-    const [confirming, setConfirming] = useState(false);
-    const [successTransactionId, setSuccessTransactionId] = useState<string | null>(null);
-    const [successEntitlementId, setSuccessEntitlementId] = useState<string | null>(null);
+    const profileReady = !authLoading && Boolean(user?.uid && userProfile?.uid === user.uid);
+    const activeProfile = profileReady ? userProfile : null;
+    const actorUid = profileReady ? user?.uid ?? null : null;
+    const accessLoading = authLoading || Boolean(user && !profileReady);
+    const [unlockState, setUnlockState] = useState({ actorUid, dropId: drop.id, unlocking: false, confirming: false, confirmed: false, transactionId: null as string | null, entitlementId: null as string | null });
+    const stateIsCurrent = unlockState.actorUid === actorUid && unlockState.dropId === drop.id;
+    const unlocking = stateIsCurrent && unlockState.unlocking;
+    const confirming = stateIsCurrent && unlockState.confirming;
+    const isUnlockConfirmed = stateIsCurrent && unlockState.confirmed;
+    const successTransactionId = stateIsCurrent ? unlockState.transactionId : null;
+    const successEntitlementId = stateIsCurrent ? unlockState.entitlementId : null;
+    const unlockGuardRef = useRef(createStaleRequestGuard());
+    const unlockScopeRef = useRef({ actorUid: null as string | null, dropId: drop.id, mounted: false, pendingRequestId: null as number | null, timedFlowStarted: false });
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const isDocumentVisible = useDocumentVisible();
     const ctaViewedKeysRef = useRef<Set<string>>(new Set());
@@ -55,38 +66,38 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     const trackIncompleteOnUnmountRef = useRef(true);
     const latestTelemetryPayloadRef = useRef<ReturnType<typeof buildPreviewTelemetryPayload> | null>(null);
     const trackedAccessStatusRef = useRef<string | null>(null);
-    const actorUserId = user?.uid ?? userProfile?.uid ?? null;
+    useLayoutEffect(() => {
+        unlockGuardRef.current.next();
+        unlockScopeRef.current = { actorUid, dropId: drop.id, mounted: true, pendingRequestId: null, timedFlowStarted: false };
+        setUnlockState({ actorUid, dropId: drop.id, unlocking: false, confirming: false, confirmed: false, transactionId: null, entitlementId: null });
+        successStateViewedRef.current = false;
+        return () => {
+            unlockGuardRef.current.next();
+            unlockScopeRef.current.mounted = false;
+            unlockScopeRef.current.pendingRequestId = null;
+            if (unlockScopeRef.current.timedFlowStarted) clearTimedFlow(PREVIEW_UNLOCK_FLOW_KEY);
+        };
+    }, [actorUid, drop.id]);
+
+    const actorUserId = user?.uid ?? null;
     const viewAsCreatorId = viewAsState?.adminViewingAsRole === "creator" ? viewAsState.adminViewingAsUserId : null;
-    const profileCreatorId = userProfile?.role === "creator" ? userProfile.uid : null;
+    const profileCreatorId = activeProfile?.role === "creator" ? activeProfile.uid : null;
     const activeCreatorId = viewAsCreatorId ?? profileCreatorId;
 
-    const isUnlocked = Boolean(
-        successTransactionId
-        || userProfile?.unlockedContent?.includes(drop.id)
-        || userProfile?.unlockedContentTimestamps?.[drop.id] !== undefined,
-    );
+    const isUnlocked = isUnlockConfirmed || hasUnwrappedDrop(activeProfile, drop.id);
     const truth = useMemo(
         () => resolveLockedDropPreviewTruth({
             drop,
             isAuthenticated: Boolean(user),
             isUnlocked,
-            gumDropsBalance: userProfile?.gumDropsBalance,
+            gumDropsBalance: activeProfile?.gumDropsBalance,
             actorUserId,
             activeCreatorId,
             nowMs,
         }),
-        [activeCreatorId, actorUserId, drop, isUnlocked, nowMs, user, userProfile?.gumDropsBalance],
+        [activeCreatorId, activeProfile?.gumDropsBalance, actorUserId, drop, isUnlocked, nowMs, user],
     );
-    const accessProfile = useMemo(() => {
-        if (userProfile) return userProfile;
-        if (!successTransactionId || !user) return null;
-        return {
-            uid: user.uid,
-            role: "user" as const,
-            unlockedContent: [drop.id],
-            unlockedContentTimestamps: { [drop.id]: Date.now() },
-        };
-    }, [drop.id, successTransactionId, user, userProfile]);
+    const accessProfile = activeProfile;
     const previewAccessState = useMemo(() => resolveDropViewAccess({
         drop,
         requestedDropId: drop.id,
@@ -126,7 +137,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         creatorPreviewEligible: true,
     }), [getPreviewStateTelemetryPayload]);
 
-    trackIncompleteOnUnmountRef.current = !truth.isUnlocked && !successTransactionId;
+    trackIncompleteOnUnmountRef.current = !truth.isUnlocked && !isUnlockConfirmed;
 
     useEffect(() => {
         latestTelemetryPayloadRef.current = telemetryPayload;
@@ -177,7 +188,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     }, [drop.id, isDocumentVisible]);
 
     useEffect(() => {
-        if (!isDocumentVisible) return;
+        if (!isDocumentVisible || accessLoading) return;
         const key = `${drop.id}:${truth.ctaState}:${truth.shortfallGd}`;
         if (ctaViewedKeysRef.current.has(key)) return;
 
@@ -192,7 +203,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             }
             ctaViewedKeysRef.current.add(key);
         });
-    }, [drop.id, getPreviewStateTelemetryPayload, isDocumentVisible, truth, truth.ctaState, truth.shortfallGd]);
+    }, [accessLoading, drop.id, getPreviewStateTelemetryPayload, isDocumentVisible, truth, truth.ctaState, truth.shortfallGd]);
 
     useEffect(() => {
         if (!isDocumentVisible || !truth.creatorCoverPreviewEligible) return;
@@ -250,23 +261,23 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     useEffect(() => {
         if (!confirming) return;
 
-        const timer = window.setTimeout(() => setConfirming(false), 3_500);
+        const timer = window.setTimeout(() => setUnlockState((current) => current.actorUid === actorUid && current.dropId === drop.id ? { ...current, confirming: false } : current), 3_500);
         return () => window.clearTimeout(timer);
-    }, [confirming]);
+    }, [actorUid, confirming, drop.id]);
 
     useEffect(() => {
-        if (!successTransactionId || successStateViewedRef.current) return;
+        if (!isUnlockConfirmed || successStateViewedRef.current) return;
 
         successStateViewedRef.current = true;
         trackEvent("drop_preview_unlock_success_state_viewed", {
             ...getTelemetryPayload(),
-            transaction_id: successTransactionId,
+            transaction_id: successTransactionId ?? "",
             entitlement_id: successEntitlementId ?? "",
             price_gd: drop.unlockCost,
             sourceTruth: "client_supporting",
             idempotency_key: `${user?.uid ?? "unknown"}:preview_success_state:${drop.id}`,
         });
-    }, [drop.id, drop.unlockCost, getTelemetryPayload, successEntitlementId, successTransactionId, user?.uid]);
+    }, [drop.id, drop.unlockCost, getTelemetryPayload, isUnlockConfirmed, successEntitlementId, successTransactionId, user?.uid]);
 
     const handleReaction = (reactionKey: string, reactionLabel: string) => {
         setSelectedReaction(reactionKey);
@@ -280,7 +291,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     };
 
     const handleCtaClick = async () => {
-        if (authLoading || unlocking) return;
+        if (accessLoading || unlocking || unlockScopeRef.current.pendingRequestId !== null) return;
 
         const payload = getTelemetryPayload();
         trackEvent("drop_preview_cta_clicked", payload);
@@ -309,10 +320,12 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             return;
         }
 
-        if (!user || truth.ctaState !== "unwrap") return;
+        const scope = unlockScopeRef.current;
+        if (!user || !actorUid || !scope.mounted || scope.actorUid !== actorUid || scope.dropId !== drop.id || truth.ctaState !== "unwrap") return;
 
         if (!confirming) {
-            setConfirming(true);
+            setUnlockState((current) => ({ ...current, confirming: true }));
+            scope.timedFlowStarted = true;
             startTimedFlow(PREVIEW_UNLOCK_FLOW_KEY, payload);
             trackEvent("drop_unlock_attempted", {
                 ...payload,
@@ -322,36 +335,30 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             return;
         }
 
-        setConfirming(false);
-        setUnlocking(true);
+        const requestId = unlockGuardRef.current.next();
+        scope.pendingRequestId = requestId;
+        const isCurrentUnlock = () => unlockScopeRef.current.mounted
+            && unlockScopeRef.current.actorUid === actorUid
+            && unlockScopeRef.current.dropId === drop.id
+            && unlockGuardRef.current.isFresh(requestId);
+        setUnlockState((current) => isCurrentUnlock() ? { ...current, confirming: false, unlocking: true } : current);
         try {
             triggerHaptic();
             const response = await authFetch("/api/drops/unlock", {
                 method: "POST",
                 body: JSON.stringify({ dropId: drop.id }),
             });
-            const result = await response.json();
-            if (!response.ok && !result.alreadyUnlocked) {
-                throw new Error(result.error || "Unlock failed");
-            }
-
-            const unwrappedAt = Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
-            const transactionId = typeof result.transactionId === "string" && result.transactionId.trim().length > 0
-                ? result.transactionId.trim()
-                : `${user.uid}:unlock:${drop.id}:${unwrappedAt}`;
-            const entitlementId = typeof result.entitlementId === "string" && result.entitlementId.trim().length > 0
-                ? result.entitlementId.trim()
-                : `drop-entitlement:${user.uid}:${drop.id}`;
-            setUserProfile((currentProfile) => applyUnlockedDropPreviewProfilePatch({
-                currentProfile,
-                dropId: drop.id,
-                unlockCost: drop.unlockCost,
-                newBalance: result.newBalance,
-                unwrappedAt,
-            }));
+            if (!isCurrentUnlock()) return;
+            const result = await readUiJson<Record<string, unknown>>(response, { moduleLabel: "Drop unwrap", url: "/api/drops/unlock", requireSuccess: true });
+            if (!isCurrentUnlock()) return;
+            const unwrappedAt = typeof result.unwrappedAt === "number" && Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
+            const transactionId = typeof result.transactionId === "string" ? result.transactionId.trim() : null;
+            const entitlementId = typeof result.entitlementId === "string" ? result.entitlementId.trim() : null;
+            setUserProfile((currentProfile) => isCurrentUnlock() && currentProfile?.uid === actorUid
+                ? applyUnlockedDropPreviewProfilePatch({ currentProfile, dropId: drop.id, unlockCost: drop.unlockCost, newBalance: result.newBalance, unwrappedAt })
+                : currentProfile);
             dispatchActivitySync();
-            setSuccessTransactionId(transactionId);
-            setSuccessEntitlementId(entitlementId);
+            setUnlockState((current) => isCurrentUnlock() ? { ...current, confirmed: true, transactionId, entitlementId } : current);
             trackIncompleteOnUnmountRef.current = false;
 
             if (!result.alreadyUnlocked) {
@@ -361,11 +368,14 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
                     item_name: drop.title,
                 });
             }
+            scope.timedFlowStarted = false;
             consumeTimedFlow(PREVIEW_UNLOCK_FLOW_KEY);
             import("canvas-confetti")
-                .then((mod) => mod.default({ particleCount: 70, spread: 60, origin: { y: 0.74 } }))
+                .then((mod) => { if (isCurrentUnlock()) mod.default({ particleCount: 70, spread: 60, origin: { y: 0.74 } }); })
                 .catch(() => undefined);
         } catch (error: unknown) {
+            if (!isCurrentUnlock()) return;
+            scope.timedFlowStarted = false;
             const problemCopy = getUnlockProblemCopy(error);
             trackEvent("unlock_drop_failed", {
                 ...payload,
@@ -376,7 +386,10 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             clearTimedFlow(PREVIEW_UNLOCK_FLOW_KEY);
             toast.error(problemCopy.headline, { description: problemCopy.body });
         } finally {
-            setUnlocking(false);
+            if (isCurrentUnlock() && unlockScopeRef.current.pendingRequestId === requestId) {
+                unlockScopeRef.current.pendingRequestId = null;
+                setUnlockState((current) => isCurrentUnlock() ? { ...current, unlocking: false } : current);
+            }
         }
     };
 
@@ -391,7 +404,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         trackIncompleteOnUnmountRef.current = false;
         trackEvent("drop_preview_keep_unwrapping_clicked", {
             ...getTelemetryPayload(),
-            transaction_id: successTransactionId ?? `${user?.uid ?? "unknown"}:preview_keep_unwrapping:${drop.id}`,
+            transaction_id: successTransactionId ?? "",
             idempotency_key: `${user?.uid ?? "unknown"}:preview_keep_unwrapping:${drop.id}`,
         });
         router.push(truth.keepUnwrappingHref);
@@ -440,7 +453,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             mediaCounts={mediaCounts}
             timerLabel={countdown.visibleLabel}
             timerFullLabel={countdown.fullLabel}
-            authLoading={authLoading}
+            authLoading={accessLoading}
             unlocking={unlocking}
             confirming={confirming}
             selectedReaction={selectedReaction}

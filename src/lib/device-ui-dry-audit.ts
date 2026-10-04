@@ -78,6 +78,14 @@ const SEVERITY_RANK: Record<DeviceUiDrySeverity, number> = {
 
 const SOURCE_EXTENSIONS = /\.(tsx|ts|jsx|js)$/u;
 
+const WALLET_DENSITY_MARKERS = [
+    "data-wallet-density=\"public-beta-compact\"",
+    "data-wallet-balance-chip=\"split-source\"",
+    "data-wallet-package-subcopy=\"removed\"",
+] as const;
+
+const CANONICAL_EXPERIENCES_COMPACT_CONTAINER_CLASS = "mx-auto max-w-6xl space-y-6 sm:space-y-8";
+
 function normalizePath(filePath: string) {
     return filePath.replace(/\\/g, "/").replace(/^\.\//u, "");
 }
@@ -103,6 +111,42 @@ function readIfExists(root: string, filePath: string): SourceFile | null {
 
 function readRequired(root: string, filePath: string) {
     return readFileSync(join(root, normalizePath(filePath)), "utf8");
+}
+
+export function hasComposedWalletDensityEvidence(walletSource: string, walletFrameSource: string, marker: string) {
+    return /<KandyWalletModalFrame\b/u.test(walletSource) && walletFrameSource.includes(marker);
+}
+
+export function hasCanonicalDesktopCapEvidence(
+    filePath: string,
+    source: string,
+    composedSources: {
+        dropsDiscoveryExperienceSource?: string;
+        creatorPublicProfileFrameSource?: string;
+    } = {},
+) {
+    if (/(max-w-|container|mx-auto)/u.test(source)) return true;
+
+    if (filePath === "src/app/drops/DropsClient.tsx") {
+        return /<DropsDiscoveryExperience\b/u.test(source)
+            && /(max-w-|container|mx-auto)/u.test(composedSources.dropsDiscoveryExperienceSource ?? "");
+    }
+
+    if (filePath === "src/app/creators/[username]/CreatorProfileClient.tsx") {
+        return /<CreatorPublicProfileFrame\b/u.test(source)
+            && /(max-w-|container|mx-auto)/u.test(composedSources.creatorPublicProfileFrameSource ?? "");
+    }
+
+    return false;
+}
+
+export function isApprovedExperiencesCompactSpacing(source: string, matchIndex: number, matchText: string) {
+    if (!source.includes('data-experiences-layout="public-beta-compact"')) return false;
+
+    const containerStart = source.indexOf(CANONICAL_EXPERIENCES_COMPACT_CONTAINER_CLASS);
+    if (containerStart < 0 || !CANONICAL_EXPERIENCES_COMPACT_CONTAINER_CLASS.includes(matchText)) return false;
+
+    return matchIndex >= containerStart && matchIndex < containerStart + CANONICAL_EXPERIENCES_COMPACT_CONTAINER_CLASS.length;
 }
 
 function walkFiles(root: string, startPath: string): string[] {
@@ -225,7 +269,6 @@ function scanViewportUnits(root: string, findings: DeviceUiDryFinding[]) {
         "src/components/PurchaseModal.tsx",
         "src/components/Drops/LockedDropPreviewView.tsx",
         "src/app/drops/[id]/preview/loading.tsx",
-        "src/components/DropPreviewModal.tsx",
         "src/lib/user-mobile-shell.ts",
     ];
 
@@ -280,7 +323,6 @@ function scanBottomNavAndSafeArea(root: string, findings: DeviceUiDryFinding[]) 
         "src/components/Navigation/ScrollToTop.tsx",
         "src/components/Chat/ChatExperience.tsx",
         "src/components/Drops/LockedDropPreviewView.tsx",
-        "src/components/DropPreviewModal.tsx",
         "src/components/PurchaseModal.tsx",
     ];
     for (const filePath of shellCriticalFiles) {
@@ -453,23 +495,24 @@ function scanChat(root: string, findings: DeviceUiDryFinding[]) {
 
 function scanWallet(root: string, findings: DeviceUiDryFinding[]) {
     const wallet = readIfExists(root, "src/components/PurchaseModal.tsx");
+    const walletFrame = readIfExists(root, "src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx");
     if (!wallet) return;
 
     const checks = [
-        ["data-wallet-density=\"public-beta-compact\"", "wallet compact density marker", "major"],
-        ["data-wallet-balance-chip=\"split-source\"", "split source balance marker", "major"],
-        ["data-wallet-package-subcopy=\"removed\"", "package subcopy removed marker", "major"],
+        [WALLET_DENSITY_MARKERS[0], "wallet compact density marker", "major"],
+        [WALLET_DENSITY_MARKERS[1], "split source balance marker", "major"],
+        [WALLET_DENSITY_MARKERS[2], "package subcopy removed marker", "major"],
     ] as const;
     for (const [needle, label, severity] of checks) {
-        if (!wallet.source.includes(needle)) {
+        if (!hasComposedWalletDensityEvidence(wallet.source, walletFrame?.source ?? "", needle)) {
             createFinding(findings, {
                 idBase: `wallet-missing-${label.replace(/\W+/g, "-")}`,
                 routeOrSurface: "wallet_modal",
                 category: "wallet_density",
                 severity,
-                filePath: wallet.filePath,
-                evidence: [`Missing ${label}: ${needle}.`],
-                expectedRule: "PurchaseModal must expose compact public-beta density markers.",
+                filePath: walletFrame?.filePath ?? wallet.filePath,
+                evidence: [`Missing composed ${label}: ${needle}.`],
+                expectedRule: "PurchaseModal must render KandyWalletModalFrame with compact public-beta density markers.",
                 actualPattern: "missing wallet compact density marker",
                 humanReadableWarning: "Wallet modal density can regress without machine-readable source truth.",
                 deviceProfiles: MOBILE_DEVICE_PROFILE_IDS,
@@ -860,10 +903,15 @@ function scanBreakpointsAndDesktopCaps(root: string, findings: DeviceUiDryFindin
         "src/components/Drops/LockedDropPreviewView.tsx",
         "src/app/creators/[username]/CreatorProfileClient.tsx",
     ];
+    const dropsDiscoveryExperience = readIfExists(root, "src/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience.tsx");
+    const creatorPublicProfileFrame = readIfExists(root, "src/components/Creators/CreatorPublicProfileFrame.tsx");
     for (const filePath of desktopCriticalFiles) {
         const file = readIfExists(root, filePath);
         if (!file) continue;
-        if (!/(max-w-|container|mx-auto)/.test(file.source)) {
+        if (!hasCanonicalDesktopCapEvidence(file.filePath, file.source, {
+            dropsDiscoveryExperienceSource: dropsDiscoveryExperience?.source,
+            creatorPublicProfileFrameSource: creatorPublicProfileFrame?.source,
+        })) {
             createFinding(findings, {
                 idBase: "desktop-no-max-width-cap",
                 routeOrSurface: surfaceForFile(file.filePath),
@@ -944,7 +992,7 @@ function scanVerticalSprawl(root: string, findings: DeviceUiDryFinding[]) {
             filePath: "src/components/PurchaseModal.tsx",
             surface: "wallet_modal" as const,
             category: "wallet_density" as const,
-            regex: /p-[68]|space-y-[67]|gap-[67]/u,
+            regex: /p-[68]|space-y-[67]|gap-[67]/gu,
             expected: "Wallet mobile modal uses compact density and avoids p-6/p-8 row sprawl.",
             warning: "Wallet modal may push checkout controls below the fold.",
         },
@@ -952,7 +1000,7 @@ function scanVerticalSprawl(root: string, findings: DeviceUiDryFinding[]) {
             filePath: "src/app/experiences/ExperiencesClient.tsx",
             surface: "experiences_page" as const,
             category: "vertical_sprawl" as const,
-            regex: /space-y-[67]|p-[68]/u,
+            regex: /space-y-[67]|p-[68]/gu,
             expected: "Experiences retention hub keeps compact public-beta vertical rhythm.",
             warning: "Experiences page may become vertically sprawling on iPhone-class screens.",
         },
@@ -961,7 +1009,10 @@ function scanVerticalSprawl(root: string, findings: DeviceUiDryFinding[]) {
     for (const pattern of patterns) {
         const file = readIfExists(root, pattern.filePath);
         if (!file) continue;
-        const match = pattern.regex.exec(file.source);
+        const match = Array.from(file.source.matchAll(pattern.regex)).find((candidate) => !(
+            pattern.filePath === "src/app/experiences/ExperiencesClient.tsx"
+            && isApprovedExperiencesCompactSpacing(file.source, candidate.index ?? 0, candidate[0])
+        ));
         if (match) {
             createFinding(findings, {
                 idBase: "vertical-sprawl-heuristic",

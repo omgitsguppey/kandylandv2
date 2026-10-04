@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { execSync } from "node:child_process";
@@ -83,17 +84,7 @@ export function projectDailyTaskResetSourceStatus(validationFailures: readonly s
 }
 
 function getDirtyFiles() {
-  try {
-    const changed = execSync("git diff --name-only", { cwd: ROOT, encoding: "utf8" })
-      .split(/\r?\n/u)
-      .filter(Boolean);
-    const untracked = execSync("git ls-files --others --exclude-standard", { cwd: ROOT, encoding: "utf8" })
-      .split(/\r?\n/u)
-      .filter(Boolean);
-    return Array.from(new Set([...changed, ...untracked])).sort();
-  } catch {
-    return [];
-  }
+  return listValidatorScopeFiles();
 }
 
 function readScore(): ScoreDimensions {
@@ -294,7 +285,7 @@ export function validateDailyTaskResetTruthReport(report: DailyTaskResetTruthRep
 function writeReport(report: DailyTaskResetTruthReport) {
   const reportPath = join(ROOT, REPORT_PATH);
   mkdirSync(dirname(reportPath), { recursive: true });
-  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(reportPath, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
 
   const docPath = join(ROOT, DOC_PATH);
   mkdirSync(dirname(docPath), { recursive: true });

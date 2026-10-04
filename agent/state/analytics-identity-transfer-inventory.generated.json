@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-18T04:40:06.626Z",
+  "generatedAtUtc": "2026-10-03T01:47:45.625Z",
   "reportKey": "analytics-identity-transfer-inventory",
-  "currentHead": "5804de2bee6bb7ee37b6764af26094c391d03abf",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "guestIdentitySources": 2,
     "userIdentitySources": 2,
@@ -17,7 +17,7 @@
     "geminiCloudAssistStatus": "vertex_admin_ai_detected_outside_analytics_identity_transfer",
     "route4xxFindings": 2,
     "p0Count": 0,
-    "p1Count": 2,
+    "p1Count": 1,
     "p2Count": 7
   },
   "identityMap": [
@@ -79,12 +79,12 @@
       "collectionOrPath": "src/app/api/analytics/ingest-identified/route.ts -> analytics_event_facts",
       "truthRole": "product_truth",
       "transferCandidate": true,
-      "notes": "Authenticated telemetry writes canonical runtime facts and can process identity_linked events."
+      "notes": "Authenticated telemetry writes observed runtime facts; identity_linked is diagnostic only and does not create an association."
     },
     {
       "id": "identity-linked-bridge",
       "lane": "identity_link",
-      "source": "identity_linked event",
+      "source": "AuthContext -> buildIdentityLinkPayload.submit -> /api/analytics/identity-link",
       "fields": [
         "anonymousVisitorId",
         "sessionId",
@@ -94,10 +94,10 @@
         "method",
         "mergeAllowed"
       ],
-      "collectionOrPath": "analytics_identity_links / identity_lineage_indexes",
+      "collectionOrPath": "src/app/api/analytics/identity-link/route.ts -> analytics_identity_links / identity_lineage_indexes",
       "truthRole": "supporting_index",
       "transferCandidate": true,
-      "notes": "This bridge links guest and user identities without rewriting old guest events into user events."
+      "notes": "The canonical caller-bound, request-consent-gated route writes associations without scanning or rewriting old guest facts; source readiness does not prove deployed or historical continuity."
     },
     {
       "id": "admin-analytics-snapshots",
@@ -116,19 +116,6 @@
     }
   ],
   "transferGaps": [
-    {
-      "id": "login-signup-transfer-entrypoint-not-proven",
-      "severity": "p1",
-      "owner": "analytics-identity",
-      "currentState": "Identity link contract and server upsert path exist, and identified ingest handles identity_linked events.",
-      "expectedState": "Login and signup flows should emit or submit identity_linked with the current anonymous visitor id and session id after auth succeeds.",
-      "evidence": [
-        "src/lib/client-session.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/lib/server/analytics-identity-linking.ts"
-      ],
-      "action": "Next pass should trace AuthContext/login/signup telemetry and wire a guarded identity_linked handoff if absent."
-    },
     {
       "id": "guest-history-not-reclassified",
       "severity": "p2",
@@ -293,12 +280,13 @@
       "status": "source_inventory_complete",
       "owner": "analytics-platform",
       "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "detail": "Identified ingest is auth-gated, rate-limited, validates event batches, and handles identity_linked records during canonical event processing.",
-      "action": "Transfer implementation should reuse this typed path or an equally bounded route.",
+      "detail": "Identified ingest is auth-gated, rate-limited and validates observed event batches; identity_linked remains diagnostic and cannot write associations.",
+      "action": "Keep association writes in the existing caller-bound, request-consent-gated /api/analytics/identity-link route; retain bounded diagnostic ingest.",
       "evidence": [
         "guardApiRequest",
         "PayloadSchema",
-        "upsertAnalyticsIdentityLink"
+        "src/app/api/analytics/identity-link/route.ts",
+        "identityLinksCreated"
       ]
     },
     {
@@ -363,8 +351,7 @@
     }
   ],
   "nextFixOrder": [
-    "Trace AuthContext login/signup/session-restore paths and prove whether identity_linked is emitted after authentication.",
-    "If absent, add an idempotent guest-to-user identity transfer event using anonymousVisitorId, sessionId, userId, consent, and eligiblePastSessionIds.",
-    "After source transfer exists, update admin/user analytics consumers to label direct user facts versus linked guest context."
+    "Keep the source-checked AuthContext handoff and sole canonical association writer; deployed continuity and historical recovery still require their own current evidence.",
+    "Verify admin/user analytics consumers label direct user facts versus consent-eligible linked guest context without double-counting or promoting missing data to zero."
   ]
 }

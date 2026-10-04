@@ -1,6 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { pathToFileURL } from "node:url";
+
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 const REPORT_PATH = "agent/state/account-settings-delete-flow.generated.json";
 const DOC_PATH = "docs/agent-truth/account-settings-delete-flow.md";
@@ -19,15 +22,8 @@ function git(args: string[]) {
   }
 }
 
-function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of git([...args]).split(/\r?\n/u)) {
-      const file = line.trim().replace(/\\/gu, "/");
-      if (file) files.add(file);
-    }
-  }
-  return [...files].sort();
+export function changedFiles(root = process.cwd(), args: readonly string[] = process.argv.slice(2)) {
+  return listValidatorScopeFiles(root, args);
 }
 
 function writeJson(path: string, value: unknown) {
@@ -61,7 +57,7 @@ function renderDoc(report: {
     "## Contract",
     "",
     "- Account Settings owns additional bottom scroll padding so the Delete Account row can move above the floating Report issue chip, bottom nav, and safe area.",
-    "- The Report issue chip, top nav, bottom nav, chat, payment, wallet, PayPal, and GumDrop math remain untouched.",
+    "- Root navigation owns its safe-area reservation. Account adds clearance for the existing report chip only; protected runtime changes are classified separately in the report.",
     "- Delete Account uses an explicit confirmation modal before calling the existing authenticated server delete route.",
     "- The client never passes an arbitrary user id. `/api/user/delete` scopes deletion to the authenticated caller.",
     "- Failures use human-readable account-safety copy and create debug-visible client evidence.",
@@ -71,7 +67,7 @@ function renderDoc(report: {
     "",
     `- Before: ${report.deleteFlowStatusBefore}`,
     `- After: ${report.deleteFlowStatusAfter}`,
-    `- Immediate deletion behavior: ${report.immediateDeletionBehavior}`,
+    `- Server settlement behavior: ${report.immediateDeletionBehavior}`,
     "",
     "## Checks",
     "",
@@ -94,9 +90,11 @@ function main() {
   const files = changedFiles();
   const packageJson = read("package.json");
   const settingsPage = read("src/components/Settings/UserSettingsPage.tsx");
-  const supportSection = read("src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx");
+  const supportSection = read("src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx");
   const profileState = read("src/app/dashboard/profile/hooks/useProfileState.tsx");
   const deleteRoute = read("src/app/api/user/delete/route.ts");
+  const shell = read("src/components/CoreLayoutWrapper.tsx");
+  const mobileShell = read("src/lib/user-mobile-shell.ts");
   const telemetryCatalog = read("src/lib/telemetry-catalog.ts");
   const telemetryClient = read("src/lib/telemetry.ts");
 
@@ -131,8 +129,12 @@ function main() {
     accountSettingsBottomSafe: settingsPage.includes('data-account-settings-bottom-safe="true"')
       && settingsPage.includes('data-report-issue-chip-untouched="true"')
       && settingsPage.includes('data-delete-account-visible-above-floating-actions="true"')
-      && settingsPage.includes("USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET")
-      && settingsPage.includes("env(safe-area-inset-bottom)")
+      && settingsPage.includes("USER_MOBILE_BOTTOM_NAV_SAFE_GAP")
+      && settingsPage.includes('data-account-settings-nav-reservation="root-owned"')
+      && settingsPage.includes("calc(2.75rem +")
+      && shell.includes("USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT")
+      && mobileShell.includes("env(safe-area-inset-bottom)")
+      && !settingsPage.includes("env(safe-area-inset-bottom)")
       && settingsPage.includes("scroll-padding-bottom"),
     reportIssueChipUntouched: !protectedNavOrChipChanges.some((file) => file.includes("Feedback/")),
     bottomNavUntouched: !protectedNavOrChipChanges.some((file) => /BottomNav|MobileBottomBar/u.test(file)),
@@ -140,6 +142,13 @@ function main() {
     chatPaymentGumdropMathUntouched: protectedChatPaymentGumdropChanges.length === 0,
     deleteUiHasConfirmationStep: supportSection.includes("Delete account?")
       && supportSection.includes("data-account-delete-confirmation-modal")
+      && supportSection.includes("DialogContent")
+      && supportSection.includes("onOpenAutoFocus")
+      && supportSection.includes("deletionTitleRef.current?.focus()")
+      && supportSection.includes("tabIndex={-1}")
+      && !supportSection.includes("gap-0 overflow-hidden p-0")
+      && supportSection.includes("onEscapeKeyDown")
+      && supportSection.includes("if (state.isDeleting) event.preventDefault()")
       && supportSection.includes("aria-modal=\"true\"")
       && supportSection.includes("This cannot be undone.")
       && !profileState.includes("window.confirm("),
@@ -149,10 +158,17 @@ function main() {
       && deleteRoute.includes("const { uid } = caller")
       && deleteRoute.includes("adminAuth.deleteUser(uid)")
       && !deleteRoute.includes("await request.json()"),
-    clientCannotPassArbitraryUserId: !/userId\s*[:=]\s*user|uid\s*[:=]\s*user|JSON\.stringify\(\s*\{[^}]*userId/iu.test(profileState)
+    clientCannotPassArbitraryUserId: profileState.includes('authFetch("/api/user/delete", { method: "DELETE" })')
+      && deleteRoute.includes("scopeToCaller: true")
+      && !deleteRoute.includes("await request.json()")
       && !/userId|targetUserId|uid/u.test(telemetryBuilder),
-    immediateDeletionTruthful: profileState.includes("deletion_mode: \"immediate_server_delete\"")
+    explicitDeletionSettlement: profileState.includes("data.success !== true")
       && profileState.includes("account_delete_completed")
+      && profileState.includes("account_deletion_retention_review_required")
+      && profileState.includes("account_deletion_cleanup_pending")
+      && profileState.includes("deletionRequiresSupportReview")
+      && supportSection.includes("Contact support")
+      && supportSection.includes("Some records may be retained")
       && !supportSection.includes("Deletion request sent"),
     humanFailureCopy: profileState.includes("Account deletion could not start because your account session is missing. Sign in again and retry.")
       && profileState.includes("We could not submit the deletion request right now. Try again or contact support.")
@@ -172,18 +188,18 @@ function main() {
     .filter(([, passed]) => !passed)
     .map(([key]) => `${key} failed.`);
 
-  const report = {
+  const report = withValidatorMutationScope({
     generatedAtUtc,
     reportKey: "account-settings-delete-flow",
     currentHead,
     status: status(validationFailures.length === 0),
     accountSettingsFileChanged: "src/components/Settings/UserSettingsPage.tsx",
-    supportSafetyFileChanged: "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+    supportSafetyFileChanged: "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx",
     stateHookChanged: "src/app/dashboard/profile/hooks/useProfileState.tsx",
     deleteRoute: "src/app/api/user/delete/route.ts",
     deleteFlowStatusBefore: "fully_wired_route_with_window_confirm_and_raw_failure_copy",
-    deleteFlowStatusAfter: "fully_wired_modal_confirmed_immediate_server_delete",
-    immediateDeletionBehavior: "Existing authenticated server route deletes account data and deletes the Firebase Auth user; client only submits intent and signs out after success.",
+    deleteFlowStatusAfter: "sourced_dialog_with_explicit_settlement_and_typed_retention_recovery",
+    immediateDeletionBehavior: "The authenticated server route owns settlement. The client signs out only after explicit success; retention review keeps the account active, and pending cleanup remains incomplete.",
     reportIssueChipUntouched: checks.reportIssueChipUntouched,
     topNavUntouched: checks.topNavUntouched,
     bottomNavUntouched: checks.bottomNavUntouched,
@@ -193,7 +209,7 @@ function main() {
     changedFiles: files,
     checks,
     validationFailures,
-  };
+  });
 
   writeJson(REPORT_PATH, report);
   renderDoc(report);
@@ -207,4 +223,6 @@ function main() {
   console.log("Account settings delete flow validation passed.");
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

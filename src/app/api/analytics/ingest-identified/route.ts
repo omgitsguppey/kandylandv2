@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolveRequestConsentMode } from "@/lib/server/privacy-consent";
+import { canTrackEvent, canPersistIdentityLink, restrictConsentMode, deriveAnalyticsConsentState } from "@/lib/privacy/consent-tracking-policy";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { z } from "zod";
-import { handleApiError, AuthError } from "@/lib/server/auth";
+import { handleApiError, AuthError, readCurrentAnalyticsProfileRole } from "@/lib/server/auth";
 import { ANALYTICS_WRITE, RateLimitError } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordDebugEvidence } from "@/lib/server/debug-evidence-store";
@@ -16,11 +18,9 @@ import { normalizeIdentifiedRuntimeFact } from "@/lib/runtime-facts/normalize-ru
 import { createRuntimeFactFirestoreDocument } from "@/lib/server/write-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineProjection } from "@/lib/server/behavioral-timeline-writer";
-import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
 import { resolveIdentityTransferTelemetryState } from "@/lib/analytics/identity-transfer";
-import { BEHAVIORAL_EVENT_FACT_VERSION, type BehavioralEventSource } from "@/lib/behavioral/event-fact-contract";
+import { BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS, BEHAVIORAL_EVENT_FACT_VERSION, type BehavioralEventSource } from "@/lib/behavioral/event-fact-contract";
 import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
-import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
 import {
     buildEventEnvelope,
     validateEventEnvelope,
@@ -28,11 +28,15 @@ import {
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import type { IdentifiedMetricParityFact } from "@/lib/behavioral/event-fact-normalizer";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
-import type { RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
+import { readRuntimeFactRequestConsentAdmission, type RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
 
 export const dynamic = "force-dynamic";
 
 const MAX_ANALYTICS_BODY_BYTES = 128 * 1024; // 128KB max payload
+const OPTIONAL_SESSION_MEASUREMENT_PARAM_KEYS = new Set<string>([
+    ...BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS,
+    "session_measurement", "sessionMeasurement", "idle_ms", "idleMs", "hidden_ms", "hiddenMs",
+]);
 const CROSS_ORIGIN_FRAME_PATTERNS = [
     /blocked a frame with origin/i,
     /cross-origin frame/i,
@@ -105,7 +109,13 @@ function readStoredIdentifiedTimelineFact(input: {
         || !validTarget
         || !validConfidenceInputs
     ) return null;
-    return fact as BehavioralTimelineFact;
+    // Recovery requires agreement with original source admission; current consent never attests an older row.
+    const { requestConsentAdmission: savedAdmission, ...storedFact } = fact as BehavioralTimelineFact;
+    const originalAdmission = readRuntimeFactRequestConsentAdmission(record.requestConsentAdmission);
+    const projectedAdmission = readRuntimeFactRequestConsentAdmission(savedAdmission);
+    const requestConsentAdmission = originalAdmission && projectedAdmission?.consentMode === originalAdmission.consentMode
+        ? originalAdmission : null;
+    return { ...storedFact, ...(requestConsentAdmission ? { requestConsentAdmission } : {}) };
 }
 
 function resolveBehavioralEventSource(sourceTruth: RuntimeFact["sourceTruth"]): BehavioralEventSource {
@@ -149,14 +159,6 @@ function readEventModules(params: Record<string, unknown>) {
     }
 
     return typeof value === "string" ? value.trim() : "";
-}
-
-function normalizeIdentityLinkMethod(value: string): "login" | "signup" | "session_restore" | "admin_link" | "import" | "unknown" {
-    if (value === "login" || value === "signup" || value === "session_restore" || value === "admin_link" || value === "import") {
-        return value;
-    }
-
-    return "unknown";
 }
 
 function stableHash(input: string) {
@@ -316,6 +318,7 @@ async function POST_handler(request: NextRequest) {
             });
         }
 
+        const requestConsentMode = resolveRequestConsentMode(request);
         const uniqueEvents = new Map<string, any>();
         for (const rawEvent of parsed.data.events) {
             const eId = rawEvent.eventId;
@@ -333,10 +336,13 @@ async function POST_handler(request: NextRequest) {
         let processed = 0;
         let dedupedExisting = 0;
         let skippedUnsupported = 0;
+        let skippedConsent = 0;
         const skippedUnsupportedEventNames = new Set<string>();
         let latestActiveUserPatch: Record<string, unknown> | null = null;
         const timelineFacts: BehavioralTimelineFact[] = [];
-        let identityLinksCreated = 0;
+        // Compatibility status: observed telemetry never mutates the canonical association.
+        const identityLinksCreated = 0;
+        let admittedProfileRole: Awaited<ReturnType<typeof readCurrentAnalyticsProfileRole>> | undefined;
 
         for (const rawEvent of deduplicatedEvents) {
             const telemetryEvent = resolveTrackedTelemetryEvent(rawEvent.eventName);
@@ -350,6 +356,12 @@ async function POST_handler(request: NextRequest) {
             }
 
             const canonicalEventName = telemetryEvent.canonicalEventName;
+            const eventConsentMode = restrictConsentMode(requestConsentMode, Object.hasOwn(params, "consent_mode") ? params.consent_mode : params.consentMode);
+            if (!canTrackEvent(canonicalEventName, eventConsentMode)
+                || (canonicalEventName === "identity_linked" && !canPersistIdentityLink(eventConsentMode))) {
+                skippedConsent += 1;
+                continue;
+            }
             const eventId = rawEvent.eventId || buildFallbackEventId(caller.uid, canonicalEventName);
             const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.runtimeFacts).doc(eventId);
             // cost-bound: single Firestore document read for idempotency, not a collection scan.
@@ -365,23 +377,36 @@ async function POST_handler(request: NextRequest) {
                 continue;
             }
 
+            // One exact current-profile read only for a batch containing a new admitted fact.
+            admittedProfileRole ??= await readCurrentAnalyticsProfileRole(caller.uid);
             const timestamp = rawEvent.eventTimestampMs || Date.now();
             const enrichedParamsBase = {
-                ...params,
+                ...(eventConsentMode === "full_behavioral" ? params : Object.fromEntries(Object.entries(params).filter(([key]) => !OPTIONAL_SESSION_MEASUREMENT_PARAM_KEYS.has(key)))),
                 ...telemetryEvent.metadataParams,
                 tracking_origin: "identified_api_ingest",
+                consent_mode: eventConsentMode,
+                consent_state: deriveAnalyticsConsentState(eventConsentMode),
+                ...(canonicalEventName === "identity_linked" ? {
+                    diagnostic_only: true,
+                    metric_eligible: false,
+                    metric_exclusion_reason: "client_observed_identity_link",
+                    source_truth: "client_supporting",
+                    canonical_link_source: "server_identity_link",
+                } : {}),
             };
-            const enrichedParams = isSearchIntentEventName(canonicalEventName)
+            const sanitizedObservedParams = isSearchIntentEventName(canonicalEventName)
                 ? sanitizeSearchIntentParams(enrichedParamsBase, canonicalEventName)
                 : enrichedParamsBase;
             const runtimeFactResult = normalizeIdentifiedRuntimeFact({
                 eventId,
                 rawEventName: rawEvent.eventName,
-                params: enrichedParams,
+                params: sanitizedObservedParams,
                 timestampMs: timestamp,
                 callerUid: caller.uid,
+                callerRole: admittedProfileRole,
+                requestConsentMode: eventConsentMode,
             });
-            if (!runtimeFactResult.fact) {
+            if (!runtimeFactResult.fact || runtimeFactResult.fact.actor.actorType === "unknown" || !runtimeFactResult.identityEnvelope || !runtimeFactResult.params) {
                 skippedUnsupported += 1;
                 skippedUnsupportedEventNames.add(rawEvent.eventName);
                 await recordLegacyClientDiagnostic(caller.uid, rawEvent.eventName, params);
@@ -389,6 +414,8 @@ async function POST_handler(request: NextRequest) {
             }
 
             const ingestRuntimeFact = runtimeFactResult.fact;
+            const enrichedParams = runtimeFactResult.params;
+            const canonicalIdentityEnvelope = runtimeFactResult.identityEnvelope;
             // Metric truth is owned by normalizeIdentifiedRuntimeFact -> normalizeIdentifiedMetricEventFact;
             // this route only persists the canonical behavioral fact snapshot/version for downstream readers.
             const behavioralEventFactResult = normalizeBehavioralEventFactWithDiagnostics({
@@ -396,13 +423,13 @@ async function POST_handler(request: NextRequest) {
                 eventName: rawEvent.eventName,
                 params: enrichedParams,
                 timestamp,
-                userId: ingestRuntimeFact.actor.actorUserId || caller.uid,
+                userId: ingestRuntimeFact.actor.actorUserId,
                 sessionId: ingestRuntimeFact.actor.sessionId,
                 anonymousVisitorId: ingestRuntimeFact.actor.anonymousVisitorId,
                 pagePath: ingestRuntimeFact.route,
                 route: ingestRuntimeFact.route,
                 dropId: ingestRuntimeFact.target.targetDropId,
-                creatorId: ingestRuntimeFact.target.targetCreatorId || ingestRuntimeFact.actor.actorCreatorId,
+                creatorId: ingestRuntimeFact.target.targetCreatorId,
                 assetKey: ingestRuntimeFact.target.targetFileId,
                 source: resolveBehavioralEventSource(ingestRuntimeFact.sourceTruth),
                 confidence: ingestRuntimeFact.confidence,
@@ -434,29 +461,18 @@ async function POST_handler(request: NextRequest) {
                 telemetryTrackingSources: telemetryEvent.option?.sources || [],
                 trackingOrigin: "identified_api_ingest",
             });
-            const identityLinkId = readStringParam(enrichedParams, "identity_link_id", "identityLinkId");
-            const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
-            const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
-            const canonicalIdentityEnvelope = buildEventIdentityEnvelope({
-                eventName: canonicalEventName,
-                actorKind: readStringParam(enrichedParams, "actor_kind", "actorKind") || undefined,
-                identityState: readStringParam(enrichedParams, "identity_state", "identityState") || undefined,
-                guestId: anonymousVisitorId,
-                userId: caller.uid,
-                sessionId,
-                linkId: identityLinkId,
-                consentMode: readStringParam(enrichedParams, "consent_mode", "consentMode") || undefined,
-                projectionMode: readStringParam(enrichedParams, "projection_mode", "projectionMode") || undefined,
-                performedAs: readStringParam(enrichedParams, "performed_as", "performedAs") || undefined,
-            });
+            const identityLinkId = canonicalIdentityEnvelope.linkId || "";
+            const anonymousVisitorId = canonicalIdentityEnvelope.guestId || "";
+            const sessionId = canonicalIdentityEnvelope.sessionId || "";
             const eventEnvelope = buildEventEnvelope({
                 eventId,
                 eventName: canonicalEventName,
                 timestamp,
                 actorKind: canonicalIdentityEnvelope.actorKind,
                 identityState: canonicalIdentityEnvelope.identityState,
+                identityConfidence: canonicalIdentityEnvelope.identityConfidence,
                 guestId: anonymousVisitorId,
-                userId: caller.uid,
+                userId: canonicalIdentityEnvelope.userId,
                 sessionId,
                 linkId: identityLinkId,
                 consentMode: canonicalIdentityEnvelope.consentMode,
@@ -477,11 +493,7 @@ async function POST_handler(request: NextRequest) {
                 sessionId,
                 identityLinkId,
             });
-            const consentState = readStringParam(enrichedParams, "consent_state", "consentState") === "granted"
-                ? "granted"
-                : readStringParam(enrichedParams, "consent_state", "consentState") === "denied"
-                    ? "denied"
-                    : "unknown";
+            const consentState = deriveAnalyticsConsentState(eventConsentMode);
             const behavioralTimelineProjectionFact = mapRuntimeFactToBehavioralTimelineFact({
                 runtimeFact: ingestRuntimeFact,
                 consentState,
@@ -527,30 +539,6 @@ async function POST_handler(request: NextRequest) {
             batch.create(ref, eventFactDocument);
             processed++;
             timelineFacts.push(behavioralTimelineProjectionFact);
-
-            if (canonicalEventName === "identity_linked") {
-                const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
-                const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
-                const userId = readStringParam(enrichedParams, "user_id", "userId") || caller.uid;
-                if (anonymousVisitorId && sessionId && userId) {
-                    const linkResult = await upsertAnalyticsIdentityLink({
-                        anonymousVisitorId,
-                        sessionId,
-                        userId,
-                        linkedAt: readStringParam(enrichedParams, "linked_at", "linkedAt") || new Date(timestamp).toISOString(),
-                        method: normalizeIdentityLinkMethod(readStringParam(enrichedParams, "method")),
-                        eligiblePastSessionIds: Array.isArray(enrichedParams.eligible_past_session_ids)
-                            ? (enrichedParams.eligible_past_session_ids as unknown[]).filter((value): value is string => typeof value === "string")
-                            : [sessionId],
-                        consentState,
-                        mergeAllowed: consentState === "granted",
-                        confidence: 0.9,
-                    });
-                    if (linkResult.created) {
-                        identityLinksCreated += 1;
-                    }
-                }
-            }
 
             if (ingestRuntimeFact.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
                 latestActiveUserPatch = buildIdentifiedActiveUserPatch({
@@ -631,6 +619,7 @@ async function POST_handler(request: NextRequest) {
             processed,
             dedupedExisting,
             skippedUnsupported,
+            skippedConsent,
             timelineFactsWritten: projection.written,
             timelineFactsSkipped: projection.skipped,
             identityLinksCreated,

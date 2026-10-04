@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import { buildIssueSpecMarkdown } from "../../scripts/agent/fast-start";
+import { selectAllowedTaskFiles } from "../../scripts/agent/build-task-context";
 import { extractRepoPaths } from "../../scripts/agent/shared";
 
 describe("agent prompt compiler", () => {
+  it("keeps protected paths out of task allowlists and helper suggestions", () => {
+    expect(selectAllowedTaskFiles(
+      ["scripts/agent/shared.ts", "src/lib/gumdrop-ledger.ts", "src/app/api/paypal/capture/route.ts", "src/lib/gumdrop-ledger-helper.ts", "src/lib/payment-copy.ts", "scripts/agent/shared.ts"],
+      ["src/lib/gumdrop-ledger.ts", "src/app/api/paypal", "payment"],
+    )).toEqual(["scripts/agent/shared.ts", "src/lib/gumdrop-ledger-helper.ts"]);
+  });
+
   it("extracts paths only from complete inline-code spans", () => {
     const value = [
       "Keep `source_component` and visible economy copy that says Coins,",

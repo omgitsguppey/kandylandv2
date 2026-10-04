@@ -1,5 +1,6 @@
 import { ANALYTICS_INGEST_EVENT_TYPES, type AnalyticsIngestEventType } from "@/lib/analytics/ingest-contract";
 import { TELEMETRY_DEPENDENCY_GRAPH, type TelemetryLaneId } from "@/lib/analytics/telemetry-dependency-graph";
+import { USER_INDEX_MATERIALIZER_CONTRACT_VERSION } from "@/lib/user-indexes/user-tracking-index-contract";
 
 export const MATERIALIZATION_CONTRACT_VERSION = "event_facts_materializer_closure_v1";
 
@@ -179,7 +180,7 @@ export const MATERIALIZATION_CONTRACT: MaterializationContract = {
       lowPriorityBehavior: "summary_only",
       currentTruth: true,
       legacyState: "current",
-      notes: "Canonical behavioral timeline facts feed the user_index_materializer_requests v3 worker, which publishes bounded user and guest tracking indexes with explicit ephemeral-record retention metadata; admin/projection/synthetic activity remains excluded from user behavior metrics.",
+      notes: `Canonical behavioral timeline facts feed the user_index_materializer_requests ${USER_INDEX_MATERIALIZER_CONTRACT_VERSION} worker, which publishes bounded user and guest tracking indexes with explicit ephemeral-record retention metadata; admin/projection/synthetic activity remains excluded from user behavior metrics.`,
     }),
     classification({
       collection: "analytics_watch_sessions",
@@ -391,7 +392,7 @@ export const MATERIALIZATION_CONTRACT: MaterializationContract = {
     }),
     classification({
       collection: "analytics_identity_links",
-      producer: "identity-link route and identified ingest identity_linked event",
+      producer: "canonical analytics identity-link route; identified ingest records observations only",
       inputCollections: ["analytics_identity_links", "analytics_event_facts"],
       eventFactOutputs: ["analytics_event_facts"],
       rollupOutputs: ["identity_lineage_indexes"],

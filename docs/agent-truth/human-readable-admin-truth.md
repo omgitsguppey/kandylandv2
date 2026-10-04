@@ -19,15 +19,15 @@ Every admin status needs:
 - Source details
 - Debug location
 
-Use `src/lib/admin-copy/admin-truth-copy.ts` and `src/lib/admin-copy/admin-copy-registry.ts` for new status copy. Do not hand-roll copy in feature files unless the shared helper does not cover the state; add the state to the registry first.
+Use `src/lib/admin/copy/admin-truth-copy.ts` and `src/lib/admin/copy/admin-copy-registry.ts` for new status copy. Do not hand-roll copy in feature files unless the shared helper does not cover the state; add the state to the registry first.
 
 ## Main UI Rules
 
-Allowed main UI language includes Live, Updated, Refreshing, Last verified data, Estimated, Partial, Collecting activity, Needs review, Unavailable, No sample, Source mismatch, Open in Debug, and Refresh.
+The [Admin Copy Style Guide](admin-copy-style-guide.md) owns display terminology and missing-source semantics. Examples operators may see include Live, Updated, Refreshing, Last verified data, Estimated, Partial, Collecting activity, Needs review, Unavailable, No sample, Source mismatch, Open in Debug, and Refresh.
 
-Badges must stay short and plain: Current, Updated, Refreshing, Delayed, Estimate, Partial, Collecting, Review, Error, Cached.
+The approved short-badge set belongs to the shared copy registry routed by that style guide; this document does not maintain another label list.
 
-Collecting activity is allowed only when no verified snapshot exists. Last verified data is the correct copy when a verified snapshot is available while refresh, source parity, or current activity catches up.
+Initial loading and a settled missing source are distinct states under the shared truth contract. Last verified data remains visible when a usable snapshot exists while refresh, source parity, or current activity catches up.
 
 Panel status by section must separate inventory from reviewable risk. Bug report counts, rollout counts, release-entry counts, and tracked-event inventory are INFO unless they breach a documented threshold. Show total signals separately from needs-review signals so operators can distinguish activity from system-health findings.
 

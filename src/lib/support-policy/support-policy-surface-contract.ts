@@ -34,7 +34,7 @@ export type SupportPolicySurface = {
   userFacingTruth: string;
 };
 
-export const SUPPORT_POLICY_SURFACE_CONTRACT_VERSION = "2026.05.support-policy-surface.1";
+export const SUPPORT_POLICY_SURFACE_CONTRACT_VERSION = "2026.10.support-policy-surface.1";
 
 export const SUPPORT_POLICY_DEBUG_LANE = {
   laneId: "support_policy_surface_health",
@@ -106,7 +106,7 @@ export const SUPPORT_POLICY_SURFACES: readonly SupportPolicySurface[] = [
     id: "data_export",
     label: "Download My Data",
     canonicalRoute: "/settings",
-    routeSource: "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+    routeSource: "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx",
     backendRouteOrAction: "/api/user/data",
     accountSettingsSettingId: "download_my_data",
     featureRegistrationId: "user_dashboard",

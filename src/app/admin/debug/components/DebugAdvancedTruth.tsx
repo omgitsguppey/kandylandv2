@@ -1,7 +1,6 @@
 "use client";
 
 import { Pill, StatCard, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
-import { formatDebugCompactNumber as compactNumber } from "./DebugNumber";
 
 /* ─── Props ─── */
 export interface DebugAdvancedTruthProps {

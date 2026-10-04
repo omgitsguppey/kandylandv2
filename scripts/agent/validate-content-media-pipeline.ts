@@ -1,3 +1,4 @@
+import { buildViewerEntitlementHardeningReport, validateViewerEntitlementHardeningReport } from "./debug-cockpit-batch10-shared";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -94,7 +95,6 @@ const contentRoute = readRequired("src/app/api/drops/content/route.ts");
 const creatorProfileRoute = readRequired("src/app/api/creators/[username]/route.ts");
 const dropsServer = readRequired("src/lib/server/drops.ts");
 const publicDropsRoute = readRequired("src/app/api/drops/route.ts");
-const viewerPage = readRequired("src/app/dashboard/viewer/page.tsx");
 const viewerClient = readRequired("src/app/dashboard/viewer/ViewerClient.tsx");
 const viewerHelpers = readRequired("src/app/dashboard/viewer/ViewerHelpers.ts");
 const mediaViewer = readRequired("src/app/dashboard/viewer/components/MediaViewer.tsx");
@@ -149,14 +149,9 @@ requireIncludes(contentRoute, "isAllowedRemoteMediaUrl(targetUrl)", "content pro
 requireIncludes(contentRoute, "Cache-Control\", \"private, no-store\"", "content proxy");
 requireIncludes(contentRoute, "fetch(targetUrl", "content proxy");
 
-requireIncludes(viewerPage, "getDropRaw", "viewer page");
-requireIncludes(viewerPage, "sanitizeDropForClient(rawDrop)", "viewer page");
-if (
-  !viewerClient.includes("resolveDropViewAccess")
-  || !viewerPage.includes("buildViewerDropEntitlementPayload")
-  || !contentRoute.includes("unlockedContentTimestamps")
-) {
-  failures.push("viewer entitlement must stay connected through client access resolver, server evidence payload, and content proxy timestamp entitlement.");
+const viewerEntitlementReport = buildViewerEntitlementHardeningReport();
+for (const failure of validateViewerEntitlementHardeningReport(viewerEntitlementReport)) {
+  failures.push(`Viewer entitlement: ${failure}`);
 }
 requireIncludes(viewerClient, "useViewerState", "viewer client");
 requireIncludes(viewerHelpers, "/api/drops/content?id=", "viewer secure content fetch");

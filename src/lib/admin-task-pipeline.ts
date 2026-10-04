@@ -426,7 +426,7 @@ export function buildAdminTaskPipelineModel(input: {
                     ? "started_not_completed"
                     : null;
     const stuckAssignedBreakdown = {
-        activeCurrentWindow: stuckAssignedCount,
+        activeCurrentWindow: null,
         historicalUnstarted: null,
         expiredUnstarted: null,
         explanation: "This snapshot exposes assigned-not-started totals, but it does not separate current-window pending assignments from historical expirations.",

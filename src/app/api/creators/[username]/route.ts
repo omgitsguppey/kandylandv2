@@ -11,6 +11,7 @@ import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experienc
 import { sanitizeDropForClient } from "@/lib/server/drops";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildCreatorProfileTimeline } from "@/lib/creator/profile/timeline-contract";
+import { isMaintenanceModeEnabled } from "@/lib/maintenance-mode";
 import {
     resolveCreatorMonetizationSettings,
     resolveUserFacingCreatorMonetization,
@@ -106,20 +107,23 @@ async function GET_handler(
             drops: drops as unknown as Array<Record<string, unknown>>,
         });
 
-        // Intentionally decouple and swallow the view-count increment to prevent blocking or failing the read path.
-        const { FieldValue } = await import("firebase-admin/firestore");
-        creatorDoc.ref.update({ profileViewsCount: FieldValue.increment(1) }).catch((error) => {
-            recordRouteWarning("creators/profile", "Creator profile view count update failed", error, {
-                channel: "creator_onboarding",
-                detail: {
-                    creatorId: creator.uid,
-                },
+        const maintenance = isMaintenanceModeEnabled();
+        // Maintenance administrator previews are read-only and are not public profile views.
+        if (!maintenance) {
+            const { FieldValue } = await import("firebase-admin/firestore");
+            creatorDoc.ref.update({ profileViewsCount: FieldValue.increment(1) }).catch((error) => {
+                recordRouteWarning("creators/profile", "Creator profile view count update failed", error, {
+                    channel: "creator_onboarding",
+                    detail: {
+                        creatorId: creator.uid,
+                    },
+                });
             });
-        });
+        }
 
         return NextResponse.json({ success: true, creator, drops, timeline }, {
             headers: {
-                "Cache-Control": CREATOR_PROFILE_CACHE_CONTROL,
+                "Cache-Control": maintenance ? "private, no-store" : CREATOR_PROFILE_CACHE_CONTROL,
             },
         });
     } catch (error) {

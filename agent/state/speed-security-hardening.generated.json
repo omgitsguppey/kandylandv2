@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-14T16:08:32.855Z",
-  "overallScore": 100,
-  "overallStatus": "clean",
+  "generatedAt": "2026-10-04T00:32:48.961Z",
+  "overallScore": 99,
+  "overallStatus": "beta-risk",
   "domainScores": {
     "speedCachingHydration": {
       "weight": 25,
@@ -37,11 +37,11 @@
     },
     "costRunawayWorkControls": {
       "weight": 10,
-      "score": 100,
-      "status": "clean",
-      "findingCount": 0,
+      "score": 90,
+      "status": "beta-risk",
+      "findingCount": 1,
       "criticalCount": 0,
-      "majorCount": 0
+      "majorCount": 1
     },
     "docsDebugEvidenceCompleteness": {
       "weight": 5,
@@ -1980,7 +1980,7 @@
       "guardPresent": 130,
       "rateLimitEvidence": 130,
       "idempotencyRequired": 14,
-      "idempotencyEvidence": 25,
+      "idempotencyEvidence": 26,
       "bodyLimitRequired": 82,
       "bodyLimitEvidence": 85
     },
@@ -5720,7 +5720,7 @@
         "guardPresent": true,
         "rateLimitPresent": true,
         "idempotencyRequired": false,
-        "idempotencyPresent": false,
+        "idempotencyPresent": true,
         "bodyConsumed": false,
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
@@ -5992,9 +5992,44 @@
     }
   ],
   "speedRisks": [],
-  "costRisks": [],
+  "costRisks": [
+    {
+      "domain": "costRunawayWorkControls",
+      "severity": "major",
+      "filePath": "src/app/api/user/delete/route.ts",
+      "line": 125,
+      "title": "Potential unbounded Promise.all fanout",
+      "evidence": [
+        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
+      ],
+      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
+      "actualPattern": "Promise.all(...map(",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
+      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
+      "id": "speed_security_13c3fbw"
+    }
+  ],
   "criticalFindings": [],
   "findings": [
+    {
+      "domain": "costRunawayWorkControls",
+      "severity": "major",
+      "filePath": "src/app/api/user/delete/route.ts",
+      "line": 125,
+      "title": "Potential unbounded Promise.all fanout",
+      "evidence": [
+        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
+      ],
+      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
+      "actualPattern": "Promise.all(...map(",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
+      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
+      "id": "speed_security_13c3fbw"
+    },
     {
       "domain": "firebaseRulesAppCheckReadiness",
       "severity": "minor",
@@ -6013,7 +6048,8 @@
     }
   ],
   "recommendedFixOrder": [
-    "Review Firebase rules default-deny/owner-admin scopes and stage App Check monitor before enforcement."
+    "Review Firebase rules default-deny/owner-admin scopes and stage App Check monitor before enforcement.",
+    "Bound Firestore reads, paid Google calls, cleanup loops, and Cloud Run/SQL/BigQuery cost surfaces."
   ],
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
@@ -6038,5 +6074,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 1 findings across 132 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 2 findings across 132 API routes."
 }

@@ -1,7 +1,7 @@
 # Telemetry Dependency Graph
 
-Generated: 2026-06-11T14:21:09.984Z
-Current code version: 0d4c92893c289e01e3159450d624e622b9294125
+Generated: 2026-10-02T19:02:26.271Z
+Current code version: 1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8
 
 ## Summary
 
@@ -69,7 +69,7 @@ Current code version: 0d4c92893c289e01e3159450d624e622b9294125
 - Evidence-only: no
 ### Guest-to-user identity transfer
 - Lane: identity_link
-- Producer: analytics identity-link route and identified ingest identity_linked events
+- Producer: canonical analytics identity-link route; identified ingest records observations only
 - Route/API: /api/analytics/identity-link and /api/analytics/ingest-identified
 - Persistence: analytics_identity_links and analytics_event_facts
 - Materializer/export: guest-to-user transfer materializers, behavioral timeline facts
@@ -200,7 +200,7 @@ Current code version: 0d4c92893c289e01e3159450d624e622b9294125
 - Evidence-only: yes
 ## Findings
 
-- fixed: DeepTracker anonymous telemetry routes through the canonical telemetry client, which reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts.
+- fixed: DeepTracker submits guest batches through the canonical telemetry client to the configured guest-batch collection and existing timeline projection owner. This is source connectivity, not transport acknowledgement or deployed persistence.
 - fixed: Anonymous consent denial returns ignored without writing priority guest telemetry.
 - fixed: Identified ingest persists canonical event facts and writes behavioral timeline facts.
 - fixed: Identity-link route persists guest-to-user links and emits canonical identity events.

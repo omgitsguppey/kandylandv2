@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/creative-tim/ui/badge";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatDistance } from "date-fns";
 import {
@@ -392,22 +395,45 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
 
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
-        <div className="space-y-3" data-admin-transaction-listener={debugMeta.listenerStatus} data-admin-transaction-snapshot={debugMeta.snapshotSource} data-admin-transaction-source={debugMeta.transactionSource}>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Transaction ledger</p>{debugMeta.resolvedUserCount > 0 ? <p className="mt-1 text-xs text-gray-400">{debugMeta.resolvedUserCount}/{transactions.length} user identities resolved</p> : null}</div><AdminStatusBadge state={truthState} /></div>
-            {transactions.length === 0 ? <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-8 text-center"><p className="text-sm font-semibold text-gray-400">No recent transactions are available from the current source.</p></div> : (
+        <div className="min-w-0 space-y-4" data-admin-transaction-listener={debugMeta.listenerStatus} data-admin-transaction-snapshot={debugMeta.snapshotSource} data-admin-transaction-source={debugMeta.transactionSource}>
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0"><p className="text-sm font-medium text-muted-foreground">Transaction ledger</p>{debugMeta.resolvedUserCount > 0 ? <p className="mt-1 text-xs text-muted-foreground">{debugMeta.resolvedUserCount}/{transactions.length} user identities resolved</p> : null}</div>
+                <AdminStatusBadge state={truthState} />
+            </div>
+            {transactions.length === 0 ? <p className="py-6 text-sm leading-6 text-muted-foreground">No recent transactions are available from the current source.</p> : (
                 <>
-                    <div className="divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                    <ol className="min-w-0 divide-y divide-border" aria-label="Recent transaction records">
                         {paginated.items.map((transaction) => {
                             const timestamp = typeof transaction.timestamp === "number" && transaction.timestamp > 0 ? transaction.timestamp : toTimestampNumber(transaction.timestamp);
                             const relativeLabel = timestamp > 0 && nowMs > 0 ? formatDistance(timestamp, nowMs, { addSuffix: true }) : "Unknown time";
                             const { label: displayName, resolved: nameResolved } = resolveDisplayName(transaction, identityMap, enableRealtime);
                             const badge = getTransactionBadgeLabel(transaction);
-                            const badgeColor = BADGE_COLORS[transaction.type] ?? "border-white/10 bg-white/5 text-gray-300";
+                            const badgeColor = BADGE_COLORS[transaction.type] ?? "border-border bg-secondary text-secondary-foreground";
                             const { primary, secondary, color } = formatAmountDelta(transaction);
-                            return <div key={transaction.id} className="grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 md:px-4"><span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${badgeColor}`}>{badge}</span><div className="min-w-0"><div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1"><span className="truncate text-sm font-bold text-white">{transaction.description}</span>{nameResolved ? <span className="shrink-0 text-xs text-gray-400">{displayName}</span> : <span className="shrink-0 h-2.5 w-14 animate-pulse rounded bg-white/8" />}</div></div><div className="shrink-0 text-right"><span className={`block text-sm font-bold tabular-nums ${color}`}>{primary}</span>{secondary ? <span className="text-xs text-gray-500">{secondary}</span> : null}<span className="mt-1 hidden text-xs text-gray-500 sm:block">{relativeLabel}</span></div></div>;
+                            return (
+                                <li key={transaction.id} className="min-w-0 py-4">
+                                    <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                                        <Badge variant="secondary" className={badgeColor}>{badge}</Badge>
+                                        <div className="min-w-0 text-right"><span className={`block wrap-anywhere text-lg font-semibold tabular-nums ${color}`}>{primary}</span>{secondary ? <span className="block wrap-anywhere text-sm text-muted-foreground">{secondary}</span> : null}</div>
+                                    </div>
+                                    <p className="mt-2 wrap-anywhere text-sm font-medium text-foreground">{transaction.description}</p>
+                                    <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                        {nameResolved ? <span className="wrap-anywhere">{displayName}</span> : <span className="h-2.5 w-14 animate-pulse rounded bg-muted" />}
+                                        <span>{relativeLabel}</span>
+                                    </div>
+                                </li>
+                            );
                         })}
-                    </div>
-                    {paginated.totalPages > 1 ? <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-400"><span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}</span><div className="flex items-center gap-2"><button type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Previous page"><ChevronLeft size={14} /></button><button type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Next page"><ChevronRight size={14} /></button></div></div> : null}
+                    </ol>
+                    {paginated.totalPages > 1 ? (
+                        <nav aria-label="Recent transactions pagination" className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+                            <span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}</span>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} aria-label="Previous page"><ChevronLeft aria-hidden="true" size={16} /></Button>
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} aria-label="Next page"><ChevronRight aria-hidden="true" size={16} /></Button>
+                            </div>
+                        </nav>
+                    ) : null}
                 </>
             )}
         </div>

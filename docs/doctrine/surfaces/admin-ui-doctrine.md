@@ -8,6 +8,10 @@ Admin UI prioritizes truth, speed, density, triage, evidence, source state, fres
 
 ## Rules
 
+- Apply the current whole-site visual direction from Shared Brand Primitives. Admin composition starts with the task, selected record and necessary operational context. Use compact readable lists, grouped controls and summary-first data; source evidence remains accessible in its existing drilldown owner.
+- Navigation must expose every authorized workspace on phone, tablet and desktop without horizontal page overflow. Do not compress the twelve workspaces into tiny or unlabeled tab targets. Use the same route registry for compact workspace selection and wider navigation.
+- Avoid repeated decorative mastheads and per-row truth-badge sprawl. Use one compact freshness/source line where the canonical contract permits; retain distinct warnings, confidence and safety states where they change the operator's decision.
+
 - Compact card grids are allowed when they improve triage.
 - Truth badges are required for live, cached, stale, fallback, partial, failed, unknown, degraded, and unavailable states.
 - Missing, stale, degraded, failed, fallback, or unavailable data must be explicit.

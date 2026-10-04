@@ -413,7 +413,6 @@ function scanContentProtection(root: string, findings: PublicBetaFindingInput[])
 
 function scanOrphanedLogic(root: string, findings: PublicBetaFindingInput[]) {
   const dropsClient = readIfExists(root, "src/app/drops/DropsClient.tsx");
-  const modal = readIfExists(root, "src/components/DropPreviewModal.tsx");
 
   if (dropsClient?.source.includes("DropPreviewModal")) {
     pushFinding(findings, {
@@ -428,28 +427,13 @@ function scanOrphanedLogic(root: string, findings: PublicBetaFindingInput[]) {
       excerpt: excerpt(dropsClient.source, "DropPreviewModal"),
       canAutofix: false,
       autofixConfidence: 0,
-      escalation: "Route locked preview entry points to the full-page preview route; keep modal only as documented fallback.",
+      escalation: "Route locked preview entry points to the full-page preview route; the retired modal must not return.",
       evidence: ["Full-page locked preview is the canonical conversion surface."],
       docsBasis: ["kandydrops", "repo"],
     });
   }
 
-  if (modal && !modal.source.includes("Legacy fallback only")) {
-    pushFinding(findings, {
-      domain: "orphanedLogic",
-      category: "legacy-preview-modal",
-      title: "Legacy DropPreviewModal is not marked as fallback-only",
-      severity: "moderate",
-      confidence: 0.88,
-      blastRadius: "component",
-      filePath: modal.path,
-      canAutofix: false,
-      autofixConfidence: 0,
-      escalation: "Document fallback-only status or delete the modal if no compatibility path remains.",
-      evidence: ["Legacy modal must not compete with full-page preview route."],
-      docsBasis: ["kandydrops", "repo"],
-    });
-  }
+
 }
 
 function scanAccessibility(root: string, findings: PublicBetaFindingInput[]) {

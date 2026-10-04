@@ -27,10 +27,12 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 const adminLayout = read("src/app/admin/layout.tsx");
 const rootLayout = read("src/app/layout.tsx");
 const coreLayout = read("src/components/CoreLayoutWrapper.tsx");
+const navbar = read("src/components/Navbar.tsx");
 const spacing = read("src/lib/admin-shell-spacing.ts");
 const globals = read("src/app/globals.css");
 const adminAnalytics = read("src/app/admin/analytics/page.tsx");
 const adminOverview = read("src/app/admin/page.tsx");
+const consoleNavigation = read("src/components/creative-tim/kandydrops/admin/AdminControlTowerNavigation.tsx");
 const adminAi = read("src/app/admin/ai/page.tsx");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 
@@ -44,30 +46,46 @@ assertIncludes("src/lib/admin-shell-spacing.ts", spacing, "pageContentStartsAfte
 assertIncludes("src/app/globals.css", globals, "--admin-shell-gap: 1rem");
 assertIncludes("src/app/globals.css", globals, "--admin-shell-gap-md: 1.25rem");
 assertIncludes("src/app/globals.css", globals, ".admin-shell-route");
-assertIncludes("src/app/globals.css", globals, "--root-shell-top-spacing: 4rem");
+assertIncludes("src/app/globals.css", globals, "--root-shell-top-spacing: 0px");
+assertNotIncludes("src/app/globals.css", globals, "--root-shell-top-spacing: 4rem");
+assertNotIncludes("src/app/globals.css", globals, "--root-shell-top-spacing: 4.75rem");
 assertNotIncludes("src/app/globals.css", globals, "--admin-top-spacing");
 assertNotIncludes("src/app/globals.css", globals, "--root-shell-top-spacing: calc(4rem + var(--admin-shell-gap))");
-assertIncludes("src/app/layout.tsx", rootLayout, "pt-[var(--root-shell-top-spacing,6rem)]");
+assertIncludes("src/app/layout.tsx", rootLayout, "pt-[var(--root-shell-top-spacing,0px)]");
+assertIncludes("src/components/CoreLayoutWrapper.tsx", coreLayout, "<Navbar />");
+assertIncludes("src/components/Navbar.tsx", navbar, "navigation-material sticky top-0");
+assertNotIncludes("src/components/Navbar.tsx", navbar, "navigation-material fixed");
 assertIncludes("src/components/CoreLayoutWrapper.tsx", coreLayout, "ADMIN_SHELL_ROUTE_CLASS");
 assertIncludes("src/components/CoreLayoutWrapper.tsx", coreLayout, 'data-admin-shell-route="true"');
 assertIncludes("src/app/admin/layout.tsx", adminLayout, "ADMIN_TOP_TO_CONSOLE_GAP_CLASS");
 assertIncludes("src/app/admin/layout.tsx", adminLayout, "ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS");
 assertIncludes("src/app/admin/layout.tsx", adminLayout, "ADMIN_CONSOLE_FLOW_CLASS");
 assertIncludes("src/app/admin/layout.tsx", adminLayout, 'data-admin-shell-spacing="shared"');
-assertIncludes("src/app/admin/layout.tsx", adminLayout, 'data-admin-console-nav="true"');
+assertIncludes("src/app/admin/layout.tsx", adminLayout, "<AdminControlTowerNavigation");
+assertIncludes("AdminControlTowerNavigation", consoleNavigation, 'data-admin-console-nav="true"');
 assertIncludes("src/app/admin/layout.tsx", adminLayout, 'data-admin-console-flow="normal"');
 assertIncludes("src/app/admin/layout.tsx", adminLayout, 'data-admin-page-content="true"');
 assertIncludes("src/app/admin/layout.tsx", adminLayout, "data-admin-shell-top-gap-class");
 assertIncludes("src/app/admin/layout.tsx", adminLayout, "data-admin-shell-below-console-gap-class");
-assertIncludes("src/app/admin/layout.tsx", adminLayout, "grid grid-cols-3 gap-2 md:hidden");
-assertIncludes("src/app/admin/layout.tsx", adminLayout, "hidden overflow-x-auto md:block");
+// MDN min-width: grid items default to intrinsic min-content unless constrained.
+assertIncludes("src/app/admin/layout.tsx", adminLayout, "grid-cols-1");
+assertIncludes("src/app/admin/layout.tsx", adminLayout, "min-w-0 max-w-full");
+assertIncludes("AdminControlTowerNavigation", consoleNavigation, 'aria-label="Admin control tower navigation"');
+// Compact navigation uses the owned native selector; every destination remains reachable.
+assertIncludes("AdminControlTowerNavigation", consoleNavigation, '<NativeSelect aria-label="Admin section"');
+assertIncludes("AdminControlTowerNavigation", consoleNavigation, "min-w-0 max-w-full");
+assertNotIncludes("AdminControlTowerNavigation", consoleNavigation, "overflow-x-auto");
+for (const href of ["/admin", "/admin/analytics", "/admin/drops", "/admin/users", "/admin/roster", "/admin/support", "/admin/moderation", "/admin/content", "/admin/economy", "/admin/privacy", "/admin/debug", "/admin/ai"]) {
+  assertIncludes("AdminControlTowerNavigation", consoleNavigation, `href: "${href}"`);
+}
+assertIncludes("AdminControlTowerNavigation", consoleNavigation, "View site");
 assertIncludes("src/app/api/admin/debug/route.ts", debugRoute, "adminShellLayout");
 assertIncludes("src/app/api/admin/debug/route.ts", debugRoute, "buildAdminShellLayoutDebugMetadata");
 
 assertNotIncludes("src/app/admin/layout.tsx", adminLayout, "mt-[-");
 assertNotIncludes("src/app/admin/layout.tsx", adminLayout, "sticky z-30");
 assertNotIncludes("src/app/admin/layout.tsx", adminLayout, "fixed");
-assertNotIncludes("src/app/admin/layout.tsx", adminLayout, "absolute");
+// Decorative backgrounds may be absolute; navigation/content remain normal flow.
 assertNotIncludes("src/lib/admin-shell-spacing.ts", spacing, "STICKY_TOP");
 assertNotIncludes("src/lib/admin-shell-spacing.ts", spacing, "top-[calc");
 assertNotIncludes("src/app/admin/layout.tsx", adminLayout, "--admin-top-spacing");

@@ -295,7 +295,7 @@ function scanSql(findings: CloudCostFinding[]) {
     const isDocumentedInactiveProfileSchema = filePath.endsWith("structured_profiles.gql")
       && source.includes("forbidden by default")
       && source.includes("not approved")
-      && source.includes("import targets for analytics evidence");
+      && /import targets\s*(?:#\s*)?for analytics evidence/u.test(source);
     if (nonMirrorTypes.length > 0 && !isDocumentedInactiveProfileSchema) {
       addFinding(findings, {
         severity: "major",

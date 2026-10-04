@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T02:33:44.851Z",
+  "generatedAt": "2026-10-04T00:38:22.457Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -109,6 +109,7 @@
         "tests/unit/account-settings-mobile-padding.spec.ts",
         "tests/unit/admin-creator-account-controls-route.spec.ts",
         "tests/unit/delete-account-retention-policy.spec.ts",
+        "tests/unit/profile-account-lifecycle.spec.tsx",
         "tests/unit/support-account-safety-consolidation.spec.ts"
       ],
       "known_gap": null,
@@ -233,6 +234,7 @@
         "tests/unit/admin-analytics-shared.spec.ts",
         "tests/unit/admin-analytics-snapshot-error-language.spec.ts",
         "tests/unit/admin-analytics-source-hierarchy.spec.ts",
+        "tests/unit/admin-analytics-state-recovery.spec.tsx",
         "tests/unit/admin-analytics-top-drop-conversion.spec.ts",
         "tests/unit/admin-analytics-top-paths.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
@@ -326,6 +328,7 @@
         "tests/unit/admin-content-error-language.spec.ts",
         "tests/unit/admin-content-page.spec.tsx",
         "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/content-protection-score.spec.ts",
         "tests/unit/content-protection-truth.spec.ts",
         "tests/unit/drops-content-route.spec.ts"
       ],
@@ -531,8 +534,10 @@
         "src/lib/admin/admin-ui-test-session.ts",
         "src/lib/authFetch.ts",
         "src/lib/client-error-reporting.ts",
+        "src/lib/errors/client-error-adapter.ts",
         "src/lib/errors/resolve-human-error.ts",
-        "src/lib/telemetry.ts"
+        "src/lib/telemetry.ts",
+        "src/lib/ui-continuity.ts"
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
@@ -827,9 +832,11 @@
         "src/lib/authFetch.ts",
         "src/lib/client-error-reporting.ts",
         "src/lib/drop-read-models.ts",
+        "src/lib/errors/client-error-adapter.ts",
         "src/lib/firebase-data.ts",
+        "src/lib/firestore-client-errors.ts",
         "src/lib/frontend-hardening/ui/loading-state-contract.ts",
-        "src/lib/frontend-hardening/ui/mobile-scale-contract.ts"
+        "src/lib/route-hardening/route-4xx-mitigation.ts"
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "high",
@@ -985,6 +992,7 @@
         "tests/ui-audits/admin-browser-surface-smoke.spec.ts",
         "tests/unit/admin-support-fixture-boundary.spec.ts",
         "tests/unit/admin-support-queue-error-language.spec.ts",
+        "tests/unit/admin-support-source-state.spec.tsx",
         "tests/unit/admin-support-threads-route.spec.ts",
         "tests/unit/support-account-safety-consolidation.spec.ts",
         "tests/unit/support-creator-refresh.spec.ts",
@@ -2035,7 +2043,9 @@
       "optional_browser_reproduction_owner": null,
       "playwright_owner": null,
       "lighthouse_required": false,
-      "existing_tests": [],
+      "existing_tests": [
+        "tests/unit/library-member-collection.spec.tsx"
+      ],
       "known_gap": null,
       "blocking_required": false,
       "runtime_canary": {
@@ -2122,6 +2132,7 @@
         "tests/unit/admin-creator-id-document-route.spec.ts",
         "tests/unit/admin-creator-view-as-error-language.spec.ts",
         "tests/unit/admin-view-as-creator-route.spec.ts",
+        "tests/unit/auth-profile-listener-lifecycle.spec.tsx",
         "tests/unit/creator-agreement-document-route.spec.ts",
         "tests/unit/creator-agreement-documents.spec.ts",
         "tests/unit/creator-agreement-signature-ux.spec.ts",
@@ -2206,6 +2217,7 @@
         "tests/unit/creator-workspace-panel.spec.tsx",
         "tests/unit/post-economy-creator-flow-qa.spec.ts",
         "tests/unit/process-creator-subscriptions-bench.spec.ts",
+        "tests/unit/profile-account-lifecycle.spec.tsx",
         "tests/unit/server-creator-experience-transactions.spec.ts",
         "tests/unit/support-creator-refresh.spec.ts",
         "tests/unit/synthetic-creators-view-as.spec.ts",
@@ -2244,10 +2256,12 @@
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
+        "tests/unit/auth-profile-listener-lifecycle.spec.tsx",
         "tests/unit/creator-profile-mobile-timeline.spec.ts",
         "tests/unit/creator-profile-route.spec.ts",
         "tests/unit/creator-profile-routing.spec.ts",
         "tests/unit/creator-profile-viewer-isolation.spec.tsx",
+        "tests/unit/profile-account-lifecycle.spec.tsx",
         "tests/unit/user-profile-api-contract.spec.ts",
         "tests/unit/user-profile-route.spec.ts"
       ],
@@ -2328,6 +2342,7 @@
       "existing_tests": [
         "tests/unit/admin-support-fixture-boundary.spec.ts",
         "tests/unit/admin-support-queue-error-language.spec.ts",
+        "tests/unit/admin-support-source-state.spec.tsx",
         "tests/unit/admin-support-threads-route.spec.ts",
         "tests/unit/support-account-safety-consolidation.spec.ts",
         "tests/unit/support-creator-refresh.spec.ts",
@@ -2423,6 +2438,7 @@
         "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
         "tests/unit/creator-drops-route.spec.ts",
+        "tests/unit/drop-preview-state.spec.tsx",
         "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
         "tests/unit/drops-route.spec.ts",
@@ -2721,6 +2737,7 @@
         "tests/unit/account-settings-delete-flow.spec.ts",
         "tests/unit/account-settings-mobile-padding.spec.ts",
         "tests/unit/admin-creator-fan-experience-settings-route.spec.ts",
+        "tests/unit/auth-profile-listener-lifecycle.spec.tsx",
         "tests/unit/cookie-banner-settings-sync.spec.ts",
         "tests/unit/creator-dashboard-settings.spec.tsx",
         "tests/unit/creator-monetization-settings-truth.spec.ts",
@@ -2732,6 +2749,7 @@
         "tests/unit/creator-settings-migration-page.spec.tsx",
         "tests/unit/creator-settings-route.spec.ts",
         "tests/unit/creator-settings-source-health.spec.ts",
+        "tests/unit/profile-account-lifecycle.spec.tsx",
         "tests/unit/settings-connection-parity.spec.ts",
         "tests/unit/settings-debug-validator-authority.spec.ts",
         "tests/unit/settings-health-status-cleanup.spec.ts",

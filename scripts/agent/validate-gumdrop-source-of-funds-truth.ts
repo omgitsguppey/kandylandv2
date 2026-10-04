@@ -137,18 +137,19 @@ requireNotIncludes(dropsUnlockRoute, "purchasedOnly: true", "Normal Drop unlock 
 
 requireRegex(
   purchaseModal,
-  /amount=\{pkgEconomics\.paidGumDrops\}/,
-  "PurchaseModal fixed package visible paid headline",
+  /amount=\{pkg\.drops\}/,
+  "PurchaseModal fixed package visible delivered total",
 );
 requireRegex(
   purchaseModal,
-  /amount=\{deriveGumdropEconomics\(customDrops, \(customDrops \/ 1000\) \* 5\)\.paidGumDrops\}/,
-  "PurchaseModal custom package visible paid headline",
+  /amount=\{customDrops\}/,
+  "PurchaseModal custom package visible delivered total",
 );
-requireIncludes(walletPackagePicker, "Paid GD", "Canonical wallet package picker visible paid label");
+requireIncludes(walletPackagePicker, "GumDrops", "Canonical wallet package picker visible delivered label");
 requireIncludes(purchaseModal, "resolvePurchaseBonusPromoOffer(pkgEconomics.bonusGumDrops)", "PurchaseModal fixed package bonus display");
 requireIncludes(purchaseModal, "resolveBundlePromoOffer(customDrops >= 5000)", "PurchaseModal bundle bonus display");
-requireIncludes(purchaseModal, "selectedPackage.drops", "PurchaseModal delivered total checkout framing");
+requireIncludes(purchaseModal, "body: JSON.stringify({ orderId, expectedDrops: selectedPackage.drops })", "PurchaseModal delivered total capture framing");
+requireIncludes(purchaseModal, "body: JSON.stringify({ expectedDrops: selectedPackage.drops })", "PurchaseModal delivered total order framing");
 for (const expected of ["drops: 100", "drops: 550", "drops: 1100", "drops: 2500"]) {
   requireIncludes(packageCatalog, expected, "GumDrop package catalog delivered total framing");
 }
@@ -173,9 +174,9 @@ for (const expected of [
   requireIncludes(paypalTest, expected, "PayPal capture source-aware tests");
 }
 for (const expected of [
-  "keeps visible package headlines framed around paid GD plus explicit bonus display",
-  "amount={pkgEconomics.paidGumDrops}",
-  "amount={deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops}",
+  "keeps visible package headlines on delivered GumDrops with the canonical bonus display",
+  "amount={pkg.drops}",
+  "amount={customDrops}",
   "KandyWalletPackagePicker.tsx",
   "expectedDrops: selectedPackage.drops",
 ]) {

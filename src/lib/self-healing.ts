@@ -1,7 +1,9 @@
+import { classifyFirestoreClientRetry } from "@/lib/firestore-client-errors";
+
 export interface AutoHealingObserverControl {
     /**
-     * Manually triggers a disconnect and queues a reconnect loop.
-     * Useful when capturing a snapshot error inside the callback to natively reattach.
+     * Classifies a listener failure and schedules finite recovery.
+     * Omitting the error is an explicit request to start a new recovery epoch.
      */
     triggerReconnect: (error?: unknown) => void;
 
@@ -150,11 +152,9 @@ export function createCompactInteractionRecoveryGuard(input: {
 /**
  * Wraps a Firebase un-subscribable listener setup routine in an automatic healing loop.
  *
- * It is completely safe to call setupListener repeatedly, as the wrapper guards against memory leaks automatically.
- *
  * @param setupObserver - A function that establishes the connection and returns an un-subscribe function (or null/void).
  * @param onDisconnectNotify - An optional callback to hook telemetry.
- * @param retryDelayMs - The time (in milliseconds) to wait before re-acquiring the connection. Defaults to 5000ms.
+ * @param retryDelayMs - Initial reconnect delay, growing within one finite recovery epoch. Defaults to 2000ms.
  * @returns An object to manually control the listener status.
  */
 export function createAutoHealingObserver(
@@ -167,15 +167,31 @@ export function createAutoHealingObserver(
     let timeoutId: number | undefined;
     let active = true;
     let retryCount = 0;
+    let settled: "permanent" | "exhausted" | null = null;
+    const maxReconnectAttempts = 4;
+
+    const clearRetry = () => {
+        if (timeoutId !== undefined) {
+            window.clearTimeout(timeoutId);
+            timeoutId = undefined;
+        }
+    };
+
+    const detach = () => {
+        const currentUnsubscribe = unsubscribe;
+        unsubscribe = null;
+        if (currentUnsubscribe) {
+            currentUnsubscribe();
+        }
+    };
 
     const connect = () => {
-        if (!active) {
+        if (!active || settled) {
             return;
         }
+        timeoutId = undefined;
         try {
             unsubscribe = setupObserver();
-            // Reset retry count on successful connection attempt setup
-            retryCount = 0;
         } catch (error) {
             if (active) {
                 triggerReconnect(error);
@@ -188,6 +204,21 @@ export function createAutoHealingObserver(
             return;
         }
 
+        if (typeof error === "undefined") {
+            clearRetry();
+            retryCount = 0;
+            settled = null;
+        } else {
+            if (settled) return;
+            if (!classifyFirestoreClientRetry(error).retryable) {
+                settled = "permanent";
+                clearRetry();
+                detach();
+            } else if (timeoutId !== undefined) {
+                return;
+            }
+        }
+
         if (onDisconnectNotify && typeof error !== "undefined") {
             try {
                 onDisconnectNotify(error);
@@ -196,13 +227,11 @@ export function createAutoHealingObserver(
             }
         }
 
-        if (unsubscribe) {
-            unsubscribe();
-            unsubscribe = null;
-        }
-
-        if (timeoutId) {
-            window.clearTimeout(timeoutId);
+        detach();
+        if (settled) return;
+        if (retryCount >= maxReconnectAttempts) {
+            settled = "exhausted";
+            return;
         }
 
         const delay = Math.min(retryDelayMs * Math.pow(2, retryCount), maxDelayMs);
@@ -211,19 +240,21 @@ export function createAutoHealingObserver(
         timeoutId = window.setTimeout(connect, delay);
     };
 
+    const recoverOnline = () => {
+        if (active && settled === "exhausted") triggerReconnect();
+    };
+
+    if (typeof window !== "undefined") window.addEventListener("online", recoverOnline);
+
     connect();
 
     return {
         triggerReconnect,
         cleanup: () => {
             active = false;
-            if (timeoutId) {
-                window.clearTimeout(timeoutId);
-            }
-            if (unsubscribe) {
-                unsubscribe();
-                unsubscribe = null;
-            }
+            clearRetry();
+            if (typeof window !== "undefined") window.removeEventListener("online", recoverOnline);
+            detach();
         },
     };
 }

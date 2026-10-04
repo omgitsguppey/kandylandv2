@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T02:33:48.884Z",
+  "generatedAt": "2026-10-04T00:38:43.057Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,9 +15,9 @@
     "agent/index/dependency-graph.summary.json"
   ],
   "reportCompleteness": "capped",
-  "totalFindingCount": 3140,
+  "totalFindingCount": 3136,
   "emittedFindingCount": 20,
-  "omittedFindingCount": 3120,
+  "omittedFindingCount": 3116,
   "capReason": "All blast-radius scores are computed before capping; the tracked artifact retains only the highest-risk entries.",
   "capStrategy": "top_risk",
   "capLimit": 20,
@@ -35,10 +35,10 @@
   "gitStatus": "available",
   "toolingDegraded": false,
   "degradationReason": null,
-  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "currentHeadSource": "git",
-  "generatedAtUtc": "2026-08-29T02:33:48.884Z",
-  "sourceCommit": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+  "generatedAtUtc": "2026-10-04T00:38:43.057Z",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "freshness": "fresh",
   "baselineStatus": "current",
   "owner": "scripts/agent/build-agent-indexes.ts",
@@ -109,7 +109,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 57."
+        "Inbound dependency count: 56."
       ]
     },
     {
@@ -144,22 +144,6 @@
       ]
     },
     {
-      "stable_id": "blast__src__lib__analytics__person-metrics-contract-ts",
-      "path": "src/lib/analytics/person-metrics-contract.ts",
-      "blast_radius_score": 90,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely.",
-        "Inbound dependency count: 41."
-      ]
-    },
-    {
       "stable_id": "blast__src__lib__authfetch-ts",
       "path": "src/lib/authFetch.ts",
       "blast_radius_score": 90,
@@ -172,7 +156,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 71."
+        "Inbound dependency count: 74."
       ]
     },
     {
@@ -203,23 +187,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 64."
-      ]
-    },
-    {
-      "stable_id": "blast__src__lib__creator-experiences-ts",
-      "path": "src/lib/creator-experiences.ts",
-      "blast_radius_score": 90,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely.",
-        "Inbound dependency count: 50."
+        "Inbound dependency count: 66."
       ]
     },
     {
@@ -356,17 +324,47 @@
         "Runtime-critical surface.",
         "Broad signoff likely."
       ]
+    },
+    {
+      "stable_id": "blast__src__lib__debug__optional-manual-legacy-route-policy-ts",
+      "path": "src/lib/debug/optional-manual-legacy-route-policy.ts",
+      "blast_radius_score": 90,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__debug__payment-route-stale-evidence-classifier-ts",
+      "path": "src/lib/debug/payment-route-stale-evidence-classifier.ts",
+      "blast_radius_score": 90,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
     }
   ],
   "counts": {
-    "total": 3140,
+    "total": 3136,
     "emitted": 20,
-    "omitted": 3120,
+    "omitted": 3116,
     "byScoreBand": {
-      "critical": 68,
-      "high": 875,
-      "medium": 974,
-      "low": 1223
+      "critical": 66,
+      "high": 878,
+      "medium": 980,
+      "low": 1212
     }
   }
 }

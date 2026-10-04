@@ -1,8 +1,8 @@
 {
   "reportKey": "private-media-access",
-  "generatedAtUtc": "2026-07-16T04:25:45.033Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-04T00:34:23.617Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "passed": true,
   "canClearSourceGate": true,
@@ -68,23 +68,24 @@
       "regressionRisk": 87
     }
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/creator-discovery-relationship-funnel.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/media-upload-lifecycle.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/creator-discovery-relationship-funnel.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/media-upload-lifecycle.md",
-      "classification": "documentation_artifact_expected"
-    }
-  ],
-  "validationFailures": []
+  "dirtyFiles": [],
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-viewer-strobe-release-v2-20261003",
+    "inputHash": "45abb16a79373f8b5c5ebd576093920ac4806f04b0cdae9663a38c35b5fea9bb",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "1536453fd2507b3ab963cabd5d05afa46f0005f9674f15bfd9bba9a6d30eb5e5",
+    "changedFiles": [
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/debug-cockpit-batch10-shared.ts",
+      "scripts/agent/validate-content-media-pipeline.ts",
+      "src/app/dashboard/viewer/hooks/useViewerState.ts",
+      "tests/unit/viewer-entitlement-hardening.spec.ts",
+      "tests/unit/viewer-file-tracking.spec.ts"
+    ],
+    "inheritedDirtySourceFileCount": 602,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

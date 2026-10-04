@@ -1,8 +1,8 @@
 {
   "reportKey": "auth-readiness-lock",
-  "generatedAtUtc": "2026-07-16T04:24:34.759Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-01T20:47:59.710Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "passed": true,
   "canClearSourceGate": true,
@@ -142,51 +142,51 @@
     "nextAction": "Run npm run check:person-metrics-hydration and fix auth_runtime_events hydration."
   },
   "scoreBefore": {
-    "sourceHealth": 83.6,
-    "runtimeHealth": 50.22,
-    "evidenceCompleteness": 45,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
     "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 63.18
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreAfter": {
-    "sourceHealth": 83.6,
-    "runtimeHealth": 50.22,
-    "evidenceCompleteness": 45,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
     "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 63.18
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 83.6,
-      "after": 83.6,
+      "before": 100,
+      "after": 100,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth-readiness-specific score action required."
     },
     "runtimeHealth": {
-      "before": 50.22,
-      "after": 50.22,
+      "before": 0,
+      "after": 0,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
     },
     "evidenceCompleteness": {
-      "before": 45,
-      "after": 45,
+      "before": 50,
+      "after": 50,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
     },
     "freshness": {
-      "before": 59.38,
-      "after": 59.38,
+      "before": 91.22,
+      "after": 91.22,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
+      "status": "target_met",
+      "nextExactAction": "No auth-readiness-specific score action required."
     },
     "costRisk": {
       "before": 92.5,
@@ -196,15 +196,15 @@
       "nextExactAction": "No auth-readiness-specific score action required."
     },
     "regressionRisk": {
-      "before": 94,
-      "after": 94,
+      "before": 90,
+      "after": 90,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth-readiness-specific score action required."
     },
     "overallHealthScore": {
-      "before": 63.18,
-      "after": 63.18,
+      "before": 55.1,
+      "after": 55.1,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
@@ -225,52 +225,7 @@
     "personMetrics": "agent/state/person-metrics-hydration.generated.json",
     "score": "agent/state/public-beta-score.generated.json"
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/auth-persistence-stability.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/auth-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/auth-runtime-telemetry.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/email-password-auth-refactor.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/auth-persistence-stability.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-readiness-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-runtime-telemetry.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/email-password-auth-refactor.md",
-      "classification": "documentation_artifact_expected"
-    }
-  ],
+  "dirtyFiles": [],
   "oldLogicClassification": [
     {
       "reference": "auth_sign_in_attempted/auth_sign_in_success/auth_sign_in_failed",
@@ -295,5 +250,22 @@
     "paymentRuntimeTouched": false,
     "gumdropRuntimeTouched": false
   },
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

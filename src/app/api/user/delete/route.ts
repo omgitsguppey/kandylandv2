@@ -9,6 +9,7 @@ import { creatorDocumentCleanupWrites } from "@/lib/server/creator-experiences";
 import { releaseUsernameReservationForUser } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { DELETE_ACCOUNT_RETENTION_REVIEW_QUERIES, requiresAccountDeletionRetentionReview } from "@/lib/privacy-data/delete-account-retention-policy";
 
 const USER_DELETE_PAGE_SIZE = 250;
 
@@ -41,6 +42,7 @@ function getFirebaseErrorCode(error: unknown) {
 async function deleteDocumentTree(
     docRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
     bulkWriter: FirebaseFirestore.BulkWriter,
+    onFailure: (error: unknown) => void,
 ): Promise<number> {
     const collections = await docRef.listCollections();
 
@@ -57,7 +59,7 @@ async function deleteDocumentTree(
             const snapshot = await pageQuery.get();
             if (snapshot.empty) break;
 
-            const docPromises = snapshot.docs.map((doc) => deleteDocumentTree(doc.ref, bulkWriter));
+            const docPromises = snapshot.docs.map((doc) => deleteDocumentTree(doc.ref, bulkWriter, onFailure));
             const counts = await Promise.all(docPromises);
             deletedInCollection += counts.reduce((acc, count) => acc + count, 0);
             lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null;
@@ -70,13 +72,14 @@ async function deleteDocumentTree(
     const counts = await Promise.all(collectionPromises);
     const deletedCount = counts.reduce((acc, count) => acc + count, 0);
 
-    bulkWriter.delete(docRef);
+    void bulkWriter.delete(docRef).catch(onFailure);
     return deletedCount + 1;
 }
 
 async function deleteQueryMatches(
     query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
     bulkWriter: FirebaseFirestore.BulkWriter,
+    onFailure: (error: unknown) => void,
 ) {
     let deletedCount = 0;
     let lastDoc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | null = null;
@@ -90,7 +93,7 @@ async function deleteQueryMatches(
         const snapshot = await pageQuery.get();
         if (snapshot.empty) break;
 
-        snapshot.docs.forEach((doc) => bulkWriter.delete(doc.ref));
+        snapshot.docs.forEach((doc) => { void bulkWriter.delete(doc.ref).catch(onFailure); });
         deletedCount += snapshot.size;
         lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null;
         if (snapshot.size < USER_DELETE_PAGE_SIZE || !lastDoc) break;
@@ -117,15 +120,38 @@ async function DELETE_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database or Auth not available" }, { status: 500 });
         }
 
+        // cost-bound: six caller-scoped limit(1) presence reads, only on explicit account deletion.
+        // Do not erase ledger/security records or mutate Auth before required retention review.
+        const retainedTargets = await Promise.all(DELETE_ACCOUNT_RETENTION_REVIEW_QUERIES.map(async (target) => {
+            const snapshot = await adminDb.collection(target.collection).where(target.field, "==", uid).limit(1).get();
+            return snapshot.empty ? null : target.targetKey;
+        }));
+        if (retainedTargets.some(Boolean)) {
+            return NextResponse.json({
+                success: false,
+                code: "account_deletion_retention_review_required",
+                retryable: false,
+                accountActive: true,
+                error: "Account retention review required",
+            }, { status: 409 });
+        }
+
         const userRef = adminDb.collection("users").doc(uid);
         const existingUserSnap = await userRef.get();
         const existingUsername = typeof existingUserSnap.data()?.username === "string"
             ? existingUserSnap.data()?.username
             : null;
         const bulkWriter = adminDb.bulkWriter();
+        let terminalWriteFailed = false;
+        const recordCleanupFailure = (error: unknown) => {
+            if (!terminalWriteFailed) recordRouteWarning("user/delete", "Account cleanup requires review", error);
+            terminalWriteFailed = true;
+        };
         bulkWriter.onWriteError((error) => {
             recordRouteWarning("user/delete", "User delete bulk-writer error", error);
-            return error.failedAttempts < 3;
+            const retry = error.failedAttempts < 3;
+            if (!retry) terminalWriteFailed = true;
+            return retry;
         });
 
         let authUserExists = true;
@@ -140,28 +166,66 @@ async function DELETE_handler(request: NextRequest) {
             }
         }
 
-        const creatorCleanupQueries = creatorDocumentCleanupWrites(uid);
-        const deletedSummaryValues = await Promise.all([
-            deleteDocumentTree(userRef, bulkWriter),
-            deleteQueryMatches(adminDb.collection("transactions").where("userId", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("daily_task_events").where("userId", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("daily_task_event_receipts").where("uid", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("security_events").where("userId", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("analytics_event_facts").where("userId", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("analytics_session_facts").where("userId", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("analytics_watch_sessions").where("userId", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("analytics_watch_assets").where("userId", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("analytics_user_daily").where("uid", "==", uid), bulkWriter),
-            deleteQueryMatches(adminDb.collection("paymentLocks").where("userId", "==", uid), bulkWriter),
+        // Exclude retained targets even if an in-flight financial/security write
+        // arrives after the preflight. Presence review never authorizes erasure.
+        const creatorCleanupQueries = creatorDocumentCleanupWrites(uid)
+            .filter((entry) => !requiresAccountDeletionRetentionReview(entry.collection, entry.field));
+        const cleanupResults = await Promise.allSettled([
+            deleteDocumentTree(userRef, bulkWriter, recordCleanupFailure),
+            Promise.resolve(0), // No transaction deletion is authorized by this route.
+            deleteQueryMatches(adminDb.collection("daily_task_events").where("userId", "==", uid), bulkWriter, recordCleanupFailure),
+            deleteQueryMatches(adminDb.collection("daily_task_event_receipts").where("uid", "==", uid), bulkWriter, recordCleanupFailure),
+            Promise.resolve(0), // Required security evidence is retained.
+            deleteQueryMatches(adminDb.collection("analytics_event_facts").where("userId", "==", uid), bulkWriter, recordCleanupFailure),
+            deleteQueryMatches(adminDb.collection("analytics_session_facts").where("userId", "==", uid), bulkWriter, recordCleanupFailure),
+            deleteQueryMatches(adminDb.collection("analytics_watch_sessions").where("userId", "==", uid), bulkWriter, recordCleanupFailure),
+            deleteQueryMatches(adminDb.collection("analytics_watch_assets").where("userId", "==", uid), bulkWriter, recordCleanupFailure),
+            deleteQueryMatches(adminDb.collection("analytics_user_daily").where("uid", "==", uid), bulkWriter, recordCleanupFailure),
+            Promise.resolve(0), // Preserve payment lifecycle/idempotency records.
             ...creatorCleanupQueries.map((entry) => deleteQueryMatches(
                 adminDb.collection(entry.collection).where(entry.field, "==", entry.value),
                 bulkWriter,
+                recordCleanupFailure,
             )),
         ]);
+        for (const result of cleanupResults) {
+            if (result.status === "rejected") recordCleanupFailure(result.reason);
+        }
+        const deletedSummaryValues = cleanupResults.map((result) => result.status === "fulfilled" ? result.value : 0);
 
-        bulkWriter.delete(adminDb.collection("analytics_users_rollup").doc(uid));
-        bulkWriter.delete(adminDb.collection("analytics_active_users").doc(uid));
+        void bulkWriter.delete(adminDb.collection("analytics_users_rollup").doc(uid)).catch(recordCleanupFailure);
+        void bulkWriter.delete(adminDb.collection("analytics_active_users").doc(uid)).catch(recordCleanupFailure);
         await bulkWriter.close();
+        // BulkWriter.close never rejects. Final operation failures must prevent
+        // username release, final Auth deletion and a fabricated success result.
+        if (terminalWriteFailed) {
+            return NextResponse.json({
+                success: false,
+                code: "account_deletion_cleanup_pending",
+                retryable: false,
+                accountActive: false,
+                error: "Account cleanup pending",
+                deleted: { authUserDeleted: false },
+            }, { status: 503 });
+        }
+
+        // A request already in flight can settle after the first presence scan.
+        // Required records are never queued for deletion; recheck before final
+        // Auth/username settlement and report review instead of full completion.
+        const retainedAfterCleanup = await Promise.allSettled(DELETE_ACCOUNT_RETENTION_REVIEW_QUERIES.map(async (target) => {
+            return adminDb.collection(target.collection).where(target.field, "==", uid).limit(1).get();
+        }));
+        if (retainedAfterCleanup.some((result) => result.status === "rejected" || !result.value.empty)) {
+            recordRouteWarning("user/delete", "Account retention reconciliation is pending");
+            return NextResponse.json({
+                success: false,
+                code: "account_deletion_retention_reconciliation_pending",
+                retryable: false,
+                accountActive: false,
+                error: "Account retention reconciliation pending",
+                deleted: { authUserDeleted: false },
+            }, { status: 503 });
+        }
 
         try {
             await releaseUsernameReservationForUser({

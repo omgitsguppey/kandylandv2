@@ -1,4 +1,5 @@
-import { Activity, DollarSign, Funnel, Loader2, Monitor, Smartphone, Users } from "lucide-react";
+import { Activity, DollarSign, Loader2, Monitor, Smartphone, Users } from "lucide-react";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { ADMIN_ANALYTICS_DEFAULT_RANGE, ADMIN_ANALYTICS_RANGE_OPTIONS } from "@/lib/admin-analytics-preferences";
 import type { 
@@ -109,30 +110,28 @@ export function SectionRangeControl({
   onChange: (sectionKey: string, range: RangeOption) => void;
 }) {
   return (
-    <label className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-300">
-      <Funnel className="h-3.5 w-3.5 text-gray-400" />
-      <select
+    <div className="flex min-w-0 items-center gap-2">
+      <NativeSelect
         value={range}
+        aria-label={`${sectionKey} range`}
         onChange={(event) =>
           onChange(sectionKey, event.target.value as RangeOption)
         }
         disabled={saving}
-        className="bg-transparent text-[11px] font-semibold uppercase tracking-[0.14em] text-white outline-none"
       >
         {RANGE_OPTIONS.map((option) => (
-          <option
+          <NativeSelectOption
             key={option.value}
             value={option.value}
-            className="bg-black text-white"
           >
             {option.label}
-          </option>
+          </NativeSelectOption>
         ))}
-      </select>
+      </NativeSelect>
       {saving ? (
-        <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-purple" />
+        <Loader2 className="size-4 shrink-0 animate-spin text-brand-purple" aria-hidden="true" />
       ) : null}
-    </label>
+    </div>
   );
 }
 

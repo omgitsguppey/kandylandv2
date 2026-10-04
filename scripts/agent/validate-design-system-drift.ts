@@ -1,5 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import * as ts from "typescript";
+import { readSourceAst, sourceRenderNodes, someSourceNode } from "./validate-behavioral-truth-source";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -115,7 +117,17 @@ const doc = readRequired("docs/agent-truth/design-system-drift.md");
 const helper = readRequired("src/lib/design-system.ts");
 const adminBadge = readRequired("src/components/Admin/AdminStatusBadge.tsx");
 const dropCardParts = readRequired("src/components/DropCardParts.tsx");
-const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
+const previewView = readSourceAst("src/components/Drops/LockedDropPreviewView.tsx");
+const previewClientAst = readSourceAst("src/components/Drops/LockedDropPreviewClient.tsx");
+let previewViewName: string | undefined;
+for (const statement of previewClientAst.statements) {
+  if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "@/components/Drops/LockedDropPreviewView") continue;
+  const bindings = statement.importClause?.namedBindings;
+  if (bindings && ts.isNamedImports(bindings)) previewViewName = bindings.elements.find((entry) => (entry.propertyName?.text ?? entry.name.text) === "LockedDropPreviewView")?.name.text;
+}
+const previewViewConnected = someSourceNode(sourceRenderNodes(previewClientAst, "LockedDropPreviewClient"), (node) => (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && ts.isIdentifier(node.tagName) && node.tagName.text === previewViewName);
+const previewRender = previewViewConnected ? sourceRenderNodes(previewView, "LockedDropPreviewView") : [];
+const previewBadge = readRequired("src/components/creative-tim/ui/badge.tsx");
 const charts = readRequired("src/components/Admin/AdminAnalyticsCharts.tsx");
 const countdown = readRequired("src/lib/drop-countdown.ts");
 const mobileBottomBar = readRequired("src/components/Navigation/MobileBottomBar.tsx");
@@ -157,8 +169,64 @@ requireIncludes(dropCardParts, "aria-live=\"off\"", "DropCardParts");
 requireAbsent(dropCardParts, "font-mono", "DropCardParts");
 requireAbsent(dropCardParts, "font-[ui-monospace", "DropCardParts");
 
-requireIncludes(dropPreviewModal, "LAUNCH_BADGE_CONTAINMENT_CLASSNAME", "DropPreviewModal");
-requireIncludes(dropPreviewModal, "LAUNCH_STATIC_BADGE_CLASSNAME", "DropPreviewModal");
+let previewBadgeName: string | undefined;
+for (const statement of previewView.statements) {
+  if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "@/components/creative-tim/ui/badge") continue;
+  const bindings = statement.importClause?.namedBindings;
+  if (bindings && ts.isNamedImports(bindings)) previewBadgeName = bindings.elements.find((entry) => (entry.propertyName?.text ?? entry.name.text) === "Badge")?.name.text;
+}
+let hasPassivePreviewBadge = false;
+let hasInteractivePreviewBadge = false;
+someSourceNode(previewRender, (node) => {
+  if ((!ts.isJsxOpeningElement(node) && !ts.isJsxSelfClosingElement(node)) || !ts.isIdentifier(node.tagName) || node.tagName.text !== previewBadgeName) return false;
+  hasPassivePreviewBadge = true;
+  const interactiveProperties = new Set(["asChild", "onClick", "onKeyDown", "href", "tabIndex", "role"]);
+  const spreads: Array<{ expression: ts.Expression; ancestors: ReadonlySet<ts.Expression> }> = [];
+  for (const attribute of node.attributes.properties) {
+    if (ts.isJsxAttribute(attribute) && interactiveProperties.has(attribute.name.getText())) hasInteractivePreviewBadge = true;
+    if (ts.isJsxSpreadAttribute(attribute)) spreads.push({ expression: attribute.expression, ancestors: new Set() });
+  }
+  while (spreads.length > 0) {
+    let { expression, ancestors } = spreads.pop()!;
+    while (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression) || ts.isNonNullExpression(expression)) expression = expression.expression;
+    if (ancestors.has(expression)) { hasInteractivePreviewBadge = true; continue; }
+    const nextAncestors = new Set(ancestors);
+    nextAncestors.add(expression);
+    if (ts.isIdentifier(expression)) {
+      const name = expression.text;
+      let initializer: ts.Expression | undefined;
+      let scope: ts.Node | undefined = node;
+      while (scope && !initializer) {
+        if (ts.isBlock(scope) || ts.isSourceFile(scope)) {
+          for (const statement of scope.statements) {
+            if (!ts.isVariableStatement(statement) || statement.pos >= node.pos) continue;
+            const declaration = statement.declarationList.declarations.find((entry) => ts.isIdentifier(entry.name) && entry.name.text === name);
+            if (declaration) { initializer = declaration.initializer; break; }
+          }
+        }
+        if (ts.isFunctionLike(scope) && scope.parameters.some((parameter) => ts.isIdentifier(parameter.name) && parameter.name.text === name)) break;
+        scope = scope.parent;
+      }
+      if (initializer) spreads.push({ expression: initializer, ancestors: nextAncestors });
+      else hasInteractivePreviewBadge = true;
+      continue;
+    }
+    if (!ts.isObjectLiteralExpression(expression)) { hasInteractivePreviewBadge = true; continue; }
+    for (const property of expression.properties) {
+      if (ts.isSpreadAssignment(property)) { spreads.push({ expression: property.expression, ancestors: nextAncestors }); continue; }
+      const propertyName = property.name;
+      let name: string | undefined;
+      if (propertyName && (ts.isIdentifier(propertyName) || ts.isStringLiteral(propertyName))) name = propertyName.text;
+      else if (propertyName && ts.isComputedPropertyName(propertyName) && ts.isStringLiteral(propertyName.expression)) name = propertyName.expression.text;
+      if (name === undefined || interactiveProperties.has(name)) hasInteractivePreviewBadge = true;
+    }
+  }
+  return false;
+});
+if (!hasPassivePreviewBadge || hasInteractivePreviewBadge) failures.push("Full-page preview must consume its imported passive local Badge rather than a comment, unused component or interactive replacement.");
+requireIncludes(previewBadge, "overflow-hidden", "Local preview Badge containment owner");
+requireIncludes(previewBadge, "asChild = false", "Local preview Badge passive default");
+requireIncludes(previewBadge, 'const Comp = asChild ? Slot : "span"', "Local preview Badge semantic owner");
 
 requireIncludes(charts, "KANDYDROPS_CHART_COLORS", "AdminAnalyticsCharts");
 requireIncludes(charts, "KANDYDROPS_CHART_COLORS.grid", "AdminAnalyticsCharts");

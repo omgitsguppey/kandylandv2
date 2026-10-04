@@ -274,6 +274,21 @@ function writeIdentityLinkStorageState(
   writeStorage(storage ?? getStorage(), createIdentityLinkStorageKey(link), value);
 }
 
+function clearOwnedPendingIdentityLinkState(
+  link: Pick<GuestUserIdentityLink, "identityLinkId">,
+  pendingState: string | null,
+  storage?: Storage | null,
+) {
+  if (!pendingState?.startsWith("pending:")) return;
+  try {
+    const targetStorage = storage ?? getStorage();
+    const key = createIdentityLinkStorageKey(link);
+    if (targetStorage?.getItem(key) === pendingState) targetStorage.removeItem(key);
+  } catch {
+    // Storage can be unavailable; a blocked handoff still must not claim linkage.
+  }
+}
+
 function isIdentityLinkStorageStateBlocking(value: string | null, nowMs = Date.now()) {
   if (value === "sent") {
     return true;
@@ -339,6 +354,8 @@ export function buildIdentityLinkPayload(input: {
       }
 
       markIdentityLinkSubmitted(link, storage);
+      const pendingState = readIdentityLinkStorageState(link, storage);
+      const ownsPendingState = () => pendingState !== null && readIdentityLinkStorageState(link, storage) === pendingState;
       try {
         const response = await fetcher(GUEST_USER_IDENTITY_TRANSFER_ROUTE, {
           method: "POST",
@@ -347,7 +364,7 @@ export function buildIdentityLinkPayload(input: {
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok || body?.success !== true) {
-          markIdentityLinkRetryAfter(link, storage);
+          if (ownsPendingState()) markIdentityLinkRetryAfter(link, storage);
           return {
             success: false,
             loginBlocking: false,
@@ -356,7 +373,17 @@ export function buildIdentityLinkPayload(input: {
           };
         }
 
-        markIdentityLinkSucceeded(link, storage);
+        if (body?.ignored === true || body?.mergeAllowed === false) {
+          clearOwnedPendingIdentityLinkState(link, pendingState, storage);
+          return {
+            success: false,
+            loginBlocking: false,
+            retryable: false,
+            reason: typeof body?.reason === "string" ? body.reason : "identity_link_blocked_by_consent",
+          };
+        }
+
+        if (ownsPendingState()) markIdentityLinkSucceeded(link, storage);
         return {
           success: true,
           identityLinkId: typeof body.identityLinkId === "string" ? body.identityLinkId : link.identityLinkId,
@@ -366,7 +393,7 @@ export function buildIdentityLinkPayload(input: {
           retryable: false,
         };
       } catch {
-        markIdentityLinkRetryAfter(link, storage);
+        if (ownsPendingState()) markIdentityLinkRetryAfter(link, storage);
         return {
           success: false,
           loginBlocking: false,

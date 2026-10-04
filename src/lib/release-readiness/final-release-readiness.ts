@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { classifyGeneratedArtifactFromGit } from "../agent-score/generated-artifact-version-policy";
 import {
   getPublicReleaseNotesVisibleNotes,
-  isPublicBetaBadgeNoteFresh,
+  getPublicBetaBadgeNoteTimestamp,
   type PublicReleaseNote,
 } from "../release-notes/release-version-contract";
 import {
@@ -1431,9 +1431,10 @@ export function buildReleaseNotesIntegrityReport(context: ReleaseReadinessContex
     && lastCommitSha.length > 0
     && latestCommitSha === lastCommitSha;
   const generatedAtMs = Date.parse(context.generatedAtUtc);
-  const latestIsFresh = Boolean(latestVisible)
+  const latestTimestamp = latestVisible ? getPublicBetaBadgeNoteTimestamp(latestVisible) : null;
+  const latestTimestampIsValid = latestTimestamp !== null
     && Number.isFinite(generatedAtMs)
-    && isPublicBetaBadgeNoteFresh(latestVisible, generatedAtMs);
+    && latestTimestamp <= generatedAtMs;
   const expectedChangelogLines = latestVisible
     ? [latestVisible.title, ...latestVisible.bullets].filter((line) => typeof line === "string" && line.trim().length > 0)
     : [];
@@ -1452,7 +1453,7 @@ export function buildReleaseNotesIntegrityReport(context: ReleaseReadinessContex
     exposesSensitiveInternals,
     changelogMentionsLatestHardening,
     releaseNotesStaleToCurrentHead: !latestMatchesDocument
-      || !latestIsFresh
+      || !latestTimestampIsValid
       || !["current_head", "ancestor_of_current_head"].includes(context.releaseNotesAnchorStatus),
     releaseNotesAnchorStatus: context.releaseNotesAnchorStatus,
     validationFailures: [],

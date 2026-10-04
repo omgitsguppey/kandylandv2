@@ -19,7 +19,7 @@ describe("payment module symmetry display contract", () => {
   it("uses compact paid-GD copy without legacy loud labels", () => {
     const paymentModuleEvidence = purchaseModal + walletPackagePicker + walletCheckoutPanel + read("agent/state/payment-module-symmetry.generated.json");
 
-    expect(walletPackagePicker).toContain("Paid GD");
+    expect(walletPackagePicker).toContain("GumDrops");
     expect(resolvePurchaseBonusPromoOffer(50)?.compactLabel).toBe("+50 bonus GD");
     expect(resolvePurchaseBonusPromoOffer(100)?.compactLabel).toBe("+100 bonus GD");
     expect(resolvePurchaseBonusPromoOffer(500)?.compactLabel).toBe("+500 bonus GD");
@@ -44,9 +44,11 @@ describe("payment module symmetry display contract", () => {
     expect(walletPackagePicker).toContain("data-purchase-promo-slot=\"reserved\"");
     expect(walletPackagePicker).toContain("data-payment-module-density=\"compact-v2\"");
     expect(walletPackagePicker).toContain("grid-cols-[2.75rem_minmax(0,1fr)]");
-    expect(walletPackagePicker).toContain("min-h-[8rem]");
+    expect(walletPackagePicker).toContain('import { Button } from "@/components/ui/Button"');
+    expect(walletPackagePicker).toContain("aria-pressed={selected}");
+    expect(walletPackagePicker).toContain("disabled={disabled}");
     expect(walletPackagePicker).toContain("max-w-[7.6rem]");
-    expect(walletPackagePicker).toContain("mt-1 grid gap-2 border-t border-white/15 pt-3");
+    expect(walletPackagePicker).toContain("border-t border-border");
   });
 
   it("uses a generic non-wrapping promo badge contract", () => {
@@ -60,7 +62,8 @@ describe("payment module symmetry display contract", () => {
     }
     expect(walletPackagePicker).toContain("function KandyWalletPromoBadge");
     expect(walletPackagePicker).toContain("function KandyWalletPriceBlock");
-    expect(walletPackagePicker).toContain("whitespace-nowrap");
+    expect(walletPackagePicker).toContain('import { Badge } from "@/components/creative-tim/ui/badge"');
+    expect(read("src/components/creative-tim/ui/badge.tsx")).toContain("whitespace-nowrap");
     expect(walletPackagePicker).toContain("max-w-[7.6rem]");
     expect(walletPackagePicker).toContain("leading-none");
   });

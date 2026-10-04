@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { readBehavioralAdminConsumers, hasRenderedExpression } from "./validate-behavioral-truth-source";
+
 const root = process.cwd();
 
 function read(path: string) {
@@ -20,6 +22,7 @@ const adminUsersPage = read("src/app/admin/users/page.tsx");
 const runtime = read("functions/src/behavioral-intelligence-runtime.ts");
 const recommendationExplanations = read("src/lib/recommendations/recommendation-explanations.ts");
 const docs = read("docs/agent-truth/behavioral-explanations.md");
+const consumers = readBehavioralAdminConsumers();
 
 assert(helper.includes("buildEngagementBehavioralExplanation"), "Behavioral explanation helper is missing engagement explanation builder.");
 assert(helper.includes("buildValueBehavioralExplanation"), "Behavioral explanation helper is missing value explanation builder.");
@@ -37,7 +40,8 @@ assert(adminUserPage.includes("showBehavioralExplanationCards"), "Admin user det
 assert(adminUsersPage.includes("buildEngagementBehavioralExplanation"), "Admin users page does not use the shared engagement explanation helper.");
 assert(adminUsersPage.includes("buildValueBehavioralExplanation"), "Admin users page does not use the shared value explanation helper.");
 assert(adminUsersPage.includes("engagementExplanation.verdict"), "Admin users page is not rendering verdict-first engagement copy.");
-assert(adminUsersPage.includes("valueExplanation.summary") || adminUsersPage.includes("engagementExplanation.summary"), "Admin users page does not surface plain-English behavior reasons.");
+assert(consumers.hasDirectoryReason("engagement") && consumers.hasDirectoryReason("value"), "Loaded Admin directory must render canonical plain-English behavior reasons.");
+assert(consumers.hasDetailReasons("engagement") && consumers.hasDetailReasons("value") && hasRenderedExpression(consumers.verdictRender, "explanation.summary"), "Admin user detail must render canonical summaries and top-three reasons.");
 
 assert(runtime.includes("insufficientSignal"), "Behavioral runtime no longer persists insufficient-signal truth.");
 assert(runtime.includes("recommendationState"), "Behavioral runtime no longer persists recommendation state.");

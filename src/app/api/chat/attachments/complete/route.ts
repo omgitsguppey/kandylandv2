@@ -24,7 +24,7 @@ import {
     matchesChatAttachmentOperationIdentity,
 } from "@/lib/server/creator-experiences";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
-import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { buildNotFoundBody, buildNotFoundResponse } from "@/lib/server/not-found";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -246,8 +246,7 @@ export async function POST(request: NextRequest) {
             if (isStorageNotFoundFailure(error)) {
                 return finalize(NextResponse.json({
                     ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
-                    error: "Uploaded attachment not found.",
-                    errorCode: "attachment_not_found",
+                    ...buildNotFoundBody("asset", "Uploaded attachment not found.", "attachment_not_found"),
                 }, { status: 404 }), error);
             }
             throw error;

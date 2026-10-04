@@ -1,4 +1,6 @@
-import { execFileSync, execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import path from "node:path";
 
 import { buildTaskContext } from "./build-task-context";
 import { createMetadata, writeJsonFile, writeTextFile } from "./shared";
@@ -9,6 +11,23 @@ type FastStartArgs = {
   mode?: string;
   files: string[];
 };
+
+const TRACEABLE_SOURCE_PATH = /^(?:src|functions\/src|scripts|tests)\/.+\.(?:ts|tsx|js|jsx|mjs|cjs)$/u;
+const TRACEABLE_ROOT_SOURCE_PATH = /^[^/]+\.(?:ts|tsx|js|jsx|mjs|cjs)$/u;
+
+export function isAdjacentTraceSupported(repoPath: string) {
+  const normalizedPath = repoPath.replace(/\\/g, "/");
+  return TRACEABLE_SOURCE_PATH.test(normalizedPath) || TRACEABLE_ROOT_SOURCE_PATH.test(normalizedPath);
+}
+
+export function findNpmCliPath(npmExecPath = process.env.npm_execpath, nodeExecutable = process.execPath) {
+  const candidates = [
+    npmExecPath,
+    path.join(path.dirname(nodeExecutable), "node_modules", "npm", "bin", "npm-cli.js"),
+  ].filter((candidate): candidate is string => Boolean(candidate));
+
+  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+}
 
 function parseArgs(): FastStartArgs {
   let task = "";
@@ -41,7 +60,12 @@ function parseArgs(): FastStartArgs {
 
 function runCommand(command: string, args: string[]) {
   if (process.platform === "win32" && command === "npm") {
-    return execSync(`npm ${args.map((entry) => `"${entry}"`).join(" ")}`, {
+    const npmCliPath = findNpmCliPath();
+    if (!npmCliPath) {
+      throw new Error("Cannot locate npm-cli.js for a shell-free Windows npm invocation.");
+    }
+
+    return execFileSync(process.execPath, [npmCliPath, ...args], {
       cwd: process.cwd(),
       encoding: "utf8",
     });
@@ -141,7 +165,9 @@ export function runAgentFastStart(args: FastStartArgs) {
   const gitStatus = runCommand("git", ["status", "--short"]).trim();
   const traceOutputs = args.files.map((entry) => ({
     path: entry,
-    output: runCommand("npm", ["run", "trace:adjacent", "--", entry]).trim(),
+    output: isAdjacentTraceSupported(entry)
+      ? runCommand("npm", ["run", "trace:adjacent", "--", entry]).trim()
+      : "Not applicable: workflow, documentation, configuration, and generated-artifact entrypoints do not have an import-graph trace.",
   }));
 
   const payload = {

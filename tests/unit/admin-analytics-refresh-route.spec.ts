@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createUnavailableAdminMetricSnapshot } from "@/lib/analytics/admin-metric-snapshot";
+import { createSnapshotValue, createUnavailableAdminMetricSnapshot } from "@/lib/analytics/admin-metric-snapshot";
 
 const mockState = vi.hoisted(() => ({
+  promotedAudience: false,
+  materialize: vi.fn(),
   guardApiRequest: vi.fn(),
   handleApiError: vi.fn(),
+  getAdminMetricSnapshot: vi.fn(),
   getLatestVerifiedSnapshot: vi.fn(),
   getSnapshotDebugMetadata: vi.fn(),
   markSnapshotRefreshStarted: vi.fn(),
@@ -13,8 +16,11 @@ const mockState = vi.hoisted(() => ({
   markSnapshotRefreshFailed: vi.fn(),
   runSnapshotRefreshWithDedupe: vi.fn(),
   reset() {
+    this.promotedAudience = false;
+    this.materialize.mockReset();
     this.guardApiRequest.mockReset();
     this.handleApiError.mockReset();
+    this.getAdminMetricSnapshot.mockReset();
     this.getLatestVerifiedSnapshot.mockReset();
     this.getSnapshotDebugMetadata.mockReset();
     this.markSnapshotRefreshStarted.mockReset();
@@ -23,6 +29,21 @@ const mockState = vi.hoisted(() => ({
     this.runSnapshotRefreshWithDedupe.mockReset();
   },
 }));
+
+vi.mock("@/lib/server/admin-analytics-materializers", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/server/admin-analytics-materializers")>();
+  return {
+    ...actual,
+    getAdminAnalyticsMaterializer: (moduleKey: string) => {
+      const entry = actual.getAdminAnalyticsMaterializer(moduleKey);
+      return entry && mockState.promotedAudience && moduleKey === "audience_snapshot"
+        ? { ...entry, currentImplementationStatus: "ready", defaultAdminAnalyticsCoverage: "ready", canRunDefaultRefresh: true }
+        : entry;
+    },
+    materializeAdminAnalyticsSnapshot: (input: Parameters<typeof actual.materializeAdminAnalyticsSnapshot>[0]) =>
+      mockState.promotedAudience && input.moduleKey === "audience_snapshot" ? mockState.materialize(input) : actual.materializeAdminAnalyticsSnapshot(input),
+  };
+});
 
 vi.mock("@/lib/server/request-guard", () => ({
   guardApiRequest: mockState.guardApiRequest,
@@ -41,6 +62,7 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 }));
 
 vi.mock("@/lib/server/admin-analytics-snapshots", () => ({
+  getAdminMetricSnapshot: mockState.getAdminMetricSnapshot,
   getLatestVerifiedSnapshot: mockState.getLatestVerifiedSnapshot,
   getSnapshotDebugMetadata: mockState.getSnapshotDebugMetadata,
   markSnapshotRefreshStarted: mockState.markSnapshotRefreshStarted,
@@ -58,6 +80,7 @@ describe("/api/admin/analytics/refresh", () => {
     mockState.handleApiError.mockImplementation((error: unknown) =>
       NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 }),
     );
+    mockState.getAdminMetricSnapshot.mockResolvedValue(null);
     mockState.getSnapshotDebugMetadata.mockResolvedValue({
       moduleKey: "commerce_snapshot",
       rangeKey: "30d",
@@ -70,15 +93,19 @@ describe("/api/admin/analytics/refresh", () => {
       duplicateRefreshPrevented: false,
       refreshStartedAt: "2026-04-30T12:00:00.000Z",
       snapshot: null,
+      lease: { token: "owned-test-lease", version: 1 },
     });
     mockState.runSnapshotRefreshWithDedupe.mockImplementation(async (input: { refresh: () => Promise<unknown> }) => ({
       snapshot: await input.refresh(),
       duplicateRefreshPrevented: false,
     }));
     mockState.markSnapshotRefreshCompleted.mockImplementation(async (_moduleKey: string, _rangeKey: string, snapshot: unknown) => ({
-      ...(snapshot as Record<string, unknown>),
-      refreshStatus: "completed",
-      refreshCompletedAt: "2026-04-30T12:00:01.000Z",
+      applied: true,
+      snapshot: {
+        ...(snapshot as Record<string, unknown>),
+        refreshStatus: "completed",
+        refreshCompletedAt: "2026-04-30T12:00:01.000Z",
+      },
     }));
   });
 
@@ -88,12 +115,16 @@ describe("/api/admin/analytics/refresh", () => {
       rangeKey: "30d",
       reason: "No verified snapshot exists.",
     });
+    mockState.getAdminMetricSnapshot.mockResolvedValue(snapshot);
     mockState.getLatestVerifiedSnapshot.mockResolvedValue(snapshot);
 
     const response = await GET(new NextRequest("http://localhost/api/admin/analytics/refresh?moduleKey=commerce_snapshot&rangeKey=30d"));
     const payload = await response.json();
 
     expect(response.status).toBe(200);
+    expect(mockState.getAdminMetricSnapshot).toHaveBeenCalledOnce();
+    expect(mockState.getLatestVerifiedSnapshot).toHaveBeenCalledWith("commerce_snapshot", "30d", snapshot);
+    expect(mockState.getSnapshotDebugMetadata).toHaveBeenCalledWith("commerce_snapshot", "30d", snapshot);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(payload).toMatchObject({
       success: true,
@@ -289,4 +320,151 @@ describe("/api/admin/analytics/refresh", () => {
     expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
     expect(mockState.markSnapshotRefreshFailed).not.toHaveBeenCalled();
   });
+
+  function promotedSnapshot(views: number) {
+    return {
+      ...createUnavailableAdminMetricSnapshot({ moduleKey: "audience_snapshot", rangeKey: "24h", reason: "seed" }),
+      truthState: "verified" as const, sourceMode: "verified_cache" as const,
+      lastVerifiedAt: "2026-10-02T12:00:00.000Z",
+      values: { views: createSnapshotValue({ value: views, source: "bounded_source", sourceMode: "verified_cache" }) },
+    };
+  }
+  function audienceRequest(force = false) {
+    return new NextRequest("http://localhost/api/admin/analytics/refresh", {
+      method: "POST", body: JSON.stringify({ moduleKey: "audience_snapshot", rangeKey: "24h", force }),
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  it("carries the acquired lease through work and completion before returning persisted truth", async () => {
+    mockState.promotedAudience = true;
+    mockState.materialize.mockResolvedValue(promotedSnapshot(9));
+    const response = await POST(audienceRequest());
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(mockState.runSnapshotRefreshWithDedupe).toHaveBeenCalledWith(expect.objectContaining({ lease: { token: "owned-test-lease", version: 1 } }));
+    expect(mockState.markSnapshotRefreshCompleted).toHaveBeenCalledWith("audience_snapshot", "24h", expect.objectContaining({ values: { views: expect.objectContaining({ value: 9 }) } }), { token: "owned-test-lease", version: 1 });
+    expect(payload).toMatchObject({ success: true, refreshStatus: "completed", snapshot: { values: { views: { value: 9 } } } });
+  });
+
+  it("does not invoke a promoted writer when a forced request finds an active persisted lease", async () => {
+    mockState.promotedAudience = true;
+    mockState.markSnapshotRefreshStarted.mockResolvedValue({ duplicateRefreshPrevented: true, snapshot: promotedSnapshot(7), lease: null });
+    const response = await POST(audienceRequest(true));
+    expect((await response.json()).refreshStatus).toBe("duplicate_prevented");
+    expect(mockState.materialize).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshCompleted).not.toHaveBeenCalled();
+  });
+
+  it("returns current verified display evidence and failed truth when a late worker loses its lease", async () => {
+    mockState.promotedAudience = true;
+    mockState.materialize.mockResolvedValue(promotedSnapshot(99));
+    mockState.markSnapshotRefreshCompleted.mockResolvedValue({ applied: false, snapshot: promotedSnapshot(11) });
+    mockState.getAdminMetricSnapshot.mockResolvedValue(promotedSnapshot(11));
+    mockState.getLatestVerifiedSnapshot.mockResolvedValue(promotedSnapshot(11));
+    const response = await POST(audienceRequest());
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(payload).toMatchObject({ success: false, code: "snapshot_refresh_lease_lost", refreshStatus: "failed", snapshot: { values: { views: { value: 11 } } } });
+    expect(mockState.markSnapshotRefreshFailed).not.toHaveBeenCalled();
+  });
+
+  it("settles source failure through its owned lease while retaining the previous verified snapshot", async () => {
+    mockState.promotedAudience = true;
+    mockState.materialize.mockRejectedValue(new Error("bounded source failed"));
+    mockState.markSnapshotRefreshFailed.mockResolvedValue({ applied: true, refreshError: "bounded source failed" });
+    mockState.getAdminMetricSnapshot.mockResolvedValue(promotedSnapshot(7));
+    mockState.getLatestVerifiedSnapshot.mockResolvedValue(promotedSnapshot(7));
+    const response = await POST(audienceRequest());
+    expect(mockState.markSnapshotRefreshFailed).toHaveBeenCalledWith("audience_snapshot", "24h", expect.any(Error), { token: "owned-test-lease", version: 1 });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ success: false, refreshStatus: "failed", snapshot: { values: { views: { value: 7 } } } });
+  });
+
+  it("reuses one newly read record for a duplicate branch whose captured source is explicitly absent", async () => {
+    mockState.promotedAudience = true;
+    const current = promotedSnapshot(11);
+    mockState.markSnapshotRefreshStarted.mockResolvedValue({ duplicateRefreshPrevented: true, snapshot: null, lease: null });
+    mockState.getAdminMetricSnapshot.mockResolvedValue(current);
+    mockState.getLatestVerifiedSnapshot.mockResolvedValue(current);
+    const payload = await (await POST(audienceRequest(true))).json();
+    expect(payload).toMatchObject({ success: true, refreshStatus: "duplicate_prevented", snapshot: { values: { views: { value: 11 } } } });
+    expect(mockState.getAdminMetricSnapshot).toHaveBeenCalledOnce();
+    expect(mockState.getLatestVerifiedSnapshot).toHaveBeenCalledWith("audience_snapshot", "24h", current);
+    expect(mockState.getSnapshotDebugMetadata).toHaveBeenCalledWith("audience_snapshot", "24h", current);
+    expect(mockState.materialize).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshCompleted).not.toHaveBeenCalled();
+  });
+
+  it("preserves null without a second query when the duplicate fallback source is still absent", async () => {
+    mockState.promotedAudience = true;
+    mockState.markSnapshotRefreshStarted.mockResolvedValue({ duplicateRefreshPrevented: true, snapshot: null, lease: null });
+    mockState.getAdminMetricSnapshot.mockResolvedValue(null);
+    mockState.getLatestVerifiedSnapshot.mockResolvedValue(null);
+    mockState.getSnapshotDebugMetadata.mockResolvedValue({ exists: false, truthState: "unavailable" });
+    const response = await POST(audienceRequest());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ success: true, refreshStatus: "duplicate_prevented", snapshot: null, metadata: { exists: false, truthState: "unavailable" } });
+    expect(mockState.getAdminMetricSnapshot).toHaveBeenCalledOnce();
+    expect(mockState.getLatestVerifiedSnapshot).toHaveBeenCalledWith("audience_snapshot", "24h", null);
+    expect(mockState.getSnapshotDebugMetadata).toHaveBeenCalledWith("audience_snapshot", "24h", null);
+    expect(mockState.materialize).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshFailed).not.toHaveBeenCalled();
+  });
+  it("keeps a maintenance-readable GET source-only even for a promoted module and force query", async () => {
+    mockState.promotedAudience = true;
+    const snapshot = promotedSnapshot(12);
+    mockState.getAdminMetricSnapshot.mockResolvedValue(snapshot);
+    mockState.getLatestVerifiedSnapshot.mockResolvedValue(snapshot);
+    mockState.getSnapshotDebugMetadata.mockResolvedValue({exists:true,truthState:"verified",sourceMode:"verified_cache"});
+    const request = new NextRequest("http://localhost/api/admin/analytics/refresh?moduleKey=audience_snapshot&rangeKey=24h&force=true");
+    const response = await GET(request);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({success:true,snapshot:{values:{views:{value:12}}},metadata:{truthState:"verified",sourceMode:"verified_cache"}});
+    expect(mockState.guardApiRequest).toHaveBeenCalledWith(request,expect.objectContaining({auth:"admin",scopeToCaller:true,preAuthRouteName:"admin/analytics/refresh/preauth",preAuthRateLimit:expect.anything(),rateLimit:expect.anything()}));
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect(response.headers.get("cdn-cache-control")).toBe("no-store");
+    expect(mockState.getAdminMetricSnapshot).toHaveBeenCalledOnce();
+    expect(mockState.getLatestVerifiedSnapshot).toHaveBeenCalledWith("audience_snapshot","24h",snapshot);
+    expect(mockState.getSnapshotDebugMetadata).toHaveBeenCalledWith("audience_snapshot","24h",snapshot);
+    expect(mockState.materialize).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
+    expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshCompleted).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshFailed).not.toHaveBeenCalled();
+  });
+
+  it("preserves an explicit missing snapshot on GET without refresh or a second source query", async () => {
+    mockState.promotedAudience = true;
+    mockState.getAdminMetricSnapshot.mockResolvedValue(null);
+    mockState.getLatestVerifiedSnapshot.mockResolvedValue(null);
+    mockState.getSnapshotDebugMetadata.mockResolvedValue({exists:false,truthState:"unavailable",sourceMode:"unavailable"});
+    const response = await GET(new NextRequest("http://localhost/api/admin/analytics/refresh?moduleKey=audience_snapshot&rangeKey=24h"));
+    expect(await response.json()).toMatchObject({success:true,snapshot:null,metadata:{exists:false,truthState:"unavailable",sourceMode:"unavailable"}});
+    expect(mockState.getAdminMetricSnapshot).toHaveBeenCalledOnce();
+    expect(mockState.getLatestVerifiedSnapshot).toHaveBeenCalledWith("audience_snapshot","24h",null);
+    expect(mockState.getSnapshotDebugMetadata).toHaveBeenCalledWith("audience_snapshot","24h",null);
+    expect(mockState.materialize).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
+    expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshCompleted).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshFailed).not.toHaveBeenCalled();
+  });
+
+  it("does not read snapshots or start work after route-owned authorization denies GET", async () => {
+    const rejection = new Error("Admin access denied");
+    const denial = NextResponse.json({error:"Admin access denied"},{status:403});
+    mockState.guardApiRequest.mockRejectedValue(rejection);
+    mockState.handleApiError.mockReturnValue(denial);
+    const response = await GET(new NextRequest("http://localhost/api/admin/analytics/refresh?moduleKey=audience_snapshot&rangeKey=24h"));
+    expect(response).toBe(denial);
+    expect(mockState.handleApiError).toHaveBeenCalledWith(rejection,"Admin.Analytics.Refresh.GET");
+    expect(mockState.getAdminMetricSnapshot).not.toHaveBeenCalled();
+    expect(mockState.getLatestVerifiedSnapshot).not.toHaveBeenCalled();
+    expect(mockState.getSnapshotDebugMetadata).not.toHaveBeenCalled();
+    expect(mockState.materialize).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
+    expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
+  });
+
 });

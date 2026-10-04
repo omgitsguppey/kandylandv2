@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const ANALYTICS_STATE_SOURCE = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
   "utf-8",
-);
+).replace(/\r\n/g, "\n");
 const ANALYTICS_PRIMITIVES_SOURCE = readFileSync(
   join(process.cwd(), "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"),
   "utf-8",
@@ -113,7 +113,6 @@ const mockState = vi.hoisted(() => {
         fail: 0,
         total: 3,
       },
-      needsSetup: false,
       activeTab: "operations",
       setActiveTab: vi.fn(),
       liveLoading: false,
@@ -212,10 +211,6 @@ vi.mock("@/lib/utils", () => ({
     values.filter(Boolean).join(" "),
 }));
 
-vi.mock("@/components/Admin/AdminPageHeader", () => ({
-  AdminPageHeader: ({ title }: { title: string }) => <div>{title}</div>,
-}));
-
 vi.mock("@/components/Admin/Analytics/AdminAnalyticsPrimitives", () => ({
   AnalyticsViewModeToggle: ({
     value,
@@ -279,6 +274,8 @@ vi.mock("@/app/admin/analytics/hooks/useAdminAnalyticsState", () => ({
 
 import AdminAnalyticsPage from "@/app/admin/analytics/page";
 
+const sourceSummaryBaseline = { ...mockState.analyticsState };
+
 describe("AdminAnalyticsPage", () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -313,6 +310,19 @@ describe("AdminAnalyticsPage", () => {
       root.unmount();
     });
     container.remove();
+  });
+
+  it("keeps first-party readout and recovery visible despite stale optional GA setup metadata", async () => {
+    mockState.analyticsState = Object.assign({}, mockState.analyticsState, {
+      needsSetup: true,
+      backgroundAnalyticsIssues: ["GA4 config missing; first-party product truth remains authoritative"],
+    });
+    await act(async () => { root.render(<AdminAnalyticsPage />); });
+    const readout = container.querySelector("[aria-label='Analytics readout']");
+    expect(readout).not.toBeNull();
+    expect(readout?.textContent).toContain("12");
+    expect(container.textContent).not.toContain("Analytics Needs GA Setup");
+    expect(container.querySelector("[data-admin-analytics-recovery-range=all]")).not.toBeNull();
   });
 
   it("does not count unclassified device rows as mobile-share proof", () => {
@@ -524,13 +534,13 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Revenue:No snapshot yet");
-    expect(container.textContent).toContain("Purchases:No snapshot yet");
+    const readout = container.querySelector("[aria-label='Analytics readout']");
+    const facts = Array.from(readout?.querySelectorAll("[data-admin-analytics-truth-state]") ?? []);
+    expect(facts.find((row) => row.textContent?.includes("Revenue"))?.textContent).toContain("No snapshot yet");
+    expect(facts.find((row) => row.textContent?.includes("Purchases"))?.textContent).toContain("No snapshot yet");
     expect(container.textContent).not.toContain("Waiting for first snapshot");
     expect(
-      Array.from(container.querySelectorAll("[data-badge-placement]")).every(
-        (node) => node.getAttribute("data-badge-placement") === "hidden",
-      ),
+      facts.every((node) => !node.querySelector("[data-slot='badge']")),
     ).toBe(true);
   });
 
@@ -561,11 +571,11 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    const activeUsersCard = Array.from(container.querySelectorAll("[data-truth-state]")).find((node) =>
-      node.textContent?.includes("Active Users:12"),
+    const activeUsersCard = Array.from(container.querySelectorAll("[data-admin-analytics-truth-state]")).find((node) =>
+      node.textContent?.includes("Active Users") && node.textContent?.includes("12"),
     );
 
-    expect(activeUsersCard?.getAttribute("data-truth-state")).toBe("cached");
+    expect(activeUsersCard?.getAttribute("data-admin-analytics-truth-state")).toBe("cached");
   });
 
   it("keeps refresh-due overview snapshot state as cached truth", async () => {
@@ -595,11 +605,11 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    const activeUsersCard = Array.from(container.querySelectorAll("[data-truth-state]")).find((node) =>
-      node.textContent?.includes("Active Users:12"),
+    const activeUsersCard = Array.from(container.querySelectorAll("[data-admin-analytics-truth-state]")).find((node) =>
+      node.textContent?.includes("Active Users") && node.textContent?.includes("12"),
     );
 
-    expect(activeUsersCard?.getAttribute("data-truth-state")).toBe("cached");
+    expect(activeUsersCard?.getAttribute("data-admin-analytics-truth-state")).toBe("cached");
   });
 
   it("summarizes panel recovery in one compact source strip", async () => {
@@ -622,7 +632,7 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Source status");
+    expect(container.textContent).toContain("Source and recovery details");
     expect(container.querySelector("[data-admin-analytics-source-recovery='compact']")).toBeTruthy();
     const sourceNotes = container.querySelector("details[title]");
     expect(container.textContent).not.toContain("Source detail");
@@ -910,6 +920,29 @@ describe("AdminAnalyticsPage", () => {
     expect(container.querySelector("[data-admin-analytics-status-summary='compact']")?.getAttribute("data-admin-analytics-source-hierarchy")).toBe("source_agreement_failed");
   });
 
+  it("does not announce a connected overview when a missing response has no error", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      liveResponse: undefined,
+      blockingAnalyticsError: null,
+      analyticsOverviewDisplayMetrics: Object.fromEntries(
+        Object.entries(mockState.analyticsState.analyticsOverviewDisplayMetrics).map(([id, metric]) => [id, {
+          ...metric,
+          primaryValue: null,
+          displayValue: "No source",
+          displayState: "missing",
+          badgeLabel: "No source",
+          showBadgeInPrimary: true,
+        }]),
+      ),
+    } as typeof mockState.analyticsState;
+
+    await act(async () => { root.render(<AdminAnalyticsPage />); });
+
+    expect(container.querySelector('[aria-label="Analytics readout"]')?.textContent).toContain("No source");
+    expect(container.textContent).not.toContain("Overview snapshot connected.");
+  });
+
   it("humanizes current-activity blocking errors", async () => {
     mockState.analyticsState = {
       ...mockState.analyticsState,
@@ -925,4 +958,80 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("Collecting activity.");
     expect(container.textContent).not.toContain("snapshot-first realtime payload");
   });
+
+  it("keeps the actual source and selected-window summary visible before one disclosure", async () => {
+    mockState.analyticsState = { ...sourceSummaryBaseline };
+    await act(async () => { root.render(<AdminAnalyticsPage />); });
+    const context = container.querySelector("[data-admin-analytics-evidence-context]")!;
+    const summary = context.querySelector("[data-admin-analytics-status-summary]")!;
+    expect(summary.closest("details")).toBeNull();
+    expect(context.textContent).toContain("Operations view - 30D Server snapshot");
+    expect(summary.textContent).toContain("Coverage: 11/11 product-truth launch days");
+    expect(summary.textContent).toContain("Source: First-party");
+    expect(summary.textContent).toContain("Confidence: Verified");
+    const disclosures = context.querySelectorAll("details");
+    expect(disclosures).toHaveLength(1);
+    expect(disclosures[0].querySelector("details")).toBeNull();
+    expect(disclosures[0].open).toBe(false);
+    expect(disclosures[0].querySelector("summary")?.textContent?.trim()).toBe("Source and recovery details");
+    await act(async () => { disclosures[0].querySelector("summary")!.click(); });
+    expect(disclosures[0].open).toBe(true);
+    expect(disclosures[0].textContent).toContain("1 panel: source missing");
+    expect(disclosures[0].textContent).toContain("1 panel: materializer missing");
+    expect(disclosures[0].textContent).toContain("Traffic overview: Reconnect the source so Traffic overview can hydrate.");
+    expect(container.querySelector("header")?.textContent).toContain("Activity, commerce, and source quality.");
+    expect(container.querySelector("header")?.textContent).not.toContain("Server-confirmed");
+  });
+
+  it("preserves missing-versus-zero and recovery agreement while the same source disclosure is open", async () => {
+    const baseline = sourceSummaryBaseline as Record<string, unknown>;
+    const metrics = baseline.analyticsOverviewDisplayMetrics as Record<string, Record<string, unknown>>;
+    const panel = baseline.panelHydration as { summary: Record<string, unknown> };
+    mockState.analyticsState = {
+      ...baseline,
+      liveResponse: undefined,
+      liveSnapshotLabel: "No source",
+      historicalSourceLabel: "No historical snapshot yet",
+      launchRecoverySummary: { sourceLabel: "Unknown", confidenceLabel: "unknown", coverageLabel: "Coverage waiting", sourceWindowLabel: null, missingRangeCount: 0, sourceAgreementState: "not_enough_sources" },
+      analyticsOverviewDisplayMetrics: Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, { ...metric, primaryValue: null, displayValue: "No source", displayState: "unavailable", badgeLabel: "No source", showBadgeInPrimary: true }])),
+      panelHydration: { ...panel, summary: { ...panel.summary, permissionBlocked: 1 } },
+    };
+    await act(async () => { root.render(<AdminAnalyticsPage />); });
+    const status = container.querySelector("[data-admin-analytics-status-summary]")!;
+    expect(status.closest("details")).toBeNull();
+    expect(status.textContent).toContain("Coverage: Coverage waiting");
+    expect(status.textContent).toContain("Source: Collecting");
+    expect(container.querySelector('[aria-label="Analytics readout"]')?.textContent).toContain("No source");
+    expect(container.textContent).not.toContain("Overview snapshot connected.");
+    const disclosure = container.querySelector("[data-admin-analytics-source-recovery]") as HTMLDetailsElement;
+    await act(async () => { disclosure.querySelector("summary")!.click(); });
+    expect(disclosure.open).toBe(true);
+    expect(disclosure.textContent).toContain("1 panel: permission blocked");
+    mockState.analyticsState = {
+      ...baseline,
+      analyticsOverviewDisplayMetrics: { ...metrics, liveActive: { ...metrics.liveActive, primaryValue: 0, displayValue: "0", displayState: "cached", compactFreshnessLine: "Cached verified zero" } },
+    };
+    await act(async () => { root.render(<AdminAnalyticsPage />); });
+    const recovered = container.querySelector("[data-admin-analytics-source-recovery]") as HTMLDetailsElement;
+    expect(recovered).toBe(disclosure);
+    expect(recovered.open).toBe(true);
+    expect(recovered.textContent).not.toContain("permission blocked");
+    expect(container.querySelector("[data-admin-analytics-status-summary]")?.textContent).toContain("Source: First-party");
+    const active = Array.from(container.querySelectorAll("[data-admin-analytics-truth-state]")).find((node) => node.textContent?.includes("Active Users"))!;
+    expect(active.getAttribute("data-admin-analytics-truth-state")).toBe("cached");
+    expect(active.textContent).toContain("Cached verified zero");
+    expect(active.textContent).not.toContain("No source");
+  });
+
+  it("keeps source facts visible without an empty disclosure when no recovery detail applies", async () => {
+    mockState.analyticsState = { ...sourceSummaryBaseline, panelHydration: undefined };
+    await act(async () => { root.render(<AdminAnalyticsPage />); });
+    const context = container.querySelector("[data-admin-analytics-evidence-context]")!;
+    expect(context.closest("details")).toBeNull();
+    expect(context.querySelector("summary")).toBeNull();
+    expect(context.textContent).toContain("Source: First-party");
+    expect(context.textContent).toContain("Coverage: 11/11 product-truth launch days");
+    expect(container.querySelector('[aria-label="Analytics readout"]')?.textContent).toContain("12");
+  });
+
 });

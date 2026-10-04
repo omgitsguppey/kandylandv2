@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T02:33:48.912Z",
+  "generatedAt": "2026-10-04T00:38:43.139Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -17,9 +17,9 @@
     "agent/index/recent-passes.json"
   ],
   "reportCompleteness": "capped",
-  "totalFindingCount": 5065,
+  "totalFindingCount": 5079,
   "emittedFindingCount": 12,
-  "omittedFindingCount": 5053,
+  "omittedFindingCount": 5067,
   "capReason": "Retrieval candidates are derived live by active consumers; the tracked artifact retains bounded examples from each source type plus complete aggregate counts.",
   "capStrategy": "grouped_examples",
   "capLimit": 12,
@@ -37,10 +37,10 @@
   "gitStatus": "available",
   "toolingDegraded": false,
   "degradationReason": null,
-  "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "currentHeadSource": "git",
-  "generatedAtUtc": "2026-08-29T02:33:48.912Z",
-  "sourceCommit": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+  "generatedAtUtc": "2026-10-04T00:38:43.139Z",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "freshness": "fresh",
   "baselineStatus": "current",
   "owner": "scripts/agent/build-agent-indexes.ts",
@@ -97,7 +97,7 @@
         "broad_signoff",
         "dataconnect"
       ],
-      "recency": "1776703212000:3c8e34dfaa4b",
+      "recency": "1790862351475:fecbff6008b3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -328,23 +328,24 @@
       "do_not_use_as_primary_truth": true
     },
     {
-      "stable_id": "retrieval__pass__2026-06-19-admin-analytics-launch-coverage-summary-reuse",
+      "stable_id": "retrieval__pass__2026-10-01-component-consolidation-and-analytics__payment__billing-cleanup",
       "source_type": "recent_pass",
-      "source_id": "pass__2026-06-19-admin-analytics-launch-coverage-summary-reuse",
+      "source_id": "pass__2026-10-01-component-consolidation-and-analytics__payment__billing-cleanup",
       "searchable_terms": [
-        "Admin Analytics Launch Coverage Summary Reuse",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "tests/unit/admin-data-validation.spec.ts"
+        "Component consolidation and analytics/payment/billing cleanup",
+        "docs/agent-truth/creative-tim-ui-adoption.md",
+        "output/manual-admin-account-final-20261001/browser-observations.json",
+        "output/manual-admin-analytics-finance-20261001/",
+        "output/manual-admin-analytics-recovery-20261001/provider-bindings.json",
+        "output/manual-admin-range-target-20261002/input.json"
       ],
       "surface_tags": [
         "admin",
-        "architecture"
+        "ui"
       ],
       "helper_tags": [],
-      "risk_tags": [
-        "architecture"
-      ],
-      "recency": "2026-06-19",
+      "risk_tags": [],
+      "recency": "2026-10-01",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -356,18 +357,25 @@
       "do_not_use_as_primary_truth": true
     },
     {
-      "stable_id": "retrieval__pass__2026-06-19-external-audit-doctrine-boundary-tightening",
+      "stable_id": "retrieval__pass__2026-10-01-connected-ui-and-maintenance-access-repair",
       "source_type": "recent_pass",
-      "source_id": "pass__2026-06-19-external-audit-doctrine-boundary-tightening",
+      "source_id": "pass__2026-10-01-connected-ui-and-maintenance-access-repair",
       "searchable_terms": [
-        "External Audit Doctrine Boundary Tightening"
+        "Connected UI and maintenance access repair",
+        "output/manual-admin-browse-consumer-20261001/input.json",
+        "output/manual-admin-copy-projection-20261001/input.json",
+        "output/manual-admin-final-copy-20261001/input.json",
+        "output/manual-admin-mobile-access-20261001/input.json",
+        "output/manual-admin-mobile-tap-20261001/",
+        "output/manual-admin-mobile-tap-20261001/input.json",
+        "output/manual-admin-status-signoff-20261001/input.json"
       ],
       "surface_tags": [
-        "maintenance"
+        "admin"
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "2026-06-19",
+      "recency": "2026-10-01",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -380,19 +388,19 @@
     }
   ],
   "counts": {
-    "total": 5065,
+    "total": 5079,
     "emitted": 12,
-    "omitted": 5053,
+    "omitted": 5067,
     "bySourceType": {
-      "file": 5022,
+      "file": 5036,
       "helper": 20,
       "pitfall": 15,
       "recent_pass": 8
     },
     "byContextTier": {
-      "warm": 2712,
-      "cold": 26,
-      "hot": 2327
+      "warm": 2731,
+      "cold": 19,
+      "hot": 2329
     }
   }
 }

@@ -1,8 +1,11 @@
 import React from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/creative-tim/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
 import {
   Activity, FileText, MapPin, Route, Smartphone, Users,
 } from "lucide-react";
-import { AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
 import {
   AnalyticsTooltip,
   AnalyticsViewModeToggle,
@@ -195,13 +198,13 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
               formatRelativeTime={formatRelativeTime}
               noSnapshotLabel={noSnapshotLabel}
             />
-            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+            <div className="grid min-w-0 gap-4">
               <SectionCard
               title="Return Cadence"
               subtitle="Authenticated users grouped by distinct return days in the selected range."
               icon={Route}
                 rightSlot={(
-                  <div className="flex flex-wrap items-center justify-end gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                     <AnalyticsViewModeToggle
                       value={returnCadenceViewMode}
                       onChange={setReturnCadenceViewMode}
@@ -216,7 +219,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 )}
             >
                 <div
-                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  className="border-b border-border mb-3 space-y-2 px-3 py-2 text-xs leading-5 text-muted-foreground"
                   data-return-cadence-source-truth={returnCadenceModel.sourceTruth}
                   data-return-cadence-freshness={returnCadenceModel.freshnessState}
                   data-return-cadence-range={returnCadenceModel.range}
@@ -231,12 +234,12 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   {returnCadenceModel.visibleCopy.map((line) => (
                     <p key={line}>{line}</p>
                   ))}
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Source: {returnCadenceModel.sourceLabel}
                     {" | "}Freshness: {returnCadenceFreshnessLabel}
                     {" | "}Range: {returnCadenceModel.range}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Generated: {returnCadenceModel.generatedAtUtc === new Date(0).toISOString()
                       ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(returnCadenceModel.generatedAtUtc), nowMs)}
@@ -252,11 +255,11 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 >
                   {returnCadenceViewMode === "chart" ? (
                     <div
-                      className="h-56 w-full rounded-[1.35rem] border border-white/10 bg-black/25 p-3"
+                      className="rounded-2xl bg-card h-56 w-full p-3"
                       data-return-cadence-chart="compact"
                     >
                       {returnCadenceModel.fakeZeroPrevented ? (
-                        <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
+                        <div className="border-b border-border flex h-full items-center justify-center px-3 text-center text-xs text-muted-foreground">
                           No return cadence source yet; missing data is not shown as zero.
                         </div>
                       ) : (
@@ -297,14 +300,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
 
                   {returnCadenceViewMode === "table" ? (
                     <div
-                      className="overflow-x-auto rounded-[1.35rem] border border-white/10 bg-black/25"
+                      className="rounded-2xl bg-card overflow-x-auto"
                       data-return-cadence-table="compact"
                       data-return-cadence-source-truth={returnCadenceModel.sourceTruth}
                       data-return-cadence-freshness={returnCadenceModel.freshnessState}
                       data-return-cadence-range={returnCadenceModel.range}
                     >
                       <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Cadence</th>
                             <th className="px-3 py-2 font-semibold">Users</th>
@@ -313,10 +316,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Freshness</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-gray-300">
+                        <tbody className="divide-y divide-white/10 text-muted-foreground">
                           {returnCadenceBuckets.map((bucket) => (
                             <tr key={`return-cadence-table-${bucket.label}`}>
-                              <td className="px-3 py-2 font-semibold text-white">{bucket.label}</td>
+                              <td className="px-3 py-2 font-semibold text-foreground">{bucket.label}</td>
                               <td className="px-3 py-2">{bucket.countDisplay ?? formatCompactNumber(bucket.count)}</td>
                               <td className="px-3 py-2">{bucket.percentDisplay ?? formatPercent(bucket.pct)}</td>
                               <td className="px-3 py-2" title={returnCadenceModel.sourceTruth}>
@@ -334,26 +337,26 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
 
                   {returnCadenceViewMode === "cards" ? (
                     <>
-                      <div className="grid gap-2 md:grid-cols-4">
+                      <div className="grid gap-2 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                         {returnCadenceBuckets.map((bucket) => {
                           return (
                             <div
                               key={bucket.label}
-                              className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300"
+                              className="border-b border-border px-3 py-2 text-xs leading-5 text-muted-foreground"
                             >
-                              <p className="font-semibold text-white">{bucket.label}</p>
+                              <p className="font-semibold text-foreground">{bucket.label}</p>
                               <p>{bucket.countDisplay ?? formatCompactNumber(bucket.count)}</p>
-                              <p className="text-gray-500">
+                              <p className="text-muted-foreground">
                                 {bucket.percentDisplay ?? formatPercent(bucket.pct)}
                               </p>
                             </div>
                           );
                         })}
                       </div>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {returnCadenceModel.denominatorExplanation}
                       </p>
-                      <div className="grid gap-3 border-t border-white/5 pt-3 md:grid-cols-3">
+                      <div className="grid gap-3 border-t border-white/5 pt-3 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                         <MetricCard
                           label="Tracked Auth Users"
                           value={
@@ -405,7 +408,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 density="compact"
                 summaryLine={navigationDestinationsSummaryLine}
                 rightSlot={(
-                  <div className="flex flex-wrap items-center justify-end gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                     <AnalyticsViewModeToggle
                       value={navigationDestinationsViewMode}
                       onChange={setNavigationDestinationsViewMode}
@@ -420,7 +423,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 )}
               >
                 <div
-                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  className="border-b border-border mb-3 space-y-2 px-3 py-2 text-xs leading-5 text-muted-foreground"
                   data-navigation-source-mode={navigationDestinationsModel.sourceMode}
                   data-navigation-total-events={String(navigationDestinationsModel.totalNavigationEvents)}
                   data-navigation-explicit-taps={String(navigationDestinationsModel.explicitTapCount)}
@@ -430,13 +433,13 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   {navigationDestinationsModel.visibleCopy.map((line) => (
                     <p key={line}>{line}</p>
                   ))}
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Source mode: {navigationDestinationsModel.sourceModeLabel}
                     {" | "}Total: {navigationDestinationsModel.totalNavigationEvents.toLocaleString()}
                     {" | "}Explicit taps: {navigationDestinationsModel.explicitTapCount.toLocaleString()}
                     {" | "}Fallback views: {navigationDestinationsModel.fallbackViewCount.toLocaleString()}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Range: {navigationDestinationsModel.range}
                     {" | "}Last updated: {navigationDestinationsModel.generatedAtUtc === new Date(0).toISOString()
                       ? noSnapshotLabel
@@ -453,7 +456,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-navigation-destinations-source-state={navigationDestinationsModel.destinations.length > 0 ? "loaded" : "no_sample"}
                 >
                   {navigationDestinationsModel.destinations.length > 0 && navigationDestinationsViewMode === "chart" ? (
-                  <div className="h-56 w-full rounded-[1.35rem] border border-white/10 bg-black/25 p-3">
+                  <div className="rounded-2xl bg-card h-56 w-full p-3">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -486,13 +489,13 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
 
                   {navigationDestinationsModel.destinations.length > 0 && navigationDestinationsViewMode === "table" ? (
                     <div
-                      className="overflow-x-auto rounded-[1.35rem] border border-white/10 bg-black/25"
+                      className="rounded-2xl bg-card overflow-x-auto"
                       data-navigation-destinations-table="compact"
                       data-navigation-destinations-range={navigationDestinationsModel.range}
                       data-navigation-destinations-source-mode={navigationDestinationsModel.sourceMode}
                     >
                       <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Destination</th>
                             <th className="px-3 py-2 font-semibold">Events</th>
@@ -501,12 +504,12 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Last seen</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-gray-300">
+                        <tbody className="divide-y divide-white/10 text-muted-foreground">
                           {navigationDestinationsModel.destinations.slice(0, 8).map((item) => (
                             <tr key={`navigation-destinations-table-${item.destinationPath}`}>
                               <td className="max-w-[16rem] px-3 py-2">
-                                <div className="truncate font-semibold text-white">{item.destinationLabel}</div>
-                                <div className="truncate text-[11px] text-gray-500">{item.destinationPath}</div>
+                                <div className="min-w-0 whitespace-normal wrap-anywhere font-semibold text-foreground">{item.destinationLabel}</div>
+                                <div className="min-w-0 whitespace-normal wrap-anywhere text-xs text-muted-foreground">{item.destinationPath}</div>
                               </td>
                               <td className="px-3 py-2 font-semibold text-brand-purple">{item.count.toLocaleString()}</td>
                               <td className="px-3 py-2" title={item.sourceTruth}>
@@ -535,7 +538,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                           .map((item, index) => (
                           <div
                             key={item.destinationPath}
-                            className="rounded-[1.25rem] border border-white/10 bg-black/30 p-3"
+                            className="border-b border-border p-3"
                           >
                             <div className="mb-2 flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
@@ -546,7 +549,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                       PIE_COLORS[index % PIE_COLORS.length],
                                   }}
                                 />
-                                <p className="text-sm font-semibold text-white">
+                                <p className="text-sm font-semibold text-foreground">
                                   {item.destinationLabel}
                                 </p>
                               </div>
@@ -554,10 +557,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                 {item.count.toLocaleString()}
                               </span>
                             </div>
-                            <p className="mb-1 text-[11px] text-gray-400">
+                            <p className="mb-1 text-xs text-muted-foreground">
                               {item.destinationPath}
                             </p>
-                            <p className="mb-2 text-[11px] text-gray-500">
+                            <p className="mb-2 text-xs text-muted-foreground">
                               <span title={item.sourceTruth}>
                                 Source: {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
                               </span>
@@ -566,10 +569,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                 ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
                                 : noSnapshotLabel}
                             </p>
-                            <p className="mb-2 text-[11px] text-gray-500">
+                            <p className="mb-2 text-xs text-muted-foreground">
                               Top source events: {item.topSourceEvents.join(", ")}
                             </p>
-                            <p className="mb-3 text-[11px] text-gray-400">
+                            <p className="mb-3 text-xs text-muted-foreground">
                               {item.explanation}
                             </p>
                             <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -583,20 +586,20 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                           </div>
                           ))
                       ) : (
-                        <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                        <div className="border-b border-border p-5 text-sm text-muted-foreground">
                           {navigationDestinationsModel.missingReason
                             ?? "No navigation tap or destination-view events found in this range."}
-                          <p className="mt-2 text-xs text-gray-600">
+                          <p className="mt-2 text-xs text-muted-foreground">
                             {navigationDestinationsModel.expectedEventsLabel}
                           </p>
                         </div>
                       )}
                     </>
                   ) : navigationDestinationsModel.destinations.length === 0 ? (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    <div className="border-b border-border p-5 text-sm text-muted-foreground">
                       {navigationDestinationsModel.missingReason
                         ?? "No navigation tap or destination-view events found in this range."}
-                      <p className="mt-2 text-xs text-gray-600">
+                      <p className="mt-2 text-xs text-muted-foreground">
                         {navigationDestinationsModel.expectedEventsLabel}
                       </p>
                     </div>
@@ -605,7 +608,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
               </SectionCard>
             </div>
 
-            <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+            <div className="grid min-w-0 gap-4">
               <SectionCard
                 title="Device Mix"
                 subtitle="Compact device intelligence with source-backed mobile context."
@@ -613,7 +616,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 density="compact"
                 summaryLine={deviceMixSummaryLine}
                 rightSlot={(
-                  <div className="flex flex-wrap items-center justify-end gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                     <AnalyticsViewModeToggle
                       value={deviceMixViewMode}
                       onChange={setDeviceMixViewMode}
@@ -628,7 +631,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 )}
               >
                 <div
-                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  className="border-b border-border mb-3 space-y-2 px-3 py-2 text-xs leading-5 text-muted-foreground"
                   data-device-mix-source-truth={deviceMixModel.sourceTruth}
                   data-device-mix-freshness={deviceMixModel.freshnessState}
                   data-device-mix-total-sessions={String(deviceMixModel.totalSessions)}
@@ -639,28 +642,28 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   {deviceMixModel.visibleCopy.map((line) => (
                     <p key={line}>{line}</p>
                   ))}
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Range: {deviceMixModel.range}
                     {" | "}Source: {deviceMixModel.sourceLabel}
                     {" | "}Freshness: {deviceMixModel.freshnessLabel}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Total sessions: {deviceMixModel.totalSessions.toLocaleString()}
                     {" | "}Classified: {deviceMixModel.classifiedSessions.toLocaleString()}
                     {" | "}Unknown: {deviceMixModel.unknownSessions.toLocaleString()}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Generated: {deviceMixModel.generatedAtUtc === new Date(0).toISOString()
                       ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(deviceMixModel.generatedAtUtc), nowMs)}
                     {" | "}Engagement: {deviceMixModel.engagementDefinition}
                   </p>
                 </div>
-                <div className="mb-3 grid gap-2 md:grid-cols-2">
+                <div className="mb-3 grid gap-2 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                   {deviceMixModel.designImplications.map((item) => (
                     <div
                       key={item}
-                      className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300"
+                      className="border-b border-border px-3 py-2 text-xs leading-5 text-muted-foreground"
                     >
                       {item}
                     </div>
@@ -671,7 +674,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-admin-analytics-mobile-view-mode={deviceMixViewMode}
                 >
                   {deviceMixModel.rows.length > 0 && deviceMixViewMode === "chart" ? (
-                    <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                    <div className="border-b border-border p-3">
                       <div className="h-56 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
@@ -703,17 +706,17 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
-                      <div className="mt-3 grid gap-2 text-[11px] text-gray-300 sm:grid-cols-2">
+                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                         {deviceMixModel.rows.map((item, index) => (
-                          <div key={`legend-${item.deviceCategory}`} className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                          <div key={`legend-${item.deviceCategory}`} className="border-b border-border flex items-center justify-between gap-2 px-3 py-2">
                             <span className="flex min-w-0 items-center gap-2">
                               <span
                                 className="h-2.5 w-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
                               />
-                              <span className="truncate capitalize">{item.deviceCategory}</span>
+                              <span className="min-w-0 whitespace-normal wrap-anywhere capitalize">{item.deviceCategory}</span>
                             </span>
-                            <span className="font-semibold text-white">{formatPercent(item.sessionSharePct)}</span>
+                            <span className="font-semibold text-foreground">{formatPercent(item.sessionSharePct)}</span>
                           </div>
                         ))}
                       </div>
@@ -721,8 +724,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   ) : null}
 
                   {deviceMixModel.rows.length > 0 && deviceMixViewMode === "table" ? (
-                    <div className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/25">
-                      <div className="hidden grid-cols-[1.1fr_0.8fr_0.7fr_0.8fr_0.8fr] gap-2 border-b border-white/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                    <div className="border-b border-border overflow-hidden">
+                      <div className="hidden gap-2 border-b border-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground @3xl:grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                         <span>Device</span>
                         <span>Sessions</span>
                         <span>Share</span>
@@ -733,14 +736,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                         {deviceMixModel.rows.map((item) => (
                           <div
                             key={`table-${item.deviceCategory}`}
-                            className="grid gap-2 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-[1.1fr_0.8fr_0.7fr_0.8fr_0.8fr]"
+                            className="grid gap-2 px-3 py-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]"
                           >
-                            <p className="font-semibold capitalize text-white">{item.deviceCategory}</p>
-                            <p><span className="text-gray-500 md:hidden">Sessions: </span>{item.sessions.toLocaleString()}</p>
-                            <p><span className="text-gray-500 md:hidden">Share: </span>{formatPercent(item.sessionSharePct)}</p>
-                            <p><span className="text-gray-500 md:hidden">Engaged: </span>{item.engagedSessions === null ? noEngagementSampleLabel : item.engagedSessions.toLocaleString()}</p>
-                            <p className="truncate" title={item.sourceTruth}>
-                              <span className="text-gray-500 md:hidden">Truth: </span>
+                            <p className="font-semibold capitalize text-foreground">{item.deviceCategory}</p>
+                            <p><span className="text-muted-foreground @3xl:hidden">Sessions: </span>{item.sessions.toLocaleString()}</p>
+                            <p><span className="text-muted-foreground @3xl:hidden">Share: </span>{formatPercent(item.sessionSharePct)}</p>
+                            <p><span className="text-muted-foreground @3xl:hidden">Engaged: </span>{item.engagedSessions === null ? noEngagementSampleLabel : item.engagedSessions.toLocaleString()}</p>
+                            <p className="min-w-0 whitespace-normal wrap-anywhere" title={item.sourceTruth}>
+                              <span className="text-muted-foreground @3xl:hidden">Truth: </span>
                               {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
                             </p>
                           </div>
@@ -755,7 +758,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                       return (
                         <div
                           key={item.deviceCategory}
-                          className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
+                          className="border-b border-border p-3"
                         >
                           <div className="mb-2 flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3">
@@ -763,10 +766,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                 <Icon className="h-4 w-4" />
                               </div>
                               <div className="min-w-0">
-                                <p className="text-sm font-semibold capitalize text-white">
+                                <p className="text-sm font-semibold capitalize text-foreground">
                                   {item.deviceCategory}
                                 </p>
-                                <p className="text-[11px] text-gray-500">
+                                <p className="text-xs text-muted-foreground">
                                   {item.sessions.toLocaleString()} sessions
                                   {" | "}
                                   <span title={item.sourceTruth}>
@@ -776,42 +779,42 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                 </p>
                               </div>
                             </div>
-                            <div className="text-right text-[11px]">
-                              <p className="text-base font-black text-white">
+                            <div className="text-right text-xs">
+                              <p className="text-base font-black text-foreground">
                                 {formatPercent(item.sessionSharePct)}
                               </p>
-                              <p className="text-gray-500">
+                              <p className="text-muted-foreground">
                                 {item.engagementRatePct === null
                                   ? noEngagementSampleLabel
                                   : `${formatPercent(item.engagementRatePct)} engaged`}
                               </p>
                             </div>
                           </div>
-                          <div className="mb-2 grid grid-cols-2 gap-2 text-[11px] text-gray-400 md:grid-cols-4">
+                          <div className="mb-2 grid gap-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                             <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Sessions</p>
-                              <p className="mt-0.5 font-semibold text-white">{item.sessions.toLocaleString()}</p>
+                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Sessions</p>
+                              <p className="mt-0.5 font-semibold text-foreground">{item.sessions.toLocaleString()}</p>
                             </div>
                             <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Share</p>
-                              <p className="mt-0.5 font-semibold text-white">{formatPercent(item.sessionSharePct)}</p>
+                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Share</p>
+                              <p className="mt-0.5 font-semibold text-foreground">{formatPercent(item.sessionSharePct)}</p>
                             </div>
                             <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Engaged</p>
-                              <p className="mt-0.5 font-semibold text-white">
+                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Engaged</p>
+                              <p className="mt-0.5 font-semibold text-foreground">
                                 {item.engagedSessions === null ? noEngagementSampleLabel : item.engagedSessions.toLocaleString()}
                               </p>
                             </div>
                             <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Commerce / watch</p>
-                              <p className="mt-0.5 font-semibold text-white">
+                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Commerce / watch</p>
+                              <p className="mt-0.5 font-semibold text-foreground">
                                 {deviceMixModel.commerceByDeviceAvailable || deviceMixModel.watchByDeviceAvailable
                                   ? "Available"
                                   : "No per-device source"}
                               </p>
                             </div>
                           </div>
-                          <p className="mb-2 text-[11px] text-gray-500">
+                          <p className="mb-2 text-xs text-muted-foreground">
                             {item.recommendation}
                           </p>
                           <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -826,14 +829,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   ) : null}
 
                   {deviceMixModel.rows.length === 0 ? (
-                    <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    <div className="border-b border-border p-5 text-sm text-muted-foreground">
                       Device data will appear after site analytics has enough sessions for
                       this range.
                     </div>
                   ) : null}
                 </div>
-                <div className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                  <p className="font-semibold text-white">Optional device metrics</p>
+                <div className="border-b border-border mt-3 px-3 py-2 text-xs leading-5 text-muted-foreground">
+                  <p className="font-semibold text-foreground">Optional device metrics</p>
                   <p>
                     Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable until a canonical per-device source is connected.
                   </p>
@@ -845,7 +848,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 subtitle="Paginated path analytics with source-backed engagement context."
                 icon={FileText}
                 rightSlot={(
-                  <div className="flex flex-wrap items-center justify-end gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                     <AnalyticsViewModeToggle
                       value={topPathsViewMode}
                       onChange={setTopPathsViewMode}
@@ -860,7 +863,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 )}
               >
                 <div
-                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  className="border-b border-border mb-3 space-y-2 px-3 py-2 text-xs leading-5 text-muted-foreground"
                   data-top-paths-source-truth={topPathsModel.sourceTruth}
                   data-top-paths-range={topPathsModel.range}
                   data-top-paths-total-count={String(topPathsModel.totalPathCount)}
@@ -870,72 +873,72 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   {topPathsModel.visibleCopy.map((line) => (
                     <p key={line}>{line}</p>
                   ))}
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Range: {topPathsModel.range}
                     {" | "}Source: {topPathsModel.sourceLabel}
                     {" | "}Freshness: {topPathsModel.freshnessLabel}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Total views: {topPathsModel.totalViews.toLocaleString()}
                     {" | "}Paths in snapshot: {topPathsModel.totalPathCount.toLocaleString()}
                     {" | "}Page {topPathsPage} of {topPathsTotalPages}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Generated: {topPathsModel.generatedAtUtc === new Date(0).toISOString()
                       ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(topPathsModel.generatedAtUtc), nowMs)}
                     {" | "}Percent column: Engagement
                   </p>
                 </div>
-                <div className="mb-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
-                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
-                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                <div className="mb-3 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3">
+                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                       Search path
                     </span>
-                    <input
+                    <Input
                       value={topPathsSearch}
                       onChange={(event) => setTopPathsSearch(event.target.value)}
                       placeholder="/drops"
-                      className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-600"
+                      className="min-w-0 max-w-full"
                     />
                   </label>
-                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
-                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                       Filter
                     </span>
-                    <select
+                    <NativeSelect
                       value={topPathsFilter}
                       onChange={(event) => setTopPathsFilter(event.target.value as typeof topPathsFilter)}
-                      className="bg-transparent text-sm text-white outline-none"
+                      className="min-w-0 max-w-full"
                     >
                       {topPathsModel.availableFilterKeys.map((item) => (
-                        <option key={item.value} value={item.value} className="bg-slate-900">
+                        <NativeSelectOption key={item.value} value={item.value} >
                           {item.label}
-                        </option>
+                        </NativeSelectOption>
                       ))}
-                    </select>
+                    </NativeSelect>
                   </label>
-                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
-                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                       Page size
                     </span>
-                    <select
+                    <NativeSelect
                       value={topPathsPageSize}
                       onChange={(event) => setTopPathsPageSize(Number(event.target.value))}
-                      className="bg-transparent text-sm text-white outline-none"
+                      className="min-w-0 max-w-full"
                     >
                       {[10, 25, 50].map((size) => (
-                        <option key={size} value={size} className="bg-slate-900">
+                        <NativeSelectOption key={size} value={size} >
                           {size}
-                        </option>
+                        </NativeSelectOption>
                       ))}
-                    </select>
+                    </NativeSelect>
                   </label>
-                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
-                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                  <div className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                       Snapshot scope
                     </span>
-                    <p className="text-sm text-white">
+                    <p className="text-sm text-foreground">
                       {topPathsModel.snapshotLimited
                         ? "Top 25 snapshot only"
                         : "All available rows in snapshot"}
@@ -947,7 +950,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-admin-analytics-mobile-view-mode={topPathsViewMode}
                 >
                   {pagedTopPathRows.length > 0 && topPathsViewMode === "chart" ? (
-                    <div className="h-56 rounded-[1.35rem] border border-white/10 bg-black/25 p-3">
+                    <div className="rounded-2xl bg-card h-56 p-3">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={pagedTopPathRows}
@@ -981,14 +984,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
 
                   {pagedTopPathRows.length > 0 && topPathsViewMode === "table" ? (
                     <div
-                      className="overflow-x-auto rounded-[1.35rem] border border-white/10 bg-black/25"
+                      className="rounded-2xl bg-card overflow-x-auto"
                       data-top-paths-table="compact"
                       data-top-paths-source-truth={topPathsModel.sourceTruth}
                       data-top-paths-page={String(topPathsPage)}
                       data-top-paths-page-size={String(topPathsPageSize)}
                     >
                       <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Path</th>
                             <th className="px-3 py-2 font-semibold">Group</th>
@@ -998,7 +1001,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Engagement</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-gray-300">
+                        <tbody className="divide-y divide-white/10 text-muted-foreground">
                           {pagedTopPathRows.map((row) => (
                             <tr
                               key={`top-path-table-${row.path}`}
@@ -1008,8 +1011,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                               data-top-paths-issue-state={row.issueState}
                             >
                               <td className="max-w-[18rem] px-3 py-2">
-                                <p className="truncate font-semibold text-white">{row.path}</p>
-                                <p className="truncate text-[11px] text-gray-500">{row.label}</p>
+                                <p className="min-w-0 whitespace-normal wrap-anywhere font-semibold text-foreground">{row.path}</p>
+                                <p className="min-w-0 whitespace-normal wrap-anywhere text-xs text-muted-foreground">{row.label}</p>
                               </td>
                               <td className="px-3 py-2">{row.routeGroup}</td>
                               <td className="px-3 py-2">{row.views.toLocaleString()}</td>
@@ -1025,7 +1028,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
 
                   {topPathsViewMode === "cards" ? (
                     <>
-                      <div className="hidden grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                      <div className="border-b border-border hidden grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground @3xl:grid">
                         <span>Path / label</span>
                         <span>Group</span>
                         <span>Views</span>
@@ -1037,7 +1040,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                     pagedTopPathRows.map((row) => (
                       <div
                         key={row.path}
-                        className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+                        className="border-b border-border p-4"
                         data-top-paths-path={row.path}
                         data-top-paths-route-group={row.routeGroup}
                         data-top-paths-views={String(row.views)}
@@ -1047,10 +1050,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">
+                            <p className="min-w-0 whitespace-normal wrap-anywhere text-sm font-semibold text-foreground">
                               {row.path}
                             </p>
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="mt-1 text-xs text-muted-foreground">
                               {row.label}
                               {" | "}
                               <span title={row.sourceTruth}>
@@ -1069,21 +1072,21 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             {row.issueState}
                           </span>
                         </div>
-                        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-gray-300 md:grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr]">
-                          <div className="md:hidden" />
-                          <p><span className="text-gray-500">Group:</span> {row.routeGroup}</p>
-                          <p><span className="text-gray-500">Views:</span> {row.views.toLocaleString()}</p>
-                          <p><span className="text-gray-500">Share:</span> {formatPercent(row.viewSharePct)}</p>
-                          <p><span className="text-gray-500">Avg time:</span> {row.avgTimeDisplay}</p>
-                          <p><span className="text-gray-500">Engagement:</span> {row.engagementRatePct === null ? noEngagementSampleLabel : formatPercent(row.engagementRatePct)}</p>
+                        <div className="mt-2 grid gap-2 text-xs text-muted-foreground @3xl:grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+                          <div className="@3xl:hidden" />
+                          <p><span className="text-muted-foreground">Group:</span> {row.routeGroup}</p>
+                          <p><span className="text-muted-foreground">Views:</span> {row.views.toLocaleString()}</p>
+                          <p><span className="text-muted-foreground">Share:</span> {formatPercent(row.viewSharePct)}</p>
+                          <p><span className="text-muted-foreground">Avg time:</span> {row.avgTimeDisplay}</p>
+                          <p><span className="text-muted-foreground">Engagement:</span> {row.engagementRatePct === null ? noEngagementSampleLabel : formatPercent(row.engagementRatePct)}</p>
                         </div>
-                        <p className="mt-2 text-[11px] text-gray-500">
+                        <p className="mt-2 text-xs text-muted-foreground">
                           {row.explanation}
                         </p>
                       </div>
                     ))
                       ) : (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    <div className="border-b border-border p-5 text-sm text-muted-foreground">
                       {topPathsModel.rows.length > 0
                         ? "No paths match the current search/filter selection."
                         : "No page-path data available for this range."}
@@ -1091,39 +1094,39 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                       )}
                     </>
                   ) : pagedTopPathRows.length === 0 ? (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    <div className="border-b border-border p-5 text-sm text-muted-foreground">
                       {topPathsModel.rows.length > 0
                         ? "No paths match the current search/filter selection."
                         : "No page-path data available for this range."}
                     </div>
                   ) : null}
                 </div>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
+                <div className="border-b border-border mt-3 flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs text-muted-foreground min-w-0 max-w-full">
                   <p>
                     Showing {pagedTopPathRows.length === 0 ? 0 : ((topPathsPage - 1) * topPathsPageSize) + 1}
                     {pagedTopPathRows.length === 0 ? "" : `-${((topPathsPage - 1) * topPathsPageSize) + pagedTopPathRows.length}`}
                     {" of "}{filteredTopPathRows.length.toLocaleString()} filtered paths
                   </p>
-                  <div className="flex items-center gap-2">
-                    <button
+                  <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+                    <Button
                       type="button"
                       onClick={() => setTopPathsPage((current) => Math.max(1, current - 1))}
                       disabled={topPathsPage <= 1}
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white disabled:opacity-40"
+                      variant="outline" size="sm" className="max-w-full wrap-anywhere"
                     >
                       Prev
-                    </button>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                    </Button>
+                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                       Page {topPathsPage}
                     </span>
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setTopPathsPage((current) => Math.min(topPathsTotalPages, current + 1))}
                       disabled={!topPathsHasNextPage}
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white disabled:opacity-40"
+                      variant="outline" size="sm" className="max-w-full wrap-anywhere"
                     >
                       Next
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </SectionCard>
@@ -1133,7 +1136,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
               title="Regions"
               icon={MapPin}
               rightSlot={(
-                <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2 min-w-0 max-w-full">
                   <AnalyticsViewModeToggle
                     value={regionsViewMode}
                     onChange={setRegionsViewMode}
@@ -1155,46 +1158,42 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                 data-regions-count-unit={regionsModel.countUnit}
                 data-regions-generated-at-utc={regionsModel.generatedAtUtc}
               >
-                <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
+                <div className="border-b border-border space-y-2 px-3 py-2 text-xs leading-5 text-muted-foreground">
                   {regionsModel.visibleCopy.map((line) => (
                     <p key={line}>{line}</p>
                   ))}
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Range: {regionsModel.range}
                     {" | "}Source: {regionsModel.sourceLabel}
                     {" | "}Freshness: {regionsModel.freshnessLabel}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Unit: {regionsModel.countUnit}
                     {" | "}Raw total: {formatRegionCount(regionsModel.rawTotal)}
                     {" | "}Adjusted total: {formatRegionCount(regionsModel.adjustedTotal)}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Internal/admin: {formatRegionCount(regionsModel.internalExcludedCount)}
                     {" | "}Generated: {regionsModel.generatedAtUtc === new Date(0).toISOString()
                       ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(regionsModel.generatedAtUtc), nowMs)}
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 min-w-0 max-w-full">
                   {[
                     { value: "comparison", label: "Compare raw vs adjusted" },
                     { value: "raw", label: "Raw traffic" },
                     { value: "external_only", label: "External demand" },
                     { value: "admin_excluded", label: "Admin/internal excluded" },
                   ].map((option) => (
-                    <button
+                    <Button
                       key={option.value}
                       type="button"
                       onClick={() => setRegionsFilterMode(option.value as typeof regionsFilterMode)}
-                      className={`rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${
-                        regionsFilterMode === option.value
-                          ? "border-brand-purple/60 bg-brand-purple/15 text-white"
-                          : "border-white/10 bg-white/5 text-gray-300"
-                      }`}
+                      variant={regionsFilterMode === option.value ? "glass" : "outline"} aria-pressed={regionsFilterMode === option.value} size="sm" className="max-w-full wrap-anywhere"
                     >
                       {option.label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
                 <div
@@ -1206,7 +1205,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-regions-generated-at-utc={regionsModel.generatedAtUtc}
                 >
                   {regionRowsForDisplay.length > 0 && regionsViewMode === "chart" ? (
-                    <div className="h-56 rounded-[1.35rem] border border-white/10 bg-black/25 p-3">
+                    <div className="rounded-2xl bg-card h-56 p-3">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={regionChartRows}
@@ -1235,14 +1234,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
 
                   {regionRowsForDisplay.length > 0 && regionsViewMode === "table" ? (
                     <div
-                      className="overflow-x-auto rounded-[1.35rem] border border-white/10 bg-black/25"
+                      className="rounded-2xl bg-card overflow-x-auto"
                       data-regions-table="compact"
                       data-regions-source-truth={regionsModel.sourceTruth}
                       data-regions-freshness={regionsModel.freshnessState}
                       data-regions-filter-mode={regionsFilterMode}
                     >
                       <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Region</th>
                             <th className="px-3 py-2 font-semibold">Raw</th>
@@ -1252,15 +1251,15 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Share</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-gray-300">
+                        <tbody className="divide-y divide-white/10 text-muted-foreground">
                           {regionRowsForDisplay.map((item) => (
                             <tr
                               key={`regions-table-${item.country ?? "unknown-country"}-${item.city ?? "unknown-city"}`}
                               data-regions-row-state={item.demandState}
                             >
                               <td className="max-w-[16rem] px-3 py-2">
-                                <p className="truncate font-semibold text-white">{formatRegionLabel(item)}</p>
-                                <p className="truncate text-[11px] text-gray-500">{item.explanation}</p>
+                                <p className="min-w-0 whitespace-normal wrap-anywhere font-semibold text-foreground">{formatRegionLabel(item)}</p>
+                                <p className="min-w-0 whitespace-normal wrap-anywhere text-xs text-muted-foreground">{item.explanation}</p>
                               </td>
                               <td className="px-3 py-2">{formatRegionCount(item.rawCount)}</td>
                               <td className="px-3 py-2">{formatRegionCount(item.adjustedCount)}</td>
@@ -1285,15 +1284,15 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                           return (
                             <div
                               key={`${item.country ?? "unknown-country"}-${item.city ?? "unknown-city"}`}
-                              className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+                              className="border-b border-border p-4"
                               data-regions-row-state={item.demandState}
                             >
                               <div className="mb-2 flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                  <p className="truncate text-sm font-semibold text-white">
+                                  <p className="min-w-0 whitespace-normal wrap-anywhere text-sm font-semibold text-foreground">
                                     {formatRegionLabel(item)}
                                   </p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs text-muted-foreground">
                                     {regionPrimaryMetricLabel}: {formatRegionCount(primaryCount)}
                                     {" | "}Raw: {formatRegionCount(item.rawCount)}
                                   </p>
@@ -1310,13 +1309,13 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                   {item.demandState.replace(/_/gu, " ")}
                                 </span>
                               </div>
-                              <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-300 md:grid-cols-4">
-                                <p><span className="text-gray-500">Adjusted:</span> {formatRegionCount(item.adjustedCount)}</p>
-                                <p><span className="text-gray-500">Internal/admin:</span> {formatRegionCount(item.adminInternalCount)}</p>
-                                <p><span className="text-gray-500">Raw share:</span> {formatPercent(item.sharePct)}</p>
-                                <p><span className="text-gray-500">Adjusted share:</span> {formatPercent(item.adjustedSharePct)}</p>
+                              <div className="grid gap-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+                                <p><span className="text-muted-foreground">Adjusted:</span> {formatRegionCount(item.adjustedCount)}</p>
+                                <p><span className="text-muted-foreground">Internal/admin:</span> {formatRegionCount(item.adminInternalCount)}</p>
+                                <p><span className="text-muted-foreground">Raw share:</span> {formatPercent(item.sharePct)}</p>
+                                <p><span className="text-muted-foreground">Adjusted share:</span> {formatPercent(item.adjustedSharePct)}</p>
                               </div>
-                              <p className="mt-2 text-[11px] text-gray-500">
+                              <p className="mt-2 text-xs text-muted-foreground">
                                 {item.explanation}
                               </p>
                               <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
@@ -1331,7 +1330,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                           );
                         })
                       ) : (
-                        <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                        <div className="border-b border-border p-5 text-sm text-muted-foreground">
                           {regionsModel.rows.length > 0
                             ? "No region rows match the current filter."
                             : "No region geography source is available for this range."}
@@ -1339,7 +1338,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                       )}
                     </>
                   ) : regionRowsForDisplay.length === 0 ? (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    <div className="border-b border-border p-5 text-sm text-muted-foreground">
                       {regionsModel.rows.length > 0
                         ? "No region rows match the current filter."
                         : "No region geography source is available for this range."}

@@ -169,7 +169,6 @@ const requiredFiles = [
   "src/app/drops/[id]/preview/page.tsx",
   "src/app/drops/DropsClient.tsx",
   "src/components/DropCard.tsx",
-  "src/components/DropPreviewModal.tsx",
   "src/components/FeaturedCarousel.tsx",
   "src/hooks/useDrops.ts",
   "src/lib/user-mobile-shell.ts",
@@ -186,7 +185,6 @@ const publicBetaImportSurfaces = [
   "src/app/drops/DropsClient.tsx",
   "src/components/DropCard.tsx",
   "src/components/DropCardLayout.tsx",
-  "src/components/DropPreviewModal.tsx",
   "src/components/FeaturedCarousel.tsx",
   "src/components/Drops/LockedDropPreviewClient.tsx",
   "src/components/Drops/LockedDropPreviewView.tsx",
@@ -389,36 +387,7 @@ function scanDuplicateNormalizers(findings: OrphanedLogicFinding[], sourceFiles:
 
 function scanLegacyPreviewOwnership(findings: OrphanedLogicFinding[]) {
   const fullPagePreviewExists = existsSync(join(root, "src/app/drops/[id]/preview/page.tsx"));
-  const modalSource = requireFile(findings, "src/components/DropPreviewModal.tsx");
-  if (!fullPagePreviewExists || !modalSource) return;
-
-  if (!modalSource.includes("Legacy fallback only. Locked Drop preview ownership moved to /drops/[id]/preview.")) {
-    addFinding(findings, {
-      severity: "major",
-      category: "legacy_preview_ownership",
-      title: "DropPreviewModal is not marked as legacy fallback",
-      filePath: "src/components/DropPreviewModal.tsx",
-      suggestedFix: "Add the legacy fallback marker or remove the modal after proving all locked preview entry points use the full-page route.",
-      escalation: "Do not delete modal files automatically without explicit deprecated marker and route coverage.",
-      evidence: ["Full-page preview route exists."],
-    });
-  }
-
-  for (const forbidden of ["drop.contentUrl", "drop.contentUrls"]) {
-    if (modalSource.includes(forbidden)) {
-      addFinding(findings, {
-        severity: "critical",
-        category: "legacy_preview_ownership",
-        title: "Legacy DropPreviewModal touches protected content URL fields",
-        filePath: "src/components/DropPreviewModal.tsx",
-        line: lineOf(modalSource, forbidden),
-        excerpt: excerptOf(modalSource, forbidden),
-        suggestedFix: "Keep the legacy modal from owning locked content. Use safe metadata/file counts only.",
-        escalation: "Content exposure must be reviewed before release; do not auto-clean content access paths.",
-        evidence: [forbidden],
-      });
-    }
-  }
+  if (!fullPagePreviewExists) return;
 
   for (const filePath of [
     "src/app/drops/DropsClient.tsx",
@@ -435,7 +404,7 @@ function scanLegacyPreviewOwnership(findings: OrphanedLogicFinding[]) {
       filePath,
       line: lineOf(source, "DropPreviewModal"),
       excerpt: excerptOf(source, "DropPreviewModal"),
-      suggestedFix: "Route locked preview actions to /drops/[id]/preview and leave modal only as documented fallback if still needed.",
+      suggestedFix: "Route locked preview actions to /drops/[id]/preview; the retired modal must not return.",
       escalation: "Preview migration affects conversion flow and must not be auto-fixed.",
       evidence: ["Full-page preview route exists.", "DropPreviewModal reference found."],
     });

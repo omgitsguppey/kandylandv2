@@ -70,6 +70,7 @@ import { USER_INDEX_COLLECTIONS } from "@/lib/user-indexes/user-tracking-index-c
 import { buildIndividualUserMetricSourceTruth } from "@/lib/identity-truth/individual-user-metric-truth";
 import { resolveUserIndexMaterializerSourceFingerprint } from "@/lib/server/user-index-materializer";
 import { summarizeAnalyticsIdentityLineageOwnerVersions } from "@/lib/analytics/identity-link-contract";
+import { resolveConsentMode, type ConsentModeInput } from "@/lib/privacy/consent-tracking-policy";
 
 const ADMIN_USER_SESSION_FACT_LIMIT = 500;
 const ADMIN_USER_WATCH_SESSION_LIMIT = 500;
@@ -764,7 +765,14 @@ async function GET_handler(
             identityLineageRejectedCount: identityLineageOwnerSummary.rejectedCount,
             identityLineageOwnerState: identityLineageOwnerSummary.state,
             materializerDocumentPresent: userTrackingIndexSnap.exists,
-            materializedUserCount: readNumber(userTrackingActionCounts.total),
+            requestedUserId: userId,
+            materializedUserId: userTrackingIndex?.userId,
+            materializedSourceTruth: userTrackingIndex?.sourceTruth,
+            currentConsentMode: resolveConsentMode(rawUser.privacySettings && typeof rawUser.privacySettings === "object" && !Array.isArray(rawUser.privacySettings)
+                ? rawUser.privacySettings as ConsentModeInput
+                : null),
+            materializedUserCount: userTrackingActionCounts.total,
+            materializedDataAvailabilityReason: userTrackingIndex?.dataAvailabilityReason,
             sourceWindowStartMs: readNumber(userTrackingIndex?.sourceWindowStartMs),
             sourceWindowEndMs: readNumber(userTrackingIndex?.sourceWindowEndMs),
             materializerMetadata: userTrackingMaterializer,

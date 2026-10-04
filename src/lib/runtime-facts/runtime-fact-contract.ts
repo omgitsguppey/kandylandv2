@@ -1,6 +1,25 @@
+import type { EventIdentityEnvelope } from "@/lib/analytics/identity-handoff-contract";
+import type { SessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 import type { AnalyticsActorType } from "@/lib/analytics/analytics-event-contract";
+import { CONSENT_MODE_VALUES, type ConsentMode } from "@/lib/privacy/consent-tracking-contract";
 
 export const RUNTIME_FACT_CONTRACT_VERSION = "runtime_fact_v1";
+
+export const RUNTIME_FACT_REQUEST_CONSENT_ADMISSION_VERSION = "runtime_fact_request_consent_v1";
+
+/** Minted only from a request admitted by the server; older facts intentionally omit it. */
+export type RuntimeFactRequestConsentAdmission = {
+  version: typeof RUNTIME_FACT_REQUEST_CONSENT_ADMISSION_VERSION;
+  consentMode: ConsentMode;
+};
+
+export function readRuntimeFactRequestConsentAdmission(value: unknown): RuntimeFactRequestConsentAdmission | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (record.version !== RUNTIME_FACT_REQUEST_CONSENT_ADMISSION_VERSION
+    || !CONSENT_MODE_VALUES.some(mode => mode === record.consentMode)) return null;
+  return { version: RUNTIME_FACT_REQUEST_CONSENT_ADMISSION_VERSION, consentMode: record.consentMode as ConsentMode };
+}
 
 export const RUNTIME_FACT_SOURCE_TRUTHS = [
   "client",
@@ -48,6 +67,8 @@ export type RuntimeFact = {
   sourceTruth: RuntimeFactSourceTruth;
   confidence: number;
   timestampMs: number;
+  requestConsentAdmission?: RuntimeFactRequestConsentAdmission;
+  sessionMeasurement?: SessionMeasurementCheckpoint;
   performedAs: string;
   projectionMode: string;
   includeInUserBehavior: boolean;
@@ -67,10 +88,13 @@ export type RuntimeFactDiagnostic = {
   route: string;
   source_component: string;
   timestampMs: number;
-  issueCode: "unknown_runtime_event" | "unsupported_runtime_event";
+  issueCode: "unknown_runtime_event" | "unsupported_runtime_event" | "unverified_actor_authority";
 };
 
 export type RuntimeFactNormalizationResult = {
+  /** Identified normalization owns the envelope and parameters consumed by sibling writers. */
+  identityEnvelope?: EventIdentityEnvelope;
+  params?: Record<string, unknown>;
   fact: RuntimeFact | null;
   diagnostic: RuntimeFactDiagnostic | null;
 };

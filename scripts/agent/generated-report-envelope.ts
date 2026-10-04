@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 export type GeneratedReportEvidenceClass =
   | "source_snapshot"
@@ -91,6 +92,7 @@ export type GeneratedChildReportEvidenceInput = {
   nowMs?: number;
   maxAgeMs?: number;
   requireSourceGate?: boolean;
+  repositoryRoot?: string;
 };
 
 export function validateGeneratedChildReportEvidence(input: GeneratedChildReportEvidenceInput) {
@@ -144,6 +146,22 @@ export function validateGeneratedChildReportEvidence(input: GeneratedChildReport
   }
   if (input.requireSourceGate === true && report.canClearSourceGate !== true) {
     failures.push(`${label} child canClearSourceGate must be true.`);
+  }
+
+  const scope = report.mutationScope && typeof report.mutationScope === "object"
+    ? report.mutationScope as Record<string, unknown> : null;
+  if (scope?.mode === "input_bound_task" && failures.length === 0) {
+    try {
+      if (typeof scope.taskKey !== "string" || !/^[a-z0-9][a-z0-9-]{1,80}$/u.test(scope.taskKey)) throw new Error("Invalid scoped task key.");
+      const current = readValidatorMutationScope(input.repositoryRoot ?? process.cwd(), ["--task-input", `output/${scope.taskKey}/input.json`]);
+      if (!current || scope.owner !== current.owner || scope.inputHash !== current.inputHash || scope.currentHead !== current.currentHead || scope.sourceFingerprint !== current.sourceFingerprint || JSON.stringify(scope.changedFiles) !== JSON.stringify(current.changedFiles)) {
+        failures.push(`${label} child scoped evidence must match current immutable input and source bytes.`);
+      }
+    } catch (error) {
+      failures.push(`${label} child scoped evidence unavailable: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  } else if (report.mutationScope !== undefined && scope?.mode !== "whole_git_worktree" && scope?.mode !== "input_bound_task") {
+    failures.push(`${label} child mutation scope is malformed or unknown.`);
   }
 
   return failures;

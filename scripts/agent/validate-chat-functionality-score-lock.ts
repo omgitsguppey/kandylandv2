@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -148,13 +149,7 @@ function mergeScoreSnapshot(base: ScoreSnapshot, override?: Partial<ScoreSnapsho
 }
 
 function listDirtyFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const file of git(args).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean)) {
-      files.add(file.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listValidatorScopeFiles();
 }
 
 export function classifyChatFunctionalityLockDirtyFile(path: string) {
@@ -625,7 +620,7 @@ function renderDoc(report: ChatFunctionalityScoreLockReport) {
 
 if (process.argv[1]?.replace(/\\/gu, "/").endsWith("scripts/agent/validate-chat-functionality-score-lock.ts")) {
   const report = buildChatFunctionalityScoreLockReport();
-  writeFileSync(STATE_PATH, `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(STATE_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
   writeFileSync(DOC_PATH, renderDoc(report));
   if (report.validationFailures.length > 0) {
     console.error(`Chat functionality score lock validation failed:\n- ${report.validationFailures.join("\n- ")}`);

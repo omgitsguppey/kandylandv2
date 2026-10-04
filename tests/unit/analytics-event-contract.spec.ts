@@ -184,3 +184,23 @@ describe("analytics event contract", () => {
     expect(key).toContain("unlock_drop_success:user:user_1:drop:drop_1:client:2026-04-30t12:34");
   });
 });
+
+
+describe("current profile classifier precedence", () => {
+  it.each(["user", "creator", "admin"] as const)("keeps trusted %s role above browser actor markers", trustedProfileRole => {
+    const result = classifyAnalyticsActor({ trustedProfileRole, userId: "verified_user", actorKind: "system", actorAdminId: "foreign_admin", roles: ["owner_admin"], claims: { owner: true }, systemGenerated: true, route: "/admin", eventName: "system_admin_ran" });
+    expect(result.actorType).toBe(trustedProfileRole); expect(result.isSystem).toBe(false); expect(result.isAdmin).toBe(trustedProfileRole === "admin");
+    expect(result.countScopes).toContain("global");
+  });
+  it("does not replace absent trusted role with browser claims", () => {
+    const result = explainEventInclusion({ trustedProfileRole: null, userId: "verified_user", roles: ["admin"], eventName: "notification_read" });
+    expect(result.actorClassification.isUnknown).toBe(true); expect(result.includeInUserBehavior).toBe(false); expect(result.includeInGlobalEvents).toBe(false);
+  });
+  it("keeps ordinary captured guest scope and linked signed-in scope distinct", () => {
+    expect(classifyAnalyticsActor({ trustedProfileRole: "user", actorKind: "guest", userId: "transport_user", anonymousVisitorId: "guest_1", sessionId: "session_1" }).countScopes).toEqual(["global", "guest"]);
+    expect(classifyAnalyticsActor({ trustedProfileRole: "user", actorKind: "signed_in_user", userId: "verified_user", anonymousVisitorId: "guest_1", sessionId: "session_1", identityLinkId: "link_1" }).countScopes).toEqual(["global", "signed_in_user", "linked_person"]);
+  });
+  it("does not let browser projection markers demote the current ordinary actor into an Admin lane", () => {
+    expect(explainEventInclusion({ trustedProfileRole: "user", userId: "verified_user", actorKind: "admin_projection", projectionMode: "read_only_creator_projection", performedAs: "admin_view_as_creator", sourceTruth: "local_projection", eventName: "notification_read" })).toMatchObject({ actorClassification: { actorType: "user", actorLane: "signed_in_user" }, includeInUserBehavior: true });
+  });
+});

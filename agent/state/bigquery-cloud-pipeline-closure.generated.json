@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T04:23:51.031Z",
+  "generatedAtUtc": "2026-10-01T20:48:54.074Z",
   "reportKey": "bigquery-cloud-pipeline-closure",
-  "currentHead": "8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "exportContractCreated": true,
     "scheduledWindowExportEnabled": true,
@@ -196,11 +196,44 @@
     }
   ],
   "prCleanupActions": [
-    "No open BigQuery/export/cloud pipeline PRs were present at start."
+    "PR state not requested in this source check; no remote PR count or action is claimed."
   ],
   "nextFixOrder": [
     "After deployment, verify scheduledBigQueryRawEventsExport heartbeat in Firebase/Cloud console before treating warehouse evidence as active.",
     "If owner approves BigQuery queries, add dry-run and maximumBytesBilled validation before any query executes.",
     "Keep first-party Firestore summaries as product truth even when BigQuery evidence is configured."
-  ]
+  ],
+  "status": "pass",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "After deployment, verify scheduledBigQueryRawEventsExport heartbeat in Firebase/Cloud console before treating warehouse evidence as active.",
+    "If owner approves BigQuery queries, add dry-run and maximumBytesBilled validation before any query executes.",
+    "Keep first-party Firestore summaries as product truth even when BigQuery evidence is configured."
+  ],
+  "validationFailures": [],
+  "doesNotProve": [
+    "Provider heartbeat, warehouse contents, billing or deployed export behavior."
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

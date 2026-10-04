@@ -64,34 +64,34 @@ export function AdminAnalyticsInteractionSnapshotSection(
       )}
     >
       <div className="grid gap-2.5">
-        <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
+        <div className="border-b border-border flex flex-col gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground @min-[40rem]:flex-row @min-[40rem]:items-center @min-[40rem]:justify-between">
           <div className="min-w-0">
             <p>{liveInteractionStreamModel.recommendation}</p>
-            <p className="mt-1 text-[10px] text-gray-400">{liveInteractionStreamModel.visibleCopy}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{liveInteractionStreamModel.visibleCopy}</p>
           </div>
           <AdminStatusBadge
             state={liveInteractionStreamModel.truthState}
             label={liveInteractionStreamModel.badgeLabel}
-            className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+            className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
-          <span className="min-w-0 truncate"><span className="font-semibold text-white">Shown:</span> {streamCountLabel(liveInteractionStreamModel.visibleEventCount)}</span>
-          <span className="min-w-0 truncate"><span className="font-semibold text-white">Actors:</span> {streamCountLabel(liveInteractionStreamModel.uniqueActorCount)}</span>
-          <span className="min-w-0 truncate"><span className="font-semibold text-white">Failures:</span> {streamCountLabel(liveInteractionStreamModel.failureCount)}</span>
-          <span className="min-w-0 truncate"><span className="font-semibold text-white">Admin excl.:</span> {liveInteractionStreamModel.adminExcludedCount}</span>
+        <div className="border-b border-border grid gap-1.5 px-3 py-2 text-xs leading-5 text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+          <span className="min-w-0 wrap-anywhere"><span className="font-semibold text-foreground">Shown:</span> {streamCountLabel(liveInteractionStreamModel.visibleEventCount)}</span>
+          <span className="min-w-0 wrap-anywhere"><span className="font-semibold text-foreground">Actors:</span> {streamCountLabel(liveInteractionStreamModel.uniqueActorCount)}</span>
+          <span className="min-w-0 wrap-anywhere"><span className="font-semibold text-foreground">Failures:</span> {streamCountLabel(liveInteractionStreamModel.failureCount)}</span>
+          <span className="min-w-0 wrap-anywhere"><span className="font-semibold text-foreground">Admin excl.:</span> {liveInteractionStreamModel.adminExcludedCount}</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
-          <span className="min-w-0 truncate"><span className="font-semibold text-white">Mode:</span> {liveInteractionStreamModel.streamSourceMode.replaceAll("_", " ")}</span>
-          <span className="min-w-0 truncate" title={liveInteractionStreamModel.sourceTruth}><span className="font-semibold text-white">Source:</span> {liveInteractionSourceLabel}</span>
-          <span className="min-w-0 truncate"><span className="font-semibold text-white">Last event:</span> {formatLiveStreamRelativeUtc(liveInteractionStreamModel.lastEventAt)}</span>
-          <span className="min-w-0 truncate"><span className="font-semibold text-white">Generated:</span> {liveInteractionStreamModel.generatedAtUtc ? formatRelativeTime(new Date(liveInteractionStreamModel.generatedAtUtc).getTime(), nowMs) : "unknown"}</span>
+        <div className="border-b border-border grid gap-1.5 px-3 py-2 text-xs leading-5 text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+          <span className="min-w-0 wrap-anywhere"><span className="font-semibold text-foreground">Mode:</span> {liveInteractionStreamModel.streamSourceMode.replaceAll("_", " ")}</span>
+          <span className="min-w-0 wrap-anywhere" title={liveInteractionStreamModel.sourceTruth}><span className="font-semibold text-foreground">Source:</span> {liveInteractionSourceLabel}</span>
+          <span className="min-w-0 wrap-anywhere"><span className="font-semibold text-foreground">Last event:</span> {formatLiveStreamRelativeUtc(liveInteractionStreamModel.lastEventAt)}</span>
+          <span className="min-w-0 wrap-anywhere"><span className="font-semibold text-foreground">Generated:</span> {liveInteractionStreamModel.generatedAtUtc ? formatRelativeTime(new Date(liveInteractionStreamModel.generatedAtUtc).getTime(), nowMs) : "unknown"}</span>
         </div>
 
         {liveInteractionStreamModel.warnings.length > 0 ? (
-          <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300">
+          <div className="border-b border-border px-3 py-2 text-xs leading-5 text-muted-foreground">
             {liveInteractionStreamModel.warnings.map((warning) => (
               <p key={warning}>{warning}</p>
             ))}
@@ -99,22 +99,22 @@ export function AdminAnalyticsInteractionSnapshotSection(
         ) : null}
 
         <div
-          className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
+          className="border-b border-border p-3"
           data-admin-analytics-mobile-view-mode={liveInteractionViewMode}
           data-live-interaction-source-truth={liveInteractionStreamModel.sourceTruth}
           data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
         >
           <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Recent interaction snapshot
             </p>
-            <span className="text-[10px] text-gray-500">
+            <span className="text-xs text-muted-foreground">
               source / actor / surface truth
             </span>
           </div>
 
           {liveInteractionStreamModel.eventRows.length > 0 && liveInteractionViewMode === "chart" ? (
-            <div className="h-52 rounded-[0.9rem] border border-white/10 bg-black/25 p-2">
+            <div className="border-b border-border h-52 p-2">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={liveInteractionStreamModel.eventRows}
@@ -147,13 +147,13 @@ export function AdminAnalyticsInteractionSnapshotSection(
 
           {liveInteractionStreamModel.eventRows.length > 0 && liveInteractionViewMode === "table" ? (
             <div
-              className="overflow-x-auto rounded-[0.9rem] border border-white/10 bg-black/25"
+              className="rounded-2xl bg-card overflow-x-auto"
               data-live-interaction-table="compact"
               data-live-interaction-source-truth={liveInteractionStreamModel.sourceTruth}
               data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
             >
               <table className="min-w-full text-left text-xs">
-                <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   <tr>
                     <th className="px-3 py-2 font-semibold">Event</th>
                     <th className="px-3 py-2 font-semibold">Actor</th>
@@ -163,7 +163,7 @@ export function AdminAnalyticsInteractionSnapshotSection(
                     <th className="px-3 py-2 font-semibold">Grouped</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10 text-gray-300">
+                <tbody className="divide-y divide-white/10 text-muted-foreground">
                   {liveInteractionStreamModel.eventRows.map((event) => (
                     <tr
                       key={`live-interaction-table-${event.timestamp}-${event.duplicateGroupKey}`}
@@ -172,8 +172,8 @@ export function AdminAnalyticsInteractionSnapshotSection(
                       data-live-interaction-surface-state={event.surfaceState}
                     >
                       <td className="max-w-[16rem] px-3 py-2">
-                        <p className="truncate font-semibold text-white">{event.displayLabel}</p>
-                        <p className="truncate text-[11px] text-gray-500">{event.eventKey}</p>
+                        <p className="truncate font-semibold text-foreground">{event.displayLabel}</p>
+                        <p className="truncate text-xs text-muted-foreground">{event.eventKey}</p>
                       </td>
                       <td className="px-3 py-2">{event.actorDisplayLabel}</td>
                       <td className="px-3 py-2">{event.surface}</td>
@@ -193,33 +193,33 @@ export function AdminAnalyticsInteractionSnapshotSection(
                 liveInteractionStreamModel.eventRows.map((event) => (
                   <div
                     key={`${event.timestamp}-${event.duplicateGroupKey}`}
-                    className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
+                    className="border-b border-border px-3 py-2"
                   >
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
                       <div className="min-w-0">
-                        <p className="truncate text-xs font-semibold text-white">
+                        <p className="truncate text-xs font-semibold text-foreground">
                           {event.displayLabel}
                           {event.duplicateCount > 1 ? (
-                            <span className="ml-1 text-[10px] text-brand-purple">
+                            <span className="ml-1 text-xs text-brand-purple">
                               x{event.duplicateCount}
                             </span>
                           ) : null}
                         </p>
-                        <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
                           {event.actorDisplayLabel} / {event.surface} / {formatRelativeTime(event.timestamp, nowMs)}
                         </p>
-                        <p className="mt-1 text-[10px] text-gray-500">
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {formatAdminAnalyticsSourceTruthLabel(event.sourceTruth)} - {event.surfaceState === "verified" ? "surface verified" : event.surfaceState === "inferred" ? "surface inferred" : "surface missing"} - {event.explanation}
                         </p>
                         {event.eventType === "task_failed" && event.failureReason ? (
-                          <p className="mt-1 text-[10px] text-rose-200">
+                          <p className="mt-1 text-xs text-rose-200">
                             Failure: {event.failureReason}
                           </p>
                         ) : null}
                       </div>
                       <span
                         className={cn(
-                          "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.08em]",
+                          "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-xs font-bold uppercase tracking-[0.08em]",
                           event.eventType === "task_failed"
                             ? "border-rose-400/25 bg-rose-500/10 text-rose-200"
                             : "border-brand-purple/25 bg-brand-purple/10 text-brand-purple",
@@ -232,13 +232,13 @@ export function AdminAnalyticsInteractionSnapshotSection(
                   </div>
                 ))
               ) : (
-                <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                <div className="border-b border-border p-3 text-xs text-muted-foreground">
                   No user interactions available for this range.
                 </div>
               )}
             </div>
           ) : liveInteractionStreamModel.eventRows.length === 0 ? (
-            <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+            <div className="border-b border-border p-3 text-xs text-muted-foreground">
               No user interactions available for this range.
             </div>
           ) : null}

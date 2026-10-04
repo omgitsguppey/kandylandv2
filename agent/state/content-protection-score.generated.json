@@ -1,7 +1,7 @@
 {
   "score": 100,
   "status": "clean",
-  "generatedAt": "2026-07-14T09:59:05.618Z",
+  "generatedAt": "2026-10-03T19:30:34.563Z",
   "repoRoot": "C:\\Users\\uylus\\Documents\\KandyDrops_Final",
   "findings": [],
   "criticalCount": 0,
@@ -13,7 +13,6 @@
     "src/app/drops/[id]/preview/page.tsx",
     "src/components/Drops/LockedDropPreviewClient.tsx",
     "src/components/Drops/LockedDropPreviewView.tsx",
-    "src/components/DropPreviewModal.tsx",
     "src/app/api/drops/route.ts",
     "src/app/api/drops/content/route.ts",
     "src/app/api/drops/unlock/route.ts",
@@ -28,7 +27,6 @@
   ],
   "protectedSurfaces": [
     "full-page locked Drop preview",
-    "legacy DropPreviewModal fallback",
     "public Drops feed API",
     "authenticated content proxy",
     "dashboard viewer route",

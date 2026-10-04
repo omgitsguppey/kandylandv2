@@ -1,7 +1,7 @@
 # Event Facts Materializer Closure
 
-Generated: 2026-05-21T04:39:12.751Z
-Current code version: 0592fb8ab558c1e632e41532f19643af32207ef6
+Generated: 2026-10-02T19:02:22.889Z
+Current code version: 1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8
 
 ## Summary
 
@@ -75,7 +75,7 @@ Current code version: 0592fb8ab558c1e632e41532f19643af32207ef6
 - BigQuery candidate: yes
 - Current truth: yes
 - Legacy state: current
-- Notes: Behavioral facts normalize current telemetry; admin/projection/synthetic activity remains excluded from user behavior metrics.
+- Notes: Canonical behavioral timeline facts feed the user_index_materializer_requests v3 worker, which publishes bounded user and guest tracking indexes with explicit ephemeral-record retention metadata; admin/projection/synthetic activity remains excluded from user behavior metrics.
 
 ### analytics_watch_sessions
 
@@ -275,7 +275,7 @@ Current code version: 0592fb8ab558c1e632e41532f19643af32207ef6
 ### analytics_identity_links
 
 - Classification: event_fact
-- Producer: identity-link route and identified ingest identity_linked event
+- Producer: canonical analytics identity-link route; identified ingest records observations only
 - Inputs: analytics_identity_links, analytics_event_facts
 - Event fact outputs: analytics_event_facts
 - Rollup outputs: identity_lineage_indexes

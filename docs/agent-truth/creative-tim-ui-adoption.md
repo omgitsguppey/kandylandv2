@@ -7,13 +7,14 @@ Status: canonical design-reference and implementation record
 Creative Tim sources may be considered only for controlled, component-level
 implantation under the policy below. The clean rebuild preserves existing user,
 creator, admin, and protected-flow route ownership while presentation work
-proceeds in reviewed slices. This record does not claim a completed public
-Drop/card slice, preview implementation, live deployment, or functional
-release. Five approved public primitives are now source-implanted under the
-isolated path defined below. The parent integration changed `package.json` and
-its paired lockfile only to install the five declared direct packages. No
-runtime wiring or existing KandyDrops source was changed in that execution
-lane.
+proceeds in reviewed slices. The original five primitives are consumed by
+reviewed KandyDrops UI owners. The current Admin slice consolidates headings
+and disclosures over that local Card source and the existing KandyDrops Button.
+The one additional native selector below comes from MIT shadcn/ui. This record
+supplies component provenance and adoption constraints; current source,
+deployment and interaction receipts supply their own proof. The original
+dependency installation is history, and the current Admin slice adds no package
+or lockfile changes.
 
 This record defines how the locally archived Creative Tim sources may inform or
 supply approved component-level presentation in the KandyDrops rebuild. They
@@ -42,6 +43,7 @@ Approved exact source files:
 - `src/components/creative-tim/ui/avatar.tsx`
 - `src/components/creative-tim/ui/separator.tsx`
 - `src/components/creative-tim/ui/navigation-menu.tsx`
+- `src/components/creative-tim/ui/native-select.tsx` (MIT upstream addition below)
 
 Direct packages installed by the parent integration:
 
@@ -63,14 +65,47 @@ separate KandyDrops-owned theme slice may define semantic tokens required by
 these primitives; that is not a Creative Tim template import. No package entry
 outside the five declared direct packages changed.
 
-Exact rollback before any consuming UI slice lands: delete only the five
-approved source files listed above, remove the five declared direct package
+Historical foundation rollback before any consuming UI slice lands: delete only
+the original five primitives through `navigation-menu.tsx`, remove the five declared direct package
 entries from `package.json`, and remove their paired resolved entries from the
 paired lockfile. Once a reviewed UI slice imports a primitive, remove those
 imports first. No `components.json`, template global CSS, route, provider, or
 existing KandyDrops business-logic rollback is required.
 
+The current native selector has no new package dependency. Its rollback restores
+its reviewed consumers before removing that source file; the historical five-package
+rollback does not apply to it. Current Admin operational disclosures consume the
+same Card and existing Button through `AdminDashboardModule`, preserving caller
+open/default-open state and actions. Economy's shared header replaces both duplicate
+hero wrappers; Treasury data, calculations and permission owners stay in place.
+
+## Current Admin component manifest
+
+Owner: `AdminPageHeader` for shared headings; the existing Analytics
+`SectionCard` for disclosure state; existing route hooks/services for selection,
+permissions, source values, telemetry and financial truth.
+
+- Local Card source: `C:/Users/uylus/Documents/creative Tim assets/implementation/ui-block-lab/components/ui/card.tsx`.
+- Native selector source: [shadcn native-select](https://github.com/shadcn-ui/ui/blob/main/apps/v4/registry/new-york-v4/ui/native-select.tsx), inspected 2026-10-01; [MIT license](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md) is retained in the implanted file.
+- Exact output: `src/components/creative-tim/ui/native-select.tsx`. Existing React, lucide-react and `@/lib/utils` satisfy the manifest; no installation is required.
+- Declared adaptations: KandyDrops import alias, full-width bounded wrapper, 44px target, and omission of unused small-size/optgroup variants. Native selection, focus, invalid and disabled behavior remain upstream patterns. No domain state or CSS theme is imported.
+- Card adaptations belong to consuming owners: compact Admin spacing, a wrapping heading/action row, and the existing brand's semantic tokens in `src/app/globals.css`. Retain the vendor Card source unchanged. Existing Button supplies all adopted button states and 44px default targets.
+- Consumers: the fourteen checked-in Admin pages share the heading owner directly or through their consumed canvas. Analytics section disclosures preserve existing state/defaults and put technical evidence behind explicit details. Debug, Roster, AI, Analytics and Moderation selectors preserve their existing callbacks and selected-value owners.
+- Retired: Support and Moderation accent components. Each had one runtime caller and only `aria-hidden` decoration; callers now use the shared heading/Card composition. Historical release-note path entries remain historical evidence. No unique permission, state, telemetry or evidence safeguard was removed.
+
+Exact allowlists and immutable before copies belong to the connected
+`output/manual-admin-analytics-finance-20261001/`, `manual-admin-native-select-20261001/`
+and `manual-admin-shared-surfaces-20261001/` custody lanes. Rollback restores
+only reviewed task-relative paths and reconnects old consumers before removing
+the new primitive. Earlier serving archives remain retained. These source
+changes do not alter payment math, provider bindings or maintenance authority.
+
 ## Local source roots and roles
+
+The current archive is `C:/Users/uylus/Documents/creative Tim assets`, with
+`implementation`, `reference`, `licenses` and `download-manifest` directories.
+The old `Creative Tim UI Stuff` paths below describe the original reference
+inventory and are historical locations, not current implementation inputs.
 
 | Local source root | Role in KandyDrops |
 | --- | --- |
@@ -110,10 +145,9 @@ been consulted.
   Tailwind/theme configuration.
 - Do not copy a whole Creative Tim application or preserve template route names
   as KandyDrops product routes.
-- The only approved Creative Tim source in this repository is the five public
-  primitives listed in the approved implantation record. Named Creative Tim
-  blocks remain unapproved unless a later record grants a separate exact
-  manifest, file allowlist, and rollback plan.
+- Approved primitive outputs are the five original sources and the bounded MIT
+  selector in the current manifest. Named Creative Tim blocks require their own
+  exact manifest, file allowlist and rollback plan before adoption.
 - A future candidate block may add only dependencies explicitly required by its
   reviewed exact official manifest.
 - Creative Tim `button` is forbidden. All approved primitive output remains
@@ -127,6 +161,18 @@ been consulted.
   template renders it in a card or preview.
 
 The adoption rule is **controlled component-level implantation, not a copy of a
-whole app**. Preserve KandyDrops dark neon candy-glass tokens and all server
-truth while keeping the current product architecture, contracts, and evidence
-boundaries intact.
+whole app**. The owner-selected whole-site visual direction now lives in
+`docs/doctrine/surfaces/shared-brand-primitives.md`. Earlier Argon, Soft UI and
+neon candy-glass composition references are historical inputs where they
+conflict with that direction. Retain the licensed primitive sources, current
+Next/Tailwind architecture and all product/server-truth contracts. The supplied
+2026-10-02 Penpot archive informs researched design choices; its community file
+names alone do not establish a code or asset license.
+
+The shared foundation proposal retains the existing KandyDrops Button owner.
+Its `buttonVariants` export follows the documented MIT shadcn/CVA class pattern
+using the already installed `class-variance-authority` package; it does not
+implant the Creative Tim Button or add a Slot, provider or state wrapper. Real
+anchors retain navigation semantics while reading the same class owner.
+Card and NativeSelect vendor sources remain unchanged. Semantic colors and
+material appearance stay in the single global stylesheet owner.

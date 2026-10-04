@@ -244,9 +244,9 @@ export function adminTruthSampleLaunchHistoryCoverageFailures(document: unknown)
 }
 
 export function adminTruthSampleReadinessImpact(
-  result: Pick<LaneEvaluation, "status" | "passingArtifacts">,
+  result: Pick<LaneEvaluation, "status" | "passingArtifacts"> & { failures?: string[] },
 ): AdminTruthSampleReadinessImpact {
-  const passed = result.passingArtifacts.length > 0;
+  const passed = result.passingArtifacts.length > 0 && (result.failures?.length ?? 0) === 0;
   if (passed) {
     return {
       adminTruthSampleGatePassed: true,
@@ -328,6 +328,10 @@ export function validateAdminTruthSampleEvidenceDocument(
   }
   if (doc.status !== "complete") return failures;
 
+  if (doc.evidenceClass === "generated_snapshot" || doc.evidenceClass === "source_snapshot" || doc.canClearAdminTruthGate === false) {
+    failures.push("admin complete evidence cannot be a local generated source diagnostic.");
+  }
+
   if (!isValidUtc(doc.capturedAtUtc)) failures.push("admin truth complete evidence must include capturedAtUtc.");
   if (doc.surface !== "admin_truth_sample") failures.push("admin truth complete evidence surface must be admin_truth_sample.");
   if (!isValidUtc(doc.sourceFreshnessUtc)) {
@@ -353,6 +357,7 @@ export function validateAdminTruthSampleEvidenceDocument(
     if (!["pass", "fail", "blocked"].includes(String(check.status))) {
       failures.push(`admin truth check "${String(check.id ?? "unknown")}" must use pass, fail, or blocked status.`);
     }
+    if (check.status !== "pass") failures.push(`admin truth complete check "${String(check.id ?? "unknown")}" must pass.`);
   }
   failures.push(...adminTruthSampleLaunchHistoryCoverageFailures(doc));
 

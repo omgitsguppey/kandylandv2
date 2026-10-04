@@ -1,8 +1,8 @@
 {
   "reportKey": "frontend-gut-consolidation",
-  "generatedAtUtc": "2026-08-29T04:19:29.065Z",
-  "currentHead": "740dc2b5fb2a41b2f9762c847679fa8db9a08912",
-  "componentsAudited": 361,
+  "generatedAtUtc": "2026-10-04T00:35:51.556Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "componentsAudited": 355,
   "bloatedComponentsFound": 10,
   "componentsConsolidated": [
     "component bloat now routes through frontend surface inventory",
@@ -17,33 +17,52 @@
     "mobile density -> device layout contract"
   ],
   "duplicateLocalStateRemoved": 16,
-  "directTelemetryCallsReduced": 261,
+  "directTelemetryCallsReduced": 255,
   "hydrationRaceRisksFixed": 13,
   "mobileHardcodeRisksReduced": 3,
-  "netAdditions": 0,
-  "netDeletions": 0,
+  "netAdditions": 34826,
+  "netDeletions": 30332,
   "memoryEntriesAdded": 1,
-  "scoreBefore": "52.19",
-  "scoreAfter": "52.19",
+  "scoreBefore": "42.18",
+  "scoreAfter": "42.18",
   "remainingGaps": [
     "src/components/Chat/ChatExperience.tsx: split_component",
     "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx: split_component",
     "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx: split_component",
-    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx: split_component",
     "src/app/creators/[username]/CreatorProfileClient.tsx: split_component",
     "src/app/admin/users/page.tsx: split_component",
     "src/app/admin/roster/page.tsx: split_component",
     "src/components/Admin/CreateDropModal.tsx: split_component",
-    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx: split_component",
-    "src/app/admin/user/[userId]/page.tsx: split_component"
+    "src/app/admin/user/[userId]/page.tsx: split_component",
+    "src/context/AuthContext.tsx: split_component",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx: split_component"
   ],
   "nextExactSteps": [
     "Move the highest-risk direct fetch/state clusters into existing surface hooks before adding new component state.",
     "Keep payment, wallet, PayPal, GumDrop, top-nav, and bottom-nav runtime untouched unless a targeted owner-approved issue requires it.",
     "Use the frontend consolidation validators at the end of frontend component passes."
   ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-viewer-strobe-release-v2-20261003",
+    "inputHash": "45abb16a79373f8b5c5ebd576093920ac4806f04b0cdae9663a38c35b5fea9bb",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "1536453fd2507b3ab963cabd5d05afa46f0005f9674f15bfd9bba9a6d30eb5e5",
+    "changedFiles": [
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/debug-cockpit-batch10-shared.ts",
+      "scripts/agent/validate-content-media-pipeline.ts",
+      "src/app/dashboard/viewer/hooks/useViewerState.ts",
+      "tests/unit/viewer-entitlement-hardening.spec.ts",
+      "tests/unit/viewer-file-tracking.spec.ts"
+    ],
+    "inheritedDirtySourceFileCount": 602,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  },
   "dirtyFileCount": 0,
   "dirtyFileClassificationSummary": {},
   "dirtyFileClassificationOmitted": 0,
-  "dirtyFileClassification": {}
+  "dirtyFileClassification": {},
+  "validationFailures": []
 }

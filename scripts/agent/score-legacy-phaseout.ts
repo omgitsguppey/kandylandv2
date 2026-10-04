@@ -223,6 +223,7 @@ function scanCanonicalImports(item: LegacyRegistryItem, runtimeFiles: readonly S
 
   let importCount = 0;
   for (const file of runtimeFiles) {
+    if (file.path === "src/lib/legacy/legacy-registry.ts") continue;
     if (isAllowedLegacyReference(item, file.path)) continue;
     for (const importTarget of importTargets) {
       const doubleQuoted = `from "${importTarget}"`;

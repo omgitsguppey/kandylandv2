@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T13:29:23.027Z",
+  "generatedAtUtc": "2026-10-03T19:35:58.629Z",
   "reportKey": "user-loading-wallet-mobile-refinement",
-  "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "mobileDependenciesPresent": true,
     "protectedNavChatUntouched": true,
@@ -57,7 +57,7 @@
       "id": "wallet-loading-stable",
       "status": "fixed",
       "severity": "P1",
-      "detail": "Wallet package metadata loading uses stale-request and abort protection."
+      "detail": "Wallet renders the canonical fixed package catalog without a duplicate metadata request; payment callback guards remain separately owned."
     }
   ],
   "loadingFindings": [
@@ -65,7 +65,7 @@
       "id": "drops-loading-compact",
       "status": "fixed",
       "severity": "P1",
-      "detail": "Drops route skeleton is compact on mobile."
+      "detail": "Drops route returns its actual bounded four-item skeleton owner without oversized height tokens; legacy compact route support is retained."
     },
     {
       "id": "preview-loading-compact",
@@ -91,7 +91,7 @@
       "id": "library-loading-stable",
       "status": "fixed",
       "severity": "P1",
-      "detail": "My KandyDrops library loading is compact and stable."
+      "detail": "Auth loading returns the connected sourced Card status branch with compact skeleton, human loading state and no oversized skeleton tokens."
     }
   ],
   "fixesApplied": [
@@ -115,5 +115,22 @@
     "Apply the compact wallet markers to any future wallet entrypoints that reuse PurchaseModal.",
     "Keep route loading placeholders close to final module size before optional visual reproduction.",
     "Continue moving optional dashboard modules to staged dynamic loading when they become source-heavy."
-  ]
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-discovery-modal-release-v5-20261003",
+    "inputHash": "34dc84bea8e9a8591c9e729207b56eeaee8ed828013c37559718375cddd7abca",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "2255df16f8cb1133c1475abe983062482d10eb19ed4b0c47ecd19f94a9f25dd4",
+    "changedFiles": [
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/validate-accessibility-tap-targets.ts",
+      "scripts/agent/validate-user-critical-path-lock.ts",
+      "scripts/agent/validate-user-loading-wallet-mobile-refinement.ts",
+      "tests/unit/drop-visibility-scope.spec.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 597,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

@@ -737,7 +737,7 @@ const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identif
 const runtimeFactNormalizer = readRequired("src/lib/runtime-facts/normalize-runtime-fact.ts");
 const serverAnalytics = readRequired("src/lib/server/analytics.ts");
 const dropCard = readRequired("src/components/DropCard.tsx");
-const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
+const lockedPreviewClient = readRequired("src/components/Drops/LockedDropPreviewClient.tsx");
 const serverUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
 const paypalCaptureRoute = readRequired("src/app/api/paypal/capture/route.ts");
@@ -770,9 +770,9 @@ requireIncludes(serverAnalytics, "userId && inclusion.includeInUserBehavior", "s
 requireIncludes(dropCard, "drop_unlock_attempted", "DropCard unlock-attempt telemetry");
 requireIncludes(dropCard, "drop_id", "DropCard unlock-attempt telemetry");
 requireIncludes(dropCard, "idempotency_key", "DropCard unlock telemetry");
-requireIncludes(dropPreviewModal, "drop_unlock_attempted", "DropPreviewModal unlock-attempt telemetry");
-requireIncludes(dropPreviewModal, "drop_id", "DropPreviewModal unlock-attempt telemetry");
-requireIncludes(dropPreviewModal, "idempotency_key", "DropPreviewModal unlock telemetry");
+requireIncludes(lockedPreviewClient, "drop_unlock_attempted", "LockedDropPreviewClient unlock-attempt telemetry");
+requireIncludes(lockedPreviewClient, "drop_id", "LockedDropPreviewClient unlock-attempt telemetry");
+requireIncludes(lockedPreviewClient, "idempotency_key", "LockedDropPreviewClient unlock telemetry");
 requireIncludes(serverUnlockRoute, "buildServerUnlockTelemetryEvent", "server unlock telemetry owner");
 requireIncludes(serverUnlockRoute, "transaction_id: result.transactionId", "server unlock transaction telemetry");
 requireIncludes(serverUnlockRoute, "trackServerEvent(serverUnlockTelemetry.eventName", "server unlock telemetry emission");

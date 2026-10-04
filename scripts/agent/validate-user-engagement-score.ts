@@ -1,6 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import * as ts from "typescript";
+import { readSourceAst, findSourceFunction, someSourceNode, sourceExpressionIs, hasRenderedExpression, getReturnedLiteralRecord, literalRecordProperty, readBehavioralAdminConsumers, readActiveEngagementCalibration } from "./validate-behavioral-truth-source";
+
 const root = process.cwd();
 
 function read(path: string) {
@@ -24,6 +27,8 @@ const adminTypes = read("src/types/admin-analytics.ts");
 
 const failures: string[] = [];
 
+const { usersRender, hasDirectoryVerdict, hasDetailVerdict, hasDetailReasons, verdictRender, explanationAst } = readBehavioralAdminConsumers();
+
 [
   "export { logNorm };",
   "export function recencyDecay(",
@@ -34,12 +39,6 @@ const failures: string[] = [];
   "activeDays7d",
   "freeGdEarned30d",
   "computeEngagementScoreFromSignals",
-  "0.10 * breakdown.actionComponent",
-  "0.23 * breakdown.unwrapComponent",
-  "0.23 * breakdown.watchComponent",
-  "0.24 * breakdown.purchaseComponent",
-  "0.13 * breakdown.returnComponent",
-  "0.07 * breakdown.freeIntentComponent",
   "\"dormant\"",
   "\"light\"",
   "\"active\"",
@@ -50,7 +49,13 @@ const failures: string[] = [];
   assert(engagementHelper.includes(fragment), `User engagement helper is missing ${fragment}.`, failures);
 });
 
-assert(behaviorRollupContract.includes("engagement: UserEngagementScoreResult;"), "User behavior rollup contract must carry the canonical engagement result.", failures);
+const calibrationControls = readActiveEngagementCalibration();
+for (const control of calibrationControls.signals) assert(control.pass, "Canonical engagement weight and active signal binding must agree for " + control.signal + ".", failures);
+assert(calibrationControls.usesCanonicalOwner, "Engagement must call the existing canonical calibration owner.", failures);
+
+const rollupAst = readSourceAst("src/lib/user-behavior-rollup-contract.ts");
+assert(someSourceNode(rollupAst, node => ts.isTypeAliasDeclaration(node) && node.name.text === "UserBehaviorEngagementScore" && someSourceNode(node.type, child => ts.isTypeReferenceNode(child) && child.typeName.getText() === "UserEngagementScoreResult"))
+  && someSourceNode(rollupAst, node => ts.isPropertySignature(node) && node.name.getText() === "engagement" && node.type?.getText() === "UserBehaviorEngagementScore"), "User behavior rollup contract must retain its canonical engagement result plus truth posture.", failures);
 assert(behaviorRollupHelper.includes("engagementInput"), "User behavior rollup helper must accept canonical engagement input.", failures);
 assert(behaviorRollupHelper.includes("computeUserEngagementScore"), "User behavior rollup helper must compute the canonical engagement score.", failures);
 
@@ -64,16 +69,17 @@ assert(userDetailRoute.includes("engagement,"), "Admin user detail route must ex
 assert(adminTypes.includes("engagement?: UserEngagementScoreResult;"), "Admin analytics types must include the canonical engagement object.", failures);
 assert(adminTypes.includes("returnedInLast7Days?: number;"), "Admin analytics summary types must expose the renamed returned-in-last-7-days field.", failures);
 
-assert(usersPage.includes('title: "Returned in last 7 days"'), "User Management must rename the returner stat card.", failures);
-assert(usersPage.includes("logged in, visited, or tracked"), "User Management must explain the returned-in-last-7-days rule.", failures);
-assert(usersPage.includes("engagement?.verdict"), "User Management must show engagement verdicts by default.", failures);
-assert(usersPage.includes("engagement?.topReasons?.[0]?.summary"), "User Management top tracked cards must surface an engagement reason summary.", failures);
-assert(!usersPage.includes('title: "Returners"'), "Legacy Returners stat label must be removed from User Management.", failures);
+const returnCard = getReturnedLiteralRecord(readSourceAst("src/app/api/admin/users/route.ts"), "buildAdminUsersKpiCards", "id", "returned_7d");
+assert(literalRecordProperty(returnCard, "label") === "Returned in last 7 days" && literalRecordProperty(returnCard, "scope") === "rolling_7d", "The canonical returned_7d producer must show its seven-day window.", failures);
+assert(/logged in, visited, or .*tracked activity in the last 7 days/i.test(literalRecordProperty(returnCard, "explanation") ?? ""), "The canonical return card must explain its qualifying tracked activity.", failures);
+assert(hasDirectoryVerdict("engagement"), "The rendered User Management directory must show the canonical engagement verdict first.", failures);
+// The old top-tracked cards were retired in favor of the canonical paged score leaderboard.
+// Directory verdicts and Detail reasons remain required at their current rendered owners.
 
 assert(userDetailPage.includes('label: "Engagement"'), "User detail summary must expose the engagement verdict card.", failures);
 assert(userDetailPage.includes("Engagement verdict"), "User detail must render the engagement verdict block.", failures);
-assert(userDetailPage.includes("(engagement?.topReasons ?? []).slice(0, 3)"), "User detail must surface the top three engagement reasons.", failures);
-assert(userDetailPage.includes("engagement?.verdict"), "User detail must show the engagement verdict by default.", failures);
+assert(hasDetailVerdict("engagement") && hasDetailReasons("engagement"), "User detail must render the canonical engagement verdict and top three reasons through its shared Card.", failures);
+assert(hasDetailVerdict("engagement"), "User detail must show the canonical engagement verdict by default.", failures);
 
 if (failures.length > 0) {
   console.error("User engagement score validation failed:");

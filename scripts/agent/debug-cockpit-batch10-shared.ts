@@ -1,3 +1,5 @@
+import * as ts from "typescript";
+import { readSourceAst, findSourceFunction, sourceRenderNodes, someSourceNode, sourceExpressionIs } from "./validate-behavioral-truth-source";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -97,29 +99,123 @@ function renderDoc(title: string, report: unknown) {
 }
 
 export function buildViewerEntitlementHardeningReport() {
-  const page = read("src/app/dashboard/viewer/page.tsx");
   const helper = read("src/lib/server/viewer-drop-entitlement.ts");
   const drops = read("src/lib/server/drops.ts");
   const client = read("src/app/dashboard/viewer/ViewerClient.tsx");
   const accessResolver = read("src/lib/drop-view-access.ts");
-  const helperBackedRoute = helper.includes("viewerRouteEntitlementGuarded: true") && page.includes("buildViewerDropEntitlementPayload");
-  const directServerGuard = [
-    "verifyNavigationSessionCookieValue",
-    "adminDb.collection(\"users\")",
-    "adminAuth.getUser",
-    "resolveDropViewAccess",
-    "userId: navigationSession.uid",
-    "if (!viewerAccess.allowed)",
-    "redirect(viewerPreviewHref)",
-    "sanitizeDropForClient(rawDrop)",
-    "return <ViewerClient drop={drop}",
-  ].every((expected) => page.includes(expected));
+  const pageAst = readSourceAst("src/app/dashboard/viewer/page.tsx");
+  const route = findSourceFunction(pageAst, "default");
+  const body = route?.body;
+  const statements = body && ts.isBlock(body) ? body.statements : [];
+  const declarations = new Map<string, ts.VariableDeclaration>();
+  const shadowedImports = new Set<string>();
+  for (const parameter of route?.parameters ?? []) {
+    someSourceNode(parameter.name, node => {
+      if (ts.isIdentifier(node)) shadowedImports.add(node.text);
+      return false;
+    });
+  }
+  for (const statement of statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name) shadowedImports.add(statement.name.text);
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      someSourceNode(declaration.name, node => {
+        if (ts.isIdentifier(node)) shadowedImports.add(node.text);
+        return false;
+      });
+      if (ts.isIdentifier(declaration.name) && statement.declarationList.flags & ts.NodeFlags.Const) declarations.set(declaration.name.text, declaration);
+    }
+  }
+  const imported = (module: string, exported: string) => {
+    const entries = pageAst.statements.flatMap(statement => {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== module) return [];
+      const bindings = statement.importClause?.namedBindings;
+      return bindings && ts.isNamedImports(bindings)
+        ? bindings.elements.filter(binding => (binding.propertyName?.text ?? binding.name.text) === exported)
+        : [];
+    });
+    return entries.length === 1 && !shadowedImports.has(entries[0].name.text) ? entries[0].name.text : undefined;
+  };
+  const unwrap = (value: ts.Expression | undefined): ts.Expression | undefined => {
+    while (value && (ts.isAwaitExpression(value) || ts.isParenthesizedExpression(value) || ts.isAsExpression(value)
+      || ts.isTypeAssertionExpression(value) || ts.isSatisfiesExpression(value) || ts.isNonNullExpression(value))) value = value.expression;
+    return value;
+  };
+  const initializer = (value: ts.Expression | undefined) => value && ts.isIdentifier(value) ? unwrap(declarations.get(value.text)?.initializer) : undefined;
+  const property = (value: ts.Expression | undefined, name: string) => {
+    if (!value || !ts.isObjectLiteralExpression(value) || value.properties.some(ts.isSpreadAssignment)) return undefined;
+    const entries = value.properties.filter((entry): entry is ts.PropertyAssignment => ts.isPropertyAssignment(entry)
+      && (ts.isIdentifier(entry.name) || ts.isStringLiteral(entry.name)) && entry.name.text === name);
+    return entries.length === 1 ? unwrap(entries[0].initializer) : undefined;
+  };
+  const isCall = (value: ts.Expression | undefined, local: string | undefined): value is ts.CallExpression => Boolean(value && local
+    && ts.isCallExpression(value) && ts.isIdentifier(value.expression) && value.expression.text === local);
+  const viewerName = imported("./ViewerClient", "ViewerClient");
+  const getRawName = imported("@/lib/server/drops", "getDropRaw");
+  const sanitizerName = imported("@/lib/server/drops", "sanitizeDropForClient");
+  const resolverName = imported("@/lib/drop-view-access", "resolveDropViewAccess");
+  const verifierName = imported("@/lib/navigation-session", "verifyNavigationSessionCookieValue");
+  const redirectName = imported("next/navigation", "redirect");
+  const databaseName = imported("@/lib/server/firebase-admin", "adminDb");
+  const authName = imported("@/lib/server/firebase-admin", "adminAuth");
+  const renderedClients: Array<ts.JsxOpeningElement | ts.JsxSelfClosingElement> = [];
+  someSourceNode(sourceRenderNodes(pageAst), node => {
+    if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && ts.isIdentifier(node.tagName) && node.tagName.text === viewerName) renderedClients.push(node);
+    return false;
+  });
+  const rawDeclarations = [...declarations.values()].filter(declaration => isCall(unwrap(declaration.initializer), getRawName));
+  const clientRawPayloads = renderedClients.map(node => {
+    if (node.attributes.properties.some(ts.isJsxSpreadAttribute)) return undefined;
+    const attributes = node.attributes.properties.filter((attribute): attribute is ts.JsxAttribute => ts.isJsxAttribute(attribute) && attribute.name.getText(pageAst) === "drop");
+    const attribute = attributes.length === 1 ? attributes[0] : undefined;
+    const payload = attribute?.initializer && ts.isJsxExpression(attribute.initializer) ? unwrap(attribute.initializer.expression) : undefined;
+    const sanitized = initializer(payload);
+    return isCall(sanitized, sanitizerName) && sanitized.arguments.length === 1
+      ? rawDeclarations.find(raw => ts.isIdentifier(raw.name) && sourceExpressionIs(sanitized.arguments[0], raw.name.text))
+      : undefined;
+  });
+  const safeClientPayload = renderedClients.length > 0 && clientRawPayloads.every(Boolean);
+  const directServerGuard = renderedClients.length > 0 && statements.some(statement => {
+    if (!ts.isIfStatement(statement)) return false;
+    const condition = unwrap(statement.expression);
+    let access: ts.Expression | undefined;
+    if (condition && ts.isPrefixUnaryExpression(condition) && condition.operator === ts.SyntaxKind.ExclamationToken) access = unwrap(condition.operand);
+    else if (condition && ts.isBinaryExpression(condition) && condition.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken
+      && condition.right.kind === ts.SyntaxKind.FalseKeyword) access = unwrap(condition.left);
+    if (!access || !ts.isPropertyAccessExpression(access) || access.name.text !== "allowed" || !ts.isIdentifier(access.expression)) return false;
+    const resolved = initializer(access.expression);
+    if (!isCall(resolved, resolverName) || resolved.arguments.length !== 1) return false;
+    const options = unwrap(resolved.arguments[0]);
+    const rawPayload = property(options, "drop");
+    const fetchedRaw = rawDeclarations.find(declaration => ts.isIdentifier(declaration.name) && sourceExpressionIs(rawPayload, declaration.name.text));
+    const rawFetch = fetchedRaw ? unwrap(fetchedRaw.initializer) : undefined;
+    if (!isCall(rawFetch, getRawName) || rawFetch.arguments.length !== 1
+      || !clientRawPayloads.every(raw => raw === fetchedRaw)
+      || !sourceExpressionIs(property(options, "requestedDropId"), rawFetch.arguments[0].getText(pageAst))
+      || property(options, "authLoading")?.kind !== ts.SyntaxKind.FalseKeyword) return false;
+    const actor = property(options, "userId");
+    if (!actor || !ts.isPropertyAccessExpression(actor) || actor.name.text !== "uid" || !ts.isIdentifier(actor.expression)) return false;
+    const verifiedSession = initializer(actor.expression);
+    if (!isCall(verifiedSession, verifierName) || !sourceExpressionIs(property(property(options, "userProfile"), "uid"), actor.getText(pageAst))) return false;
+    const branch = ts.isBlock(statement.thenStatement) ? statement.thenStatement.statements[0] : statement.thenStatement;
+    const denied = branch && (ts.isExpressionStatement(branch) || ts.isReturnStatement(branch)) ? unwrap(branch.expression) : undefined;
+    if (!isCall(denied, redirectName) || denied.arguments.length !== 1 || !renderedClients.every(node => statement.end < node.pos)) return false;
+    const withinRoute = (node: ts.Node) => {
+      for (let current: ts.Node | undefined = node.parent; current && current !== route; current = current.parent) if (ts.isFunctionLike(current)) return false;
+      return node.pos < statement.pos;
+    };
+    const databaseRead = databaseName && someSourceNode(body, node => withinRoute(node) && sourceExpressionIs(node, `${databaseName}.collection("users").doc(${actor.getText(pageAst)}).get()`));
+    const authRead = authName && someSourceNode(body, node => withinRoute(node) && ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+      && ts.isIdentifier(node.expression.expression) && node.expression.expression.text === authName && node.expression.name.text === "getUser"
+      && node.arguments.length === 1 && sourceExpressionIs(node.arguments[0], actor.getText(pageAst)));
+    return Boolean(databaseRead && authRead);
+  });
   return {
     generatedAtUtc: new Date().toISOString(),
     reportKey: "viewer-entitlement-hardening",
     currentHead: gitHead(),
-    viewerRouteEntitlementGuarded: helperBackedRoute || directServerGuard,
-    rawDropSanitized: helper.includes("sanitizeDropForClient(rawDrop)") && drops.includes("export function sanitizeDropForClient"),
+    viewerRouteEntitlementGuarded: directServerGuard,
+    rawDropSanitized: safeClientPayload && drops.includes("export function sanitizeDropForClient"),
     privateMediaHiddenUntilEntitled: helper.includes("privateMediaHiddenUntilEntitled: true") && drops.includes('contentUrl: ""'),
     contentFetchRoute: helper.includes("/api/drops/content"),
     clientEntitlementEvidence: client.includes("resolveDropViewAccess")
@@ -127,14 +223,15 @@ export function buildViewerEntitlementHardeningReport() {
       && accessResolver.includes("sameId(userId, input.drop.creatorId)")
       && accessResolver.includes("hasUnwrappedDrop(input.userProfile, input.drop.id)")
       && accessResolver.includes("unlockedContentTimestamps"),
-    rawDropFieldsReachClient: /<ViewerClient\s+drop=\{rawDrop\}/u.test(page) || page.includes("contentUrl: rawDrop"),
-    publicPreviewBehavior: "Viewer page returns sanitized metadata only; private bytes load through /api/drops/content after client entitlement.",
+    rawDropFieldsReachClient: renderedClients.length > 0 && !safeClientPayload,
+    publicPreviewBehavior: "Bounded source inspection connects the returned ViewerClient to the same fetched, sanitized Drop and verified-actor denial guard. Private bytes remain mediated by /api/drops/content; this is not runtime or full control-flow proof.",
   };
 }
 
+
 export function validateViewerEntitlementHardeningReport(report: ReturnType<typeof buildViewerEntitlementHardeningReport>) {
   const failures: string[] = [];
-  if (!report.viewerRouteEntitlementGuarded) failures.push("viewer page lacks a visible server entitlement guard or evidence helper.");
+  if (!report.viewerRouteEntitlementGuarded) failures.push("viewer page lacks a bound server entitlement guard and verified actor.");
   if (!report.rawDropSanitized) failures.push("raw drop is not sanitized before viewer client payload.");
   if (!report.privateMediaHiddenUntilEntitled) failures.push("private media is not hidden until entitlement.");
   if (!report.contentFetchRoute) failures.push("viewer entitlement evidence does not point to /api/drops/content.");

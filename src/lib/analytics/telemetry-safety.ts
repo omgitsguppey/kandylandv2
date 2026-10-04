@@ -1,3 +1,4 @@
+import { readSessionMeasurementFromParams, serializeSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 export type TelemetryScalar = string | number | boolean;
 export type SanitizedTelemetryParams = Record<string, TelemetryScalar>;
 
@@ -299,7 +300,10 @@ function sanitizeTelemetryParams(
 }
 
 export function sanitizeTelemetryParamsForBackend(eventParams?: Record<string, unknown>): SanitizedTelemetryParams {
-    const rawSanitized = sanitizeTelemetryParams(eventParams, "backend", 40);
+    const checkpoint = readSessionMeasurementFromParams(eventParams);
+    const sessionMeasurement = checkpoint ? serializeSessionMeasurementCheckpoint(checkpoint) : null;
+    const rawSanitized = sanitizeTelemetryParams(eventParams, "backend", sessionMeasurement ? 39 : 40);
+    if (sessionMeasurement && rawSanitized) rawSanitized.session_measurement = sessionMeasurement;
     
     // Explicitly enforce schema versioning per observability hardening directives
     if (!rawSanitized) {

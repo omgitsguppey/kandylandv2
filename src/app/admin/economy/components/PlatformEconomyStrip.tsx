@@ -1,19 +1,18 @@
 "use client";
 
 import { AlertTriangle, Candy, PiggyBank, Sparkles } from "lucide-react";
-
+import { Card, CardContent } from "@/components/creative-tim/ui/card";
 import type { PlatformEconomyTreasurySummary } from "@/lib/platform-economy";
+import type { EconomyWarningSummary } from "./types";
 
 export type PlatformEconomyStripSourceState = "live" | "review" | "collecting" | "failed" | "source_missing";
 
 function formatGd(value: number | null) {
     return value == null ? "--" : `${value.toLocaleString()} GD`;
 }
-
 function formatUsdRate(value: number | null) {
     return value == null ? "--" : `$${value.toFixed(2)} / 100 GD`;
 }
-
 function formatStripSourceStateLabel(sourceState: PlatformEconomyStripSourceState) {
     if (sourceState === "source_missing") return "No source";
     if (sourceState === "collecting") return "Collecting";
@@ -21,7 +20,6 @@ function formatStripSourceStateLabel(sourceState: PlatformEconomyStripSourceStat
     if (sourceState === "review") return "Needs review";
     return "Live";
 }
-
 const STRIP_ITEMS = [
     { key: "outstandingGd", label: "Outstanding GD", icon: Candy },
     { key: "paidGd", label: "Paid GD", icon: PiggyBank },
@@ -29,50 +27,28 @@ const STRIP_ITEMS = [
     { key: "rewardFreeGd", label: "Reward/free GD", icon: Candy },
 ] as const;
 
-export function PlatformEconomyStrip({
-    treasury,
-    warningCount,
-    sourceState,
-}: {
-    treasury: PlatformEconomyTreasurySummary | null;
-    warningCount: number;
-    sourceState: PlatformEconomyStripSourceState;
+export function PlatformEconomyStrip({ treasury, warningSummary, sourceState }: {
+    treasury: PlatformEconomyTreasurySummary | null; warningSummary: EconomyWarningSummary; sourceState: PlatformEconomyStripSourceState;
 }) {
     const hidesValues = sourceState === "source_missing" || sourceState === "collecting" || sourceState === "failed";
-
-    return (
-        <div
-            className="sticky top-[72px] z-10 grid gap-2 rounded-[1.2rem] border border-white/10 bg-zinc-950/95 p-2 backdrop-blur md:grid-cols-7"
-            data-admin-economy-strip-source-state={sourceState}
-        >
-            {STRIP_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const value = treasury?.[item.key] as number | null | undefined;
-                return (
-                    <div key={item.key} className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
-                        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-gray-500">
-                            <Icon className="h-3.5 w-3.5 text-brand-purple" />
-                            {item.label}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-white">{hidesValues ? "--" : formatGd(value ?? null)}</div>
-                    </div>
-                );
-            })}
-            <div className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
-                <div className="text-[11px] uppercase tracking-[0.16em] text-gray-500">Paid-source avg</div>
-                <div className="mt-1 text-sm font-semibold text-white">{hidesValues ? "--" : formatUsdRate(treasury?.paidSourceAvgUsdPer100Gd ?? null)}</div>
-            </div>
-            <div className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
-                <div className="text-[11px] uppercase tracking-[0.16em] text-gray-500">Floor state</div>
-                <div className="mt-1 text-sm font-semibold text-white">{hidesValues ? formatStripSourceStateLabel(sourceState) : treasury?.floorState ?? "unknown"}</div>
-            </div>
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
-                <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-amber-200">
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                    Warnings
-                </div>
-                <div className="mt-1 text-sm font-semibold text-white">{hidesValues ? "--" : warningCount.toLocaleString()}</div>
-            </div>
-        </div>
-    );
+    return <Card className="min-w-0 gap-0 py-0" data-admin-economy-strip-source-state={sourceState}>
+        <CardContent className="min-w-0 p-4">
+            <dl className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-x-6 gap-y-4">
+                {STRIP_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    const value = treasury?.[item.key] as number | null | undefined;
+                    return <div key={item.key} className="min-w-0">
+                        <dt className="flex items-start gap-2 text-sm text-muted-foreground"><Icon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" /><span className="min-w-0 break-words">{item.label}</span></dt>
+                        <dd className="mt-1 break-words text-lg font-semibold tabular-nums text-foreground">{hidesValues ? "--" : formatGd(value ?? null)}</dd>
+                    </div>;
+                })}
+                <div className="min-w-0"><dt className="break-words text-sm text-muted-foreground">Paid-source avg</dt>
+                    <dd className="mt-1 break-words text-lg font-semibold tabular-nums text-foreground">{hidesValues ? "--" : formatUsdRate(treasury?.paidSourceAvgUsdPer100Gd ?? null)}</dd></div>
+                <div className="min-w-0"><dt className="break-words text-sm text-muted-foreground">Floor state</dt>
+                    <dd className="mt-1 break-words text-lg font-semibold text-foreground">{hidesValues ? formatStripSourceStateLabel(sourceState) : treasury?.floorState ?? "unknown"}</dd></div>
+                <div className="min-w-0"><dt className="flex items-start gap-2 text-sm text-warning"><AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" /><span>Warnings</span></dt>
+                    <dd className="mt-1 break-words text-lg font-semibold tabular-nums text-foreground">{warningSummary.count === null ? "--" : `${warningSummary.sourceState === "verified" ? "" : "≥"}${warningSummary.count.toLocaleString()}`}</dd></div>
+            </dl>
+        </CardContent>
+    </Card>;
 }

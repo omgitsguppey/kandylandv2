@@ -1,12 +1,128 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { copyFileSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { execFileSync, spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
+import ts from "typescript";
 import { afterEach, describe, expect, it } from "vitest";
+import { captureTakeoverSourceState, startTakeoverEvidence, type TakeoverTaskInput } from "../../scripts/agent/validate-agent-takeover-safety-check";
 
 import { buildAdminDebugControlTowerModel as buildAdminDebugControlTowerModelFromSource, formatOperatorReportStatusForAdmin, type AdminDebugReportCard } from "@/lib/admin-debug-control-tower";
 
 const tempRoots: string[] = [];
 const TEST_HEAD = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+describe("Admin Debug actual CLI mutation scope", () => {
+    const repository = process.cwd();
+    const validator = "scripts/agent/validate-admin-debug-control-tower.ts";
+    const inherited = "src/app/public-scope-fixture.ts";
+    const roots: string[] = [];
+    function fixture() {
+        const root = mkdtempSync(join(tmpdir(), "kd-debug-scope-"));
+        roots.push(root);
+        const write = (file: string, value: string) => { mkdirSync(dirname(join(root, file)), { recursive: true }); writeFileSync(join(root, file), value); };
+        const git = (...args: string[]) => execFileSync("git", args, { cwd: root, stdio: "ignore" });
+        write(".gitignore", "output/\nagent/state/\n");
+        for (const match of readFileSync(join(repository, validator), "utf8").matchAll(/readRequired\("([^"]+)"\)/gu)) {
+            mkdirSync(dirname(join(root, match[1])), { recursive: true });
+            copyFileSync(join(repository, match[1]), join(root, match[1]));
+        }
+        write("AGENTS.md", "Isolated actual-CLI source fixture authority.\n");
+        write(inherited, "export const version = 1;\n");
+        write("fixture.ts", "export const value = 1;\n");
+        git("init", "--quiet"); git("config", "user.name", "Source fixture"); git("config", "user.email", "fixture@example.invalid");
+        git("add", "."); git("commit", "--quiet", "-m", "Fixture baseline");
+        write(inherited, "export const version = 2;\n");
+        const input: TakeoverTaskInput = { taskKey: "debug-scope-fixture", activePromptLane: "source-reader", goal: "Exercise the real Debug CLI binding.", authority: "Isolated fixture only.", allowedFiles: ["fixture.ts", "package.json"], forbiddenFiles: [inherited], inFlightLanes: ["sole fixture"], unknowns: ["No runtime/provider proof."], memoryWriteback: { required: false, evidencePath: "REPO_MEMORY_LEDGER.md", reason: "Fixture only." }, releaseNoteImpact: "None", justificationForNetAdditions: "Actual CLI binding, standalone incidents and source guards.", authorityFiles: ["AGENTS.md"] };
+        const inputPath = "output/debug-scope-fixture/input.json";
+        write(inputPath, JSON.stringify(input)); startTakeoverEvidence(inputPath, root);
+        const run = (args = ["--task-input", inputPath], env = process.env) => {
+            const result = spawnSync(process.execPath, [createRequire(import.meta.url).resolve("tsx/cli"), "--tsconfig", join(repository, "tsconfig.json"), join(repository, validator), ...args], { cwd: root, env, encoding: "utf8" });
+            return { ...result, output: result.stdout + result.stderr };
+        };
+        return { root, write, git, run, inputPath };
+    }
+    afterEach(() => {
+        for (const root of roots.splice(0)) {
+            if (!resolve(root).startsWith(join(resolve(tmpdir()), "kd-debug-scope-"))) throw new Error("Unexpected fixture cleanup target");
+            rmSync(root, { recursive: true, force: true });
+        }
+    });
+    it("accepts declared changes, rejects staged or tampered scope, then recovers", () => {
+        const f = fixture(); f.write("fixture.ts", "export const value = 2;\n");
+        const accepted = f.run(); expect(accepted.status, accepted.output).toBe(0);
+        const scope = JSON.parse(accepted.output.trim().split(/\r?\n/u).at(-1)!).mutationScope;
+        expect(scope).toMatchObject({ mode: "input_bound_task", changedFiles: ["fixture.ts"], sourceFingerprint: captureTakeoverSourceState(f.root).sourceFingerprint });
+        f.write(inherited, "export const version = 3;\n"); f.git("add", inherited);
+        const denied = f.run(); expect(denied.status).not.toBe(0); expect(denied.output).toContain("Output scope violation: " + inherited);
+        expect(denied.output).not.toContain("Control Tower validation passed");
+        f.git("reset", "--quiet", "HEAD", "--", inherited); f.write(inherited, "export const version = 2;\n");
+        const bytes = readFileSync(join(f.root, f.inputPath), "utf8"); f.write(f.inputPath, bytes + " ");
+        const tampered = f.run(); expect(tampered.status).not.toBe(0); expect(tampered.output).toContain("declared task input changed");
+        f.write(f.inputPath, bytes); expect(f.run().status).toBe(0);
+    }, 30000);
+    it("retains standalone inherited incidents and fails when Git is unavailable", () => {
+        const f = fixture(); const standalone = f.run([]);
+        expect(standalone.status).not.toBe(0); expect(standalone.output).toContain("Unexpected diff: " + inherited);
+        const unavailable = f.run([], { ...process.env, PATH: "" });
+        expect(unavailable.status).not.toBe(0); expect(unavailable.output).toContain("Unable to inspect changed files");
+    }, 30000);
+    it("preserves source safeguards for authorized files", () => {
+        const f = fixture(); const pkg = JSON.parse(readFileSync(join(f.root, "package.json"), "utf8"));
+        pkg.scripts["check:admin-debug-control-tower"] = "echo bypass"; f.write("package.json", JSON.stringify(pkg));
+        const denied = f.run(); expect(denied.status).not.toBe(0); expect(denied.output).toContain("check:admin-debug-control-tower");
+        expect(denied.output).not.toContain("Control Tower validation passed");
+    }, 30000);
+    it.each(["comment_only", "detached_pill"] as const)("rejects %s transaction identity evidence in the actual CLI", (kind) => {
+        const f=fixture();f.write(inherited,"export const version = 1;\n");
+        const file="src/app/admin/debug/components/DebugTabMonitoring.tsx",source=readFileSync(join(f.root,file),"utf8");
+        const bound='<Pill label="Identity" value={entry.userIdentityState || "fallback_uid"} tone={toneForIdentityState(entry.userIdentityState)} />';
+        expect(source).toContain(bound);
+        const detached=kind==="detached_pill" ? "\nfunction unusedIdentityDecoy(entry: {userIdentityState:string}) { return "+bound+"; }\n" : "";
+        f.write(file,source.replace(bound,'{/* identity_missing */}')+detached);
+        const denied=f.run([]);expect(denied.status,denied.output).not.toBe(0);expect(denied.output).toContain("Monitoring transaction Identity must bind the returned record state and canonical tone");expect(denied.output).not.toContain("Control Tower validation passed");
+    },30000);
+    it("accepts a connected existing primitive import alias without changing identity meaning", () => {
+        const f=fixture();f.write(inherited,"export const version = 1;\n");
+        const file="src/app/admin/debug/components/DebugTabMonitoring.tsx",source=readFileSync(join(f.root,file),"utf8");
+        const aliased=source.replace("badgeForSourceStatus, Pill, Section", "badgeForSourceStatus, Pill as EvidencePill, Section").replaceAll("<Pill ","<EvidencePill ");
+        expect(aliased).not.toBe(source);f.write(file,aliased);
+        const accepted=f.run([]);expect(accepted.status,accepted.output).toBe(0);expect(accepted.output).toContain("Control Tower validation passed");
+    },30000);
+
+    it.each(["comment_only", "detached_readout", "wrong_count_owner", "missing_count_zero", "wrong_count_label", "detached_callback_readout"] as const)("rejects %s Infrastructure source projection in the actual CLI", (kind) => {
+        const f = fixture(); f.write(inherited, "export const version = 1;\n");
+        const file = "src/app/admin/debug/components/DebugTabInfrastructure.tsx", source = readFileSync(join(f.root, file), "utf8");
+        const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+        let section: ts.JsxElement | null = null;
+        const find = (node: ts.Node) => {
+            if (ts.isJsxElement(node) && node.openingElement.tagName.getText(tree) === "Section") {
+                const title = node.openingElement.attributes.properties.find((item): item is ts.JsxAttribute => ts.isJsxAttribute(item) && item.name.getText(tree) === "title")?.initializer;
+                if (title && ts.isStringLiteral(title) && title.text === "Inventory counts") section = node;
+            }
+            ts.forEachChild(node, find);
+        };
+        find(tree); expect(section).not.toBeNull();
+        const block = (section as unknown as ts.JsxElement).getText(tree);
+        const broken = kind === "wrong_count_owner" ? source.replace('{ label: "Runtime deps", value: inventory?.totals?.runtimeDependencies }', '{ label: "Runtime deps", value: inventory?.totals?.devDependencies }')
+            : kind === "missing_count_zero" ? source.replace('typeof value === "number" && Number.isFinite(value) ? value : "Not loaded"', 'value ?? 0')
+            : kind === "wrong_count_label" ? source.replace("{label}</dt>", '{"Detached count label"}</dt>')
+            : kind === "detached_callback_readout" ? source.replace("inventoryCounts.map(({ label, value }) => (", "inventoryCounts.map(({ label, value }) => { const unused = (").replace("                            ))}\n                        </dl>", "                            ); return null; })}\n                        </dl>")
+            : source.replace(block, '{/* '+block.replaceAll("\n", " ").replaceAll("\r", " ")+' */}') + (kind === "detached_readout" ? "\nfunction unusedInfrastructureReadout(inventoryCounts: any[]) { return "+block+"; }\n" : "");
+        expect(broken).not.toBe(source); f.write(file, broken);
+        const denied = f.run([]); expect(denied.status, denied.output).not.toBe(0);
+        expect(denied.output).toContain("Infrastructure counts must bind the returned workstream and finite inventory totals");
+        expect(denied.output).not.toContain("Control Tower validation passed");
+    }, 30000);
+    it("accepts a connected sourced Infrastructure section import alias", () => {
+        const f = fixture(); f.write(inherited, "export const version = 1;\n");
+        const file = "src/app/admin/debug/components/DebugTabInfrastructure.tsx", source = readFileSync(join(f.root, file), "utf8");
+        const alias = source.replace('import { Section, Pill } from "./DebugPrimitives";', 'import { Section as EvidenceSection, Pill } from "./DebugPrimitives";').replaceAll("<Section", "<EvidenceSection").replaceAll("</Section>", "</EvidenceSection>");
+        expect(alias).not.toBe(source); f.write(file, alias);
+        const accepted = f.run([]); expect(accepted.status, accepted.output).toBe(0); expect(accepted.output).toContain("Control Tower validation passed");
+    }, 30000);
+
+});
 
 function buildAdminDebugControlTowerModel(
     options?: Parameters<typeof buildAdminDebugControlTowerModelFromSource>[0],

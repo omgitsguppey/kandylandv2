@@ -24,8 +24,9 @@ describe("mobile surface organization", () => {
       sources: {
         ...baseSources,
         files: {
-          "src/app/admin/analytics/page.tsx": 'data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true" MetricCard TAB_OPTIONS',
-          "src/app/admin/debug/page.tsx": 'data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true" DEBUG_TABS StatCard',
+          ...delegatedAnalytics(),
+          "src/app/admin/debug/page.tsx": 'import { AdminDebugControlCanvas } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas"; export default function Page(){return <AdminDebugControlCanvas/>;}',
+          "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx": 'export function AdminDebugControlCanvas(){return <section data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true"><MetricCard/><details>Source</details></section>;}',
           "src/app/dashboard/DashboardClient.tsx": 'data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true" DailyCheckIn CollectionList RecentActivityFeed CreatorDiscoveryRail',
           "src/app/dashboard/library/LibraryClient.tsx": 'data-mobile-organization="summary-first" data-mobile-drilldown="true" data-user-library-surface="my-kandydrops"',
           "src/components/Creators/CreatorDropManager.tsx": 'data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true" Submit drop REVIEW_TABS',
@@ -106,5 +107,42 @@ describe("mobile surface organization", () => {
 
     expect(report.summary.creatorWorkflowsSeparated).toBe(false);
     expect(validateMobileSurfaceOrganizationReport(report)).toContain("creator mobile workflows lack separated operations and drilldown markers.");
+  });
+});
+
+
+const analyticsRoute = "src/app/admin/analytics/page.tsx";
+const analyticsCanvas = "src/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas.tsx";
+function delegatedAnalytics(alias = "Readout") {
+  return {
+    [analyticsRoute]: `import { AdminAnalyticsEvidenceCanvas as ${alias} } from "@/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas"; export default function Page(){return <${alias} facts={facts}/>;}`,
+    [analyticsCanvas]: 'export function AdminAnalyticsEvidenceCanvas({facts}) { return <section data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true"><Card><dl>{facts.map(fact => <div>{fact.value}</div>)}</dl></Card><details><summary>Source</summary>Retained details</details></section>; }',
+  };
+}
+function delegatedReport(files: Record<string, string>) {
+  return buildMobileSurfaceOrganizationReport({ currentHead: "head", generatedAtUtc: "2026-10-02T00:00:00.000Z", changedFiles: [analyticsRoute], sources: { ...baseSources, files }, inventoryMatches: [] });
+}
+describe("Admin organization active component ownership", () => {
+  it("accepts a rendered import alias and a sourced summary readout without requiring metric tiles", () => {
+    const report = delegatedReport(delegatedAnalytics());
+    expect(report.summary.adminSummaryFirst).toBe(true);
+    expect(report.summary.adminRawDetailsDrilldown).toBe(true);
+    expect(report.summary.desktopFlowCollapsed).toBe(true);
+  });
+  it("rejects an unused imported canvas even when its file and an orphan sibling contain markers", () => {
+    const files = delegatedAnalytics();
+    files[analyticsRoute] = files[analyticsRoute].replace('return <Readout facts={facts}/>;', 'return null;') + 'function Orphan(){return <Readout/>;}';
+    expect(delegatedReport(files).summary.adminSummaryFirst).toBe(false);
+  });
+  it("rejects marker comments when the rendered canonical canvas returns no organized content", () => {
+    const files = delegatedAnalytics();
+    files[analyticsCanvas] = 'export function AdminAnalyticsEvidenceCanvas(){return null;} // data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true" MetricCard';
+    expect(delegatedReport(files).summary.adminSummaryFirst).toBe(false);
+    expect(delegatedReport(files).summary.adminRawDetailsDrilldown).toBe(false);
+  });
+  it("rejects a second main landmark inside the existing root shell", () => {
+    const files = delegatedAnalytics();
+    files[analyticsCanvas] = files[analyticsCanvas].replaceAll('<section ', '<main ').replace('</section>', '</main>');
+    expect(delegatedReport(files).summary.adminSummaryFirst).toBe(false);
   });
 });

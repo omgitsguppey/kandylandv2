@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T02:33:44.611Z",
+  "generatedAt": "2026-10-04T00:38:21.687Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,18 +14,16 @@
     "package.json",
     "functions/package.json",
     "package-lock.json",
-    "functions/package-lock.json",
-    "functions/pnpm-lock.yaml",
-    "functions/pnpm-workspace.yaml"
+    "functions/package-lock.json"
   ],
   "toolchain": {
     "gitStatus": "available",
     "sourceFileDiscovery": "git",
-    "currentHead": "d64358ffc282360f679ddde98a1fdfe97ce65505",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
     "currentHeadSource": "git",
     "toolingDegraded": false,
     "degradationReason": null,
-    "dirtyFileCount": 189
+    "dirtyFileCount": 768
   },
   "stable_id": "pkgtruth__root-functions",
   "root": {
@@ -49,14 +47,12 @@
     "manifest": "functions/package.json",
     "packageManagerField": null,
     "expectedManagers": [
-      "npm",
-      "pnpm"
+      "npm"
     ],
     "requiredLockfiles": [
-      "functions/package-lock.json",
-      "functions/pnpm-lock.yaml"
+      "functions/package-lock.json"
     ],
-    "pnpmWorkspaceConfig": "functions/pnpm-workspace.yaml",
+    "pnpmWorkspaceConfig": null,
     "verificationCommands": [
       "npm --prefix functions run check"
     ],
@@ -66,15 +62,8 @@
   },
   "syncInvariants": [
     "Root npm dependency changes must keep package-lock.json in sync.",
-    "Functions npm dependency changes must keep functions/package-lock.json in sync.",
-    "Functions pnpm dependency changes must keep functions/pnpm-lock.yaml in sync.",
-    "Functions pnpm override policy is owned by functions/pnpm-workspace.yaml and must stay aligned with functions/package.json."
+    "Functions npm dependency changes must keep functions/package-lock.json in sync."
   ],
-  "dependencyWindowBlockers": [
-    "Functions has both package-lock.json and pnpm-lock.yaml; treat any drift as a manual dependency-window task, not an agent tooling patch."
-  ],
-  "knownFailureModes": [
-    "Functions dual-lockfile drift can break functions verification or deployment parity.",
-    "Functions pnpm installs that bypass functions/pnpm-workspace.yaml can silently miss the repository's pnpm override policy."
-  ]
+  "dependencyWindowBlockers": [],
+  "knownFailureModes": []
 }

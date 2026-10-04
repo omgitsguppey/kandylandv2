@@ -242,9 +242,9 @@ export function getUnlockProblemCopy(reason?: unknown): ProblemStateCopy {
 
   return copy(
     reason,
-    "Drop could not be unwrapped.",
-    "Your GumDrops were not charged. Try again shortly.",
-    "Try again",
+    "Unwrap could not be confirmed.",
+    "Check My KandyDrops and your balance before trying again.",
+    "Open My KandyDrops",
   );
 }
 

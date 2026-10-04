@@ -1,13 +1,56 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.6.16",
-  "betaReleaseCounter": 616,
+  "currentVersion": "1.6.17",
+  "betaReleaseCounter": 617,
   "channel": "beta",
-  "generatedAt": "2026-10-01T14:14:13.646Z",
-  "generatedAtUtc": "2026-10-01T14:14:13.646Z",
-  "lastCommitSha": "01934bcd7098471a1ff841386d315a82c884859f",
+  "generatedAt": "2026-10-02T14:32:50.850Z",
+  "generatedAtUtc": "2026-10-02T14:32:50.850Z",
+  "lastCommitSha": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "notes": [
+    {
+      "version": "1.6.17",
+      "previousVersion": "1.6.16",
+      "betaReleaseCounter": 617,
+      "previousBetaReleaseCounter": 616,
+      "commitSha": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+      "commitTitle": "fix(deploy): prepare maintained App Hosting release",
+      "commitCount": 1,
+      "commitShas": [
+        "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8"
+      ],
+      "committedAt": "2026-10-01T14:45:35.000Z",
+      "generatedAt": "2026-10-02T14:32:50.849Z",
+      "committedAtUtc": "2026-10-01T14:45:35.000Z",
+      "generatedAtUtc": "2026-10-02T14:32:50.849Z",
+      "updatedAtUtc": "2026-10-02T14:32:50.849Z",
+      "category": "Fixed",
+      "title": "Maintenance and creator settings fixes",
+      "summary": "Improved the creator settings page while keeping public maintenance in place.",
+      "userFacingTitle": "Maintenance and creator settings fixes",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Fixed the creator settings page's client interaction boundary.",
+        "Kept public maintenance active during the ongoing update."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "creator-tools",
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "docs/agent-truth/environment-deployment-truth.md",
+        "firebase.json",
+        "public/kandydrops-release-notes.json",
+        "src/components/creative-tim/kandydrops/account/CreatorSettingsMigrationPanel.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-settings-migration-page.spec.tsx"
+      ],
+      "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8"
+    },
     {
       "version": "1.6.16",
       "previousVersion": "1.6.15",
@@ -4211,65 +4254,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-data-validation.spec.ts"
       ],
       "sourceCommit": "e6216fcf3b43ea17bac16676ec02bc1e2cba533f"
-    },
-    {
-      "version": "1.5.92",
-      "previousVersion": "1.5.91",
-      "betaReleaseCounter": 592,
-      "previousBetaReleaseCounter": 591,
-      "commitSha": "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d",
-      "commitTitle": "fix(admin): simplify surface actions",
-      "commitCount": 2,
-      "commitShas": [
-        "a369a651d2012b5dd8190eb3c2421ed5dfa37df8",
-        "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d"
-      ],
-      "committedAt": "2026-06-18T11:00:21.000Z",
-      "generatedAt": "2026-06-18T11:12:34.826Z",
-      "committedAtUtc": "2026-06-18T11:00:21.000Z",
-      "generatedAtUtc": "2026-06-18T11:12:34.826Z",
-      "updatedAtUtc": "2026-06-18T11:12:34.826Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-surface-modal-replacement.generated.json",
-        "agent/state/analytics-panel-hydration.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/launch-analytics-recovery.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/source-agreement-failure-detail.generated.json",
-        "docs/agent-truth/admin-surface-modal-replacement.md",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "docs/agent-truth/launch-analytics-recovery.md",
-        "docs/agent-truth/source-agreement-failure-detail.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-analytics-panel-hydration.ts",
-        "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
-        "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx",
-        "src/components/Admin/CreateDropModal.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts"
-      ],
-      "sourceCommit": "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

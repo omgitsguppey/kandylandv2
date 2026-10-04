@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import {
   CircleHelp,
   FileText,
@@ -39,14 +38,6 @@ export default function ProfileSidebar({
   const { userProfile } = useUserProfile();
   const { hasUnreadMessages } = useChatUnreadStatus();
   const { openPurchaseModal } = useUI();
-
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "unset";
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
 
   if (!user || !isOpen) {
     return null;

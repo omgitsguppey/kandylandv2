@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { listValidatorScopeFiles } from "./validate-agent-takeover-safety-check";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -67,7 +67,7 @@ for (const expected of [
   "data-wallet-paypal-funding-source=\"paypal\"",
   "data-wallet-paypal-buttons-visible=\"1\"",
   "data-wallet-checkout-density=\"single-button\"",
-  "h-[45px] w-full bg-white/10 rounded-full animate-pulse",
+  "h-[45px] w-full bg-muted rounded-full animate-pulse",
   "max-h-[58px]",
 ]) {
   requireIncludes(purchaseModal, expected, "PurchaseModal compact checkout markers");
@@ -181,10 +181,8 @@ for (const expected of [
 }
 
 try {
-  const forbiddenDiff = execSync(
-    "git diff --name-only -- src/app/api/paypal/create/route.ts src/app/api/paypal/capture/route.ts src/lib/gumdrop-ledger.ts src/lib/gumdrop-economics.ts src/lib/gumdrops-packages.ts",
-    { cwd: root, encoding: "utf8" },
-  ).trim();
+  const protectedPaths = ["src/app/api/paypal/create/route.ts", "src/app/api/paypal/capture/route.ts", "src/lib/gumdrop-ledger.ts", "src/lib/gumdrop-economics.ts", "src/lib/gumdrops-packages.ts"];
+  const forbiddenDiff = listValidatorScopeFiles(root).filter((file) => protectedPaths.includes(file)).join("\n");
   if (forbiddenDiff.length > 0) {
     failures.push(`Wallet single-button pass must not modify payment API/economy/source-of-funds files. Unexpected diff: ${forbiddenDiff}`);
   }

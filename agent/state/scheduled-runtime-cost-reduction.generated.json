@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:43:13.509Z",
+  "generatedAtUtc": "2026-10-01T20:49:02.739Z",
   "reportKey": "scheduled-runtime-cost-reduction",
-  "currentHead": "3878a581193dd171f69e3c0b63073ac738c14152",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "summary": {
     "realtimeSummaryCadenceMinutes": 5,
     "analyticsTruthUsesIncrementalCursor": true,
@@ -102,26 +102,43 @@
       "estimatedReduction": "70-99% fewer subscription docs read on non-renewal windows"
     }
   ],
-  "prCleanupActions": [
-    {
-      "number": 273,
-      "action": "not_relevant",
-      "reason": "Open Admin Debug Map-lookup optimization PR does not touch scheduled runtime job cost lanes."
-    },
-    {
-      "number": 271,
-      "action": "not_relevant",
-      "reason": "Open monolith-boundary PR does not touch scheduled runtime job cost lanes."
-    },
-    {
-      "number": 272,
-      "action": "not_relevant",
-      "reason": "Open creator dashboard accessibility PR does not touch scheduled runtime job cost lanes."
-    }
-  ],
+  "prCleanupActions": [],
   "nextFixOrder": [
     "Verify deployed Cloud Scheduler cadence after the next deployment without running provider calls from this pass.",
     "Add persisted recipient summary documents for active-drop notifications to further reduce owner exclusion lookups.",
     "Add operator-triggered full rebuild controls for analytics truth and behavioral intelligence recovery runs."
-  ]
+  ],
+  "status": "pass",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Verify deployed Cloud Scheduler cadence after the next deployment without running provider calls from this pass.",
+    "Add persisted recipient summary documents for active-drop notifications to further reduce owner exclusion lookups.",
+    "Add operator-triggered full rebuild controls for analytics truth and behavioral intelligence recovery runs."
+  ],
+  "validationFailures": [],
+  "doesNotProve": [
+    "Current PR state, deployed scheduler cadence, billing or measured workload savings."
+  ],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

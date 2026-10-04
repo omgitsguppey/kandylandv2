@@ -1,3 +1,4 @@
+import type { SessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
 import type {
   GlobalUserDedupeDecision,
@@ -7,7 +8,18 @@ import type {
 
 export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.6";
 
+// Wire aliases share one owner so normalization and consent admission agree.
+export const BEHAVIORAL_ACTIVE_TIME_PARAM_KEYS = [
+  "active_ms", "activeMs", "active_watch_ms", "activeWatchMs", "active_session_ms", "activeSessionMs",
+] as const;
+
 export const BEHAVIORAL_NORMALIZED_ACTIONS = [
+  "page_viewed",
+  "target_clicked",
+  "page_engaged",
+  "page_passive",
+  "page_bounced",
+  "page_exited",
   "home_viewed",
   "session_started",
   "session_activity_tick",
@@ -177,6 +189,7 @@ export type BehavioralEventFact = {
   gumDropsAmount?: number;
   durationMs?: number;
   activeMs?: number;
+  sessionMeasurement?: SessionMeasurementCheckpoint;
   reasonCode?: string;
   source: BehavioralEventSource;
   sourceTruth: BehavioralEventSource | "canonical";
@@ -201,6 +214,12 @@ export type BehavioralEventFactDiagnostic = {
 };
 
 export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedAction, number | "permanent" | "event_id"> = {
+  page_viewed: "event_id",
+  target_clicked: "event_id",
+  page_engaged: "event_id",
+  page_passive: "event_id",
+  page_bounced: "event_id",
+  page_exited: "event_id",
   home_viewed: 30 * 1000,
   session_started: "event_id",
   session_activity_tick: 15 * 1000,
@@ -306,6 +325,12 @@ export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedActi
 };
 
 export const BEHAVIORAL_EVENT_LABELS: Record<BehavioralNormalizedAction, string> = {
+  page_viewed: "Page viewed",
+  target_clicked: "Target clicked",
+  page_engaged: "Page engaged",
+  page_passive: "Passive page visit",
+  page_bounced: "Page bounced",
+  page_exited: "Page exited",
   home_viewed: "Home viewed",
   session_started: "Session started",
   session_activity_tick: "Session activity tick",

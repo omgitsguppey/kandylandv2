@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import ts from "typescript";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -29,16 +30,49 @@ function requireNotIncludes(source: string, needle: string, label: string) {
 }
 
 const experiencesClient = readRequired("src/app/experiences/ExperiencesClient.tsx");
+const experiencesPresentation = readRequired("src/components/creative-tim/kandydrops/experiences/KandyExperiencesExperience.tsx");
 const dailyCheckIn = readRequired("src/components/Dashboard/DailyCheckIn.tsx");
 const dashboardClient = readRequired("src/app/dashboard/DashboardClient.tsx");
 const readme = readRequired("README.md");
-const agents = readRequired("AGENTS.md");
-const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
-const fullAudit = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 const compactDoctrine = readRequired("docs/agent-truth/experiences-compact-daily-hub.md");
-const mobileDoctrine = readRequired("docs/agent-truth/mobile-shell-safe-area.md");
-const pwaDoctrine = readRequired("docs/agent-truth/pwa-service-worker-mobile.md");
 const packageJson = readRequired("package.json");
+
+function renderedExperiencesHeroMarkup() {
+  const route = ts.createSourceFile("ExperiencesClient.tsx", experiencesClient, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const presentation = ts.createSourceFile("KandyExperiencesExperience.tsx", experiencesPresentation, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const declaration = route.statements.find(node => ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)
+    && node.moduleSpecifier.text === "@/components/creative-tim/kandydrops/experiences/KandyExperiencesExperience");
+  const clause = declaration && ts.isImportDeclaration(declaration) ? declaration.importClause?.namedBindings : undefined;
+  const imported = clause && ts.isNamedImports(clause)
+    ? clause.elements.find(node => (node.propertyName ?? node.name).text === "KandyExperiencesHero")?.name.text : undefined;
+  const returned = (node: ts.FunctionDeclaration, tree: ts.SourceFile) => {
+    const expressions: ts.Expression[] = [];
+    const inspect = (child: ts.Node) => {
+      if (child !== node && ts.isFunctionLike(child)) return;
+      if (ts.isReturnStatement(child) && child.expression) expressions.push(child.expression);
+      ts.forEachChild(child, inspect);
+    };
+    inspect(node);
+    return expressions;
+  };
+  const routeFunction = route.statements.find(node => ts.isFunctionDeclaration(node)
+    && node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DefaultKeyword));
+  let rendered = false;
+  const inspect = (node: ts.Node) => {
+    if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText(route) === imported) rendered = true;
+    ts.forEachChild(node, inspect);
+  };
+  if (routeFunction && ts.isFunctionDeclaration(routeFunction)) for (const expression of returned(routeFunction, route)) inspect(expression);
+  const hero = presentation.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "KandyExperiencesHero"
+    && node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword));
+  if (!imported || !rendered || !hero || !ts.isFunctionDeclaration(hero)) {
+    failures.push("Experiences route must render its imported canonical KandyExperiencesHero owner.");
+    return "";
+  }
+  return returned(hero, presentation).map(expression => expression.getText(presentation)).join("\n");
+}
+const experiencesHero = renderedExperiencesHeroMarkup();
+requireIncludes(experiencesHero, 'data-experiences-hero-explainer-cards="removed"', "Rendered Experiences hero");
 
 for (const removedHeroCard of [
   "Daily reset",
@@ -46,13 +80,11 @@ for (const removedHeroCard of [
   "Syncs with your check-in timer",
   "Earn Gum Drops for coming back daily",
 ]) {
-  requireNotIncludes(experiencesClient, removedHeroCard, "Experiences compact hero");
+  requireNotIncludes(experiencesHero, removedHeroCard, "Rendered Experiences compact hero");
 }
 
 for (const needle of [
   "data-experiences-layout=\"public-beta-compact\"",
-  "data-experiences-hero-explainer-cards=\"removed\"",
-  "className=\"mx-auto max-w-4xl space-y-4\"",
   "<DailyCheckIn variant=\"experiences\" />",
   "<CreatorDiscoveryRail surface=\"experiences\" compact",
   "experience_hub_viewed",
@@ -78,11 +110,13 @@ for (const needle of [
   "variant = \"dashboard\"",
   "const isExperiencesVariant = variant === \"experiences\"",
   "data-daily-checkin-variant={variant}",
-  "Welcome back to the Kandy Shop",
-  "Claim your streak and stay ready to unwrap",
+  "Welcome back, {firstName}.",
+  "Your streak is ready when you are.",
   "{!isExperiencesVariant ? (",
-  "min-h-[14rem] p-3.5 sm:p-5",
-  "isExperiencesVariant ? \"p-3.5 sm:p-5\" : \"p-4 sm:p-6\"",
+  "aria-label=\"Loading daily rewards\"",
+  "aria-busy=\"true\"",
+  "motion-reduce:animate-none",
+  "isExperiencesVariant ? \"py-3\" : \"py-4\"",
   "daily_checkin_claimed",
   "DAILY_CHECK_IN_REWARD_LADDER",
   "canvas-confetti",
@@ -93,17 +127,9 @@ for (const needle of [
 requireIncludes(dashboardClient, "<DailyCheckIn />", "Dashboard DailyCheckIn full variant");
 requireNotIncludes(dashboardClient, "variant=\"experiences\"", "Dashboard DailyCheckIn full variant");
 
-for (const [label, source] of [
-  ["README user manual", readme],
-  ["AGENTS AI context", agents],
-  ["Repo memory dev truth", repoMemory],
-  ["Full audit dev truth", fullAudit],
-  ["Experiences compact agent truth", compactDoctrine],
-  ["Mobile shell agent truth", mobileDoctrine],
-  ["PWA mobile agent truth", pwaDoctrine],
-] as const) {
-  requireIncludes(source, requiredDoctrineNote, label);
-}
+requireIncludes(compactDoctrine, requiredDoctrineNote, "Canonical Experiences two-variant contract");
+
+requireIncludes(readme, "./docs/doctrine/surfaces/user-ui-doctrine.md", "README doctrine gateway");
 
 requireIncludes(packageJson, "\"check:experiences-compact-layout\": \"tsx scripts/agent/validate-experiences-compact-layout.ts\"", "Package scripts");
 

@@ -1,7 +1,7 @@
 {
   "score": 0,
   "status": "fail",
-  "generatedAt": "2026-07-14T16:08:43.448Z",
+  "generatedAt": "2026-10-03T19:30:40.774Z",
   "repoRoot": "C:\\Users\\uylus\\Documents\\KandyDrops_Final",
   "findings": [
     {
@@ -165,7 +165,7 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 3478,
+      "line": 3476,
       "excerpt": "if (laneKey === \"unlock_facts\") return \"required_operational_entitlement_truth\";",
       "duplicateCandidate": "entitlement, materializer, analytics_event_facts",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
@@ -176,7 +176,7 @@
         "materializer",
         "analytics_event_facts"
       ],
-      "id": "orphaned-logic-gptwq5",
+      "id": "orphaned-logic-ctzh0j",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -212,7 +212,7 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 763,
+      "line": 764,
       "excerpt": "identityLinkCount: identityLineageOwnerSummary.currentCount,",
       "duplicateCandidate": "identityLink, materializer, analytics_event_facts",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
@@ -223,7 +223,7 @@
         "materializer",
         "analytics_event_facts"
       ],
-      "id": "orphaned-logic-1vujwh2",
+      "id": "orphaned-logic-1woipjz",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -236,7 +236,7 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 2479,
+      "line": 2481,
       "excerpt": "await adminDb.runTransaction(async (transaction) => {",
       "duplicateCandidate": "runTransaction(, FieldValue.increment, gumDropsPurchasedBalance, entitlement, materializer, analytics_event_facts",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
@@ -250,7 +250,7 @@
         "materializer",
         "analytics_event_facts"
       ],
-      "id": "orphaned-logic-1i6waf0",
+      "id": "orphaned-logic-1dpmxmb",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -263,8 +263,8 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 339,
-      "excerpt": "let identityLinksCreated = 0;",
+      "line": 344,
+      "excerpt": "const identityLinksCreated = 0;",
       "duplicateCandidate": "identityLink, materializer",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
       "suggestedConsolidationTarget": "src/lib/server/",
@@ -273,7 +273,7 @@
         "identityLink",
         "materializer"
       ],
-      "id": "orphaned-logic-1l5i1y0",
+      "id": "orphaned-logic-k949sg",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -286,7 +286,7 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/analytics/ingest/route.ts",
-      "line": 514,
+      "line": 540,
       "excerpt": "const transactionResult = await adminDb.runTransaction(async (transaction) => {",
       "duplicateCandidate": "runTransaction(, FieldValue.increment, materializer",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
@@ -297,7 +297,7 @@
         "FieldValue.increment",
         "materializer"
       ],
-      "id": "orphaned-logic-14c31z1",
+      "id": "orphaned-logic-1yv4srw",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -354,7 +354,7 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 330,
+      "line": 329,
       "excerpt": "const claimState = await db.runTransaction(async (transaction) => {",
       "duplicateCandidate": "runTransaction(",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
@@ -363,7 +363,7 @@
       "evidence": [
         "runTransaction("
       ],
-      "id": "orphaned-logic-1dgh5pp",
+      "id": "orphaned-logic-aby1en",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -376,7 +376,7 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/checkin/route.ts",
-      "line": 63,
+      "line": 64,
       "excerpt": "const result = await adminDb.runTransaction(async (transaction) => {",
       "duplicateCandidate": "runTransaction(",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
@@ -385,7 +385,7 @@
       "evidence": [
         "runTransaction("
       ],
-      "id": "orphaned-logic-odlvty",
+      "id": "orphaned-logic-p7kowv",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -665,8 +665,8 @@
       "category": "route_inline_business_logic",
       "title": "Route handler appears to own business logic inline",
       "filePath": "src/app/api/user/delete/route.ts",
-      "line": 150,
-      "excerpt": "deleteQueryMatches(adminDb.collection(\"analytics_event_facts\").where(\"userId\", \"==\", uid), bulkWriter),",
+      "line": 179,
+      "excerpt": "deleteQueryMatches(adminDb.collection(\"analytics_event_facts\").where(\"userId\", \"==\", uid), bulkWriter, recordCleanupFailure),",
       "duplicateCandidate": "analytics_event_facts",
       "suggestedFix": "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
       "suggestedConsolidationTarget": "src/lib/server/",
@@ -674,7 +674,7 @@
       "evidence": [
         "analytics_event_facts"
       ],
-      "id": "orphaned-logic-1aghquh",
+      "id": "orphaned-logic-bs3xqo",
       "scoreImpact": -10,
       "canonicalOwner": "src/lib/server/",
       "affectedSurface": "api_route",
@@ -802,7 +802,7 @@
       "category": "component_business_truth",
       "title": "Component appears to own business truth instead of rendering canonical state",
       "filePath": "src/app/admin/debug/components/DebugTabMonitoring.tsx",
-      "line": 221,
+      "line": 218,
       "excerpt": "const identityLink = eventContext === \"identity_linkage\";",
       "duplicateCandidate": "identityLink, materializer, analytics_event_facts",
       "suggestedFix": "Move truth decisions to canonical hooks/services and keep the component as a renderer in a narrow follow-up.",
@@ -812,7 +812,7 @@
         "materializer",
         "analytics_event_facts"
       ],
-      "id": "orphaned-logic-plng8k",
+      "id": "orphaned-logic-1mm0hok",
       "scoreImpact": -5,
       "canonicalOwner": "canonical hook/service owner for the touched feature",
       "affectedSurface": "admin_ui_debug",
@@ -826,7 +826,7 @@
       "category": "component_business_truth",
       "title": "Component appears to own business truth instead of rendering canonical state",
       "filePath": "src/app/admin/user/[userId]/page.tsx",
-      "line": 273,
+      "line": 272,
       "excerpt": "gumDropsPurchasedBalance: 0,",
       "duplicateCandidate": "gumDropsPurchasedBalance, materializer",
       "suggestedFix": "Move truth decisions to canonical hooks/services and keep the component as a renderer in a narrow follow-up.",
@@ -835,7 +835,7 @@
         "gumDropsPurchasedBalance",
         "materializer"
       ],
-      "id": "orphaned-logic-1k7llr4",
+      "id": "orphaned-logic-1khl7g3",
       "scoreImpact": -5,
       "canonicalOwner": "canonical hook/service owner for the touched feature",
       "affectedSurface": "admin_ui_debug",
@@ -911,7 +911,7 @@
       "canAutofix": false
     }
   ],
-  "findingCount": 86,
+  "findingCount": 88,
   "findingsTruncated": true,
   "findingReportLimit": 40,
   "criticalCount": 0,
@@ -919,33 +919,32 @@
   "severityCounts": {
     "critical": 0,
     "major": 35,
-    "moderate": 31,
-    "minor": 10,
-    "info": 10
+    "moderate": 32,
+    "minor": 13,
+    "info": 8
   },
   "categoryCounts": {
     "vocabulary": 3,
     "telemetry_duplicate_intent": 1,
-    "duplicate_telemetry_emitter": 9,
+    "duplicate_telemetry_emitter": 7,
     "component_business_truth": 2,
     "route_inline_business_logic": 36,
-    "disconnected_test_validator_doc": 35
+    "disconnected_test_validator_doc": 39
   },
   "riskClassCounts": {
-    "low": 17,
-    "medium": 31,
+    "low": 18,
+    "medium": 32,
     "high": 33,
     "protected": 5,
     "manual_review": 0
   },
-  "scoreImpactTotal": -525,
+  "scoreImpactTotal": -536,
   "safeAutofixesAvailable": 0,
-  "scannedFileCount": 3026,
+  "scannedFileCount": 3125,
   "checkedFiles": [
     "src/app/drops/[id]/preview/page.tsx",
     "src/app/drops/DropsClient.tsx",
     "src/components/DropCard.tsx",
-    "src/components/DropPreviewModal.tsx",
     "src/components/FeaturedCarousel.tsx",
     "src/hooks/useDrops.ts",
     "src/lib/user-mobile-shell.ts",
@@ -959,7 +958,6 @@
     "src/app/drops/DropsClient.tsx",
     "src/components/DropCard.tsx",
     "src/components/DropCardLayout.tsx",
-    "src/components/DropPreviewModal.tsx",
     "src/components/FeaturedCarousel.tsx",
     "src/components/Drops/LockedDropPreviewClient.tsx",
     "src/components/Drops/LockedDropPreviewView.tsx",
@@ -1009,5 +1007,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 86 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
+  "summary": "Detected 88 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
 }

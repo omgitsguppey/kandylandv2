@@ -5,6 +5,7 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
+import { usePageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Card } from "@/components/creative-tim/ui/card";
 import { SignedInDashboardHeader } from "@/components/creative-tim/kandydrops/signed-in/SignedInDashboardHeader";
 import { SignedInDashboardJourney } from "@/components/creative-tim/kandydrops/signed-in/SignedInDashboardJourney";
@@ -19,7 +20,6 @@ import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
 import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
 import { getMobileSkeletonClass } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
-import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
 
 const userOverviewModuleClassName = getMobileModuleClassNames("user", "overview");
@@ -35,8 +35,8 @@ const RecentActivityFeed = dynamic(
         data-mobile-density="compact"
         data-mobile-sprawl-guard="true"
       >
-        <div className="h-5 w-40 rounded-lg bg-white/10" />
-        <div className="mt-3 h-20 rounded-2xl bg-white/5" />
+        <div className="h-5 w-40 rounded-lg bg-muted" />
+        <div className="mt-3 h-20 rounded-2xl bg-muted" />
       </div>
     ),
   },
@@ -48,7 +48,7 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ drops, creatorRailProfiles }: DashboardClientProps) {
-  const { userProfile, loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
   const { openPurchaseModal } = useUI();
   const router = useRouter();
   const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
@@ -57,18 +57,16 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
     () => mergeResolvedDropsById(drops, liveActiveDrops, nowMs),
     [drops, liveActiveDrops, nowMs],
   );
-  const isCreatorPrimaryDashboard = userProfile?.role === "creator";
-  const collectionCount = Array.isArray(userProfile?.unlockedContent) ? userProfile.unlockedContent.length : 0;
+  const profileReady = !loading && Boolean(user && userProfile?.uid === user.uid);
+  const isCreatorPrimaryDashboard = profileReady && userProfile?.role === "creator";
   const profileBalance = Number(userProfile?.gumDropsBalance ?? 0);
   const gumDropsBalance = Number.isFinite(profileBalance) ? Math.max(0, profileBalance) : 0;
 
-  useEffect(() => {
-    if (!userProfile) {
-      return;
-    }
-
-    trackEvent("dashboard_viewed");
-  }, [userProfile]);
+  usePageViewEvent({
+    eventName: "dashboard_viewed",
+    actor: { id: user?.uid ?? null, loading },
+    ready: profileReady,
+  });
 
   useEffect(() => {
     if (!isCreatorPrimaryDashboard) {
@@ -78,10 +76,10 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
     router.replace(CREATOR_DASHBOARD_ROUTE);
   }, [isCreatorPrimaryDashboard, router]);
 
-  if (loading || !userProfile) {
+  if (!profileReady || !userProfile) {
     return (
       <div
-        className="relative isolate mx-auto w-full max-w-7xl overflow-x-clip px-3 sm:px-4"
+        className="mx-auto w-full min-w-0 max-w-7xl px-4"
         data-mobile-density="compact"
         data-mobile-sprawl-guard="true"
         data-mobile-organization="summary-first"
@@ -109,8 +107,8 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
         data-creator-dashboard-route-boundary="redirect_to_creator_dashboard"
         data-user-dashboard-modules-rendered="false"
       >
-        <Card className="gap-0 rounded-2xl border-white/10 bg-black/50 p-0 text-sm text-white shadow-xl shadow-black/20">
-          <div className="px-4 py-3">Opening Creator Dashboard...</div>
+        <Card className="min-w-0 gap-0 p-4 text-sm" role="status">
+          <p>Opening Creator Dashboard...</p>
         </Card>
       </div>
     );
@@ -120,7 +118,7 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
     <div
       id="dashboard-home"
       tabIndex={-1}
-      className="relative isolate mx-auto w-full max-w-7xl scroll-mt-24 overflow-x-clip px-3 pb-8 outline-none sm:px-4 lg:pb-10"
+      className="mx-auto w-full min-w-0 max-w-7xl scroll-mt-24 px-4 pb-8 outline-none"
       data-onboarding-page="dashboard"
       data-dashboard-surface="user_dashboard"
       data-mobile-density="compact"
@@ -130,12 +128,10 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
       data-desktop-flow-collapsed="true"
       data-user-dashboard-loading-staged="true"
     >
-      <div className="pointer-events-none absolute inset-x-20 top-8 -z-10 h-64 rounded-full bg-brand-purple/15 blur-3xl motion-reduce:hidden" aria-hidden="true" />
       <SignedInDashboardJourney
         header={(
           <SignedInDashboardHeader
             gumDropsBalance={gumDropsBalance}
-            collectionCount={collectionCount}
             onWalletPress={() => openPurchaseModal()}
           />
         )}

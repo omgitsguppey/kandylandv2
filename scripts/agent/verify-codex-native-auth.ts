@@ -18,7 +18,7 @@ import {
 } from "../../src/lib/config-hardening/devops/auth-surface-contract";
 import { ensureDirectory, nowIso, writeJsonFile, type Json } from "./shared";
 
-type CommandResult = {
+export type CommandResult = {
   command: string;
   ok: boolean;
   status: number | null;
@@ -34,13 +34,35 @@ function commandLabel(tool: string, args: string[]) {
   return [tool, ...args].join(" ");
 }
 
-function runCommand(tool: string, args: string[], timeoutMs = 15000): CommandResult {
-  const result = spawnSync(tool, args, {
+export function runCommand(tool: string, args: string[], timeoutMs = 15000): CommandResult {
+  const options = {
     cwd: root,
-    encoding: "utf8",
+    encoding: "utf8" as const,
     timeout: timeoutMs,
     windowsHide: true,
-  });
+  };
+  let result = spawnSync(tool, args, options);
+  // Node cannot directly launch Windows .cmd/.ps1 wrappers. Retry only a
+  // failed launch, never a command that already ran and returned a failure.
+  if (process.platform === "win32" && result.error && result.pid === 0) {
+    const literal = (value: string) => `'${value.replace(/'/gu, "''")}'`;
+    const program = [
+      "$ErrorActionPreference = 'Stop'",
+      "[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)",
+      `$command = Get-Command -Name ${literal(tool)} -CommandType Application,ExternalScript -ErrorAction SilentlyContinue | Select-Object -First 1`,
+      "if (-not $command) { [Console]::Error.WriteLine('CODEX_AUTH_TOOL_MISSING'); exit 127 }",
+      `$arguments = @(${args.map(literal).join(", ")})`,
+      // Batch wrappers add CMD parsing; this lane only needs simple metadata
+      // tokens. Fail closed for arguments that could become batch syntax.
+      "if ($command.Source -match '\\.(cmd|bat)$' -and @($arguments | Where-Object { $_ -notmatch '^[A-Za-z0-9_=:/\\\\.\-]+$' }).Count) { [Console]::Error.WriteLine('Unsupported batch argument'); exit 64 }",
+      "& $command.Source @arguments",
+      "$succeeded = $?",
+      "if ($null -ne $LASTEXITCODE) { exit $LASTEXITCODE }",
+      "if (-not $succeeded) { exit 1 }",
+    ].join("\n");
+    const powershell = path.join(process.env.SystemRoot ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+    result = spawnSync(powershell, ["-NoProfile", "-NonInteractive", "-EncodedCommand", Buffer.from(program, "utf16le").toString("base64")], options);
+  }
 
   const error = result.error as NodeJS.ErrnoException | undefined;
   return {
@@ -48,9 +70,9 @@ function runCommand(tool: string, args: string[], timeoutMs = 15000): CommandRes
     ok: result.status === 0 && !error,
     status: result.status,
     stdout: typeof result.stdout === "string" ? result.stdout : "",
-    stderr: typeof result.stderr === "string" ? result.stderr : "",
+    stderr: (typeof result.stderr === "string" ? result.stderr : "") || (error ? `Process error: ${error.code ?? "unknown"}` : ""),
     timedOut: error?.code === "ETIMEDOUT",
-    toolMissing: error?.code === "ENOENT",
+    toolMissing: error?.code === "ENOENT" || (result.status === 127 && String(result.stderr).includes("CODEX_AUTH_TOOL_MISSING")),
   };
 }
 
@@ -63,8 +85,8 @@ function parseJson<T>(result: CommandResult): T | null {
   }
 }
 
-function toolExists(tool: string) {
-  const probe = runCommand(tool, ["--version"], 10000);
+function toolExists(tool: string, execute = runCommand) {
+  const probe = execute(tool, ["--version"], 10000);
   return !probe.toolMissing;
 }
 
@@ -191,14 +213,14 @@ function githubRepoSurface(githubCli: AuthSurfaceStatus): AuthSurfaceStatus {
   });
 }
 
-function gcloudSurface(projectId: string): AuthSurfaceStatus {
+export function gcloudSurface(projectId: string, execute = runCommand): AuthSurfaceStatus {
   const safeReadCommands = [
     "gcloud auth list --format=json",
     "gcloud config get-value project",
     `gcloud projects describe ${projectId} --format=json`,
     `gcloud services list --enabled --project ${projectId} --format=json`,
   ];
-  if (!toolExists("gcloud")) {
+  if (!toolExists("gcloud", execute)) {
     return createAuthSurfaceStatus({
       surface: "Google Cloud CLI",
       tool: "gcloud",
@@ -209,7 +231,7 @@ function gcloudSurface(projectId: string): AuthSurfaceStatus {
     });
   }
 
-  const authList = runCommand("gcloud", ["auth", "list", "--filter=status:ACTIVE", "--format=json"], 15000);
+  const authList = execute("gcloud", ["auth", "list", "--filter=status:ACTIVE", "--format=json"], 15000);
   const accounts = parseJson<Array<{ account?: string; status?: string }>>(authList) ?? [];
   const principal = accounts.find((account) => account.status === "ACTIVE")?.account ?? accounts[0]?.account;
   if (!authList.ok || !principal) {
@@ -223,24 +245,26 @@ function gcloudSurface(projectId: string): AuthSurfaceStatus {
     });
   }
 
-  const activeProject = runCommand("gcloud", ["config", "get-value", "project"], 10000).stdout.trim();
-  if (activeProject !== projectId) {
+  // Every service read carries an explicit project. A different global
+  // default is not an access failure and must not require changing user state.
+  const describe = execute("gcloud", ["projects", "describe", projectId, "--format=json"], 20000);
+  const describedProject = parseJson<{ projectId?: string }>(describe);
+  if (describe.ok && describedProject?.projectId !== projectId) {
     return createAuthSurfaceStatus({
       surface: "Google Cloud CLI",
       tool: "gcloud",
       authenticated: true,
       status: "wrong_project",
       principal,
-      projectId: activeProject || null,
+      projectId: describedProject?.projectId ?? null,
       canRead: false,
-      recommendedNextStep: `Set the active project to ${projectId} before service-specific cloud checks.`,
+      recommendedNextStep: `Reconcile the returned project identity with ${projectId} before service-specific cloud checks.`,
       safeReadCommands,
     });
   }
 
-  const describe = runCommand("gcloud", ["projects", "describe", projectId, "--format=json"], 20000);
   const services = describe.ok
-    ? runCommand("gcloud", ["services", "list", "--enabled", "--project", projectId, "--format=json"], 30000)
+    ? execute("gcloud", ["services", "list", "--enabled", "--project", projectId, "--format=json"], 30000)
     : describe;
   const status: AuthSurfaceStatusCode = describe.ok && services.ok ? "ok" : summarizeStatusFromFailure(describe.ok ? services : describe);
   return createAuthSurfaceStatus({
@@ -535,58 +559,62 @@ function envSurface(input: {
   });
 }
 
-const projectId = resolveProjectId();
-const githubCli = githubCliSurface();
-const githubRepo = githubRepoSurface(githubCli);
-const gcloud = gcloudSurface(projectId);
-const firebase = firebaseSurface(projectId);
-const bq = bqSurface(projectId, gcloud);
-const cloud = cloudSurfaces(projectId, gcloud);
-const paypal = envSurface({
-  surface: "PayPal env/config",
-  keys: ["NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE", "PAYPAL_CLIENT_ID", "PAYPAL_SECRET", "PAYPAL_CLIENT_SECRET"],
-  documentedKeys: ["NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE", "PAYPAL_CLIENT_ID", "PAYPAL_SECRET", "PAYPAL_CLIENT_SECRET"],
-  recommendedOk: "PayPal config keys are declared or present.",
-  recommendedMissing: "Document or provide PayPal client/secret env names before any PayPal API automation.",
-});
-const analyticsEnv = envSurface({
-  surface: "PostHog / GA env/config",
-  keys: ["NEXT_PUBLIC_POSTHOG_KEY", "NEXT_PUBLIC_POSTHOG_HOST", "GA_PROPERTY_ID", "NEXT_PUBLIC_GA_MEASUREMENT_ID"],
-  documentedKeys: ["NEXT_PUBLIC_POSTHOG_KEY", "NEXT_PUBLIC_POSTHOG_HOST", "GA_PROPERTY_ID", "NEXT_PUBLIC_GA_MEASUREMENT_ID"],
-  recommendedOk: "PostHog/GA config keys are declared or present.",
-  recommendedMissing: "Document or provide PostHog/GA env names before external analytics API automation.",
-});
+function main() {
+  const projectId = resolveProjectId();
+  const githubCli = githubCliSurface();
+  const githubRepo = githubRepoSurface(githubCli);
+  const gcloud = gcloudSurface(projectId);
+  const firebase = firebaseSurface(projectId);
+  const bq = bqSurface(projectId, gcloud);
+  const cloud = cloudSurfaces(projectId, gcloud);
+  const paypal = envSurface({
+    surface: "PayPal env/config",
+    keys: ["NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE", "PAYPAL_CLIENT_ID", "PAYPAL_SECRET", "PAYPAL_CLIENT_SECRET"],
+    documentedKeys: ["NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE", "PAYPAL_CLIENT_ID", "PAYPAL_SECRET", "PAYPAL_CLIENT_SECRET"],
+    recommendedOk: "PayPal config keys are declared or present.",
+    recommendedMissing: "Document or provide PayPal client/secret env names before any PayPal API automation.",
+  });
+  const analyticsEnv = envSurface({
+    surface: "PostHog / GA env/config",
+    keys: ["NEXT_PUBLIC_POSTHOG_KEY", "NEXT_PUBLIC_POSTHOG_HOST", "GA_PROPERTY_ID", "NEXT_PUBLIC_GA_MEASUREMENT_ID"],
+    documentedKeys: ["NEXT_PUBLIC_POSTHOG_KEY", "NEXT_PUBLIC_POSTHOG_HOST", "GA_PROPERTY_ID", "NEXT_PUBLIC_GA_MEASUREMENT_ID"],
+    recommendedOk: "PostHog/GA config keys are declared or present.",
+    recommendedMissing: "Document or provide PostHog/GA env names before external analytics API automation.",
+  });
 
-const surfaces = [githubCli, githubRepo, gcloud, firebase, bq, ...cloud, paypal, analyticsEnv];
-const summary = deriveReadinessSummary(surfaces);
-const safeNextCommands = surfaces
-  .flatMap((surface) => surface.safeReadCommands)
-  .filter((command, index, commands) => commands.indexOf(command) === index)
-  .sort();
-const report: CodexAuthReadinessReport = {
-  generatedAt: nowIso(),
-  projectId,
-  overallStatus: summary.overallStatus,
-  surfaces,
-  canCodexRunCloudReadChecks: summary.canCodexRunCloudReadChecks,
-  canCodexSetupWif: summary.canCodexSetupWif,
-  manualBootstrapNeeded: summary.manualBootstrapNeeded,
-  missingTools: summary.missingTools,
-  missingAuth: summary.missingAuth,
-  insufficientScopes: summary.insufficientScopes,
-  safeNextCommands,
-  blockedMutationCommands: [...BLOCKED_MUTATION_COMMANDS],
-  recommendedAutomationPlan: buildWifBootstrapPlan(projectId),
-};
+  const surfaces = [githubCli, githubRepo, gcloud, firebase, bq, ...cloud, paypal, analyticsEnv];
+  const summary = deriveReadinessSummary(surfaces);
+  const safeNextCommands = surfaces
+    .flatMap((surface) => surface.safeReadCommands)
+    .filter((command, index, commands) => commands.indexOf(command) === index)
+    .sort();
+  const report: CodexAuthReadinessReport = {
+    generatedAt: nowIso(),
+    projectId,
+    overallStatus: summary.overallStatus,
+    surfaces,
+    canCodexRunCloudReadChecks: summary.canCodexRunCloudReadChecks,
+    canCodexSetupWif: summary.canCodexSetupWif,
+    manualBootstrapNeeded: summary.manualBootstrapNeeded,
+    missingTools: summary.missingTools,
+    missingAuth: summary.missingAuth,
+    insufficientScopes: summary.insufficientScopes,
+    safeNextCommands,
+    blockedMutationCommands: [...BLOCKED_MUTATION_COMMANDS],
+    recommendedAutomationPlan: buildWifBootstrapPlan(projectId),
+  };
 
-ensureDirectory(path.dirname(path.join(root, AUTH_READINESS_REPORT_PATH)));
-writeJsonFile(AUTH_READINESS_REPORT_PATH, report as unknown as Json);
+  ensureDirectory(path.dirname(path.join(root, AUTH_READINESS_REPORT_PATH)));
+  writeJsonFile(AUTH_READINESS_REPORT_PATH, report as unknown as Json);
 
-console.log(`Codex auth readiness written to ${AUTH_READINESS_REPORT_PATH}`);
-console.log(`Overall status: ${report.overallStatus}`);
-if (report.missingTools.length > 0) console.log(`Missing tools: ${report.missingTools.join(", ")}`);
-if (report.missingAuth.length > 0) console.log(`Missing auth: ${report.missingAuth.join(", ")}`);
-if (report.insufficientScopes.length > 0) console.log(`Insufficient/wrong project: ${report.insufficientScopes.join(", ")}`);
-if (envPresent(["GITHUB_TOKEN", "GOOGLE_APPLICATION_CREDENTIALS"])) {
-  console.log("Credential-like environment variables were detected but values were not printed.");
+  console.log(`Codex auth readiness written to ${AUTH_READINESS_REPORT_PATH}`);
+  console.log(`Overall status: ${report.overallStatus}`);
+  if (report.missingTools.length > 0) console.log(`Missing tools: ${report.missingTools.join(", ")}`);
+  if (report.missingAuth.length > 0) console.log(`Missing auth: ${report.missingAuth.join(", ")}`);
+  if (report.insufficientScopes.length > 0) console.log(`Insufficient/wrong project: ${report.insufficientScopes.join(", ")}`);
+  if (envPresent(["GITHUB_TOKEN", "GOOGLE_APPLICATION_CREDENTIALS"])) {
+    console.log("Credential-like environment variables were detected but values were not printed.");
+  }
 }
+
+if (require.main === module) main();

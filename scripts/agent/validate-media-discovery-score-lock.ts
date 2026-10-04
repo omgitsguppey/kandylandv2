@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -619,11 +620,10 @@ ${report.validationFailures.length === 0 ? "- No validation failures." : report.
 }
 
 function main() {
-  const dirtyFiles = git(["diff", "--name-only"]).split(/\r?\n/u).filter(Boolean)
-    .concat(git(["ls-files", "--others", "--exclude-standard"]).split(/\r?\n/u).filter(Boolean));
+  const dirtyFiles = listValidatorScopeFiles();
   const report = buildMediaDiscoveryScoreLockReport({ dirtyFiles });
   fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
-  fs.writeFileSync(STATE_PATH, `${JSON.stringify(report, null, 2)}\n`);
+  fs.writeFileSync(STATE_PATH, `${JSON.stringify(withValidatorMutationScope(report), null, 2)}\n`);
   writeDoc(report);
   if (report.validationFailures.length > 0) {
     console.error(`media discovery score lock failed:\n${report.validationFailures.map((failure) => `- ${failure}`).join("\n")}`);

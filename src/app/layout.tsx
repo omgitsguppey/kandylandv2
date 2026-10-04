@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { Geist, Geist_Mono } from "next/font/google";
+import { USER_MOBILE_BOTTOM_NAV_EXPANDED_RESERVATION_CLASS_NAME } from "@/lib/user-mobile-shell";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { AdminViewAsProvider } from "@/context/AdminViewAsContext";
@@ -19,16 +19,6 @@ import {
   normalizeAdminUiTestSessionCookieValue,
 } from "@/lib/admin/admin-ui-test-session";
 import { isKandyLocalPublicPreview } from "@/lib/server/local-public-preview";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const siteTitle = "KandyDrops";
 const siteDescription = "Get Gum Drops, unlock exclusive digital content, and stay ready for the next live drop.";
@@ -118,11 +108,10 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
       data-kandy-local-preview={isLocalPublicPreview ? "true" : undefined}
       suppressHydrationWarning
     >
-      <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
+      <body className="antialiased min-h-[100dvh] app-bg text-foreground flex flex-col">
         {!isLocalPublicPreview ? <UIDebug /> : null}
         {!isLocalPublicPreview ? <Ga4EvidenceTracker /> : null}
         <RootTelemetryBoundary isLocalPublicPreview={isLocalPublicPreview}>
@@ -135,7 +124,7 @@ export default async function RootLayout({
                 <SWRProvider>
                   <UIProvider>
                     <CoreLayoutWrapper>
-                      <main className="pt-[var(--root-shell-top-spacing,6rem)] pb-[var(--user-mobile-bottom-nav-reserved-height,0px)] md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
+                      <main className={`pt-[var(--root-shell-top-spacing,0px)] pb-[var(--user-mobile-bottom-nav-reserved-height,0px)] ${USER_MOBILE_BOTTOM_NAV_EXPANDED_RESERVATION_CLASS_NAME} flex-1 relative flex flex-col overflow-x-hidden`}>
 
                         {/* Content */}
                         <div className="relative z-10 flex-1 w-full">

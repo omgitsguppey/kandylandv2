@@ -1,8 +1,8 @@
 {
   "reportKey": "final-parity-telemetry-lock",
-  "generatedAtUtc": "2026-07-16T04:26:33.626Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-01T20:47:34.709Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "passed": true,
   "currentHeadSource": "git",
@@ -1016,8 +1016,8 @@
       ]
     }
   ],
-  "scoreBefore": 63.18,
-  "scoreAfter": 63.18,
+  "scoreBefore": 55.1,
+  "scoreAfter": 55.1,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -1043,14 +1043,14 @@
     },
     {
       "proofClass": "provider_smoke",
-      "status": "stale",
+      "status": "missing",
       "required": true,
       "evidenceKind": "provider",
       "nextAction": "Attach redacted provider-backed site activity evidence; operator reports do not clear this gate."
     },
     {
       "proofClass": "admin_truth_sample",
-      "status": "stale",
+      "status": "missing",
       "required": true,
       "evidenceKind": "admin",
       "nextAction": "Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts."
@@ -1077,15 +1077,23 @@
     "Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts.",
     "Run npm run check:final-parity-telemetry-lock after any parity, telemetry, state, role, or debug-lane change."
   ],
-  "dirtyFiles": [
-    {
-      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    }
-  ],
-  "validationFailures": []
+  "dirtyFiles": [],
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

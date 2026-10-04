@@ -133,7 +133,7 @@ describe("CreatorDiscoveryRail home spotlight", () => {
     render(<CreatorDiscoveryRail surface="home" initialCreators={creators} />);
     const oldSupportCopy = ["Follow creators to unlock drops", "and private requests."].join(" ");
 
-    expect(screen.getByText("CREATOR SPOTLIGHT")).toBeInTheDocument();
+    expect(screen.getByText("Creator spotlight")).toBeInTheDocument();
     expect(screen.getByText("Follow creators to unwrap drops and exclusive experiences.")).toBeInTheDocument();
     expect(screen.queryByText(oldSupportCopy)).not.toBeInTheDocument();
 
@@ -143,7 +143,8 @@ describe("CreatorDiscoveryRail home spotlight", () => {
     expect(jessiImage).toHaveAttribute("sizes");
     expect(jessiImage).toHaveAttribute("data-creator-spotlight-image", "stable-frame");
     expect(jessiImage.closest("[data-creator-spotlight-avatar-frame]")).toHaveAttribute("data-creator-spotlight-avatar-frame", "fixed");
-    expect(screen.getAllByRole("button", { name: "Follow" })).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Follow @jessirayxo" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Follow @zaylanimo" })).toBeInTheDocument();
   });
 
   it("preserves follow behavior and emits one canonical follow attempt per click", async () => {
@@ -161,7 +162,7 @@ describe("CreatorDiscoveryRail home spotlight", () => {
 
     render(<CreatorDiscoveryRail surface="home" initialCreators={creators} />);
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Follow" })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Follow @jessirayxo" }));
 
     await waitFor(() => {
       expect(mockState.authFetch).toHaveBeenCalledWith("/api/creator/relationships", expect.objectContaining({

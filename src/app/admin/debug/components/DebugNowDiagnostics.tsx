@@ -1,13 +1,13 @@
 "use client";
 
-import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
+import { type AdminSurfaceState } from "@/lib/admin-parity";
 import {
     adminTruthStateForNoSampleStatus,
     badgeLabelForNoSampleStatus,
     classifyNoSampleStatus,
 } from "@/lib/debug/no-sample-status-classifier";
 import { DebugPanelStatusBySection } from "./DebugPanelStatusBySection";
-import { Pill, Section, ScrollWrap, labelForPanelStatus, toneForPanelStatus, truthStateForPanelStatus } from "./DebugPrimitives";
+import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
 import { formatRecentActivity as formatRelative, formatUtcTimestamp as formatUtc, formatWindowHours } from "./DebugTime";
 
 /* ─── Helpers ─── */

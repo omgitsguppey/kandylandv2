@@ -7,8 +7,9 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 
 ## Phase 1 Patch Acceptance
 
-- During Phase 1 stabilization, every accepted patch batch must create or update a Beta badge-visible release note.
+- During Phase 1 stabilization, every accepted patch batch must create or update a Beta badge-visible release note when the operator accepts that batch into a public beta release. A maintenance source/config/UI increment does not itself create that acceptance.
 - The Beta badge is the operator's manual stale-version detector during Phase 1.
+- Badge age is a visible diagnostic, not release integrity. An unchanged accepted release does not become invalid after 24 hours. Integrity checks require synchronized version/counter/commit/changelog artifacts, valid timestamps that are not in the future, and verified commit ancestry; retain their existing copy, privacy and automation safeguards. Never refresh a note timestamp or increment a counter to clear an age warning without a new accepted public beta release.
 - Internal-only accepted patches still require a badge-visible note using safe generic copy such as `Bug fixes and general improvements.`, `Bug fixes and performance improvements.`, or `Improved internal beta reliability.`
 - User-facing accepted patches require specific app-style user-facing copy that explains what changed for users.
 - Multiple commits may be grouped only when they are part of the same accepted patch batch and ship together.
@@ -51,9 +52,9 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 
 - `npm run release:notes` may normalize the public changelog without creating a new accepted release.
 - `npm run release:notes:accept` prepares the next accepted public beta patch batch locally and increments `betaReleaseCounter` by exactly 1 before the real patch is committed.
-- Patch notes are same-commit artifacts. Accepted source/config/UI patches must ship their Beta badge release-note artifacts in the same commit.
+- Patch notes are same-commit artifacts. Source/config/UI patches accepted into a public beta release must ship their Beta badge release-note artifacts in the same commit.
 - Automation validates; it does not create follow-up commits.
-- Codex must run release-note generation before committing a real patch, then stage code/docs and release artifacts together.
+- Codex must run release-note generation before committing an accepted public beta patch, then stage code/docs and release artifacts together.
 - Separate docs(release) commits are legacy/forbidden except explicit manual recovery.
 - Cloud and GitHub release-note automation must not create a new public beta release, commit generated artifacts, or push follow-up patch-note commits.
 - GitHub Actions release-note workflow is workflow_dispatch-only while hosted-runner billing is locked.
@@ -64,7 +65,7 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 - Release-note-only recovery commits must include `[skip release-notes]` and must not create another Beta badge commit.
 - A skipped Public Beta Release Notes Cloud Build lane is not a failure when the commit only touches release-note artifacts.
 - GitHub Actions hosted-runner billing lock is external infrastructure status, not app failure. Firebase App Hosting rollout status, local validators, and GitHub runner billing status are separate signals.
-- `.github/workflows/ci.yml` runs `npm run check:release-notes` so stale or invalid release notes fail lightweight CI.
+- `.github/workflows/ci.yml` runs `npm run check:release-notes` so unsynchronized or invalid accepted-release artifacts fail lightweight CI. The badge's existing age/fallback labels remain runtime diagnostics.
 
 ## Copy Rules
 

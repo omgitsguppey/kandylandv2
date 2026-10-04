@@ -176,7 +176,7 @@ export function DebugGumdropRecoverySummary({
         className="mt-3 rounded-md border border-white/10 bg-white/[0.03] px-2 py-1"
         data-admin-debug-gumdrop-recovery-details="collapsed_by_default"
       >
-        <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">
+        <summary className="min-h-11 cursor-pointer pt-2 font-semibold text-gray-100">
           Recovery labels and next action
         </summary>
         <div className="mt-2 space-y-2 pb-2">

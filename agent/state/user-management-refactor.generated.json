@@ -1,7 +1,7 @@
 {
   "reportKey": "user-management-refactor",
-  "generatedAtUtc": "2026-07-16T04:23:30.235Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-03T20:24:42.133Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
@@ -499,7 +499,7 @@
         "source": "src/lib/admin/user-management-contract.ts"
       },
       "lastActivity": {
-        "timestampMs": 1784175751228,
+        "timestampMs": 1791059023309,
         "source": "analytics_users_rollup",
         "freshness": "recent"
       },
@@ -561,71 +561,32 @@
       "reason": "User management now shows summary-first metrics with low-confidence source explanations."
     }
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/activity-verification-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/role-permission-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/surface-state-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/monolith-orphan-metric-registry.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/role-permission-parity.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/surface-state-parity.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    }
-  ],
+  "dirtyFiles": [],
   "oldUserManagementLogic": [],
   "validationFailures": [],
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "passed": true,
-  "canClearSourceGate": true
+  "canClearSourceGate": true,
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-maintenance-users-release-20261003",
+    "inputHash": "e04a5b8ba47d97cd2597b17c03fc114374f9fe7cabb81a2bef8be5363a5de358",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "69353e31eb118358ab3fba907914f00f642aaa45ea62718795a6f8a0ef4a8c34",
+    "changedFiles": [
+      "docs/agent-truth/maintenance-mode-cost-contract.md",
+      "middleware.ts",
+      "scripts/check-maintenance-config.ts",
+      "shared/runtime/maintenance-mode-contract.ts",
+      "src/components/creative-tim/kandydrops/admin-users/AdminUsersOperations.tsx",
+      "tests/contracts/maintenance-mode-cost-boundary.spec.ts",
+      "tests/unit/admin-analytics-refresh-route.spec.ts",
+      "tests/unit/admin-mobile-components.spec.tsx",
+      "tests/unit/maintenance-middleware.spec.ts",
+      "tests/unit/maintenance-mode-contract.spec.ts"
+    ],
+    "inheritedDirtySourceFileCount": 597,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

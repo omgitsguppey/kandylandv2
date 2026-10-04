@@ -9,6 +9,7 @@ export const ANALYTICS_INGEST_EVENT_TYPES = [
   "visibility",
   "page_view",
   "page_leave",
+  "session",
 ] as const;
 
 export type AnalyticsIngestEventType = (typeof ANALYTICS_INGEST_EVENT_TYPES)[number];

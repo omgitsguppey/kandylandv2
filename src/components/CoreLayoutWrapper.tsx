@@ -26,7 +26,7 @@ import { ADMIN_SHELL_ROUTE_CLASS } from "@/lib/admin-shell-spacing";
 import {
     USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
-    USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT,
+    USER_MOBILE_CHAT_TOP_GAP,
 } from "@/lib/user-mobile-shell";
 import { detectDeviceDisplayMode, isIosStandalonePwa, type DeviceDisplayMode } from "@/lib/device-layout-contract";
 
@@ -92,7 +92,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         "--user-mobile-bottom-nav-reserved-height": mobileBottomNavReservedHeight,
         ...(isChatRoute
             ? {
-                "--root-shell-top-spacing": USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT,
+                "--root-shell-top-spacing": USER_MOBILE_CHAT_TOP_GAP,
                 "--user-mobile-chat-bottom-reserved-height": USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
             }
             : {}),

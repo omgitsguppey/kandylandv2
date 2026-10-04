@@ -94,7 +94,7 @@ export function useAdminOverviewRealtime(options: { enabled?: boolean } = {}) {
       },
       realtimeDebugMeta: {
         ...SNAPSHOT_READY_DEBUG_META,
-        lastServerConfirmedAt: serverData.generatedAt,
+        lastServerConfirmedAt: serverData.verification?.status === "unavailable" ? 0 : serverData.generatedAt,
         lastClientSnapshotAt: serverData.generatedAt,
       },
     } satisfies AdminOverviewResponse;

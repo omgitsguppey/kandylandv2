@@ -64,8 +64,9 @@ describe("ContentManagerPage", () => {
     expect(await screen.findByText(/source_missing: storage source is not loaded in this fixture/i)).toBeInTheDocument();
     expect(screen.getByText(/Storage source unavailable/i)).toBeInTheDocument();
     expect(screen.getByText(/source_missing: storage source is not loaded in this fixture/i)).toHaveAttribute("data-admin-content-source-state", "source_missing");
-    expect(screen.getByRole("button", { name: /All --/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Upload needs admin/i })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "Asset inspection category" })).toHaveValue("All");
+    expect(screen.getByRole("option", { name: "All --" })).toBeInTheDocument();
+    expect(screen.getByText("Upload needs admin")).toBeInTheDocument();
     expect(screen.getByLabelText("Upload content file")).toBeDisabled();
     expect(mockState.authFetch).not.toHaveBeenCalled();
   });
@@ -85,6 +86,6 @@ describe("ContentManagerPage", () => {
     await waitFor(() => expect(mockState.authFetch).toHaveBeenCalledWith("/api/admin/content", { cache: "no-store" }));
     expect(screen.queryByText(/source_missing: storage source is not loaded in this fixture/i)).not.toBeInTheDocument();
     expect(await screen.findByText(/No drop assets found/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Upload file/i })).toBeEnabled();
+    expect(screen.getByLabelText("Upload content file")).toBeEnabled();
   });
 });

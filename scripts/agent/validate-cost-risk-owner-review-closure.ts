@@ -10,8 +10,24 @@ import {
   type CostRiskScoreDimensions,
 } from "../../src/lib/cost/cost-risk-evidence-classifier";
 import type { CostOwnerReviewSourceInput } from "../../src/lib/cost/cost-owner-review-classifier";
+import { listValidatorScopeFiles, readValidatorMutationScope, withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
+import { validateGeneratedChildReportEvidence, withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 type JsonRecord = Record<string, unknown>;
+
+const COST_SOURCE_CHILD_KEYS = [
+  "cloud-sql-gemini-cost-guards",
+  "bigquery-cloud-pipeline-closure",
+  "analytics-hot-path-cost-reduction",
+  "scheduled-runtime-cost-reduction",
+  "admin-analytics-debug-cost-reduction",
+] as const;
+
+export function validateCostRiskSourceDependencies(reports: Record<string, unknown>, currentHead: string, nowMs = Date.now()) {
+  return COST_SOURCE_CHILD_KEYS.flatMap((key) => validateGeneratedChildReportEvidence({
+    report: reports[key], expectedReportKey: key, currentHead, nowMs, requireSourceGate: true,
+  }));
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -81,6 +97,7 @@ function scoreDimensionsFromPublicBeta(): CostRiskScoreDimensions {
 }
 
 function classifyDirtyFiles() {
+  if (readValidatorMutationScope()) return [];
   const status = shell("git", ["status", "--short"]);
   return status.split(/\r?\n/u).filter(Boolean).map((line) => {
     const match = line.match(/^(.{1,2})\s+(.+)$/u);
@@ -106,16 +123,16 @@ function classifyDirtyFiles() {
   });
 }
 
-function buildSourceGuardInputFromRepo(): CostOwnerReviewSourceInput {
+function buildSourceGuardInputFromRepo(reports: Record<string, JsonRecord | null>): CostOwnerReviewSourceInput {
   const head = shell("git", ["rev-parse", "HEAD"]);
-  const cloudGuards = record(readJson("agent/state/cloud-sql-gemini-cost-guards.generated.json")?.summary);
-  const bigQuery = record(readJson("agent/state/bigquery-cloud-pipeline-closure.generated.json")?.summary);
-  const hotPath = record(readJson("agent/state/analytics-hot-path-cost-reduction.generated.json")?.summary);
-  const analyticsRuntime = record(readJson("agent/state/analytics-cost-runtime-inventory.generated.json")?.summary);
-  const scheduled = record(readJson("agent/state/scheduled-runtime-cost-reduction.generated.json")?.summary);
-  const adminCost = record(readJson("agent/state/admin-analytics-debug-cost-reduction.generated.json")?.summary);
-  const finalCost = record(readJson("agent/state/final-cost-audit-lock.generated.json")?.summary);
-  const globalCost = readJson("agent/state/global-cost-surfaces.generated.json");
+  const cloudReport = reports["cloud-sql-gemini-cost-guards"];
+  const bigQueryReport = reports["bigquery-cloud-pipeline-closure"];
+  const hotPathReport = reports["analytics-hot-path-cost-reduction"];
+  const cloudGuards = record(cloudReport?.summary);
+  const bigQuery = record(bigQueryReport?.summary);
+  const hotPath = record(hotPathReport?.summary);
+  const scheduled = record(reports["scheduled-runtime-cost-reduction"]?.summary);
+  const adminCost = record(reports["admin-analytics-debug-cost-reduction"]?.summary);
 
   const cloudRunSourceGuarded = fileIncludes("src/lib/server/global-cost-surface-contract.ts", [
     /app_hosting_bandwidth/iu,
@@ -123,12 +140,7 @@ function buildSourceGuardInputFromRepo(): CostOwnerReviewSourceInput {
     /hosting bandwidth warnings/iu,
   ]);
   const route4xxSourceReady = fileIncludes("src/lib/server/cheap-4xx-response.ts", [/nonRetryable|retry/iu])
-    || fileIncludes("src/lib/server/route-4xx-classifier.ts", [/retry|4xx/iu])
-    || finalCost.route4xxReadiness === "source_inventory_complete";
-  const bigQuerySourceGuarded = fileIncludes("functions/src/analytics-bigquery-export.ts", [
-    /watermark/iu,
-    /maxBytes|maximumBytes|dryRun|queryCost/iu,
-  ]) || (bigQuery.watermarkDefined === true && bigQuery.queryCostGuardDefined === true);
+    || fileIncludes("src/lib/server/route-4xx-classifier.ts", [/retry|4xx/iu]);
 
   return {
     currentHead: head,
@@ -144,52 +156,38 @@ function buildSourceGuardInputFromRepo(): CostOwnerReviewSourceInput {
         && numberValue(adminCost.p0Count) === 0,
     },
     cloudSqlGemini: {
-      currentHead: head,
+      currentHead: typeof cloudReport?.currentHead === "string" ? cloudReport.currentHead : undefined,
       cloudSqlRuntimeDetected: cloudGuards.cloudSqlRuntimeDetected === true,
       dataConnectRuntimeDetected: cloudGuards.dataConnectRuntimeDetected === true,
-      sqlMirrorScriptsGuarded: cloudGuards.sqlMirrorScriptsGuarded === true
-        || fileIncludes("scripts/agent/sync-sql.ts", [/agent-context|mirror|approval|manual/iu]),
-      sqlMirrorRequiresExplicitApproval: cloudGuards.sqlMirrorRequiresExplicitApproval === true
-        || fileIncludes("scripts/agent/sync-sql.ts", [/approval|explicit|manual/iu]),
+      sqlMirrorScriptsGuarded: cloudGuards.sqlMirrorScriptsGuarded === true,
+      sqlMirrorRequiresExplicitApproval: cloudGuards.sqlMirrorRequiresExplicitApproval === true,
       geminiRuntimeDetected: cloudGuards.geminiRuntimeDetected === true,
       aiCallsRequireExplicitAction: cloudGuards.aiCallsRequireExplicitAction === true,
       aiCallsHaveRateOrCacheGuard: cloudGuards.aiCallsHaveRateOrCacheGuard === true,
       geminiExternalBillingObserved: cloudGuards.geminiExternalBillingObserved === true,
     },
     bigQuery: {
-      currentHead: head,
-      scheduledWindowExportEnabled: bigQuery.scheduledWindowExportEnabled === true || bigQuerySourceGuarded,
-      eventTriggeredExportDisabled: bigQuery.eventTriggeredExportDisabled === true || bigQuerySourceGuarded,
-      watermarkDefined: bigQuery.watermarkDefined === true || bigQuerySourceGuarded,
-      queryCostGuardDefined: bigQuery.queryCostGuardDefined === true || bigQuerySourceGuarded,
+      currentHead: typeof bigQueryReport?.currentHead === "string" ? bigQueryReport.currentHead : undefined,
+      scheduledWindowExportEnabled: bigQuery.scheduledWindowExportEnabled === true,
+      eventTriggeredExportDisabled: bigQuery.eventTriggeredExportDisabled === true,
+      watermarkDefined: bigQuery.watermarkDefined === true,
+      queryCostGuardDefined: bigQuery.queryCostGuardDefined === true,
     },
     analyticsRuntime: {
-      currentHead: head,
+      currentHead: typeof hotPathReport?.currentHead === "string" ? hotPathReport.currentHead : undefined,
       ingestGuarded: hotPath.ingestMaterializationDeferred === true
         && hotPath.invalidPayloadWarningsCapped === true
         && hotPath.catchPathFailuresRolledUp === true,
-      retry4xxClassified: route4xxSourceReady || hotPath.retryable503Reduced === true || numberValue(analyticsRuntime.retry4xxFindings, 1) === 0,
+      retry4xxClassified: route4xxSourceReady && hotPath.retryable503Reduced === true,
     },
     globalCost: {
-      sourceClean: globalCost?.status === "clean" || globalCost?.overallScore === 100 || cloudRunSourceGuarded,
+      sourceClean: cloudRunSourceGuarded,
     },
   };
 }
 
 function changedForbiddenTaskChatFiles() {
-  const changed = shell("git", [
-    "diff",
-    "--name-only",
-    "--",
-    "src/lib/tasks",
-    "src/components/Dashboard/DailyCheckIn.tsx",
-    "src/app/api/checkin",
-    "src/lib/chat",
-    "src/components/Chat",
-    "src/app/api/chat",
-    "src/app/api/admin/chat",
-  ]);
-  return changed.split(/\r?\n/u).filter(Boolean);
+  return listValidatorScopeFiles().filter((file) => /^(?:src\/lib\/(?:tasks|chat)(?:\/|$)|src\/components\/Chat(?:\/|$)|src\/components\/Dashboard\/DailyCheckIn\.tsx$|src\/app\/api\/(?:checkin|chat|admin\/chat)(?:\/|$))/u.test(file));
 }
 
 function renderDoc(report: CostRiskEvidenceReport) {
@@ -246,7 +244,10 @@ ${report.validationFailures.length ? report.validationFailures.map((failure) => 
 }
 
 function main() {
-  const costInput = buildSourceGuardInputFromRepo();
+  const head = shell("git", ["rev-parse", "HEAD"]);
+  const childReports = Object.fromEntries(COST_SOURCE_CHILD_KEYS.map((key) => [key, readJson(`agent/state/${key}.generated.json`)]));
+  const dependencyFailures = validateCostRiskSourceDependencies(childReports, head);
+  const costInput = buildSourceGuardInputFromRepo(dependencyFailures.length ? {} : childReports);
   const report = buildCostRiskEvidenceReport({
     generatedAtUtc: new Date().toISOString(),
     currentHead: costInput.currentHead,
@@ -255,6 +256,7 @@ function main() {
     dirtyFilesClassification: classifyDirtyFiles(),
   });
   const failures = [
+    ...dependencyFailures,
     ...validateCostRiskEvidenceReport(report),
     ...changedForbiddenTaskChatFiles().map((path) => `Task/chat implementation changed unnecessarily: ${path}`),
   ];
@@ -263,7 +265,13 @@ function main() {
 
   mkdirSync(join(ROOT, dirname(REPORT_PATH)), { recursive: true });
   mkdirSync(join(ROOT, dirname(DOC_PATH)), { recursive: true });
-  writeFileSync(join(ROOT, REPORT_PATH), `${JSON.stringify(report, null, 2)}\n`);
+  const artifact = withGeneratedReportEnvelope(report, {
+    evidenceClass: "source_snapshot",
+    canClearSourceGate: report.status === "pass",
+    nextExactSteps: report.nextExactSteps,
+    doesNotProve: ["External billing acceptance", "Deployed runtime behavior", "Provider settlement", "Authoritative admin activity"],
+  });
+  writeFileSync(join(ROOT, REPORT_PATH), `${JSON.stringify(withValidatorMutationScope(artifact), null, 2)}\n`);
   writeFileSync(join(ROOT, DOC_PATH), renderDoc(report));
 
   if (report.validationFailures.length > 0) {

@@ -38,6 +38,96 @@ credentials, installed dependencies and recovery output. Cloud Build resolves
 the runtime secret references from `apphosting.yaml`; local environment files
 are not deployment inputs. The existing GitHub connection remains available.
 
+After an authorized archive deployment, identify the operation from that
+dispatch's accepted create response. Retain only its build/operation resource
+names and the uploaded archive URI; never copy raw CLI debug payloads or secret
+values. Read the named build directly and require its project, backend and
+`source.archive.userStorageUri` to match the reviewed dispatch. A failed or
+uncertain command still needs exact-operation settlement before any retry.
+Use a historical build listing only when the accepted reference is unavailable
+or does not reconcile. This replaces post-dispatch discovery scans only: the
+nonterminal preflight inventory, uploaded source comparison, rollout/serving
+agreement, maintenance controls and recovery evidence remain separate checks.
+
+Keep the post-dispatch dependency order explicit: accepted resource reference,
+then the exact authoritative Build GET and its owned build-dispatch receipt,
+then uploaded archive comparison. Verify the receipt and helper prerequisites
+before invoking the archive verifier. The retained build015 verifier startup
+failure made no provider call or source change; the missing direct-GET helper
+and receipt were restored from their existing owner before the verifier ran
+once successfully. Evidence belongs to
+`output/manual-infrastructure-users-release-20261003/`; do not dispatch another
+build to recover a missing local verification input.
+
+Do not replace complete nonterminal preflight with an assumed state filter. The
+current documented filter field does not establish support for a particular
+state expression: the retained inequality probe and one equality capability
+probe returned 400, with the latter's structured `filter` violation retained in
+`output/manual-apphosting-filter-research-20261003/filter-equality-probe.json`.
+Keep bounded complete pagination; do not repeat the same rejected filter or
+treat a single known-state result as coverage of other or unknown states.
+
+When selected checks regenerate repository evidence, retain their exact existing
+inputs before running the generator, including compact routing inventory. Keep
+the generated output separately. Restore original derived bytes only after
+classifying the actual diff: a timestamp or an inventory entry for a generated
+report does not promote new canonical rules. Unrelated rule or source changes
+still require review. Verify restored bytes and the source fingerprint before
+continuing. The takeover evidence owner already creates its baseline; do not
+write another receipt at that reserved path.
+
+Pass the canonical `output/<taskKey>/input.json` to the takeover owner and scoped
+checks. A release-folder copy is a scope reference; it does not acquire the task
+key's baseline. Validate that binding before creating runner custody. When
+adapting an existing release helper, update prior-serving references separately
+from stable recovery-evidence references, verify both against their actual
+owners, and retain their hashes. A broad path replacement is not dependency
+review.
+
+After a check-runner interruption, preserve the original command results and
+failure. Resume only unsettled checks whose source inputs still agree, using a
+new receipt identity; combine the original valid results with the continuation
+results for the final gate review. A helper failure does not erase a command's
+result or clear an unrun gate. The reviewed routing-only recovery and remaining
+gate execution are retained in
+`output/manual-monitoring-body-release-v2-20261003/`.
+
+On Windows, an `UNKNOWN` write or copy error is not enough to diagnose a lock.
+The Discovery release retained the original failure and checked space,
+attributes and the native error before recovery. The native error identified a
+file with an open mapped section. Repeating a truncating write or copy did not
+resolve that condition. For the exact owned generated target, create a
+replacement on the same volume and use `System.IO.File.Replace` with an
+explicit retained backup; use `File.Move` only when that target is absent.
+Resolve both paths within the workspace before the operation. This follows the
+[Windows replacement contract](https://learn.microsoft.com/windows/win32/api/winbase/nf-winbase-replacefilew)
+and the [.NET API](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.replace).
+Verify the restored hash and complete source fingerprint. Keep the generated
+diff and original bytes for review; do not terminate unrelated processes or
+clear a gate by discarding its result. Actual recovery and the failed attempts
+belong to `output/manual-discovery-modal-release-v2-20261003/`. This bounded
+recovery does not establish that every repository generator uses an atomic
+writer.
+
+The Analytics continuation retains a wrong copied-input startup and a wrong
+stable evidence path under `output/manual-analytics-composed-release-20261003/`.
+Its 18 settled commands were retained, exact derived routing was restored, and
+only the 28 unsettled commands resumed. The subsequent Batch29 scope failure is
+a separate source-reader finding, not a runner interruption or a waived gate.
+
+Resolve Windows search inputs with `rg --files` before reading a guessed path;
+use exact returned paths or `rg -g` filters instead of passing a literal glob as
+a path. A path-resolution failure is not evidence that the source is absent.
+
+When concurrent real-CLI fixtures exceed their existing deadline, retain the
+failed run and classify the actual durations and competing workload first.
+Serialize only the affected owner with the existing Vitest worker controls;
+keep assertions and timeouts unchanged. Reconcile its fresh case identities
+with unaffected, input-valid passing cases and report the actual execution
+count. The retained Analytics run and four-case serialized recovery are under
+`output/manual-release-note-integrity-release-20261003/`; they do not establish
+production performance or justify replaying the whole suite.
+
 Repo automation uses Cloud Build, not GitHub-hosted runner billing, for automated verification:
 
 - `cloudbuild.yaml` owns lightweight CI checks.

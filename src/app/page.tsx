@@ -12,18 +12,13 @@ export default async function HomePage() {
     return (
         <>
             <HomeClient />
-            <div
-                className="min-h-screen overflow-x-clip bg-[#0a0a0b] pb-4 md:pb-0"
-                data-home-modules-hydration="staged"
-            >
-                <main>
-                    <PublicHomeExperience
-                        activeDrops={initialActiveDrops}
-                        initialCreators={initialCreators}
-                    />
-                </main>
+            <div className="bg-background text-foreground" data-home-modules-hydration="staged">
+                <PublicHomeExperience
+                    activeDrops={initialActiveDrops}
+                    initialCreators={initialCreators}
+                />
 
-                <footer className="border-t border-white/10 bg-[#0a0a0b] px-4 py-10 text-center text-sm text-gray-400 sm:py-12">
+                <footer className="border-t border-border px-4 py-8 text-center text-sm text-muted-foreground sm:py-10">
                     <p>&copy; {new Date().getFullYear()} KandyDrops. All rights reserved.</p>
                 </footer>
             </div>

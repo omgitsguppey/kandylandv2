@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 type Severity = "p0" | "p1" | "p2";
 type TruthRole = "product_truth" | "evidence_only" | "admin_display" | "legacy_recovery" | "supporting_index";
@@ -111,6 +112,9 @@ const docsRelativePath = "docs/agent-truth/analytics-identity-transfer-inventory
 const docsPath = join(repoRoot, docsRelativePath);
 
 const inspectedSourceFiles = [
+  "src/context/AuthContext.tsx",
+  "src/lib/analytics/analytics-identity-link.ts",
+  "src/app/api/analytics/identity-link/route.ts",
   "src/components/Analytics/DeepTracker.tsx",
   "src/lib/client-session.ts",
   "src/lib/analytics/analytics-event-contract.ts",
@@ -148,10 +152,97 @@ function includesAny(source: string, needles: string[]) {
   return needles.some((needle) => source.includes(needle));
 }
 
+
+// Source readiness only: these checks do not prove deployed handoff or historical recovery.
+function identityHandoffSourceFailures(sources: SourceMap) {
+  const parse = (path: string) => ts.createSourceFile(path, sources[path] ?? "", ts.ScriptTarget.Latest, true,
+    path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  const calls = (node: ts.Node, source: ts.SourceFile, name: string) => {
+    const found: ts.CallExpression[] = [];
+    const visit = (child: ts.Node) => {
+      if (ts.isCallExpression(child) && child.expression.getText(source) === name) found.push(child);
+      ts.forEachChild(child, visit);
+    };
+    visit(node);
+    return found;
+  };
+  const property = (call: ts.CallExpression | undefined, source: ts.SourceFile, name: string) => {
+    const argument = call?.arguments[0];
+    if (!argument || !ts.isObjectLiteralExpression(argument)) return "";
+    const member = argument.properties.find(member => ts.isPropertyAssignment(member) && member.name.getText(source) === name);
+    return member && ts.isPropertyAssignment(member) ? member.initializer.getText(source) : "";
+  };
+  const auth = parse("src/context/AuthContext.tsx");
+  const client = parse("src/lib/analytics/analytics-identity-link.ts");
+  const route = parse("src/app/api/analytics/identity-link/route.ts");
+  const identified = parse("src/app/api/analytics/ingest-identified/route.ts");
+  let handoff: ts.Node | undefined;
+  let payloadBuilder: ts.Node | undefined;
+  let canonicalRoute = false;
+  const findDeclarations = (node: ts.Node, source: ts.SourceFile) => {
+    if (ts.isVariableDeclaration(node) && node.name.getText(source) === "emitIdentityLinkContinuity"
+      && node.initializer && ts.isCallExpression(node.initializer)) handoff = node.initializer.arguments[0];
+    if (ts.isFunctionDeclaration(node) && node.name?.text === "buildIdentityLinkPayload") payloadBuilder = node;
+    if (ts.isVariableDeclaration(node) && node.name.getText(source) === "GUEST_USER_IDENTITY_TRANSFER_ROUTE"
+      && node.initializer && ts.isStringLiteral(node.initializer)) canonicalRoute = node.initializer.text === "/api/analytics/identity-link";
+    ts.forEachChild(node, child => findDeclarations(child, source));
+  };
+  findDeclarations(auth, auth);
+  findDeclarations(client, client);
+  const failures: string[] = [];
+  if (!handoff || calls(handoff, auth, "buildIdentityLinkPayload").length !== 1
+    || !calls(handoff, auth, "payload.submit").some(call => call.arguments[0]?.getText(auth) === "authFetch")
+    || !calls(handoff, auth, "hasSubmittedIdentityLink").some(call => call.arguments[0]?.getText(auth) === "payload")) {
+    failures.push("AuthContext handoff must build, lifecycle-guard and submit the canonical identity payload.");
+  }
+  for (const method of ["login", "signup", "session_restore"]) {
+    if (!calls(auth, auth, "emitIdentityLinkContinuity").some(call => call.arguments[1]
+      && ts.isStringLiteral(call.arguments[1]) && call.arguments[1].text === method)) {
+      failures.push("AuthContext " + method + " handoff call is missing.");
+    }
+  }
+  if (!canonicalRoute || !payloadBuilder || !calls(payloadBuilder, client, "fetcher")
+    .some(call => call.arguments[0]?.getText(client) === "GUEST_USER_IDENTITY_TRANSFER_ROUTE")) {
+    failures.push("Identity payload submit must target /api/analytics/identity-link.");
+  }
+  const upserts = calls(route, route, "upsertAnalyticsIdentityLink");
+  const builds = calls(route, route, "buildIdentityLink");
+  if (upserts.length !== 1 || property(upserts[0], route, "userId") !== "caller.uid"
+    || builds.length !== 1 || property(builds[0], route, "userId") !== "caller.uid"
+    || calls(route, route, "guardApiRequest").length !== 1) {
+    failures.push("Canonical identity route must own the caller-bound association write.");
+  }
+  if (!calls(route, route, "restrictConsentMode").some(call => call.arguments[0]
+      && ts.isCallExpression(call.arguments[0]) && call.arguments[0].expression.getText(route) === "resolveRequestConsentMode")
+    || calls(route, route, "canPersistIdentityLink").length === 0) {
+    failures.push("Canonical identity route must clamp declared consent to request consent.");
+  }
+  if (calls(identified, identified, "upsertAnalyticsIdentityLink").length > 0) {
+    failures.push("Identified ingest must not duplicate the canonical association writer.");
+  }
+  const diagnosticFields = new Map<string, string>();
+  let noAssociationStatus = false;
+  const inspectDiagnostic = (node: ts.Node) => {
+    if (ts.isPropertyAssignment(node)) diagnosticFields.set(node.name.getText(identified), node.initializer.getText(identified));
+    if (ts.isVariableDeclaration(node) && node.name.getText(identified) === "identityLinksCreated"
+      && node.initializer?.getText(identified) === "0") noAssociationStatus = true;
+    ts.forEachChild(node, inspectDiagnostic);
+  };
+  inspectDiagnostic(identified);
+  if (!noAssociationStatus || diagnosticFields.get("diagnostic_only") !== "true"
+    || diagnosticFields.get("metric_eligible") !== "false"
+    || diagnosticFields.get("canonical_link_source") !== '"server_identity_link"') {
+    failures.push("Observed identity ingest must retain diagnostic exclusion and zero-created compatibility status.");
+  }
+  return failures;
+}
+
 export function buildAnalyticsIdentityTransferInventoryReport(input: {
   currentHead: string;
   generatedAtUtc: string;
+  sources?: SourceMap;
 }): AnalyticsIdentityTransferInventoryReport {
+  const handoffFailures = identityHandoffSourceFailures(input.sources ?? readSources());
   const identityMap: IdentityMapEntry[] = [
     {
       id: "client-anonymous-visitor-id",
@@ -191,17 +282,17 @@ export function buildAnalyticsIdentityTransferInventoryReport(input: {
       collectionOrPath: "src/app/api/analytics/ingest-identified/route.ts -> analytics_event_facts",
       truthRole: "product_truth",
       transferCandidate: true,
-      notes: "Authenticated telemetry writes canonical runtime facts and can process identity_linked events.",
+      notes: "Authenticated telemetry writes observed runtime facts; identity_linked is diagnostic only and does not create an association.",
     },
     {
       id: "identity-linked-bridge",
       lane: "identity_link",
-      source: "identity_linked event",
+      source: "AuthContext -> buildIdentityLinkPayload.submit -> /api/analytics/identity-link",
       fields: ["anonymousVisitorId", "sessionId", "userId", "linkedAt", "eligiblePastSessionIds", "method", "mergeAllowed"],
-      collectionOrPath: "analytics_identity_links / identity_lineage_indexes",
+      collectionOrPath: "src/app/api/analytics/identity-link/route.ts -> analytics_identity_links / identity_lineage_indexes",
       truthRole: "supporting_index",
       transferCandidate: true,
-      notes: "This bridge links guest and user identities without rewriting old guest events into user events.",
+      notes: "The canonical caller-bound, request-consent-gated route writes associations without scanning or rewriting old guest facts; source readiness does not prove deployed or historical continuity.",
     },
     {
       id: "admin-analytics-snapshots",
@@ -216,19 +307,15 @@ export function buildAnalyticsIdentityTransferInventoryReport(input: {
   ];
 
   const transferGaps: TransferGap[] = [
-    {
-      id: "login-signup-transfer-entrypoint-not-proven",
-      severity: "p1",
+    ...(handoffFailures.length > 0 ? [{
+      id: "auth-handoff-source-chain-incomplete",
+      severity: "p1" as const,
       owner: "analytics-identity",
-      currentState: "Identity link contract and server upsert path exist, and identified ingest handles identity_linked events.",
-      expectedState: "Login and signup flows should emit or submit identity_linked with the current anonymous visitor id and session id after auth succeeds.",
-      evidence: [
-        "src/lib/client-session.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/lib/server/analytics-identity-linking.ts",
-      ],
-      action: "Next pass should trace AuthContext/login/signup telemetry and wire a guarded identity_linked handoff if absent.",
-    },
+      currentState: handoffFailures.join(" "),
+      expectedState: "AuthContext submits login/signup/session-restore handoffs through the sole canonical caller-bound, request-consent-gated identity route.",
+      evidence: ["src/context/AuthContext.tsx", "src/lib/analytics/analytics-identity-link.ts", "src/app/api/analytics/identity-link/route.ts", "src/app/api/analytics/ingest-identified/route.ts"],
+      action: "Repair the failed source connection in its existing owner; do not add another handoff or association writer.",
+    }] : []),
     {
       id: "guest-history-not-reclassified",
       severity: "p2",
@@ -373,9 +460,9 @@ export function buildAnalyticsIdentityTransferInventoryReport(input: {
       status: "source_inventory_complete",
       owner: "analytics-platform",
       filePath: "src/app/api/analytics/ingest-identified/route.ts",
-      detail: "Identified ingest is auth-gated, rate-limited, validates event batches, and handles identity_linked records during canonical event processing.",
-      action: "Transfer implementation should reuse this typed path or an equally bounded route.",
-      evidence: ["guardApiRequest", "PayloadSchema", "upsertAnalyticsIdentityLink"],
+      detail: "Identified ingest is auth-gated, rate-limited and validates observed event batches; identity_linked remains diagnostic and cannot write associations.",
+      action: "Keep association writes in the existing caller-bound, request-consent-gated /api/analytics/identity-link route; retain bounded diagnostic ingest.",
+      evidence: ["guardApiRequest", "PayloadSchema", "src/app/api/analytics/identity-link/route.ts", "identityLinksCreated"],
     },
     {
       id: "cloud-sql-agent-context-mirror-detected",
@@ -459,9 +546,9 @@ export function buildAnalyticsIdentityTransferInventoryReport(input: {
     sourceTruthMap,
     costFindings,
     nextFixOrder: [
-      "Trace AuthContext login/signup/session-restore paths and prove whether identity_linked is emitted after authentication.",
-      "If absent, add an idempotent guest-to-user identity transfer event using anonymousVisitorId, sessionId, userId, consent, and eligiblePastSessionIds.",
-      "After source transfer exists, update admin/user analytics consumers to label direct user facts versus linked guest context.",
+      ...(handoffFailures.length > 0 ? ["Repair the reported existing AuthContext/client/canonical-route source connection."] : []),
+      "Keep the source-checked AuthContext handoff and sole canonical association writer; deployed continuity and historical recovery still require their own current evidence.",
+      "Verify admin/user analytics consumers label direct user facts versus consent-eligible linked guest context without double-counting or promoting missing data to zero.",
     ],
   };
 }
@@ -517,6 +604,8 @@ export function validateAnalyticsIdentityTransferInventoryReport(
   if (report.nextFixOrder.length === 0) {
     failures.push("nextFixOrder must not be empty.");
   }
+
+  failures.push(...identityHandoffSourceFailures(sources));
 
   const allSource = Object.values(sources).join("\n");
   if (!includesAny(allSource, ["anonymousVisitorId", "getClientAnalyticsIdentitySnapshot"])) {

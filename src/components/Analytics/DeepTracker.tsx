@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
+import { useAuthIdentity } from "@/context/AuthContext";
+import { auth } from "@/lib/firebase";
+import { createAnalyticsEventId, createAnalyticsBatchId, isValidAnalyticsBatchId } from "@/lib/analytics-identifiers";
 import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
@@ -30,6 +32,11 @@ import {
     shouldFlushClientTelemetryOnNextTurn,
 } from "@/lib/analytics/client-telemetry-priority";
 
+import { calculateSessionActiveMs } from "@/lib/math/session-journey-math";
+
+import { SESSION_MEASUREMENT_VERSION, readSessionMeasurementCheckpoint, readSessionMeasurementFromParams, serializeSessionMeasurementCheckpoint, type SessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
+import { ANALYTICS_CLIENT_ID_PATTERN } from "@/lib/analytics/ingest-contract";
+
 type TelemetryEventType = "click" | "hover" | "scroll" | "visibility" | "page_view" | "page_leave" | "session";
 type GuestSemanticEventName =
     | "semantic_page_viewed"
@@ -49,6 +56,8 @@ export interface TelemetryEvent {
     type: TelemetryEventType;
     timestamp: number;
     path: string;
+    sessionMeasurement?: SessionMeasurementCheckpoint;
+    queueIdentity?: StableGuestAnalyticsBatch["identity"];
     targetId?: string;
     targetTag?: string;
     targetText?: string;
@@ -125,53 +134,26 @@ function canCaptureAnonymousBehavior() {
 export type StableGuestAnalyticsBatch = {
     signature: string;
     batchId: string;
+    eventCount?: number;
+    identity?: { anonymousVisitorId: string | null; sessionId: string; consentMode: ReturnType<typeof readPrivacySettingsSnapshot>["consentMode"] };
 };
 
 export function buildGuestAnalyticsBatchSignature(events: TelemetryEvent[]) {
-    const first = events[0];
-    const last = events[events.length - 1];
-    return [
-        events.length,
-        first?.timestamp ?? 0,
-        first?.type ?? "",
-        first?.path ?? "",
-        last?.timestamp ?? 0,
-        last?.type ?? "",
-        last?.path ?? "",
-    ].join("|");
+    return JSON.stringify(events, (_key, value) => value && typeof value === "object" && !Array.isArray(value)
+        ? Object.fromEntries(Object.keys(value).sort().map(key => [key, value[key]])) : value);
 }
 
-export function buildGuestAnalyticsIngestPayload(
-    events: TelemetryEvent[],
-    stableBatch?: StableGuestAnalyticsBatch | null,
-) {
-    const identity = getClientAnalyticsIdentitySnapshot("granted");
-    const privacy = readPrivacySettingsSnapshot();
-    const identityEnvelope = buildEventIdentityEnvelope({
-        eventName: "semantic_page_viewed",
-        guestId: identity.anonymousVisitorId ?? undefined,
-        sessionId: identity.sessionId,
-        consentMode: privacy.consentMode,
-    });
+export function buildGuestAnalyticsIngestPayload(events: TelemetryEvent[], previous?: StableGuestAnalyticsBatch | null) {
+    const currentIdentity = getClientAnalyticsIdentitySnapshot("granted");
+    const currentPrivacy = readPrivacySettingsSnapshot();
     const signature = buildGuestAnalyticsBatchSignature(events);
-    const batchId = stableBatch?.signature === signature
-        ? stableBatch.batchId
-        : createAnalyticsBatchId(identity.sessionId);
-
-    return {
-        stableBatch: { signature, batchId },
-        payload: {
-            batchId,
-            anonymousVisitorId: identity.anonymousVisitorId ?? undefined,
-            sessionId: identity.sessionId,
-            consentMode: privacy.consentMode,
-            actorKind: identityEnvelope.actorKind,
-            identityState: identityEnvelope.identityState,
-            identityConfidence: identityEnvelope.identityConfidence,
-            unavailableGuestReason: identityEnvelope.unavailableGuestReason,
-            events,
-        },
-    };
+    const retained = previous?.signature === signature ? previous : null;
+    const identity = retained?.identity ?? events[0]?.queueIdentity ?? { anonymousVisitorId: currentIdentity.anonymousVisitorId, sessionId: currentIdentity.sessionId, consentMode: currentPrivacy.consentMode };
+    const envelope = buildEventIdentityEnvelope({ eventName: "semantic_page_viewed", guestId: identity.anonymousVisitorId ?? undefined, sessionId: identity.sessionId, consentMode: identity.consentMode });
+    const stableBatch = { signature, batchId: retained?.batchId ?? createAnalyticsBatchId(identity.sessionId), eventCount: events.length, identity };
+    return { stableBatch, payload: { batchId: stableBatch.batchId, anonymousVisitorId: identity.anonymousVisitorId ?? undefined, sessionId: identity.sessionId, consentMode: identity.consentMode,
+        actorKind: envelope.actorKind, identityState: envelope.identityState, identityConfidence: envelope.identityConfidence, unavailableGuestReason: envelope.unavailableGuestReason,
+        events: events.map(({ queueIdentity: _localIdentity, ...event }) => event) } };
 }
 
 export function clearStableGuestAnalyticsBatchAfterSuccess(
@@ -206,64 +188,59 @@ function getSafeTargetLabel(target: HTMLElement) {
     return target.tagName;
 }
 
-function sanitizeStoredTelemetryEvent(value: unknown): TelemetryEvent | null {
-    if (!value || typeof value !== "object") {
-        return null;
-    }
-
-    const event = value as Partial<TelemetryEvent>;
-    if (
-        typeof event.type !== "string"
-        || typeof event.timestamp !== "number"
-        || !Number.isFinite(event.timestamp)
-        || typeof event.path !== "string"
-    ) {
-        return null;
-    }
-
-    return event as TelemetryEvent;
+function readStoredGuestIdentity(value: unknown): StableGuestAnalyticsBatch["identity"] | null {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const record = value as Record<string, unknown>;
+    if (typeof record.sessionId !== "string" || !ANALYTICS_CLIENT_ID_PATTERN.test(record.sessionId)
+        || typeof record.anonymousVisitorId !== "string" || !ANALYTICS_CLIENT_ID_PATTERN.test(record.anonymousVisitorId)
+        || typeof record.consentMode !== "string" || !["minimal_analytics", "full_analytics", "full_behavioral"].includes(record.consentMode)) return null;
+    return { sessionId: record.sessionId, anonymousVisitorId: record.anonymousVisitorId, consentMode: record.consentMode as NonNullable<StableGuestAnalyticsBatch["identity"]>["consentMode"] };
 }
 
-function readPersistedGuestQueue() {
-    if (typeof window === "undefined") {
-        return [];
-    }
-
+function loadGuestQueueState() {
+    if (typeof window === "undefined") return { events: [] as TelemetryEvent[], stableBatch: null as StableGuestAnalyticsBatch | null };
     try {
         const raw = window.sessionStorage.getItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY);
-        if (!raw) {
-            return [];
-        }
-
-        const parsed = JSON.parse(raw) as unknown[];
-        if (!Array.isArray(parsed)) {
-            return [];
-        }
-
-        return parsed
-            .map((entry) => sanitizeStoredTelemetryEvent(entry))
-            .filter((entry): entry is TelemetryEvent => Boolean(entry))
-            .slice(-500);
-    } catch {
-        return [];
-    }
+        const stored: unknown = raw ? JSON.parse(raw) : [];
+        const record = stored && typeof stored === "object" && !Array.isArray(stored) ? stored as Record<string, unknown> : null;
+        const rows = Array.isArray(stored) ? stored : record?.events;
+        const events = Array.isArray(rows) ? rows.slice(0, GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION).flatMap(row => {
+            if (!row || typeof row !== "object" || Array.isArray(row)) return [];
+            const value = row as Record<string, unknown>;
+            if (typeof value.type !== "string" || !["click", "hover", "scroll", "visibility", "page_view", "page_leave", "session"].includes(value.type)
+                || typeof value.timestamp !== "number" || !Number.isFinite(value.timestamp)
+                || typeof value.path !== "string" || value.path.length > 250) return [];
+            const checkpoint = value.sessionMeasurement === undefined ? null : readSessionMeasurementCheckpoint(value.sessionMeasurement);
+            if (value.sessionMeasurement !== undefined && !checkpoint) return [];
+            const safe: Record<string, unknown> = { type: value.type, timestamp: value.timestamp, path: value.path };
+            const strings = ["targetId", "targetTag", "targetText", "dropId", "dropCategory", "semanticCategory", "semanticCategoryLabel", "semanticScopeKey", "semanticScopeLabel", "semanticSurfaceKey", "semanticSurfaceLabel", "referrerHost", "networkType", "interactionState", "exitIntent", "semanticEventName", "semanticExitEventName", "bounceStatus", "engagementStatus", "sessionConfidence", "endReason"];
+            for (const key of strings) if (typeof value[key] === "string" && value[key].length <= 250) safe[key] = value[key];
+            const numbers = ["x", "y", "scrollDepthPercent", "durationMs", "viewportWidth", "viewportHeight", "devicePixelRatio", "clickCount", "hoverCount", "scrollCount", "activeMs", "idleMs", "hiddenMs", "routeCount", "eventCount", "meaningfulInteractionCount", "conversionCount"];
+            for (const key of numbers) if (typeof value[key] === "number" && Number.isFinite(value[key]) && value[key] >= 0 && value[key] <= 86_400_000) safe[key] = value[key];
+            if (checkpoint) safe.sessionMeasurement = checkpoint;
+            const localIdentity = readStoredGuestIdentity(value.queueIdentity);
+            if (localIdentity) safe.queueIdentity = localIdentity;
+            return [safe as unknown as TelemetryEvent];
+        }) : [];
+        const pending = record?.stableBatch && typeof record.stableBatch === "object" && !Array.isArray(record.stableBatch) ? record.stableBatch as Record<string, unknown> : null;
+        const identity = readStoredGuestIdentity(pending?.identity);
+        const stableBatch = pending && isValidAnalyticsBatchId(pending.batchId)
+            && typeof pending.eventCount === "number" && Number.isInteger(pending.eventCount) && pending.eventCount > 0 && pending.eventCount <= events.length && pending.eventCount <= GUEST_ANALYTICS_MAX_EVENTS_PER_FLUSH
+            && typeof pending.signature === "string" && pending.signature === buildGuestAnalyticsBatchSignature(events.slice(0, pending.eventCount))
+            && identity && typeof identity.sessionId === "string" && ANALYTICS_CLIENT_ID_PATTERN.test(identity.sessionId)
+            && typeof identity.anonymousVisitorId === "string" && ANALYTICS_CLIENT_ID_PATTERN.test(identity.anonymousVisitorId)
+            && ["minimal_analytics", "full_analytics", "full_behavioral"].includes(identity.consentMode)
+            ? { signature: pending.signature, batchId: pending.batchId, eventCount: pending.eventCount, identity } : null;
+        return { events, stableBatch };
+    } catch { return { events: [] as TelemetryEvent[], stableBatch: null as StableGuestAnalyticsBatch | null }; }
 }
 
-function persistGuestQueue(events: TelemetryEvent[]) {
-    if (typeof window === "undefined") {
-        return;
-    }
-
+function persistGuestQueue(events: TelemetryEvent[], stableBatch: StableGuestAnalyticsBatch | null) {
+    if (typeof window === "undefined") return;
     try {
-        if (events.length === 0) {
-            window.sessionStorage.removeItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY);
-            return;
-        }
-
-        window.sessionStorage.setItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY, JSON.stringify(events.slice(-GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION)));
-    } catch {
-        // Ignore storage write failures in restricted contexts.
-    }
+        if (events.length === 0) window.sessionStorage.removeItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY);
+        else window.sessionStorage.setItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY, JSON.stringify({ version: 2, events: events.slice(0, GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION), stableBatch }));
+    } catch { /* Restricted storage does not block the current interaction. */ }
 }
 
 function createEmptyHoverSummary(): HoverSummaryState {
@@ -288,25 +265,26 @@ function createVisibilitySummary(nowMs: number): VisibilitySummaryState {
     };
 }
 
-function trimNonPriorityQueueForEvent(queue: TelemetryEvent[], event: TelemetryEvent) {
+function trimNonPriorityQueueForEvent(queue: TelemetryEvent[], event: TelemetryEvent, protectedCount = 0) {
     if (queue.length < GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION) {
         return true;
     }
 
     const queuedPriority = classifyClientTelemetryEventPriority(event);
     if (queuedPriority !== "non_priority_batch") {
-        const firstNonPriorityIndex = queue.findIndex((queuedEvent) =>
+        const firstNonPriorityIndex = queue.findIndex((queuedEvent, index) => index >= protectedCount &&
             classifyClientTelemetryEventPriority(queuedEvent) === "non_priority_batch");
         if (firstNonPriorityIndex >= 0) {
             queue.splice(firstNonPriorityIndex, 1);
             return true;
         }
 
-        queue.shift();
+        if (protectedCount >= queue.length) return false;
+        queue.splice(protectedCount, 1);
         return true;
     }
 
-    const firstQueuedNonPriorityIndex = queue.findIndex((queuedEvent) =>
+    const firstQueuedNonPriorityIndex = queue.findIndex((queuedEvent, index) => index >= protectedCount &&
         classifyClientTelemetryEventPriority(queuedEvent) === "non_priority_batch");
     if (firstQueuedNonPriorityIndex < 0) {
         return false;
@@ -337,6 +315,12 @@ function readTelemetryContext() {
 }
 
 export function DeepTracker() {
+    const { user } = useAuthIdentity();
+    const selectedUserId = user?.uid ?? null;
+    const measurementSegmentRef = useRef<{ path: string; userId: string | null; id: string; startedAtMs: number } | null>(null);
+    const lastCheckpointRef = useRef<SessionMeasurementCheckpoint | null>(null);
+    const pageViewPathRef = useRef<string | null>(null);
+    const startedSessionsRef = useRef(new Set<string>());
     const pathname = usePathname();
     const [trackingAllowed, setTrackingAllowed] = useState(canCaptureAnonymousBehavior);
     const eventQueue = useRef<TelemetryEvent[]>([]);
@@ -369,7 +353,9 @@ export function DeepTracker() {
         }
 
         guestQueueHydratedRef.current = true;
-        eventQueue.current = readPersistedGuestQueue();
+        const stored = loadGuestQueueState();
+        eventQueue.current = stored.events;
+        stableGuestBatchRef.current = stored.stableBatch;
     }, []);
 
     useEffect(() => {
@@ -378,7 +364,8 @@ export function DeepTracker() {
         }
 
         eventQueue.current = [];
-        persistGuestQueue([]);
+        stableGuestBatchRef.current = null;
+        persistGuestQueue([], null);
     }, [trackingAllowed]);
 
     useEffect(() => {
@@ -398,14 +385,23 @@ export function DeepTracker() {
         } satisfies Partial<TelemetryEvent>;
 
         let nonPriorityFlushTimeout: number | null = null;
+        let priorityFlushTimeout: number | null = null;
         let currentHoverTarget: HTMLElement | null = null;
         let currentHoverKey: string | null = null;
         let finalized = false;
-        const shouldCaptureAnonymousBatch = true;
+        let disposed = false;
+        const actorUserId = auth?.currentUser?.uid ?? selectedUserId;
+        const capturedIdentity = getClientAnalyticsIdentitySnapshot("granted");
+        const shouldCaptureAnonymousBatch = actorUserId === null;
+        const previousSegment = measurementSegmentRef.current;
+        const segment = previousSegment && previousSegment.path === pathname && previousSegment.userId === actorUserId && finalCloseoutKeyRef.current !== previousSegment.id
+            ? previousSegment : { path: pathname, userId: actorUserId, id: createAnalyticsEventId(capturedIdentity.sessionId), startedAtMs: Date.now() };
+        measurementSegmentRef.current = segment;
+        if (segment !== previousSegment) lastCheckpointRef.current = null;
         let queuePersistTimeout: number | null = null;
         let guestFlushRetryAttempt = 0;
 
-        pageEnteredAt.current = Date.now();
+        pageEnteredAt.current = segment.startedAtMs;
         lastScrollDepth.current = 0;
         clickCountRef.current = 0;
         hoverCountRef.current = 0;
@@ -415,23 +411,51 @@ export function DeepTracker() {
         visibilitySummaryRef.current = createVisibilitySummary(pageEnteredAt.current);
         nextScrollMilestoneIndexRef.current = 0;
         lastSessionActivityTickAtRef.current = 0;
+        let activitySampleAt = pageEnteredAt.current;
+        let lastObservedActivityAt: number | null = null;
+        const sessionTime = { activeMs: 0, idleMs: 0, hiddenMs: 0 };
+        const settleSessionTime = (now = Date.now()) => {
+            const elapsed = Math.max(0, now - activitySampleAt);
+            if (visibilitySummaryRef.current.lastState === "hidden") {
+                sessionTime.hiddenMs += elapsed;
+            } else {
+                const activeMs = lastObservedActivityAt === null ? 0 : calculateSessionActiveMs({ intervals: [{
+                    startedAtMs: activitySampleAt, endedAtMs: now, foreground: true,
+                    lastActivityAtMs: lastObservedActivityAt,
+                }] });
+                sessionTime.activeMs += activeMs;
+                sessionTime.idleMs += elapsed - activeMs;
+            }
+            activitySampleAt = now;
+            return sessionTime;
+        };
+        const observeActivity = () => {
+            const now = Date.now();
+            settleSessionTime(now);
+            if (document.visibilityState === "visible") lastObservedActivityAt = now;
+        };
 
         const flushQueue = async (
             reason: GuestAnalyticsFlushReason,
             options: { preferBeacon?: boolean } = {},
         ) => {
-            if (!trackingAllowed || !shouldCaptureAnonymousBatch || eventQueue.current.length === 0) {
+            if (!trackingAllowed || eventQueue.current.length === 0) {
                 return;
             }
 
             if (guestFlushInFlightRef.current) {
                 await guestFlushInFlightRef.current;
+                if (!disposed && eventQueue.current.length > 0) scheduleNonPriorityFlush();
                 return;
             }
 
-            const queuedEvents = eventQueue.current.slice(0, GUEST_ANALYTICS_MAX_EVENTS_PER_FLUSH);
+            const firstIdentity = JSON.stringify(eventQueue.current[0]?.queueIdentity ?? null);
+            const boundary = eventQueue.current.findIndex(event => JSON.stringify(event.queueIdentity ?? null) !== firstIdentity);
+            const count = stableGuestBatchRef.current?.eventCount ?? Math.min(boundary < 0 ? eventQueue.current.length : boundary, GUEST_ANALYTICS_MAX_EVENTS_PER_FLUSH);
+            const queuedEvents = eventQueue.current.slice(0, count);
             const { payload, stableBatch } = buildGuestAnalyticsIngestPayload(queuedEvents, stableGuestBatchRef.current);
             stableGuestBatchRef.current = stableBatch;
+            persistGuestQueue(eventQueue.current, stableBatch);
 
             guestFlushInFlightRef.current = (async () => {
                 try {
@@ -442,9 +466,11 @@ export function DeepTracker() {
                         preferBeacon: options.preferBeacon,
                         eventCount: queuedEvents.length,
                     });
+                    if (stableGuestBatchRef.current?.batchId !== stableBatch.batchId
+                        || buildGuestAnalyticsBatchSignature(eventQueue.current.slice(0, queuedEvents.length)) !== stableBatch.signature) return;
                     if (!shouldAdvanceGuestAnalyticsQueue(outcome)) {
-                        persistGuestQueue(eventQueue.current);
-                        scheduleRetainedQueueRetry();
+                        persistGuestQueue(eventQueue.current, stableGuestBatchRef.current);
+                        if (outcome.status === "retryable_failure") scheduleRetainedQueueRetry();
                         return;
                     }
                     guestFlushRetryAttempt = 0;
@@ -453,12 +479,12 @@ export function DeepTracker() {
                         stableGuestBatchRef.current,
                         stableBatch.signature,
                     );
-                    persistGuestQueue(eventQueue.current);
+                    persistGuestQueue(eventQueue.current, stableGuestBatchRef.current);
                     if (eventQueue.current.length > 0 && document.visibilityState === "visible") {
                         scheduleNonPriorityFlush();
                     }
                 } catch {
-                    persistGuestQueue(eventQueue.current);
+                    persistGuestQueue(eventQueue.current, stableGuestBatchRef.current);
                     scheduleRetainedQueueRetry();
                 } finally {
                     guestFlushInFlightRef.current = null;
@@ -469,23 +495,27 @@ export function DeepTracker() {
         };
 
         const persistQueueSoon = () => {
+            if (disposed) { persistGuestQueue(eventQueue.current, stableGuestBatchRef.current); return; }
             if (queuePersistTimeout !== null) {
                 return;
             }
 
             queuePersistTimeout = window.setTimeout(() => {
                 queuePersistTimeout = null;
-                persistGuestQueue(eventQueue.current);
+                persistGuestQueue(eventQueue.current, stableGuestBatchRef.current);
             }, 250);
         };
 
         const schedulePriorityFlush = () => {
-            window.setTimeout(() => {
+            if (disposed || priorityFlushTimeout !== null) return;
+            priorityFlushTimeout = window.setTimeout(() => {
+                priorityFlushTimeout = null;
                 void flushQueue("priority");
             }, CLIENT_TELEMETRY_PRIORITY_FLUSH_DELAY_MS);
         };
 
         const scheduleNonPriorityFlush = (delayMs = GUEST_ANALYTICS_FLUSH_INTERVAL_MS) => {
+            if (disposed) return;
             if (nonPriorityFlushTimeout !== null) {
                 return;
             }
@@ -535,7 +565,7 @@ export function DeepTracker() {
                 }
             }
 
-            if (!trimNonPriorityQueueForEvent(eventQueue.current, event)) {
+            if (!trimNonPriorityQueueForEvent(eventQueue.current, event, stableGuestBatchRef.current?.eventCount ?? 0)) {
                 return;
             }
 
@@ -545,13 +575,36 @@ export function DeepTracker() {
                 });
             }
 
-            eventQueue.current.push(event);
+            eventQueue.current.push({ ...event, queueIdentity: { anonymousVisitorId: capturedIdentity.anonymousVisitorId, sessionId: capturedIdentity.sessionId, consentMode: readPrivacySettingsSnapshot().consentMode } });
             guestFlushRetryAttempt = 0;
             persistQueueSoon();
             if (shouldFlushClientTelemetryOnNextTurn(event)) {
                 schedulePriorityFlush();
             } else {
                 scheduleNonPriorityFlush();
+            }
+        };
+
+        const makeCheckpoint = (status: "checkpoint" | "final", endedAtMs = Date.now()) => {
+            settleSessionTime(endedAtMs);
+            const next = { version: SESSION_MEASUREMENT_VERSION, segmentId: segment.id, sequence: (lastCheckpointRef.current?.sequence ?? 0) + 1,
+                startedAtMs: segment.startedAtMs, endedAtMs, activeMs: sessionTime.activeMs, idleMs: sessionTime.idleMs, hiddenMs: sessionTime.hiddenMs, status } satisfies SessionMeasurementCheckpoint;
+            const previous = lastCheckpointRef.current;
+            if (previous && previous.endedAtMs === next.endedAtMs && previous.activeMs === next.activeMs && previous.idleMs === next.idleMs && previous.hiddenMs === next.hiddenMs && previous.status === next.status) return previous;
+            lastCheckpointRef.current = next;
+            return next;
+        };
+
+        const trackObservedEvent = (eventName: string, eventParams: Record<string, unknown>) => {
+            const measurement = eventName.startsWith("session_") ? readSessionMeasurementFromParams(eventParams) ?? makeCheckpoint("checkpoint") : readSessionMeasurementFromParams(eventParams);
+            const timestamp = measurement?.endedAtMs ?? Date.now();
+            const params = { ...eventParams, source_truth: "client_supporting", ...(measurement ? { session_measurement: serializeSessionMeasurementCheckpoint(measurement) } : {}) };
+            trackEvent(eventName, params, { firstParty: !shouldCaptureAnonymousBatch, expectedUserId: actorUserId, eventTimestampMs: timestamp, sessionId: capturedIdentity.sessionId, pagePath: pathname });
+            if (shouldCaptureAnonymousBatch && eventName.startsWith("session_")) {
+                const checkpoint = measurement;
+                pushEvent({ type: "session", semanticEventName: eventName as GuestSemanticEventName, timestamp, path: pathname, targetId: "DeepTracker",
+                    ...(checkpoint ? { sessionMeasurement: checkpoint } : {}), activeMs: checkpoint?.activeMs, idleMs: checkpoint?.idleMs, hiddenMs: checkpoint?.hiddenMs,
+                    ...rawSemanticFields });
             }
         };
 
@@ -570,14 +623,16 @@ export function DeepTracker() {
                 return;
             }
 
+            const checkpoint = makeCheckpoint("checkpoint", now);
             lastSessionActivityTickAtRef.current = now;
-            trackEvent("session_activity_tick", {
+            trackObservedEvent("session_activity_tick", {
                 ...semanticParams,
                 page_path: pathname,
                 session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
-                active_ms: Math.max(0, now - pageEnteredAt.current - visibilitySummaryRef.current.totalHiddenMs),
-                idle_ms: 0,
-                hidden_ms: visibilitySummaryRef.current.totalHiddenMs,
+                session_measurement: serializeSessionMeasurementCheckpoint(checkpoint),
+                active_ms: sessionTime.activeMs,
+                idle_ms: sessionTime.idleMs,
+                hidden_ms: sessionTime.hiddenMs,
                 bounce_status: "unknown",
                 engagement_status: "engaged",
                 source_component: "DeepTracker",
@@ -618,6 +673,7 @@ export function DeepTracker() {
 
         const updateVisibilitySummary = (nextState: "visible" | "hidden") => {
             const now = Date.now();
+            settleSessionTime(now);
             const summary = visibilitySummaryRef.current;
             const elapsed = Math.max(0, now - summary.lastTransitionAt);
             if (summary.lastState === "visible") {
@@ -699,7 +755,16 @@ export function DeepTracker() {
         };
 
         const emitPageSummary = (reason: "pagehide" | "cleanup" | "visibility") => {
-            const closeoutKey = `${pathname}:${pageEnteredAt.current}`;
+            if (reason === "visibility") {
+                const checkpoint = makeCheckpoint("checkpoint");
+                trackObservedEvent("session_activity_tick", { ...semanticParams, page_path: pathname, session_id: capturedIdentity.sessionId, session_measurement: serializeSessionMeasurementCheckpoint(checkpoint), active_ms: checkpoint.activeMs, idle_ms: checkpoint.idleMs, hidden_ms: checkpoint.hiddenMs, source_component: "DeepTracker" });
+                persistGuestQueue(eventQueue.current, stableGuestBatchRef.current);
+                void flushQueue(reason, { preferBeacon: true });
+                return;
+            }
+            // StrictMode setup/cleanup replay has no observed interval or action to finalize.
+            if (Date.now() === segment.startedAtMs && clickCountRef.current + hoverCountRef.current + scrollCountRef.current === 0) return;
+            const closeoutKey = segment.id;
             if (finalCloseoutKeyRef.current === closeoutKey) {
                 return;
             }
@@ -720,27 +785,28 @@ export function DeepTracker() {
                 + hoverCountRef.current
                 + scrollCountRef.current
                 + (lastScrollDepth.current >= 25 ? 1 : 0);
-            const activeMs = meaningfulInteractionCount > 0
-                ? Math.max(0, Math.min(durationMs - visibilitySummary.totalHiddenMs, durationMs))
-                : 0;
+            const sessionTime = settleSessionTime(now);
             const sessionMetric = closeSession(updateSessionActivity(startSession({
                 sessionId: getClientAnalyticsIdentitySnapshot("granted").sessionId,
-                actorKind: "guest",
+                actorKind: actorUserId ? "signed_in" : "guest",
+                userId: actorUserId,
                 guestId: getClientAnalyticsIdentitySnapshot("granted").anonymousVisitorId,
                 startedAt: pageEnteredAt.current,
                 routeCount: 1,
             }), {
                 at: now,
-                activeMsDelta: activeMs,
-                foregroundMsDelta: durationMs,
-                hiddenMsDelta: visibilitySummary.totalHiddenMs,
+                activeMsDelta: sessionTime.activeMs,
+                idleMsDelta: sessionTime.idleMs,
+                foregroundMsDelta: sessionTime.activeMs + sessionTime.idleMs + sessionTime.hiddenMs,
+                hiddenMsDelta: sessionTime.hiddenMs,
                 eventCountDelta: clickCountRef.current + hoverCountRef.current + scrollCountRef.current + 1,
                 meaningfulInteractionCountDelta: meaningfulInteractionCount,
             }), {
                 endedAt: now,
-                endReason: reason === "pagehide" ? "pagehide" : reason === "visibility" ? "visibility_hidden" : "cleanup",
+                endReason: reason === "pagehide" ? "pagehide" : "cleanup",
                 closeoutObserved: true,
             });
+            const checkpoint = makeCheckpoint("final", now);
             const engaged = sessionMetric.engagementStatus === "engaged";
             const exitIntent = sessionMetric.bounceStatus === "bounced" ? "bounce" : "exit";
 
@@ -748,9 +814,10 @@ export function DeepTracker() {
                 type: "page_leave",
                 semanticEventName: engaged ? "semantic_page_engaged" : "semantic_page_passive",
                 semanticExitEventName: exitIntent === "bounce" ? "semantic_page_bounced" : "semantic_page_exited",
-                timestamp: Date.now(),
+                timestamp: now,
                 path: pathname,
                 durationMs,
+                sessionMeasurement: checkpoint,
                 scrollDepthPercent: lastScrollDepth.current,
                 interactionState: engaged ? "engaged" : "passive",
                 exitIntent,
@@ -772,10 +839,11 @@ export function DeepTracker() {
                 ...readTelemetryContext(),
             });
 
-            trackEvent("session_closed", {
+            trackObservedEvent("session_closed", {
                 ...semanticParams,
                 page_path: pathname,
                 session_id: sessionMetric.sessionId,
+                session_measurement: serializeSessionMeasurementCheckpoint(checkpoint),
                 active_ms: sessionMetric.activeMs,
                 idle_ms: sessionMetric.idleMs,
                 hidden_ms: sessionMetric.hiddenMs,
@@ -789,10 +857,11 @@ export function DeepTracker() {
                 end_reason: sessionMetric.endReason,
             });
 
-            trackEvent(sessionMetric.bounceStatus === "bounced" ? "session_bounced" : "session_engaged", {
+            trackObservedEvent(sessionMetric.bounceStatus === "bounced" ? "session_bounced" : "session_engaged", {
                 ...semanticParams,
                 page_path: pathname,
                 session_id: sessionMetric.sessionId,
+                session_measurement: serializeSessionMeasurementCheckpoint(checkpoint),
                 active_ms: sessionMetric.activeMs,
                 idle_ms: sessionMetric.idleMs,
                 hidden_ms: sessionMetric.hiddenMs,
@@ -801,10 +870,11 @@ export function DeepTracker() {
                 end_reason: sessionMetric.endReason,
             });
 
-            trackEvent(engaged ? "semantic_page_engaged" : "semantic_page_passive", {
+            trackObservedEvent(engaged ? "semantic_page_engaged" : "semantic_page_passive", {
                 ...semanticParams,
                 page_path: pathname,
                 duration_ms: durationMs,
+                session_measurement: serializeSessionMeasurementCheckpoint(checkpoint),
                 active_ms: sessionMetric.activeMs,
                 idle_ms: sessionMetric.idleMs,
                 hidden_ms: sessionMetric.hiddenMs,
@@ -818,10 +888,11 @@ export function DeepTracker() {
                 exit_reason: reason,
             });
 
-            trackEvent(exitIntent === "bounce" ? "semantic_page_bounced" : "semantic_page_exited", {
+            trackObservedEvent(exitIntent === "bounce" ? "semantic_page_bounced" : "semantic_page_exited", {
                 ...semanticParams,
                 page_path: pathname,
                 duration_ms: durationMs,
+                session_measurement: serializeSessionMeasurementCheckpoint(checkpoint),
                 active_ms: sessionMetric.activeMs,
                 idle_ms: sessionMetric.idleMs,
                 hidden_ms: sessionMetric.hiddenMs,
@@ -837,6 +908,8 @@ export function DeepTracker() {
             void flushQueue(reason, { preferBeacon: true });
         };
 
+        if (pageViewPathRef.current !== pathname) {
+        pageViewPathRef.current = pathname;
         pushEvent({
             type: "page_view",
             semanticEventName: "semantic_page_viewed",
@@ -847,21 +920,30 @@ export function DeepTracker() {
         });
         void flushQueue("page_view");
 
-        trackEvent("semantic_page_viewed", {
+        trackObservedEvent("semantic_page_viewed", {
             ...semanticParams,
             page_path: pathname,
         });
 
-        trackEvent("session_started", {
+        }
+        if (!startedSessionsRef.current.has(capturedIdentity.sessionId)) {
+        startedSessionsRef.current.add(capturedIdentity.sessionId);
+        const startedCheckpoint = makeCheckpoint("checkpoint");
+        trackObservedEvent("session_started", {
             ...semanticParams,
             page_path: pathname,
             session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
-            active_ms: 0,
-            idle_ms: 0,
-            hidden_ms: 0,
+            session_measurement: serializeSessionMeasurementCheckpoint(startedCheckpoint),
+            active_ms: startedCheckpoint.activeMs,
+            idle_ms: startedCheckpoint.idleMs,
+            hidden_ms: startedCheckpoint.hiddenMs,
             bounce_status: "unknown",
             engagement_status: "unknown",
         });
+
+        }
+
+        if (eventQueue.current.length > 0) scheduleNonPriorityFlush();
 
         const handleClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -872,6 +954,7 @@ export function DeepTracker() {
                 return;
             }
 
+            observeActivity();
             clickCountRef.current += 1;
             emitSessionActivityTick();
             const dropId = interactiveTarget.getAttribute("data-drop-id") || undefined;
@@ -891,7 +974,7 @@ export function DeepTracker() {
                 ...rawSemanticFields,
             });
 
-            trackEvent("semantic_target_clicked", {
+            trackObservedEvent("semantic_target_clicked", {
                 ...semanticParams,
                 page_path: pathname,
                 target_id: interactiveTarget.id || "",
@@ -900,7 +983,7 @@ export function DeepTracker() {
                 drop_id: dropId,
             });
 
-            trackEvent("session_meaningful_interaction", {
+            trackObservedEvent("session_meaningful_interaction", {
                 ...semanticParams,
                 page_path: pathname,
                 session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
@@ -919,6 +1002,7 @@ export function DeepTracker() {
                 return;
             }
 
+            observeActivity();
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
             const scrollPercent = Math.round((scrollTop / docHeight) * 100);
 
@@ -980,6 +1064,7 @@ export function DeepTracker() {
                 return;
             }
 
+            observeActivity();
             currentHoverTarget = interactiveTarget;
             currentHoverKey = getSafeTargetLabel(interactiveTarget);
             hoverStart.current[currentHoverKey] = Date.now();
@@ -1003,7 +1088,7 @@ export function DeepTracker() {
                 updateVisibilitySummary("hidden");
                 if (semanticContext.category === "drop" && pathname.startsWith("/dashboard/viewer") && !viewerBackgroundTrackedRef.current) {
                     viewerBackgroundTrackedRef.current = true;
-                    trackEvent("viewer_backgrounded", {
+                    trackObservedEvent("viewer_backgrounded", {
                         ...semanticParams,
                         page_path: pathname,
                         background_state: "hidden",
@@ -1011,6 +1096,7 @@ export function DeepTracker() {
                 }
 
                 emitPageSummary("visibility");
+                lastObservedActivityAt = null;
                 return;
             }
 
@@ -1021,8 +1107,17 @@ export function DeepTracker() {
             }
         };
 
-        const handlePageHide = () => {
-            emitPageSummary("pagehide");
+        const handlePageHide = (event: PageTransitionEvent) => {
+            updateVisibilitySummary("hidden");
+            lastObservedActivityAt = null;
+            emitPageSummary(event.persisted ? "visibility" : "pagehide");
+        };
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (event.persisted) {
+                updateVisibilitySummary(document.visibilityState === "hidden" ? "hidden" : "visible");
+                lastObservedActivityAt = null;
+                if (eventQueue.current.length > 0) scheduleNonPriorityFlush();
+            }
         };
         const handleOnline = () => {
             guestFlushRetryAttempt = 0;
@@ -1035,16 +1130,20 @@ export function DeepTracker() {
         document.addEventListener("mouseout", handleMouseOut, { passive: true });
         document.addEventListener("visibilitychange", handleVisibilityChange);
         window.addEventListener("pagehide", handlePageHide);
+        window.addEventListener("pageshow", handlePageShow);
         window.addEventListener("online", handleOnline);
 
         return () => {
+            disposed = true;
             document.removeEventListener("click", handleClick, true);
             window.removeEventListener("scroll", throttledScroll);
             document.removeEventListener("mouseover", handleMouseOver);
             document.removeEventListener("mouseout", handleMouseOut);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             window.removeEventListener("pagehide", handlePageHide);
+            window.removeEventListener("pageshow", handlePageShow);
             window.removeEventListener("online", handleOnline);
+            if (priorityFlushTimeout !== null) window.clearTimeout(priorityFlushTimeout);
             if (nonPriorityFlushTimeout !== null) {
                 window.clearTimeout(nonPriorityFlushTimeout);
             }
@@ -1055,11 +1154,11 @@ export function DeepTracker() {
             if (queuePersistTimeout !== null) {
                 window.clearTimeout(queuePersistTimeout);
                 queuePersistTimeout = null;
-                persistGuestQueue(eventQueue.current);
+                persistGuestQueue(eventQueue.current, stableGuestBatchRef.current);
             }
             emitPageSummary("cleanup");
         };
-    }, [pathname, trackingAllowed]);
+    }, [pathname, trackingAllowed, selectedUserId]);
 
     return null;
 }

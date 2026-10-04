@@ -1,6 +1,5 @@
 import {logger} from "firebase-functions"
 import {onSchedule} from "firebase-functions/v2/scheduler"
-import {setGlobalOptions} from "firebase-functions/v2"
 
 import {REGION} from "./firebase-runtime.js"
 import {
@@ -42,13 +41,6 @@ export {onGuestAnalyticsBatchCreated} from "./analytics-guest-batches.js"
 export {onDailyTaskEventCreated} from "./analytics-task-events.js"
 export {onSecurityEventCreated} from "./analytics-security-events.js"
 export {onTransactionCreated} from "./analytics-transactions.js"
-
-setGlobalOptions({
-  region: REGION,
-  memory: "512MiB",
-  minInstances: 0,
-  maxInstances: 10,
-})
 
 export const processQueueLifecycle = onSchedule({
   schedule: MAINTENANCE_SCHEDULES.processQueueLifecycle.schedule,

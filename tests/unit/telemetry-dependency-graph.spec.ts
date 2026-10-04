@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { validateTelemetryPersistenceBindings, validateTelemetryDependencyGraph } from "../../scripts/agent/validate-telemetry-dependency-graph";
 
 import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
 import {
@@ -84,5 +86,45 @@ describe("telemetry dependency graph", () => {
 
     expect(result.ok).toBe(true);
     expect(result.findings).toEqual([]);
+  });
+});
+
+describe("telemetry persistence reader follows actual owners", () => {
+  const paths = ["src/components/Analytics/DeepTracker.tsx", "src/lib/telemetry.ts", "src/app/api/analytics/ingest/route.ts",
+    "src/app/api/analytics/ingest-identified/route.ts", "src/lib/analytics/ingest-contract.ts", "src/lib/server/analytics-governance.ts"];
+  const sources = () => Object.fromEntries(paths.map(path => [path, readFileSync(path, "utf8")]));
+  it("accepts the actual guest and identified transport/persistence owners", () => {
+    expect(validateTelemetryPersistenceBindings(sources())).toEqual({ guest: true, identified: true });
+    const report = validateTelemetryDependencyGraph();
+    expect(report.blockingFailures).toEqual([]);
+  });
+  it.each([
+    [paths[0], "await submitGuestAnalyticsIngestPayload({", "await disconnectedGuestTransport({", "guest"],
+    [paths[1], 'fetch("/api/analytics/ingest",', 'fetch("/api/disconnected",', "guest"],
+    [paths[4], 'guestBatches: "analytics_guest_batches"', 'guestBatches: "disconnected_batches"', "guest"],
+    [paths[2], "transaction.create(guestBatchRef,", "transaction.create(disconnectedRef,", "guest"],
+    [paths[2], "await writeBehavioralTimelineProjection({", "await disconnectedProjection({", "guest"],
+    [paths[3], "createRuntimeFactFirestoreDocument({", "disconnectedDocument({", "identified"],
+    [paths[5], 'runtimeFacts: "analytics_event_facts"', 'runtimeFacts: "disconnected_facts"', "identified"],
+    [paths[3], "batch.create(ref, eventFactDocument)", "batch.create(disconnectedRef, eventFactDocument)", "identified"],
+    [paths[3], "await writeBehavioralTimelineProjection({", "await disconnectedProjection({", "identified"],
+  ])("rejects severed binding in %s: %s", (path, before, after, lane) => {
+    const input = sources();
+    expect(input[path]).toContain(before);
+    input[path] = input[path].replace(before, after) + `\n// ${before}\n`;
+    expect(validateTelemetryPersistenceBindings(input)[lane as "guest" | "identified"]).toBe(false);
+  });
+  it("rejects fake comment-only calls while retaining real imports", () => {
+    const input = sources();
+    input[paths[0]] = input[paths[0]].replace("await submitGuestAnalyticsIngestPayload({", "await disconnectedGuestTransport({")
+      + "\n// submitGuestAnalyticsIngestPayload({});\n";
+    expect(validateTelemetryPersistenceBindings(input).guest).toBe(false);
+  });
+  it("accepts a real imported alias and renamed guest reference", () => {
+    const input = sources();
+    input[paths[0]] = input[paths[0]].replace("submitGuestAnalyticsIngestPayload,", "submitGuestAnalyticsIngestPayload as flushGuest,")
+      .replace("await submitGuestAnalyticsIngestPayload({", "await flushGuest({");
+    input[paths[2]] = input[paths[2]].replaceAll("guestBatchRef", "retainedBatchReference");
+    expect(validateTelemetryPersistenceBindings(input)).toEqual({ guest: true, identified: true });
   });
 });

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { forwardRef } from "react";
+import Link from "next/link";
+import { forwardRef, useRef } from "react";
 import {
   BellRing,
   CalendarDays,
@@ -33,6 +34,8 @@ import {
 } from "@/app/dashboard/profile/hooks/useProfileState";
 import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/platform-config";
 import { trackEvent } from "@/lib/telemetry";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/creative-tim/ui/dialog";
+import { Button, buttonVariants } from "@/components/ui/Button";
 
 import {
   KandyActionRow,
@@ -49,11 +52,11 @@ function getNumberLabel(value: number | null) {
 }
 
 function getJoinedLabel(createdAt: number | undefined) {
-  return createdAt ? new Date(createdAt).toLocaleDateString([], { month: "short", year: "numeric" }) : "Recently";
+  return createdAt && Number.isFinite(createdAt) ? new Date(createdAt).toLocaleDateString([], { month: "short", year: "numeric" }) : "Unavailable";
 }
 
 const DownloadInProgressIcon = forwardRef<SVGSVGElement, LucideProps>(function DownloadInProgressIcon({ className, ...props }, ref) {
-  return <Loader2 ref={ref} {...props} className={className ? `animate-spin ${className}` : "animate-spin"} />;
+  return <Loader2 ref={ref} {...props} className={className ? `animate-spin motion-reduce:animate-none ${className}` : "animate-spin motion-reduce:animate-none"} />;
 });
 
 export function KandyProfilePanel({ state }: { state: ProfileState }) {
@@ -67,8 +70,8 @@ export function KandyProfilePanel({ state }: { state: ProfileState }) {
       icon={UserRound}
     >
       {isReadOnlyProjection ? <KandyReadOnlyNotice>Read-only admin projection. Profile edits are disabled.</KandyReadOnlyNotice> : null}
-      <div className="flex items-center gap-4 border-b border-white/8 px-4 py-5 sm:px-5">
-        <div className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-[1.45rem] border border-white/15 bg-black/35 shadow-[0_12px_28px_rgba(0,0,0,0.28)]">
+      <div className="flex flex-wrap items-center gap-4 border-b border-border px-4 py-5">
+        <div className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted">
           <input
             type="file"
             accept="image/*"
@@ -79,7 +82,7 @@ export function KandyProfilePanel({ state }: { state: ProfileState }) {
           />
           {state.isUploadingAvatar ? (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/65">
-              <Loader2 className="h-5 w-5 animate-spin text-white" aria-label="Uploading profile photo" />
+              <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none text-white" aria-label="Uploading profile photo" />
             </div>
           ) : (
             <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center bg-black/55 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
@@ -89,13 +92,13 @@ export function KandyProfilePanel({ state }: { state: ProfileState }) {
           {state.user?.photoURL ? (
             <Image src={state.user.photoURL} alt="Profile photo" fill sizes="80px" className="object-cover" />
           ) : (
-            <span className="flex h-full w-full items-center justify-center text-2xl font-black text-white">{state.avatarFallback}</span>
+            <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-foreground">{state.avatarFallback}</span>
           )}
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-lg font-black tracking-tight text-white">{state.profileIdentityLabel}</p>
-          <p className="mt-1 truncate text-sm text-white/55">{state.profileIdentityDetail}</p>
-          <p className="mt-3 text-xs font-semibold text-brand-pink">Tap your photo to change it</p>
+        <div className="min-w-0 flex-1 basis-40 break-words">
+          <p className="break-words text-lg font-semibold tracking-tight text-foreground">{state.profileIdentityLabel}</p>
+          <p className="mt-1 break-words text-sm text-muted-foreground">{state.profileIdentityDetail}</p>
+          <p className="mt-3 text-xs text-muted-foreground">{isReadOnlyProjection ? "Profile photo is read-only" : "Tap your photo to change it"}</p>
         </div>
       </div>
       <KandySettingsField
@@ -122,6 +125,8 @@ export function KandyProfilePanel({ state }: { state: ProfileState }) {
 export function KandyAccountDetailsPanel({ state }: { state: ProfileState }) {
   const isReadOnlyProjection = state.isCreatorProjectionActive;
   const balance = typeof state.userProfile?.gumDropsBalance === "number" ? state.userProfile.gumDropsBalance : null;
+  const paidBalance = typeof state.userProfile?.gumDropsPurchasedBalance === "number" ? state.userProfile.gumDropsPurchasedBalance : null;
+  const rewardBalance = typeof state.userProfile?.gumDropsRewardBalance === "number" ? state.userProfile.gumDropsRewardBalance : null;
   const unlockedCount = state.userProfile ? state.userProfile.unlockedContent.length : null;
 
   return (
@@ -149,20 +154,24 @@ export function KandyAccountDetailsPanel({ state }: { state: ProfileState }) {
         options={[...TIMEZONE_OPTIONS]}
         disabled={isReadOnlyProjection}
       />
-      <div className="grid grid-cols-3 divide-x divide-white/10 bg-black/20">
-        <div className="px-3 py-4 text-center">
-          <p className="truncate text-base font-black text-white">{getNumberLabel(balance)}</p>
-          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-white/45">GumDrops</p>
+      <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] divide-x divide-border">
+        <div className="min-w-0 break-words px-3 py-4 text-center">
+          <dt className="text-xs text-muted-foreground">GumDrops</dt>
+          <dd className="mt-1 break-words text-base font-medium text-foreground">{getNumberLabel(balance)}</dd>
         </div>
-        <div className="px-3 py-4 text-center">
-          <p className="truncate text-base font-black text-white">{getNumberLabel(unlockedCount)}</p>
-          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Unwrapped</p>
+        <div className="min-w-0 break-words px-3 py-4 text-center">
+          <dt className="text-xs text-muted-foreground">Unwrapped</dt>
+          <dd className="mt-1 break-words text-base font-medium text-foreground">{getNumberLabel(unlockedCount)}</dd>
         </div>
-        <div className="px-3 py-4 text-center">
-          <p className="truncate text-sm font-black text-white">{getJoinedLabel(state.userProfile?.createdAt)}</p>
-          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Joined</p>
+        <div className="min-w-0 break-words px-3 py-4 text-center">
+          <dt className="text-xs text-muted-foreground">Joined</dt>
+          <dd className="mt-1 text-sm font-medium text-foreground">{getJoinedLabel(state.userProfile?.createdAt)}</dd>
         </div>
-      </div>
+      </dl>
+      <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] divide-x divide-border border-t border-border">
+        <div className="min-w-0 break-words px-3 py-4 text-center"><dt className="text-xs text-muted-foreground">Paid GumDrops</dt><dd className="mt-1 break-words text-sm font-medium text-foreground">{getNumberLabel(paidBalance)}</dd></div>
+        <div className="min-w-0 break-words px-3 py-4 text-center"><dt className="text-xs text-muted-foreground">Reward GumDrops</dt><dd className="mt-1 break-words text-sm font-medium text-foreground">{getNumberLabel(rewardBalance)}</dd></div>
+      </dl>
     </KandySettingsPanel>
   );
 }
@@ -360,6 +369,7 @@ export function KandyPrivacyDataPanel({ state }: { state: ProfileState }) {
 }
 
 export function KandySupportSafetyPanel({ state }: { state: ProfileState }) {
+  const deletionTitleRef = useRef<HTMLHeadingElement>(null);
   const trackSupportAction = (settingId: string) => {
     trackEvent("setting_action_clicked", {
       setting_id: settingId,
@@ -374,7 +384,12 @@ export function KandySupportSafetyPanel({ state }: { state: ProfileState }) {
   };
 
   return (
-    <>
+    <Dialog
+      open={state.deleteConfirmationOpen}
+      onOpenChange={(open) => {
+        if (!open && !state.isDeleting) state.handleCancelAccountDeletion();
+      }}
+    >
       <KandySettingsPanel
         eyebrow="Help and safety"
         title="Support and account safety"
@@ -392,72 +407,65 @@ export function KandySupportSafetyPanel({ state }: { state: ProfileState }) {
             void state.logout();
           }}
         />
+        <DialogTrigger asChild>
         <KandyActionRow
           label="Delete account"
-          description="Permanently erase all your data."
+          description="Permanently delete your account."
           icon={state.isDeleting ? Loader2 : Trash2}
           onClick={() => {
             trackSupportAction("delete_account");
             state.handleRequestDeletion();
           }}
           destructive
+          disabled={state.isDeleting || state.isCreatorProjectionActive}
         />
+        </DialogTrigger>
       </KandySettingsPanel>
 
-      {state.deleteConfirmationOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-8 backdrop-blur-md sm:items-center"
-          data-account-delete-confirmation-modal="true"
-          role="dialog"
+        <DialogContent
           aria-modal="true"
-          aria-labelledby="account-delete-title"
+          showCloseButton={false}
+          className="gap-0 overflow-x-hidden p-0"
+          data-account-delete-confirmation-modal="true"
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            deletionTitleRef.current?.focus();
+          }}
+          onEscapeKeyDown={(event) => {
+            if (state.isDeleting) event.preventDefault();
+          }}
+          onInteractOutside={(event) => event.preventDefault()}
         >
-          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-red-300/20 bg-[linear-gradient(145deg,rgba(58,18,38,0.98),rgba(12,8,17,0.98))] text-white shadow-[0_30px_90px_rgba(0,0,0,0.68)]">
-            <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-5">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-red-200">Permanent action</p>
-                <h3 id="account-delete-title" className="mt-1 text-xl font-black tracking-tight text-white">Delete account?</h3>
-                <p className="mt-2 text-sm leading-6 text-white/65">
-                  This permanently deletes your account, KandyDrops collection, and account data after this confirmation. This cannot be undone.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={state.handleCancelAccountDeletion}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
-                aria-label="Cancel account deletion"
-              >
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-border p-4">
+                <p className="min-w-0 break-words text-xs font-medium text-destructive">Permanent action</p>
+              <DialogClose asChild><Button type="button" variant="ghost" size="icon" disabled={state.isDeleting} aria-label="Cancel account deletion" className="shrink-0">
                 <X className="h-4 w-4" aria-hidden="true" />
-              </button>
+              </Button></DialogClose>
+                <DialogTitle asChild><h3 ref={deletionTitleRef} tabIndex={-1} className="col-span-2 min-w-0 break-words text-xl font-semibold tracking-tight text-foreground">Delete account?</h3></DialogTitle>
+                <DialogDescription asChild>
+                  <p className="col-span-2 min-w-0 break-words text-sm leading-relaxed text-muted-foreground">
+                    You will lose access to your account and KandyDrops collection. Some records may be retained for legal, security, or payment obligations as described in our <Link href="/privacy" className="inline-flex min-h-11 min-w-11 max-w-full items-center break-words underline underline-offset-4">Privacy Policy</Link>. This cannot be undone.
+                  </p>
+                </DialogDescription>
             </div>
 
             {state.deletionFeedback ? (
-              <div className="mx-5 mt-5 rounded-2xl border border-red-300/25 bg-red-500/10 px-3 py-3 text-sm leading-6 text-red-100">
+              <div role="alert" className="mx-4 mt-4 min-w-0 break-words rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-3 text-sm leading-relaxed text-foreground">
                 {state.deletionFeedback}
               </div>
             ) : null}
 
-            <div className="grid grid-cols-2 gap-3 px-5 py-5">
-              <button
-                type="button"
-                onClick={state.handleCancelAccountDeletion}
-                className="min-h-11 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm font-bold text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:cursor-not-allowed disabled:opacity-65"
-                disabled={state.isDeleting}
-              >
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-3 p-4">
+              <DialogClose asChild><Button type="button" variant="outline" disabled={state.isDeleting} className="min-w-0 break-words">
                 Keep account
-              </button>
-              <button
-                type="button"
-                onClick={state.handleConfirmAccountDeletion}
-                className="min-h-11 rounded-2xl bg-red-500 px-4 text-sm font-extrabold text-white shadow-lg shadow-red-950/30 transition hover:bg-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 disabled:cursor-not-allowed disabled:opacity-65"
-                disabled={state.isDeleting}
-              >
+              </Button></DialogClose>
+              {state.deletionRequiresSupportReview ? (
+                <Link href="/dashboard/support" className={buttonVariants({ variant: "brand", className: "min-w-0 break-words" })}>Contact support</Link>
+              ) : <Button type="button" variant="danger" className="min-w-0 break-words" onClick={state.handleConfirmAccountDeletion} disabled={state.isDeleting} aria-busy={state.isDeleting}>
                 {state.isDeleting ? "Deleting..." : "Delete account"}
-              </button>
+              </Button>}
             </div>
-          </div>
-        </div>
-      ) : null}
-    </>
+        </DialogContent>
+    </Dialog>
   );
 }

@@ -1,3 +1,6 @@
+import type { SessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
+import type { RuntimeFactRequestConsentAdmission } from "@/lib/runtime-facts/runtime-fact-contract";
+
 export const BEHAVIORAL_TIMELINE_CONTRACT_VERSION = "behavioral_timeline_v1";
 
 export type BehavioralTimelineActorType = "guest" | "user" | "creator" | "admin" | "system";
@@ -40,6 +43,8 @@ export type BehavioralTimelineFact = {
   sourceTruth: BehavioralTimelineSourceTruth;
   sourceReliability: number;
   consentState: BehavioralConsentState;
+  requestConsentAdmission?: RuntimeFactRequestConsentAdmission;
+  sessionMeasurement?: SessionMeasurementCheckpoint;
   includeInGlobalEvents?: boolean;
   includeInPersonMetrics?: boolean;
   adminExcludedCount?: number;

@@ -1,14 +1,14 @@
 # Frontend Component Consolidation
 
-Generated: 2026-08-29T04:19:29.065Z
-Current head: 740dc2b5fb2a41b2f9762c847679fa8db9a08912
+Generated: 2026-10-03T05:23:34.970Z
+Current head: 1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8
 
 ## Summary
 
-- Components audited: 361
+- Components audited: 358
 - Bloated components found: 10
 - Duplicate local state risks classified: 16
-- Direct telemetry calls routed to owner review: 261
+- Direct telemetry calls routed to owner review: 255
 - Hydration race risks classified: 13
 
 ## Top Gaps
@@ -16,13 +16,13 @@ Current head: 740dc2b5fb2a41b2f9762c847679fa8db9a08912
 - src/components/Chat/ChatExperience.tsx: split_component
 - src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx: split_component
 - src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx: split_component
-- src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx: split_component
 - src/app/creators/[username]/CreatorProfileClient.tsx: split_component
 - src/app/admin/users/page.tsx: split_component
 - src/app/admin/roster/page.tsx: split_component
 - src/components/Admin/CreateDropModal.tsx: split_component
-- src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx: split_component
 - src/app/admin/user/[userId]/page.tsx: split_component
+- src/context/AuthContext.tsx: split_component
+- src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx: split_component
 
 ## Dirty File Classification
 

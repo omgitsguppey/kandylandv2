@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-08-29T04:08:39.164Z",
+  "generatedAtUtc": "2026-10-02T18:29:18.718Z",
   "reportKey": "support-policy-surface-cleanup",
   "status": "pass",
-  "currentHead": "fde24e265d1a33a3915e59b7af74af5113ddfde3",
-  "supportPolicyContractVersion": "2026.05.support-policy-surface.1",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "supportPolicyContractVersion": "2026.10.support-policy-surface.1",
   "surfaces": [
     {
       "id": "faq",
@@ -65,7 +65,7 @@
       "id": "data_export",
       "label": "Download My Data",
       "canonicalRoute": "/settings",
-      "routeSource": "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+      "routeSource": "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx",
       "backendRouteOrAction": "/api/user/data",
       "accountSettingsSettingId": "download_my_data",
       "featureRegistrationId": "user_dashboard",
@@ -102,13 +102,7 @@
   "routeSourcesMissing": [],
   "duplicateRoutes": [],
   "surfacesWithoutFallback": [],
-  "changedFiles": [
-    "agent/context/optimized-task-context.generated.json",
-    "agent/state/mobile-residual-score-impact.generated.json",
-    "agent/state/user-profile-api-contract.generated.json",
-    "docs/agent-truth/mobile-residual-score-impact.md",
-    "docs/agent-truth/user-profile-api-contract.md"
-  ],
+  "changedFiles": [],
   "protectedChanges": [],
   "checks": {
     "packageScriptPresent": true,
@@ -124,5 +118,19 @@
     "noBrokenOrDishonestSurfaces": true,
     "protectedSurfacesUntouched": true
   },
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-account-responsive-release-20261002",
+    "inputHash": "8d2428af888cdcf736b750ec5061f8c40977617fc4bf81b263b3d8ced79a4284",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "41be66efd851cf1d9248cc1392c93631afa52f483ad39b44cdcc5f73ae9b60a6",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 332,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

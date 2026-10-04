@@ -6,10 +6,36 @@ import {
 } from "@/lib/behavioral/event-fact-contract";
 import {
   dedupeBehavioralEventFacts,
+  describeBehavioralAction,
   normalizeBehavioralEventFactWithDiagnostics,
 } from "@/lib/behavioral/normalize-event-fact";
+import { buildBehavioralEventFactRollup } from "@/lib/server/event-fact-rollup";
+import { materializeCanonicalMetricFact } from "@/lib/server/metric-fact-materializer";
 
 describe("behavioral event facts", () => {
+  it("closes semantic actions through existing labels and rollups without adding payment or reward metrics", () => {
+    const actions = ["page_viewed", "target_clicked", "page_engaged", "page_passive", "page_bounced", "page_exited"] as const;
+    const facts = actions.map((action, index) => normalizeBehavioralEventFactWithDiagnostics({
+      eventId: `semantic_closure:${index}`, eventName: `semantic_${action}`, timestamp: 1000 + index,
+      params: { route: "/drops", target_id: "open-drop", source_component: "SemanticTracker" },
+      anonymousVisitorId: "subject_semantic", sessionId: "sess_semantic", source: "client",
+    }).fact);
+    expect(facts.every(Boolean)).toBe(true);
+    const rollup = buildBehavioralEventFactRollup({ facts });
+    expect(rollup.facts).toHaveLength(6);
+    for (const action of actions) {
+      expect(rollup.counts[action]).toBe(1);
+      expect(describeBehavioralAction(action)).toMatch(/\S/);
+    }
+    expect(facts.map(fact => materializeCanonicalMetricFact(fact!))).toEqual([null, null, null, null, null, null]);
+  });
+  it("preserves distinct semantic action IDs while deduplicating retries of the same action", () => {
+    const makeFact = (eventId: string) => normalizeBehavioralEventFactWithDiagnostics({ eventId, eventName: "semantic_target_clicked", params: { route: "/drops", target_id: "open-drop", source_component: "drop-grid" }, timestamp: 1000, sessionId: "sess_semantic", anonymousVisitorId: "subject_semantic", source: "client" }).fact;
+    const first = makeFact("batch_actions_123456:0");
+    const second = makeFact("batch_actions_123456:1");
+    expect(first).toMatchObject({ normalizedAction: "target_clicked", source: "client", entityId: "open-drop" });
+    expect(dedupeBehavioralEventFacts([first, first, second])).toHaveLength(2);
+  });
   it("exposes the canonical normalized actions", () => {
     expect(BEHAVIORAL_NORMALIZED_ACTIONS).toEqual(
       expect.arrayContaining([

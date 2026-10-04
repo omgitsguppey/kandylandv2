@@ -84,7 +84,7 @@ for (const expected of [
     "data-privacy-check-last-seen-at-utc",
     "data-privacy-check-reason-code",
     "data-privacy-check-source",
-    "Waiting for admin session...",
+    'adminSessionState === "waiting_for_admin_session"',
 ]) {
     requireIncludes(privacyPanel, expected, "Privacy console panel");
 }

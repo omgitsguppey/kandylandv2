@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-07-03T08:12:04.096Z",
+  "generatedAtUtc": "2026-10-01T20:50:50.133Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "uiSurfaceCoverageScope": {
@@ -20,7 +20,7 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 60.5,
+      "score": 57.17,
       "note": "UI source coverage is the default readiness evidence; optional browser reproduction must follow a source-reported UI issue and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
@@ -30,7 +30,7 @@
     "confidence": "partial",
     "score": 75.56,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-    "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+    "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
     "formalGateCleared": false,
     "nextAction": "Produce deployed runtime route evidence before clearing the runtime lane."
@@ -41,7 +41,7 @@
     "confidence": "partial",
     "score": 73.45,
     "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-    "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+    "sourceStatus": "fail;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
     "formalGateCleared": false,
     "nextAction": "Keep behavior math and real usage confidence artifacts current."
@@ -72,7 +72,7 @@
     "category": "cost_gate",
     "label": "Cost source confidence",
     "confidence": "partial",
-    "score": 45,
+    "score": 25,
     "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
     "sourceStatus": "source_cost_readiness_present",
     "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
@@ -90,7 +90,7 @@
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 60.5,
+  "nonUiAlgorithmicCoverageScore": 57.17,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
     "deployedRuntimeSmokeCleared": false,
@@ -109,7 +109,7 @@
       "confidence": "partial",
       "score": 75.56,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-      "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;partial_source_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+      "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
       "formalGateCleared": false,
       "nextAction": "Produce deployed runtime route evidence before clearing the runtime lane."
@@ -120,7 +120,7 @@
       "confidence": "partial",
       "score": 73.45,
       "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-      "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+      "sourceStatus": "fail;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
       "formalGateCleared": false,
       "nextAction": "Keep behavior math and real usage confidence artifacts current."
@@ -151,7 +151,7 @@
       "category": "cost_gate",
       "label": "Cost source confidence",
       "confidence": "partial",
-      "score": 45,
+      "score": 25,
       "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
       "sourceStatus": "source_cost_readiness_present",
       "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
@@ -171,15 +171,18 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "84820ddc673f44a8094c37b382e7d0af5f3fb3ad",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "scoreProbe": {
-    "runtimeHealthScore": 61.91,
-    "evidenceCompletenessScore": 50.8,
-    "readinessStatus": "Source evidence required",
+    "runtimeHealthScore": 0,
+    "evidenceCompletenessScore": 54.17,
+    "readinessStatus": "External proof required",
     "launchBlockers": [
-      "Provider-backed source activity evidence: Source evidence required",
+      "Provider-backed source activity + deployed route evidence: Source evidence required",
+      "Protected payment source-of-funds proof: External proof required",
       "Admin source activity evidence: Source evidence required",
-      "Report freshness and PR integrity: Source evidence required"
+      "cloudRunCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining).",
+      "cloudSqlCostReadiness remains source-cost/external-review tracked (source_ready_no_runtime_usage_detected).",
+      "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining)."
     ]
   }
 }

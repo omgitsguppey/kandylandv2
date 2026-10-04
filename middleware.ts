@@ -17,12 +17,14 @@ import { getCanonicalSiteHost } from "@/lib/site-origin";
 import { cheap4xxResponse } from "@/lib/server/cheap-4xx-response";
 import { isInternalBypassPath, isKnownBotProbePath, isKnownLegacyPath } from "@/lib/server/route-4xx-classifier";
 import {
-  MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH,
   MAINTENANCE_ADMIN_API_PATH,
   MAINTENANCE_ADMIN_BOOTSTRAP_PATH,
   MAINTENANCE_ADMIN_DROP_PREFLIGHT_PATH,
   MAINTENANCE_NAVIGATION_SESSION_PATH,
+  isMaintenanceAdminBrowseRequest,
+  isMaintenancePublicAssetRequest,
   isMaintenanceBlockedAdminApiPath,
+  resolveMaintenanceAdminReturnPath,
 } from "./shared/runtime/maintenance-mode-contract";
 
 
@@ -165,8 +167,16 @@ function isReviewedAdminApiPath(pathname: string) {
     || pathname === MAINTENANCE_ADMIN_DROP_PREFLIGHT_PATH;
 }
 
-function isMaintenanceTicketPath(pathname: string) {
-  return isAdminPagePath(pathname) || isReviewedAdminApiPath(pathname);
+function isMaintenanceTicketPath(pathname: string, method: string) {
+  return isAdminPagePath(pathname) || isReviewedAdminApiPath(pathname)
+    || isMaintenanceAdminBrowseRequest(pathname, method);
+}
+
+function continueMaintenanceAdminRequest() {
+  const response = NextResponse.next();
+  response.headers.set("cache-control", "private, no-store");
+  response.headers.set("vary", "Cookie");
+  return response;
 }
 
 export async function middleware(request: NextRequest) {
@@ -185,26 +195,38 @@ export async function middleware(request: NextRequest) {
   if (isMaintenanceModeEnabled()) {
     if (
       pathname === MAINTENANCE_ADMIN_BOOTSTRAP_PATH
-      || (pathname === MAINTENANCE_NAVIGATION_SESSION_PATH && request.method === "POST")
+      || (pathname === MAINTENANCE_NAVIGATION_SESSION_PATH && (request.method === "POST" || request.method === "DELETE"))
+      || isMaintenancePublicAssetRequest(pathname, request.method)
     ) {
       return NextResponse.next();
     }
 
-    if (isMaintenanceBlockedAdminApiPath(pathname)) {
+    if (isMaintenanceBlockedAdminApiPath(pathname, request.method)) {
       return buildMaintenanceApiResponse();
     }
 
-    if (isMaintenanceTicketPath(pathname)) {
-      if (pathname === MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH) {
-        return buildMaintenanceApiResponse();
-      }
-
+    if (isMaintenanceTicketPath(pathname, request.method)) {
       const ticket = await verifyMaintenanceAdminSessionCookieValue(
         request.cookies.get(MAINTENANCE_ADMIN_SESSION_COOKIE)?.value,
       );
 
       if (ticket) {
-        return NextResponse.next();
+        return continueMaintenanceAdminRequest();
+      }
+
+      // A signed navigation hint can request fresh server verification, never bypass it.
+      if (request.method === "GET" && pathname !== "/api" && !pathname.startsWith("/api/")) {
+        const session = await getNavigationSession();
+        if (session?.role === "admin") {
+          const redirectUrl = request.nextUrl.clone();
+          redirectUrl.pathname = MAINTENANCE_ADMIN_BOOTSTRAP_PATH;
+          redirectUrl.search = "";
+          redirectUrl.searchParams.set("next", resolveMaintenanceAdminReturnPath(pathname + request.nextUrl.search));
+          const response = NextResponse.redirect(redirectUrl);
+          response.headers.set("cache-control", "private, no-store");
+          response.headers.set("vary", "Cookie");
+          return response;
+        }
       }
     }
 

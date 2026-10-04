@@ -18,10 +18,12 @@ const invariants: Invariant[] = [
   {
     id: "chat-route-main-height",
     file: "src/components/Chat/ChatRouteShell.tsx",
-    description: "chat route bounds the root main element to a 100dvh-backed visual viewport token",
-    test: (source) => source.includes("USER_MOBILE_CHAT_VIEWPORT_HEIGHT")
-      && source.includes("mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT")
-      && source.includes("mainElement.style.maxHeight = USER_MOBILE_CHAT_VIEWPORT_HEIGHT")
+    description: "chat route bounds main to the shared visual viewport less the measured header",
+    test: (source) => source.includes("USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT")
+      && source.includes("mainElement.style.height = USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT")
+      && source.includes("mainElement.style.maxHeight = USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT")
+      && readRepoFile("src/lib/user-mobile-shell.ts").includes("calc(${USER_MOBILE_CHAT_VIEWPORT_HEIGHT} - ${USER_TOP_NAV_VISUAL_HEIGHT})")
+      && readRepoFile("src/lib/user-mobile-shell.ts").includes("var(--chat-visual-viewport-height, 100dvh)")
       && source.includes("--chat-visual-viewport-height")
       && source.includes('mainElement.style.minHeight = "0"'),
   },

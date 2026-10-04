@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-10-03 Retired preview modal control transfer
+
+The unused `src/components/DropPreviewModal.tsx` is physically removed after tracing its runtime callers, verification readers and unique controls. Historical file/function rows below remain dated evidence. The existing legacy-handoff reader owns physical absence and active entry-point bans; the registry records removal. Current cost, confirmation, funds and failure recovery remain in LockedDropPreviewClient/View and their canonical server owners. The returned Share handler retains the encoded safe URL and native/clipboard sinks. Current passive Badge, full timer name, accessibility and image/security readers follow the active preview instead of requiring a dead modal. Modal-only Close/focus-trap and confirmation-toggle expectations do not apply to a full page; Wallet/Dialog controls remain independently guarded.
+
+The initial adopted modal verification records 83/83 cases across four existing test owners under `output/manual-discovery-modal-release-20261003/`. The later Discovery composition and shared traversal run records 107 PASS and three FAIL of 110 cases under `output/manual-discovery-modal-release-v2-20261003/`; its stale height/style assertions are transferred to their existing sourced control owners without removing affordability, telemetry or disclosure safeguards. Current affected recovery, integration gates, deployment and broader discovery/human acceptance remain separate requirements. This does not refresh the historical repo-wide coverage claim.
+
 ## 2026-06-19 External Audit Intake Doctrine Coverage
 
 - [x] `AGENTS.md` and `docs/agent-truth/current-operator-doctrine.md` now classify external audits as hypothesis input until local source, config, or formal evidence proves the finding.
@@ -1088,73 +1094,31 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ### `.agent/skills/doctrine-consultation.md`
 
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `.agent/workflows/audit-hydration.md`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `.agent/workflows/audit-legacy.md`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `.agent/workflows/audit-performance.md`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `.agent/workflows/audit-realtime.md`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `.agent/workflows/audit-telemetry.md`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Retained as the mandatory compact-first doctrine control for UI, copy, state, telemetry-label, and admin-truth work; its active caller is `AGENTS.md`.
 
 ### `.agent/workflows/auto-tasks.md`
 
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Consolidated on 2026-09-29 into the canonical small command menu; literal package commands are checked by `check:agent-context`.
 
 ### `.agent/workflows/dependency-audit.md`
 
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `.agent/workflows/dependency-truth.md`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `.agent/workflows/kandydrops-guardrails.md`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Consolidated on 2026-09-29 as the sole dependency-change workflow; it delegates to existing dependency owners and forbids casual package mutation.
 
 ### `.agent/workflows/pre-commit.md`
 
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Retained for authorized commit/push verification; it does not grant publish or deployment authority.
 
 ### `.agent/workflows/simulate-ui.md`
 
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Retained as an explicit diagnostic-only browser workflow; source-first checks remain the default detector.
 
 ### `.agent/workflows/sync-ledgers.md`
 
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Retained for governance, ownership, and verification-policy changes only.
 
 ### `.agent/workflows/ui-copy-refinement-workflow.md`
 
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Retained as the mandatory UI/copy companion to doctrine consultation.
 
 ### `.claude/agents/test-specialist.md`
 
@@ -1839,7 +1803,7 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 ### `functions/pnpm-lock.yaml`
 
 - [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
+- [x] Historical inventory only: retired 2026-10-01 after the provider selected this redundant lock over the verified npm owner and failed installation. Current Functions dependency truth is `functions/package.json` and `functions/package-lock.json`; source/workspace recovery is retained under the manual deployment evidence.
 
 ### `functions/src/analytics-bigquery-export.ts`
 

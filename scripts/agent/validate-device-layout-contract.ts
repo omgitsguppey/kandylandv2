@@ -26,6 +26,31 @@ function requireNotIncludes(source: string, needle: string, label: string) {
   }
 }
 
+function requireComposedIncludes(
+  parentSource: string,
+  componentName: string,
+  ownerSource: string,
+  needle: string,
+  label: string,
+) {
+  if (!parentSource.includes(`<${componentName}`)) {
+    failures.push(`${label} must compose ${componentName}.`);
+    return;
+  }
+
+  requireIncludes(ownerSource, needle, label);
+}
+
+function extractTopNavBehavior(contractSource: string) {
+  const match = contractSource.match(/topNav:\s*\{\s*behavior:\s*"([^"]+)"/s);
+  if (!match) {
+    failures.push("Device layout contract must declare a top nav behavior.");
+    return null;
+  }
+
+  return match[1];
+}
+
 function walkSourceFiles(startPath: string): string[] {
   const absoluteStart = join(root, startPath);
   if (!existsSync(absoluteStart)) {
@@ -61,6 +86,7 @@ const mobileShell = readRequired("src/lib/user-mobile-shell.ts");
 const coreLayout = readRequired("src/components/CoreLayoutWrapper.tsx");
 const navbar = readRequired("src/components/Navbar.tsx");
 const bottomNav = readRequired("src/components/Navigation/MobileBottomBar.tsx");
+const navigationPrimitives = readRequired("src/components/creative-tim/kandydrops/navigation/KandyNavigationPrimitives.tsx");
 const scrollToTop = readRequired("src/components/Navigation/ScrollToTop.tsx");
 const bugReportTrigger = readRequired("src/components/Feedback/GlobalBugReportTrigger.tsx");
 const chatExperience = readRequired("src/components/Chat/ChatExperience.tsx");
@@ -169,10 +195,21 @@ if (browserUtils.includes("isStandalone") || contract.includes("detectDeviceDisp
 }
 
 requireIncludes(navbar, "data-device-layout-surface=\"top-nav\"", "Top nav debug marker");
-requireIncludes(navbar, "data-top-nav-behavior=\"fixed-floating-glass\"", "Top nav behavior marker");
-requireIncludes(bottomNav, "data-device-layout-surface=\"mobile-bottom-nav\"", "Mobile bottom nav debug marker");
-requireIncludes(bottomNav, "data-bottom-nav-role=\"navigation\"", "Mobile bottom nav role marker");
-requireIncludes(bottomNav, "data-bottom-nav-visual-height=\"56\"", "Mobile bottom nav visual height marker");
+const topNavBehavior = extractTopNavBehavior(contract);
+if (topNavBehavior) {
+  requireIncludes(navbar, `data-top-nav-behavior="${topNavBehavior}"`, "Top nav behavior marker");
+}
+requireComposedIncludes(bottomNav, "KandyMobileNavigationDock", navigationPrimitives, "data-device-layout-surface=\"mobile-bottom-nav\"", "Mobile bottom nav debug marker");
+requireComposedIncludes(bottomNav, "KandyMobileNavigationDock", navigationPrimitives, "data-bottom-nav-role=\"navigation\"", "Mobile bottom nav role marker");
+requireComposedIncludes(bottomNav, "KandyMobileNavigationDock", navigationPrimitives, "data-bottom-nav-min-visual-height={DEVICE_LAYOUT_COMPONENT_SIZING.bottomNavVisualHeightPx}", "Mobile bottom nav canonical minimum marker");
+requireIncludes(bottomNav, 'dock.setAttribute("data-bottom-nav-visual-height", String(height))', "Mobile bottom nav measured visual height marker");
+requireIncludes(mobileShell, "var(--kd-mobile-bottom-nav-visual-height, 3.5rem)", "Mobile bottom nav measured reservation with minimum fallback");
+requireIncludes(navigationPrimitives, "DEVICE_PRIMARY_NAVIGATION_CLASSES.expanded", "Primary navigation shares the canonical expanded boundary");
+requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_VISIBILITY_CLASS_NAME", "Mobile navigation shares the canonical compact boundary");
+if (bottomNav.includes("pointer-events-none")) {
+  const mobileDock = navigationPrimitives.slice(navigationPrimitives.indexOf("export function KandyMobileNavigationDock"));
+  requireComposedIncludes(bottomNav, "KandyMobileNavigationDock", mobileDock, "pointer-events-auto", "Interactive mobile bottom nav inside its pointer-transparent wrapper");
+}
 requireIncludes(coreLayout, "data-user-mobile-shell-route", "Core layout shell route marker");
 
 for (const [file, source] of [
@@ -200,7 +237,9 @@ for (const [file, source] of [
   requireNotIncludes(source, "translate-y-", `${file} translate centering hack`);
 }
 
-requireIncludes(chatRouteShell, "USER_MOBILE_CHAT_VIEWPORT_HEIGHT", "Chat route viewport token");
+requireIncludes(chatRouteShell, "USER_MOBILE_CHAT_MAIN_VIEWPORT_HEIGHT", "Chat route main viewport token");
+requireIncludes(chatRouteShell, "mainElement.style.flex = \"none\"", "Chat explicit main viewport ownership");
+requireIncludes(chatRouteShell, "mainElement.style.flex = previousMainFlex", "Chat main viewport cleanup");
 requireIncludes(mobileShell, "100dvh", "Chat route dynamic viewport fallback");
 requireIncludes(chatExperience, "data-chat-shell-mode", "Chat shell mode marker");
 requireIncludes(chatExperience, "data-chat-viewport-owner=\"internal\"", "Chat internal viewport ownership marker");

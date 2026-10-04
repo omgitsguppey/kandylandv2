@@ -142,6 +142,22 @@ describe("POST /api/checkin", () => {
         vi.useRealTimers();
     });
 
+    it("returns a typed missing-profile response without awarding a check-in", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/checkin", { method: "POST" }));
+        const payload = await response.json();
+
+        expect(response.status).toBe(404);
+        expect(payload).toMatchObject({
+            success: false,
+            errorCode: "profile_missing",
+            resource: "user",
+            routeStatus: "expected_typed_client_error",
+            retryable: false,
+        });
+        expect(mockState.transactionWrites).toEqual([]);
+        expect(mockState.recordCanonicalTaskEvent).not.toHaveBeenCalled();
+    });
+
     it("suppresses duplicate daily reward claims for the same CST day", async () => {
         mockState.documents.set("users/fan_1", {
             uid: "fan_1",

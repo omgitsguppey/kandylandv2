@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import ts from "typescript";
 
 const ROOT = process.cwd();
 const EXPECTED_OPERATOR_BADGES = ["Current", "Cached", "Review", "Refresh due", "Collecting", "No source", "Failed"];
@@ -97,10 +98,40 @@ for (const expected of [
 for (const badge of EXPECTED_OPERATOR_BADGES) {
   assertIncludes("admin analytics contracts", contracts, badge);
 }
-assertIncludes("AdminAnalyticsPrimitives", primitives, "grid grid-cols-[minmax(0,1fr)_auto]");
-assertIncludes("AdminAnalyticsPrimitives", primitives, "min-w-0");
-assertIncludes("AdminAnalyticsPrimitives", primitives, "max-w-[5.75rem]");
-assertIncludes("AdminAnalyticsPrimitives", primitives, "truncate whitespace-nowrap");
+// The active metric owner must render the canonical value, label and source badge.
+// Layout may be flex or grid; fixed truncation is not acceptable source readability.
+const metricAst = ts.createSourceFile("analytics-primitives.tsx", primitives, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+const metricFunction = metricAst.statements.find(statement => ts.isFunctionDeclaration(statement) && statement.name?.text === "MetricCard");
+let metricCardBound = false, metricValueBound = false, metricLabelBound = false, metricBadgeBound = false;
+const importedName = (tree: ts.SourceFile, moduleName: string, exportName: string) => {
+  for (const statement of tree.statements) {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== moduleName
+      || !statement.importClause?.namedBindings || !ts.isNamedImports(statement.importClause.namedBindings)) continue;
+    const binding = statement.importClause.namedBindings.elements.find(item => (item.propertyName ?? item.name).text === exportName);
+    if (binding) return binding.name.text;
+  }
+  return undefined;
+};
+const metricCardName = importedName(metricAst, "@/components/creative-tim/ui/card", "Card");
+const metricBadgeName = importedName(metricAst, "@/components/Admin/AdminStatusBadge", "AdminStatusBadge");
+function inspectMetric(child: ts.Node) {
+  if (ts.isJsxExpression(child) && child.expression?.getText(metricAst) === "value") metricValueBound = true;
+  if (ts.isJsxExpression(child) && child.expression?.getText(metricAst) === "label") metricLabelBound = true;
+  if (ts.isJsxOpeningElement(child) || ts.isJsxSelfClosingElement(child)) {
+    if (child.tagName.getText(metricAst) === metricCardName) metricCardBound = true;
+    if (child.tagName.getText(metricAst) === metricBadgeName) {
+      const prop = (name: string) => child.attributes.properties.find(value => ts.isJsxAttribute(value) && value.name.getText(metricAst) === name);
+      const state = prop("state"), label = prop("label"), style = prop("className");
+      const binding = (value: ts.JsxAttributeLike | undefined) => value && ts.isJsxAttribute(value) && value.initializer && ts.isJsxExpression(value.initializer) ? value.initializer.expression?.getText(metricAst) : undefined;
+      const classText = style && ts.isJsxAttribute(style) && style.initializer && ts.isStringLiteral(style.initializer) ? style.initializer.text : "";
+      metricBadgeBound = binding(state) === "resolvedTruthState" && binding(label) === "statusBadgeLabel ?? resolveAdminAnalyticsBadgeLabel(resolvedTruthState)"
+        && !/(?:^|\s)(?:truncate|whitespace-nowrap|max-w-\[\d+(?:rem|px)\])(?:\s|$)/u.test(classText);
+    }
+  }
+  ts.forEachChild(child, inspectMetric);
+}
+if (metricFunction?.body) inspectMetric(metricFunction.body);
+if (!metricCardBound || !metricValueBound || !metricLabelBound || !metricBadgeBound) fail("MetricCard must render canonical metric content and a readable source badge through existing sourced owners.");
 assertIncludes("AdminStatusBadge", statusBadge, "aria-label");
 assertIncludes("AdminStatusBadge", statusBadge, "label?: string");
 
@@ -109,9 +140,83 @@ assertIncludes("AdminAnalyticsPage", page, "title={visibleOverviewDegradedCopy.j
 assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.mobileShare.displayValue");
 assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.revenue.displayValue");
 assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.purchases.displayValue");
-assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.mobileShare.badgeLabel}");
-assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.revenue.badgeLabel}");
-assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.purchases.badgeLabel}");
+// The same canonical labels now travel through the rendered facts projection.
+// Bind the real import, JSX prop, record values and mapped output; orphan text
+// or an unused badgeLabel reference cannot clear the three surviving safeguards.
+const evidenceCanvasPath = "src/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas.tsx";
+const evidenceCanvas = read(evidenceCanvasPath);
+const pageAst = ts.createSourceFile("analytics-page.tsx", page, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+const canvasAst = ts.createSourceFile("analytics-canvas.tsx", evidenceCanvas, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+let canvasImportName: string | undefined;
+for (const statement of pageAst.statements) {
+  if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)
+    && statement.moduleSpecifier.text === "@/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas"
+    && statement.importClause?.namedBindings && ts.isNamedImports(statement.importClause.namedBindings)) {
+    canvasImportName = statement.importClause.namedBindings.elements.find(binding => (binding.propertyName ?? binding.name).text === "AdminAnalyticsEvidenceCanvas")?.name.text;
+  }
+}
+const boundFacts: ts.ObjectLiteralExpression[] = [];
+function collectRenderedFacts(node: ts.Node) {
+  if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText(pageAst) === canvasImportName) {
+    const prop = node.attributes.properties.find(property => ts.isJsxAttribute(property) && property.name.getText(pageAst) === "facts");
+    if (prop && ts.isJsxAttribute(prop) && prop.initializer && ts.isJsxExpression(prop.initializer)
+      && prop.initializer.expression && ts.isArrayLiteralExpression(prop.initializer.expression)) {
+      boundFacts.push(...prop.initializer.expression.elements.filter(ts.isObjectLiteralExpression));
+    }
+  }
+  ts.forEachChild(node, collectRenderedFacts);
+}
+collectRenderedFacts(pageAst);
+const normalizedExpression = (node: ts.Node | undefined, ast: ts.SourceFile) => node?.getText(ast).replace(/\s/gu, "");
+for (const metric of ["mobileShare", "revenue", "purchases"]) {
+  const prefix = "analyticsOverviewDisplayMetrics." + metric;
+  const bound = boundFacts.some(record => {
+    const property = (name: string) => record.properties.find(value => ts.isPropertyAssignment(value) && value.name.getText(pageAst) === name);
+    const value = property("value"), label = property("statusLabel");
+    if (!value || !label || !ts.isPropertyAssignment(value) || !ts.isPropertyAssignment(label) || !ts.isConditionalExpression(label.initializer)) return false;
+    return normalizedExpression(value.initializer, pageAst) === prefix + ".displayValue"
+      && normalizedExpression(label.initializer.condition, pageAst) === prefix + ".showBadgeInPrimary"
+      && normalizedExpression(label.initializer.whenTrue, pageAst) === prefix + ".badgeLabel"
+      && normalizedExpression(label.initializer.whenFalse, pageAst) === "undefined";
+  });
+  if (!bound) fail("AdminAnalyticsPage must bind canonical " + metric + " value and conditional badge into rendered canvas facts.");
+}
+const canvasStatusBadgeName = importedName(canvasAst, "@/components/Admin/AdminStatusBadge", "AdminStatusBadge");
+const canvasCoerceName = importedName(canvasAst, "@/lib/admin-parity", "coerceAdminSurfaceState");
+let mappedFactOutput = false;
+function inspectCanvas(node: ts.Node) {
+  if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+    && node.expression.expression.getText(canvasAst) === "facts" && node.expression.name.text === "map") {
+    const callback = node.arguments[0];
+    if (callback && ts.isArrowFunction(callback)) {
+      const fact = callback.parameters[0]?.name.getText(canvasAst);
+      let valueRendered = false, statusRendered = false, truthBound = false;
+      function inspectMappedOutput(child: ts.Node) {
+        if (ts.isJsxExpression(child) && child.expression?.getText(canvasAst) === fact + ".value") valueRendered = true;
+        if (ts.isJsxExpression(child) && child.expression && ts.isConditionalExpression(child.expression)
+          && child.expression.condition.getText(canvasAst) === fact + ".statusLabel"
+          && ts.isJsxSelfClosingElement(child.expression.whenTrue)) {
+          const badge = child.expression.whenTrue;
+          const prop = (name: string) => badge.attributes.properties.find(value => ts.isJsxAttribute(value) && value.name.getText(canvasAst) === name);
+          const binding = (value: ts.JsxAttributeLike | undefined) => value && ts.isJsxAttribute(value) && value.initializer && ts.isJsxExpression(value.initializer) ? normalizedExpression(value.initializer.expression, canvasAst) : undefined;
+          statusRendered = badge.tagName.getText(canvasAst) === canvasStatusBadgeName
+            && binding(prop("label")) === fact + ".statusLabel"
+            && binding(prop("state")) === canvasCoerceName + "(" + fact + ".truthState)";
+        }
+        if (ts.isJsxAttribute(child) && child.name.getText(canvasAst) === "data-admin-analytics-truth-state"
+          && child.initializer && ts.isJsxExpression(child.initializer)
+          && child.initializer.expression?.getText(canvasAst) === fact + ".truthState") truthBound = true;
+        ts.forEachChild(child, inspectMappedOutput);
+      }
+      inspectMappedOutput(callback.body);
+      mappedFactOutput ||= valueRendered && statusRendered && truthBound;
+    }
+  }
+  ts.forEachChild(node, inspectCanvas);
+}
+const activeCanvasFunction = canvasAst.statements.find(statement => ts.isFunctionDeclaration(statement) && statement.name?.text === "AdminAnalyticsEvidenceCanvas");
+if (activeCanvasFunction) inspectCanvas(activeCanvasFunction);
+if (!mappedFactOutput) fail("AdminAnalyticsEvidenceCanvas must render mapped canonical fact values, conditional status labels and truth-state evidence.");
 assertNotIncludes("AdminAnalyticsPage", page, "title={backgroundAnalyticsIssues.join(\" | \")}");
 assertNotIncludes("AdminAnalyticsPage", page, "backgroundAnalyticsIssues.join(\" · \")");
 assertNotIncludes("AdminAnalyticsPage", page, "mobile users in range");
@@ -261,8 +366,8 @@ assertIncludes("admin overview page", adminOverviewPage, "platformPulse={pageDat
 assertIncludes("admin overview page", adminOverviewPage, "overviewIssues={data.overviewIssues}");
 assertIncludes("AdminStatsBar", adminStatsBar, "data-admin-metric-freshness");
 assertIncludes("AdminStatsBar", adminStatsBar, 'data-admin-platform-pulse-grid="compact-six"');
-assertIncludes("AdminStatsBar", adminStatsBar, "grid-cols-2");
-assertIncludes("AdminStatsBar", adminStatsBar, "md:grid-cols-3");
+// Available-width metric layout is owned by check:platform-pulse-compact;
+// this overview reader retains its distinct source/metric/copy obligations.
 assertIncludes("AdminStatsBar", adminStatsBar, "metricNeedsIssueBadge");
 assertNotIncludes("AdminStatsBar", adminStatsBar, "data-admin-metric-source");
 assertNotIncludes("AdminStatsBar", adminStatsBar, "data-admin-metric-confidence");

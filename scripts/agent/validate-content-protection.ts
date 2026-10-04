@@ -174,7 +174,6 @@ if (report) {
     "src/lib/locked-drop-preview-truth.ts",
     "src/app/drops/[id]/preview/page.tsx",
     "src/components/Drops/LockedDropPreviewView.tsx",
-    "src/components/DropPreviewModal.tsx",
     "src/app/api/drops/content/route.ts",
     "src/app/dashboard/viewer/page.tsx",
     "src/app/dashboard/viewer/ViewerClient.tsx",
@@ -208,7 +207,6 @@ const serverDrops = readRequired("src/lib/server/drops.ts");
 const previewPage = readRequired("src/app/drops/[id]/preview/page.tsx");
 const previewTruth = readRequired("src/lib/locked-drop-preview-truth.ts");
 const previewView = readRequired("src/components/Drops/LockedDropPreviewView.tsx");
-const legacyModal = readRequired("src/components/DropPreviewModal.tsx");
 const contentRoute = readRequired("src/app/api/drops/content/route.ts");
 const viewerPage = readRequired("src/app/dashboard/viewer/page.tsx");
 const viewerClient = readRequired("src/app/dashboard/viewer/ViewerClient.tsx");
@@ -288,15 +286,6 @@ for (const expected of [
 }
 requireNotIncludes(previewView, "contentUrl", "locked preview view");
 requireNotIncludes(previewView, "contentUrls", "locked preview view");
-
-for (const expected of [
-  "Legacy fallback only. Locked Drop preview ownership moved to /drops/[id]/preview.",
-  "getDropMediaSummary(drop)",
-]) {
-  requireIncludes(legacyModal, expected, "legacy DropPreviewModal");
-}
-requireNotIncludes(legacyModal, "drop.contentUrl", "legacy DropPreviewModal");
-requireNotIncludes(legacyModal, "drop.contentUrls", "legacy DropPreviewModal");
 
 for (const expected of [
   "auth: \"user\"",

@@ -1332,13 +1332,13 @@ export function ChatExperience() {
 
     const chatViewportShellStyle = useMemo(() => ({
         paddingBottom: isCompactViewport
-            ? (isAndroidPwaChatShell ? "var(--kd-android-pwa-bottom-nav-height, var(--user-mobile-chat-bottom-reserved-height, 0px))" : USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET)
+            ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET
             : undefined,
         minHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
         height: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
         maxHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
         transform: isIosPwaChatShell ? "translateY(calc(-1 * var(--kd-ios-pwa-shell-lift, 0px)))" : undefined,
-    }) satisfies CSSProperties, [isAndroidPwaChatShell, isCompactViewport, isIosPwaChatShell]);
+    }) satisfies CSSProperties, [isCompactViewport, isIosPwaChatShell]);
     const compactThreadListScrollStyle = useMemo(() => ({
         paddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
         scrollPaddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,

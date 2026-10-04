@@ -97,8 +97,18 @@ export function PlatformEconomyConsole() {
                     try {
                         const response = await authFetch(url);
                         const body = await response.json();
-                        if (!response.ok || !body.success) {
+                        if (!response.ok || body.success !== true) {
                             throw new Error(body.error || "Failed to load " + key);
+                        }
+                        const data = body[key];
+                        const isWarningRecord = (record: unknown): record is { warnings: unknown[]; walletRows?: unknown } =>
+                            Boolean(record && typeof record === "object" && Array.isArray((record as { warnings?: unknown }).warnings));
+                        const validSource = key === "treasury"
+                            ? isWarningRecord(data) && Array.isArray(data.walletRows)
+                                && data.walletRows.every((row: { sourceWarnings?: unknown } | null) => row && Array.isArray(row.sourceWarnings))
+                            : Array.isArray(data) && (key === "drift" || data.every(isWarningRecord));
+                        if (!validSource) {
+                            throw new Error("No verified " + key + " source was returned.");
                         }
                         if (cancelled) return;
                         setState((current) => ({
@@ -106,7 +116,7 @@ export function PlatformEconomyConsole() {
                             [key]: {
                                 loading: false,
                                 error: null,
-                                data: body[key] ?? null,
+                                data,
                             },
                         }));
                     } catch (error) {
@@ -130,22 +140,15 @@ export function PlatformEconomyConsole() {
         };
     }, [isLocalAdminUiTestSession]);
 
-    const warnings = useMemo(() => collectEconomyWarnings(state), [state]);
+    const warningSummary = useMemo(() => collectEconomyWarnings(state), [state]);
     const treasurySourceState = getTreasuryStripSourceState(state.treasury, isLocalAdminUiTestSession);
-    const warningsStillLoading =
-        state.treasury.loading ||
-        state.packages.loading ||
-        state.promos.loading ||
-        state.offers.loading ||
-        state.redemptions.loading;
 
     return (
         <KandyTreasuryOperationsCanvas
             state={state}
-            warnings={warnings}
+            warningSummary={warningSummary}
             isLocalAdminUiTestSession={isLocalAdminUiTestSession}
             treasurySourceState={treasurySourceState}
-            warningsStillLoading={warningsStillLoading}
         />
     );
 }

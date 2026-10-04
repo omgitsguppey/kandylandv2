@@ -42,6 +42,32 @@ export const PRIVACY_CONSOLE_RANGE_MS: Record<PrivacyConsoleRange, number> = {
     "30d": 30 * 24 * 60 * 60 * 1000,
 };
 
+/** Admit only the existing route's raw source model; failure envelopes are not evidence. */
+export function readPrivacyConsoleState(value: unknown): PrivacyConsoleState | null {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const state = value as Record<string, unknown>;
+    const timestamp = (item: unknown) => typeof item === "string" && Number.isFinite(Date.parse(item));
+    if (state.success === false || !timestamp(state.generatedAtUtc)
+        || typeof state.range !== "string" || !Object.hasOwn(PRIVACY_CONSOLE_RANGE_MS, state.range)
+        || !["live", "review", "error", "quiet", "unknown"].includes(String(state.overallState))
+        || !Array.isArray(state.checks)) return null;
+    const ids = new Set<string>();
+    for (const value of state.checks) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+        const check = value as Record<string, unknown>;
+        if (typeof check.id !== "string" || ids.has(check.id)
+            || !["event_pipeline", "deduplication", "consent_gating", "guest_tracking", "cloud_run_ingest", "bigquery_export"].includes(check.id)
+            || !["pass", "review", "error", "quiet", "not_configured", "unknown"].includes(String(check.state))
+            || !["info", "warn", "error", "critical"].includes(String(check.severity))
+            || !["observed", "not_observed", "stale", "failed", "missing"].includes(String(check.evidenceState))
+            || !["label", "source", "reasonCode", "explanation", "nextAction"].every((key) => typeof check[key] === "string")
+            || !(check.sampleCount === null || (typeof check.sampleCount === "number" && Number.isSafeInteger(check.sampleCount) && check.sampleCount >= 0))
+            || !(check.lastSeenAtUtc === null || timestamp(check.lastSeenAtUtc))) return null;
+        ids.add(check.id);
+    }
+    return value as PrivacyConsoleState;
+}
+
 type RouteRuntimeSignal = {
     status: "healthy" | "healthy_with_history" | "latency_review" | "client_error_review" | "server_error" | "unseen" | "quiet" | "stale";
     hasSample: boolean;

@@ -29,13 +29,56 @@ export const MAINTENANCE_NAVIGATION_SESSION_PATH = "/api/auth/navigation-session
 export const MAINTENANCE_ADMIN_API_PATH = "/api/admin" as const;
 export const MAINTENANCE_ADMIN_DROP_PREFLIGHT_PATH = "/api/drops/duplicate-filenames" as const;
 export const MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH = "/api/admin/analytics/refresh" as const;
+/** Public brand/build assets only. Never exempt an arbitrary file extension. */
+export const MAINTENANCE_PUBLIC_ASSET_PATHS = [
+  "/candy-main.svg", "/logo-k-monogram.png", "/candy-3d-glass.png", "/icon-192x192.png", "/icon-512x512.png",
+  "/kandydrops-release-notes.json",
+] as const;
+
+/** Reviewed GET owners retain their auth, bounded queries, rate limits and cache contracts. */
+export const MAINTENANCE_ADMIN_BROWSE_READ_PATHS = [
+  "/api/drops", "/api/drops/recommendations", "/api/creator/discovery",
+  "/api/user/profile", "/api/user/activity", "/api/notifications", "/api/wallet/packages",
+  "/api/chat/threads",
+] as const;
+
+export function isMaintenancePublicAssetRequest(pathname: string, method: string): boolean {
+  return (method === "GET" || method === "HEAD")
+    && MAINTENANCE_PUBLIC_ASSET_PATHS.some((asset) => asset === pathname);
+}
+
+export function isMaintenanceAdminBrowseRequest(pathname: string, method: string): boolean {
+  if (method !== "GET" && method !== "HEAD") return false;
+  if (pathname !== "/api" && !pathname.startsWith("/api/")) return true;
+  return MAINTENANCE_ADMIN_BROWSE_READ_PATHS.some((route) => route === pathname)
+    || /^\/api\/creators\/[A-Za-z0-9_.-]+$/u.test(pathname)
+    || /^\/api\/chat\/threads\/[A-Za-z0-9_-]+$/u.test(pathname);
+}
+
+/** A return destination requests re-verification; it never grants maintenance access. */
+export function resolveMaintenanceAdminReturnPath(value: string | null | undefined): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || /[\\\u0000-\u0020\u007f]/u.test(value)) return "/admin";
+  try {
+    const url = new URL(value, "https://maintenance.invalid");
+    const pathname = decodeURIComponent(url.pathname);
+    if (url.origin !== "https://maintenance.invalid" || pathname.startsWith("//")
+      || /[\\%\u0000-\u0020\u007f]/u.test(pathname)
+      || pathname === "/maintenance" || pathname.startsWith("/maintenance/")
+      || pathname === "/api" || pathname.startsWith("/api/")) return "/admin";
+    return url.pathname + url.search;
+  } catch {
+    return "/admin";
+  }
+}
 export const MAINTENANCE_BLOCKED_ADMIN_API_PREFIXES = [
   "/api/admin/analytics",
   "/api/admin/ai",
   "/api/admin/debug/assistant",
 ] as const;
 
-export function isMaintenanceBlockedAdminApiPath(pathname: string): boolean {
+export function isMaintenanceBlockedAdminApiPath(pathname: string, method?: string): boolean {
+  // This exact GET reads a stored snapshot; POST/materialization remains blocked.
+  if (pathname === MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH && method === "GET") return false;
   return MAINTENANCE_BLOCKED_ADMIN_API_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );

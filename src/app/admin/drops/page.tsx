@@ -1,7 +1,6 @@
 "use client";
 
-import { startTransition, useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -12,10 +11,13 @@ import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
+import { resolveClientActionError } from "@/lib/errors/client-error-adapter";
+import { readUiJson } from "@/lib/ui-continuity";
 import { toast } from "sonner";
 import { sendNotification } from "@/lib/notifications";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { buttonVariants } from "@/components/ui/Button";
 import { AdminDropsInventoryPanel } from "@/components/creative-tim/kandydrops/admin/drops/AdminDropsInventoryPanel";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminDetailDateTime } from "@/lib/admin-drop-formatting";
@@ -219,10 +221,11 @@ export default function AdminDropsPage() {
         getDropById: (dropId) => dropMap.get(dropId),
         queueOrder,
         legacyQueueIds,
+        queueAuthorityVersion: queueConfig?.queueAuthorityVersion,
         cooldownDays: queueConfig?.cooldownDays ?? 1,
         timesPerDay: queueConfig?.timesPerDay ?? [],
         now: nowMs,
-    }), [dropMap, legacyQueueIds, nowMs, queueConfig?.cooldownDays, queueConfig?.timesPerDay, queueOrder]);
+    }), [dropMap, legacyQueueIds, nowMs, queueConfig?.cooldownDays, queueConfig?.queueAuthorityVersion, queueConfig?.timesPerDay, queueOrder]);
 
     const visibleQueueIds = queueProjection.visibleQueueIds;
     const queueLifecycleMap = queueProjection.lifecycleMap;
@@ -599,12 +602,19 @@ export default function AdminDropsPage() {
                 method: "POST",
                 body: JSON.stringify({ dropId }),
             });
-            const result = await response.json() as { added?: boolean; error?: string };
-            if (!response.ok) {
-                throw new Error(result.error);
+            const result = await readUiJson<{ added?: unknown }>(response, {
+                moduleLabel: "Admin queue toggle",
+                url: "/api/admin/queue/toggle",
+                requireSuccess: true,
+            });
+            if (typeof result.added !== "boolean") {
+                throw Object.assign(new Error("Admin queue toggle returned no valid added state"), {
+                    status: response.status,
+                    code: "mutation_failed",
+                });
             }
 
-            const added = result.added === true;
+            const added = result.added;
             await mutateQueueConfig((current) => current ? {
                 ...current,
                 queue: added
@@ -616,18 +626,25 @@ export default function AdminDropsPage() {
 
             dispatchAdminOverviewSync();
             toast.success(added ? "Added to Queue" : "Removed from Queue");
-        } catch (error: any) {
+        } catch (error) {
+            const resolvedError = resolveClientActionError(error, {
+                surface: "admin_truth",
+                route: "/api/admin/queue/toggle",
+                fallbackKey: "mutation_failed",
+                context: {
+                    action: "toggle_auto_queue",
+                    dropId,
+                },
+            });
             reportClientIssue({
                 channel: "network",
                 message: "Admin queue toggle failed",
                 error,
-                detail: {
-                    action: "toggle_auto_queue",
-                    dropId,
-                },
+                detail: resolvedError.context,
+                humanMessage: resolvedError.descriptor.userMessage,
                 consoleLabel: "[Admin Drops] queue toggle failed",
             });
-            toast.error(getAdminDropsSafeErrorMessage(error, "Failed to toggle queue state."));
+            toast.error(resolvedError.descriptor.userMessage);
         }
     }, [isLocalAdminUiTestSession, mutateQueueConfig]);
 
@@ -727,10 +744,11 @@ export default function AdminDropsPage() {
 
     return (
         <>
-            <div className="pb-[calc(env(safe-area-inset-bottom)+5.5rem)] md:pb-10">
+            <div className="min-w-0 space-y-4">
                 <PageViewEvent eventName="admin_drops_viewed" />
 
                 <AdminPageHeader
+                    compact
                     eyebrow="Admin Drops"
                     title="Manage Drops"
                     subtitle="Search, queue, edit, and create drops in one compact view without losing the current controls."
@@ -738,7 +756,7 @@ export default function AdminDropsPage() {
                         <>
                             <Link
                                 href="/admin/queue"
-                                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-white/20 whitespace-nowrap"
+                                className={buttonVariants({ variant: "outline" })}
                             >
                                 Manage Queue
                             </Link>

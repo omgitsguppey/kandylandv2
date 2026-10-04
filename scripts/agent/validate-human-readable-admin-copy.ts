@@ -134,7 +134,7 @@ const userProblemStateFiles = [
   "src/components/ErrorBoundary.tsx",
   "src/components/PurchaseModal.tsx",
   "src/components/DropCard.tsx",
-  "src/components/DropPreviewModal.tsx",
+  "src/components/Drops/LockedDropPreviewClient.tsx",
   "src/components/Navigation/NotificationBell.tsx",
   "src/components/ui/NotFoundSurface.tsx",
 ];
@@ -222,7 +222,7 @@ for (const [file, helper] of [
   ["src/components/ErrorBoundary.tsx", "getPageProblemCopy"],
   ["src/components/PurchaseModal.tsx", "getPaymentProblemCopy"],
   ["src/components/DropCard.tsx", "getUnlockProblemCopy"],
-  ["src/components/DropPreviewModal.tsx", "getUnlockProblemCopy"],
+  ["src/components/Drops/LockedDropPreviewClient.tsx", "getUnlockProblemCopy"],
   ["src/components/Navigation/NotificationBell.tsx", "getNotificationProblemCopy"],
 ] as const) {
   const content = read(file);

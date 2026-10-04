@@ -1,3 +1,4 @@
+import { readSessionMeasurementFromParams, serializeSessionMeasurementCheckpoint } from "@/lib/analytics/session-metrics-contract";
 import {
   buildTelemetryEventExtensionMetadata,
   getTelemetryEventExtensionMetadata,
@@ -88,6 +89,12 @@ export function stripForbiddenMetadata(input?: Record<string, unknown> | null): 
   for (const [rawKey, value] of Object.entries(input)) {
     const key = normalizeMetadataKey(rawKey);
     if (!key || FORBIDDEN_METADATA_KEY_PATTERN.test(key) || FORBIDDEN_METADATA_KEY_PATTERN.test(key.toLowerCase())) continue;
+    if (key === "session_measurement") {
+      const measurement = readSessionMeasurementFromParams({ session_measurement: value });
+      const serialized = measurement ? serializeSessionMeasurementCheckpoint(measurement) : null;
+      if (serialized) metadata[key] = serialized;
+      continue;
+    }
     const normalizedValue = normalizeMetadataValue(value);
     if (typeof normalizedValue === "undefined") continue;
     metadata[key] = normalizedValue;

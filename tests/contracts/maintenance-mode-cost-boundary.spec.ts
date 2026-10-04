@@ -34,8 +34,9 @@ describe("maintenance-mode cost boundary", () => {
     for (const forbiddenImport of ["firebase-admin", "@/lib/firebase", "getFirestore", "initializeApp"]) {
       expect(source).not.toContain(forbiddenImport);
     }
-    expect(source).toContain("MAINTENANCE_ADMIN_ANALYTICS_REFRESH_PATH");
-    expect(source).toContain("isMaintenanceBlockedAdminApiPath(pathname)");
+    expect(source).toContain("isMaintenanceBlockedAdminApiPath(pathname, request.method)");
+    expect(source).toContain("verifyMaintenanceAdminSessionCookieValue");
+    expect(source).toContain("return continueMaintenanceAdminRequest()");
   });
 
   it("guards every checked-in scheduled handler before runtime work", () => {
@@ -89,8 +90,11 @@ describe("maintenance-mode cost boundary", () => {
   it("keeps the deployed App Hosting maintenance flag and zero minimum instances explicit", () => {
     const source = read("apphosting.yaml");
     const functionsSource = read("functions/src/index.ts");
+    const functionsRuntimeSource = read("functions/src/firebase-runtime.ts");
     expect(source).toContain("minInstances: 0");
-    expect(functionsSource).toContain("minInstances: 0");
+    expect(functionsSource).toContain('from "./firebase-runtime.js"');
+    expect(functionsRuntimeSource).toContain("setGlobalOptions({");
+    expect(functionsRuntimeSource).toContain("minInstances: 0");
     expect(source).toContain("variable: KANDY_MAINTENANCE_MODE");
     expect(source).toContain('value: "1"');
   });

@@ -1,3 +1,4 @@
+import { SESSION_METRICS_TELEMETRY_EVENTS } from "@/lib/analytics/session-metrics-contract";
 import {
   CONSENT_MODE_VALUES,
   CONSENT_TRACKING_VERSION,
@@ -53,6 +54,20 @@ export function isConsentMode(value: unknown): value is ConsentMode {
 
 export function normalizeConsentMode(value: unknown): ConsentMode {
   return isConsentMode(value) ? value : "unknown";
+}
+
+/** Analytics labeling follows admitted capabilities; identity-link consent remains separate. */
+export function deriveAnalyticsConsentState(consentMode: ConsentMode): "granted" | "partial" | "denied" | "unknown" {
+  if (consentMode === "full_behavioral") return "granted";
+  if (consentMode === "minimal_analytics" || consentMode === "full_analytics") return "partial";
+  return consentMode === "necessary_only" ? "denied" : "unknown";
+}
+
+/** Request consent is an upper bound; an event's older or narrower declaration cannot be promoted. */
+export function restrictConsentMode(requestMode: ConsentMode, eventMode: unknown): ConsentMode {
+  const declaredMode = eventMode === undefined ? requestMode : normalizeConsentMode(eventMode);
+  // The canonical mode enumeration follows increasing optional capabilities.
+  return CONSENT_MODE_VALUES[Math.min(CONSENT_MODE_VALUES.indexOf(requestMode), CONSENT_MODE_VALUES.indexOf(declaredMode))];
 }
 
 export function resolveConsentMode(snapshot?: ConsentModeInput | null): ConsentMode {
@@ -140,6 +155,7 @@ export function buildConsentSettingsFromDecision(
 
 export function classifyTrackingCapability(eventTypeOrName: string): TrackingCapability {
   const value = normalized(eventTypeOrName);
+  if (value === "session" || SESSION_METRICS_TELEMETRY_EVENTS.some(event => event === value)) return "behavioral_analytics";
 
   if (MINIMAL_PRODUCT_LIVENESS_EVENTS.has(value)) {
     return "product_usage_minimal";

@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-07-16T04:23:32.846Z",
+  "generatedAtUtc": "2026-10-03T02:55:41.789Z",
   "status": "pass",
   "evidenceMode": "source_validation_fixture",
   "boundedRuntimeWindow": null,
@@ -427,30 +427,17 @@
     }
   },
   "passed": true,
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "dirtyFiles": {
-    "total": 17,
-    "emitted": 3,
-    "omitted": 14,
-    "sample": [
-      {
-        "path": "agent/state/activity-verification-engine.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/debug-tracking-simplification.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/event-translation-bridge.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      }
-    ]
+    "total": 0,
+    "emitted": 0,
+    "omitted": 0,
+    "sample": []
   },
   "activeOldLogic": {
     "total": 0,
@@ -1515,5 +1502,30 @@
       "non-blocking full user parity status rows",
       "full dirty file list"
     ]
+  },
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-person-admission-source-repair-20261002",
+    "inputHash": "b6609b74f6d2e0f88addf1670dd5772997307c66947b5bbc9a6aa76fd6160f4e",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "7350717da5a6dedccaca75a4560d19af99e339d7bc169c64b394d6a9afff8986",
+    "changedFiles": [
+      "functions/src/user-index-materializer-schedule.ts",
+      "scripts/agent/score-user-tracking-indexes.ts",
+      "src/app/api/admin/user/[userId]/route.ts",
+      "src/lib/analytics/materialization-contract.ts",
+      "src/lib/identity-truth/individual-user-metric-truth.ts",
+      "src/lib/server/user-index-materializer.ts",
+      "src/lib/server/user-index-writer.ts",
+      "src/lib/user-indexes/user-index-normalizer.ts",
+      "src/lib/user-indexes/user-tracking-index-contract.ts",
+      "tests/unit/individual-user-metric-truth.spec.ts",
+      "tests/unit/user-index-materializer-consumer.spec.ts",
+      "tests/unit/user-index-materializer-core.spec.ts",
+      "tests/unit/user-index-materializer-schedule.spec.ts"
+    ],
+    "inheritedDirtySourceFileCount": 437,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
   }
 }

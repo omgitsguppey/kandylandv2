@@ -81,30 +81,18 @@ export function DropCardTimer({ validUntil }: { validUntil?: number }) {
     return (
         <span
             className={cn(
-                "inline-flex max-w-[7.5rem] items-center justify-center gap-1 rounded-full border px-2 py-1 text-[9px] font-black shadow-[0_10px_22px_rgba(0,0,0,0.24)] backdrop-blur-xl transition-colors md:max-w-[8.5rem] md:px-2.5 md:text-[10px]",
-                LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
-                isCountdownOnly && "min-w-[4.9rem] whitespace-nowrap",
+                "inline-flex min-w-0 max-w-full flex-wrap items-center gap-1.5 text-sm font-medium",
                 urgencyState === "critical"
-                    ? "border-fuchsia-500/40 bg-fuchsia-900/25 text-fuchsia-100"
+                    ? "text-destructive"
                     : urgencyState === "warm"
-                        ? "border-[#b28cff]/30 bg-[#b28cff]/14 text-[#e4d4ff]"
-                        : "border-white/10 bg-black/38 text-gray-300",
+                        ? "text-primary"
+                        : "text-muted-foreground",
             )}
             aria-label={fullLabel}
             title={fullLabel}
         >
-            <Clock
-                aria-hidden="true"
-                className={cn(
-                    "h-2.5 w-2.5 shrink-0 md:h-3 md:w-3",
-                    urgencyState === "critical"
-                        ? "text-fuchsia-300"
-                        : urgencyState === "warm"
-                            ? "text-[#b28cff]"
-                            : "text-gray-400",
-                )}
-            />
-            <span aria-live="off" className={cn("truncate", isCountdownOnly && "text-center")}>{visibleLabel}</span>
+            <Clock aria-hidden="true" className="size-4 shrink-0" />
+            <span aria-live="off" className={cn("min-w-0 break-words", isCountdownOnly && "whitespace-nowrap tabular-nums")}>{visibleLabel}</span>
         </span>
     );
 }

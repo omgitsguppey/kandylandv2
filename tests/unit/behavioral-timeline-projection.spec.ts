@@ -1,3 +1,6 @@
+import { normalizeIdentifiedRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
+import { createRuntimeFactFirestoreDocument } from "@/lib/server/write-runtime-fact";
+import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
@@ -160,5 +163,30 @@ describe("behavioral timeline projection owner", () => {
     });
     expect(mocks.transactionWrites.filter((write) =>
       write.path.startsWith("behavioral_timeline_facts/"))).toHaveLength(120);
+  });
+});
+
+
+describe("persisted measurement projection", () => {
+  const measured = (overrides: Record<string, unknown> = {}) => ({ version: "session_measurement_v1", segmentId: "segment_measurement_fixture", sequence: 1, startedAtMs: 1_000, endedAtMs: 31_000, activeMs: 10_000, idleMs: 20_000, hiddenMs: 0, status: "checkpoint", ...overrides });
+  it("carries admitted measurement through the actual normalizer, writer and reloaded timeline", async () => {
+    const result = normalizeIdentifiedRuntimeFact({ callerUid: "user_measurement", callerRole: "user", eventId: "evt_measurement_projection", rawEventName: "session_closed", timestampMs: 31_000, params: { route: "/drops", session_id: "sess_measurement", consent_mode: "full_behavioral", source_component: "DeepTracker", session_measurement: JSON.stringify(measured({ status: "final" })) }, requestConsentMode: "full_behavioral" });
+    expect(result.fact).not.toBeNull();
+    const document = createRuntimeFactFirestoreDocument({ runtimeFact: result.fact!, params: {}, telemetryEventCategory: "engagement", telemetryEventModules: ["engagement"], trackingOrigin: "identified_client" });
+    const persisted = JSON.parse(JSON.stringify(document));
+    expect(persisted.sessionMeasurement).toMatchObject({ activeMs: 10_000, idleMs: 20_000, hiddenMs: 0 });
+    const timeline = mapRuntimeFactToBehavioralTimelineFact({ runtimeFact: result.fact!, consentState: "granted" });
+    await writeBehavioralTimelineProjection({ facts: [timeline], userIds: ["user_measurement"], requestedAtMs: 31_000 });
+    const reloaded = mocks.committed.get("behavioral_timeline_facts/" + timeline.factId) as Record<string, unknown>;
+    expect(reloaded.sessionMeasurement).toEqual(persisted.sessionMeasurement);
+    expect(reloaded.requestConsentAdmission).toEqual(persisted.requestConsentAdmission);
+  });
+  it("does not add measurement fields to old facts or accept malformed client intervals", () => {
+    for (const session_measurement of [undefined, JSON.stringify(measured({ activeMs: 999_999 })), "x".repeat(2_000)]) {
+      const result = normalizeIdentifiedRuntimeFact({ callerUid: "user_measurement", callerRole: "user", eventId: "evt_old_measurement", rawEventName: "session_closed", timestampMs: 31_000, params: { route: "/drops", session_id: "sess_measurement", consent_mode: "full_behavioral", session_measurement }, requestConsentMode: "full_behavioral" });
+      expect(result.fact).not.toBeNull();
+      expect(result.fact?.sessionMeasurement).toBeUndefined();
+      expect(mapRuntimeFactToBehavioralTimelineFact({ runtimeFact: result.fact!, consentState: "granted" }).sessionMeasurement).toBeUndefined();
+    }
   });
 });

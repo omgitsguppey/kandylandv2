@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-07-14T16:08:36.047Z",
+  "generatedAt": "2026-10-03T19:30:42.725Z",
   "registryVersion": "legacy-phaseout-v1",
   "reportPath": "agent/state/legacy-phaseout.generated.json",
   "docsPath": "docs/agent-truth/legacy-phaseout.md",
-  "legacyDebtScore": 24,
-  "healthScore": 76,
+  "legacyDebtScore": 36,
+  "healthScore": 64,
   "status": "warning",
   "registryCount": 9,
   "blockedReferenceCount": 0,
-  "overdueCount": 2,
+  "overdueCount": 1,
   "items": [
     {
       "id": "drop-preview-modal-fallback",
@@ -16,19 +16,16 @@
       "paths": [
         "src/components/DropPreviewModal.tsx"
       ],
-      "status": "allowed_fallback",
+      "status": "blocked",
       "canonicalReplacement": "Full-page locked Drop preview route at /drops/[id]/preview",
-      "phaseOutStage": "unused",
+      "phaseOutStage": "removed",
       "ownerSurface": "locked_drop_preview",
       "createdAt": "2026-05-05",
       "reviewBy": "2026-05-19",
       "removeBy": "2026-07-01",
       "riskIfKept": "Locked preview ownership can drift back to modal-first behavior and weaken content-protection/conversion truth.",
       "allowedReferences": [
-        "src/components/DropPreviewModal.tsx",
         "src/lib/agent-score/public-beta-scanner.ts",
-        "src/lib/device-layout-score.ts",
-        "src/lib/device-ui-dry-audit.ts",
         "scripts/agent/score-orphaned-logic.ts",
         "docs/agent-truth/orphaned-logic-score.md",
         "docs/agent-truth/legacy-phaseout.md"
@@ -39,13 +36,13 @@
         "from \"@/components/DropPreviewModal\"",
         "from '@/components/DropPreviewModal'"
       ],
-      "stagePenalty": 1,
-      "riskWeight": 2,
-      "overdueMultiplier": 3,
-      "debtScore": 6,
+      "stagePenalty": 0,
+      "riskWeight": 5,
+      "overdueMultiplier": 1,
+      "debtScore": 0,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "remove_overdue"
+      "overdueState": "current"
     },
     {
       "id": "drops-query-modal-flow",
@@ -188,11 +185,11 @@
       ],
       "stagePenalty": 3,
       "riskWeight": 4,
-      "overdueMultiplier": 1.5,
-      "debtScore": 18,
+      "overdueMultiplier": 3,
+      "debtScore": 36,
       "referenceCount": 1,
       "blockedReferenceCount": 0,
-      "overdueState": "review_overdue"
+      "overdueState": "remove_overdue"
     },
     {
       "id": "old-wallet-total-only-balance-chip",
@@ -344,10 +341,8 @@
   ],
   "findings": [],
   "nextActions": [
-    "Review overdue legacy item drop-preview-modal-fallback; replacement is Full-page locked Drop preview route at /drops/[id]/preview.",
     "Review overdue legacy item admin-users-realtime-route; replacement is Admin user hot-cache/materialized snapshot route.",
-    "Phase out admin-users-realtime-route by 2026-08-01; owner surface admin_user_hot_cache.",
-    "Phase out drop-preview-modal-fallback by 2026-07-01; owner surface locked_drop_preview."
+    "Phase out admin-users-realtime-route by 2026-08-01; owner surface admin_user_hot_cache."
   ],
   "scoring": {
     "formula": "legacyDebtScore = sum(stagePenalty * riskWeight * overdueMultiplier); blocked but referenced is critical",

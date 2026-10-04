@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 
 import { authFetch } from "@/lib/authFetch";
 import { auth } from "@/lib/firebase";
+import { readUiJson } from "@/lib/ui-continuity";
+import { resolveMaintenanceAdminReturnPath } from "../../../shared/runtime/maintenance-mode-contract";
 
 type AccessState = "checking" | "signed-out" | "not-admin" | "unavailable";
 
@@ -30,14 +32,16 @@ const stateCopy: Record<AccessState, { title: string; message: string }> = {
 
 export function MaintenanceAdminBootstrap() {
   const router = useRouter();
-  const sessionRequestStarted = useRef(false);
+  const sessionRequest = useRef<{ uid: string | null; result: Promise<AccessState | "authorized"> } | null>(null);
   const [accessState, setAccessState] = useState<AccessState>("checking");
 
   useEffect(() => {
     let isActive = true;
+    let observedUid: string | null | undefined;
     const authInstance = auth;
 
     if (!authInstance) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Keep the server and first client render in the checking state, then show missing Firebase availability after mount.
       setAccessState("unavailable");
       return;
     }
@@ -47,47 +51,48 @@ export function MaintenanceAdminBootstrap() {
         return;
       }
 
+      const uid = user?.uid ?? null;
+      if (observedUid === uid) return;
+      observedUid = uid;
+
       if (!user) {
+        // Keep the pending request barrier so a later account cannot race its cookie response.
+        if (sessionRequest.current) sessionRequest.current = { ...sessionRequest.current, uid: null };
         setAccessState("signed-out");
         return;
       }
-
-      if (sessionRequestStarted.current) {
-        return;
-      }
-
-      sessionRequestStarted.current = true;
       setAccessState("checking");
 
-      try {
-        const response = await authFetch("/api/auth/navigation-session", {
-          method: "POST",
-        });
-
-        if (!isActive) {
-          return;
-        }
-
-        if (response.status === 401) {
-          setAccessState("signed-out");
-          return;
-        }
-
-        if (response.status === 403) {
-          setAccessState("not-admin");
-          return;
-        }
-
-        if (!response.ok) {
-          setAccessState("unavailable");
-          return;
-        }
-
-        router.replace("/admin");
-      } catch {
-        if (isActive) {
-          setAccessState("unavailable");
-        }
+      if (sessionRequest.current?.uid !== user.uid) {
+        const previous = sessionRequest.current;
+        const requestAccess = async (): Promise<AccessState | "authorized"> => {
+          if (authInstance.currentUser?.uid !== user.uid) return "unavailable";
+          try {
+            const response = await authFetch("/api/auth/navigation-session", { method: "POST" });
+            if (response.status === 401) return "signed-out";
+            if (response.status === 403) return "not-admin";
+            const result = await readUiJson<{ success: true; role: string }>(response, {
+              moduleLabel: "Administrator access", url: "/api/auth/navigation-session", requireSuccess: true,
+            });
+            return result.role === "admin" ? "authorized" : "unavailable";
+          } catch {
+            return "unavailable";
+          }
+        };
+        // Reuse the parsed result during effect replay; serialize real actor changes.
+        sessionRequest.current = {
+          uid: user.uid,
+          result: previous ? previous.result.then(requestAccess) : requestAccess(),
+        };
+      }
+      const request = sessionRequest.current;
+      const result = await request.result;
+      if (!isActive || sessionRequest.current !== request || authInstance.currentUser?.uid !== user.uid) return;
+      if (result === "authorized") {
+        const destination = new URLSearchParams(window.location.search).get("next");
+        router.replace(resolveMaintenanceAdminReturnPath(destination));
+      } else {
+        setAccessState(result);
       }
     });
 

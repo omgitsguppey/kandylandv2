@@ -35,7 +35,7 @@ export default defineConfig({
       "tests/unit/**/*.spec.tsx",
     ],
     alias: {
-      "server-only": "node_modules/server-only/empty.js",
+      "server-only": path.join(dirname, "node_modules/server-only/empty.js"),
     },
     setupFiles: ["tests/setup/deterministic-mocks.ts", "tests/setup/jest-dom.ts"],
     testTimeout: 10000,

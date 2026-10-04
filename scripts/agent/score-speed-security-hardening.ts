@@ -1015,9 +1015,8 @@ function scanFirebaseRulesAndAppCheck(root: string, findings: SpeedSecurityFindi
 
 function scanContentPaymentEconomy(root: string, findings: SpeedSecurityFindingInput[]) {
   const contentFiles = [
-    "src/components/DropPreviewModal.tsx",
     "src/components/Drops/LockedDropPreviewView.tsx",
-    "src/app/drops/[dropId]/preview/page.tsx",
+    "src/app/drops/[id]/preview/page.tsx",
     "src/app/api/drops/content/route.ts",
     "src/app/dashboard/viewer/page.tsx",
   ];

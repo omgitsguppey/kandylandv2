@@ -82,11 +82,11 @@ export function AdminAnalyticsAudienceSnapshotSection({
         data-admin-analytics-raw-ledger-display="debug_only"
         data-admin-analytics-recovery-promotion="debug_only_not_promoted"
       >
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
+        <div className="border-b border-border px-3 py-2 text-xs leading-5 text-muted-foreground">
           {audienceSnapshotModel.visibleCopy.map((line) => (
             <p key={line}>{line}</p>
           ))}
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-gray-400">
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground">
             <span>
               First-party{" "}
               {audienceSnapshotModel.identifiedViews.value === null
@@ -103,13 +103,13 @@ export function AdminAnalyticsAudienceSnapshotSection({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+        <div className="border-b border-border px-3 py-2 text-xs leading-5 text-muted-foreground">
           <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="font-semibold text-white">{continuityLabel}</p>
+              <p className="font-semibold text-foreground">{continuityLabel}</p>
               <p>{audienceSnapshotModel.continuitySummary}</p>
             </div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:grid-cols-3">
               <span>Expected {audienceSnapshotModel.continuity.expectedDays}</span>
               <span>Present {audienceSnapshotModel.continuity.presentDays}</span>
               <span>Missing {audienceSnapshotModel.continuity.missingDays.length}</span>
@@ -118,7 +118,7 @@ export function AdminAnalyticsAudienceSnapshotSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+      <div className="grid gap-2.5 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
         <MetricCard
           label="Site users"
           value={formatAudienceValue(
@@ -178,7 +178,7 @@ export function AdminAnalyticsAudienceSnapshotSection({
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {audienceSnapshotModel.chartSeries.map((series) => (
           <span key={series.key} className="inline-flex items-center gap-1.5">
             <span

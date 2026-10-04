@@ -41,9 +41,9 @@ function OnboardingDiscrepancyCallout({
     }
 
     return (
-        <div className="flex flex-col gap-1.5 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-50 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-1.5 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-50 md:flex-row md:items-center md:justify-between">
             <span className="min-w-0">{model.discrepancySummary}</span>
-            <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100/80">
+            <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.12em] text-amber-100/80">
                 Details in Debug
             </span>
         </div>
@@ -141,8 +141,8 @@ export function AdminOnboardingAnalyticsModules(props: {
                 data-onboarding-performance-discrepancy={String(model.discrepancyDetected)}
                 data-onboarding-performance-timing-missing={String(model.timingMissing)}
             >
-                <div className="flex items-center justify-between gap-2">
-                    <p className="min-w-0 text-[11px] leading-5 text-gray-400">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+                    <p className="min-w-0 text-xs leading-5 text-muted-foreground">
                         {model.onboardingStarts.source === "canonical_onboarding_start_events"
                             ? "Showing verified onboarding starts."
                             : "Onboarding starts include source detail for this range."}
@@ -150,7 +150,7 @@ export function AdminOnboardingAnalyticsModules(props: {
                     <AdminStatusBadge
                         state={model.truthState}
                         label={velocityBadgeLabel}
-                        className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                        className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
                     />
                 </div>
 
@@ -160,7 +160,7 @@ export function AdminOnboardingAnalyticsModules(props: {
 
                 {onboardingPerformanceViewMode === "cards" ? (
                     <>
-                        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                        <div className="grid gap-2 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                             <MetricCard
                                 label="Started"
                                 value={countLabel(model.onboardingStarts.value)}
@@ -203,21 +203,21 @@ export function AdminOnboardingAnalyticsModules(props: {
                             />
                         </div>
 
-                        <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
+                        <div className="border-b border-border grid gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                             <span>
-                                <span className="font-semibold text-white">Biggest drop-off:</span>{" "}
+                                <span className="font-semibold text-foreground">Biggest drop-off:</span>{" "}
                                 {model.biggestDropoffStep
                                     ? `${model.biggestDropoffStep.stepTitle}, ${model.biggestDropoffCount ?? 0}`
                                     : "None"}
                             </span>
                             <span>
-                                <span className="font-semibold text-white">Slowest:</span>{" "}
+                                <span className="font-semibold text-foreground">Slowest:</span>{" "}
                                 {model.slowestStep
                                     ? `${model.slowestStep.stepTitle}, ${durationLabel(model.slowestStepAvgSeconds)}`
                                     : NO_SLOW_STEP_SAMPLE_LABEL}
                             </span>
                             <span>
-                                <span className="font-semibold text-white">Drop-off:</span>{" "}
+                                <span className="font-semibold text-foreground">Drop-off:</span>{" "}
                                 {countLabel(model.onboardingDropoffs.value)}
                             </span>
                         </div>
@@ -226,7 +226,7 @@ export function AdminOnboardingAnalyticsModules(props: {
 
                 {onboardingPerformanceViewMode === "chart" ? (
                     <div
-                        className="space-y-2 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                        className="border-b border-border space-y-2 p-3"
                         data-onboarding-performance-chart="compact"
                         data-onboarding-performance-truth-state={model.truthState}
                         data-onboarding-performance-discrepancy={String(model.discrepancyDetected)}
@@ -235,10 +235,10 @@ export function AdminOnboardingAnalyticsModules(props: {
                         {props.onboardingVelocityHasData ? (
                             <div>
                                 <div className="mb-2 flex items-center justify-between gap-2">
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                                         Completion time
                                     </p>
-                                    <span className="text-[10px] text-gray-500">
+                                    <span className="text-xs text-muted-foreground">
                                         {model.bucketReconciliationDelta === 0 ? "reconciled" : "timing partial"}
                                     </span>
                                 </div>
@@ -253,7 +253,7 @@ export function AdminOnboardingAnalyticsModules(props: {
                                                     }}
                                                 />
                                             </div>
-                                            <p className="mt-1 truncate text-center text-[9px] text-gray-500">
+                                            <p className="mt-1 truncate text-center text-xs text-muted-foreground">
                                                 {bucket.label}
                                             </p>
                                         </div>
@@ -261,19 +261,19 @@ export function AdminOnboardingAnalyticsModules(props: {
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                            <div className="border-b border-border p-3 text-xs text-muted-foreground">
                                 Completion timing is waiting for guided onboarding progress events.
                             </div>
                         )}
 
                         <div className="space-y-1.5">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                                 Step flow
                             </p>
                             {model.perStep.map((step) => (
-                                <div key={step.stepKey} className="grid grid-cols-[minmax(0,1fr)_3rem] items-center gap-2 text-[10px]">
-                                    <span className="truncate text-gray-400">{step.stepTitle}</span>
-                                    <span className="text-right font-semibold text-white">{props.formatPercent(step.completionRate)}</span>
+                                <div key={step.stepKey} className="grid grid-cols-[minmax(0,1fr)_3rem] items-center gap-2 text-xs">
+                                    <span className="truncate text-muted-foreground">{step.stepTitle}</span>
+                                    <span className="text-right font-semibold text-foreground">{props.formatPercent(step.completionRate)}</span>
                                     <div className="col-span-2 h-1.5 overflow-hidden rounded-full bg-white/10">
                                         <div
                                             className="h-full rounded-full bg-brand-purple"
@@ -288,14 +288,14 @@ export function AdminOnboardingAnalyticsModules(props: {
 
                 {onboardingPerformanceViewMode === "table" ? (
                     <div
-                        className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                        className="rounded-2xl bg-card overflow-x-auto"
                         data-onboarding-performance-table="compact"
                         data-onboarding-performance-truth-state={model.truthState}
                         data-onboarding-performance-discrepancy={String(model.discrepancyDetected)}
                         data-onboarding-performance-timing-missing={String(model.timingMissing)}
                     >
                         <table className="min-w-full text-left text-xs">
-                            <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                            <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                                 <tr>
                                     <th className="px-3 py-2 font-semibold">Step</th>
                                     <th className="px-3 py-2 font-semibold">Starts</th>
@@ -305,12 +305,12 @@ export function AdminOnboardingAnalyticsModules(props: {
                                     <th className="px-3 py-2 font-semibold">Rate</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/10 text-gray-300">
+                            <tbody className="divide-y divide-white/10 text-muted-foreground">
                                 {model.perStep.map((step) => (
                                     <tr key={step.stepKey} data-onboarding-step-key={step.stepKey}>
                                         <td className="max-w-[15rem] px-3 py-2">
-                                            <p className="truncate font-semibold text-white">{step.stepTitle}</p>
-                                            <p className="truncate text-[11px] text-gray-500">{model.stepConversionFormula}</p>
+                                            <p className="truncate font-semibold text-foreground">{step.stepTitle}</p>
+                                            <p className="truncate text-xs text-muted-foreground">{model.stepConversionFormula}</p>
                                         </td>
                                         <td className="px-3 py-2">{props.formatCompactNumber(step.starts)}</td>
                                         <td className="px-3 py-2">{props.formatCompactNumber(step.completions)}</td>

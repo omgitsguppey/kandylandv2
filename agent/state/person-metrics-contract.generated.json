@@ -1,7 +1,32 @@
 {
-  "generatedAtUtc": "2026-07-03T00:38:59.260Z",
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-measurement-reader-source-20261002",
+    "inputHash": "f0f6c1fc2a650038fdef9e9251ce0d533ad5029994386f4d8ff94fdf3c9769b9",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "55f12a5d726a274a285d8000089a781497641d88145529bbaae7c2c2abff6962",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/validate-event-envelope-normalization.ts",
+      "scripts/agent/validate-person-metrics-contract.ts",
+      "scripts/agent/validate-session-bounce-calculation.ts",
+      "scripts/agent/validate-session-journey-duration-math.ts",
+      "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
+      "tests/unit/event-envelope-normalization.spec.ts",
+      "tests/unit/person-metrics-contract.spec.ts",
+      "tests/unit/session-bounce-calculation.spec.ts",
+      "tests/unit/session-journey-duration-math.spec.ts",
+      "tests/unit/user-journey-behavioral-intelligence.spec.ts",
+      "tests/unit/utils/source-validator-contract.ts"
+    ],
+    "inheritedDirtySourceFileCount": 409,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  },
+  "generatedAtUtc": "2026-10-02T22:51:39.198Z",
   "reportKey": "person-metrics-contract",
-  "currentHead": "625240b10a129f65e77fc5f6cef072111fc76e0a",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -76,24 +101,7 @@
     "chatNavPaymentGumdropRuntimeUntouched": true,
     "sourceUsesIdentityAndEnvelopeContracts": true
   },
-  "changedFiles": [
-    "agent/state/individual-user-metric-truth.generated.json",
-    "agent/state/person-metrics-contract.generated.json",
-    "agent/state/person-metrics-hydration.generated.json",
-    "agent/state/telemetry-identified-parity.generated.json",
-    "agent/state/user-tracking-live-evidence.generated.json",
-    "docs/agent-truth/individual-user-metric-truth.md",
-    "docs/agent-truth/person-metrics-contract.md",
-    "docs/agent-truth/person-metrics-hydration.md",
-    "docs/agent-truth/user-tracking-live-evidence.md",
-    "scripts/agent/score-telemetry-identified-parity.ts",
-    "scripts/agent/validate-identity-tracking-shared.ts",
-    "src/lib/analytics/person-metrics-engine.ts",
-    "src/lib/analytics/person-metrics-hydration.ts",
-    "tests/unit/individual-user-metric-truth.spec.ts",
-    "tests/unit/person-metrics-contract.spec.ts",
-    "tests/unit/person-metrics-hydration.spec.ts"
-  ],
+  "changedFiles": [],
   "protectedChangedFiles": [],
   "validationFailures": []
 }

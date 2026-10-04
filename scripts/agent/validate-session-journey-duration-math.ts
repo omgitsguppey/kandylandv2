@@ -1,3 +1,4 @@
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -52,14 +53,6 @@ function writeText(path: string, value: string) {
   const fullPath = join(ROOT, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, value, "utf8");
-}
-
-function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) files.add(line.replace(/\\/gu, "/"));
-  }
-  return [...files].sort();
 }
 
 function classifyDirtyFile(path: string) {
@@ -192,6 +185,7 @@ function renderDoc(report: JsonRecord) {
 }
 
 function main() {
+  const mutationScope = readValidatorMutationScope();
   const failures: string[] = [];
   const intervals = [
     { startedAtMs: 0, endedAtMs: 20_000, foreground: true, lastMeaningfulInteractionAtMs: 0 },
@@ -239,13 +233,14 @@ function main() {
   if (!source.journey.includes("calculateJourneyStepDuration")) failures.push("journey builder does not use canonical journey duration math.");
   if (!source.packageJson.includes('"check:session-journey-duration-math"')) failures.push("package script check:session-journey-duration-math missing.");
 
-  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const dirtyFiles = (mutationScope ? [] : listValidatorScopeFiles()).map((path) => ({ path, classification: classifyDirtyFile(path) }));
   if (dirtyFiles.some((file) => file.classification === "unsafe_unknown")) failures.push("dirty files are unclassified.");
   const openPullRequests = parseOpenPrs();
   if (openPullRequests.some((pr) => pr.classification === "external_review_required")) failures.push("open PRs are unclassified.");
 
   const scoreBefore = scoreSnapshot();
   const report = {
+    mutationScope: mutationScope ?? { mode: "whole_git_worktree" as const },
     reportKey: "session-journey-duration-math",
     generatedAtUtc: new Date().toISOString(),
     currentHead: run("git", ["rev-parse", "HEAD"]) || "unknown",

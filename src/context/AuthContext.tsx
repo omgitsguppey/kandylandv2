@@ -311,6 +311,7 @@ export function AuthProvider({
     const router = useRouter();
     const pathname = usePathname();
     const pathnameRef = useRef(pathname);
+    const isMaintenanceAdminRoute = pathname === "/maintenance/admin";
 
     useEffect(() => {
         if (!initialAdminUiTestSessionReady || !initialAdminUiTestSession?.user) {
@@ -560,6 +561,7 @@ export function AuthProvider({
                 setAdminUiTestSessionActive(false);
 
                 const { auth } = await import("@/lib/firebase");
+                if (cancelled) return;
                 authRef.current = auth;
                 if (!auth) {
                     if (!cancelled) {
@@ -570,6 +572,7 @@ export function AuthProvider({
                 }
 
                 await ensureAuthPersistence(auth);
+                if (cancelled) return;
                 if (!persistenceTelemetryEmittedRef.current) {
                     persistenceTelemetryEmittedRef.current = true;
                     emitAuthPersistenceEvent({
@@ -596,7 +599,9 @@ export function AuthProvider({
                     }
                 }
 
+                if (cancelled) return;
                 unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                    if (cancelled) return;
                     const nextUserId = currentUser?.uid ?? null;
                     const previousUserId = currentAuthUidRef.current;
                     const authIdentityChanged = previousUserId !== nextUserId;
@@ -718,7 +723,7 @@ export function AuthProvider({
             return;
         }
 
-        if (pathname === "/maintenance/admin") {
+        if (isMaintenanceAdminRoute) {
             setLoading(false);
             return;
         }
@@ -773,6 +778,9 @@ export function AuthProvider({
                                 profile: normalizedProfile,
                             })
                             : null;
+                        if (cancelled || authRef.current?.currentUser?.uid !== currentUserId) {
+                            return;
+                        }
                         autoRegisterInFlight.delete(currentUserId);
 
                         if (profile && (profile.status === "banned" || profile.status === "suspended")) {
@@ -905,8 +913,12 @@ export function AuthProvider({
             };
 
             let internalUnsubscribe: (() => void) | void = undefined;
+            let subscriptionDisposed = false;
             void connect().then((unsub) => {
-                if (unsub) internalUnsubscribe = unsub;
+                if (unsub) {
+                    if (cancelled || subscriptionDisposed) unsub();
+                    else internalUnsubscribe = unsub;
+                }
             }).catch((error) => {
                 if (!cancelled) {
                     observerControl.triggerReconnect(error);
@@ -914,6 +926,7 @@ export function AuthProvider({
             });
 
             return () => {
+                subscriptionDisposed = true;
                 if (internalUnsubscribe) internalUnsubscribe();
             };
         }, (error: unknown) => {
@@ -943,7 +956,7 @@ export function AuthProvider({
             autoRegisterInFlight.delete(currentUserId);
             observerControl.cleanup();
         };
-    }, [adminUiTestSessionActive, authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, isLocalPublicPreview, pathname, router, user]);
+    }, [adminUiTestSessionActive, authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, isLocalPublicPreview, isMaintenanceAdminRoute, router, user]);
 
     useEffect(() => {
         if (isLocalPublicPreview) {
@@ -961,7 +974,7 @@ export function AuthProvider({
             return;
         }
 
-        if (pathname === "/maintenance/admin") {
+        if (isMaintenanceAdminRoute) {
             navigationSessionSyncKeyRef.current = null;
             return;
         }
@@ -980,7 +993,7 @@ export function AuthProvider({
                 navigationSessionSyncKeyRef.current = null;
             });
         }
-    }, [adminUiTestSessionActive, isLocalPublicPreview, pathname, user, userProfile]);
+    }, [adminUiTestSessionActive, isLocalPublicPreview, isMaintenanceAdminRoute, user, userProfile]);
 
     const signInWithGoogle = useCallback(async (telemetry?: AuthFlowTelemetryInput) => {
         if (isLocalPublicPreview) {

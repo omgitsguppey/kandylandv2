@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
-import type { PrivacyConsoleRange, PrivacyConsoleState } from "@/lib/admin-privacy-console";
+import { readPrivacyConsoleState, type PrivacyConsoleRange, type PrivacyConsoleState } from "@/lib/admin-privacy-console";
+import { resolveHumanError } from "@/lib/errors/resolve-human-error";
 
 type AdminPrivacySessionState = "waiting_for_admin_session" | "local_fixture_source_missing" | "ready";
 
@@ -18,13 +19,13 @@ type AdminPrivacyPreflightHookState = {
 
 export function useAdminPrivacyPreflight(): AdminPrivacyPreflightHookState {
     const { user, userProfile, loading: authLoading } = useAuth();
-    const [data, setData] = useState<PrivacyConsoleState | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+    const [snapshot, setSnapshot] = useState<{ ownerUid: string | null; data: PrivacyConsoleState | null; error: Error | null }>({ ownerUid: null, data: null, error: null });
     const [isLoading, setIsLoading] = useState(true);
     const [range, setRange] = useState<PrivacyConsoleRange>("24h");
     const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
-    const adminSessionState: AdminPrivacySessionState = authLoading || !user || userProfile?.role !== "admin"
+    const ownerUid = user?.uid ?? null;
+    const adminSessionState: AdminPrivacySessionState = authLoading || !ownerUid || userProfile?.role !== "admin"
         ? "waiting_for_admin_session"
         : isLocalAdminUiTestSession
             ? "local_fixture_source_missing"
@@ -33,22 +34,20 @@ export function useAdminPrivacyPreflight(): AdminPrivacyPreflightHookState {
     /* eslint-disable react-hooks/set-state-in-effect -- Route fetch state intentionally follows admin session/range readiness. */
     useEffect(() => {
         if (adminSessionState === "local_fixture_source_missing") {
-            setData(null);
+            setSnapshot({ ownerUid: null, data: null, error: null });
             setIsLoading(false);
-            setError(null);
             return;
         }
 
         if (adminSessionState !== "ready") {
-            setData(null);
+            setSnapshot({ ownerUid: null, data: null, error: null });
             setIsLoading(true);
-            setError(null);
             return;
         }
 
         let cancelled = false;
         setIsLoading(true);
-        setError(null);
+        setSnapshot((current) => ({ ownerUid, data: current.ownerUid === ownerUid ? current.data : null, error: null }));
 
         void authFetch(`/api/admin/privacy/preflight?range=${encodeURIComponent(range)}`, {
             cache: "no-store",
@@ -58,29 +57,36 @@ export function useAdminPrivacyPreflight(): AdminPrivacyPreflightHookState {
         })
             .then(async (response) => {
                 const body = await response.json().catch(() => null);
-                if (!response.ok) {
-                    throw new Error(typeof body?.error === "string" ? body.error : "Privacy preflight route failed.");
+                const source = readPrivacyConsoleState(body);
+                if (!response.ok || body?.success === false || !source || source.range !== range) {
+                    const descriptor = resolveHumanError({
+                        code: body?.errorKey ?? body?.errorCode ?? body?.code ?? (response.ok && body?.success !== false ? "validation_failed" : undefined),
+                        status: response.ok ? undefined : response.status,
+                        surface: "admin_truth",
+                        fallback: "admin_truth_unavailable",
+                    });
+                    throw Object.assign(new Error(descriptor.operatorMessage), { status: response.status, code: descriptor.errorKey });
                 }
                 if (cancelled) return;
-                setData(body as PrivacyConsoleState);
+                setSnapshot({ ownerUid, data: source, error: null });
                 setIsLoading(false);
             })
             .catch((nextError) => {
                 if (cancelled) return;
-                setError(nextError instanceof Error ? nextError : new Error(String(nextError)));
+                setSnapshot((current) => ({ ownerUid, data: current.ownerUid === ownerUid ? current.data : null, error: nextError instanceof Error ? nextError : new Error(String(nextError)) }));
                 setIsLoading(false);
             });
 
         return () => {
             cancelled = true;
         };
-    }, [adminSessionState, range]);
+    }, [adminSessionState, ownerUid, range]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
     return {
-        data,
-        error,
-        isLoading,
+        data: adminSessionState === "ready" && snapshot.ownerUid === ownerUid ? snapshot.data : null,
+        error: adminSessionState === "ready" && snapshot.ownerUid === ownerUid ? snapshot.error : null,
+        isLoading: adminSessionState === "ready" && snapshot.ownerUid !== ownerUid ? true : isLoading,
         range,
         setRange,
         adminSessionState,

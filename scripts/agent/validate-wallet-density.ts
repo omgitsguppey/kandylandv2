@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { listValidatorScopeFiles } from "./validate-agent-takeover-safety-check";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -54,13 +54,14 @@ for (const expected of [
   "data-payment-module-density=\"compact-v2\"",
   "Reward balance",
   "Paid balance",
-  "Paid GD",
+  "GumDrops",
   "data-purchase-row-zone=\"icon\"",
   "data-purchase-row-zone=\"copy\"",
   "data-purchase-row-zone=\"price\"",
   "data-purchase-promo-slot=\"reserved\"",
   "grid-cols-[2.75rem_minmax(0,1fr)]",
-  "min-h-[8rem]",
+  "<Button",
+  'variant="ghost"',
   "max-w-[7.6rem]",
 ]) {
   requireIncludes(walletPackagePicker, expected, "Canonical wallet package picker density");
@@ -119,9 +120,9 @@ for (const forbidden of [
 }
 
 for (const expected of [
-  "border-brand-purple/30",
-  "bg-brand-purple/10",
-  "text-brand-purple",
+  "Checkout is unavailable right now.",
+  "bg-secondary",
+  "text-foreground",
   "package_paid_drops",
   "package_bonus_drops",
   "PayPalButtons",
@@ -163,13 +164,17 @@ for (const expected of [
   requireIncludes(modalTest, expected, "PurchaseModal density tests");
 }
 
-requireIncludes(walletFrame, "min-h-[100dvh]", "Canonical wallet modal mobile shell");
+const walletDialogOwner = readRequired("src/components/creative-tim/ui/dialog.tsx");
+requireIncludes(walletFrame, 'import { Dialog, DialogContent, DialogTitle } from "@/components/creative-tim/ui/dialog"', "Wallet shared modal owner binding");
+requireIncludes(walletFrame, "<DialogContent", "Wallet shared modal content binding");
+requireIncludes(walletDialogOwner, "max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]", "Shared wallet modal viewport and safe areas");
+requireIncludes(walletDialogOwner, "overflow-y-auto", "Shared wallet modal scroll owner");
 
 try {
-  const forbiddenDiff = execSync(
-    "git diff --name-only -- src/lib/gumdrop-ledger.ts src/lib/gumdrop-economics.ts src/lib/gumdrops-packages.ts src/app/api/paypal src/app/api/wallet",
-    { cwd: root, encoding: "utf8" },
-  ).trim();
+  const protectedPaths = ["src/lib/gumdrop-ledger.ts", "src/lib/gumdrop-economics.ts", "src/lib/gumdrops-packages.ts"];
+  const forbiddenDiff = listValidatorScopeFiles(root).filter((file) =>
+    protectedPaths.includes(file) || file.startsWith("src/app/api/paypal/") || file.startsWith("src/app/api/wallet/"),
+  ).join("\n");
   if (forbiddenDiff.length > 0) {
     failures.push(`Wallet density pass must not modify ledger/economics/package/payment flow files. Unexpected diff: ${forbiddenDiff}`);
   }

@@ -1,4 +1,5 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { ADMIN_NO_SOURCE_LABEL } from "@/lib/admin-truth-state";
 
 export const ADMIN_OPERATOR_BADGE_LABELS = [
   "Current",
@@ -8,6 +9,7 @@ export const ADMIN_OPERATOR_BADGE_LABELS = [
   "Estimate",
   "Partial",
   "Collecting",
+  ADMIN_NO_SOURCE_LABEL,
   "Review",
   "Error",
   "Cached",
@@ -103,18 +105,18 @@ export const ADMIN_COPY_REGISTRY: Record<AdminCopyPatternKey, AdminCopyPattern> 
   },
   no_verified_snapshot: {
     key: "no_verified_snapshot",
-    operatorState: "waiting_first_snapshot",
+    operatorState: "unavailable",
     severity: "notice",
     headline: "No verified data yet.",
-    shortBody: "Refresh to check again.",
-    badgeLabel: "Collecting",
-    actionLabel: "Refresh",
+    shortBody: "No verified source is available.",
+    badgeLabel: ADMIN_NO_SOURCE_LABEL,
+    actionLabel: "View source details",
     operatorImpact: "This module cannot show a value until one source is verified.",
-    recommendedAction: "Refresh once; keep the module collecting if the first snapshot still does not arrive.",
+    recommendedAction: "Check the configured source and maintenance state before requesting a refresh.",
     technicalState: "missing_verified_snapshot",
     debugPath: "/admin/debug",
     canUserFix: true,
-    canSystemRetry: true,
+    canSystemRetry: false,
     showInMainUi: true,
   },
   guest_estimated: {
@@ -382,7 +384,7 @@ export const ADMIN_SURFACE_STATE_BADGE_LABELS: Record<AdminSurfaceState, AdminOp
   degraded: "Review",
   fallback: "Cached",
   stale: "Cached",
-  unavailable: "Collecting",
+  unavailable: ADMIN_NO_SOURCE_LABEL,
   failed: "Review",
 };
 
@@ -425,9 +427,9 @@ export const ADMIN_SURFACE_STATE_OPERATOR_COPY: Record<AdminSurfaceState, Pick<A
   },
   unavailable: {
     headline: "Unavailable.",
-    shortBody: "No verified source is ready yet.",
+    shortBody: ADMIN_COPY_REGISTRY.no_verified_snapshot.shortBody,
     operatorImpact: "The panel cannot show a trustworthy value yet.",
-    recommendedAction: "Refresh; if no verified source appears, keep the panel unavailable and name the missing source.",
+    recommendedAction: ADMIN_COPY_REGISTRY.no_verified_snapshot.recommendedAction,
   },
   failed: {
     headline: "Needs review.",

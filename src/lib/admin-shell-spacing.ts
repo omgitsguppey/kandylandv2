@@ -32,7 +32,7 @@ export function buildAdminShellLayoutDebugMetadata(pageId: string, bypassReason?
     pageBypassesSharedAdminShell: Boolean(bypassReason),
     mobileSafeAreaApplied: {
       source: "global-navbar-padding",
-      className: "Navbar inline paddingTop calc(0.75rem + env(safe-area-inset-top))",
+      className: "Navbar inline paddingTop calc(env(safe-area-inset-top) + 0.375rem)",
     },
     duplicateSafeAreaPaddingDetected: false,
   };

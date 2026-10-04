@@ -15,6 +15,8 @@ describe("feature registration gate", () => {
         "src/app/dashboard/creator/settings/page.tsx",
         "src/app/api/analytics/ingest/route.ts",
         "src/app/dashboard/chat/page.tsx",
+        "src/app/maintenance/page.tsx",
+        "src/app/maintenance/admin/page.tsx",
       ],
     });
 
@@ -23,6 +25,7 @@ describe("feature registration gate", () => {
     expect(report.features.length).toBeGreaterThanOrEqual(12);
     expect(report.routeCoverage.unmappedRoutes).toEqual([]);
     expect(report.systemInternalRoutes).toContain("src/app/dashboard/chat/page.tsx");
+    expect(report.systemInternalRoutes).toContain("src/app/maintenance/admin/page.tsx");
 
     for (const feature of report.features) {
       expect(feature.owner, feature.featureId).toBeTruthy();
@@ -48,12 +51,13 @@ describe("feature registration gate", () => {
 
   it("fails when a new app route is not registered or explicitly system/internal", () => {
     const report = buildFeatureRegistrationGateReport({
-      appRouteFiles: ["src/app/new-social-feed/page.tsx"],
+      appRouteFiles: ["src/app/new-social-feed/page.tsx", "src/app/maintenance/unregistered/page.tsx"],
     });
     const failures = validateFeatureRegistrationGate(report);
 
     expect(report.status).toBe("fail");
     expect(failures).toContain("route src/app/new-social-feed/page.tsx lacks feature registration or system/internal classification.");
+    expect(failures).toContain("route src/app/maintenance/unregistered/page.tsx lacks feature registration or system/internal classification.");
   });
 
   it("classifies the authenticated scheduled analytics materializer as system/internal", () => {

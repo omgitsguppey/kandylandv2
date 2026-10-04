@@ -1,6 +1,8 @@
 "use client";
 
 import type { ComponentType, ReactNode } from "react";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
 
 export type AdminAiOperation = {
     id: string;
@@ -41,18 +43,9 @@ export function AdminAiOperationsCanvas({
     const active = operations.find((operation) => operation.id === activeOperation) ?? operations[0];
 
     return (
-        <section className="min-h-screen overflow-x-clip bg-[radial-gradient(circle_at_88%_0%,rgba(130,55,221,0.2),transparent_27rem),linear-gradient(180deg,#0e0917_0%,#07050b_44rem)] px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pt-6 lg:px-8" data-ai-dashboard-density="operations-canvas">
-            <div className="mx-auto min-w-0 max-w-7xl overflow-x-clip">
-                <header className="border-b border-white/10 pb-5 sm:pb-6">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div>
-                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-purple-200">Admin AI / Cover Ops</p>
-                            <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">Make the next safe AI decision.</h1>
-                            <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-300">{subtitle}</p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">{actions}</div>
-                    </div>
-                </header>
+        <section className="min-w-0 space-y-4" data-ai-dashboard-density="operations-canvas">
+            <div className="min-w-0">
+                <AdminPageHeader compact eyebrow="Control tower" title="AI operations" subtitle={subtitle} actions={actions} />
 
                 {fixture ? <div className="border-b border-white/8 py-4">{fixture}</div> : null}
 
@@ -87,13 +80,12 @@ export function AdminAiOperationsCanvas({
                         </div>
                         <label className="block">
                             <span className="sr-only">AI operation</span>
-                            <select
+                            <NativeSelect
                                 value={activeOperation}
                                 onChange={(event) => onOperationChange(event.target.value)}
-                                className="min-h-12 w-full rounded-2xl border border-white/12 bg-black/30 px-3 text-sm font-bold text-white outline-none transition focus:border-brand-purple/60 focus:ring-2 focus:ring-brand-purple/25"
                             >
-                                {operations.map((operation) => <option key={operation.id} value={operation.id}>{operation.label}</option>)}
-                            </select>
+                                {operations.map((operation) => <NativeSelectOption key={operation.id} value={operation.id}>{operation.label}</NativeSelectOption>)}
+                            </NativeSelect>
                         </label>
                     </div>
                 </section>

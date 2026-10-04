@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/creative-tim/ui/badge";
+
 import { useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -146,19 +149,40 @@ export function AdminActivityLogPanel({
 
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
-        <div className="space-y-3" data-debug-admin-activity={JSON.stringify(debugMeta)}>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Activity evidence</p>{freshnessLabel ? <p className={`mt-1 text-xs ${freshnessLabel.stale ? "text-amber-300" : "text-gray-400"}`}>{freshnessLabel.text}</p> : null}</div><AdminStatusBadge state={truthState} /></div>
-            {activity.length === 0 ? <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-8 text-center"><p className="text-sm font-semibold text-gray-400">No admin actions were found in the current source window.</p></div> : (
+        <div className="min-w-0 space-y-4" data-debug-admin-activity={JSON.stringify(debugMeta)}>
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0"><p className="text-sm font-medium text-muted-foreground">Activity evidence</p>{freshnessLabel ? <p className={`mt-1 text-xs ${freshnessLabel.stale ? "text-warning" : "text-muted-foreground"}`}>{freshnessLabel.text}</p> : null}</div>
+                <AdminStatusBadge state={truthState} />
+            </div>
+            {activity.length === 0 ? <p className="py-6 text-sm leading-6 text-muted-foreground">No admin actions were found in the current source window.</p> : (
                 <>
-                    <div className="divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                    <ol className="min-w-0 divide-y divide-border" aria-label="Admin activity records">
                         {paginated.items.map((item) => {
                             const relativeLabel = item.timestamp > 0 ? formatDistanceToNow(item.timestamp, { addSuffix: true }) : "Unknown time";
                             const sourceLabel = item.source === "transactions" ? "Adjustment" : "Admin event";
-                            const sourceBadgeStyle = SOURCE_BADGE_STYLES[item.source] ?? "border-white/10 bg-white/5 text-gray-300";
-                            return <div key={item.id} className="grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 md:px-4"><span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${sourceBadgeStyle}`}>{sourceLabel}</span><div className="min-w-0"><div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1"><span className="truncate text-sm font-bold text-white">{item.label}</span><span className="shrink-0 text-xs text-gray-400">{item.actorLabel}</span></div>{(item.targetLabel || item.detail) ? <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 text-xs text-gray-500">{item.targetLabel ? <span className="text-kandy-lilac/80">Target: {item.targetLabel}</span> : null}{item.detail ? <span className="truncate">{item.detail}</span> : null}</div> : null}</div><span className="hidden shrink-0 text-xs text-gray-500 sm:block">{relativeLabel}</span></div>;
+                            const sourceBadgeStyle = SOURCE_BADGE_STYLES[item.source] ?? "border-border bg-secondary text-secondary-foreground";
+                            return (
+                                <li key={item.id} className="min-w-0 py-4">
+                                    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3"><Badge variant="secondary" className={sourceBadgeStyle}>{sourceLabel}</Badge><span className="text-xs text-muted-foreground">{relativeLabel}</span></div>
+                                    <p className="mt-2 wrap-anywhere text-sm font-medium text-foreground">{item.label}</p>
+                                    <dl className="mt-2 grid min-w-0 gap-1 text-xs leading-5">
+                                        <div className="flex min-w-0 flex-wrap gap-x-2"><dt className="text-muted-foreground">Operator</dt><dd className="wrap-anywhere text-foreground">{item.actorLabel}</dd></div>
+                                        {item.targetLabel ? <div className="flex min-w-0 flex-wrap gap-x-2"><dt className="text-muted-foreground">Target</dt><dd className="wrap-anywhere text-foreground">{item.targetLabel}</dd></div> : null}
+                                        {item.detail ? <div className="min-w-0"><dt className="sr-only">Details</dt><dd className="wrap-anywhere text-muted-foreground">{item.detail}</dd></div> : null}
+                                    </dl>
+                                </li>
+                            );
                         })}
-                    </div>
-                    {paginated.totalPages > 1 ? <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-400"><span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {activity.length}</span><div className="flex items-center gap-2"><button type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Previous page"><ChevronLeft size={14} /></button><button type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] disabled:opacity-30" aria-label="Next page"><ChevronRight size={14} /></button></div></div> : null}
+                    </ol>
+                    {paginated.totalPages > 1 ? (
+                        <nav aria-label="Admin activity pagination" className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+                            <span>Showing {paginated.startIndex + 1}-{paginated.endIndex} of {activity.length}</span>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.max(0, c - 1))} disabled={paginated.page === 0} aria-label="Previous page"><ChevronLeft aria-hidden="true" size={16} /></Button>
+                                <Button variant="ghost" size="icon" type="button" onClick={() => setPage((c) => Math.min(paginated.totalPages - 1, c + 1))} disabled={paginated.page >= paginated.totalPages - 1} aria-label="Next page"><ChevronRight aria-hidden="true" size={16} /></Button>
+                            </div>
+                        </nav>
+                    ) : null}
                 </>
             )}
         </div>

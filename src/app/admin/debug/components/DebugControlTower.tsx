@@ -6,11 +6,13 @@ import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
+import { resolveHumanError } from "@/lib/errors/resolve-human-error";
+import type { HumanErrorDescriptor } from "@/lib/errors/error-language";
+import { readUiJson } from "@/lib/ui-continuity";
 import type { AdminDebugControlTowerModel, AdminDebugControlTowerSection } from "@/lib/admin-debug-control-tower";
 import { resolveControlTowerBusinessTruthState } from "@/lib/admin/debug/control-tower-truth";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
 import { DebugOperatorCockpit, DebugPublicBetaDecisionDetails, DebugPublicBetaDecisionStrip, formatPublicBetaDecisionStatus, resolvePublicBetaOperatorPresentation } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
@@ -20,37 +22,35 @@ import { formatRelative } from "./DebugTime";
 export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: { businessSnapshot?: AdminUserTruthSnapshot | null; isLocalAdminUiTestSession?: boolean }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<(HumanErrorDescriptor & { status: number | null }) | null>(null);
     const [activeFilter, setActiveFilter] = useState<FilterId>("all");
 
     useEffect(() => {
         let cancelled = false;
-
         async function loadControlTower() {
             setLoading(true);
             setError(null);
+            setModel(null);
+            let response: Response | null = null;
             try {
-                const response = isLocalAdminUiTestSession
+                response = isLocalAdminUiTestSession
                     ? await fetch("/api/admin/debug/control-tower", { credentials: "same-origin" })
                     : await authFetch("/api/admin/debug/control-tower");
-                const payload = await response.json() as AdminDebugControlTowerModel & { error?: string };
-                if (!response.ok) {
-                    throw new Error(payload.error || "Admin Control Tower could not be loaded.");
-                }
+                const payload = await readUiJson<AdminDebugControlTowerModel>(response, { moduleLabel: "Admin Control Tower", url: "/api/admin/debug/control-tower" });
                 if (!cancelled) {
                     setModel(payload);
                 }
             } catch (issue) {
-                if (!cancelled) {
-                    const safeError = sanitizeErrorForUser(issue, "admin_truth", "admin_truth_unavailable");
-                    setError(safeError.errorKey === "unknown_error" ? "Admin Control Tower could not be loaded." : safeError.operatorMessage);
-                }
+                const issueStatus = (issue as { status?: unknown } | null)?.status;
+                const status = response && !response.ok ? response.status : typeof issueStatus === "number" ? issueStatus : null;
+                const safeError = resolveHumanError({ error: issue, status, surface: "admin_truth", fallback: "admin_truth_unavailable" });
+                if (!cancelled) setError({ ...safeError, status });
                 reportClientIssue({
                     channel: "runtime",
                     severity: "warn",
                     message: "Admin debug Control Tower load failed",
                     error: issue,
-                    detail: { route: "/api/admin/debug/control-tower", component: "DebugControlTower" },
+                    detail: { route: "/api/admin/debug/control-tower", component: "DebugControlTower", status, errorKey: safeError.errorKey },
                     consoleLabel: "[Admin Debug] Control Tower load failed",
                 });
             } finally {
@@ -59,9 +59,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                 }
             }
         }
-
         void loadControlTower();
-
         return () => { cancelled = true; };
     }, [isLocalAdminUiTestSession]);
 
@@ -85,7 +83,8 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     const controlTruthState = model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
     const resolvedBusinessSnapshot = model?.businessSnapshot ?? businessSnapshot ?? null;
     const canonicalBusinessTruthState = model?.businessTruthState ?? resolveControlTowerBusinessTruthState(resolvedBusinessSnapshot);
-    const controlTowerBadgeState = toBadgeState(controlTruthState);
+    const permissionBlocked = error?.status === 401 || error?.status === 403 || ["auth_required", "unauthorized", "forbidden", "session_expired", "wrong_account"].includes(error?.errorKey ?? "");
+    const controlTowerBadgeState = permissionBlocked ? "blocked" : toBadgeState(controlTruthState);
     const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails) ? model.canonicalPublicBetaCapDetails : [];
     const canonicalBetaCapDisplays = canonicalBetaCapDetails.map(resolvePublicBetaCapDetailForAdmin);
     const canonicalBetaCapSummary = summarizePublicBetaCapDisplays(canonicalBetaCapDisplays);
@@ -113,45 +112,44 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
             reason: model.canonicalPublicBetaReadinessReason,
             capDetails: canonicalBetaCapDetails,
         }) : "Readiness unavailable";
-
     return (
         <section
-            className="space-y-3"
+            className="min-w-0 wrap-anywhere space-y-6"
             data-admin-debug-v2="control-tower"
             data-debug-mobile-layout="compact-card-stack"
             data-debug-default-density="summary-plus-evidence-drawer"
             data-debug-report-source={model?.reportSource ?? "agent_state"}
             data-debug-report-freshness={model?.reportFreshnessState ?? "unknown"}
-            data-debug-truth-state={controlTruthState}
+            data-debug-truth-state={permissionBlocked ? "permission_blocked" : controlTruthState}
             data-debug-critical-count={model?.criticalCount ?? 0}
             data-debug-next-action-count={model?.nextActions.length ?? 0}
             data-debug-canonical-public-beta-score={model?.canonicalPublicBetaScore ?? "unavailable"}
         >
-            <div className="rounded-lg border border-white/10 bg-black/30 p-3 shadow-lg shadow-black/15 backdrop-blur-xl">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-brand-purple/30 bg-brand-purple/15">
-                                <Icon className="h-5 w-5 text-white" />
+            <div className="min-w-0 space-y-4">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 max-w-full flex-1 basis-48">
+                        <div className="flex min-w-0 items-start gap-3">
+                            <div className="flex size-9 shrink-0 items-center justify-center text-primary">
+                                <Icon className="h-5 w-5 text-foreground" />
                             </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">Admin Control Tower</p>
-                                <h2 className="text-lg font-black text-white">Control Tower</h2>
+                            <div className="min-w-0 flex-1">
+                                <p className="sr-only">Admin Control Tower</p>
+                                <h2 className="wrap-anywhere text-xl font-semibold tracking-tight text-foreground">Control Tower</h2>
                             </div>
                         </div>
-                        <p className="mt-2 max-w-2xl text-xs leading-5 text-gray-300">
+                        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                             Readiness, current issues, and next actions.
                         </p>
                     </div>
-                    <div className="shrink-0 text-left sm:text-right">
+                    <div className="min-w-0 max-w-full shrink-0 wrap-anywhere text-left sm:text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-1" />
-                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "Source reports only" : publicBetaReadinessStatusLabel}</p>
-                        <p className="text-[11px] text-gray-400">{isLocalAdminUiTestSession ? "Local UI fixture" : loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
+                        <p className="text-sm font-semibold text-muted-foreground">{isLocalAdminUiTestSession ? "Source reports only" : publicBetaReadinessStatusLabel}</p>
+                        <p className="text-sm text-muted-foreground">{isLocalAdminUiTestSession ? "Local UI fixture" : loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
                 {model ? (
                     <p
-                        className="mt-3 border-t border-white/10 pt-3 text-[11px] leading-5 text-gray-300"
+                        className="mt-3 border-t border-white/10 pt-3 text-sm leading-5 text-muted-foreground"
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
@@ -165,13 +163,13 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
             </div>
 
             {error ? (
-                <div className="rounded-lg border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-100" data-debug-truth-state="failed">
-                    {error}
+                <div className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive" role="alert" data-debug-truth-state={permissionBlocked ? "permission_blocked" : "failed"} data-debug-error-key={error.errorKey} data-debug-error-status={error.status ?? undefined}>
+                    {error.operatorMessage}
                 </div>
             ) : null}
             {isLocalAdminUiTestSession ? (
                 <div
-                    className="rounded-lg border border-amber-400/25 bg-amber-500/10 p-3 text-sm text-amber-100"
+                    className="rounded-xl bg-warning/10 p-4 text-sm text-warning"
                     data-admin-debug-control-tower-fixture-boundary="true"
                     data-admin-debug-control-tower-fixture-state="source_reports_only"
                 >
@@ -180,22 +178,45 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
             ) : null}
 
             {loading ? (
-                <div className="rounded-lg border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300" data-debug-truth-state="unknown">
+                <div className="rounded-xl bg-muted p-4 text-sm text-muted-foreground" data-debug-truth-state="unknown">
                     Loading admin status.
                 </div>
             ) : null}
 
+            {model ? <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-6">
+                        {visibleNextActions.length > 0 ? (
+                            <section aria-label="Next actions" className="min-w-0 space-y-3" data-debug-report-source="next-actions">
+                                <h3 className="text-lg font-semibold">Next actions ({model.nextActions.length})</h3>
+                                <div className="mt-2 grid gap-2">
+                                    {visibleNextActions.map((action) => (
+                                        <NextActionCard key={action.id} action={action} />
+                                    ))}
+                                </div>
+                            </section>
+                        ) : null}
+                        {model.liveIssues.length > 0 ? (
+                            <section aria-label="Current issues" className="min-w-0 space-y-3" data-debug-report-source={model.debugEvidenceSource}>
+                                <h3 className="text-lg font-semibold">Current issues ({model.liveIssues.length})</h3>
+                                <div className="mt-2 grid gap-2">
+                                    {model.liveIssues.slice(0, 10).map((issue) => (
+                                        <LiveIssueCard key={issue.id} issue={issue} />
+                                    ))}
+                                </div>
+                            </section>
+                        ) : null}
+            </div> : null}
+
             {model ? (
                 <details
-                    className="rounded-lg border border-white/10 bg-black/20 p-3 text-sm text-gray-300"
+                    className="min-w-0 border-t border-border pt-2 text-sm text-muted-foreground"
                     data-debug-report-source="source-detail"
                     data-debug-default-details="collapsed"
                 >
-                    <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">
+                    <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">
                         Details and next steps
                     </summary>
                     <div className="mt-3 space-y-3">
-                        <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
+                        <section className="min-w-0 space-y-3" data-debug-report-source="triage-summary">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <DebugPublicBetaDecisionDetails
                                     decision={publicBetaDecision}
@@ -208,15 +229,15 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                 <AdminTruthBadge state={publicBetaPresentation.badgeState} label={publicBetaPresentation.badgeLabel} />
                             </div>
                             {canonicalBetaEvidenceGates.length === 0 && canonicalBetaCapDisplays.length > 0 ? (
-                                <ul className="mt-2 space-y-1 text-xs text-gray-300">
+                                <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
                                     {canonicalBetaCapDisplays.map((capDetail, index) => (
                                         <li
                                             key={`canonical-beta-cap-${index}`}
-                                            className="rounded-md border border-white/10 bg-black/20 px-2 py-1"
+                                            className="min-w-0 border-t border-border text-sm"
                                             data-public-beta-evidence-state={capDetail.state}
                                         >
-                                            <span className="font-semibold text-white">{capDetail.label}</span>
-                                            <span className="text-gray-400"> - {capDetail.detail}</span>
+                                            <span className="font-semibold text-foreground">{capDetail.label}</span>
+                                            <span className="text-muted-foreground"> - {capDetail.detail}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -229,14 +250,14 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                         return (
                                             <div
                                                 key={`blocker-${report.id}`}
-                                                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.035] px-2 py-1.5 text-xs"
+                                                className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-border py-3 text-sm"
                                                 data-debug-report-source={report.filePath}
                                                 data-debug-report-freshness={report.freshness}
                                                 data-debug-truth-state={report.truthState}
                                             >
-                                                <span className="font-semibold text-white">{report.label}</span>
-                                                <span className="text-gray-400">{display.findingLabel}</span>
-                                                <AdminStatusBadge state={display.badgeState} label={display.badgeLabel} title={display.sourceDetail} className="py-0 text-[8px]" />
+                                                <span className="font-semibold text-foreground">{report.label}</span>
+                                                <span className="text-muted-foreground">{display.findingLabel}</span>
+                                                <AdminStatusBadge state={display.badgeState} label={display.badgeLabel} title={display.sourceDetail} className="max-w-full whitespace-normal py-0.5" />
                                             </div>
                                         );
                                     })}
@@ -244,14 +265,14 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             ) : null}
                         </section>
 
-                        <div className="rounded-md border border-white/10 bg-black/20 p-3">
-                            <p className="text-xs text-gray-300">{model.reportAggregateSummary}</p>
-                            <p className="mt-1 text-xs text-gray-500">{model.reportAggregateTruthState}</p>
+                        <div className="min-w-0 space-y-2 border-t border-border py-4">
+                            <p className="text-xs text-muted-foreground">{model.reportAggregateSummary}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">{model.reportAggregateTruthState}</p>
                         </div>
 
                         {topFindings.length > 0 ? (
-                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source="top-findings">
-                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Top findings</summary>
+                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-muted-foreground" data-debug-report-source="top-findings">
+                                <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Top findings</summary>
                                 <div className="mt-2 grid gap-2">
                                     {topFindings.map((finding) => (
                                         <FindingCard key={`top-${finding.id}`} finding={finding} compact />
@@ -260,27 +281,9 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             </details>
                         ) : null}
 
-                        {model.liveIssues.length > 0 ? (
-                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source={model.debugEvidenceSource}>
-                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Current issues ({model.liveIssues.length})</summary>
-                                <div className="mt-2 grid gap-2">
-                                    {model.liveIssues.slice(0, 10).map((issue) => (
-                                        <LiveIssueCard key={issue.id} issue={issue} />
-                                    ))}
-                                </div>
-                            </details>
-                        ) : null}
 
-                        {visibleNextActions.length > 0 ? (
-                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source="next-actions">
-                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Next actions ({model.nextActions.length})</summary>
-                                <div className="mt-2 grid gap-2">
-                                    {visibleNextActions.map((action) => (
-                                        <NextActionCard key={action.id} action={action} />
-                                    ))}
-                                </div>
-                            </details>
-                        ) : null}
+
+
 
                         <DebugOperatorCockpit cockpit={model.operatorCockpit} />
 
@@ -300,26 +303,23 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             />
                         ) : null}
 
-                        <details className="rounded-md border border-white/10 bg-black/20 p-2">
-                            <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">Filters and evidence rows ({visibleReports})</summary>
-                            <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                        <details className="min-w-0 border-t border-border">
+                            <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Filters and evidence rows ({visibleReports})</summary>
+                            <div className="mt-2 flex min-w-0 flex-wrap gap-2">
                                 {FILTERS.map((filter) => {
                                     const active = activeFilter === filter.id;
                                     return (
-                                        <button
+                                        <Button
                                             key={filter.id}
                                             type="button"
                                             onClick={() => setActiveFilter(filter.id)}
-                                            className={cn(
-                                                "min-h-11 shrink-0 rounded-full border px-4 text-sm font-bold transition-colors",
-                                                active
-                                                    ? "border-brand-purple/50 bg-brand-purple/20 text-white"
-                                                    : "border-white/10 bg-white/5 text-gray-300 hover:bg-white/10",
-                                            )}
+                                            variant={active ? "default" : "ghost"}
+                                            size="sm"
+                                            className="max-w-full whitespace-normal"
                                             aria-pressed={active}
                                         >
                                             {filter.label}
-                                        </button>
+                                        </Button>
                                     );
                                 })}
                             </div>
@@ -330,17 +330,17 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                     const section = SECTION_COPY[sectionId];
                                     const SectionIcon = section.icon;
                                     return (
-                                        <section key={sectionId} className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source={sectionId}>
+                                        <section key={sectionId} className="min-w-0 space-y-3" data-debug-report-source={sectionId}>
                                             <div className="flex items-start gap-3">
                                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
-                                                    <SectionIcon className="h-5 w-5 text-white" />
+                                                    <SectionIcon className="h-5 w-5 text-foreground" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-white">{section.title}</h3>
-                                                    <p className="text-xs leading-5 text-gray-400">{section.subtitle}</p>
+                                                    <h3 className="font-bold text-foreground">{section.title}</h3>
+                                                    <p className="text-xs leading-5 text-muted-foreground">{section.subtitle}</p>
                                                 </div>
                                             </div>
-                                            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                                            <div className="mt-3 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
                                                 {reports.map((report) => (
                                                     <ReportCard key={`${sectionId}-${report.id}`} report={report} />
                                                 ))}

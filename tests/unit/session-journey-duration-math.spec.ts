@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { createSourceValidatorTaskFixture } from "./utils/source-validator-contract";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -124,4 +127,42 @@ describe("session journey duration math", () => {
     expect(explainSessionMath({ routeCount: 1, meaningfulInteractionCount: 0, activeMs: 0, conversionCount: 0 }))
       .toContain("30 minute inactivity timeout");
   });
+});
+
+
+describe("measured zero versus missing activity", () => {
+  it("does not convert an elapsed interval into active engagement", () => {
+    expect(calculateJourneyStepDuration({ startedAtMs: 1_000, endedAtMs: 301_000 })).toMatchObject({ durationMs: 300_000, activeMs: null });
+  });
+  it("retains explicit active zero with and without an elapsed endpoint", () => {
+    expect(calculateJourneyStepDuration({ startedAtMs: 1_000, endedAtMs: 301_000, activeMs: 0 })).toMatchObject({ activeMs: 0 });
+    expect(calculateJourneyStepDuration({ startedAtMs: 1_000, activeMs: 0 })).toMatchObject({ activeMs: 0, durationMs: null, reason: "active_only" });
+  });
+});
+
+
+describe("session-journey-duration-math task-bound CLI", () => {
+  const fixture = (allowedSourceFiles: string[] = []) => createSourceValidatorTaskFixture({ validator: "scripts/agent/validate-session-journey-duration-math.ts", report: "agent/state/session-journey-duration-math.generated.json", allowedSourceFiles });
+  it("accepts declared source changes with inherited protected dirt, denies later protected changes and recovers without replacing prior proof", () => {
+    const f = fixture();
+    f.write("fixture.ts", "export const value = 2;\n");
+    const accepted = f.run(); expect(accepted.output).not.toContain("Error:"); expect(accepted.status).toBe(0);
+    const before = f.read(f.report);
+    expect(JSON.parse(before).mutationScope).toMatchObject({ mode: "input_bound_task", changedFiles: ["fixture.ts"], sourceFingerprint: f.fingerprint() });
+    f.write(f.protectedFile, "export const value = 3;\n");
+    const denied = f.run(); expect(denied.status).not.toBe(0); expect(denied.output).toContain("Output scope violation: " + f.protectedFile);
+    expect(f.read(f.report)).toBe(before);
+    f.write(f.protectedFile, "export const value = 2;\n");
+    expect(f.run().status).toBe(0);
+  }, 60_000);
+  it("retains the standalone protected-runtime safeguard", () => {
+    const f = fixture(); const result = f.run([]);
+    expect(result.status).not.toBe(0); expect(result.output).toContain("dirty files are unclassified.");
+    expect(JSON.parse(f.read(f.report)).mutationScope).toEqual({ mode: "whole_git_worktree" });
+  }, 60_000);
+  it("rejects an undeclared untracked mutation before publishing a report", () => {
+    const f = fixture(); f.write("unexpected.ts", "export const unexpected = true;\n");
+    const result = f.run(); expect(result.status).not.toBe(0); expect(result.output).toContain("Output scope violation: unexpected.ts");
+    expect(existsSync(join(f.root, f.report))).toBe(false);
+  }, 60_000);
 });

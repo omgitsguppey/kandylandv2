@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-07-16T04:27:36.533Z",
+  "generatedAtUtc": "2026-10-02T18:29:02.027Z",
   "reportKey": "account-settings-delete-flow",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "accountSettingsFileChanged": "src/components/Settings/UserSettingsPage.tsx",
-  "supportSafetyFileChanged": "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+  "supportSafetyFileChanged": "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx",
   "stateHookChanged": "src/app/dashboard/profile/hooks/useProfileState.tsx",
   "deleteRoute": "src/app/api/user/delete/route.ts",
   "deleteFlowStatusBefore": "fully_wired_route_with_window_confirm_and_raw_failure_copy",
-  "deleteFlowStatusAfter": "fully_wired_modal_confirmed_immediate_server_delete",
-  "immediateDeletionBehavior": "Existing authenticated server route deletes account data and deletes the Firebase Auth user; client only submits intent and signs out after success.",
+  "deleteFlowStatusAfter": "sourced_dialog_with_explicit_settlement_and_typed_retention_recovery",
+  "immediateDeletionBehavior": "The authenticated server route owns settlement. The client signs out only after explicit success; retention review keeps the account active, and pending cleanup remains incomplete.",
   "reportIssueChipUntouched": true,
   "topNavUntouched": true,
   "bottomNavUntouched": true,
@@ -34,12 +34,26 @@
     "deleteUiHasConfirmationStep": true,
     "deleteUsesExistingSafeRoute": true,
     "clientCannotPassArbitraryUserId": true,
-    "immediateDeletionTruthful": true,
+    "explicitDeletionSettlement": true,
     "humanFailureCopy": true,
     "deleteTelemetryRegistered": true,
     "deleteTelemetryNoPii": true,
     "debugVisibleFailure": true,
     "packageScriptPresent": true
   },
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-account-responsive-release-20261002",
+    "inputHash": "8d2428af888cdcf736b750ec5061f8c40977617fc4bf81b263b3d8ced79a4284",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "41be66efd851cf1d9248cc1392c93631afa52f483ad39b44cdcc5f73ae9b60a6",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "src/components/creative-tim/kandydrops/account/AccountSettingsPanels.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 332,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

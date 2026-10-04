@@ -1,7 +1,7 @@
 # Analytics Identity Transfer Inventory
 
-Generated: 2026-05-18T04:40:06.626Z
-Current head: 5804de2bee6bb7ee37b6764af26094c391d03abf
+Generated: 2026-10-02T19:02:28.779Z
+Current head: 1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8
 
 ## Summary
 
@@ -21,13 +21,12 @@ Current head: 5804de2bee6bb7ee37b6764af26094c391d03abf
 - client-anonymous-visitor-id: src/lib/client-session.ts (product_truth) - Durable anonymous subject is persisted only when consent allows it; denied consent returns no anonymous visitor id.
 - deeptracker-guest-batch: src/components/Analytics/DeepTracker.tsx -> /api/analytics/ingest (product_truth) - Guest events are batched with client identity and must remain recoverable instead of being discarded at login.
 - server-guest-session-cookie: analytics_sessions / analytics_guest_batches (product_truth) - Server anon session key is a transport fallback; canonical anonymous visitor id prefers the client anonymous subject when valid.
-- identified-ingest-user: src/app/api/analytics/ingest-identified/route.ts -> analytics_event_facts (product_truth) - Authenticated telemetry writes canonical runtime facts and can process identity_linked events.
-- identity-linked-bridge: analytics_identity_links / identity_lineage_indexes (supporting_index) - This bridge links guest and user identities without rewriting old guest events into user events.
+- identified-ingest-user: src/app/api/analytics/ingest-identified/route.ts -> analytics_event_facts (product_truth) - Authenticated telemetry writes observed runtime facts; identity_linked is diagnostic only and does not create an association.
+- identity-linked-bridge: src/app/api/analytics/identity-link/route.ts -> analytics_identity_links / identity_lineage_indexes (supporting_index) - The canonical caller-bound, request-consent-gated route writes associations without scanning or rewriting old guest facts; source readiness does not prove deployed or historical continuity.
 - admin-analytics-snapshots: src/lib/server/admin-analytics-data.ts (admin_display) - Admin snapshots are UI/display read models; they can expose linked context only when first-party source labels prove it.
 
 ## Transfer Gaps
 
-- login-signup-transfer-entrypoint-not-proven [p1]: Identity link contract and server upsert path exist, and identified ingest handles identity_linked events. Next: Next pass should trace AuthContext/login/signup telemetry and wire a guarded identity_linked handoff if absent.
 - guest-history-not-reclassified [p2]: Guest events remain guest-lane facts in analytics_guest_batches and behavioral timeline facts. Next: Keep transfer implementation link-based and avoid backfilling guest rows into user rows.
 - admin-consumer-linked-context-not-proven [p2]: Admin display truth reads snapshots/hot caches and first-party facts, but this inventory does not prove every UI reads identity lineage. Next: After transfer wiring, add admin snapshot fields that distinguish direct user facts from linked guest context.
 
@@ -48,7 +47,7 @@ Current head: 5804de2bee6bb7ee37b6764af26094c391d03abf
 ## Cost and 4xx
 
 - analytics-ingest-cloud-run-bounded (cloud_run, p2, source_inventory_complete): Guest ingest has body-size, event-count, consent, idempotent batch, and transaction boundaries; future transfer must not add eager broad reads before validation.
-- identified-ingest-cloud-run-bounded (cloud_run, p2, source_inventory_complete): Identified ingest is auth-gated, rate-limited, validates event batches, and handles identity_linked records during canonical event processing.
+- identified-ingest-cloud-run-bounded (cloud_run, p2, source_inventory_complete): Identified ingest is auth-gated, rate-limited and validates observed event batches; identity_linked remains diagnostic and cannot write associations.
 - cloud-sql-agent-context-mirror-detected (cloud_sql, p2, cloud_sql_agent_context_mirror_detected_no_product_runtime_dependency): Cloud SQL/Data Connect appears as an agent-context mirror, not as an analytics identity transfer runtime dependency.
 - gemini-cloud-assist-outside-transfer-lane (gemini_cloud_assist, p2, vertex_admin_ai_detected_outside_analytics_identity_transfer): Gemini/Vertex model references are admin/AI cover/debug lanes; no analytics identity transfer model call was found.
 - analytics-expected-4xx (route_4xx, p2, classified): 401 unauthenticated and ignored invalid/payload-too-large analytics submissions are expected product 4xx/ignored paths.
@@ -56,7 +55,6 @@ Current head: 5804de2bee6bb7ee37b6764af26094c391d03abf
 
 ## Next Fix Order
 
-1. Trace AuthContext login/signup/session-restore paths and prove whether identity_linked is emitted after authentication.
-2. If absent, add an idempotent guest-to-user identity transfer event using anonymousVisitorId, sessionId, userId, consent, and eligiblePastSessionIds.
-3. After source transfer exists, update admin/user analytics consumers to label direct user facts versus linked guest context.
+1. Keep the source-checked AuthContext handoff and sole canonical association writer; deployed continuity and historical recovery still require their own current evidence.
+2. Verify admin/user analytics consumers label direct user facts versus consent-eligible linked guest context without double-counting or promoting missing data to zero.
 

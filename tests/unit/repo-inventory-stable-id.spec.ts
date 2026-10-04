@@ -80,17 +80,21 @@ describe("repo inventory stable ids", () => {
     }
   });
 
-  it("records the Functions pnpm workspace as package-manager policy truth", () => {
+  it("records npm as the sole active Functions package-manager owner", () => {
     const packageManagerTruth = readJsonFile<{
       source: string[];
-      functions: { pnpmWorkspaceConfig: string | null };
+      functions: { expectedManagers: string[]; requiredLockfiles: string[]; pnpmWorkspaceConfig: string | null };
       syncInvariants: string[];
     }>("agent/index/package-manager-truth.json");
 
-    expect(packageManagerTruth.source).toContain("functions/pnpm-workspace.yaml");
-    expect(packageManagerTruth.functions.pnpmWorkspaceConfig).toBe("functions/pnpm-workspace.yaml");
+    expect(packageManagerTruth.source).toContain("functions/package-lock.json");
+    expect(packageManagerTruth.source).not.toContain("functions/pnpm-lock.yaml");
+    expect(packageManagerTruth.source).not.toContain("functions/pnpm-workspace.yaml");
+    expect(packageManagerTruth.functions.expectedManagers).toEqual(["npm"]);
+    expect(packageManagerTruth.functions.requiredLockfiles).toEqual(["functions/package-lock.json"]);
+    expect(packageManagerTruth.functions.pnpmWorkspaceConfig).toBeNull();
     expect(packageManagerTruth.syncInvariants).toContain(
-      "Functions pnpm override policy is owned by functions/pnpm-workspace.yaml and must stay aligned with functions/package.json.",
+      "Functions npm dependency changes must keep functions/package-lock.json in sync.",
     );
   });
 });

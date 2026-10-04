@@ -1,22 +1,20 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } from "react";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { storage } from "@/lib/firebase-data";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { SITE_ORIGIN } from "@/lib/site-origin";
 import { mutate } from "swr";
 import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
-import { DEFAULT_CREATOR_SETTINGS, type CreatorSettings } from "@/lib/creator-experiences";
 import {
     getBrowserGlobalPrivacyControl,
     normalizePrivacySettingsSnapshot,
     persistPrivacySettingsSnapshot,
 } from "@/lib/privacy-consent";
 import { CONSENT_TRACKING_VERSION } from "@/lib/privacy/consent-tracking-contract";
-import { getClientErrorMessage, reportClientIssue } from "@/lib/client-error-reporting";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 
 export const TIMEZONE_OPTIONS = [
@@ -49,30 +47,6 @@ export interface ProfileSettingsFormState {
     honorGlobalPrivacyControl: boolean;
 }
 
-export type CreatorLoadTarget = "settings" | "broadcasts";
-
-export function getCreatorLoadFailureMessage(target: CreatorLoadTarget, status?: number) {
-    if (target === "settings") {
-        if (status === 403) {
-            return "You don't have creator privileges yet.";
-        }
-        return "Failed to load creator defaults. Contact support.";
-    }
-    // broadcasts
-    if (status === 403) {
-        return "Not authorized to read broadcasts.";
-    }
-    return "Failed to refresh fan broadcasts.";
-}
-
-export async function readJsonSafely<T>(response: Response): Promise<T | null> {
-    try {
-        return await response.json() as T;
-    } catch (err) {
-        return null;
-    }
-}
-
 export function normalizeTimezone(value: unknown): TimezoneOption {
     if (typeof value !== "string") {
         return "Auto";
@@ -86,7 +60,14 @@ export function sanitizeUsername(value: string): string {
     return value.toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9_]/g, "");
 }
 
-export function getAccountDeletionFailureMessage(status?: number, serverMessage?: unknown) {
+export function getAccountDeletionFailureMessage(status?: number, serverMessage?: unknown, code?: unknown) {
+    if (code === "account_deletion_retention_review_required") {
+        return "Account deletion needs a retention review before required payment or security records can be removed. Contact support; your account remains active.";
+    }
+    if (code === "account_deletion_cleanup_pending" || code === "account_deletion_retention_reconciliation_pending") {
+        return "Account login is disabled, but final cleanup is pending. Contact support for review.";
+    }
+
     if (status === 401 || status === 403) {
         return "Account deletion could not start because your account session is missing. Sign in again and retry.";
     }
@@ -149,8 +130,33 @@ export function buildAccountPrivacySettingsPayload(input: ProfilePrivacySettings
 }
 
 export function useProfileState() {
-    const { user, logout } = useAuth();
-    const { userProfile } = useUserProfile();
+    const { user, logout, loading } = useAuth();
+    const { userProfile: observedUserProfile } = useUserProfile();
+    const accountReady = !loading && Boolean(user && observedUserProfile?.uid === user.uid);
+    const profileOwnerPending = loading || Boolean(user && observedUserProfile && observedUserProfile.uid !== user.uid);
+    const userProfile = accountReady ? observedUserProfile : null;
+    const accountOperationRef = useRef({ actorUid: null as string | null, ready: false, revision: 0, mounted: false });
+    useLayoutEffect(() => {
+        accountOperationRef.current = {
+            actorUid: user?.uid ?? null,
+            ready: accountReady,
+            revision: accountOperationRef.current.revision + 1,
+            mounted: true,
+        };
+        return () => {
+            accountOperationRef.current.ready = false;
+            accountOperationRef.current.mounted = false;
+            accountOperationRef.current.revision += 1;
+        };
+    }, [accountReady, user?.uid]);
+    const captureAccountOperation = useCallback(() => {
+        if (!user || !accountReady || !accountOperationRef.current.mounted || !accountOperationRef.current.ready || accountOperationRef.current.actorUid !== user.uid) return null;
+        return { actorUid: user.uid, revision: accountOperationRef.current.revision };
+    }, [accountReady, user?.uid]);
+    const isCurrentAccountOperation = useCallback((operation: { actorUid: string; revision: number }) => {
+        const current = accountOperationRef.current;
+        return current.mounted && current.ready && current.actorUid === operation.actorUid && current.revision === operation.revision;
+    }, []);
 
     const normalizedInitialState = useMemo(() => buildFormState({
         displayName: userProfile?.displayName ?? user?.displayName ?? null,
@@ -168,6 +174,8 @@ export function useProfileState() {
         honorGlobalPrivacyControl: userProfile?.privacySettings?.honorGlobalPrivacyControl,
     }), [
         user?.displayName,
+        accountReady,
+        user?.uid,
         userProfile?.displayName,
         userProfile?.username,
         userProfile?.dateOfBirth,
@@ -190,6 +198,10 @@ export function useProfileState() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
     const [deletionFeedback, setDeletionFeedback] = useState<string | null>(null);
+    const [deletionFailureCode, setDeletionFailureCode] = useState<string | null>(null);
+    const deletionRequiresSupportReview = deletionFailureCode === "account_deletion_retention_review_required"
+        || deletionFailureCode === "account_deletion_cleanup_pending"
+        || deletionFailureCode === "account_deletion_retention_reconciliation_pending";
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [notificationSetupLoading, setNotificationSetupLoading] = useState(false);
     const [notificationSupportMessage, setNotificationSupportMessage] = useState<string | null>(null);
@@ -197,33 +209,26 @@ export function useProfileState() {
     const autosaveFeedbackTimeoutRef = useRef<number | null>(null);
     const autosaveReadyRef = useRef(false);
     const lastSavedSignatureRef = useRef(JSON.stringify(normalizedInitialState));
-    const [runtimeOrigin, setRuntimeOrigin] = useState(SITE_ORIGIN);
-    const [creatorSettingsState, setCreatorSettingsState] = useState<CreatorSettings>(DEFAULT_CREATOR_SETTINGS);
-    const [creatorSettingsLoading, setCreatorSettingsLoading] = useState(false);
-    const [creatorSettingsNotice, setCreatorSettingsNotice] = useState<string | null>(null);
-    const [creatorStats, setCreatorStats] = useState<{
-        earningsGd: number;
-        pendingCashoutGd: number;
-        activeSubscribers: number;
-        openRequests: number;
-        bookedCalls: number;
-    } | null>(null);
-    const [creatorBroadcasts, setCreatorBroadcasts] = useState<Array<Record<string, unknown>>>([]);
-    const [creatorBroadcastMessage, setCreatorBroadcastMessage] = useState("");
-    const [sendingCreatorBroadcast, setSendingCreatorBroadcast] = useState(false);
-    const [creatorDropModalOpen, setCreatorDropModalOpen] = useState(false);
-    const [creatorPayoutAmount, setCreatorPayoutAmount] = useState(100);
-    const lastCreatorNoticeRef = useRef<string | null>(null);
     const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
     const isCreatorProjectionActive = false;
-    const projectionCreatorId = "";
-    const projectionCreatorName = "";
-    const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin";
     useEffect(() => {
         setFormState(normalizedInitialState);
         lastSavedSignatureRef.current = JSON.stringify(normalizedInitialState);
-        autosaveReadyRef.current = true;
-    }, [normalizedInitialState]);
+        autosaveReadyRef.current = accountReady;
+    }, [accountReady, normalizedInitialState, user?.uid]);
+
+    useEffect(() => {
+        setSaving(false);
+        setSaveFeedback(null);
+        setIsDownloading(false);
+        setIsDeleting(false);
+        setDeleteConfirmationOpen(false);
+        setDeletionFeedback(null);
+        setDeletionFailureCode(null);
+        setIsUploadingAvatar(false);
+        setNotificationSetupLoading(false);
+        if (autosaveFeedbackTimeoutRef.current) window.clearTimeout(autosaveFeedbackTimeoutRef.current);
+    }, [accountReady, user?.uid]);
 
     useEffect(() => {
         return () => {
@@ -236,201 +241,15 @@ export function useProfileState() {
         };
     }, []);
 
-    useEffect(() => {
-        if (!isCreatorAccount) {
-            setCreatorSettingsNotice(null);
-            setCreatorStats(null);
-            setCreatorBroadcasts([]);
-            lastCreatorNoticeRef.current = null;
-            return;
-        }
-
-        let cancelled = false;
-        const creatorQuery = projectionCreatorId ? `?creatorId=${encodeURIComponent(projectionCreatorId)}` : "";
-
-        async function loadCreatorSettings() {
-            try {
-                setCreatorSettingsLoading(true);
-                const [settingsResult, broadcastsResult] = await Promise.allSettled([
-                    authFetch(`/api/creator/settings${creatorQuery}`),
-                    authFetch(`/api/creator/broadcasts${creatorQuery}`),
-                ]);
-                const notices: string[] = [];
-
-                if (settingsResult.status === "fulfilled") {
-                    const response = settingsResult.value;
-                    const result = await readJsonSafely<{
-                        creatorSettings?: CreatorSettings | null;
-                        stats?: {
-                            earningsGd: number;
-                            pendingCashoutGd: number;
-                            activeSubscribers: number;
-                            openRequests: number;
-                            bookedCalls: number;
-                        };
-                        error?: string;
-                    }>(response);
-
-                    if (response.ok) {
-                        if (!cancelled) {
-                            setCreatorSettingsState(result?.creatorSettings || userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
-                            setCreatorStats(result?.stats || null);
-                        }
-                    } else {
-                        const message = typeof result?.error === "string"
-                            ? result.error
-                            : getCreatorLoadFailureMessage("settings", response.status);
-                        notices.push(message);
-                        reportClientIssue({
-                            channel: "network",
-                            severity: "warn",
-                            message: "Profile creator settings load failed",
-                            error: new Error(message),
-                            detail: {
-                                source: "profile_page",
-                                action: "load_creator_settings",
-                                route: "/api/creator/settings",
-                                status: response.status,
-                            },
-                            consoleLabel: "[Profile] creator settings load failed",
-                        });
-                        if (!cancelled) {
-                            setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
-                            setCreatorStats(null);
-                        }
-                    }
-                } else {
-                    const message = getCreatorLoadFailureMessage("settings");
-                    notices.push(message);
-                    reportClientIssue({
-                        channel: "network",
-                        severity: "warn",
-                        message: "Profile creator settings load failed",
-                        error: settingsResult.reason,
-                        detail: {
-                            source: "profile_page",
-                            action: "load_creator_settings",
-                            route: "/api/creator/settings",
-                            userMessage: message,
-                        },
-                        consoleLabel: "[Profile] creator settings load failed",
-                    });
-                    if (!cancelled) {
-                        setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
-                        setCreatorStats(null);
-                    }
-                }
-
-                if (broadcastsResult.status === "fulfilled") {
-                    const response = broadcastsResult.value;
-                    const result = await readJsonSafely<{
-                        broadcasts?: Array<Record<string, unknown>>;
-                        error?: string;
-                    }>(response);
-
-                    if (response.ok) {
-                        if (!cancelled) {
-                            setCreatorBroadcasts(Array.isArray(result?.broadcasts) ? result.broadcasts : []);
-                        }
-                    } else {
-                        const message = typeof result?.error === "string"
-                            ? result.error
-                            : getCreatorLoadFailureMessage("broadcasts", response.status);
-                        notices.push(message);
-                        reportClientIssue({
-                            channel: "network",
-                            severity: "warn",
-                            message: "Profile creator broadcasts load failed",
-                            error: new Error(message),
-                            detail: {
-                                source: "profile_page",
-                                action: "load_creator_broadcasts",
-                                route: "/api/creator/broadcasts",
-                                status: response.status,
-                            },
-                            consoleLabel: "[Profile] creator broadcasts load failed",
-                        });
-                    }
-                } else {
-                    const message = getCreatorLoadFailureMessage("broadcasts");
-                    notices.push(message);
-                    reportClientIssue({
-                        channel: "network",
-                        severity: "warn",
-                        message: "Profile creator broadcasts load failed",
-                        error: broadcastsResult.reason,
-                        detail: {
-                            source: "profile_page",
-                            action: "load_creator_broadcasts",
-                            route: "/api/creator/broadcasts",
-                            userMessage: message,
-                        },
-                        consoleLabel: "[Profile] creator broadcasts load failed",
-                    });
-                }
-
-                const nextNotice = notices[0] ?? null;
-                if (!cancelled) {
-                    setCreatorSettingsNotice(nextNotice);
-                }
-                if (nextNotice && lastCreatorNoticeRef.current !== nextNotice) {
-                    toast.error(nextNotice);
-                    lastCreatorNoticeRef.current = nextNotice;
-                }
-                if (!nextNotice) {
-                    lastCreatorNoticeRef.current = null;
-                }
-            } catch (error) {
-                const message = getClientErrorMessage(error, "We could not load your creator tools right now.");
-                reportClientIssue({
-                    channel: "network",
-                    severity: "warn",
-                    message: "Profile creator settings load failed",
-                    error,
-                    detail: {
-                        source: "profile_page",
-                        action: "load_creator_settings",
-                        userMessage: message,
-                    },
-                    consoleLabel: "[Profile] creator settings load failed",
-                });
-                if (!cancelled) {
-                    setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
-                    setCreatorStats(null);
-                    setCreatorSettingsNotice(message);
-                }
-                if (lastCreatorNoticeRef.current !== message) {
-                    toast.error(message);
-                    lastCreatorNoticeRef.current = message;
-                }
-            } finally {
-                if (!cancelled) {
-                    setCreatorSettingsLoading(false);
-                }
-            }
-        }
-
-        void loadCreatorSettings();
-        return () => {
-            cancelled = true;
-        };
-    }, [isCreatorAccount, projectionCreatorId, userProfile?.creatorSettings]);
-
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            setRuntimeOrigin(window.location.origin);
-        }
-    }, []);
-
     const profileName = formState.displayName || user?.displayName || "Collector";
     const profileEmail = user?.email || "Signed in";
     const profileUsername = formState.username ? `@${formState.username}` : null;
     const profileIdentityLabel = profileUsername || profileName;
     const profileIdentityDetail = profileUsername && profileName !== profileUsername ? profileName : profileEmail;
     const avatarFallback = profileName.charAt(0).toUpperCase() || "C";
-    const referralLink = `${runtimeOrigin}?ref=${user?.uid || ""}`;
 
     const updateForm = <K extends keyof ProfileSettingsFormState>(key: K, value: ProfileSettingsFormState[K]) => {
+        if (!accountReady) return;
         setSaveFeedback(null);
         setFormState((previous) => ({ ...previous, [key]: value }));
     };
@@ -468,7 +287,8 @@ export function useProfileState() {
         | "allowRecommendations"
         | "showInAnonymousStats"
         | "honorGlobalPrivacyControl"
-    >) => {
+    >, operation: { actorUid: string; revision: number }) => {
+        if (!isCurrentAccountOperation(operation)) return false;
         if (isCreatorProjectionActive) {
             throw new Error("Creator dashboard is read-only in admin projection.");
         }
@@ -481,6 +301,7 @@ export function useProfileState() {
         });
 
         const result = await response.json();
+        if (!isCurrentAccountOperation(operation)) return false;
         if (!response.ok) {
             throw new Error(typeof result.error === "string" ? result.error : "Failed to save privacy settings.");
         }
@@ -495,10 +316,11 @@ export function useProfileState() {
             consentSource: "account_settings",
             consentPolicyVersion: CONSENT_TRACKING_VERSION,
         });
-    }, [isCreatorProjectionActive]);
+        return true;
+    }, [isCreatorProjectionActive, isCurrentAccountOperation]);
 
-    const persistSettings = useCallback(async (nextState: ProfileSettingsFormState) => {
-        if (!user) {
+    const persistSettings = useCallback(async (nextState: ProfileSettingsFormState, operation: { actorUid: string; revision: number }) => {
+        if (!user || user.uid !== operation.actorUid || !isCurrentAccountOperation(operation)) {
             return false;
         }
 
@@ -520,6 +342,7 @@ export function useProfileState() {
             if (trimmedDisplayName.length > 0 && trimmedDisplayName !== user.displayName) {
                 await updateProfile(user, { displayName: trimmedDisplayName });
             }
+            if (!isCurrentAccountOperation(operation)) return false;
 
             const response = await authFetch("/api/user/profile", {
                 method: "PUT",
@@ -527,6 +350,7 @@ export function useProfileState() {
             });
 
             const result = await response.json();
+            if (!isCurrentAccountOperation(operation)) return false;
             if (!response.ok) {
                 throw new Error(typeof result.error === "string" ? result.error : "Failed to save settings.");
             }
@@ -553,6 +377,7 @@ export function useProfileState() {
             });
             return true;
         } catch (error: unknown) {
+            if (!isCurrentAccountOperation(operation)) return false;
             const message = error instanceof Error ? error.message : "Failed to update settings.";
             setSaveFeedback(message);
             toast.error(message);
@@ -569,9 +394,9 @@ export function useProfileState() {
             });
             return false;
         } finally {
-            setSaving(false);
+            if (isCurrentAccountOperation(operation)) setSaving(false);
         }
-    }, [buildSettingsPayload, isCreatorProjectionActive, scheduleAutosaveFeedbackReset, user, userProfile?.role, userProfile?.uid]);
+    }, [buildSettingsPayload, isCreatorProjectionActive, isCurrentAccountOperation, scheduleAutosaveFeedbackReset, user, userProfile?.role, userProfile?.uid]);
 
     useEffect(() => {
         let cancelled = false;
@@ -610,7 +435,8 @@ export function useProfileState() {
     }, []);
 
     const handleBrowserPushToggle = async (nextValue: boolean) => {
-        if (!user || !userProfile) {
+        const operation = captureAccountOperation();
+        if (!operation || !userProfile) {
             return;
         }
 
@@ -628,6 +454,7 @@ export function useProfileState() {
         setNotificationSetupLoading(true);
         try {
             const result = await enableBrowserNotifications(userProfile);
+            if (!isCurrentAccountOperation(operation)) return;
             if (result.status !== "enabled") {
                 if (result.status === "not_granted" && result.needsStandaloneInstall) {
                     toast.info("Add KandyDrops to your Home Screen, then reopen it there to enable notifications on iPhone.");
@@ -644,6 +471,7 @@ export function useProfileState() {
                 : "Browser reminders are on, but push delivery is limited in this browser.");
             toast.success("Browser notifications enabled.");
         } catch (error) {
+            if (!isCurrentAccountOperation(operation)) return;
             reportClientIssue({
                 channel: "notifications",
                 message: "Profile browser notification enable failed",
@@ -656,11 +484,13 @@ export function useProfileState() {
             });
             toast.error("We could not enable browser notifications right now.");
         } finally {
-            setNotificationSetupLoading(false);
+            if (isCurrentAccountOperation(operation)) setNotificationSetupLoading(false);
         }
     };
 
     const handleWithdrawOptionalTracking = useCallback(async () => {
+        const operation = captureAccountOperation();
+        if (!operation) return;
         if (isCreatorProjectionActive) {
             toast.error("Creator dashboard is read-only in admin projection.");
             return;
@@ -678,7 +508,8 @@ export function useProfileState() {
         setSaveFeedback(null);
 
         try {
-            await savePrivacyPreferences(nextState);
+            const saved = await savePrivacyPreferences(nextState, operation);
+            if (!saved || !isCurrentAccountOperation(operation)) return;
             const nextFormState = {
                 ...formState,
                 ...nextState,
@@ -702,6 +533,7 @@ export function useProfileState() {
                 truth_state: "source_ready",
             });
         } catch (error: unknown) {
+            if (!isCurrentAccountOperation(operation)) return;
             const message = error instanceof Error ? error.message : "Failed to update privacy settings.";
             setSaveFeedback(message);
             toast.error(message);
@@ -717,12 +549,13 @@ export function useProfileState() {
                 failure_code: "privacy_save_failed",
             });
         } finally {
-            setSaving(false);
+            if (isCurrentAccountOperation(operation)) setSaving(false);
         }
-    }, [formState, isCreatorProjectionActive, savePrivacyPreferences, scheduleAutosaveFeedbackReset, userProfile?.role, userProfile?.uid]);
+    }, [captureAccountOperation, formState, isCreatorProjectionActive, isCurrentAccountOperation, savePrivacyPreferences, scheduleAutosaveFeedbackReset, userProfile?.role, userProfile?.uid]);
 
     useEffect(() => {
-        if (!user || !autosaveReadyRef.current) {
+        const operation = captureAccountOperation();
+        if (!operation || !autosaveReadyRef.current) {
             return;
         }
 
@@ -736,7 +569,7 @@ export function useProfileState() {
         }
 
         autosaveTimeoutRef.current = window.setTimeout(() => {
-            void persistSettings(formState);
+            void persistSettings(formState, operation);
         }, 650);
 
         return () => {
@@ -744,11 +577,12 @@ export function useProfileState() {
                 window.clearTimeout(autosaveTimeoutRef.current);
             }
         };
-    }, [formState, persistSettings, user]);
+    }, [captureAccountOperation, formState, persistSettings]);
 
     const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const operation = captureAccountOperation();
         const file = e.target.files?.[0];
-        if (!file || !user) return;
+        if (!file || !user || !operation) return;
 
         if (isCreatorProjectionActive) {
             toast.error("Creator dashboard is read-only in admin projection.");
@@ -765,18 +599,22 @@ export function useProfileState() {
             const ext = file.name.split('.').pop() || 'jpg';
             const storageRef = ref(storage, `avatars/${user.uid}.${ext}`);
             await uploadBytes(storageRef, file);
+            if (!isCurrentAccountOperation(operation)) return;
             const downloadUrl = await getDownloadURL(storageRef);
+            if (!isCurrentAccountOperation(operation)) return;
 
             const response = await authFetch("/api/user/profile", {
                 method: "POST",
                 body: JSON.stringify({ photoURL: downloadUrl }),
             });
             const result = await response.json().catch(() => ({}));
+            if (!isCurrentAccountOperation(operation)) return;
             if (!response.ok) {
                 throw new Error(typeof result?.error === "string" ? result.error : "Failed to sync avatar.");
             }
 
             await updateProfile(user, { photoURL: downloadUrl });
+            if (!isCurrentAccountOperation(operation)) return;
             trackEvent("avatar_uploaded", { source: "profile_settings" });
 
             toast.success("Avatar updated successfully.");
@@ -784,27 +622,11 @@ export function useProfileState() {
             // Revalidate SWR caches globally instead of doing a hard reload
             mutate(() => true, undefined, { revalidate: true });
         } catch (error: unknown) {
+            if (!isCurrentAccountOperation(operation)) return;
             const message = error instanceof Error ? error.message : "Failed to upload avatar.";
             toast.error(`Failed to upload avatar: ${message}`);
         } finally {
-            setIsUploadingAvatar(false);
-        }
-    };
-
-    const handleSignOutAllSessions = async () => {
-        try {
-            const response = await authFetch("/api/user/revoke-sessions", { method: "POST" });
-            const result = await response.json().catch(() => ({}));
-
-            if (!response.ok) {
-                throw new Error(typeof result?.error === "string" ? result.error : "Failed to sign out all sessions");
-            }
-
-            toast.success("Signed out on all devices.");
-            await logout();
-        } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : "Failed to sign out all sessions";
-            toast.error(message);
+            if (isCurrentAccountOperation(operation)) setIsUploadingAvatar(false);
         }
     };
 
@@ -818,6 +640,7 @@ export function useProfileState() {
     }), []);
 
     const handleRequestDeletion = useCallback(() => {
+        if (!captureAccountOperation()) return;
         if (isCreatorProjectionActive) {
             toast.error("Creator dashboard is read-only in admin projection.");
             return;
@@ -826,16 +649,19 @@ export function useProfileState() {
         trackEvent("account_delete_clicked", buildAccountDeleteTelemetryParams());
         setDeletionFeedback(null);
         setDeleteConfirmationOpen(true);
+        setDeletionFailureCode(null);
         trackEvent("account_delete_confirm_opened", buildAccountDeleteTelemetryParams());
-    }, [buildAccountDeleteTelemetryParams, isCreatorProjectionActive]);
+    }, [buildAccountDeleteTelemetryParams, captureAccountOperation, isCreatorProjectionActive]);
 
     const handleCancelAccountDeletion = useCallback(() => {
         setDeleteConfirmationOpen(false);
         setDeletionFeedback(null);
+        setDeletionFailureCode(null);
         trackEvent("account_delete_cancelled", buildAccountDeleteTelemetryParams());
     }, [buildAccountDeleteTelemetryParams]);
 
     const handleConfirmAccountDeletion = useCallback(async () => {
+        if (isDeleting || deletionRequiresSupportReview) return;
         if (isCreatorProjectionActive) {
             toast.error("Creator dashboard is read-only in admin projection.");
             return;
@@ -866,18 +692,22 @@ export function useProfileState() {
             return;
         }
 
+        const operation = captureAccountOperation();
+        if (!operation) return;
         trackEvent("account_delete_confirmed", buildAccountDeleteTelemetryParams());
         setIsDeleting(true);
         try {
             trackEvent("account_delete_request_submitted", buildAccountDeleteTelemetryParams());
             const response = await authFetch("/api/user/delete", { method: "DELETE" });
-            const data = await response.json().catch(() => ({})) as { error?: string; message?: string; success?: boolean };
+            const data = await response.json().catch(() => ({})) as { error?: string; message?: string; success?: boolean; code?: string; retryable?: boolean; accountActive?: boolean };
+            if (!isCurrentAccountOperation(operation)) return;
 
-            if (!response.ok) {
-                const message = getAccountDeletionFailureMessage(response.status, data.message || data.error);
+            if (!response.ok || data.success !== true) {
+                const message = getAccountDeletionFailureMessage(response.status, data.message || data.error, data.code);
                 setDeletionFeedback(message);
+                setDeletionFailureCode(data.code || `http_${response.status}`);
                 trackEvent("account_delete_failed", buildAccountDeleteTelemetryParams({
-                    failure_code: `http_${response.status}`,
+                    failure_code: data.code || `http_${response.status}`,
                     status: response.status,
                 }));
                 reportClientIssue({
@@ -911,6 +741,7 @@ export function useProfileState() {
                 window.location.assign("/");
             }
         } catch (error: unknown) {
+            if (!isCurrentAccountOperation(operation)) return;
             const message = getAccountDeletionFailureMessage();
             setDeletionFeedback(message);
             trackEvent("account_delete_failed", buildAccountDeleteTelemetryParams({ failure_code: "network_or_unknown" }));
@@ -932,11 +763,13 @@ export function useProfileState() {
             });
             toast.error(message);
         } finally {
-            setIsDeleting(false);
+            if (isCurrentAccountOperation(operation)) setIsDeleting(false);
         }
-    }, [buildAccountDeleteTelemetryParams, isCreatorProjectionActive, logout, user]);
+    }, [buildAccountDeleteTelemetryParams, captureAccountOperation, deletionRequiresSupportReview, isCreatorProjectionActive, isCurrentAccountOperation, isDeleting, logout, user]);
 
     const handleDownloadData = async () => {
+        const operation = captureAccountOperation();
+        if (!operation) return;
         setIsDownloading(true);
         try {
             trackEvent("data_export_requested", {
@@ -950,6 +783,7 @@ export function useProfileState() {
                 truth_state: "source_ready",
             });
             const response = await authFetch("/api/user/data", { method: "GET" });
+            if (!isCurrentAccountOperation(operation)) return;
 
             if (!response.ok) {
                 throw new Error("We could not prepare your data export right now. Try again or contact support.");
@@ -957,6 +791,7 @@ export function useProfileState() {
 
             // Create a blob from the JSON response
             const blob = await response.blob();
+            if (!isCurrentAccountOperation(operation)) return;
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.style.display = "none";
@@ -977,6 +812,7 @@ export function useProfileState() {
                 truth_state: "source_ready",
             });
         } catch (error: any) {
+            if (!isCurrentAccountOperation(operation)) return;
             toast.error(error.message || "We could not prepare your data export right now. Try again or contact support.");
             trackEvent("setting_save_failed", {
                 setting_id: "download_my_data",
@@ -990,132 +826,20 @@ export function useProfileState() {
                 failure_code: "data_export_failed",
             });
         } finally {
-            setIsDownloading(false);
-        }
-    };
-
-    const updateCreatorSettingsState = <K extends keyof CreatorSettings>(key: K, value: CreatorSettings[K]) => {
-        setCreatorSettingsState((current: CreatorSettings) => ({
-            ...current,
-            [key]: value,
-        }));
-    };
-
-    const handleSaveCreatorSettings = async () => {
-        if (!isCreatorAccount) {
-            return;
-        }
-
-        if (isCreatorProjectionActive) {
-            toast.error("Creator dashboard is read-only in admin projection.");
-            return;
-        }
-
-        setCreatorSettingsLoading(true);
-        try {
-            const response = await authFetch("/api/creator/settings", {
-                method: "PUT",
-                body: JSON.stringify({
-                    creatorSettings: creatorSettingsState,
-                }),
-            });
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok) {
-                throw new Error(typeof result?.error === "string" ? result.error : "Failed to save creator settings.");
-            }
-            toast.success("Creator controls updated.");
-        } catch (error: any) {
-            toast.error(error.message || "Failed to save creator settings.");
-        } finally {
-            setCreatorSettingsLoading(false);
-        }
-    };
-
-    const handleRequestCreatorPayout = async () => {
-        if (!isCreatorAccount) {
-            return;
-        }
-
-        if (isCreatorProjectionActive) {
-            toast.error("Creator dashboard is read-only in admin projection.");
-            return;
-        }
-
-        try {
-            const response = await authFetch("/api/creator/payouts", {
-                method: "POST",
-                body: JSON.stringify({
-                    requestedGd: creatorPayoutAmount,
-                }),
-            });
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok) {
-                throw new Error(typeof result?.error === "string" ? result.error : "Failed to request payout.");
-            }
-            toast.success("Payout request submitted. Manual review should take 5–7 business days.");
-        } catch (error: any) {
-            toast.error(error.message || "Failed to request payout.");
-        }
-    };
-
-    const handleSendCreatorBroadcast = async () => {
-        if (!isCreatorAccount || creatorBroadcastMessage.trim().length < 4) {
-            return;
-        }
-
-        if (isCreatorProjectionActive) {
-            toast.error("Creator dashboard is read-only in admin projection.");
-            return;
-        }
-
-        setSendingCreatorBroadcast(true);
-        try {
-            const response = await authFetch("/api/creator/broadcasts", {
-                method: "POST",
-                body: JSON.stringify({
-                    message: creatorBroadcastMessage.trim(),
-                    audience: "followers",
-                }),
-            });
-            const result = await response.json().catch(() => ({})) as {
-                broadcast?: Record<string, unknown>;
-                error?: string;
-            };
-            if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Failed to send broadcast.");
-            }
-
-            setCreatorBroadcastMessage("");
-            if (result.broadcast) {
-                setCreatorBroadcasts((current) => [result.broadcast as Record<string, unknown>, ...current].slice(0, 6));
-            }
-            toast.success("Broadcast sent to followers.");
-        } catch (error: any) {
-            toast.error(error.message || "Failed to send broadcast.");
-        } finally {
-            setSendingCreatorBroadcast(false);
+            if (isCurrentAccountOperation(operation)) setIsDownloading(false);
         }
     };
 
     return {
-    user, userProfile, logout,
-    formState, updateForm, saving, saveFeedback,
-    isDownloading, isDeleting, deleteConfirmationOpen, deletionFeedback, isUploadingAvatar,
-    notificationSetupLoading, notificationSupportMessage,
-    runtimeOrigin, creatorSettingsState, creatorSettingsLoading,
-    creatorStats, creatorBroadcasts, creatorBroadcastMessage,
-    setCreatorBroadcastMessage, sendingCreatorBroadcast,
-    creatorDropModalOpen, setCreatorDropModalOpen,
-    creatorPayoutAmount, setCreatorPayoutAmount,
-    browserGpcEnabled, isCreatorAccount,
-    isCreatorProjectionActive, projectionCreatorName,
-    profileName, profileEmail, profileUsername,
-    profileIdentityLabel, profileIdentityDetail,
-    avatarFallback, referralLink,
-    handleBrowserPushToggle, handleWithdrawOptionalTracking,
-    handleDownloadData, handleRequestDeletion, handleCancelAccountDeletion, handleConfirmAccountDeletion, creatorSettingsNotice,
-    handleChangeAvatar, handleSaveCreatorSettings,
-    handleSendCreatorBroadcast, handleRequestCreatorPayout,
-    updateCreatorSettingsState, setCreatorSettingsState
-  };
+        user, userProfile, logout, accountReady, profileOwnerPending,
+        formState, updateForm, saving, saveFeedback,
+        isDownloading, isDeleting, deleteConfirmationOpen, deletionFeedback, deletionRequiresSupportReview, isUploadingAvatar,
+        notificationSetupLoading, notificationSupportMessage,
+        browserGpcEnabled, isCreatorProjectionActive,
+        profileName, profileEmail, profileUsername,
+        profileIdentityLabel, profileIdentityDetail, avatarFallback,
+        handleBrowserPushToggle, handleWithdrawOptionalTracking,
+        handleDownloadData, handleRequestDeletion, handleCancelAccountDeletion, handleConfirmAccountDeletion,
+        handleChangeAvatar,
+    };
 }

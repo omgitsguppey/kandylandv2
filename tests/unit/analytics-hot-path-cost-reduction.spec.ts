@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
+import { MAINTENANCE_SCHEDULES } from "../../shared/runtime/maintenance-mode-contract";
 
 const repoRoot = path.resolve(__dirname, "../..");
 
@@ -117,7 +118,8 @@ describe("analytics hot path cost reduction guardrails", () => {
 
         expect(source).toContain("lastExportStartedAtMs: nowMs");
         expect(source).toContain("lastWindowClaimEventId: eventId");
-        expect(source).toContain("schedule: \"0 4 * * *\"");
+        expect(source).toContain("schedule: MAINTENANCE_SCHEDULES.scheduledBigQueryRawEventsExport.schedule");
+        expect(MAINTENANCE_SCHEDULES.scheduledBigQueryRawEventsExport.schedule).toBe("0 4 * * *");
     });
 
     it("keeps the generated report scoped to formulas and percentages", () => {
@@ -129,5 +131,7 @@ describe("analytics hot path cost reduction guardrails", () => {
         expect(report.auditItemsAddressed).toEqual([7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22]);
         expect(JSON.stringify(report.costSavingsModel)).not.toMatch(/\$\d/u);
         expect(report.nextFixOrder.length).toBeGreaterThan(0);
+        expect(report.canClearRuntimeGate).toBe(false);
+        expect(report.canClearProviderGate).toBe(false);
     });
 });

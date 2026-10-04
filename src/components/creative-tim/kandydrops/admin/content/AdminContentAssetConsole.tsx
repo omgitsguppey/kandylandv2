@@ -1,6 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { Button } from "@/components/ui/Button";
+import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
 import { useMemo, useState, type ChangeEvent } from "react";
 import {
     Copy,
@@ -151,25 +154,19 @@ export function AdminContentAssetConsole({
     );
 
     return (
-        <section className="relative isolate space-y-5 overflow-hidden" aria-labelledby="admin-content-assets-title" data-admin-content-surface="operations-canvas">
-            <span aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-brand-purple/15 blur-3xl" />
-            <span aria-hidden="true" className="pointer-events-none absolute -right-24 top-56 h-72 w-72 rounded-full bg-brand-pink/10 blur-3xl" />
-
-            <header className="relative grid gap-5 border-y border-kandy-lilac/25 bg-gradient-to-r from-brand-purple/18 via-kandy-void/90 to-brand-pink/10 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-                <div className="max-w-2xl">
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-kandy-lilac/80">Content operations</p>
-                    <h1 id="admin-content-assets-title" className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">Ingest and inspection canvas</h1>
-                    <p className="mt-2 text-sm leading-6 text-gray-400">Stage assets, inspect the existing storage record, and keep protected actions attached to their verified source.</p>
-                </div>
+        <section className="min-w-0 space-y-4" aria-label="Content operations" data-admin-content-surface="operations-canvas">
+            <AdminPageHeader compact eyebrow="Content operations" title="Ingest and inspection canvas"
+                subtitle="Stage assets, inspect the existing storage record, and keep protected actions attached to their verified source."
+                actions={(
                 <div className="flex flex-wrap items-center gap-2" aria-label="Content operations">
-                    <button
+                    <Button variant="outline"
                         type="button"
                         onClick={onRefresh}
-                        className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/15 bg-black/25 px-3 text-xs font-bold text-gray-200 transition-colors hover:border-kandy-lilac/45 hover:bg-white/[0.06]"
+                        className="gap-2"
                     >
                         <RefreshCw className={"h-4 w-4 " + (loading ? "animate-spin" : "")} aria-hidden="true" />
                         Refresh source
-                    </button>
+                    </Button>
                     <label className={"inline-flex min-h-11 items-center gap-2 rounded-2xl border px-3 text-xs font-bold transition-colors " + (isFixture || uploading ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-gray-500" : "cursor-pointer border-kandy-lilac/35 bg-kandy-lilac/12 text-kandy-lilac hover:bg-kandy-lilac/20")}>
                         <input
                             type="file"
@@ -182,7 +179,8 @@ export function AdminContentAssetConsole({
                         {isFixture ? "Upload needs admin" : uploading ? "Ingesting file" : "Ingest file"}
                     </label>
                 </div>
-            </header>
+                )}
+            />
 
             <div className="relative grid gap-5 xl:grid-cols-[18rem_minmax(0,1fr)]">
                 <aside className="space-y-4">
@@ -220,29 +218,12 @@ export function AdminContentAssetConsole({
                         </div>
                     ) : null}
 
-                    <nav className="grid gap-2" aria-label="Asset inspection categories">
-                        <p className="px-1 text-[10px] font-black uppercase tracking-[0.18em] text-kandy-lilac/75">Inspection lanes</p>
-                        {FILE_CATEGORIES.map((category) => {
-                            const active = activeTab === category;
-                            const countLabel = isFixture ? "--" : categoryCounts[category];
-                            return (
-                                <button
-                                    key={category}
-                                    type="button"
-                                    onClick={() => setActiveTab(category)}
-                                    aria-pressed={active}
-                                    className={"flex min-h-14 items-center justify-between border-l-2 px-3 text-left transition-colors " + (
-                                        active
-                                            ? "border-kandy-lilac bg-kandy-lilac/12 text-white"
-                                            : "border-transparent bg-black/15 text-gray-400 hover:border-white/25 hover:bg-white/[0.045] hover:text-white"
-                                    )}
-                                >
-                                    <span className="text-sm font-black">{category}</span>
-                                    <span className="text-xs font-bold text-kandy-lilac">{countLabel}</span>
-                                </button>
-                            );
-                        })}
-                    </nav>
+                    <label className="grid gap-2 text-sm font-medium">
+                        Inspection category
+                        <NativeSelect value={activeTab} onChange={(event) => setActiveTab(event.target.value as FileCategory)} aria-label="Asset inspection category">
+                            {FILE_CATEGORIES.map((category) => <NativeSelectOption key={category} value={category}>{category} {isFixture ? "--" : categoryCounts[category]}</NativeSelectOption>)}
+                        </NativeSelect>
+                    </label>
                 </aside>
 
                 <main className="min-w-0 border-y border-white/10 bg-black/15" aria-label="Asset inspection field">

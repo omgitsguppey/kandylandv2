@@ -1,7 +1,7 @@
 {
   "reportKey": "individual-user-metric-truth",
-  "generatedAtUtc": "2026-07-14T09:54:07.339Z",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
+  "generatedAtUtc": "2026-10-03T05:58:25.044Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",

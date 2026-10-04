@@ -301,6 +301,8 @@ export function deriveUserIndexMaterializerWindowReceipt(
       && normalizedReceipt.requestsFailed === 0
       && normalizedReceipt.leaseLostCount === 0
       && normalizedReceipt.truncatedSubjectCount === 0
+      && normalizedReceipt.exclusions.personAdmissionUnverifiedCount === 0
+      && normalizedReceipt.exclusions.lineageSourceMissingCount === 0
       && !normalizedReceipt.runtimeCapReached,
   };
 }

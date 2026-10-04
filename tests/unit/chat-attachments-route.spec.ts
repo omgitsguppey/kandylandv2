@@ -435,6 +435,29 @@ describe("chat attachment routes", () => {
         expect(mockState.setMetadata).not.toHaveBeenCalled();
     });
 
+    it("classifies a missing uploaded object without writing attachment metadata", async () => {
+        const response = await completePost(new NextRequest("http://localhost/api/chat/attachments/complete", {
+            method: "POST",
+            body: JSON.stringify({
+                threadId: "thread_1",
+                idempotencyKey: "missing-upload-1",
+                storagePath: "creator/messages/fan_1/thread_1/missing.png",
+                fileName: "missing.png",
+                mimeType: "image/png",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(404);
+        expect(body).toMatchObject({
+            errorCode: "attachment_not_found",
+            resource: "asset",
+            attachmentCompleteGuarded: true,
+            rawStorageUrlExposed: false,
+        });
+        expect(mockState.setMetadata).not.toHaveBeenCalled();
+    });
+
     it("returns a canonical download URL for completed uploads", async () => {
         mockState.storageEntries.set("creator/messages/fan_1/thread_1/file.png", {
             exists: true,

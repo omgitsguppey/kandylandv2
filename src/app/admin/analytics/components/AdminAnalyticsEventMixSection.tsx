@@ -72,62 +72,62 @@ export function AdminAnalyticsEventMixSection({
       )}
     >
       <div className="grid gap-2.5">
-        <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+        <div className="border-b border-border flex flex-col gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground @3xl:flex-row @3xl:items-center @3xl:justify-between">
           <span>{eventMixModel.visibleCopy || eventMixInferenceCopy}</span>
           <AdminStatusBadge
             state={eventMixModel.truthState}
             label={eventMixModel.badgeLabel}
-            className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+            className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs"
           />
         </div>
 
-        <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
+        <div className="border-b border-border grid gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
           <span>
-            <span className="font-semibold text-white">Total:</span>{" "}
+            <span className="font-semibold text-foreground">Total:</span>{" "}
             {eventMixCountLabel(eventMixModel.totalEventsInRange)} tracked events
           </span>
           <span>
-            <span className="font-semibold text-white">Top:</span>{" "}
+            <span className="font-semibold text-foreground">Top:</span>{" "}
             {eventMixModel.topEvent?.displayLabel ?? "No verified event yet"}
           </span>
           <span>
-            <span className="font-semibold text-white">Verified surface context:</span>{" "}
+            <span className="font-semibold text-foreground">Verified surface context:</span>{" "}
             {eventMixSurfaceContextLabel}
           </span>
         </div>
 
-        <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
+        <div className="border-b border-border grid gap-2 px-3 py-2 text-xs leading-5 text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
           <span>
-            <span className="font-semibold text-white">Catalog inference:</span>{" "}
+            <span className="font-semibold text-foreground">Catalog inference:</span>{" "}
             {eventMixModel.catalogInferenceState}
           </span>
           <span data-event-mix-missing-reason="missing verified surface context">
-            <span className="font-semibold text-white">Missing verified surface context:</span>{" "}
+            <span className="font-semibold text-foreground">Missing verified surface context:</span>{" "}
             {eventMixModel.eventsMissingSurfaceContext ?? "unknown"}
           </span>
           <span>
-            <span className="font-semibold text-white">Unmapped catalog events:</span>{" "}
+            <span className="font-semibold text-foreground">Unmapped catalog events:</span>{" "}
             {eventMixModel.eventsNeedingCatalogMapping ?? "unknown"}
           </span>
         </div>
 
         <div
-          className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
+          className="border-b border-border p-3"
           data-admin-analytics-mobile-view-mode={eventMixViewMode}
           data-event-mix-source-mode={eventMixModel.eventMixSourceMode}
           data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
         >
           <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Ranked event activity
             </p>
-            <span className="text-[10px] text-gray-500">
+            <span className="text-xs text-muted-foreground">
               event count / total counted events
             </span>
           </div>
 
           {eventMixModel.eventRows.length > 0 && eventMixViewMode === "chart" ? (
-            <div className="h-52 rounded-[0.9rem] border border-white/10 bg-black/25 p-2">
+            <div className="border-b border-border h-52 p-2">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={eventMixModel.eventRows}
@@ -160,13 +160,13 @@ export function AdminAnalyticsEventMixSection({
 
           {eventMixModel.eventRows.length > 0 && eventMixViewMode === "table" ? (
             <div
-              className="overflow-x-auto rounded-[0.9rem] border border-white/10 bg-black/25"
+              className="rounded-2xl bg-card overflow-x-auto"
               data-event-mix-table="compact"
               data-event-mix-source-mode={eventMixModel.eventMixSourceMode}
               data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
             >
               <table className="min-w-full text-left text-xs">
-                <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   <tr>
                     <th className="px-3 py-2 font-semibold">Event</th>
                     <th className="px-3 py-2 font-semibold">Count</th>
@@ -175,7 +175,7 @@ export function AdminAnalyticsEventMixSection({
                     <th className="px-3 py-2 font-semibold">Surface</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10 text-gray-300">
+                <tbody className="divide-y divide-white/10 text-muted-foreground">
                   {eventMixModel.eventRows.map((item) => (
                     <tr
                       key={`event-mix-table-${item.eventKey}`}
@@ -184,8 +184,8 @@ export function AdminAnalyticsEventMixSection({
                       data-event-mix-actual-surface-state={item.actualSurfaceState}
                     >
                       <td className="max-w-[16rem] px-3 py-2">
-                        <p className="truncate font-semibold text-white">{item.displayLabel}</p>
-                        <p className="truncate text-[11px] text-gray-500">{item.eventKey}</p>
+                        <p className="truncate font-semibold text-foreground">{item.displayLabel}</p>
+                        <p className="truncate text-xs text-muted-foreground">{item.eventKey}</p>
                       </td>
                       <td className="px-3 py-2">{eventMixCountLabel(item.rawCount)}</td>
                       <td className="px-3 py-2">{eventMixShareLabel(item.share)}</td>
@@ -204,28 +204,28 @@ export function AdminAnalyticsEventMixSection({
                 eventMixModel.eventRows.map((item) => (
                   <div
                     key={item.eventKey}
-                    className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
+                    className="border-b border-border px-3 py-2"
                   >
                     <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[10px] font-semibold text-gray-300">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-muted-foreground">
                         {item.rank}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-xs font-semibold text-white">
+                        <p className="truncate text-xs font-semibold text-foreground">
                           {item.displayLabel}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
+                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs text-muted-foreground">
                             Category: {item.catalogCategory ?? "missing"} {item.catalogCategoryState === "inferred" ? "(catalog-inferred)" : item.catalogCategoryState === "verified" ? "(verified)" : ""}
                           </span>
-                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
+                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs text-muted-foreground">
                             {item.actualSurface ? `Surface: ${item.actualSurface}` : eventMixMissingSurfaceLabel}
                           </span>
-                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
+                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs text-muted-foreground">
                             {item.route ? `Route: ${item.route}` : eventMixMissingRouteLabel}
                           </span>
                         </div>
-                        <p className="mt-1 text-[10px] text-gray-500">
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {item.explanation}
                         </p>
                       </div>
@@ -233,7 +233,7 @@ export function AdminAnalyticsEventMixSection({
                         <p className="text-xs font-bold text-brand-purple">
                           {eventMixCountLabel(item.rawCount)}
                         </p>
-                        <p className="text-[10px] text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {eventMixShareLabel(item.share)}
                         </p>
                       </div>
@@ -249,20 +249,20 @@ export function AdminAnalyticsEventMixSection({
                   </div>
                 ))
               ) : (
-                <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                <div className="border-b border-border p-3 text-xs text-muted-foreground">
                   Event mix needs verified event counts.
                 </div>
               )}
             </div>
           ) : eventMixModel.eventRows.length === 0 ? (
-            <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+            <div className="border-b border-border p-3 text-xs text-muted-foreground">
               Event mix needs verified event counts.
             </div>
           ) : null}
         </div>
 
-        <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-          <span className="font-semibold text-white">Context:</span>{" "}
+        <div className="border-b border-border px-3 py-2 text-xs leading-5 text-muted-foreground">
+          <span className="font-semibold text-foreground">Context:</span>{" "}
           {eventMixModel.actualSurfaceContextState === "available"
             ? "Verified route and surface context available."
             : `${eventMixSurfaceContextLabel}. Verified route and surface context are unavailable for this range.`}

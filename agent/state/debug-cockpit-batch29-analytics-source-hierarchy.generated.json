@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-20T17:03:09.354Z",
-  "currentHead": "12db31fcfac9c3aaa78c38cdce0635fc66abfa38",
+  "generatedAtUtc": "2026-10-03T19:33:48.081Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -77,8 +77,7 @@
         "fallbackState": "fallback_missing",
         "classifications": [
           "date_range_mismatch",
-          "external_source_gap",
-          "missing_materializer"
+          "external_source_gap"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
         "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
@@ -124,8 +123,7 @@
         "fallbackState": "fallback_present",
         "classifications": [
           "date_range_mismatch",
-          "external_source_gap",
-          "missing_materializer"
+          "external_source_gap"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
         "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
@@ -215,55 +213,55 @@
       {
         "consumer": "debug_data_validation",
         "label": "Debug source agreement",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
-        "blockingOwner": "analytics_event_facts materialization",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "blockingOwner": "source agreement comparison",
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_overview",
         "label": "Analytics overview",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
-        "blockingOwner": "analytics_event_facts materialization",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "blockingOwner": "source agreement comparison",
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_charts",
         "label": "Analytics charts",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
-        "blockingOwner": "analytics_event_facts materialization",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "blockingOwner": "source agreement comparison",
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_insight_cards",
         "label": "Insight cards",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
-        "blockingOwner": "analytics_event_facts materialization",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "blockingOwner": "source agreement comparison",
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_source_health",
         "label": "Source health",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
-        "blockingOwner": "analytics_event_facts materialization",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "blockingOwner": "source agreement comparison",
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "public_beta_score_evidence",
         "label": "Public beta evidence",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
-        "blockingOwner": "analytics_event_facts materialization",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "blockingOwner": "source agreement comparison",
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_device_mix",
         "label": "Device mix",
-        "currentState": "materializer_missing",
+        "currentState": "second_source_only",
         "allowedDisplayState": "second_source_only",
         "blockingOwner": "GA4/external evidence lane, waiting for first-party agreement",
         "nextAction": "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
@@ -271,7 +269,7 @@
       {
         "consumer": "admin_analytics_region_demand",
         "label": "Region demand",
-        "currentState": "materializer_missing",
+        "currentState": "second_source_only",
         "allowedDisplayState": "second_source_only",
         "blockingOwner": "GA4/external evidence lane, waiting for first-party agreement",
         "nextAction": "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
@@ -279,7 +277,7 @@
       {
         "consumer": "admin_analytics_top_paths",
         "label": "Top paths",
-        "currentState": "materializer_missing",
+        "currentState": "second_source_only",
         "allowedDisplayState": "second_source_only",
         "blockingOwner": "GA4/external evidence lane, waiting for first-party agreement",
         "nextAction": "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
@@ -316,28 +314,24 @@
     "Counts from app events and supporting analytics do not agree yet. Keep charts held while app event coverage is repaired.",
     "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   ],
-  "dirtyFileClassifications": [
-    {
-      "filePath": "agent/state/admin-analytics-source-hierarchy.generated.json",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "docs/agent-truth/admin-analytics-source-hierarchy.md",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "src/lib/analytics/admin-analytics-source-hierarchy.ts",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "tests/unit/admin-analytics-page.spec.tsx",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/admin-analytics-source-hierarchy.spec.ts",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    }
-  ],
+  "dirtyFileClassifications": [],
   "openPrClassifications": [],
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-discovery-modal-release-v5-20261003",
+    "inputHash": "34dc84bea8e9a8591c9e729207b56eeaee8ed828013c37559718375cddd7abca",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "2255df16f8cb1133c1475abe983062482d10eb19ed4b0c47ecd19f94a9f25dd4",
+    "changedFiles": [
+      "REPO_MEMORY_LEDGER.md",
+      "scripts/agent/validate-accessibility-tap-targets.ts",
+      "scripts/agent/validate-user-critical-path-lock.ts",
+      "scripts/agent/validate-user-loading-wallet-mobile-refinement.ts",
+      "tests/unit/drop-visibility-scope.spec.tsx"
+    ],
+    "inheritedDirtySourceFileCount": 597,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

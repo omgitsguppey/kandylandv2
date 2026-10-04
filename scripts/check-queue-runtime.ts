@@ -1,6 +1,8 @@
 import {
     buildNotifyActiveDropsLifecyclePlan,
     buildProcessQueueLifecyclePlan,
+    LEGACY_QUEUED_DROP_SCAN_LIMIT,
+    readSavedQueueSettingsConfig,
     type ActivationDropRuntime,
     type QueuedDropRuntime,
 } from "../shared/runtime/queue-runtime";
@@ -35,12 +37,12 @@ function normalizeTimesPerDay(timesPerDay: unknown, dropsPerDay: number) {
 }
 
 async function getResolvedQueueConfig(adminDb: FirebaseFirestore.Firestore) {
-    const [queueSnap, legacySnap] = await Promise.all([
-        adminDb.collection("adminSettings").doc("dropQueue").get(),
-        adminDb.collection("drops").where("rotationConfig.enabled", "==", true).get(),
-    ]);
-
+    const queueSnap = await adminDb.collection("adminSettings").doc("dropQueue").get();
     const raw = queueSnap.exists ? queueSnap.data() as Record<string, unknown> : {};
+    const saved = readSavedQueueSettingsConfig(raw);
+    if (saved) return saved;
+
+    const legacySnap = await adminDb.collection("drops").where("rotationConfig.enabled", "==", true).limit(LEGACY_QUEUED_DROP_SCAN_LIMIT).get();
     const dropsPerDay = Math.max(1, Math.floor(Number(raw.dropsPerDay) || 1));
     const cooldownDays = Math.max(1, Math.floor(Number(raw.cooldownDays) || 7));
     const queue = Array.isArray(raw.queue)

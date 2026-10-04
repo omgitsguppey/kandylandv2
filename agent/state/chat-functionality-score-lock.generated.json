@@ -1,8 +1,8 @@
 {
   "reportKey": "chat-functionality-score-lock",
-  "generatedAtUtc": "2026-07-16T04:25:02.956Z",
-  "currentHead": "621afada2aea0ef269a02c7ac68d4424bfce5214",
-  "sourceCommit": "621afada2aea0ef269a02c7ac68d4424bfce5214",
+  "generatedAtUtc": "2026-10-01T20:48:37.135Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "status": "pass",
   "passed": true,
   "canClearSourceGate": true,
@@ -106,51 +106,51 @@
     "nextAction": "Keep chat usage hydrating through person metrics, not raw transcript dumps."
   },
   "scoreBefore": {
-    "sourceHealth": 83.6,
-    "runtimeHealth": 50.22,
-    "evidenceCompleteness": 45,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
     "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 63.18
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreAfter": {
-    "sourceHealth": 83.6,
-    "runtimeHealth": 50.22,
-    "evidenceCompleteness": 45,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 50,
+    "freshness": 91.22,
     "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 63.18
+    "regressionRisk": 90,
+    "overallHealthScore": 55.1
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 83.6,
-      "after": 83.6,
+      "before": 100,
+      "after": 100,
       "target": 80,
       "status": "at_or_above_target",
       "nextAction": "No chat-specific score action needed."
     },
     "runtimeHealth": {
-      "before": 50.22,
-      "after": 50.22,
+      "before": 0,
+      "after": 0,
       "target": 80,
       "status": "below_target",
       "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
     },
     "evidenceCompleteness": {
-      "before": 45,
-      "after": 45,
+      "before": 50,
+      "after": 50,
       "target": 80,
       "status": "below_target",
       "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
     },
     "freshness": {
-      "before": 59.38,
-      "after": 59.38,
+      "before": 91.22,
+      "after": 91.22,
       "target": 80,
-      "status": "below_target",
-      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
+      "status": "at_or_above_target",
+      "nextAction": "No chat-specific score action needed."
     },
     "costRisk": {
       "before": 92.5,
@@ -160,15 +160,15 @@
       "nextAction": "No chat-specific score action needed."
     },
     "regressionRisk": {
-      "before": 94,
-      "after": 94,
+      "before": 90,
+      "after": 90,
       "target": 80,
       "status": "at_or_above_target",
       "nextAction": "No chat-specific score action needed."
     },
     "overallHealthScore": {
-      "before": 63.18,
-      "after": 63.18,
+      "before": 55.1,
+      "after": 55.1,
       "target": 80,
       "status": "below_target",
       "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
@@ -179,57 +179,9 @@
     "Collect formal runtime/provider smoke and admin truth evidence outside this source-only lock.",
     "Keep future chat activity distinct from source readiness; do not fake runtime evidence."
   ],
-  "dirtyFiles": [
-    {
-      "path": "agent/state/chat-functionality-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/chat-gating-moderation.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/chat-presence-typing.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/chat-realtime-cost-control.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/chat-functionality-score-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/chat-gating-moderation.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/chat-presence-typing.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/chat-realtime-cost-control.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
-      "classification": "documentation_artifact_expected"
-    }
-  ],
-  "dirtyFileCount": 11,
-  "dirtyClassificationCounts": {
-    "current_generated_artifact_to_commit": 6,
-    "documentation_artifact_expected": 5
-  },
+  "dirtyFiles": [],
+  "dirtyFileCount": 0,
+  "dirtyClassificationCounts": {},
   "unsafeUnknownCount": 0,
   "reliabilityRiskClassifications": {
     "staleReportNoise": 0,
@@ -251,5 +203,22 @@
       "reason": "Default admin summaries expose counts and source state only; message content remains guarded drilldown."
     }
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "mutationScope": {
+    "owner": "scripts/agent/validate-agent-takeover-safety-check.ts",
+    "mode": "input_bound_task",
+    "taskKey": "manual-runtime-evidence-archive-20261001",
+    "inputHash": "ffe688f9ae94769f272e85bb13aec20fa41d8282ff67d682edb24f821b57dfb1",
+    "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+    "sourceFingerprint": "39ae6bc69000b7d27683313edfc1b098b4c1a7aec8039da7ed374f0186fab0e2",
+    "changedFiles": [
+      "FULL_SCALE_CODEBASE_AUDIT.md",
+      "REPO_MEMORY_LEDGER.md",
+      "agent/evidence/runtime-smoke/README.md",
+      "agent/evidence/runtime-smoke/archive/automated-runtime-smoke.20260603T183719Z.json",
+      "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+    ],
+    "inheritedDirtySourceFileCount": 151,
+    "evidenceBoundary": "authorized_task_mutations_only; inherited bytes are baseline evidence, not behavior or formal proof"
+  }
 }

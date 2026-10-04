@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { listValidatorScopeFiles, readValidatorMutationScope } from "./validate-agent-takeover-safety-check";
 
 type FindingSeverity = "p0" | "p1" | "p2";
 
@@ -14,6 +15,7 @@ type SimplificationFinding = {
 };
 
 const root = process.cwd();
+const mutationScope = readValidatorMutationScope(root);
 const failures: string[] = [];
 const fixesApplied: SimplificationFinding[] = [];
 const deferredFindings: SimplificationFinding[] = [];
@@ -48,15 +50,7 @@ function currentHead() {
 }
 
 function changedPaths() {
-    try {
-        return execFileSync("git", ["status", "--short"], { cwd: root, encoding: "utf8" })
-            .split(/\r?\n/u)
-            .map((line) => line.trimEnd())
-            .filter(Boolean)
-            .map((line) => line.slice(3).trim().replace(/^"|"$/g, ""));
-    } catch {
-        return [];
-    }
+    return mutationScope ? [] : listValidatorScopeFiles(root, []);
 }
 
 function addFixed(id: string, severity: FindingSeverity, surface: string, filePath: string, detail: string) {
@@ -74,6 +68,7 @@ const panel = readRequired("src/components/Creators/CreatorExperiencesPanel.tsx"
 const creatorProfile = readRequired("src/app/creators/[username]/CreatorProfileClient.tsx");
 const bookingRoute = readRequired("src/app/api/creator/bookings/route.ts");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
+const dropsPresentation = readRequired("src/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience.tsx");
 const dropScopeTest = readRequired("tests/unit/drop-visibility-scope.spec.tsx");
 const panelTest = readRequired("tests/unit/creator-experiences-panel.spec.tsx");
 const ownerTest = readRequired("tests/unit/creator-owner-mode.spec.tsx");
@@ -157,8 +152,17 @@ for (const expected of [
     requireIncludes(bookingRoute, expected, "creator bookings route");
 }
 
-requireIncludes(dropsClient, "data-drop-visibility-scope=\"public_discovery\"", "public drops discovery");
+requireIncludes(dropsClient, "from \"@/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience\"", "public drops discovery active composition");
+requireIncludes(dropsClient, "<DropsDiscoveryExperience", "public drops discovery active composition");
+requireIncludes(dropsClient, "useDrops([\"active\", \"scheduled\"], initialDrops)", "public drops discovery active composition");
+requireIncludes(dropsClient, "visibleDropCount={filteredDrops.length}", "public drops discovery active composition");
+requireIncludes(dropsClient, "collection={(", "public drops discovery active composition");
+requireIncludes(dropsClient, "<DropGrid", "public drops discovery active composition");
+requireIncludes(dropsClient, "drops={filteredDrops}", "public drops discovery active composition");
+requireIncludes(dropsPresentation, "data-drop-visibility-scope=\"public_discovery\"", "public drops discovery rendered scope");
+requireIncludes(dropsPresentation, "{collection}", "public drops discovery collection handoff");
 requireNotIncludes(dropsClient, "data-drop-visibility-scope=\"own_creator_drops\"", "public drops discovery");
+requireNotIncludes(dropsPresentation, "data-drop-visibility-scope=\"own_creator_drops\"", "public drops discovery");
 
 for (const expected of [
     "Slots generated from availability windows.",
@@ -197,9 +201,21 @@ addFixed("drop-visibility-scope", "p1", "drops", "src/app/drops/DropsClient.tsx"
 addFixed("phase-two-memory", "p2", "memory", "memory.md", "Durable Phase 2 creator booking, owner mode, drop scope, and Phase 1 dependency rules are recorded.");
 addDeferred("creator-dashboard-drop-surface", "p2", "creator-dashboard", "src/app/dashboard/creator/page.tsx", "No creator dashboard drop grid was rendered in inspected source, so no dashboard drop filtering change was needed this pass.");
 
+const publicDiscoveryUntouched = dropsClient.includes("from \"@/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience\"")
+    && dropsClient.includes("<DropsDiscoveryExperience")
+    && dropsClient.includes("useDrops([\"active\", \"scheduled\"], initialDrops)")
+    && dropsClient.includes("visibleDropCount={filteredDrops.length}")
+    && dropsClient.includes("collection={(")
+    && dropsClient.includes("<DropGrid")
+    && dropsClient.includes("drops={filteredDrops}")
+    && dropsPresentation.includes("data-drop-visibility-scope=\"public_discovery\"")
+    && dropsPresentation.includes("{collection}")
+    && ![dropsClient, dropsPresentation].some((source) => source.includes("data-drop-visibility-scope=\"own_creator_drops\""));
+
 const report = {
     generatedAtUtc: new Date().toISOString(),
     reportKey: "creator-experience-simplification",
+    mutationScope: mutationScope ?? { mode: "whole_git_worktree" },
     currentHead: currentHead(),
     summary: {
         bookingFreePickPaths: panel.includes("datetime-local") ? 1 : 0,
@@ -207,7 +223,7 @@ const report = {
         ownerModeSurfaces: 1,
         fanControlsHiddenForOwner: panel.includes("data-fan-controls-hidden=\"true\"") ? 1 : 0,
         dropVisibilitySurfaces: 3,
-        publicDiscoveryUntouched: dropsClient.includes("data-drop-visibility-scope=\"public_discovery\""),
+        publicDiscoveryUntouched,
         backendBookingValidation: bookingRoute.includes("slot_unavailable"),
         fixedThisPass: fixesApplied.length,
         deferredWithReason: deferredFindings.length,

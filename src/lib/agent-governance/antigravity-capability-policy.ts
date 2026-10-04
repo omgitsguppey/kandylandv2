@@ -10,7 +10,7 @@ export interface CapabilityPolicy {
   allowPaymentGumDropMathChanges: boolean;
   allowSourceOnlyClearingFormalGates: boolean;
   requireCompactMemoryBeforeBroadGrep: boolean;
-  requireMemoryWritebackAfterTask: boolean;
+  requireTriggeredMemoryWriteback: boolean;
 }
 
 export const ANTIGRAVITY_CAPABILITY_POLICY: CapabilityPolicy = {
@@ -25,7 +25,7 @@ export const ANTIGRAVITY_CAPABILITY_POLICY: CapabilityPolicy = {
   allowPaymentGumDropMathChanges: false, // Strictly Forbidden
   allowSourceOnlyClearingFormalGates: false, // Strictly Forbidden
   requireCompactMemoryBeforeBroadGrep: true,
-  requireMemoryWritebackAfterTask: true,
+  requireTriggeredMemoryWriteback: true,
 };
 
 export function validatePolicy(policy: CapabilityPolicy): string[] {
@@ -52,8 +52,8 @@ export function validatePolicy(policy: CapabilityPolicy): string[] {
   if (!policy.multiAgentNoOverlapRule) {
     failures.push("Policy violation: multiAgentNoOverlapRule must be true.");
   }
-  if (!policy.requireMemoryWritebackAfterTask) {
-    failures.push("Policy violation: requireMemoryWritebackAfterTask must be true.");
+  if (!policy.requireTriggeredMemoryWriteback) {
+    failures.push("Policy violation: requireTriggeredMemoryWriteback must be true.");
   }
 
   return failures;

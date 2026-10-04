@@ -24,13 +24,13 @@ export default function AdminDashboardPage() {
         error,
         isLoading: isLocalAdminUiTestSession ? false : isLoading,
     });
-    const fixtureFallbackClassName = "rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-4 text-sm text-amber-100 shadow-lg shadow-black/15";
+    const fixtureFallbackClassName = "rounded-xl bg-warning/10 px-4 py-4 text-sm text-warning";
     const overviewLoadState = pageData.fallbackState;
     const overviewFallbackClassName = overviewLoadState === "failed"
-        ? "rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-4 text-sm text-red-100 shadow-lg shadow-black/15"
+        ? "rounded-xl bg-destructive/10 px-4 py-4 text-sm text-destructive"
         : overviewLoadState === "loading"
-            ? "rounded-2xl border border-sky-400/25 bg-sky-500/10 px-4 py-4 text-sm text-sky-100 shadow-lg shadow-black/15"
-            : "rounded-2xl border border-slate-400/25 bg-slate-500/10 px-4 py-4 text-sm text-slate-100 shadow-lg shadow-black/15";
+            ? "rounded-xl bg-info/10 px-4 py-4 text-sm text-info"
+            : "rounded-xl bg-muted px-4 py-4 text-sm text-muted-foreground";
     const truthVariant = isLocalAdminUiTestSession ? "unavailable" : coerceAdminSurfaceState(pageData.truthState) ?? "unavailable";
     const sourceMissingPanel = (
         <div className={fixtureFallbackClassName}>
@@ -40,12 +40,12 @@ export default function AdminDashboardPage() {
     );
     const fixtureNotice = isLocalAdminUiTestSession ? (
         <div
-            className="rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 shadow-lg shadow-black/15"
+            className="rounded-xl bg-warning/10 px-4 py-3 text-sm text-warning"
             data-admin-overview-fixture-boundary="true"
             data-admin-overview-fixture-state="source_missing"
         >
             <p className="font-bold">source_missing fixture.</p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/80">
+            <p className="mt-1 text-xs leading-5 text-warning">
                 source_missing: layout is visible; verified overview data remains unavailable in this fixture.
             </p>
         </div>
@@ -63,8 +63,8 @@ export default function AdminDashboardPage() {
                     <AdminStatusBadge state={truthVariant} label={isLocalAdminUiTestSession ? "No source" : undefined} />
                 )}
             >
-                <div className="grid gap-3 md:gap-4 xl:grid-cols-12">
-                    <div className="xl:col-span-12">
+                <div className="min-w-0 space-y-6 md:space-y-8">
+                    <div className="min-w-0">
                         <AdminDashboardModule title="Platform pulse" defaultOpen={true}>
                             {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
                                 <AdminStatsBar
@@ -81,15 +81,15 @@ export default function AdminDashboardPage() {
                         </AdminDashboardModule>
                     </div>
 
-                    <div className="xl:col-span-7">
+                    <div className="min-w-0">
                         <AdminDashboardModule title="Drops at a glance" defaultOpen={false}>
                             {isLocalAdminUiTestSession ? sourceMissingPanel : <AdminDropsAtGlancePanel />}
                         </AdminDashboardModule>
                     </div>
 
-                    <div className="xl:col-span-7">
+                    <div className="min-w-0">
                         <AdminDashboardModule title="Revenue + Unwraps" defaultOpen={false}>
-                            {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : data && data.verification?.status !== "unavailable" ? (
                                 <AdminAnalyticsCharts
                                     chartData={data.chartData || []}
                                     trendSummary={data.trendSummary}
@@ -107,9 +107,9 @@ export default function AdminDashboardPage() {
                         </AdminDashboardModule>
                     </div>
 
-                    <div className="xl:col-span-5">
+                    <div className="min-w-0">
                         <AdminDashboardModule title="Recent transactions" defaultOpen={false}>
-                            {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : data && data.verification?.status !== "unavailable" ? (
                                 <RecentTransactionsPanel transactions={data.recentTransactions} />
                             ) : (
                                 <div className={overviewFallbackClassName}>
@@ -120,9 +120,9 @@ export default function AdminDashboardPage() {
                         </AdminDashboardModule>
                     </div>
 
-                    <div className="xl:col-span-12">
+                    <div className="min-w-0">
                         <AdminDashboardModule title="Admin activity" defaultOpen={false}>
-                            {isLocalAdminUiTestSession ? sourceMissingPanel : data ? (
+                            {isLocalAdminUiTestSession ? sourceMissingPanel : data && data.verification?.status !== "unavailable" ? (
                                 <AdminActivityLogPanel
                                     activity={data.adminActivity}
                                     lastAdminActivityAt={data.freshness.lastAdminActivityAt}

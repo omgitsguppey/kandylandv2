@@ -23,6 +23,7 @@ export interface ImageLoadingPolicyOptions {
     mediaIndex?: number;
     isLcpCandidate?: boolean;
     dropGridLayout?: DropGridLayout;
+    intrinsicLayout?: boolean;
 }
 
 export interface ImageLoadingPolicy {
@@ -38,6 +39,9 @@ export interface ImageLoadingPolicy {
 
 const DROP_GRID_STANDARD_SIZES = "(max-width: 480px) 50vw, (max-width: 840px) 33vw, 240px";
 const DROP_GRID_WIDE_SIZES = "(max-width: 480px) 96vw, (max-width: 840px) 66vw, 720px";
+const DROP_GRID_INTRINSIC_SIZES = "auto, 80rem";
+const FEATURED_INTRINSIC_LAZY_SIZES = "auto, 40rem";
+const FEATURED_INTRINSIC_EAGER_SIZES = "min(100vw, 40rem)";
 const FEATURED_CAROUSEL_SIZES = "(max-width: 840px) 100vw, 720px";
 const DROP_PREVIEW_SIZES = "(max-width: 600px) 64vw, 320px";
 const VIEWER_CONTENT_SIZES = "100vw";
@@ -163,8 +167,8 @@ export function getImageLoadingPolicy(
         return {
             ...base,
             surface,
-            sizes: options.dropGridLayout === "wide" ? DROP_GRID_WIDE_SIZES : DROP_GRID_STANDARD_SIZES,
-            sizesPolicy: options.dropGridLayout === "wide" ? "drops-grid-wide-card" : base.sizesPolicy,
+            sizes: options.intrinsicLayout ? DROP_GRID_INTRINSIC_SIZES : options.dropGridLayout === "wide" ? DROP_GRID_WIDE_SIZES : DROP_GRID_STANDARD_SIZES,
+            sizesPolicy: options.intrinsicLayout ? "drops-grid-intrinsic-card" : options.dropGridLayout === "wide" ? "drops-grid-wide-card" : base.sizesPolicy,
         };
     }
 
@@ -177,7 +181,8 @@ export function getImageLoadingPolicy(
             preload: false,
             fetchPriority: lcpCandidate ? "high" : "low",
             lcpCandidate,
-            sizesPolicy: lcpCandidate ? "featured-carousel-first-slide" : base.sizesPolicy,
+            sizes: options.intrinsicLayout ? lcpCandidate ? FEATURED_INTRINSIC_EAGER_SIZES : FEATURED_INTRINSIC_LAZY_SIZES : base.sizes,
+            sizesPolicy: options.intrinsicLayout ? lcpCandidate ? "featured-intrinsic-first-slide" : "featured-intrinsic-lazy-slide" : lcpCandidate ? "featured-carousel-first-slide" : base.sizesPolicy,
         };
     }
 

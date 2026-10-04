@@ -10,6 +10,9 @@ import {
   validateBigQueryExportContractClosure,
 } from "../../src/lib/analytics/bigquery-export-contract";
 import { listBigQueryExportCandidates } from "../../src/lib/analytics/materialization-contract";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
+import { withValidatorMutationScope } from "./validate-agent-takeover-safety-check";
+import { MAINTENANCE_SCHEDULES } from "../../shared/runtime/maintenance-mode-contract";
 
 type Severity = "P0" | "P1" | "P2";
 type FindingStatus = "fixed" | "missing" | "deferred";
@@ -152,7 +155,8 @@ export function validateBigQueryCloudPipelineClosure(options: { writeReport?: bo
 
   const exportContractCreated = has("src/lib/analytics/bigquery-export-contract.ts");
   const scheduledWindowExportEnabled = functionsIndex.includes("scheduledBigQueryRawEventsExport")
-    && exportSource.includes('schedule: "0 4 * * *"')
+    && exportSource.includes("schedule: MAINTENANCE_SCHEDULES.scheduledBigQueryRawEventsExport.schedule")
+    && MAINTENANCE_SCHEDULES.scheduledBigQueryRawEventsExport.schedule === "0 4 * * *"
     && exportSource.includes("runBigQueryRawEventsExportWindow");
   const eventTriggeredExportDisabled = !functionsIndex.includes("onAnalyticsEventFactBigQueryExport")
     && !exportSource.includes("onDocumentCreated")
@@ -248,7 +252,7 @@ export function validateBigQueryCloudPipelineClosure(options: { writeReport?: bo
     costFindings,
     truthFindings,
     fixesApplied,
-    prCleanupActions: ["No open BigQuery/export/cloud pipeline PRs were present at start."],
+    prCleanupActions: ["PR state not requested in this source check; no remote PR count or action is claimed."],
     nextFixOrder: [
       "After deployment, verify scheduledBigQueryRawEventsExport heartbeat in Firebase/Cloud console before treating warehouse evidence as active.",
       "If owner approves BigQuery queries, add dry-run and maximumBytesBilled validation before any query executes.",
@@ -256,12 +260,17 @@ export function validateBigQueryCloudPipelineClosure(options: { writeReport?: bo
     ],
   };
 
+  const failures = allFindings.filter((entry) => entry.status === "missing");
   if (options.writeReport) {
-    writeJson(artifactRelativePath, report);
+    writeJson(artifactRelativePath, withValidatorMutationScope(withGeneratedReportEnvelope(report, {
+      evidenceClass: "source_snapshot", status: failures.length ? "fail" : "pass",
+      validationFailures: failures.map((entry) => entry.id), canClearSourceGate: failures.length === 0,
+      nextExactSteps: report.nextFixOrder,
+      doesNotProve: ["Provider heartbeat, warehouse contents, billing or deployed export behavior."],
+    })));
     writeMarkdown(report);
   }
 
-  const failures = allFindings.filter((entry) => entry.status === "missing");
   if (failures.length > 0) {
     throw new Error(`BigQuery cloud pipeline closure failed: ${failures.map((entry) => entry.id).join(", ")}`);
   }

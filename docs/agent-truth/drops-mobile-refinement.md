@@ -1,141 +1,85 @@
 # Drops Mobile Refinement Truth
 
-Status: Active source-of-truth note for the mobile Drops page.
-Last updated: 2026-05-01.
+Status: Active routing and arrangement contract for the public Drops body.
+Last updated: 2026-10-03.
 
-## Purpose
+## Authority and purpose
 
-The Drops page is a repeat-use shopping and unwrapping surface. Mobile Safari and mobile Chrome must show more useful Drops content in the same viewport without losing accessibility, KandyDrops brand, or tracking truth.
+The current User UI and Shared Brand Primitives doctrines own the selected whole-site direction. The Drops body applies their Apple-informed content hierarchy: one page heading, scoped search, a distinct Featured collection, readable image captions and ordinary content surfaces. Opaque content and shared control styles come from the existing runtime owners; this note does not define another palette, material, device rule or commerce policy.
 
-This pass applies a KandyDrops-specific interpretation of the current official Apple Human Interface Guidelines:
+Primary design references:
 
-- Human Interface Guidelines: https://developer.apple.com/design/human-interface-guidelines/
-- Layout: https://developer.apple.com/design/human-interface-guidelines/layout
-- Accessibility: https://developer.apple.com/design/human-interface-guidelines/accessibility
-- Materials: https://developer.apple.com/design/Human-Interface-Guidelines/materials
-- Designing for iOS: https://developer.apple.com/design/human-interface-guidelines/designing-for-ios
+- [Apple Materials](https://developer.apple.com/design/human-interface-guidelines/materials): reserve the navigation material for navigation and temporary controls; keep content readable.
+- [Apple Search fields](https://developer.apple.com/design/human-interface-guidelines/search-fields): place scoped search beside the collection it filters.
+- [Apple Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility): preserve names, focus, readable text and usable targets.
+- [Meet Liquid Glass](https://developer.apple.com/videos/play/wwdc2025/219/): the web composition follows hierarchy guidance; it does not import or claim native SwiftUI Liquid Glass behavior.
 
-Apple guidance is used here for hierarchy, safe areas, progressive disclosure, accessibility, consistency, materials, and ease of use. It does not replace KandyDrops product doctrine, candy-coded visual language, telemetry contracts, or commerce truth.
+The supplied Penpot archive is a reference input. Executable UI sources are the existing licensed local Card, Badge, Input and Button owners. No unverified archive code/assets or Apple fonts/sample assets are imported.
 
-## Source Owners
+Locked preview routing, safe metadata, urgency, success handoff and server unlock authority are maintained in [Drop Preview Page Truth](drop-preview-page.md). This discovery note delegates those preview rules to that owner.
 
-- Page shell and hydration: `src/app/drops/DropsClient.tsx`
-- Loading shell: `src/app/drops/loading.tsx`
-- Filter/search controls: `src/components/StickyFilterBar.tsx`
-- Featured Drops: `src/components/FeaturedCarousel.tsx`
-- Grid density and empty state: `src/components/DropGrid.tsx`
-- Drop card view: `src/components/DropCard.tsx`
-- Drop card layout parts: `src/components/DropCardLayout.tsx`, `src/components/DropCardParts.tsx`, `src/components/DropCardCta.tsx`
-- Impression tracking: `src/hooks/useDropCardImpression.ts`
-- Drops data hydration: `src/hooks/useDrops.ts`
+## Source owners
 
-## 50 Mobile Improvement Areas
+- `src/app/drops/page.tsx` and `src/lib/server/public-discovery-preview.ts`: server discovery seed and guarded preview fixture.
+- `src/app/drops/DropsClient.tsx`: public feed, matching authenticated-profile projection, deferred search, filtering, callbacks, pagination and page/search telemetry.
+- `src/components/creative-tim/kandydrops/drops/DropsDiscoveryExperience.tsx`: the actual primary page body, public scope marker, page heading and named collection regions.
+- `src/components/StickyFilterBar.tsx`: sourced search Input, labeled categories and disclosure. Selected secondary categories stay available after automatic collapse.
+- `src/components/FeaturedCarousel.tsx`: Featured selection, metadata projections, view/click telemetry, reduced motion and shared-store countdown.
+- `src/components/DropGrid.tsx`: public lifecycle filtering, source notices, shared loading/collection composition and actual DropCard callbacks.
+- `src/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCollection.tsx`: intrinsic collection geometry, route/embedded skeleton and promotion boundary.
+- `src/components/DropCard.tsx`: canonical funds/access projection, safe cover, attempt/settlement/actor handling and actual returned Card.
+- `src/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCard.tsx`: public caption, passive metadata, view count, CTA slot and error presentation.
+- `src/components/DropCardCta.tsx` and `src/components/DropCardParts.tsx`: existing action and timer projections.
+- `src/components/Landing/PublicDropShelf.tsx` and `src/components/creative-tim/kandydrops/drops/KandyEditorialHomeShelf.tsx`: Home consumers of the same collection. Discovery/Home/Creator consumers retain their original routes, ordering and callbacks.
+- `src/app/drops/loading.tsx`: the route loading composition uses the same shared skeleton.
+- `src/hooks/useDrops.ts`: the existing SWR/feed lifecycle and deferred Firestore runtime owner.
+- `src/hooks/useDropsSearchTelemetry.ts` and `src/hooks/useDropCardImpression.ts`: existing sanitized search and impression owners.
+- `src/lib/image-loading-policy.ts`: native image loading and responsive size declarations. Card/Featured opt into intrinsic lazy sizing; eager Featured keeps an explicit conservative size.
 
-1. Reduce the duplicate top padding in the Drops client because the shared app shell already reserves top navigation space.
-2. Reduce duplicate bottom padding in the Drops client and let the shared user shell own bottom-nav safe-area reservation.
-3. Remove the `min-h-[500px]` live Drops body that created a dead zone on mobile.
-4. Tighten the account overview margin so the first useful Drops content appears earlier.
-5. Keep creator discovery compact before the featured module rather than creating another large hero gap.
-6. Replace the oversized featured heading with a smaller, scannable section label.
-7. Cap the featured carousel mobile ratio to a compact landscape ratio so 9:16 Drops do not consume most of the viewport.
-8. Keep the original Drop aspect ratio on larger screens where vertical space is available.
-9. Reduce featured carousel border radius from arbitrary huge values to the shared compact radius scale.
-10. Reduce featured carousel shadow intensity so it separates content without becoming the page focal point.
-11. Replace the featured timer's long text with compact labels like `2d left`, `3h 10m`, or `12m 4s`.
-12. Remove pulse animation from urgent featured timers because frantic urgency conflicts with restrained motion.
-13. Respect reduced motion before starting featured carousel autoplay.
-14. Keep featured carousel autoplay as a progressive enhancement, not a required interaction.
-15. Enrich `featured_drop_clicked` telemetry with rank, component source, and UI density.
-16. Remove unused featured activity ticker logic.
-17. Make search the first control in the filter bar so repeat users can jump directly to intent.
-18. Keep the search input as `type="search"` with search keyboard hints.
-19. Use a compact sticky filter bar with blur as control separation rather than a large panel.
-20. Use a lucide grid icon instead of a manually drawn SVG for filter consistency.
-21. Keep category chips tappable with a comfortable minimum touch height even while reducing visual scale.
-22. Collapse secondary filters by default and expose them with a real disclosure button.
-23. Remove filter animation dependencies and scroll listeners from the critical Drops controls.
-24. Debounce and dedupe search telemetry so typing does not spam `drops_searched`.
-25. Track search result counts with search telemetry.
-26. Enrich category selection telemetry with source component, UI density, and visible count.
-27. Use `useDeferredValue` for search filtering so typing remains responsive on slow phones.
-28. Reduce grid gaps on mobile while preserving enough separation to scan cards.
-29. Reduce grid skeleton card height to match the compact card density.
-30. Reduce grid bottom padding because the shared shell already protects the bottom nav.
-31. Replace the large empty state card with a compact truthful empty state.
-32. Remove the local fake `Notify Me` affordance because it only set component state and did not persist a real notification preference.
-33. Use a real route link to `/experiences` from the empty Drops state.
-34. Replace the empty-state emoji asset with a text fallback that does not introduce outdated or inaccessible branding.
-35. Split the oversized Drop card file into layout, CTA, timer/chip, and impression helper files.
-36. Keep touched view files below the repo's 300-line view-file target.
-37. Move card impression tracking into a dedicated hook.
-38. Preserve the server impression POST while adding UI density and aspect-ratio telemetry.
-39. Keep one shared timer store via `useNow` instead of per-card `setInterval` timers.
-40. Use compact Drop card radii consistently across card, media frame, chips, timer, and CTA.
-41. Keep card CTAs compact but still large enough to tap reliably.
-42. Add direct-card insufficient-balance telemetry for `drop_unwrap_intent_blocked_by_funds`.
-43. Add direct-card unlock attempt telemetry for `drop_unlock_attempted`.
-44. Preserve successful unlock telemetry with source component and UI density.
-45. Preserve detail open telemetry with card aspect ratio, tags, source component, and UI density.
-46. Route locked preview taps to `/drops/[id]/preview` so first paint is not blocked by modal code and the preview owns its full-page conversion surface.
-47. Keep `FeaturedCarousel` lazy-loaded with a compact skeleton so the page does not blank-load.
-48. Delay the Firestore runtime subscription until idle after server-seeded/SWR Drops render.
-49. Treat an empty server seed as needing client revalidation instead of pretending it is a useful loaded feed.
-50. Keep the loading shell visually aligned with the final compact layout to avoid hydration jump.
+`DropCardLayout.tsx` is an unused legacy presentation owner with surviving audit/scoring readers. It is not the active Card body and cannot establish the active visual or view-count contract. Physical retirement requires transferring those remaining controls first; this slice does not delete it.
 
-## Telemetry Contract
+## Source and access truth
 
-Refined components must maintain or improve tracking. The active mobile Drops density label is `compact_mobile_apple_2026`.
+- Public feed data, loading and failure come from the same imported `useDrops` call and reach the returned collection. Missing/failed data is not a proved product-empty state.
+- A failure with retained records leaves those records browsable and explains the refresh failure. A failure without records offers existing navigation and a human recovery message.
+- “No loaded releases” describes the displayed source boundary. “No loaded Drops match these filters” describes a filtered result. A hidden Featured collection does not establish that the product has no releases.
+- Source errors do not infer a network/connection cause from a generic failure value.
+- Account, owned-content filtering and affordability use only a profile whose UID agrees with resolved authentication. Missing or stale profiles stay unavailable; a known numeric zero remains zero.
+- Pending affordability is not a confirmed refill requirement. Featured shows “Check access” while pending and retains safe preview navigation; known zero can show “Refill to unwrap”.
+- Cover protection, unlocks, entitlement, paid/reward funds and settlement remain defined by their server and canonical access owners. This body never reads protected internal thumbnails to improve a public preview.
 
-## Drop Cover Visibility Doctrine
+## Featured source projections
 
-Drop cover blur is product-state driven, not loading-state driven. Guests may see protected/blurred covers. Authenticated users and admins see clear covers when they have enough total GumDrops for a normal drop. Authenticated users only see affordability blur when they need a refill for that specific drop. Featured carousel chips use adaptive glass styling and the timer pill does not include a progress bar.
+`resolveFeaturedCoverAccent` retains deterministic metadata classification and the existing telemetry field. Shared Button styling owns its visual action treatment; metadata does not create local gradients, sampled colors or a second palette.
 
-## Featured Drop Polish Doctrine
+`getFeaturedSocialProof` shows unwraps only when the canonical normalized unwrap count exceeds 10; otherwise it reads `getDropViewCount(drop)`. The rendered type/label and telemetry keep that same projection. Grid view counts still come from `getDropViewCount` through DropCard into the rendered editorial Card.
 
-Featured drop CTAs and chips are cover-aware through deterministic metadata-based accent mapping, not runtime pixel sampling. Featured social proof shows unwraps only after total unwraps exceed 10; otherwise it shows views. Drop grid view counts remain unchanged. All truncated drop/card titles use the shared TitleMarquee animation, sped up by 50%, with reduced-motion respected. Video file chips use a 🎥 camera indicator for clarity.
+Featured and editorial Card titles are fully rendered and wrap. Existing truncated title consumers still use `TitleMarquee` over the sole `MarqueeText` measurement owner and the shared reduced-motion CSS. Descriptions and body copy do not become marquee text.
 
-## Locked Drop Preview Page Doctrine
+Video counts retain a recognizable camera indicator and textual count. Featured and the existing compatibility count retain 🎥; the active editorial Card uses the already sourced Lucide video-camera icon and “video/videos” count.
 
-Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet. It keeps the global app shell and bottom nav visible, uses safe preview fields only, never exposes internal content thumbnails before unlock, adapts urgency by timer state, collects lightweight feedback, and after successful unwrap hands users to My KandyDrops with the new Drop targeted while also offering Keep Unwrapping.
+Featured public cover frames use the existing shared skeleton’s 4:3 presentation ratio. Source format and safe image fields remain unchanged. Natural Card/caption sizing keeps each action adjacent to its content; hidden portrait slides cannot stretch the visible frame.
 
-Required event enrichments:
+Countdowns use `useNow` and `formatDropCountdown`. Numeric clocks stay readable as a whole run; full accessible labels and urgency text remain available. There is no progress bar or per-card interval.
 
-- `drops_page_viewed`: source component, UI density, initial drop count, initial visible count, creator rail count.
-- `drops_category_selected`: source component, UI density, visible drop count.
-- `drops_searched`: source component, UI density, result count, deduped query.
-- `featured_drop_clicked`: featured rank, source component, UI density.
-- `drop_card_impression`: card aspect ratio, UI density, server impression POST.
-- `view_drop_details`: card aspect ratio, source component, UI density.
-- `drop_unlock_attempted`: direct-card source component and UI density.
-- `drop_unwrap_intent_blocked_by_funds`: direct-card source component and UI density.
-- `unlock_drop_success`: direct-card source component and UI density.
+## Telemetry and hydration
 
-Do not remove telemetry because a UI element is reduced. If an action remains possible, its telemetry must remain possible.
+The existing telemetry density classification remains `compact_mobile_apple_2026`; it is event compatibility, not proof of a device or visual result.
 
-## Loading And Hydration
+Keep the canonical page view, selected category, sanitized submitted/results/focus/result-click, Featured view/click, card impression, preview, attempt, blocked-funds and server settlement flows. Do not copy their schemas into this routing note. Existing search/telemetry catalogs and unlock-watch parity contracts own event spelling, payload and attribution.
 
-The first render path is server-seeded/SWR Drops data. The Firestore runtime listener is an upgrade lane and is deferred until idle to avoid competing with mobile page hydration. The page can refresh on focus, visibility, SWR interval, runtime changes, and expiration timers, but none of those should block useful initial content.
+The existing hook delays the Firestore runtime subscription until idle. Server-seeded/SWR data remains the first content path; an empty seed revalidates. Fake loaded states are forbidden. Existing focus/visibility/runtime/expiration recovery remains in the hook, with no new timer, polling loop, collector, cache or subscription introduced by presentation.
 
-Fake loaded states are forbidden. If there are no Drops and the server seed is empty, the hook revalidates instead of treating the empty seed as proven final truth.
+## Responsive and verification boundaries
 
-## Mobile Browser Rules
+Use the existing device-layout/mobile-shell contracts. Intrinsic collection columns respond to the actual available container, including a narrow body in a wide window. Route and embedded skeletons use the same collection owner. Keep shell reservations, ordinary text size, 44px targets, keyboard actions, disclosure state and reduced motion; do not shrink fonts/targets to make a narrow fixture pass.
 
-- Safari and Chrome mobile must not require guessed browser chrome heights.
-- Sticky controls use safe-area-aware top offsets only where the shared shell does not already own spacing.
-- The page must not use negative margins to fit more content.
-- Carousels and grids must avoid giant vertical cards on first paint.
-- Touch targets can be visually compact, but they must remain named, focusable, and comfortably tappable.
+The existing checks remain `check:drops-mobile-refinement` and `check:featured-carousel-polish`; their returned-source checks follow actual imported consumers. Current component tests own feed failure/retained-data/recovery, actor/access/settlement behavior, category persistence and native image attributes. Readable controls, text ranges, source states and actual activation require bounded rendered proof when geometry changes.
 
-## Future-Agent Guardrails
+Source/component and controlled Chrome/WebKit proof are separate from default repository gates, deployment, production/provider outage, physical Safari/iPhone and human whole-body acceptance. Native resource selection observations do not prove optimal width, loading speed or cost savings.
 
-Do not reintroduce:
+## Future-agent guardrails
 
-- A full-height 9:16 featured hero on mobile.
-- `min-h-[500px]` or similar dead-zone sizing on the Drops body.
-- Per-card timer intervals.
-- Fake local notification buttons.
-- Large empty state cards that dominate mobile.
-- Untracked reduced UI components.
-- Unlock/detail CTAs without source-component telemetry.
-- Random radii outside the compact Drops radius scale.
-- Firestore runtime listeners as the first-render dependency for Drops.
+Do not reintroduce duplicate shell spacing, viewport-only grid assumptions, decorative nested content framing, source failure hidden as empty, fake notification controls, local funds math, untracked actions, per-card countdown intervals, pixel-sampled accents, disconnected search callbacks or Firestore readiness as a first-content prerequisite.
+
+File length and a numbered improvement count are not readiness criteria. A component import, comment, unused callback or legacy layout marker does not prove the actual returned control.

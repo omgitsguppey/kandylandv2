@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => {
   const canonicalCreate = vi.fn(async () => undefined);
@@ -30,9 +31,12 @@ const mocks = vi.hoisted(() => {
 
 vi.mock("@/lib/server/firebase-admin", () => ({ adminDb: mocks.adminDb }));
 vi.mock("@/lib/server/analytics", () => ({ trackServerEvent: mocks.trackServerEvent }));
+vi.mock("@/lib/server/request-guard", () => ({ guardApiRequest: vi.fn(async () => ({ uid: "user_1" })) }));
+vi.mock("@/lib/server/rate-limit", () => ({ ANALYTICS_WRITE: {} }));
 
 import { ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION } from "@/lib/analytics/identity-link-contract";
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
+import { POST } from "@/app/api/analytics/identity-link/route";
 
 describe("analytics identity-link persistence", () => {
   beforeEach(() => {
@@ -103,5 +107,67 @@ describe("analytics identity-link persistence", () => {
     expect(mocks.lineageSet).toHaveBeenCalledWith(expect.objectContaining({
       ownerKeyVersion: ANALYTICS_IDENTITY_LINEAGE_OWNER_VERSION,
     }), { merge: true });
+  });
+});
+
+describe("canonical identity-link request consent admission", () => {
+  const request = (mode: string | null, bodyMode = "full_behavioral", gpc = false, consentState = "granted") => new NextRequest("http://localhost/api/analytics/identity-link", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...(mode ? { cookie: `kandydrops_analytics_consent=${mode}` } : {}), ...(gpc ? { "sec-gpc": "1" } : {}) },
+    body: JSON.stringify({ guestId: "subject_route-proof", sessionId: "sess_route-proof", userId: "foreign_body_user", reason: "login", consentMode: bodyMode, consentState, linkedAt: "2026-10-02T00:00:00.000Z" }),
+  });
+
+  beforeEach(() => {
+    mocks.canonicalCreate.mockClear();
+    mocks.canonicalSet.mockClear();
+    mocks.lineageSet.mockClear();
+    mocks.canonicalGet.mockClear();
+    mocks.canonicalGet.mockResolvedValue({ exists: false });
+    mocks.collection.mockClear();
+    mocks.trackServerEvent.mockClear();
+  });
+
+  it.each([
+    ["necessary_only", false],
+    ["minimal_analytics", false],
+    ["full_behavioral", true],
+    [null, false],
+    ["invalid_mode", false],
+  ] as const)("does not persist a granted full-body association under request %s / GPC %s", async (mode, gpc) => {
+    const response = await POST(request(mode, "full_behavioral", gpc));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ ignored: true, created: false, mergeAllowed: false, retryable: false, reason: "identity_link_blocked_by_consent" });
+    expect(mocks.collection).not.toHaveBeenCalled();
+    expect(mocks.canonicalGet).not.toHaveBeenCalled();
+    expect(mocks.canonicalCreate).not.toHaveBeenCalled();
+    expect(mocks.canonicalSet).not.toHaveBeenCalled();
+    expect(mocks.lineageSet).not.toHaveBeenCalled();
+    expect(mocks.trackServerEvent).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["full_analytics", "partial", false, 0.8, "identity_link_allowed_behavior_blocked"],
+    ["full_behavioral", "granted", true, 0.95, "full_behavioral_consent"],
+  ] as const)("persists the existing admitted %s linkage policy for the authenticated caller only", async (mode, consentState, personLevelBehaviorAllowed, confidence, linkageConfidenceSource) => {
+    const response = await POST(request(mode));
+    expect(await response.json()).toMatchObject({ success: true, created: true, consentMode: mode, mergeAllowed: true, personLevelBehaviorAllowed });
+    expect(mocks.canonicalCreate).toHaveBeenCalledWith(expect.objectContaining({ userId: "user_1", consentMode: mode, consentState, mergeAllowed: true, personLevelBehaviorAllowed, confidence, linkageConfidenceSource }));
+    expect(mocks.lineageSet).toHaveBeenCalledWith(expect.objectContaining({ userId: "user_1", consentMode: mode, consentState, mergeAllowed: true, personLevelBehaviorAllowed, confidence, linkageConfidenceSource }), { merge: true });
+    expect(Array.from(new Set(mocks.collection.mock.calls.map(([name]) => name)))).toEqual(["analytics_identity_links", "identity_lineage_indexes"]);
+  });
+
+  it.each(["necessary_only", "minimal_analytics", "unknown"])("preserves an explicitly narrower %s body under a full request", async bodyMode => {
+    const response = await POST(request("full_behavioral", bodyMode));
+    expect(await response.json()).toMatchObject({ ignored: true, created: false, consentMode: bodyMode, mergeAllowed: false });
+    expect(mocks.collection).not.toHaveBeenCalled();
+  });
+
+  it("retains the unique explicit body denial safeguard and permits the next admitted handoff", async () => {
+    const blocked = await POST(request("full_behavioral", "full_behavioral", false, "denied"));
+    expect(await blocked.json()).toMatchObject({ ignored: true, mergeAllowed: false, created: false });
+    expect(mocks.canonicalCreate).not.toHaveBeenCalled();
+    const admitted = await POST(request("full_behavioral"));
+    expect(await admitted.json()).toMatchObject({ success: true, created: true, personLevelBehaviorAllowed: true });
+    expect(mocks.canonicalCreate).toHaveBeenCalledOnce();
   });
 });

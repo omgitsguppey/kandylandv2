@@ -20,6 +20,7 @@ function toPositiveInteger(value: unknown): number {
 
 export function buildAccountOverviewViewModel(params: {
     authLoading: boolean;
+    isAuthenticated: boolean;
     userDisplayName: string | null;
     userEmail: string | null;
     userPhotoURL: string | null;
@@ -38,10 +39,10 @@ export function buildAccountOverviewViewModel(params: {
 
     const normalizedName = params.userDisplayName?.trim() || "Collector";
     const normalizedEmail = params.userEmail?.trim() || "Signed in";
-    const normalizedBalance = toPositiveInteger(params.profileBalance);
+    const normalizedBalance = typeof params.profileBalance === "number" && Number.isFinite(params.profileBalance) ? toPositiveInteger(params.profileBalance) : null;
     const normalizedFallback = normalizedName.charAt(0).toUpperCase() || "K";
 
-    if (!params.userDisplayName && !params.userEmail) {
+    if (!params.isAuthenticated) {
         return {
             state: "guest",
             displayName: "Guest collector",
@@ -58,6 +59,6 @@ export function buildAccountOverviewViewModel(params: {
         subtitle: normalizedEmail,
         avatarUrl: params.userPhotoURL?.trim() || null,
         avatarFallback: normalizedFallback,
-        balanceLabel: `${normalizedBalance.toLocaleString()} GD`,
+        balanceLabel: normalizedBalance === null ? "Balance unavailable" : `${normalizedBalance.toLocaleString()} GD`,
     };
 }

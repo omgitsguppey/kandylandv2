@@ -1,6 +1,6 @@
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { listValidatorScopeFiles } from "./validate-agent-takeover-safety-check";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -35,10 +35,7 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 
 function changedFiles() {
   try {
-    return execSync("git diff --name-only HEAD", { cwd: root, encoding: "utf8" })
-      .split(/\r?\n/u)
-      .map((entry) => entry.trim().replace(/\\/gu, "/"))
-      .filter(Boolean);
+    return listValidatorScopeFiles(root);
   } catch (error) {
     failures.push(`Unable to inspect git diff: ${(error as Error).message}`);
     return [];
@@ -80,13 +77,16 @@ for (const expected of [
   "data-purchase-row-zone=\"copy\"",
   "data-purchase-row-zone=\"price\"",
   "data-purchase-promo-slot=\"reserved\"",
-  "Paid GD",
-  "whitespace-nowrap",
+  "GumDrops",
+  "<Badge",
   "max-w-[7.6rem]",
   "leading-none",
   "grid-cols-[2.75rem_minmax(0,1fr)]",
-  "min-h-[8rem]",
-  "mt-1 grid gap-2 border-t border-white/15 pt-3",
+  "<Button",
+  'variant="ghost"',
+  "disabled={disabled}",
+  "aria-pressed={selected}",
+  "border-t border-border",
 ]) {
   requireIncludes(walletPackagePicker, expected, "Canonical wallet package picker symmetry");
 }
@@ -168,12 +168,12 @@ for (const expected of [
 
 requireRegex(
   purchaseModal,
-  /amount=\{pkgEconomics\.paidGumDrops\}[\s\S]*label=\{pkg\.label\}[\s\S]*price=\{pkg\.price\}[\s\S]*promo=\{resolvePurchaseBonusPromoOffer\(pkgEconomics\.bonusGumDrops\)\}/,
+  /amount=\{pkg\.drops\}[\s\S]*label=\{pkg\.label\}[\s\S]*price=\{pkg\.price\}[\s\S]*promo=\{resolvePurchaseBonusPromoOffer\(pkgEconomics\.bonusGumDrops\)\}/,
   "Fixed purchase package rows",
 );
 requireRegex(
   purchaseModal,
-  /amount=\{deriveGumdropEconomics\(customDrops, \(customDrops \/ 1000\) \* 5\)\.paidGumDrops\}[\s\S]*label="King Size Bundle"[\s\S]*promo=\{resolveBundlePromoOffer\(customDrops >= 5000\)\}/,
+  /amount=\{customDrops\}[\s\S]*label="King Size Bundle"[\s\S]*promo=\{resolveBundlePromoOffer\(customDrops >= 5000\)\}/,
   "Bundle purchase package row",
 );
 

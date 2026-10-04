@@ -1,4 +1,6 @@
 import {
+  readSessionMeasurementCheckpoint,
+  type SessionMeasurementCheckpoint,
   SESSION_ACTIVITY_TICK_THROTTLE_MS,
   SESSION_INACTIVITY_THRESHOLD_MS,
   type SessionBounceStatus,
@@ -253,4 +255,46 @@ export function resolveSessionTelemetryPolicy(input: {
     return { shouldEmit: false, reason: "tick_throttled" as const };
   }
   return { shouldEmit: true, reason: "tick_allowed" as const };
+}
+
+export function summarizeSessionMeasurementCheckpoints(values: readonly unknown[]) {
+  const bySegment = new Map<string, SessionMeasurementCheckpoint[]>();
+  let invalidCount = 0;
+  for (const value of values) {
+    const checkpoint = readSessionMeasurementCheckpoint(value);
+    if (!checkpoint) { invalidCount += 1; continue; }
+    const segment = bySegment.get(checkpoint.segmentId) ?? [];
+    segment.push(checkpoint); bySegment.set(checkpoint.segmentId, segment);
+  }
+  const latest: SessionMeasurementCheckpoint[] = [];
+  let conflictCount = 0;
+  for (const segment of bySegment.values()) {
+    segment.sort((left, right) => left.sequence - right.sequence);
+    let previous: SessionMeasurementCheckpoint | undefined;
+    let conflict = false;
+    for (const current of segment) {
+      if (previous && ((previous.status === "final" && current.sequence > previous.sequence) || current.startedAtMs !== previous.startedAtMs
+        || current.endedAtMs < previous.endedAtMs || current.activeMs < previous.activeMs
+        || current.idleMs < previous.idleMs || current.hiddenMs < previous.hiddenMs
+        || (current.sequence === previous.sequence && JSON.stringify(current) !== JSON.stringify(previous)))) {
+        conflict = true; break;
+      }
+      previous = current;
+    }
+    if (conflict) conflictCount += 1;
+    else if (previous) latest.push(previous);
+  }
+  latest.sort((left, right) => left.startedAtMs - right.startedAtMs);
+  for (let index = 1; index < latest.length; index += 1) {
+    if (latest[index].startedAtMs < latest[index - 1].endedAtMs) conflictCount += 1;
+  }
+  const available = latest.length > 0 && invalidCount === 0 && conflictCount === 0;
+  return {
+    status: available ? "available" as const : invalidCount > 0 || conflictCount > 0 ? "partial" as const : "source_missing" as const,
+    activeMs: available ? latest.reduce((sum, value) => sum + value.activeMs, 0) : null,
+    idleMs: available ? latest.reduce((sum, value) => sum + value.idleMs, 0) : null,
+    hiddenMs: available ? latest.reduce((sum, value) => sum + value.hiddenMs, 0) : null,
+    durationMs: available ? latest.reduce((sum, value) => sum + value.endedAtMs - value.startedAtMs, 0) : null,
+    segmentCount: latest.length, invalidCount, conflictCount,
+  };
 }

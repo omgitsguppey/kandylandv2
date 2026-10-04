@@ -1,28 +1,70 @@
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-07-14T10:39:11.338Z",
-  "currentHead": "dc4dad82c4ee6f08f8570c9efb2b9ba61fafafaa",
-  "scoreBefore": 83.38,
-  "scoreAfter": 83.38,
+  "generatedAtUtc": "2026-10-04T00:33:40.009Z",
+  "currentHead": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
+  "scoreBefore": 42.18,
+  "scoreAfter": 42.18,
   "scoreDimensions": {
-    "sourceHealth": 95.5,
-    "runtimeHealth": 70.22,
-    "evidenceCompleteness": 80,
-    "freshness": 92.5,
-    "costRisk": 92.5,
-    "regressionRisk": 94,
-    "overallHealthScore": 83.38
+    "sourceHealth": 100,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 33.33,
+    "freshness": 57.93,
+    "costRisk": 15,
+    "regressionRisk": 90,
+    "overallHealthScore": 42.18
   },
   "betaExitReady": false,
-  "launchGateStatus": "source_ready",
+  "launchGateStatus": "blocked",
   "launchBlockers": [
-    "Provider-backed source activity evidence: Source evidence required"
+    "UI source coverage: Stale evidence",
+    "Provider-backed source activity + deployed route evidence: Stale evidence",
+    "Protected payment source-of-funds proof: Stale evidence",
+    "Admin source activity evidence: Needs review",
+    "cloudRunCostReadiness blocks beta exit (missing_inventory).",
+    "cloudSqlCostReadiness blocks beta exit (missing_inventory).",
+    "geminiCloudAssistCostReadiness blocks beta exit (missing_inventory).",
+    "route4xxReadiness blocks beta exit (missing_inventory)."
   ],
   "blockerClassifications": [
     {
-      "blocker": "Provider-backed source activity evidence: Source evidence required",
+      "blocker": "UI source coverage: Stale evidence",
+      "classification": "external_review_required",
+      "nextExactAction": "Classify and close the release blocker through its owner lane."
+    },
+    {
+      "blocker": "Provider-backed source activity + deployed route evidence: Stale evidence",
       "classification": "split_live_runtime_and_external_provider_required",
       "nextExactAction": "Attach deployed route evidence where available and provider-backed site activity evidence for provider flows."
+    },
+    {
+      "blocker": "Protected payment source-of-funds proof: Stale evidence",
+      "classification": "external_review_required",
+      "nextExactAction": "Classify and close the release blocker through its owner lane."
+    },
+    {
+      "blocker": "Admin source activity evidence: Needs review",
+      "classification": "live_admin_truth_or_redacted_sample_required",
+      "nextExactAction": "Attach a redacted admin source sample or classify the source as source_missing."
+    },
+    {
+      "blocker": "cloudRunCostReadiness blocks beta exit (missing_inventory).",
+      "classification": "external_review_required",
+      "nextExactAction": "Classify and close the release blocker through its owner lane."
+    },
+    {
+      "blocker": "cloudSqlCostReadiness blocks beta exit (missing_inventory).",
+      "classification": "external_review_required",
+      "nextExactAction": "Classify and close the release blocker through its owner lane."
+    },
+    {
+      "blocker": "geminiCloudAssistCostReadiness blocks beta exit (missing_inventory).",
+      "classification": "external_review_required",
+      "nextExactAction": "Classify and close the release blocker through its owner lane."
+    },
+    {
+      "blocker": "route4xxReadiness blocks beta exit (missing_inventory).",
+      "classification": "external_review_required",
+      "nextExactAction": "Classify and close the release blocker through its owner lane."
     }
   ],
   "formalEvidenceLedger": [
@@ -116,22 +158,22 @@
     },
     {
       "category": "cost review",
-      "status": "source_confidence_only",
+      "status": "external_review_required",
       "artifactPath": "agent/state/cost-risk-exit-pass.generated.json",
       "owner": "operator/billing owner",
-      "blocksBetaExit": false,
+      "blocksBetaExit": true,
       "blocksScoreOnly": false,
       "nextExactAction": "Complete external billing review for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx lanes.",
       "whatItDoesNotProve": "Source cost guards do not prove provider billing state."
     },
     {
       "category": "release notes",
-      "status": "stale",
+      "status": "formal_passed",
       "artifactPath": "public/kandydrops-release-notes.json",
       "owner": "release notes",
-      "blocksBetaExit": true,
+      "blocksBetaExit": false,
       "blocksScoreOnly": false,
-      "nextExactAction": "Accept and publish current-head release notes only when this work is approved as a public Beta release bundle.",
+      "nextExactAction": "Keep public copy free of false beta-exit or provider-proof claims.",
       "whatItDoesNotProve": "Release notes do not prove runtime health."
     },
     {
@@ -159,7 +201,7 @@
       "status": "external_review_required",
       "artifactPath": "operator billing review note",
       "owner": "operator/billing owner",
-      "blocksBetaExit": false,
+      "blocksBetaExit": true,
       "blocksScoreOnly": false,
       "nextExactAction": "Attach an external billing review note; do not treat source guards as billing proof.",
       "whatItDoesNotProve": "Cost source contracts do not prove actual provider spend."
@@ -192,8 +234,8 @@
     "missingKillSwitches": 3
   },
   "releaseNotesIntegrity": {
-    "status": "warning",
-    "currentVersion": "1.6.15"
+    "status": "pass",
+    "currentVersion": "1.6.17"
   },
   "liveEvidenceGateReplacement": {
     "status": "split_ready",
@@ -208,19 +250,19 @@
     "externalBillingGateCount": 1
   },
   "costRiskStatus": {
-    "score": 92.5,
-    "status": "meets_source_target",
-    "nextExactAction": "Keep source cost guards current."
+    "score": 15,
+    "status": "below80_external_review_required",
+    "nextExactAction": "Complete external billing review; source guards alone cannot lift costRisk above owner review."
   },
   "evidenceCompletenessStatus": {
-    "score": 80,
-    "status": "meets_source_target",
-    "nextExactAction": "Keep typed evidence blockers explicit even if source score is above 80."
+    "score": 33.33,
+    "status": "below80_requires_formal_evidence",
+    "nextExactAction": "Attach missing typed provider, deployed route, and admin source evidence."
   },
   "freshnessStatus": {
-    "score": 92.5,
-    "status": "meets_source_target",
-    "nextExactAction": "Keep current-head artifacts fresh after this commit."
+    "score": 57.93,
+    "status": "below80_refresh_required",
+    "nextExactAction": "Refresh stale required artifacts through their owning validators."
   },
   "remainingManualItems": [
     "source_missing live evidence lanes",
@@ -231,11 +273,12 @@
     "deployed route evidence",
     "provider-backed site activity evidence",
     "redacted admin source sample",
-    "release notes",
-    "PR integrity"
+    "cost review",
+    "PR integrity",
+    "external billing review"
   ],
   "remainingCostReview": [
-    "external billing review still required for proof separation"
+    "external billing review"
   ],
   "remainingOpenPrs": [
     {
@@ -541,12 +584,11 @@
     "Review/cherry-pick/defer/close all open PRs.",
     "Keep deterministic UI source coverage current; use optional visual reproduction only for source-reported UI issues."
   ],
-  "validationFailures": [
-    "release notes stale."
-  ],
-  "status": "fail",
+  "validationFailures": [],
+  "status": "pass",
+  "sourceCommit": "1abcf3aef18991a17ef496dcbc2d0ec7cf3331e8",
   "evidenceClass": "source_snapshot",
-  "canClearSourceGate": false,
+  "canClearSourceGate": true,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
