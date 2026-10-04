@@ -47,7 +47,7 @@ Verify the restore operation finishes and reconcile users, entitlements and paym
 
 Open the provider's existing application, generate its replacement privately, and save it directly in Google Secret Manager as a new version of the same named secret. Use App Hosting secret references; remove matching plaintext backend overrides. Deploy, prove the serving revision uses the replacement, and verify provider authentication before revoking the old credential. Never revoke first. A rollout rollback cannot revive a revoked credential.
 
-For PayPal, the owner completes sign-in/MFA and final credential-generation/revocation controls in the dashboard. `PAYPAL_CLIENT_SECRET_LIVE` is the destination. The old credential is still valid pending rotation. Local recovery `.env.local` is retained; full secret migration is not yet verified.
+For PayPal, the owner completes sign-in/MFA and final credential-generation/revocation controls in the dashboard. `PAYPAL_CLIENT_SECRET_LIVE` is the destination. The old credential is still valid pending rotation. Rollout `build-2026-10-04-005` is READY at 100% traffic: its serving Cloud Run revision uses Secret Manager references for PayPal, GA, cron and navigation credentials, with no plaintext values for those entries; PayPal backend overrides are removed. Local recovery `.env.local` is retained; full secret migration is not yet verified.
 
 ## Completion / recovery boundary
 
