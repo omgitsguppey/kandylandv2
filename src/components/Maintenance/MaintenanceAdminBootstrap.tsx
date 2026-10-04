@@ -1,15 +1,24 @@
 "use client";
 
 import { onAuthStateChanged } from "firebase/auth";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { authFetch } from "@/lib/authFetch";
 import { auth } from "@/lib/firebase";
 import { readUiJson } from "@/lib/ui-continuity";
+import { Button } from "@/components/ui/Button";
 import { resolveMaintenanceAdminReturnPath } from "../../../shared/runtime/maintenance-mode-contract";
 
 type AccessState = "checking" | "signed-out" | "not-admin" | "unavailable";
+
+// The maintenance shell intentionally omits the global overlays. Reuse the
+// canonical sign-in flow here without enabling the rest of the public shell.
+const AuthModal = dynamic(
+  () => import("@/components/Auth/AuthModal").then((module) => module.AuthModal),
+  { ssr: false },
+);
 
 const stateCopy: Record<AccessState, { title: string; message: string }> = {
   checking: {
@@ -34,6 +43,7 @@ export function MaintenanceAdminBootstrap() {
   const router = useRouter();
   const sessionRequest = useRef<{ uid: string | null; result: Promise<AccessState | "authorized"> } | null>(null);
   const [accessState, setAccessState] = useState<AccessState>("checking");
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   useEffect(() => {
     let isActive = true;
@@ -115,7 +125,13 @@ export function MaintenanceAdminBootstrap() {
         <p className="mt-6 text-sm font-semibold uppercase tracking-[0.18em] text-fuchsia-100">KandyDrops maintenance</p>
         <h1 className="mt-3 font-serif text-3xl leading-tight text-white">{copy.title}</h1>
         <p className="mt-4 text-base leading-7 text-fuchsia-50/90">{copy.message}</p>
+        {accessState === "signed-out" ? (
+          <Button variant="brand" className="mt-6 w-full" onClick={() => setIsSignInOpen(true)}>
+            Sign in
+          </Button>
+        ) : null}
       </section>
+      {isSignInOpen ? <AuthModal isOpen mode="signin" onClose={() => setIsSignInOpen(false)} /> : null}
     </main>
   );
 }
