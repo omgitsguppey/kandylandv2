@@ -1,86 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+
+import { ContentSection, GroupedRow } from "@/components/ui/content-layout";
+
+import { Button } from "@/components/ui/Button";
+
 import { Loader2, RefreshCw } from "lucide-react";
-
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
-import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
-import { authFetch } from "@/lib/authFetch";
-import {
-  buildBugReportContext,
-  getSafePreviousRoute,
-  resolveClientActionError,
-  type ResolvedClientActionError,
-} from "@/lib/errors/client-error-adapter";
+
+import { buildBugReportContext, getSafePreviousRoute } from "@/lib/errors/client-error-adapter";
 import { cn } from "@/lib/utils";
-
-type SectionState = "live" | "unavailable" | "not_configured" | "blocked" | "needs_setup" | "needs_review" | "error";
-
-type CreatorRequestStatus = "pending" | "accepted" | "declined" | "fulfilled" | string;
-type CreatorRequestAction = "accept" | "decline" | "fulfill";
-
-type CreatorRequestRow = {
-  id: string;
-  userId?: string;
-  categoryId?: string;
-  categoryLabel?: string;
-  details?: string;
-  priceGd?: number;
-  status?: CreatorRequestStatus;
-  createdAt?: number;
-  respondedAt?: number;
-  responseNote?: string | null;
-};
-
-type CreatorRequestsResponse = {
-  success?: boolean;
-  requests?: CreatorRequestRow[];
-  error?: string;
-  message?: string;
-};
-
-type CreatorRequestsManagerProps = {
-  creatorId: string;
-  creatorName: string;
-  enabled: boolean;
-  restricted: boolean;
-  readOnly: boolean;
-  sourceState: SectionState;
-};
-
-function statusTone(status: CreatorRequestStatus | undefined) {
-  switch (status) {
-    case "pending":
-      return "border-amber-300/20 bg-amber-500/10 text-amber-100";
-    case "accepted":
-      return "border-sky-300/20 bg-sky-500/10 text-sky-100";
-    case "fulfilled":
-      return "border-emerald-300/20 bg-emerald-500/10 text-emerald-100";
-    case "declined":
-      return "border-red-300/20 bg-red-500/10 text-red-100";
-    default:
-      return "border-white/10 bg-white/5 text-gray-200";
-  }
-}
-
-function formatCount(count: number) {
-  return `${count.toLocaleString()} request${count === 1 ? "" : "s"}`;
-}
-
-function normalizeRequests(value: unknown): CreatorRequestRow[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((entry): entry is CreatorRequestRow => Boolean(entry && typeof entry === "object" && typeof (entry as CreatorRequestRow).id === "string"))
-    .sort((left, right) => {
-      const leftAt = typeof left.createdAt === "number" ? left.createdAt : 0;
-      const rightAt = typeof right.createdAt === "number" ? right.createdAt : 0;
-      return rightAt - leftAt;
-    });
-}
-
-function readObject(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" ? value as Record<string, unknown> : {};
-}
+import { type CreatorRequestsManagerProps, useCreatorRequestsManager, statusTone, formatCount } from "./useCreatorRequestsManager";
 
 export function CreatorRequestsManager({
   creatorId,
@@ -90,131 +21,19 @@ export function CreatorRequestsManager({
   readOnly,
   sourceState,
 }: CreatorRequestsManagerProps) {
-  const [requests, setRequests] = useState<CreatorRequestRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [actionError, setActionError] = useState<ResolvedClientActionError | null>(null);
-  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
-  const bugReporter = useSubmitBugReport();
-  const loadRequestIdRef = useRef(0);
-  const pendingActionIdRef = useRef<string | null>(null);
-  const canLoadRequests = Boolean(creatorId && enabled && !restricted);
-  const requestsUrl = useMemo(() => `/api/creator/requests?creatorId=${encodeURIComponent(creatorId)}`, [creatorId]);
+const { loading, actionError, pendingActionId, bugReporter, canLoadRequests, loadRequests, visibleRequests, pendingRequests, acceptedRequests, unavailableMessage, handleAction } = useCreatorRequestsManager({
+  creatorId,
+  creatorName,
+  enabled,
+  restricted,
+  readOnly,
+  sourceState,
+});
 
-  const loadRequests = useCallback(async () => {
-    if (!canLoadRequests) {
-      setRequests([]);
-      setActionError(null);
-      setLoading(false);
-      return;
-    }
-
-    const requestId = loadRequestIdRef.current + 1;
-    loadRequestIdRef.current = requestId;
-    setLoading(true);
-    setActionError(null);
-    try {
-      const response = await authFetch(requestsUrl);
-      const body = await response.json().catch(() => ({})) as CreatorRequestsResponse;
-      if (!response.ok) {
-        throw resolveClientActionError(body, {
-          code: "manager_load_failed",
-          status: response.status,
-          surface: "creator_dashboard",
-          route: requestsUrl,
-          fallbackKey: "manager_load_failed",
-          context: { manager: "requests", stage: "load" },
-        });
-      }
-      if (loadRequestIdRef.current === requestId) {
-        setRequests(normalizeRequests(body.requests));
-      }
-    } catch (loadError) {
-      if (loadRequestIdRef.current === requestId) {
-        setActionError("descriptor" in readObject(loadError)
-          ? loadError as ResolvedClientActionError
-          : resolveClientActionError(loadError, {
-            surface: "creator_dashboard",
-            route: requestsUrl,
-            fallbackKey: "manager_load_failed",
-            context: { manager: "requests", stage: "load" },
-          }));
-        setRequests([]);
-      }
-    } finally {
-      if (loadRequestIdRef.current === requestId) {
-        setLoading(false);
-      }
-    }
-  }, [canLoadRequests, requestsUrl]);
-
-  useEffect(() => {
-    void loadRequests();
-  }, [loadRequests]);
-
-  const visibleRequests = useMemo(() => requests.filter((request) => ["pending", "accepted", "fulfilled", "declined"].includes(String(request.status || "pending"))), [requests]);
-  const pendingRequests = visibleRequests.filter((request) => (request.status || "pending") === "pending");
-  const acceptedRequests = visibleRequests.filter((request) => request.status === "accepted");
-
-  const unavailableMessage = restricted
-    ? "Custom requests are restricted for this creator."
-    : enabled
-      ? "Request management uses the existing creator request route."
-      : "Configuration-only until custom requests are enabled.";
-
-  async function handleAction(request: CreatorRequestRow, action: CreatorRequestAction) {
-    if (!request.id || readOnly || restricted || !enabled || pendingActionIdRef.current) {
-      return;
-    }
-
-    const actionKey = `${request.id}:${action}`;
-    pendingActionIdRef.current = actionKey;
-    setPendingActionId(actionKey);
-    setActionError(null);
-    try {
-      const response = await authFetch("/api/creator/requests", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requestId: request.id, action }),
-      });
-      const body = await response.json().catch(() => ({})) as CreatorRequestsResponse & { status?: CreatorRequestStatus };
-      if (!response.ok) {
-        throw resolveClientActionError(body, {
-          code: "mutation_failed",
-          status: response.status,
-          surface: "creator_dashboard",
-          route: "/api/creator/requests",
-          fallbackKey: "mutation_failed",
-          context: { manager: "requests", stage: "mutation", action, requestId: request.id },
-        });
-      }
-
-      const nextStatus = body.status || (action === "accept" ? "accepted" : action === "decline" ? "declined" : "fulfilled");
-      setRequests((current) => current.map((entry) => entry.id === request.id ? {
-        ...entry,
-        status: nextStatus,
-        respondedAt: Date.now(),
-      } : entry));
-    } catch (actionError) {
-      setActionError("descriptor" in readObject(actionError)
-        ? actionError as ResolvedClientActionError
-        : resolveClientActionError(actionError, {
-          surface: "creator_dashboard",
-          route: "/api/creator/requests",
-          fallbackKey: "mutation_failed",
-          context: { manager: "requests", stage: "mutation", action, requestId: request.id },
-        }));
-    } finally {
-      if (pendingActionIdRef.current === actionKey) {
-        pendingActionIdRef.current = null;
-        setPendingActionId(null);
-      }
-    }
-  }
-
-  return (
-    <section
+return (
+    <ContentSection
       id="creator-requests-manager"
-      className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#120b20]/90 p-5 shadow-[0_22px_60px_rgba(0,0,0,0.28)] sm:p-6"
+      className="overflow-hidden rounded-2xl bg-card p-5  sm:p-6"
       data-testid="creator-requests-manager"
       data-creator-requests-source-state={sourceState}
       data-creator-requests-load-state={canLoadRequests ? "connected" : "configuration_only"}
@@ -222,23 +41,23 @@ export function CreatorRequestsManager({
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-widest text-purple-200">Request desk</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight text-white">Custom work from your audience</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-300">{canLoadRequests ? `${creatorName} has ${formatCount(visibleRequests.length)} loaded.` : unavailableMessage}</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Request desk</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">Custom work from your audience</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{canLoadRequests ? `${creatorName} has ${formatCount(visibleRequests.length)} loaded.` : unavailableMessage}</p>
         </div>
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => void loadRequests()}
           disabled={!canLoadRequests || loading}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm font-bold text-gray-200 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <RefreshCw className="h-3.5 w-3.5" />}
           Refresh
-        </button>
+        </Button>
       </div>
 
       {readOnly ? (
-        <p className="mt-4 rounded-[1.5rem] border border-brand-purple/20 bg-brand-purple/10 px-4 py-3 text-sm font-semibold text-purple-100">Read-only projection: request actions are disabled.</p>
+        <p className="mt-4 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">Read-only projection: request actions are disabled.</p>
       ) : null}
       {actionError ? (
         <HumanErrorNotice
@@ -260,17 +79,17 @@ export function CreatorRequestsManager({
       ) : null}
 
       {!canLoadRequests ? (
-        <p className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3 text-sm text-gray-300">{unavailableMessage}</p>
+        <p className="mt-4 rounded-2xl bg-secondary px-4 py-3 text-sm text-muted-foreground">{unavailableMessage}</p>
       ) : loading ? (
-        <div className="mt-5 flex min-h-20 items-center gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 px-4 text-sm text-gray-300">
-          <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
+        <div className="mt-5 flex min-h-20 items-center gap-3 rounded-2xl bg-secondary px-4 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" aria-hidden="true" />
           Loading requests
         </div>
       ) : visibleRequests.length === 0 ? (
-        <p className="mt-4 rounded-[1.5rem] border border-dashed border-white/10 bg-black/20 px-4 py-5 text-sm text-gray-300">No open requests.</p>
+        <p className="mt-4 rounded-2xl border border-dashed border-border bg-secondary px-4 py-5 text-sm text-muted-foreground">No open requests.</p>
       ) : (
         <div className="mt-5 space-y-3">
-          <p className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm font-semibold text-gray-400">
+          <p className="rounded-xl bg-secondary px-3 py-2 text-sm font-semibold text-muted-foreground">
             {formatCount(pendingRequests.length)} pending. {formatCount(acceptedRequests.length)} accepted.
           </p>
           {visibleRequests.map((request) => {
@@ -279,58 +98,58 @@ export function CreatorRequestsManager({
             const price = typeof request.priceGd === "number" ? `${request.priceGd.toLocaleString()} GD` : "Price unavailable";
             const actionDisabled = readOnly || Boolean(pendingActionId);
             return (
-              <article key={request.id} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4" data-creator-request-status={status}>
+              <GroupedRow key={request.id} className="rounded-2xl bg-secondary p-4" data-creator-request-status={status}>
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-bold text-white">{category}</h3>
-                      <span className={cn("rounded-xl border px-2.5 py-1 text-xs font-bold", statusTone(status))}>
+                      <h3 className="text-sm font-semibold text-foreground">{category}</h3>
+                      <Badge variant="secondary" className={cn("rounded-xl border px-2.5 py-1 text-xs font-semibold", statusTone(status))}>
                         {status}
-                      </span>
+                      </Badge>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-sm text-gray-300">{request.details || "No request details provided."}</p>
-                    <p className="mt-2 inline-flex rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-bold text-gray-400">{price}</p>
+                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{request.details || "No request details provided."}</p>
+                    <p className="mt-2 inline-flex rounded-xl bg-secondary px-2.5 py-1.5 text-xs font-semibold text-muted-foreground">{price}</p>
                   </div>
                 </div>
                 {status === "pending" || status === "accepted" ? (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {status === "pending" ? (
                       <>
-                        <button
+                        <Button variant="ghost"
                           type="button"
                           disabled={actionDisabled}
                           onClick={() => void handleAction(request, "accept")}
-                          className="min-h-11 rounded-xl border border-emerald-300/20 bg-emerald-500/10 px-4 py-2.5 text-sm font-bold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="min-h-11 rounded-xl border border-success/20 bg-success/10 px-4 py-2.5 text-sm font-semibold text-success disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Accept
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="ghost"
                           type="button"
                           disabled={actionDisabled}
                           onClick={() => void handleAction(request, "decline")}
-                          className="min-h-11 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="min-h-11 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-2.5 text-sm font-semibold text-destructive disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Decline
-                        </button>
+                        </Button>
                       </>
                     ) : null}
                     {status === "accepted" ? (
-                      <button
+                      <Button variant="ghost"
                         type="button"
                         disabled={actionDisabled}
                         onClick={() => void handleAction(request, "fulfill")}
-                        className="min-h-11 rounded-xl border border-sky-300/20 bg-sky-500/10 px-4 py-2.5 text-sm font-bold text-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="min-h-11 rounded-xl border border-info/20 bg-info/10 px-4 py-2.5 text-sm font-semibold text-info disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Fulfill
-                      </button>
+                      </Button>
                     ) : null}
                   </div>
                 ) : null}
-              </article>
+              </GroupedRow>
             );
           })}
         </div>
       )}
-    </section>
+    </ContentSection>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { NativeSelect } from "@/components/ui/native-select";
+
 export type CreatorSettingsRunwayScope = {
     id: string;
     kind: "operation" | "setting";
@@ -31,11 +33,11 @@ export function CreatorSettingsScopePicker({ activeId, items, onSelect }: Creato
 
     return (
         <label className="block" data-creator-settings-scope-picker="true">
-            <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.18em] text-purple-200">Choose one focus</span>
-            <select
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-primary">Choose one focus</span>
+            <NativeSelect
                 value={activeId ?? ""}
                 onChange={(event) => onSelect(event.target.value)}
-                className="min-h-12 w-full rounded-2xl border border-white/12 bg-black/30 px-3 text-sm font-bold text-white outline-none transition focus:border-brand-purple/60 focus:ring-2 focus:ring-brand-purple/25"
+                className="min-h-12 w-full rounded-2xl bg-secondary px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-ring/25"
             >
                 <optgroup label="Set your creator world">
                     {settings.map((item) => <option key={item.id} value={item.id}>{item.title} - {item.state.replaceAll("_", " ")}</option>)}
@@ -43,7 +45,7 @@ export function CreatorSettingsScopePicker({ activeId, items, onSelect }: Creato
                 <optgroup label="Operate your creator world">
                     {operations.map((item) => <option key={item.id} value={item.id}>{item.title} - {item.state.replaceAll("_", " ")}</option>)}
                 </optgroup>
-            </select>
+            </NativeSelect>
         </label>
     );
 }

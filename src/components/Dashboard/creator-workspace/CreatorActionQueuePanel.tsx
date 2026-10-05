@@ -1,3 +1,7 @@
+import { Badge } from "@/components/ui/badge";
+import { ContentSection, GroupedList, GroupedRow } from "@/components/ui/content-layout";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/Button";
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import type { UiContinuityModuleState } from "@/lib/ui-continuity";
 import { formatStatusLabel, type CreatorBookingRecord, type CreatorRequestRecord } from "./types";
@@ -24,47 +28,47 @@ export function CreatorActionQueuePanel({
     return (
         <>
             {requests.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-[#110b20]/90 p-5 shadow-[0_18px_44px_rgba(0,0,0,0.22)]">
-                    <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-black text-white">Requests waiting for you</h3><span className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-bold text-zinc-400">{requests.length}</span></div>
-                    <div className="mt-3 space-y-2">
+                <ContentSection className="space-y-4">
+                    <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-foreground">Requests waiting for you</h3><Badge variant="secondary" className="rounded-xl bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground">{requests.length}</Badge></div>
+                    <GroupedList className="mt-3">
                         {requests.slice(0, 3).map((request) => (
-                            <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                                <p className="min-w-0 truncate text-sm font-semibold text-white">
-                                    {request.categoryLabel} <span className="ml-1 text-xs text-emerald-300">{request.priceGd} GD</span>
+                            <GroupedRow key={request.id}>
+                                <p className="min-w-0 truncate text-sm font-semibold text-foreground">
+                                    {request.categoryLabel} <span className="ml-1 text-xs text-success">{request.priceGd} GD</span>
                                 </p>
                                 <div className="flex shrink-0 gap-1">
                                     {request.status === "pending" && (
                                         <>
-                                            <button onClick={() => onRequestAction(request.id, "accept")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-emerald-500/20 px-3 text-xs font-bold text-emerald-200 transition-colors hover:bg-emerald-500/30 disabled:opacity-50">Accept</button>
-                                            <button onClick={() => onRequestAction(request.id, "decline")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-red-500/10 px-3 text-xs font-bold text-red-200 transition-colors hover:bg-red-500/20 disabled:opacity-50">Decline</button>
+                                            <Button variant="ghost" onClick={() => onRequestAction(request.id, "accept")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-success/20 px-3 text-xs font-semibold text-success transition-colors hover:bg-success/30 disabled:opacity-50">Accept</Button>
+                                            <Button variant="ghost" onClick={() => onRequestAction(request.id, "decline")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-destructive/10 px-3 text-xs font-semibold text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50">Decline</Button>
                                         </>
                                     )}
                                     {request.status === "accepted" ? (
-                                        <button onClick={() => onRequestAction(request.id, "fulfill")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-brand-purple/20 px-3 text-xs font-bold text-purple-100 transition-colors hover:bg-brand-purple/30 disabled:opacity-50">Mark complete</button>
+                                        <Button variant="ghost" onClick={() => onRequestAction(request.id, "fulfill")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-primary/20 px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary/30 disabled:opacity-50">Mark complete</Button>
                                     ) : null}
                                 </div>
-                            </div>
+                            </GroupedRow>
                         ))}
-                    </div>
-                </section>
+                    </GroupedList>
+                </ContentSection>
             )}
 
             {bookings.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-[#110b20]/90 p-5 shadow-[0_18px_44px_rgba(0,0,0,0.22)]" data-testid="creator-workspace-bookings">
-                    <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-black text-white">Booked creator time</h3><span className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-bold text-zinc-400">{bookings.length}</span></div>
-                    <div className="mt-3 space-y-2">
+                <ContentSection className="space-y-4" data-testid="creator-workspace-bookings">
+                    <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-foreground">Booked creator time</h3><Badge variant="secondary" className="rounded-xl bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground">{bookings.length}</Badge></div>
+                    <GroupedList className="mt-3">
                         {bookings.slice(0, 3).map((booking) => (
-                            <div key={booking.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                                <p className="min-w-0 truncate text-sm font-semibold text-white">{formatStatusLabel(booking.serviceType)} call <span className="ml-1 text-xs text-zinc-500">{formatStatusLabel(booking.status)}</span></p>
+                            <GroupedRow key={booking.id}>
+                                <p className="min-w-0 truncate text-sm font-semibold text-foreground">{formatStatusLabel(booking.serviceType)} call <span className="ml-1 text-xs text-muted-foreground">{formatStatusLabel(booking.status)}</span></p>
                                 <div className="flex shrink-0 gap-1">
                                     {booking.status === "booked" ? (
-                                        <button onClick={() => onBookingAction(booking.id, "complete")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-emerald-500/20 px-3 text-xs font-bold text-emerald-200 transition-colors hover:bg-emerald-500/30 disabled:opacity-50">Mark complete</button>
+                                        <Button variant="ghost" onClick={() => onBookingAction(booking.id, "complete")} disabled={busyAction !== null || isProjectionMode} className="min-h-11 rounded-xl bg-success/20 px-3 text-xs font-semibold text-success transition-colors hover:bg-success/30 disabled:opacity-50">Mark complete</Button>
                                     ) : null}
                                 </div>
-                            </div>
+                            </GroupedRow>
                         ))}
-                    </div>
-                </section>
+                    </GroupedList>
+                </ContentSection>
             )}
 
             {bookingsModuleError ? (
@@ -75,9 +79,9 @@ export function CreatorActionQueuePanel({
                     data-testid="creator-workspace-bookings-warning"
                 />
             ) : bookingsModuleState.status === "success" && bookings.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-zinc-300" data-testid="creator-workspace-bookings-empty">
+                <Card className="gap-0 py-0 rounded-2xl border border-dashed border-border bg-secondary p-4 text-sm text-muted-foreground" data-testid="creator-workspace-bookings-empty">
                     No active phone or video bookings are hydrated right now.
-                </div>
+                </Card>
             ) : null}
         </>
     );

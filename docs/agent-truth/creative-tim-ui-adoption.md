@@ -176,3 +176,79 @@ implant the Creative Tim Button or add a Slot, provider or state wrapper. Real
 anchors retain navigation semantics while reading the same class owner.
 Card and NativeSelect vendor sources remain unchanged. Semantic colors and
 material appearance stay in the single global stylesheet owner.
+
+## Creator operational redesign — slice 5 (2026-10-05)
+
+Implementation on `broski/kandydrops-apple-redesign`; uncommitted. Visual acceptance and public-beta release acceptance are not claimed.
+
+- selectedIssueIdOrFingerprint: `owner-directed-apple-redesign-slice-5-creator` (design task, not a runtime Debug incident).
+- affectedSurface: Creator UI — `/dashboard/creator`, `/dashboard/creator/drops`, `/dashboard/creator/settings` and their embedded operational managers.
+- expectedUserImpact: grouped overview/earnings, content management, requests/bookings, and fans/engagement; system hierarchy, opaque records, semantic controls.
+- filesAllowed: the exact manifest below and this existing adoption record.
+- filesForbidden: API/server/database/payment/auth/permission logic, rules, deployment/config/package files, public creator discovery/profile purchasing/onboarding, and shared Admin submission/upload form owners.
+- validatorToRun: typecheck, targeted lint/component tests, creator transaction/booking/projection contracts, device layout/UI, accessibility, surface doctrine and design drift.
+- releaseNoteImpact: candidate creator-presentation update when included in an accepted beta bundle; no release acceptance or Beta badge update in this source slice.
+- rollbackNote: restore the modified source files and remove only the nine new manifest files; server/data contracts require no rollback.
+
+Shared primitives: existing ContentFrame, ContentSection, SectionHeader, ContentGrid, GroupedList/GroupedRow, Card, Badge, Button/buttonVariants, Input and NativeSelect. New `Textarea` owns multiline input styling; `ToggleControl` and `NumberControl` move the existing generic labeled controls into `ui/form-controls.tsx`, with no creator business logic. Controls retain 44px label/input targets and native input semantics. The six state hooks relocate existing owners rather than add parallel tracking, resolver or workflow systems. The unused SectionCard helper is removed.
+
+Adaptive source composition uses content-layout intrinsic grids and the existing md shell boundary; RootLayout retains navigation/safe-area reservation. No local viewport listener or new layout physics. At 390px the body is one working pane; at 768px shared frame spacing expands; at 1440px the max-width frame and fan-tool grid use available width. No browser visual acceptance at these widths is claimed. All migrated views are under 300 lines; TSX net change is -36 lines before this record.
+
+### Source manifest
+
+| Change | File |
+| --- | --- |
+| Modified | `src/components/Creators/CreatorBookingsManager.tsx` |
+| Modified | `src/components/Creators/CreatorBroadcastManager.tsx` |
+| Modified | `src/components/Creators/CreatorDashboardSettingsHub.tsx` |
+| Modified | `src/components/Creators/CreatorDropManager.tsx` |
+| Modified | `src/components/Creators/CreatorFanPassManager.tsx` |
+| Modified | `src/components/Creators/CreatorRequestsManager.tsx` |
+| Modified | `src/components/Creators/CreatorSettingsHubFrame.tsx` |
+| Modified | `src/components/Creators/FanPassSubscriberRow.tsx` |
+| Modified | `src/components/Dashboard/CreatorWorkspaceFrame.tsx` |
+| Modified | `src/components/Dashboard/CreatorWorkspacePanel.tsx` |
+| Modified | `src/components/Dashboard/creator-workspace/CreatorActionQueuePanel.tsx` |
+| Modified | `src/components/Dashboard/creator-workspace/CreatorBroadcastCard.tsx` |
+| Modified | `src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx` |
+| Modified | `src/components/Dashboard/creator-workspace/CreatorFanPassCrmPanel.tsx` |
+| Modified | `src/components/creative-tim/kandydrops/creator/CreatorAccessStateSection.tsx` |
+| Modified | `src/components/creative-tim/kandydrops/creator/CreatorOperatingRunway.tsx` |
+| Modified | `src/components/creative-tim/kandydrops/creator/CreatorSettingsControlDeck.tsx` |
+| Modified | `src/components/creative-tim/kandydrops/creator/CreatorSettingsWorkstreamRail.tsx` |
+| Modified | `src/components/creative-tim/kandydrops/creator/CreatorStudioCanvas.tsx` |
+| Created | `src/components/Creators/CreatorSettingsControls.tsx` |
+| Created | `src/components/Creators/useCreatorBookingsManager.tsx` |
+| Created | `src/components/Creators/useCreatorBroadcastManager.tsx` |
+| Created | `src/components/Creators/useCreatorDashboardSettings.tsx` |
+| Created | `src/components/Creators/useCreatorDropManager.tsx` |
+| Created | `src/components/Creators/useCreatorRequestsManager.tsx` |
+| Created | `src/components/Dashboard/useCreatorWorkspace.tsx` |
+| Created | `src/components/ui/form-controls.tsx` |
+| Created | `src/components/ui/textarea.tsx` |
+
+### Preserved workflow and status paths
+
+- Creator access/onboarding: current role/application eligibility, stage/summary, blocking reasons, ready-for-approval, queue position, waitlist destination, and read-only admin projection.
+- Dashboard hydration: settings, requests, bookings, subscriptions and threads still load from existing authenticated routes; module criticality, degraded notices, settings-not-configured/partial/unavailable source evidence, unread counts and report-bug recovery remain.
+- Drop chain: creator manager → existing CreateDropModal (`mode="creator"`, same actor override and success/close callbacks) → `/api/creator/drops` → role/configuration/restriction checks → existing submission normalizer/storage → Admin drops review queue → validated approval/rejection/needs-changes decision → canonical visibility/rotation resolution. Backend and Admin sources are unchanged.
+- Drop status/filter paths: all, draft, submitted, pending_review, approved, needs_changes, rejected and expired; resolver creatorStatusKey/status label, admin-created vs creator-submitted labels, publicVisibilityLabel and expiration remain. Unapproved submissions stay creator-visible and user-hidden; approval remains admin-only.
+- Drop source/feedback paths: existing status and metric resolvers, unavailable metric display, tab counts, guarded fetch freshness, load skeleton, empty submit action, toast failures, refresh, submission success refresh, and screen/form/status/pending-review telemetry remain.
+- Profile/settings: selected-scope behavior, lazy single-manager mounting, name/bio, Fan Pass enable/paid price/welcome text, request enable/base price, calls enable/per-minute price, broadcasts enable/audience, timeline enable/approved-drop/broadcast visibility; section-only saves, saving/error feedback and generation/request guards remain.
+- Requests: pending/accepted/fulfilled/declined stored labels, accept/decline/fulfill callbacks, paid price, loading/empty/unavailable/error states, duplicate-action refs, restriction/enabled/read-only guards and post-action reload remain.
+- Bookings: booked/upcoming/in_progress/completed/canceled labels and dates/duration/price; complete/cancel actions, availability/enabled/restriction/read-only and duplicate-action guards, loading/empty/unavailable/error states and post-action reload remain.
+- Fan Pass: active/canceled/grace/past_due subscriber labels, fan identity/photo/masked ID, paid price, renewal/auto-renew facts, source/restriction/setup/read-only states and refresh remain. Public creator pages still own membership changes; no membership writes are added.
+- Broadcasts: draft/scheduled/sent/published/failed/canceled labels, followers audience, draft/title length limits, capability/source readiness, send/read-only/restriction/duplicate guards, loading/empty/error feedback, history expansion, delivery/open/failure evidence and telemetry remain.
+- Earnings/accrual: existing earningsGd, pendingCashoutGd, ledgerAccruals/pendingPayouts evidence, safe attribution, source freshness/sample distinctions and earnings/payout destination remain. No balances, pricing, payout math or accrual logic change.
+- Audit/telemetry: existing data markers, semantic event names/payloads, actor/target separation, projection exclusion, human error descriptors, bug reports and debug reporting remain. Old string-only scanners that assume all action code is inline need to read the extracted owner too; this slice adds no validator family and makes no formal runtime/provider/admin-proof claim.
+
+### Verification and remaining boundaries
+
+- Passed: typecheck, targeted lint, design-system drift, device-layout contract, surface-doctrine split, accessibility tap targets, creator experience transaction truth, booking error copy, and admin projection analytics exclusion.
+- Existing booking/drop-grouping component tests: 7 passed. AST comparison: 173 state/action/effect declarations unchanged after relocation, excluding JSX class attributes.
+- Settings suite: 5 passed / 18 failed; the unchanged branch files reproduce the identical 18 failures. Legacy card selectors and fixtures predate this slice; they were not silently rewritten.
+- Device dry score: 70, 27 major findings, no creator finding; its contract validator passes. This is whole-repo source evidence, not creator visual acceptance.
+- Capability policy passes. Safety/self-knowledge/bloat preflight references missing `output/manual-viewer-strobe-release-v2-20261003/input.json`; unresolved evidence remains unresolved.
+- Drop workflow/status/CRM and frontend-consolidation command runners hit sandbox child-process EPERM. Fan Pass validator fails on an untouched subscription API response pattern. Neither is reported as passing.
+- No hardcoded color, palette ramp or dark: class remains in the migrated manifest. Inherited unmigrated shared consumers: `src/components/Admin/CreateDropModal.tsx:1561` (gradient/literal submit styling), `:1592` (scrim); `src/components/ui/UiContinuityNotice.tsx:20` (legacy neutral palette); `src/components/errors/HumanErrorNotice.tsx:158` and `:173` (legacy title/action colors). These shared Admin/error owners remain outside this bounded operational presentation slice.
+- No deploy, provider call, production mutation, dependency change, commit, push, browser audit, new report family or durable governance-memory writeback.
