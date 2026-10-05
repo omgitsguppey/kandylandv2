@@ -1,8 +1,8 @@
 "use client";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
-import { Card } from "@/components/creative-tim/ui/card";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { Card } from "@/components/ui/card";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useAdminPrivacyPreflight } from "@/hooks/useAdminPrivacyPreflight";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type {

@@ -127,7 +127,7 @@ for (const statement of previewClientAst.statements) {
 }
 const previewViewConnected = someSourceNode(sourceRenderNodes(previewClientAst, "LockedDropPreviewClient"), (node) => (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && ts.isIdentifier(node.tagName) && node.tagName.text === previewViewName);
 const previewRender = previewViewConnected ? sourceRenderNodes(previewView, "LockedDropPreviewView") : [];
-const previewBadge = readRequired("src/components/creative-tim/ui/badge.tsx");
+const previewBadge = readRequired("src/components/ui/badge.tsx");
 const charts = readRequired("src/components/Admin/AdminAnalyticsCharts.tsx");
 const countdown = readRequired("src/lib/drop-countdown.ts");
 const mobileBottomBar = readRequired("src/components/Navigation/MobileBottomBar.tsx");
@@ -171,7 +171,7 @@ requireAbsent(dropCardParts, "font-[ui-monospace", "DropCardParts");
 
 let previewBadgeName: string | undefined;
 for (const statement of previewView.statements) {
-  if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "@/components/creative-tim/ui/badge") continue;
+  if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "@/components/ui/badge") continue;
   const bindings = statement.importClause?.namedBindings;
   if (bindings && ts.isNamedImports(bindings)) previewBadgeName = bindings.elements.find((entry) => (entry.propertyName?.text ?? entry.name.text) === "Badge")?.name.text;
 }

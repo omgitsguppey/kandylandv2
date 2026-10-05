@@ -279,7 +279,7 @@ describe("connected preview and discovery source readers", () => {
     it.each(["wrong Badge source", "interactive Badge", "unused Badge"])("rejects %s in the actual full-page preview rather than the removed modal", (variant) => {
         const path = "src/components/Drops/LockedDropPreviewView.tsx";
         const original = readSource(path);
-        const source = variant === "wrong Badge source" ? original.replace('@/components/creative-tim/ui/badge', '@/components/unrelated-badge') + '\n// from "@/components/creative-tim/ui/badge"\n'
+        const source = variant === "wrong Badge source" ? original.replace('@/components/ui/badge', '@/components/unrelated-badge') + '\n// from "@/components/ui/badge"\n'
             : variant === "interactive Badge" ? original.replaceAll("<Badge", "<Badge onClick={() => undefined}")
             : original.replaceAll("<Badge", "<span").replaceAll("</Badge>", "</span>") + '\nconst unusedBadge = () => <Badge>Unused</Badge>;\n';
         expect(source).not.toBe(original);

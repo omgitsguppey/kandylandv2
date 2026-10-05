@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronUp, Clock, Flame, LayoutGrid, Search, Sparkles, Tag } from "lucide-react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 
-import { Input } from "@/components/creative-tim/ui/input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/Button";
 import { SEARCH_COST_POLICY } from "@/lib/discovery/search-cost-contract";
 

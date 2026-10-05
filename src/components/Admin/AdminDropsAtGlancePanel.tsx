@@ -1,8 +1,8 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { Input } from "@/components/creative-tim/ui/input";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";

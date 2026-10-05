@@ -1,7 +1,7 @@
 import { Sparkles } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { DeferredHomeDropTicker } from "@/components/Landing/DeferredHomeDropTicker";
 import { HomeHeroActions } from "@/components/Landing/HomeHeroActions";
 import { HomeHeroTelemetry } from "@/components/Landing/HomeHeroTelemetry";

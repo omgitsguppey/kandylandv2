@@ -3,8 +3,8 @@
 import { Candy, Check, Minus, Plus } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 

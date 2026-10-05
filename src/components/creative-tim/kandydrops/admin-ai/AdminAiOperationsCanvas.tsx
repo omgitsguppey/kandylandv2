@@ -2,7 +2,7 @@
 
 import type { ComponentType, ReactNode } from "react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 
 export type AdminAiOperation = {
     id: string;

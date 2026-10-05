@@ -4,7 +4,7 @@ import type { ElementType, ReactNode } from "react";
 
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { ADMIN_NO_SOURCE_LABEL, resolveAdminInputTruthState, type AdminTruthState } from "@/lib/admin-truth-state";
 

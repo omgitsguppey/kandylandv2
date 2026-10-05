@@ -6,8 +6,8 @@ import { type ComponentProps, type ReactNode } from "react";
 
 import { PlatformEconomyStrip } from "@/app/admin/economy/components/PlatformEconomyStrip";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { Card, CardContent } from "@/components/creative-tim/ui/card";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { EconomySliceState, EconomyWarningSummary, PlatformEconomyDashboardState } from "@/app/admin/economy/components/types";

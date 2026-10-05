@@ -18,6 +18,8 @@ This command runs `scripts/agent/run-ast-grep-rules.ts`, which uses `@ast-grep/n
 - `kd-no-unapproved-setinterval`: flags `setInterval` in shell, chat, and preview files unless a narrow legacy context is explicitly whitelisted. Suggested fix: use deferred readiness, visibility, or one-shot timeout helpers.
 - `kd-no-duplicate-breakpoint-constants`: flags breakpoint-like constants outside `src/lib/device-layout-contract.ts`. Suggested fix: import or extend the canonical device layout contract.
 
+- `kd-no-hardcoded-color-literals`: flags hex color literals (`#[0-9a-fA-F]{3,8}` with a trailing word boundary) in `src/**/*.ts` and `src/**/*.tsx`; `src/app/globals.css` is excluded. Suggested fix: replace with a semantic Tailwind utility projected from `src/app/globals.css` theme tokens.
+
 ## Output Contract
 
 Every finding prints:

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Lock } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { usePageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { SignedInLibraryCollectionWall } from "@/components/creative-tim/kandydrops/signed-in/SignedInLibraryCollectionWall";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";

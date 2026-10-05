@@ -4,8 +4,8 @@ import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import Link from "next/link";
 import { ChevronRight, type LucideIcon } from "lucide-react";
 
-import { Card } from "@/components/creative-tim/ui/card";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { Card } from "@/components/ui/card";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { cn } from "@/lib/utils";
 
 type KandySettingsPanelProps = {

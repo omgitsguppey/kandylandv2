@@ -6,8 +6,8 @@ import NextImage from "next/image";
 import { Clock, Eye, Image as ImageIcon, Unlock } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/creative-tim/ui/card";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
 import { DROP_COUNTDOWN_ONE_DAY_MS, DROP_COUNTDOWN_ONE_HOUR_MS, formatDropCountdown, type DropCountdownUrgency } from "@/lib/drop-countdown";

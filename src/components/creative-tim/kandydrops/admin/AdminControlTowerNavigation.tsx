@@ -7,7 +7,7 @@ import {
     Terminal, TrendingUp, Users, type LucideIcon,
 } from "lucide-react";
 
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { KandyBrandMark } from "@/components/creative-tim/kandydrops/navigation/KandyNavigationPrimitives";
 import { cn } from "@/lib/utils";
 

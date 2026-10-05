@@ -324,6 +324,19 @@ function collectFindings() {
     });
   }
 
+  for (const filePath of walkSourceFiles("src")) {
+    if (filePath === "src/app/globals.css" || !/\.tsx?$/u.test(filePath)) continue;
+    const file = readIfExists(filePath);
+    if (!file) continue;
+    findRegex(findings, file, /#[0-9a-fA-F]{3,8}\b/gu, {
+      ruleId: "kd-no-hardcoded-color-literals",
+      category: "theming",
+      severity: "major",
+      title: "Hardcoded hex color literals are not allowed in components; use semantic theme tokens.",
+      suggestedFix: "Replace with a semantic Tailwind utility projected from src/app/globals.css theme tokens.",
+    });
+  }
+
   return dedupeFindings(findings);
 }
 
@@ -350,6 +363,7 @@ function validateRuleLayerConfig() {
   const docs = readText("docs/agent-truth/ast-grep-rules.md");
   const requiredRuleIds = [
     "kd-no-100vh-public-shell",
+    "kd-no-hardcoded-color-literals",
     "kd-no-hardcoded-safe-area-bottom",
     "kd-no-shell-translate-or-negative-margin",
     "kd-no-locked-preview-content-url",
@@ -407,4 +421,4 @@ if (findings.length > 0) {
 }
 
 console.log("Ast-grep source rule checks passed.");
-console.log("Rules checked: viewport, safe-area, shell positioning, locked preview protection, hot-handler diagnostics, intervals, breakpoints.");
+console.log("Rules checked: viewport, safe-area, shell positioning, locked preview protection, hot-handler diagnostics, intervals, breakpoints, theming.");

@@ -4,8 +4,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/creative-tim/ui/input";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 import type { Drop } from "@/types/db";
 import { trackEvent } from "@/lib/telemetry";

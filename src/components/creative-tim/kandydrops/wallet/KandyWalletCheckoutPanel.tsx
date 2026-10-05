@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 
 export interface KandyWalletCheckoutReviewProps {
     selectedAmount: number;

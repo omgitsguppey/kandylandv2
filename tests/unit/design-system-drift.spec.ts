@@ -24,11 +24,11 @@ describe("design system drift launch contracts", () => {
   it("keeps drop and preview badges contained without fake interactive affordance", () => {
     const dropCardParts = read("src/components/DropCardParts.tsx");
     const previewView = read("src/components/Drops/LockedDropPreviewView.tsx");
-    const badge = read("src/components/creative-tim/ui/badge.tsx");
+    const badge = read("src/components/ui/badge.tsx");
 
     expect(dropCardParts).toContain("LAUNCH_BADGE_CONTAINMENT_CLASSNAME");
     expect(dropCardParts).toContain("LAUNCH_STATIC_BADGE_CLASSNAME");
-    expect(previewView).toContain('from "@/components/creative-tim/ui/badge"');
+    expect(previewView).toContain('from "@/components/ui/badge"');
     expect(previewView).toContain("<Badge");
     expect(badge).toContain("overflow-hidden");
     expect(badge).toContain("asChild = false");

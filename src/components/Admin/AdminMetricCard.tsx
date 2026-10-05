@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";

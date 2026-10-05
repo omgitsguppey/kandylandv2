@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";

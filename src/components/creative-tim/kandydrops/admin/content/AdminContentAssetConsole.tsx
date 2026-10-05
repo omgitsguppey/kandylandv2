@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useMemo, useState, type ChangeEvent } from "react";
 import {
     Copy,

@@ -37,3 +37,9 @@ rules:
     severity: moderate
     scope: src and scripts source files outside src/lib/device-layout-contract.ts
     suggestedFix: Import or extend the canonical breakpoint contract instead of defining local breakpoint constants.
+  - id: kd-no-hardcoded-color-literals
+    category: theming
+    severity: major
+    scope: src/**/*.ts and src/**/*.tsx; excludes src/app/globals.css
+    title: "Hardcoded hex color literals are not allowed in components; use semantic theme tokens."
+    suggestedFix: Replace with a semantic Tailwind utility projected from src/app/globals.css theme tokens.

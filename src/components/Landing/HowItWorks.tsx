@@ -1,7 +1,7 @@
 import { Eye, Heart, Lock } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { DeferredHomeActiveDropsCarousel } from "@/components/Landing/DeferredHomeActiveDropsCarousel";
 import { HomeHowItWorksActions } from "@/components/Landing/HomeHowItWorksActions";
 import type { Drop } from "@/types/db";

@@ -6,7 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import { Activity, BarChart3, Info, ListTree, Table2 } from "lucide-react";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { resolveAdminAnalyticsBadgeLabel } from "@/lib/admin-analytics-contracts";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";

@@ -1,5 +1,5 @@
 import { Activity, DollarSign, Loader2, Monitor, Smartphone, Users } from "lucide-react";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { ADMIN_ANALYTICS_DEFAULT_RANGE, ADMIN_ANALYTICS_RANGE_OPTIONS } from "@/lib/admin-analytics-preferences";
 import type { 

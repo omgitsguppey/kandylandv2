@@ -2,7 +2,7 @@
 
 /* SPDX-License-Identifier: MIT
  * Adapted from shadcn/ui's official new-york-v4 Dialog registry component.
- * Copyright (c) 2023 shadcn; full notice is retained in this directory's LICENSE.md.
+ * Copyright (c) 2023 shadcn; full notice is retained in ../../ui/LICENSE.md.
  * Source: https://ui.shadcn.com/r/styles/new-york-v4/dialog.json
  * Installed Radix imports, shared Button and bounded viewport sizing are local adaptations.
  */
@@ -33,7 +33,7 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      className={cn("fixed inset-0 z-[60] bg-black/60", className)}
+      className={cn("fixed inset-0 z-[60] bg-scrim", className)}
       {...props}
     />
   );

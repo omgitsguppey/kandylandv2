@@ -112,7 +112,7 @@ const importedName = (tree: ts.SourceFile, moduleName: string, exportName: strin
   }
   return undefined;
 };
-const metricCardName = importedName(metricAst, "@/components/creative-tim/ui/card", "Card");
+const metricCardName = importedName(metricAst, "@/components/ui/card", "Card");
 const metricBadgeName = importedName(metricAst, "@/components/Admin/AdminStatusBadge", "AdminStatusBadge");
 function inspectMetric(child: ts.Node) {
   if (ts.isJsxExpression(child) && child.expression?.getText(metricAst) === "value") metricValueBound = true;

@@ -7,7 +7,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/creative-tim/ui/input";
+import { Input } from "@/components/ui/input";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import type { ActivityItem } from "@/components/Dashboard/RecentActivityFeed";
 import { getTransactionDisplayLabel } from "@/lib/transaction-normalizers";

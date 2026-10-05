@@ -3,7 +3,7 @@ import Link from "next/link";
 import NextImage from "next/image";
 import { CheckCircle2, Download, Eye, Loader2, ShoppingBag, ThumbsDown, ThumbsUp } from "lucide-react";
 
-import { Card, CardContent } from "@/components/creative-tim/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ViewerDetailCanvas } from "@/components/creative-tim/kandydrops/viewer/ViewerDetailCanvas";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { cn } from "@/lib/utils";

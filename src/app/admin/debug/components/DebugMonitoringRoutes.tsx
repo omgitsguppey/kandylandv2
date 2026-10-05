@@ -1,7 +1,7 @@
 "use client";
 
 import { Pill, ScrollWrap } from "./DebugPrimitives";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
     ADMIN_DEBUG_ROUTE_RUNTIME_FILTER_OPTIONS,
     type AdminDebugRouteRuntimeFilter,

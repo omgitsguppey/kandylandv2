@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 
 export default function DropPreviewLoading() {
     return (

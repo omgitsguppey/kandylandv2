@@ -203,12 +203,12 @@ describe("accessibility tap target launch contracts", () => {
         const analytics = read("src/app/admin/analytics/page.tsx");
         const debug = read("src/app/admin/debug/page.tsx");
         const canvas = read("src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx");
-        const select = read("src/components/creative-tim/ui/native-select.tsx");
+        const select = read("src/components/ui/native-select.tsx");
         const dropdown = read("src/components/Navigation/AdminDropdown.tsx");
         const menu = read("src/components/creative-tim/kandydrops/navigation/KandyAdminMenuSurface.tsx");
         const filter = read("src/components/StickyFilterBar.tsx");
 
-        expect(analytics).toContain("from \"@/components/creative-tim/ui/native-select\"");
+        expect(analytics).toContain("from \"@/components/ui/native-select\"");
         expect(analytics).toContain("Evidence lens");
         expect(analytics).toContain("value={activeTab}");
         expect(analytics).toContain("onChange={(event) => setActiveTab(event.target.value as typeof activeTab)}");
@@ -230,7 +230,7 @@ describe("accessibility tap target launch contracts", () => {
         expect(debug).toContain("onTabChange={(tabId) => handleActiveTabChange(tabId as DebugTabId)}");
         expect(debug).toContain("setActiveTab(nextTab)");
         expect(debug).toContain("persistDebugPreferences({ activeTab: nextTab })");
-        expect(canvas).toContain("from \"@/components/creative-tim/ui/native-select\"");
+        expect(canvas).toContain("from \"@/components/ui/native-select\"");
         expect(canvas).toContain("<NativeSelect");
         expect(canvas).toContain("value={activeTab}");
         expect(canvas).toContain("onChange={(event) => onTabChange(event.target.value)}");
@@ -343,9 +343,9 @@ describe("accessibility tap target launch contracts", () => {
         }
         expectSharedButtonTouchSizes(button);
         const stickyFilterBar = read("src/components/StickyFilterBar.tsx");
-        expect(stickyFilterBar).toContain('from "@/components/creative-tim/ui/input"');
+        expect(stickyFilterBar).toContain('from "@/components/ui/input"');
         expect(stickyFilterBar).toContain('<Input type="search"');
-        const filterInput = read("src/components/creative-tim/ui/input.tsx");
+        const filterInput = read("src/components/ui/input.tsx");
         expect(filterInput).toContain("min-h-11 w-full min-w-0");
         expect(stickyFilterBar).toContain('from "@/components/ui/Button"');
         expect(stickyFilterBar).toContain('size="sm"');

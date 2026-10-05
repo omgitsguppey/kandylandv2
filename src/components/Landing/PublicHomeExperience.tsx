@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/creative-tim/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Drop } from "@/types/db";
 
 import { PublicHomeActions } from "./PublicHomeActions";

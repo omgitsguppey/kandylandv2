@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, Candy, PiggyBank, Sparkles } from "lucide-react";
-import { Card, CardContent } from "@/components/creative-tim/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import type { PlatformEconomyTreasurySummary } from "@/lib/platform-economy";
 import type { EconomyWarningSummary } from "./types";
 

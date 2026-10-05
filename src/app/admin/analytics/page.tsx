@@ -13,8 +13,8 @@ import {
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminAnalyticsEvidenceCanvas } from "@/components/creative-tim/kandydrops/admin-analytics/AdminAnalyticsEvidenceCanvas";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
-import { Card } from "@/components/creative-tim/ui/card";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 import type {
   AdminAnalyticsConsumerDisplayState,

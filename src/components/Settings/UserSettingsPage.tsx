@@ -13,7 +13,7 @@ import {
   KandyProfilePanel,
   KandySupportSafetyPanel,
 } from "@/components/creative-tim/kandydrops/account/AccountSettingsPanels";
-import { Card, CardContent } from "@/components/creative-tim/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/Button";
 import { useAuthLoading } from "@/context/AuthContext";
 import { CREATOR_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";

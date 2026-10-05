@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 
 type CreatorDashboardGlassFrameProps = {
     children: ReactNode;

@@ -47,8 +47,22 @@ These are the accepted design target, not evidence that every route has migrated
 
 - `src/components/ui/**`, shared navigation primitives, shared cards, buttons, chips, tabs, inputs, loaders, and base motion tokens.
 
+## Theme Variant System (binding, 2026-10-05, owner directive)
+
+Theming is a first-class token/variant system. Cosmetic themes and badges will be sold as microtransactions later; that must work without rework. Every color, surface, material, and border decision flows through CSS custom properties owned by `src/app/globals.css`. Components consume only the semantic Tailwind utilities projected by the `@theme inline` block. A future theme is a pure token-variant swap: zero component changes.
+
+- **Variant scopes.** `:root` carries the default `kandy-dark` token values; additional variants are declared as `[data-theme="<variant>"]` scopes overriding only semantic tokens (set via `document.documentElement.dataset.theme`). Components never branch on theme: no per-component theme logic, and the Tailwind `dark:` variant is banned in component class strings — variant behavior lives only in token scopes.
+- **Legacy palette bridge.** Widely-used Tailwind palette ramps are aliased to semantic tokens in `@theme` so existing utilities become token-driven with zero component edits. Alias map (documented here, enforced by review):
+  - Neutrals: gray/zinc/slate-100/200 → `--foreground`; gray/zinc/slate-300/400/500 → `--muted-foreground`; slate/zinc-950, purple-950, fuchsia-950 → `--background`; slate/zinc-900, gray-900 → `--card`; zinc-800, slate-700/600, gray-600 → `--secondary`.
+  - Red ramp → `--destructive`; amber/orange/yellow ramps → `--warning`; emerald/green ramps → `--success`; cyan/sky/blue/indigo ramps → `--info`. Pale brand tints stay pale and saturated brand accents stay saturated: pink-400/500 → `--brand-pink`; pink-50/100/200/300 → `--brand-pink-soft`; purple-400/500, violet-400/500, fuchsia-400/500/600 → `--primary`; purple-50/100/200/300, violet-100/300, fuchsia-50/100/200/300 → `--focus-ring`.
+  - New code must use semantic utilities directly (`text-muted-foreground`, `bg-destructive`, …), never palette ramps. The bridge exists to migrate, not to extend.
+- **Badge tones on tokens.** Badge variants (`default`, `secondary`, `destructive`, `outline`, `success`, `warning`, `info`) reference semantic tokens only, including dedicated `--success-foreground`, `--warning-foreground`, `--info-foreground` tokens. Future paid cosmetic badge tones are new token sets, never new component logic.
+- **Overlay token.** Modal/scrim surfaces use `--scrim`, not hardcoded black.
+- **Primitive-first.** Never freehand UI: compose only from owned shared primitives (`src/components/ui/*`, licensed shadcn-derived sources adopted there with provenance). No bespoke one-off screens, no one-off component variants. If a slice needs a primitive that does not exist, create the shared primitive first (token-driven, 44px interactive targets, no business logic), then consume it.
+
 ## Validators
 
 - `check:surface-doctrine-split`
 - `check:design-system-drift`
 - `check:accessibility-tap-targets`
+- `kd-no-hardcoded-color-literals` (ast-grep: no hex/rgb/hsl literals in ts/tsx outside `src/app/globals.css`)

@@ -23,7 +23,7 @@ import { BehavioralVerdictCard } from "@/components/Admin/BehavioralVerdictCard"
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminUserDetailMasthead, AdminUsersOperations } from "@/components/creative-tim/kandydrops/admin-users/AdminUsersOperations";
-import { NativeSelect } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
     buildEngagementBehavioralExplanation,
     buildRecommendationBehavioralExplanation,

@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Clock, Eye, Image as ImageIcon, Loader2, Lock, Share2, Unlock, Wallet } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import type {

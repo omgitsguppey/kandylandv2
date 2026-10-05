@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 import { useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";

@@ -204,7 +204,7 @@ function walletStableMarkersPresent(source: string, frame: string) {
 
 function libraryStableLoadingPresent(source: string) {
   const tree = sourceTree(source);
-  const card = importedName(tree, "@/components/creative-tim/ui/card", "Card");
+  const card = importedName(tree, "@/components/ui/card", "Card");
   return containsNode(tree, (node) => ts.isIfStatement(node)
     && containsNode(node.expression, (part) => ts.isIdentifier(part) && part.text === "authLoading")
     && containsNode(node.thenStatement, (part) => namedJsx(part, card)

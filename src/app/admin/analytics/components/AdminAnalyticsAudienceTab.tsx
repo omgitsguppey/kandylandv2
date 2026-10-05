@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/creative-tim/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   Activity, FileText, MapPin, Route, Smartphone, Users,
 } from "lucide-react";

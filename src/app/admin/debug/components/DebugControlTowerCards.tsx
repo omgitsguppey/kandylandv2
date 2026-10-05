@@ -2,8 +2,8 @@
 
 import { ChevronDown, DollarSign, LayoutGrid, LifeBuoy, Radar, ShieldCheck, Signal, type LucideIcon } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { resolvePublicBetaCapDetailForAdmin } from "@/lib/agent-score/formal-gate-display";
 import type { AdminDebugControlTowerSection, AdminDebugFindingCard, AdminDebugLiveIssueCard, AdminDebugReportCard, AdminDebugSeverity, AdminDebugTruthState, AdminDebugNextAction } from "@/lib/admin-debug-control-tower";

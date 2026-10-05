@@ -7,7 +7,7 @@ import { AdminEvidenceMediaPreview } from "@/components/Admin/AdminEvidenceMedia
 import { AdminModerationSecurityAlerts } from "@/components/Admin/AdminModerationSecurityAlerts";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useAdminModerationRealtime } from "@/hooks/useAdminModerationRealtime";
 import { buildAdminModerationControlTowerModel } from "@/lib/admin-moderation-control-tower";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
