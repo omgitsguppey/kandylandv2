@@ -3,6 +3,7 @@
 import { ChevronDown, ChevronUp, Clock, Flame, LayoutGrid, Search, Sparkles, Tag } from "lucide-react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/Button";
 import { SEARCH_COST_POLICY } from "@/lib/discovery/search-cost-contract";
@@ -42,7 +43,8 @@ export default function StickyFilterBar({ categories, selectedCategory, onSelect
         : categories.filter((category, index) => index < COLLAPSED_CATEGORY_COUNT || category === selectedCategory);
 
     return (
-        <div className="grid min-w-0 gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))]" data-drops-filter-bar="creative-tim-editorial">
+        <Card className="py-0" data-drops-filter-bar="creative-tim-editorial">
+            <CardContent className="grid min-w-0 gap-5 p-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
             <label className="block min-w-0 space-y-2">
                 <span className="text-sm font-medium">Search Drops</span>
                 <span className="relative block min-w-0">
@@ -50,7 +52,9 @@ export default function StickyFilterBar({ categories, selectedCategory, onSelect
                     <Input type="search" inputMode="search" enterKeyHint="search" autoComplete="off" placeholder="Search the collection" value={localSearch} onChange={handleSearchChange} onFocus={onSearchFocus} className="pl-10" />
                 </span>
             </label>
-            <div className="flex min-w-0 flex-wrap items-end gap-2" aria-label="Drop filters">
+            <div className="min-w-0 space-y-2">
+                <p className="text-sm font-medium text-foreground">Categories</p>
+                <div className="flex min-w-0 flex-wrap items-end gap-2" aria-label="Drop filters">
                 {visibleCategories.map((category) => {
                     const Icon = icons[category] || Tag;
                     const isSelected = selectedCategory === category;
@@ -71,7 +75,9 @@ export default function StickyFilterBar({ categories, selectedCategory, onSelect
                         {isExpanded ? <ChevronUp className="h-4 w-4 shrink-0" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />}
                     </Button>
                 ) : null}
+                </div>
             </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 }

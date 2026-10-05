@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ContentFrame, ContentSection, SectionHeader } from "@/components/ui/content-layout";
 import type { Drop } from "@/types/db";
 
 import { PublicHomeActions } from "./PublicHomeActions";
@@ -28,44 +28,27 @@ export function PublicHomeExperience({ activeDrops, initialCreators }: PublicHom
                 className="border-b border-border"
                 aria-labelledby="home-title"
             >
-                <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:py-16">
+                <ContentFrame className="grid items-start gap-10 [grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr))]">
                     <div className="max-w-xl space-y-6">
-                        <div className="space-y-4">
-                            <h1 id="home-title" className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                                Unwrap your KandyDrops
-                            </h1>
-                            <p className="max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                                Discover limited Drops from creators you care about. Keep every one you unwrap in your collection.
-                            </p>
-                        </div>
+                        <SectionHeader level={1} headingId="home-title" title="Unwrap your KandyDrops" description="Discover limited Drops from creators you care about. Keep every one you unwrap in your collection." />
                         <PublicHomeActions />
                     </div>
 
-                    <Card
-                        data-home-featured-state={featuredDrop ? "available" : "empty"}
-                        className="min-w-0 gap-4 py-4 shadow-none sm:py-6"
-                    >
-                        <CardHeader className="px-4 sm:px-6">
-                            <CardTitle>
-                                <h2 className="text-lg font-semibold text-foreground">Featured Drop</h2>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="px-4 sm:px-6">
-                            <PublicDropShelf
-                                drops={featuredDrop ? [featuredDrop] : []}
-                                presentation="feature"
-                            />
-                        </CardContent>
-                    </Card>
-                </div>
+                    <ContentSection data-home-featured-state={featuredDrop ? "available" : "empty"} aria-label="Featured Drop">
+                        <SectionHeader title="Featured Drop" />
+                        <PublicDropShelf drops={featuredDrop ? [featuredDrop] : []} presentation="feature" />
+                    </ContentSection>
+                </ContentFrame>
             </section>
 
             <section
                 data-home-section="creator-spotlight"
                 data-home-density="content-first"
-                className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8"
+                className="min-w-0"
             >
-                <CreatorDiscoveryRail surface="home" initialCreators={initialCreators} />
+                <ContentFrame>
+                    <CreatorDiscoveryRail surface="home" initialCreators={initialCreators} />
+                </ContentFrame>
             </section>
 
             <PublicDropShelf drops={remainingDrops} presentation="shelf" />

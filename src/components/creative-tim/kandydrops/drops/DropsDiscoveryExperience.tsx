@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { ContentFrame, ContentSection, SectionHeader } from "@/components/ui/content-layout";
 
 interface DropsDiscoveryExperienceProps {
     activeDropCount: number;
@@ -35,40 +36,30 @@ export function DropsDiscoveryExperience({
         : `${activeDropCount} loaded ${activeDropCount === 1 ? "release" : "releases"}`;
 
     return (
-        <main
-            className="mx-auto min-w-0 w-full max-w-7xl space-y-8 px-4 pb-8 pt-[calc(var(--kandy-cookie-offset,0px)+0.5rem)] text-foreground"
-            data-onboarding-page="drops"
-            data-drops-page-density="creative-tim-editorial"
-            data-drop-visibility-scope="public_discovery"
-        >
-            <header className="flex min-w-0 flex-wrap items-start justify-between gap-5">
-                <div className="min-w-0 flex-1 basis-72">
-                    <h1 className="text-3xl font-semibold tracking-tight [overflow-wrap:anywhere]">Explore the Drops</h1>
-                    <p className="mt-2 text-base leading-relaxed text-muted-foreground">Explore the collection and the creators behind each release.</p>
-                    <p className="mt-2 text-sm text-muted-foreground">{releaseLabel}</p>
+        <main data-onboarding-page="drops" data-drops-page-density="creative-tim-editorial" data-drop-visibility-scope="public_discovery" className="text-foreground">
+            <ContentFrame className="space-y-12 pt-[calc(var(--kandy-cookie-offset,0px)+2rem)]">
+                <div className="grid min-w-0 items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr))]">
+                    <SectionHeader level={1} title="Explore the Drops" description="Explore the collection and the creators behind each release." accessory={releaseLabel} />
+                    <div className="min-w-0" aria-label="Your KandyDrops account">{accountOverview}</div>
                 </div>
-                <div className="min-w-0 max-w-full flex-1 basis-72" aria-label="Your KandyDrops account">{accountOverview}</div>
-            </header>
 
-            <section aria-label="Search and filter Drops" className="min-w-0">{filters}</section>
+                {featuredRelease ? (
+                    <ContentSection aria-label="Featured KandyDrops">
+                        <SectionHeader title="Featured Drops" />
+                        {featuredRelease}
+                    </ContentSection>
+                ) : null}
 
-            {featuredRelease ? (
-                <section aria-label="Featured KandyDrops" className="min-w-0 space-y-4">
-                    <h2 className="text-xl font-semibold tracking-tight">Featured Drops</h2>
-                    {featuredRelease}
-                </section>
-            ) : null}
+                <ContentSection aria-label="Search and filter Drops">{filters}</ContentSection>
 
-            <section id="live-drops" className="min-w-0 scroll-mt-24 space-y-4" aria-labelledby="live-drops-heading">
-                <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-3">
-                    <h2 id="live-drops-heading" className="min-w-0 text-2xl font-semibold tracking-tight [overflow-wrap:anywhere]">{collectionTitle}</h2>
-                    <p className="text-sm text-muted-foreground">{visibleDropCount} {visibleDropCount === 1 ? "loaded Drop" : "loaded Drops"}</p>
-                </div>
-                {collection}
-                {pagination}
-            </section>
+                <ContentSection id="live-drops" aria-labelledby="live-drops-heading">
+                    <SectionHeader headingId="live-drops-heading" title={collectionTitle} accessory={`${visibleDropCount} ${visibleDropCount === 1 ? "loaded Drop" : "loaded Drops"}`} />
+                    {collection}
+                    {pagination}
+                </ContentSection>
 
-            {creatorRail ? <section className="min-w-0" aria-label="Featured creators">{creatorRail}</section> : null}
+                {creatorRail ? <ContentSection aria-label="Featured creators">{creatorRail}</ContentSection> : null}
+            </ContentFrame>
         </main>
     );
 }
