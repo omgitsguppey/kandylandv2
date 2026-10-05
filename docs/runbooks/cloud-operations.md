@@ -52,3 +52,4 @@ For PayPal, the owner completes sign-in/MFA and final credential-generation/revo
 ## Completion / recovery boundary
 
 Admin sign-in and user listing worked in a live desktop browser. Overview data was unavailable and user metrics stale; promotion, actual phone operation, staging, completed-backup restore, secret migration and the PC-off test remain unverified. The local preview launcher is not retired. This draft does not certify portable operation. Final acceptance requires the PC powered off while the owner deploys through GitHub, completes a reversible admin action, and loads the site from the phone.
+<!-- CI event-delivery probe 2026-10-04 -->
