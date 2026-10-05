@@ -51,3 +51,28 @@ export function DetailGroup({ title, children, className, ...props }: ComponentP
 export function StickyActionDock({ className, ...props }: ComponentProps<"div">) {
     return <div className={cn("navigation-material sticky z-30 mt-8 min-w-0 rounded-2xl p-3 md:p-4", className)} {...props} />;
 }
+
+/** One opaque boundary for a collection; row dividers carry the hierarchy. */
+export function GroupedList({ className, ...props }: ComponentProps<"div">) {
+    return <div className={cn("min-w-0 overflow-hidden rounded-2xl bg-card text-card-foreground divide-y divide-border", className)} {...props} />;
+}
+
+export function GroupedRow({ className, ...props }: ComponentProps<"article">) {
+    return <article className={cn("flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4", className)} {...props} />;
+}
+
+/** Values and labels are caller-owned; this primitive has no balance math. */
+export function ValuePair({ values, className, ...props }: ComponentProps<"dl"> & {
+    values: readonly { label: string; value: ReactNode }[];
+}) {
+    return (
+        <dl className={cn("grid min-w-0 grid-cols-2 divide-x divide-border rounded-2xl bg-card text-card-foreground", className)} {...props}>
+            {values.map(({ label, value }) => (
+                <div key={label} className="min-w-0 px-4 py-3">
+                    <dt className="text-xs text-muted-foreground">{label}</dt>
+                    <dd className="mt-1 break-words text-2xl font-semibold tracking-tight tabular-nums text-foreground md:text-3xl">{value}</dd>
+                </div>
+            ))}
+        </dl>
+    );
+}

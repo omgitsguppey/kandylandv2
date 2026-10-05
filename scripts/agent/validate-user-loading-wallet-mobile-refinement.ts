@@ -85,6 +85,7 @@ const forbiddenRuntimePatterns = [
 
 const targetFiles = [
   "src/components/PurchaseModal.tsx",
+  "src/hooks/useWalletPurchase.ts",
   "src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx",
   "src/app/dashboard/DashboardClient.tsx",
   "src/app/dashboard/library/LibraryClient.tsx",
@@ -246,7 +247,7 @@ function dashboardModulesPreserved(source: string) {
 export function buildUserLoadingWalletMobileRefinementReport(
   inputs: UserLoadingWalletMobileRefinementInputs,
 ): UserLoadingWalletMobileRefinementReport {
-  const purchaseModal = inputs.sources.files["src/components/PurchaseModal.tsx"] ?? "";
+  const purchaseModal = (inputs.sources.files["src/components/PurchaseModal.tsx"] ?? "") + (inputs.sources.files["src/hooks/useWalletPurchase.ts"] ?? "");
   const walletFrame = inputs.sources.files["src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx"] ?? "";
   const dashboard = inputs.sources.files["src/app/dashboard/DashboardClient.tsx"] ?? "";
   const library = inputs.sources.files["src/app/dashboard/library/LibraryClient.tsx"] ?? "";

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
+import { ContentSection } from "@/components/ui/content-layout";
 
 export interface KandyWalletCheckoutReviewProps {
     selectedAmount: number;
@@ -21,11 +22,11 @@ export interface KandyWalletPurchaseSequenceProps {
 
 export function KandyWalletPurchaseSequence({ selection, review, provider }: KandyWalletPurchaseSequenceProps) {
     return (
-        <div className="grid gap-4" data-wallet-purchase-path="three-stage" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
-            <section className="grid gap-3" data-wallet-purchase-slot="selection">{selection}</section>
-            <section data-wallet-purchase-slot="review">{review}</section>
-            <section data-wallet-purchase-slot="provider">{provider}</section>
-        </div>
+        <ContentSection className="grid gap-4 space-y-0" data-wallet-purchase-path="three-stage" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
+            <ContentSection className="grid gap-3 space-y-0" data-wallet-purchase-slot="selection">{selection}</ContentSection>
+            <ContentSection data-wallet-purchase-slot="review">{review}</ContentSection>
+            <ContentSection data-wallet-purchase-slot="provider">{provider}</ContentSection>
+        </ContentSection>
     );
 }
 
