@@ -967,7 +967,7 @@
         "@vitest/coverage-v8": "^4.1.10",
         "chrome-launcher": "^1.2.1",
         "cross-env": "^10.1.0",
-        "cypress": "^15.13.1",
+        "cypress": "^16.1.1",
         "dependency-cruiser": "^17.3.10",
         "esbuild": "^0.27.7",
         "eslint": "^9.21.0",
