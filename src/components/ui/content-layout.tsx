@@ -32,3 +32,22 @@ export function SectionHeader({ title, description, accessory, headingId, level 
 export function ContentGrid({ className, ...props }: ComponentProps<"div">) {
     return <div className={cn("grid min-w-0 items-stretch gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]", className)} {...props} />;
 }
+
+/** Intrinsic two-column detail composition; no viewport state or fetching. */
+export function DetailLayout({ className, ...props }: ComponentProps<"div">) {
+    return <div className={cn("grid min-w-0 items-start gap-8 md:grid-cols-2 md:gap-10", className)} {...props} />;
+}
+
+export function DetailGroup({ title, children, className, ...props }: ComponentProps<"section"> & { title: string }) {
+    return (
+        <section aria-label={title} className={cn("min-w-0 space-y-3 border-b border-border pb-6 last:border-b-0", className)} {...props}>
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
+            {children}
+        </section>
+    );
+}
+
+/** Caller supplies the shell-owned clearance; this primitive owns material only. */
+export function StickyActionDock({ className, ...props }: ComponentProps<"div">) {
+    return <div className={cn("navigation-material sticky z-30 mt-8 min-w-0 rounded-2xl p-3 md:p-4", className)} {...props} />;
+}

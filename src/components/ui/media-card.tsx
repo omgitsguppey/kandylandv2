@@ -28,3 +28,8 @@ export function MediaCard({ cover, title, description, children, footer, ...prop
 export function MediaPreview({ className, style, ...props }: ComponentProps<"button"> & { style?: CSSProperties }) {
     return <button type="button" {...props} style={style} className={cn(buttonVariants({ variant: "ghost" }), "relative block min-h-11 w-full overflow-hidden rounded-none bg-muted p-0 text-left focus-visible:ring-inset focus-visible:ring-offset-0", className)} />;
 }
+
+/** Noninteractive media container for safe covers and loading placeholders. */
+export function MediaCover({ className, ...props }: ComponentProps<"div">) {
+    return <div className={cn("relative aspect-square w-full overflow-hidden rounded-2xl bg-muted", className)} {...props} />;
+}

@@ -43,7 +43,7 @@ const DROP_GRID_INTRINSIC_SIZES = "auto, 80rem";
 const FEATURED_INTRINSIC_LAZY_SIZES = "auto, 40rem";
 const FEATURED_INTRINSIC_EAGER_SIZES = "min(100vw, 40rem)";
 const FEATURED_CAROUSEL_SIZES = "(max-width: 840px) 100vw, 720px";
-const DROP_PREVIEW_SIZES = "(max-width: 600px) 64vw, 320px";
+const DROP_PREVIEW_SIZES = "(max-width: 767px) calc(100vw - 2rem), (max-width: 1024px) calc((100vw - 5.5rem) / 2), 468px";
 const VIEWER_CONTENT_SIZES = "100vw";
 
 const BASE_SURFACE_POLICIES: Record<ImageLoadingSurface, Omit<ImageLoadingPolicy, "surface">> = {

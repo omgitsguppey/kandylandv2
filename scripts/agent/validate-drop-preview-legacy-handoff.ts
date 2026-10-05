@@ -54,6 +54,7 @@ const dropsPage = readRequired("src/app/drops/page.tsx");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
 const dropCard = readRequired("src/components/DropCard.tsx");
 const featuredCarousel = readRequired("src/components/FeaturedCarousel.tsx");
+const featuredDropSlide = readRequired("src/components/FeaturedDropSlide.tsx");
 const creatorProfile = readRequired("src/app/creators/[username]/CreatorProfileClient.tsx");
 const dropGrid = readRequired("src/components/DropGrid.tsx");
 const packageJson = readRequired("package.json");
@@ -169,7 +170,7 @@ requireIncludes(
 );
 requireNotIncludes(dropsClient, "DropPreviewModal", "DropsClient canonical preview ownership");
 requireIncludes(dropCard, 'onPreview(drop, "compact_drop_card")', "DropCard preview source handoff");
-requireIncludes(featuredCarousel, 'onSelectDrop(drop, "compact_featured_carousel")', "Featured preview source handoff");
+requireIncludes(featuredDropSlide, 'onSelectDrop(drop, "compact_featured_carousel")', "Featured preview source handoff");
 requireIncludes(
   creatorProfile,
   "router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=creator_profile_drop_grid`)",
