@@ -1,3 +1,5 @@
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -118,7 +120,7 @@ export function AdminAnalyticsEventMixSection({
           data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
         >
           <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Ranked event activity
             </p>
             <span className="text-xs text-muted-foreground">
@@ -135,14 +137,14 @@ export function AdminAnalyticsEventMixSection({
                 >
                   <defs>
                     <linearGradient id="eventMixCountFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#c084fc" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#c084fc" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <CartesianGrid stroke="var(--border)" vertical={false} />
                   <XAxis
                     dataKey="displayLabel"
-                    stroke="#6b7280"
+                    stroke="var(--muted-foreground)"
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
@@ -150,23 +152,23 @@ export function AdminAnalyticsEventMixSection({
                     minTickGap={12}
                     height={30}
                   />
-                  <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} />
                   <Tooltip content={<AnalyticsTooltip />} />
-                  <Area type="monotone" dataKey="rawCount" name="Events" stroke="#c084fc" strokeWidth={2} fill="url(#eventMixCountFill)" />
+                  <Area type="monotone" dataKey="rawCount" name="Events" stroke="var(--primary)" strokeWidth={2} fill="url(#eventMixCountFill)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           ) : null}
 
           {eventMixModel.eventRows.length > 0 && eventMixViewMode === "table" ? (
-            <div
+            <TableScrollArea
               className="rounded-2xl bg-card overflow-x-auto"
               data-event-mix-table="compact"
               data-event-mix-source-mode={eventMixModel.eventMixSourceMode}
               data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
             >
-              <table className="min-w-full text-left text-xs">
-                <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              <DataTable className="min-w-full text-left text-xs">
+                <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-3 py-2 font-semibold">Event</th>
                     <th className="px-3 py-2 font-semibold">Count</th>
@@ -175,7 +177,7 @@ export function AdminAnalyticsEventMixSection({
                     <th className="px-3 py-2 font-semibold">Surface</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10 text-muted-foreground">
+                <tbody className="divide-y divide-border text-muted-foreground">
                   {eventMixModel.eventRows.map((item) => (
                     <tr
                       key={`event-mix-table-${item.eventKey}`}
@@ -194,8 +196,8 @@ export function AdminAnalyticsEventMixSection({
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              </DataTable>
+            </TableScrollArea>
           ) : null}
 
           {eventMixViewMode === "cards" ? (
@@ -207,7 +209,7 @@ export function AdminAnalyticsEventMixSection({
                     className="border-b border-border px-3 py-2"
                   >
                     <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-muted-foreground">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-secondary text-xs font-semibold text-muted-foreground">
                         {item.rank}
                       </span>
                       <div className="min-w-0">
@@ -215,13 +217,13 @@ export function AdminAnalyticsEventMixSection({
                           {item.displayLabel}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs text-muted-foreground">
+                          <span className="rounded border border-border bg-background/30 px-1.5 py-0.5 text-xs text-muted-foreground">
                             Category: {item.catalogCategory ?? "missing"} {item.catalogCategoryState === "inferred" ? "(catalog-inferred)" : item.catalogCategoryState === "verified" ? "(verified)" : ""}
                           </span>
-                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs text-muted-foreground">
+                          <span className="rounded border border-border bg-background/30 px-1.5 py-0.5 text-xs text-muted-foreground">
                             {item.actualSurface ? `Surface: ${item.actualSurface}` : eventMixMissingSurfaceLabel}
                           </span>
-                          <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs text-muted-foreground">
+                          <span className="rounded border border-border bg-background/30 px-1.5 py-0.5 text-xs text-muted-foreground">
                             {item.route ? `Route: ${item.route}` : eventMixMissingRouteLabel}
                           </span>
                         </div>
@@ -230,7 +232,7 @@ export function AdminAnalyticsEventMixSection({
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-bold text-brand-purple">
+                        <p className="text-xs font-semibold text-primary">
                           {eventMixCountLabel(item.rawCount)}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -238,9 +240,9 @@ export function AdminAnalyticsEventMixSection({
                         </p>
                       </div>
                     </div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
                       <div
-                        className="h-full rounded-full bg-brand-purple"
+                        className="h-full rounded-full bg-primary"
                         style={{
                           width: `${Math.max(4, Math.min(100, (item.share ?? 0) * 100))}%`,
                         }}

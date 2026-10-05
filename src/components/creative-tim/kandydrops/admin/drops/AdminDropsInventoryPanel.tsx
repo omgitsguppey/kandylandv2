@@ -1,5 +1,14 @@
 "use client";
 
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
+import { Surface } from "@/components/ui/content-layout";
+import { Button } from "@/components/ui/Button";
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
+
+
 import type { ReactNode } from "react";
 import { AdminDropCreationWorkstream } from "./AdminDropCreationWorkstream";
 
@@ -100,18 +109,18 @@ function InventorySelect({
 }) {
     return (
         <label className="flex min-w-0 flex-col gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{label}</span>
-            <select
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+            <NativeSelect
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
-                className="h-11 w-full rounded-xl border border-white/10 bg-black/35 px-3 text-sm font-medium text-white outline-none transition-colors focus:border-brand-purple/50 focus:ring-2 focus:ring-brand-purple/20"
+                className="h-11 w-full rounded-xl border border-border bg-background/35 px-3 text-sm font-medium text-foreground outline-none transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
             >
                 {options.map((option) => (
-                    <option key={option.value} value={option.value}>
+                    <NativeSelectOption key={option.value} value={option.value}>
                         {option.label}
-                    </option>
+                    </NativeSelectOption>
                 ))}
-            </select>
+            </NativeSelect>
         </label>
     );
 }
@@ -132,13 +141,13 @@ function InventoryActionButton({
     active?: boolean;
 }) {
     const toneClassName = tone === "danger"
-        ? "text-red-200 hover:border-red-400/30 hover:bg-red-500/10"
+        ? "text-destructive hover:border-destructive/30 hover:bg-destructive/10"
         : tone === "success"
-            ? "text-emerald-200 hover:border-emerald-400/30 hover:bg-emerald-500/10"
-            : "text-gray-200 hover:border-white/20 hover:bg-white/10";
+            ? "text-success hover:border-success/30 hover:bg-success/10"
+            : "text-foreground hover:border-border hover:bg-secondary";
 
     return (
-        <button
+        <Button variant="ghost"
             type="button"
             aria-label={label}
             title={label}
@@ -148,13 +157,13 @@ function InventoryActionButton({
                 onClick();
             }}
             className={cn(
-                "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/35 transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+                "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background/35 transition-colors disabled:cursor-not-allowed disabled:opacity-40",
                 toneClassName,
-                active ? "border-brand-purple/40 bg-brand-purple/15 text-brand-purple shadow-lg shadow-brand-purple/20" : null,
+                active ? "border-primary/40 bg-primary/15 text-primary shadow-lg shadow-brand-purple/20" : null,
             )}
         >
             <Icon className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
     );
 }
 
@@ -241,13 +250,13 @@ function DropActionCluster({
 
 function DropCover({ drop }: { drop: Drop }) {
     return (
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-lg shadow-black/20">
+        <Surface className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-border bg-card shadow-lg shadow-scrim/20">
             {drop.imageUrl ? (
-                <Image src={drop.imageUrl} alt={drop.title} fill sizes="48px" className="object-contain bg-black" />
+                <Image src={drop.imageUrl} alt={drop.title} fill sizes="48px" className="object-contain bg-background" />
             ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-black text-white">KD</div>
+                <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-foreground">KD</div>
             )}
-        </div>
+        </Surface>
     );
 }
 
@@ -255,12 +264,12 @@ function EmptyInventory({ totalDrops }: { totalDrops: number }) {
     const hasNoDrops = totalDrops === 0;
 
     return (
-        <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-black/20 px-6 text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-gray-500">
+        <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background/20 px-6 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-secondary text-muted-foreground">
                 <Package className="h-6 w-6" aria-hidden="true" />
             </div>
-            <p className="text-sm font-bold text-white">{hasNoDrops ? "No drops found yet" : "No drops match these filters"}</p>
-            <p className="mt-2 max-w-md text-sm text-gray-500">
+            <p className="text-sm font-semibold text-foreground">{hasNoDrops ? "No drops found yet" : "No drops match these filters"}</p>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 {hasNoDrops ? "Create your first drop to populate the manager." : "Try a different search, creator, or status filter."}
             </p>
         </div>
@@ -309,39 +318,39 @@ export function AdminDropsInventoryPanel({
 
     return (
         <section
-            className="mb-4 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 shadow-2xl shadow-black/30 backdrop-blur-xl"
+            className="mb-4 overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-scrim/30"
             aria-labelledby="admin-drops-inventory-title"
         >
-            <header className="border-b border-white/10 bg-gradient-to-br from-white/10 via-transparent to-brand-purple/10 px-4 py-5 sm:px-5">
+            <header className="border-b border-border bg-card via-transparent to-brand-purple/10 px-4 py-5 sm:px-5">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-xs font-black uppercase tracking-wider text-brand-purple">Operations inventory</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Operations inventory</p>
                             {isFixture ? (
-                                <span className="rounded-full border border-amber-400/25 bg-amber-500/10 px-2 py-1 text-xs font-bold uppercase tracking-wide text-amber-100">
+                                <span className="rounded-full border border-warning/25 bg-warning/10 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-warning">
                                     source_missing
                                 </span>
                             ) : loadError ? (
-                                <span className="rounded-full border border-red-400/25 bg-red-500/10 px-2 py-1 text-xs font-bold uppercase tracking-wide text-red-100">
+                                <span className="rounded-full border border-destructive/25 bg-destructive/10 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-destructive">
                                     failed
                                 </span>
                             ) : null}
                         </div>
-                        <h2 id="admin-drops-inventory-title" className="mt-2 text-xl font-black tracking-tight text-white">
+                        <h2 id="admin-drops-inventory-title" className="mt-2 text-xl font-semibold tracking-tight text-foreground">
                             Drops control board
                         </h2>
-                        <p className="mt-2 max-w-2xl text-sm text-gray-400">
+                        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                             Search, review, queue, and manage the existing Drop inventory without changing its source contracts.
                         </p>
                     </div>
                     <dl className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
-                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2">
-                            <dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Visible</dt>
-                            <dd className="mt-1 text-sm font-bold text-white">{dropVisibilityLabel}</dd>
+                        <div className="rounded-xl border border-border bg-background/30 px-3 py-2">
+                            <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Visible</dt>
+                            <dd className="mt-1 text-sm font-semibold text-foreground">{dropVisibilityLabel}</dd>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2">
-                            <dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Review queue</dt>
-                            <dd className="mt-1 text-sm font-bold text-white">{pendingCreatorSubmissionCount} pending</dd>
+                        <div className="rounded-xl border border-border bg-background/30 px-3 py-2">
+                            <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Review queue</dt>
+                            <dd className="mt-1 text-sm font-semibold text-foreground">{pendingCreatorSubmissionCount} pending</dd>
                         </div>
                     </dl>
                 </div>
@@ -357,7 +366,7 @@ export function AdminDropsInventoryPanel({
       </AdminDropCreationWorkstream>
                 {isFixture ? (
                     <div
-                        className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100"
+                        className="rounded-2xl border border-warning/20 bg-warning/10 p-4 text-sm text-warning"
                         data-admin-drops-fixture-boundary="true"
                         data-admin-drops-fixture-state="source_missing"
                     >
@@ -366,21 +375,21 @@ export function AdminDropsInventoryPanel({
                 ) : null}
 
                 {loadError ? (
-                    <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+                    <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive" role="alert">
                         {loadError}
                     </div>
                 ) : null}
 
-                <div className="grid gap-3 rounded-2xl border border-white/10 bg-black/25 p-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,0.8fr))]">
+                <div className="grid gap-3 rounded-2xl border border-border bg-background/25 p-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,0.8fr))]">
                     <label className="relative block min-w-0">
                         <span className="sr-only">Search drops</span>
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" aria-hidden="true" />
-                        <input
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+                        <Input
                             type="text"
                             value={searchValue}
                             onChange={(event) => onSearchChange(event.target.value)}
                             placeholder="Search by title, creator, or ID"
-                            className="h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 pl-10 pr-3 text-sm font-medium text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/50 focus:ring-2 focus:ring-brand-purple/20"
+                            className="h-11 w-full rounded-xl border border-border bg-card pl-10 pr-3 text-sm font-medium text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                         />
                     </label>
                     <InventorySelect label="Status" value={statusFilter} onChange={onStatusFilterChange} options={statusOptions} />
@@ -389,22 +398,22 @@ export function AdminDropsInventoryPanel({
                 </div>
 
                 {selectedCount > 0 ? (
-                    <div className="flex flex-col gap-3 rounded-2xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 rounded-2xl border border-primary/25 bg-primary/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-sm font-black text-white">
+                            <p className="text-sm font-semibold text-foreground">
                                 {selectedCount} selected{visibleSelectedCount !== selectedCount ? ", " + visibleSelectedCount + " in this view" : ""}
                             </p>
-                            <p className="mt-1 text-sm text-gray-400">Bulk delete keeps the existing confirmation and protected write path.</p>
+                            <p className="mt-1 text-sm text-muted-foreground">Bulk delete keeps the existing confirmation and protected write path.</p>
                         </div>
-                        <button
+                        <Button variant="ghost"
                             type="button"
                             onClick={onBulkDelete}
                             disabled={isFixture}
-                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-400/25 bg-red-500/10 px-4 text-sm font-bold text-red-100 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-destructive/25 bg-destructive/10 px-4 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/20 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                             Delete selected
-                        </button>
+                        </Button>
                     </div>
                 ) : null}
 
@@ -422,19 +431,19 @@ export function AdminDropsInventoryPanel({
                                     <article
                                         key={drop.id}
                                         className={cn(
-                                            "rounded-2xl border border-white/10 bg-black/25 p-4 shadow-lg shadow-black/10",
-                                            selectedDropIds.has(drop.id) ? "border-brand-purple/35 bg-brand-purple/10" : null,
+                                            "rounded-2xl border border-border bg-background/25 p-4 shadow-lg shadow-scrim/10",
+                                            selectedDropIds.has(drop.id) ? "border-primary/35 bg-primary/10" : null,
                                         )}
                                     >
                                         <div className="flex items-start gap-3">
-                                            <label className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/30">
+                                            <label className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background/30">
                                                 <span className="sr-only">Select {drop.title}</span>
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedDropIds.has(drop.id)}
                                                     onChange={() => onToggleSelection(drop.id)}
                                                     disabled={isFixture}
-                                                    className="h-4 w-4 cursor-pointer rounded border-white/20 bg-black/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
+                                                    className="h-4 w-4 cursor-pointer rounded border-border bg-background/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
                                                 />
                                             </label>
                                             <DropCover drop={drop} />
@@ -442,14 +451,14 @@ export function AdminDropsInventoryPanel({
                                                 <TitleMarquee
                                                     title={drop.title}
                                                     delaySeed={getDelaySeed(drop.id)}
-                                                    className="text-base font-bold text-white"
+                                                    className="text-base font-semibold text-foreground"
                                                 />
                                                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                                                    <span className={cn("inline-flex rounded-full border px-2 py-1 text-xs font-bold", item.statusClassName)}>
+                                                    <span className={cn("inline-flex rounded-full border px-2 py-1 text-xs font-semibold", item.statusClassName)}>
                                                         {item.statusLabel}
                                                     </span>
                                                     {drop.submittedByCreatorId ? (
-                                                        <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-xs font-bold uppercase tracking-wide text-brand-purple">
+                                                        <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
                                                             Creator submission
                                                         </span>
                                                     ) : null}
@@ -457,56 +466,56 @@ export function AdminDropsInventoryPanel({
                                             </div>
                                         </div>
 
-                                        <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+                                        <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-secondary p-3">
                                             <div>
-                                                <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Performance</p>
-                                                <p className="mt-1 text-sm font-bold text-white">{(drop.totalUnlocks || 0).toLocaleString()} unwraps</p>
-                                                <p className="mt-1 text-sm text-gray-500">{(drop.totalClicks || 0).toLocaleString()} clicks</p>
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Performance</p>
+                                                <p className="mt-1 text-sm font-semibold text-foreground">{(drop.totalUnlocks || 0).toLocaleString()} unwraps</p>
+                                                <p className="mt-1 text-sm text-muted-foreground">{(drop.totalClicks || 0).toLocaleString()} clicks</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Price</p>
-                                                <p className="mt-1 text-sm font-black text-brand-purple">{drop.unlockCost} GD</p>
-                                                {item.queuePosition !== null ? <p className="mt-1 text-sm text-gray-500">Queue #{item.queuePosition + 1}</p> : null}
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Price</p>
+                                                <p className="mt-1 text-sm font-semibold text-primary">{drop.unlockCost} GD</p>
+                                                {item.queuePosition !== null ? <p className="mt-1 text-sm text-muted-foreground">Queue #{item.queuePosition + 1}</p> : null}
                                             </div>
                                         </div>
 
                                         <div className="mt-4 flex items-center justify-between gap-3">
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">{item.schedulePrimaryLabel}</p>
-                                                {item.scheduleSecondaryLabel ? <p className="mt-1 truncate text-sm text-gray-500">{item.scheduleSecondaryLabel}</p> : null}
+                                                <p className="truncate text-sm font-semibold text-foreground">{item.schedulePrimaryLabel}</p>
+                                                {item.scheduleSecondaryLabel ? <p className="mt-1 truncate text-sm text-muted-foreground">{item.scheduleSecondaryLabel}</p> : null}
                                             </div>
-                                            <button
+                                            <Button variant="ghost"
                                                 type="button"
                                                 onClick={() => onToggleExpanded(drop.id)}
                                                 aria-expanded={isExpanded}
-                                                className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-black/35 px-3 text-sm font-bold text-gray-200 transition-colors hover:bg-white/10"
+                                                className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-border bg-background/35 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
                                             >
                                                 {isExpanded ? "Hide" : "Details"}
                                                 {isExpanded ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
-                                            </button>
+                                            </Button>
                                         </div>
 
                                         {isExpanded ? (
-                                            <div className="mt-4 space-y-4 border-t border-white/10 pt-4">
+                                            <div className="mt-4 space-y-4 border-t border-border pt-4">
                                                 <div className="grid grid-cols-2 gap-3">
                                                     <div>
-                                                        <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Creator</p>
-                                                        <p className="mt-1 text-sm font-semibold text-white">{item.creatorLabel}</p>
-                                                        <p className="mt-1 break-all text-sm text-gray-500">{item.creatorSecondary || "No linked creator"}</p>
+                                                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Creator</p>
+                                                        <p className="mt-1 text-sm font-semibold text-foreground">{item.creatorLabel}</p>
+                                                        <p className="mt-1 break-all text-sm text-muted-foreground">{item.creatorSecondary || "No linked creator"}</p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Timing</p>
-                                                        <div className="mt-1 flex items-start gap-2 text-sm text-gray-300">
-                                                            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                                                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Timing</p>
+                                                        <div className="mt-1 flex items-start gap-2 text-sm text-muted-foreground">
+                                                            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                                                             <div>
                                                                 <p>{item.schedulePrimaryLabel}</p>
-                                                                {item.scheduleSecondaryLabel ? <p className="mt-1 text-gray-500">{item.scheduleSecondaryLabel}</p> : null}
-                                                                {item.uploadedLabel ? <p className="mt-1 text-gray-500">Uploaded {item.uploadedLabel}</p> : null}
+                                                                {item.scheduleSecondaryLabel ? <p className="mt-1 text-muted-foreground">{item.scheduleSecondaryLabel}</p> : null}
+                                                                {item.uploadedLabel ? <p className="mt-1 text-muted-foreground">Uploaded {item.uploadedLabel}</p> : null}
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <p className="break-all font-mono text-xs text-gray-500">{drop.id}</p>
+                                                <p className="break-all font-mono text-xs text-muted-foreground">{drop.id}</p>
                                                 <DropActionCluster
                                                     item={item}
                                                     isFixture={isFixture}
@@ -525,10 +534,10 @@ export function AdminDropsInventoryPanel({
                             })}
                         </div>
 
-                        <div className="hidden overflow-x-auto rounded-2xl border border-white/10 bg-black/25 lg:block">
-                            <table className="w-full min-w-full table-fixed text-left">
+                        <TableScrollArea className="hidden overflow-x-auto rounded-2xl border border-border bg-background/25 lg:block">
+                            <DataTable className="w-full min-w-full table-fixed text-left">
                                 <caption className="sr-only">Drops inventory with current lifecycle, queue, and review controls.</caption>
-                                <thead className="border-b border-white/10 bg-white/5 text-xs font-black uppercase tracking-wider text-gray-500">
+                                <thead className="border-b border-border bg-secondary text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                     <tr>
                                         <th scope="col" className="w-16 px-4 py-4">
                                             <input
@@ -537,7 +546,7 @@ export function AdminDropsInventoryPanel({
                                                 onChange={onToggleAll}
                                                 disabled={isFixture}
                                                 aria-label="Select all visible drops"
-                                                className="h-4 w-4 cursor-pointer rounded border-white/20 bg-black/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
+                                                className="h-4 w-4 cursor-pointer rounded border-border bg-background/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
                                             />
                                         </th>
                                         <th scope="col" className="min-w-64 px-4 py-4">Drop</th>
@@ -559,9 +568,9 @@ export function AdminDropsInventoryPanel({
                                                 onClick={isFixture ? undefined : () => onToggleSelection(drop.id)}
                                                 data-selected={selectedDropIds.has(drop.id) ? "true" : undefined}
                                                 className={cn(
-                                                    "transition-colors hover:bg-white/5",
+                                                    "transition-colors hover:bg-secondary",
                                                     isFixture ? "cursor-default" : "cursor-pointer",
-                                                    selectedDropIds.has(drop.id) ? "bg-brand-purple/10" : null,
+                                                    selectedDropIds.has(drop.id) ? "bg-primary/10" : null,
                                                 )}
                                             >
                                                 <td className="px-4 py-4" onClick={(event) => event.stopPropagation()}>
@@ -571,7 +580,7 @@ export function AdminDropsInventoryPanel({
                                                         onChange={() => onToggleSelection(drop.id)}
                                                         disabled={isFixture}
                                                         aria-label={"Select " + drop.title}
-                                                        className="h-4 w-4 cursor-pointer rounded border-white/20 bg-black/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
+                                                        className="h-4 w-4 cursor-pointer rounded border-border bg-background/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
                                                     />
                                                 </td>
                                                 <td className="px-4 py-4 align-middle">
@@ -581,12 +590,12 @@ export function AdminDropsInventoryPanel({
                                                             <TitleMarquee
                                                                 title={drop.title}
                                                                 delaySeed={getDelaySeed(drop.id)}
-                                                                className="text-sm font-bold text-white"
+                                                                className="text-sm font-semibold text-foreground"
                                                             />
-                                                            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                                                            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                                                 <span className="truncate font-mono">{drop.id}</span>
                                                                 {drop.submittedByCreatorId ? (
-                                                                    <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 font-bold uppercase tracking-wide text-brand-purple">
+                                                                    <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-1 font-semibold uppercase tracking-wide text-primary">
                                                                         Creator submission
                                                                     </span>
                                                                 ) : null}
@@ -595,20 +604,20 @@ export function AdminDropsInventoryPanel({
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4 align-middle">
-                                                    <p className="text-sm font-semibold text-white">{item.schedulePrimaryLabel}</p>
-                                                    {item.scheduleSecondaryLabel ? <p className="mt-1 text-sm text-gray-500">{item.scheduleSecondaryLabel}</p> : null}
-                                                    {item.queuePosition !== null ? <p className="mt-1 text-sm text-gray-500">Queue #{item.queuePosition + 1}</p> : null}
+                                                    <p className="text-sm font-semibold text-foreground">{item.schedulePrimaryLabel}</p>
+                                                    {item.scheduleSecondaryLabel ? <p className="mt-1 text-sm text-muted-foreground">{item.scheduleSecondaryLabel}</p> : null}
+                                                    {item.queuePosition !== null ? <p className="mt-1 text-sm text-muted-foreground">Queue #{item.queuePosition + 1}</p> : null}
                                                 </td>
                                                 <td className="px-4 py-4 align-middle">
-                                                    <p className="text-sm font-semibold text-white">{item.creatorLabel}</p>
-                                                    <p className="mt-1 text-sm text-gray-500">{item.creatorSecondary || "No linked creator"}</p>
+                                                    <p className="text-sm font-semibold text-foreground">{item.creatorLabel}</p>
+                                                    <p className="mt-1 text-sm text-muted-foreground">{item.creatorSecondary || "No linked creator"}</p>
                                                 </td>
                                                 <td className="px-4 py-4 align-middle">
-                                                    <p className="text-sm font-bold text-white">{(drop.totalUnlocks || 0).toLocaleString()} unwraps</p>
-                                                    <p className="mt-1 text-sm text-gray-500">{(drop.totalClicks || 0).toLocaleString()} clicks | {drop.unlockCost} GD</p>
+                                                    <p className="text-sm font-semibold text-foreground">{(drop.totalUnlocks || 0).toLocaleString()} unwraps</p>
+                                                    <p className="mt-1 text-sm text-muted-foreground">{(drop.totalClicks || 0).toLocaleString()} clicks | {drop.unlockCost} GD</p>
                                                 </td>
                                                 <td className="px-4 py-4 align-middle">
-                                                    <span className={cn("inline-flex rounded-full border px-2 py-1 text-xs font-bold", item.statusClassName)}>
+                                                    <span className={cn("inline-flex rounded-full border px-2 py-1 text-xs font-semibold", item.statusClassName)}>
                                                         {item.statusLabel}
                                                     </span>
                                                 </td>
@@ -631,8 +640,8 @@ export function AdminDropsInventoryPanel({
                                         );
                                     })}
                                 </tbody>
-                            </table>
-                        </div>
+                            </DataTable>
+                        </TableScrollArea>
                     </>
                 )}
             </div>

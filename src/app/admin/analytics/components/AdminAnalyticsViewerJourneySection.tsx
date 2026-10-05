@@ -1,3 +1,5 @@
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
 import React from "react";
 import { PlayCircle } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -68,12 +70,12 @@ export function AdminAnalyticsViewerJourneySection(
                 margin={{ top: 8, right: 4, left: -18, bottom: 0 }}
               >
                 <CartesianGrid
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke="var(--border)"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="shortLabel"
-                  stroke="#6b7280"
+                  stroke="var(--muted-foreground)"
                   fontSize={10}
                   tickLine={false}
                   axisLine={false}
@@ -83,7 +85,7 @@ export function AdminAnalyticsViewerJourneySection(
                   height={56}
                 />
                 <YAxis
-                  stroke="#6b7280"
+                  stroke="var(--muted-foreground)"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
@@ -93,9 +95,9 @@ export function AdminAnalyticsViewerJourneySection(
                   type="monotone"
                   dataKey="count"
                   name="Events"
-                  stroke="#b28cff"
+                  stroke="var(--primary)"
                   strokeWidth={3}
-                  dot={{ r: 4, fill: "#b28cff" }}
+                  dot={{ r: 4, fill: "var(--primary)" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -103,14 +105,14 @@ export function AdminAnalyticsViewerJourneySection(
         ) : null}
 
         {viewerJourneyItems.length > 0 && viewerJourneyViewMode === "table" ? (
-          <div
+          <TableScrollArea
             className="rounded-2xl bg-card overflow-x-auto"
             data-viewer-journey-table="compact"
             data-viewer-journey-range={viewerJourneyRange}
             data-viewer-journey-source-state={viewerJourneyItems.length > 0 ? "loaded" : "no_sample"}
           >
-            <table className="min-w-full text-left text-xs">
-              <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            <DataTable className="min-w-full text-left text-xs">
+              <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2 font-semibold">Step</th>
                   <th className="px-3 py-2 font-semibold">Events</th>
@@ -118,18 +120,18 @@ export function AdminAnalyticsViewerJourneySection(
                   <th className="px-3 py-2 font-semibold">State</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10 text-muted-foreground">
+              <tbody className="divide-y divide-border text-muted-foreground">
                 {viewerJourneyItems.map((item) => (
                   <tr key={`viewer-journey-row-${item.label}`}>
                     <td className="max-w-[14rem] min-w-0 whitespace-normal wrap-anywhere px-3 py-2 font-semibold text-foreground">{item.label}</td>
-                    <td className="px-3 py-2 text-brand-purple">{item.count.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-primary">{item.count.toLocaleString()}</td>
                     <td className="px-3 py-2">{viewerJourneyRange}</td>
                     <td className="px-3 py-2">{item.count > 0 ? "Observed" : "No sample"}</td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </TableScrollArea>
         ) : null}
 
         {viewerJourneyItems.length > 0 && viewerJourneyViewMode === "cards" ? (
@@ -139,9 +141,9 @@ export function AdminAnalyticsViewerJourneySection(
                 key={`viewer-journey-card-${item.label}`}
                 className="border-b border-border p-3"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Step {index + 1}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Step {index + 1}</p>
                 <p className="mt-1 min-w-0 whitespace-normal wrap-anywhere text-sm font-semibold text-foreground">{item.label}</p>
-                <p className="mt-2 text-xl font-black text-brand-purple">{item.count.toLocaleString()}</p>
+                <p className="mt-2 text-xl font-semibold text-primary">{item.count.toLocaleString()}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{item.count > 0 ? "Observed in selected range." : "No sample in selected range."}</p>
               </div>
             ))}

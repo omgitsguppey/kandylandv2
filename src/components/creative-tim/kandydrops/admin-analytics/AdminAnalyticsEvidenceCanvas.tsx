@@ -3,7 +3,7 @@
 import type { ComponentType, ReactNode } from "react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { coerceAdminSurfaceState } from "@/lib/admin-parity";
 
 type AdminAnalyticsIcon = ComponentType<{

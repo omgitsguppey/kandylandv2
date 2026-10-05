@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
@@ -61,12 +65,12 @@ export function AdminDebugEvidenceBoundary({ items, detailItems }: AdminDebugEvi
                 })}
             </div>
 
-            <details className="group min-w-0 border-t border-border">
-                <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-3 py-3 text-sm font-medium text-foreground">
+            <Disclosure className="group min-w-0 border-t border-border">
+                <DisclosureSummary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-3 py-3 text-sm font-medium text-foreground">
                     <span>Open evidence drilldown</span>
                     <span className="text-sm text-muted-foreground group-open:hidden">Collapsed</span>
                     <span className="hidden text-sm text-muted-foreground group-open:inline">Open</span>
-                </summary>
+                </DisclosureSummary>
                 <div className="mt-3 min-w-0 divide-y divide-border">
                     {detailItems.map((item) => {
                         const resolvedTruth = resolveAdminInputTruthState({
@@ -98,7 +102,7 @@ export function AdminDebugEvidenceBoundary({ items, detailItems }: AdminDebugEvi
                         );
                     })}
                 </div>
-            </details>
+            </Disclosure>
         </section>
     );
 }

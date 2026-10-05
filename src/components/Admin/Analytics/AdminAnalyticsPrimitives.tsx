@@ -1,12 +1,16 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { useId, useState } from "react";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Activity, BarChart3, Info, ListTree, Table2 } from "lucide-react";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { resolveAdminAnalyticsBadgeLabel } from "@/lib/admin-analytics-contracts";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
@@ -250,13 +254,13 @@ export function MetricCard({
                 <div className="mt-2 flex min-w-0 max-w-full flex-wrap">{statusBadge}</div>
             ) : null}
             {dictionaryTooltip ? (
-                <details className="mt-2 min-w-0">
-                    <summary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start px-2" })} aria-label={"About " + label}>
+                <Disclosure className="mt-2 min-w-0">
+                    <DisclosureSummary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start px-2" })} aria-label={"About " + label}>
                         <Info className="size-4 shrink-0" aria-hidden="true" />
                         <span className="min-w-0 wrap-anywhere">About this metric</span>
-                    </summary>
+                    </DisclosureSummary>
                     <p className="mt-2 wrap-anywhere text-sm text-muted-foreground">{dictionaryTooltip}</p>
-                </details>
+                </Disclosure>
             ) : null}
         </Card>
     );

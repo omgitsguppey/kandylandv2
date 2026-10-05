@@ -1,8 +1,8 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { Input } from "@/components/creative-tim/ui/input";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -49,7 +49,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
     if (lifecycle.kind === "pending_review") {
         return {
             statusLabel: "Pending review",
-            statusClassName: "border-amber-400/25 bg-amber-500/10 text-amber-200",
+            statusClassName: "border-warning/25 bg-warning/10 text-warning",
             scheduleLabel: "Awaiting admin approval",
             sortPriority: 0,
         };
@@ -58,7 +58,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
     if (lifecycle.kind === "rejected") {
         return {
             statusLabel: "Rejected",
-            statusClassName: "border-red-400/20 bg-red-500/10 text-red-200",
+            statusClassName: "border-destructive/20 bg-destructive/10 text-destructive",
             scheduleLabel: "Needs changes before it can go live",
             sortPriority: 1,
         };
@@ -67,7 +67,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
     if (lifecycle.kind === "live") {
         return {
             statusLabel: "Live",
-            statusClassName: "border-emerald-400/20 bg-emerald-500/10 text-emerald-200",
+            statusClassName: "border-success/20 bg-success/10 text-success",
             scheduleLabel: drop.validUntil ? `Ends ${formatAdminCompactDateTime(drop.validUntil)}` : "Live with no end date",
             sortPriority: 2,
         };
@@ -76,7 +76,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
     if (isQueued) {
         return {
             statusLabel: "Queued",
-            statusClassName: "border-brand-purple/25 bg-brand-purple/12 text-brand-pink",
+            statusClassName: "border-primary/25 bg-primary/12 text-brand-pink",
             scheduleLabel: queueLabel ? `Next slot ${queueLabel}` : "Queued for the next available slot",
             sortPriority: 3,
         };
@@ -85,7 +85,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
     if (lifecycle.kind === "scheduled") {
         return {
             statusLabel: "Scheduled",
-            statusClassName: "border-sky-400/20 bg-sky-500/10 text-sky-200",
+            statusClassName: "border-info/20 bg-info/10 text-info",
             scheduleLabel: `Starts ${formatAdminCompactDateTime(drop.validFrom)}`,
             sortPriority: 4,
         };
@@ -93,7 +93,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
 
     return {
         statusLabel: "Ended",
-        statusClassName: "border-white/10 bg-white/6 text-gray-300",
+        statusClassName: "border-border bg-secondary text-muted-foreground",
         scheduleLabel: drop.validUntil ? `Ended ${formatAdminCompactDateTime(drop.validUntil)}` : "No active schedule",
         sortPriority: 5,
     };
@@ -279,7 +279,7 @@ export function AdminDropsAtGlancePanel() {
                         {paginatedRows.items.map((row) => {
                             const isBusy = queueingDropId === row.drop.id;
                             return <article key={row.drop.id} className="min-w-0 space-y-3 py-4">
-                                <div className="flex min-w-0 items-start gap-3"><div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">{row.drop.imageUrl ? <Image src={row.drop.imageUrl} alt={row.drop.title} fill sizes="44px" className="object-contain bg-black" /> : <span className="grid h-full place-items-center text-xs font-semibold text-muted-foreground">KD</span>}</div><div className="min-w-0 flex-1"><p className="wrap-anywhere text-sm font-medium">{row.drop.title}</p><div className="mt-2 flex min-w-0 flex-wrap items-center gap-2"><Badge variant="secondary" className={row.statusClassName}>{row.statusLabel}</Badge><span className="wrap-anywhere text-xs text-muted-foreground">{row.queueLabel ?? row.scheduleLabel}</span></div></div></div>
+                                <div className="flex min-w-0 items-start gap-3"><div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">{row.drop.imageUrl ? <Image src={row.drop.imageUrl} alt={row.drop.title} fill sizes="44px" className="object-contain bg-background" /> : <span className="grid h-full place-items-center text-xs font-semibold text-muted-foreground">KD</span>}</div><div className="min-w-0 flex-1"><p className="wrap-anywhere text-sm font-medium">{row.drop.title}</p><div className="mt-2 flex min-w-0 flex-wrap items-center gap-2"><Badge variant="secondary" className={row.statusClassName}>{row.statusLabel}</Badge><span className="wrap-anywhere text-xs text-muted-foreground">{row.queueLabel ?? row.scheduleLabel}</span></div></div></div>
                                 <div className="flex min-w-0 flex-wrap items-center justify-between gap-3"><div className="flex min-w-0 flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span>{row.drop.unlockCost} GD</span><span>{(row.drop.totalUnlocks || 0).toLocaleString()} unwraps</span></div><div className="flex max-w-full flex-wrap items-center gap-2"><Link href={`/admin/drops?dropId=${encodeURIComponent(row.drop.id)}`} aria-label={`Open ${row.drop.title}`} className={buttonVariants({variant:"ghost"})}><Edit className="h-4 w-4" aria-hidden="true" />Open</Link><Button variant="ghost" type="button" onClick={() => void handleQueueToggle(row.drop.id)} disabled={isBusy} aria-label={row.isQueued ? "Unqueue drop" : "Queue drop"} aria-busy={isBusy}>{isBusy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Repeat className="h-4 w-4" aria-hidden="true" />}{row.isQueued ? "Unqueue" : "Queue"}</Button></div></div>
                             </article>;
                         })}

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { usePageViewEvent } from "@/components/Analytics/PageViewEvent";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { SignedInDashboardHeader } from "@/components/creative-tim/kandydrops/signed-in/SignedInDashboardHeader";
 import { SignedInDashboardJourney } from "@/components/creative-tim/kandydrops/signed-in/SignedInDashboardJourney";
 import { useAuth } from "@/context/AuthContext";

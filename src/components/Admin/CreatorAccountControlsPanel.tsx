@@ -1,5 +1,11 @@
 "use client";
 
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/input";
+
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -54,15 +60,15 @@ const approvalOptions: CreatorOnboardingApprovalStatus[] = [
 ];
 
 function FieldLabel(props: { children: string }) {
-  return <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{props.children}</span>;
+  return <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{props.children}</span>;
 }
 
 function textInputClass() {
-  return "w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60";
+  return "w-full rounded-2xl border border-border bg-background/35 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60";
 }
 
 function selectClass() {
-  return "w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60";
+  return "w-full rounded-2xl border border-border bg-background/35 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60";
 }
 
 export function CreatorAccountControlsPanel({
@@ -116,29 +122,29 @@ export function CreatorAccountControlsPanel({
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="space-y-2">
           <FieldLabel>Display name</FieldLabel>
-          <input value={displayName} onChange={(event) => setDisplayName(event.target.value)} className={textInputClass()} />
+          <Input value={displayName} onChange={(event) => setDisplayName(event.target.value)} className={textInputClass()} />
         </label>
         <label className="space-y-2">
           <FieldLabel>Username / handle</FieldLabel>
-          <input value={username} onChange={(event) => setUsername(event.target.value.toLowerCase())} className={textInputClass()} />
+          <Input value={username} onChange={(event) => setUsername(event.target.value.toLowerCase())} className={textInputClass()} />
         </label>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => submit({ action: "update_profile", targetUserId: target.uid, displayName, username })}
           disabled={savingAction === "update_profile"}
-          className="min-h-11 rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
+          className="min-h-11 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
         >
           Save profile
-        </button>
+        </Button>
         {publicProfilePath ? (
-          <Link href={publicProfilePath} className="inline-flex min-h-11 items-center rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">
+          <Link href={publicProfilePath} className="inline-flex min-h-11 items-center rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground">
             Open public profile
           </Link>
         ) : null}
-        <Link href={`/admin/user/${target.uid}`} className="inline-flex min-h-11 items-center rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">
+        <Link href={`/admin/user/${target.uid}`} className="inline-flex min-h-11 items-center rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground">
           Open user record
         </Link>
       </div>
@@ -146,11 +152,11 @@ export function CreatorAccountControlsPanel({
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="space-y-2">
           <FieldLabel>Email</FieldLabel>
-          <input value={email} onChange={(event) => setEmail(event.target.value)} className={textInputClass()} />
+          <Input value={email} onChange={(event) => setEmail(event.target.value)} className={textInputClass()} />
         </label>
         <label className="space-y-2">
           <FieldLabel>Temporary password</FieldLabel>
-          <input
+          <Input
             value={temporaryPassword}
             onChange={(event) => setTemporaryPassword(event.target.value)}
             type="password"
@@ -163,86 +169,86 @@ export function CreatorAccountControlsPanel({
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="space-y-2">
           <FieldLabel>Role</FieldLabel>
-          <select value={role} onChange={(event) => setRole(event.target.value as CreatorAccountControlRole)} className={selectClass()}>
+          <NativeSelect value={role} onChange={(event) => setRole(event.target.value as CreatorAccountControlRole)} className={selectClass()}>
             {CREATOR_ACCOUNT_CONTROL_ROLES.map((option) => (
-              <option key={option} value={option} disabled={option === "admin" && !isOwner}>
+              <NativeSelectOption key={option} value={option} disabled={option === "admin" && !isOwner}>
                 {formatCreatorAccountRole(option)}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
-          {!isOwner ? <p className="text-xs leading-5 text-zinc-500">Only owner admin can grant admin access.</p> : null}
+          </NativeSelect>
+          {!isOwner ? <p className="text-xs leading-5 text-muted-foreground">Only owner admin can grant admin access.</p> : null}
         </label>
         <label className="space-y-2">
           <FieldLabel>Account status</FieldLabel>
-          <select value={status} onChange={(event) => setStatus(event.target.value as CreatorAccountControlStatus)} className={selectClass()}>
+          <NativeSelect value={status} onChange={(event) => setStatus(event.target.value as CreatorAccountControlStatus)} className={selectClass()}>
             {CREATOR_ACCOUNT_CONTROL_STATUSES.map((option) => (
-              <option key={option} value={option}>{formatCreatorAccountStatus(option)}</option>
+              <NativeSelectOption key={option} value={option}>{formatCreatorAccountStatus(option)}</NativeSelectOption>
             ))}
-          </select>
+          </NativeSelect>
         </label>
       </div>
 
       <label className="space-y-2">
         <FieldLabel>Status reason</FieldLabel>
-        <input value={statusReason} onChange={(event) => setStatusReason(event.target.value)} placeholder="Internal reason when status changes" className={textInputClass()} />
+        <Input value={statusReason} onChange={(event) => setStatusReason(event.target.value)} placeholder="Internal reason when status changes" className={textInputClass()} />
       </label>
 
-      <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-brand-purple/25 bg-brand-purple/10 p-3 text-sm text-zinc-100">
+      <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-primary/25 bg-primary/10 p-3 text-sm text-foreground">
         <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-1 h-4 w-4 accent-brand-purple" />
         <span>Confirm before changing login, role, or account access. These actions are audited.</span>
       </label>
 
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => submit({ action: "update_email", targetUserId: target.uid, email, confirmed })}
           disabled={savingAction === "update_email" || email === target.email || !confirmed}
-          className="min-h-11 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50"
         >
           Save email
-        </button>
-        <button
+        </Button>
+        <Button variant="ghost"
           type="button"
           onClick={() => submit({ action: "create_password_reset_link", targetUserId: target.uid, confirmed })}
           disabled={savingAction === "create_password_reset_link" || !confirmed}
-          className="min-h-11 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50"
         >
           Create reset link
-        </button>
-        <button
+        </Button>
+        <Button variant="ghost"
           type="button"
           onClick={() => submit({ action: "set_temporary_password", targetUserId: target.uid, temporaryPassword, confirmed })}
           disabled={savingAction === "set_temporary_password" || temporaryPassword.length < 8 || !confirmed}
-          className="min-h-11 rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-full border border-primary/40 bg-primary/15 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50"
         >
           Set temporary password
-        </button>
-        <button
+        </Button>
+        <Button variant="ghost"
           type="button"
           onClick={() => submit({ action: "update_role", targetUserId: target.uid, role, confirmed })}
           disabled={savingAction === "update_role" || role === target.role || !confirmed}
-          className="min-h-11 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50"
         >
           Save role
-        </button>
-        <button
+        </Button>
+        <Button variant="ghost"
           type="button"
           onClick={() => submit({ action: "update_status", targetUserId: target.uid, status, statusReason, confirmed })}
           disabled={savingAction === "update_status" || status === target.status || !confirmed}
-          className="min-h-11 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50"
         >
           Save status
-        </button>
+        </Button>
       </div>
 
       {resetLink ? (
-        <div className="rounded-2xl border border-white/10 bg-black/25 p-3 text-sm text-zinc-200">
-          <p className="font-semibold text-white">Reset link created</p>
-          <p className="mt-1 break-all text-xs leading-5 text-zinc-400">{resetLink}</p>
+        <div className="rounded-2xl border border-border bg-background/25 p-3 text-sm text-foreground">
+          <p className="font-semibold text-foreground">Reset link created</p>
+          <p className="mt-1 break-all text-xs leading-5 text-muted-foreground">{resetLink}</p>
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+      <div className="rounded-2xl border border-border bg-background/25 p-3">
         <div className="grid gap-2 sm:grid-cols-2">
           {[
             ["inAppEnabled", "In-app notifications"],
@@ -250,7 +256,7 @@ export function CreatorAccountControlsPanel({
             ["newDropAlerts", "New Drop alerts"],
             ["expiringSoonAlerts", "Ending soon alerts"],
           ].map(([key, label]) => (
-            <label key={key} className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200">
+            <label key={key} className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-border bg-background/20 px-3 py-2 text-sm text-foreground">
               <span>{label}</span>
               <input
                 type="checkbox"
@@ -261,32 +267,32 @@ export function CreatorAccountControlsPanel({
             </label>
           ))}
         </div>
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => submit({ action: "update_notification_settings", targetUserId: target.uid, notificationSettings })}
           disabled={savingAction === "update_notification_settings"}
-          className="mt-3 min-h-11 rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
+          className="mt-3 min-h-11 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
         >
           Save notifications
-        </button>
+        </Button>
       </div>
 
       <label className="space-y-2">
         <FieldLabel>Creator approval</FieldLabel>
-        <select value={approvalStatus} onChange={(event) => setApprovalStatus(event.target.value as CreatorOnboardingApprovalStatus)} className={selectClass()}>
+        <NativeSelect value={approvalStatus} onChange={(event) => setApprovalStatus(event.target.value as CreatorOnboardingApprovalStatus)} className={selectClass()}>
           {approvalOptions.map((option) => (
-            <option key={option} value={option}>{formatCreatorApprovalStatus(option)}</option>
+            <NativeSelectOption key={option} value={option}>{formatCreatorApprovalStatus(option)}</NativeSelectOption>
           ))}
-        </select>
+        </NativeSelect>
       </label>
-      <button
+      <Button variant="ghost"
         type="button"
         onClick={() => onApprovalStatusChange(approvalStatus)}
         disabled={savingAction === "account-approval-status" || approvalStatus === target.approvalStatus}
-        className="min-h-11 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+        className="min-h-11 rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50"
       >
         Save approval
-      </button>
+      </Button>
     </div>
   );
 }

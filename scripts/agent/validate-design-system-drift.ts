@@ -127,7 +127,7 @@ for (const statement of previewClientAst.statements) {
 }
 const previewViewConnected = someSourceNode(sourceRenderNodes(previewClientAst, "LockedDropPreviewClient"), (node) => (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && ts.isIdentifier(node.tagName) && node.tagName.text === previewViewName);
 const previewRender = previewViewConnected ? sourceRenderNodes(previewView, "LockedDropPreviewView") : [];
-const previewBadge = readRequired("src/components/creative-tim/ui/badge.tsx");
+const previewBadge = readRequired("src/components/ui/badge.tsx");
 const charts = readRequired("src/components/Admin/AdminAnalyticsCharts.tsx");
 const countdown = readRequired("src/lib/drop-countdown.ts");
 const mobileBottomBar = readRequired("src/components/Navigation/MobileBottomBar.tsx");
@@ -157,8 +157,8 @@ requireIncludes(helper, "LAUNCH_STATIC_BADGE_CLASSNAME", "design-system helper")
 requireIncludes(helper, "KANDYDROPS_CHART_COLORS", "design-system helper");
 
 requireIncludes(adminBadge, "LAUNCH_BADGE_CONTAINMENT_CLASSNAME", "AdminStatusBadge");
-requireIncludes(adminBadge, "border-brand-purple/30 bg-brand-purple/10", "AdminStatusBadge");
-requireIncludes(adminBadge, "border-gray-500/30 bg-gray-500/10", "AdminStatusBadge");
+requireIncludes(adminBadge, "border-primary/30 bg-primary/10", "AdminStatusBadge loading/cached state (theme tokens)");
+requireIncludes(adminBadge, "border-border bg-secondary text-muted-foreground", "AdminStatusBadge unavailable state (theme tokens)");
 requireAbsent(adminBadge, "cyan-", "AdminStatusBadge");
 requireAbsent(adminBadge, "sky-", "AdminStatusBadge");
 requireAbsent(adminBadge, "slate-", "AdminStatusBadge");
@@ -171,7 +171,7 @@ requireAbsent(dropCardParts, "font-[ui-monospace", "DropCardParts");
 
 let previewBadgeName: string | undefined;
 for (const statement of previewView.statements) {
-  if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "@/components/creative-tim/ui/badge") continue;
+  if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "@/components/ui/badge") continue;
   const bindings = statement.importClause?.namedBindings;
   if (bindings && ts.isNamedImports(bindings)) previewBadgeName = bindings.elements.find((entry) => (entry.propertyName?.text ?? entry.name.text) === "Badge")?.name.text;
 }

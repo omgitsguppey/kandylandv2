@@ -1,5 +1,5 @@
 import { Activity, DollarSign, Loader2, Monitor, Smartphone, Users } from "lucide-react";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { ADMIN_ANALYTICS_DEFAULT_RANGE, ADMIN_ANALYTICS_RANGE_OPTIONS } from "@/lib/admin-analytics-preferences";
 import type { 
@@ -66,12 +66,12 @@ export const TAB_OPTIONS: Array<{
 ];
 
 export const PIE_COLORS = [
-  "#b28cff",
-  "#7c3aed",
-  "#22d3ee",
-  "#f472b6",
-  "#34d399",
-  "#f59e0b",
+  "var(--primary)",
+  "var(--primary)",
+  "var(--info)",
+  "var(--brand-pink)",
+  "var(--success)",
+  "var(--warning)",
 ];
 export const ANALYTICS_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -129,7 +129,7 @@ export function SectionRangeControl({
         ))}
       </NativeSelect>
       {saving ? (
-        <Loader2 className="size-4 shrink-0 animate-spin text-brand-purple" aria-hidden="true" />
+        <Loader2 className="size-4 shrink-0 animate-spin text-primary" aria-hidden="true" />
       ) : null}
     </div>
   );
@@ -216,14 +216,14 @@ export function formatAbsoluteDateTime(timestamp: string | number | null | undef
 
 export function getValidationClasses(status: ValidationItem["status"]) {
   if (status === "pass") {
-    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+    return "border-success/20 bg-success/10 text-success";
   }
 
   if (status === "fail") {
-    return "border-red-500/20 bg-red-500/10 text-red-200";
+    return "border-destructive/20 bg-destructive/10 text-destructive";
   }
 
-  return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+  return "border-warning/20 bg-warning/10 text-warning";
 }
 
 export function describeEvent(event: RawEventItem): string {
@@ -263,12 +263,12 @@ export function getJourneyStateLabel(state: UserJourneyItem["journeyState"]) {
 export function getJourneyStateClasses(state: UserJourneyItem["journeyState"]) {
   switch (state) {
     case "engaged":
-      return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+      return "border-success/20 bg-success/10 text-success";
     case "bounced":
-      return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+      return "border-warning/20 bg-warning/10 text-warning";
     case "mixed":
-      return "border-cyan-400/20 bg-cyan-400/10 text-cyan-100";
+      return "border-info/20 bg-info/10 text-info";
     default:
-      return "border-white/10 bg-white/5 text-gray-300";
+      return "border-border bg-secondary text-muted-foreground";
   }
 }

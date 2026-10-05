@@ -1,5 +1,9 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
+
+import { GroupedRow } from "@/components/ui/content-layout";
+
 import Image from "next/image";
 
 import { MarqueeText } from "@/components/ui/MarqueeText";
@@ -29,14 +33,14 @@ export type FanPassSubscriberCrmRow = {
 function statusTone(status: string | undefined) {
   switch (status) {
     case "active":
-      return "border-emerald-300/20 bg-emerald-500/10 text-emerald-100";
+      return "border-success/20 bg-success/10 text-success";
     case "grace":
     case "past_due":
-      return "border-amber-300/20 bg-amber-500/10 text-amber-100";
+      return "border-warning/20 bg-warning/10 text-warning";
     case "canceled":
-      return "border-red-300/20 bg-red-500/10 text-red-100";
+      return "border-destructive/20 bg-destructive/10 text-destructive";
     default:
-      return "border-white/10 bg-white/5 text-gray-200";
+      return "border-border bg-secondary text-foreground";
   }
 }
 
@@ -86,8 +90,8 @@ export function FanPassSubscriberRow({
   const autoRenew = subscriber.autoRenew === false ? "Auto-renew off" : "Auto-renew on";
 
   return (
-    <article
-      className="rounded-[1.5rem] border border-white/10 bg-black/20 p-3.5 shadow-[0_12px_28px_rgba(0,0,0,0.18)] sm:p-4"
+    <GroupedRow
+      className="block"
       data-fan-pass-crm-row="compact"
       data-subscriber-identity-source={subscriber.fanIdentitySource ?? "unavailable"}
       data-raw-user-id-hidden="true"
@@ -104,7 +108,7 @@ export function FanPassSubscriberRow({
             unoptimized
           />
         ) : (
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-sm font-black text-white">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary text-sm font-semibold text-foreground">
             {readInitial(fanLabel)}
           </div>
         )}
@@ -114,32 +118,32 @@ export function FanPassSubscriberRow({
               <MarqueeText
                 as="h3"
                 title={fanLabel}
-                className="text-base font-black text-white"
+                className="text-base font-semibold text-foreground"
                 ariaLabel={fanLabel}
               />
-              <p className="mt-0.5 truncate text-xs text-gray-400">{secondaryLabel}</p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{secondaryLabel}</p>
             </div>
-            <span className={`shrink-0 rounded-xl border px-2.5 py-1.5 text-xs font-bold ${statusTone(status)}`}>
+            <Badge variant="secondary" className={`shrink-0 rounded-xl border px-2.5 py-1.5 text-xs font-semibold ${statusTone(status)}`}>
               {formatStatusLabel(status)}
-            </span>
+            </Badge>
           </div>
         </div>
       </div>
 
       <dl className="mt-4 grid grid-cols-3 gap-2">
-        <div className="min-w-0 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-2">
-          <dt className="text-xs font-bold uppercase tracking-wider text-gray-500">Fan Pass</dt>
-          <dd className="mt-1 truncate text-xs font-bold text-white">{price}</dd>
+        <div className="min-w-0">
+          <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fan Pass</dt>
+          <dd className="mt-1 truncate text-xs font-semibold text-foreground">{price}</dd>
         </div>
-        <div className="min-w-0 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-2">
-          <dt className="text-xs font-bold uppercase tracking-wider text-gray-500">Renewal</dt>
-          <dd className="mt-1 truncate text-xs font-semibold text-gray-300">{renewal}</dd>
+        <div className="min-w-0">
+          <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Renewal</dt>
+          <dd className="mt-1 truncate text-xs font-semibold text-muted-foreground">{renewal}</dd>
         </div>
-        <div className="min-w-0 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-2">
-          <dt className="text-xs font-bold uppercase tracking-wider text-gray-500">Plan</dt>
-          <dd className="mt-1 truncate text-xs font-semibold text-gray-300">{autoRenew}</dd>
+        <div className="min-w-0">
+          <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Plan</dt>
+          <dd className="mt-1 truncate text-xs font-semibold text-muted-foreground">{autoRenew}</dd>
         </div>
       </dl>
-    </article>
+    </GroupedRow>
   );
 }

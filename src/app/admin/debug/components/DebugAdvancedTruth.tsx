@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Pill, StatCard, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 /* ─── Props ─── */
@@ -81,35 +85,35 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                             <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta={behaviorSourceStatus?.explanation || "Recent derived event sample"} truthState={truthStateForSourceStatus(behaviorSourceStatus?.status)} />
                             <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.trainingEligible ?? 0} / ${data?.orchestration?.summary?.evalEligibleDenominator ?? 0} recent sample. ${(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0)} low-confidence required events. ${behaviorSourceStatus?.nextAction || ""}`} truthState={(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0) > 0 ? "degraded" : truthStateForSourceStatus(behaviorSourceStatus?.status)} />
                         </div>
-                        <p className="text-xs text-gray-400">{data?.orchestration?.summary?.evalEligibleExplanation || "Eval eligibility excludes background, system, and identity-linkage events."}</p>
-                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Dependency gaps</p>
+                        <p className="text-xs text-muted-foreground">{data?.orchestration?.summary?.evalEligibleExplanation || "Eval eligibility excludes background, system, and identity-linkage events."}</p>
+                        <div className="rounded-[1rem] border border-border bg-secondary p-4">
+                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Dependency gaps</p>
                             <div className="mt-3 grid gap-2">
-                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                    <p className="text-sm font-semibold text-white">Missing actor</p>
-                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.actorMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.actorMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.actorMissing?.backgroundExempt ?? 0}</p>
+                                <div className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-foreground">Missing actor</p>
+                                    <p className="text-xs text-muted-foreground">Required {dependencyReadiness?.actorMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.actorMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.actorMissing?.backgroundExempt ?? 0}</p>
                                 </div>
-                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                    <p className="text-sm font-semibold text-white">Missing session</p>
-                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.sessionMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.sessionMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.sessionMissing?.backgroundExempt ?? 0}</p>
+                                <div className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-foreground">Missing session</p>
+                                    <p className="text-xs text-muted-foreground">Required {dependencyReadiness?.sessionMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.sessionMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.sessionMissing?.backgroundExempt ?? 0}</p>
                                 </div>
-                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                    <p className="text-sm font-semibold text-white">Missing route</p>
-                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.routeMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.routeMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.routeMissing?.backgroundExempt ?? 0}</p>
+                                <div className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-foreground">Missing route</p>
+                                    <p className="text-xs text-muted-foreground">Required {dependencyReadiness?.routeMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.routeMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.routeMissing?.backgroundExempt ?? 0}</p>
                                 </div>
-                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                    <p className="text-sm font-semibold text-white">Missing creator</p>
-                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.creatorContextMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.creatorContextMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.creatorContextMissing?.backgroundExempt ?? 0}</p>
+                                <div className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-foreground">Missing creator</p>
+                                    <p className="text-xs text-muted-foreground">Required {dependencyReadiness?.creatorContextMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.creatorContextMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.creatorContextMissing?.backgroundExempt ?? 0}</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Coverage by domain</p>
+                        <div className="rounded-[1rem] border border-border bg-secondary p-4">
+                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Coverage by domain</p>
                             <div className="mt-3 space-y-2">
                                 {(data?.orchestration?.domainSummary || []).slice(0, 6).map((entry: any) => (
                                     <div
                                         key={entry.key}
-                                        className="space-y-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-300"
+                                        className="space-y-2 rounded-xl border border-border bg-background/20 px-3 py-2 text-sm text-muted-foreground"
                                         data-behavior-domain={entry.domain || entry.key}
                                         data-behavior-domain-event-count={entry.eventCount ?? 0}
                                         data-behavior-domain-open-unique={entry.uniqueOpenFindings ?? entry.openFindingCount ?? 0}
@@ -117,7 +121,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                         data-behavior-domain-state={entry.state || "info"}
                                     >
                                         <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <span className="font-semibold text-white">{entry.key}</span>
+                                            <span className="font-semibold text-foreground">{entry.key}</span>
                                             <div className="flex flex-wrap gap-2">
                                                 <Pill label="Events" value={entry.eventCount} tone="neutral" truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
                                                 <Pill label="Open" value={entry.uniqueOpenFindings ?? entry.openFindingCount ?? 0} tone={entry.openFindingCount ? "warn" : "good"} truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
@@ -126,17 +130,17 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                                 <Pill label="State" value={entry.state || "info"} tone={toneForDomainState(entry.state)} truthState={entry ? "live" : "unavailable"} badgeLabel={badgeForDebugSeverity(entry.state)} />
                                             </div>
                                         </div>
-                                        <p className="text-xs text-gray-400">{entry.explanation || DUPLICATE_INSPECT_EXPLANATION}</p>
+                                        <p className="text-xs text-muted-foreground">{entry.explanation || DUPLICATE_INSPECT_EXPLANATION}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Health math</p>
+                        <div className="rounded-[1rem] border border-border bg-secondary p-4">
+                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Health math</p>
                             <div className="mt-3 space-y-2">
                                 {(behaviorSummary?.penalties || []).map((penalty: any) => (
-                                    <div key={penalty.reasonCode} className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-300">
-                                        <span className="font-semibold text-white">{penalty.reasonCode}</span>
+                                    <div key={penalty.reasonCode} className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                                        <span className="font-semibold text-foreground">{penalty.reasonCode}</span>
                                         <span>{penalty.count} × {penalty.weight} = {penalty.appliedPenalty}</span>
                                     </div>
                                 ))}
@@ -145,16 +149,16 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                     </div>
                     <div className="space-y-3">
                         {(data?.orchestration?.findings || []).slice(0, 4).map((finding: any) => (
-                            <div key={finding.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                            <div key={finding.id} className="rounded-[1rem] border border-border bg-secondary p-4">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <p className="font-semibold text-white">{finding.title}</p>
-                                        <p className="mt-1 text-xs text-gray-400">{finding.domain} | {finding.systemKey}</p>
+                                        <p className="font-semibold text-foreground">{finding.title}</p>
+                                        <p className="mt-1 text-xs text-muted-foreground">{finding.domain} | {finding.systemKey}</p>
                                     </div>
                                     <Pill label="Severity" value={finding.severity} tone={finding.severity === "error" ? "bad" : finding.severity === "warn" ? "warn" : "neutral"} />
                                 </div>
-                                <p className="mt-3 text-sm text-gray-200">{finding.humanSummary}</p>
-                                <p className="mt-2 text-xs text-gray-400">{finding.fixSummary}</p>
+                                <p className="mt-3 text-sm text-foreground">{finding.humanSummary}</p>
+                                <p className="mt-2 text-xs text-muted-foreground">{finding.fixSummary}</p>
                             </div>
                         ))}
                     </div>
@@ -182,8 +186,8 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                             >
                                 <div className="flex flex-wrap items-start justify-between gap-2">
                                     <div>
-                                        <p className="font-semibold text-white">{actor.actorLabel || actor.actorId || actor.actorType}</p>
-                                        <p className="text-xs text-gray-400">{actor.actorType} | {shortId(actor.actorId || actor.actorKey || "")}</p>
+                                        <p className="font-semibold text-foreground">{actor.actorLabel || actor.actorId || actor.actorType}</p>
+                                        <p className="text-xs text-muted-foreground">{actor.actorType} | {shortId(actor.actorId || actor.actorKey || "")}</p>
                                     </div>
                                     <Pill label="Events" value={actor.eventCount} tone="neutral" truthState={actor ? "live" : "unavailable"} badgeLabel="LOADED" />
                                 </div>
@@ -192,16 +196,16 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                     <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} truthState={actor ? "live" : "unavailable"} badgeLabel="LOADED" />
                                     <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} truthState={actor ? "live" : "unavailable"} badgeLabel="LOADED" />
                                 </div>
-                                {actor.topDomains?.length ? <p className="text-xs text-gray-400">Domains: {actor.topDomains.join(", ")}</p> : null}
-                                {actor.riskDomains?.length ? <p className="text-xs text-gray-400">Risk domains: {actor.riskDomains.join(", ")}</p> : null}
+                                {actor.topDomains?.length ? <p className="text-xs text-muted-foreground">Domains: {actor.topDomains.join(", ")}</p> : null}
+                                {actor.riskDomains?.length ? <p className="text-xs text-muted-foreground">Risk domains: {actor.riskDomains.join(", ")}</p> : null}
                                 {(actor.riskReasons || []).length ? (
-                                    <div className="space-y-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Risk reasons</p>
+                                    <div className="space-y-2 rounded-xl border border-border bg-background/20 px-3 py-2">
+                                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Risk reasons</p>
                                         <div className="space-y-2">
                                             {(actor.riskReasons || []).map((reason: any, index: number) => (
                                                 <div
                                                     key={`${actor.id}-reason-${reason.reasonCode}-${index}`}
-                                                    className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2"
+                                                    className="rounded-lg border border-border bg-secondary px-3 py-2"
                                                     data-actor-risk-reason-code={reason.reasonCode || "unknown"}
                                                     data-actor-risk-reason-count={reason.count ?? 0}
                                                     data-actor-risk-applies-to-bleed={reason.appliesToBleedRisk ? "true" : "false"}
@@ -213,9 +217,9 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                                             <Pill label="Domain" value={reason.domain || "telemetry"} tone="neutral" truthState={reason ? "live" : "unavailable"} badgeLabel="INFO" />
                                                             {reason.appliesToBleedRisk ? <Pill label="Bleed" value="yes" tone="bad" truthState={reason ? "live" : "unavailable"} badgeLabel="RISK" /> : null}
                                                         </div>
-                                                        {reason.sampleEventId ? <span className="text-[11px] text-gray-400">Sample {shortId(reason.sampleEventId)}</span> : null}
+                                                        {reason.sampleEventId ? <span className="text-[11px] text-muted-foreground">Sample {shortId(reason.sampleEventId)}</span> : null}
                                                     </div>
-                                                    <p className="mt-2 text-xs text-gray-300">{reason.explanation || "Risk count exists but no source reason was attached; inspect normalization evidence."}</p>
+                                                    <p className="mt-2 text-xs text-muted-foreground">{reason.explanation || "Risk count exists but no source reason was attached; inspect normalization evidence."}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -245,16 +249,16 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
             >
                 <ScrollWrap>
                     <div className="divide-y divide-white/10">
-                        <div className="px-4 py-3 text-xs text-gray-400">
+                        <div className="px-4 py-3 text-xs text-muted-foreground">
                             Source mix: {data?.taskCoverageSummary?.sourceMix?.canonical ?? data?.stats?.canonicalTasks ?? 0} canonical / {data?.taskCoverageSummary?.sourceMix?.telemetry ?? data?.stats?.telemetryValidatedTasks ?? 0} telemetry / {data?.taskCoverageSummary?.sourceMix?.legacy ?? data?.stats?.legacyTasks ?? 0} legacy
-                            <span className="block pt-1 text-amber-100">{taskCatalogSourceStatus?.nextAction || "Task catalog source state not attached."}</span>
+                            <span className="block pt-1 text-warning">{taskCatalogSourceStatus?.nextAction || "Task catalog source state not attached."}</span>
                         </div>
                         {(data?.coverage || []).map((task: any) => (
                             <div key={task.taskId} className="space-y-2 px-4 py-3">
                                 <div className="flex flex-wrap items-start justify-between gap-2">
                                     <div>
-                                        <p className="font-semibold text-white">{task.title}</p>
-                                        <p className="text-xs text-gray-400">{task.taskId} | {task.rawTriggerDetails?.eventLabel || task.canonicalEventName || task.triggerEvent}</p>
+                                        <p className="font-semibold text-foreground">{task.title}</p>
+                                        <p className="text-xs text-muted-foreground">{task.taskId} | {task.rawTriggerDetails?.eventLabel || task.canonicalEventName || task.triggerEvent}</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         <Pill label="Readiness" value={task.coverageState} tone={toneForTaskCoverageState(task.coverageState)} truthState={task ? "live" : "unavailable"} badgeLabel={task.coverageState === "ready" ? "READY" : task.coverageState === "partial" ? "PARTIAL" : task.coverageState === "reward_risk" ? "RISK" : "GAP"} />
@@ -270,11 +274,11 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                     <Pill label="Keying" value={task.keying || "any"} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
                                     <Pill label="Criteria" value={(task.criteria || []).length > 0 ? "filtered" : "none"} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
                                 </div>
-                                <p className="text-xs leading-6 text-gray-400">{task.actionPath}</p>
+                                <p className="text-xs leading-6 text-muted-foreground">{task.actionPath}</p>
                                 {task.missingEvidence?.length ? (
-                                    <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing evidence</p>
-                                        <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-gray-300">
+                                    <div className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Missing evidence</p>
+                                        <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
                                             {task.missingEvidence.map((entry: string) => <li key={`${task.taskId}-${entry}`}>{entry}</li>)}
                                         </ul>
                                     </div>
@@ -284,9 +288,9 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                         <Pill key={`${task.taskId}-${validator}`} label="Validator" value={validator} tone="neutral" truthState={validator ? "live" : "unavailable"} badgeLabel="INFO" />
                                     ))}
                                 </div>
-                                <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                    <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Raw trigger details</summary>
-                                    <div className="mt-2 space-y-1 text-xs text-gray-400">
+                                <Disclosure className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                    <DisclosureSummary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">Raw trigger details</DisclosureSummary>
+                                    <div className="mt-2 space-y-1 text-xs text-muted-foreground">
                                         <p>Canonical event: {task.canonicalEventName}</p>
                                         <p>Trigger event: {task.triggerEvent}</p>
                                         <p>Tracking sources: {(task.rawTriggerDetails?.trackingSources || []).join(", ") || "none"}</p>
@@ -294,7 +298,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                         <p>Destination: {task.rawTriggerDetails?.destinationHref || "unavailable"}</p>
                                         <p>Instruction: {task.rawTriggerDetails?.instruction || "unavailable"}</p>
                                     </div>
-                                </details>
+                                </Disclosure>
                             </div>
                         ))}
                     </div>

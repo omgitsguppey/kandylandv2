@@ -6,8 +6,8 @@ export function CompactAiStatusChip({ label, tone = "neutral" }: { label: string
   return (
     <span
       className={cn(
-        "rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em]",
-        tone === "good" ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100" : tone === "warn" ? "border-amber-400/25 bg-amber-500/10 text-amber-100" : "border-white/10 bg-white/5 text-gray-300",
+        "rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+        tone === "good" ? "border-success/25 bg-success/10 text-success" : tone === "warn" ? "border-warning/25 bg-warning/10 text-warning" : "border-border bg-secondary text-muted-foreground",
       )}
     >
       {label}

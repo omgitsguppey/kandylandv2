@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatDistance } from "date-fns";
@@ -68,12 +68,12 @@ type RecentTransactionsDebugMeta = {
 /* ── Badge colors by type ───────────────────────────────────────────────── */
 
 const BADGE_COLORS: Record<string, string> = {
-    purchase_currency: "border-emerald-400/20 bg-emerald-500/10 text-emerald-300",
-    unlock_content: "border-purple-400/20 bg-purple-500/10 text-purple-300",
-    admin_adjustment: "border-sky-400/20 bg-sky-500/10 text-sky-300",
-    daily_reward: "border-amber-400/20 bg-amber-500/10 text-amber-300",
-    referral_bonus: "border-cyan-400/20 bg-cyan-500/10 text-cyan-300",
-    onboarding_reward: "border-indigo-400/20 bg-indigo-500/10 text-indigo-300",
+    purchase_currency: "border-success/20 bg-success/10 text-success",
+    unlock_content: "border-primary/20 bg-primary/10 text-primary",
+    admin_adjustment: "border-info/20 bg-info/10 text-info",
+    daily_reward: "border-warning/20 bg-warning/10 text-warning",
+    referral_bonus: "border-info/20 bg-info/10 text-info",
+    onboarding_reward: "border-info/20 bg-info/10 text-info",
 };
 
 /* ── Timestamp helper ───────────────────────────────────────────────────── */
@@ -152,7 +152,7 @@ function resolveDisplayName(
 function formatAmountDelta(transaction: DisplayTransaction): { primary: string; secondary: string; color: string } {
     const sign = transaction.amount > 0 ? "+" : "";
     const primary = `${sign}${transaction.amount}`;
-    const color = transaction.amount > 0 ? "text-emerald-400" : transaction.amount < 0 ? "text-rose-400" : "text-gray-400";
+    const color = transaction.amount > 0 ? "text-success" : transaction.amount < 0 ? "text-destructive" : "text-muted-foreground";
 
     let secondary = "";
     if (transaction.type === "purchase_currency" && transaction.grossRevenueCents) {

@@ -79,7 +79,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                 }
             >
                 {(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? (
-                    <div className="mb-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                    <div className="mb-4 rounded-[1rem] border border-warning/20 bg-warning/10 p-4 text-sm text-warning">
                         The 7-day task parity audit hit its bounded sample window.
                         Event sample {data?.taskAuditSample?.taskEventsSampleCount ?? 0}/{data?.taskAuditSample?.taskEventsSampleLimit ?? 0},
                         receipt sample {data?.taskAuditSample?.receiptsSampleCount ?? 0}/{data?.taskAuditSample?.receiptsSampleLimit ?? 0}.
@@ -89,7 +89,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
 
                 <div className="mb-4 grid gap-3 md:grid-cols-2">
                     <div
-                        className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"
+                        className="rounded-[1rem] border border-border bg-secondary p-4"
                         data-task-guardrail-reward-version={guardrails?.rewardSettings?.version ?? data?.taskRewardConfig?.rewardVersion ?? 0}
                         data-task-guardrail-multiplier={guardrails?.rewardSettings?.multiplierPct ?? data?.taskRewardConfig?.multiplierPercent ?? 0}
                         data-task-guardrail-built-in-avg={guardrails?.rewardSettings?.builtInAverageRewardGd ?? data?.taskRewardConfig?.builtInAverageReward ?? 0}
@@ -124,13 +124,13 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                 badgeLabel="LOADED"
                             />
                         </div>
-                        <p className="mt-3 text-xs leading-6 text-gray-400">
+                        <p className="mt-3 text-xs leading-6 text-muted-foreground">
                             Reward settings are loaded config and inventory values. They only move to review when the catalog or versioning falls out of sync.
                         </p>
                     </div>
 
                     <div
-                        className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"
+                        className="rounded-[1rem] border border-border bg-secondary p-4"
                         data-task-guardrail-creator-spend-state={guardrails?.creatorSpend?.state ?? "live"}
                     >
                         <div className="flex flex-wrap gap-2">
@@ -163,7 +163,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                 badgeLabel="LOADED"
                             />
                         </div>
-                        <p className="mt-3 text-xs leading-6 text-gray-400">
+                        <p className="mt-3 text-xs leading-6 text-muted-foreground">
                             {guardrails?.creatorSpend?.explanation || "Creator chat, subscriptions, requests, and bookings are expected to consume purchased Gum Drops only."}
                         </p>
                     </div>
@@ -176,8 +176,8 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                 <div key={issue.uid} className="space-y-2 px-4 py-3" data-task-affected-user-count={guardrails?.affectedUsersCount ?? affectedUsers.length}>
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{issue.username}</p>
-                                            <p className="text-xs text-gray-400">{shortUid(issue.uid)} | {issue.attribution?.issueType || "assignment_missing"}</p>
+                                            <p className="font-semibold text-foreground">{issue.username}</p>
+                                            <p className="text-xs text-muted-foreground">{shortUid(issue.uid)} | {issue.attribution?.issueType || "assignment_missing"}</p>
                                         </div>
                                         <Pill label="Issues" value={issue.issueCount} tone="warn" truthState="degraded" badgeLabel="REVIEW" />
                                     </div>
@@ -191,13 +191,13 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                             <Pill key={taskId} label="Task" value={taskId} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                         ))}
                                     </div>
-                                    <div className="space-y-1 text-sm text-amber-100">
+                                    <div className="space-y-1 text-sm text-warning">
                                         {(issue.issues || []).map((entry: string) => <div key={entry}>- {entry}</div>)}
                                     </div>
-                                    <p className="text-xs text-gray-400">{issue.attribution?.recommendedAction || "Rebuild task assignment for this user after validating the current daily task window."}</p>
+                                    <p className="text-xs text-muted-foreground">{issue.attribution?.recommendedAction || "Rebuild task assignment for this user after validating the current daily task window."}</p>
                                 </div>
                             )) : (
-                                <div className="px-4 py-4 text-sm text-emerald-100">No assignment integrity issues were detected in the sampled users.</div>
+                                <div className="px-4 py-4 text-sm text-success">No assignment integrity issues were detected in the sampled users.</div>
                             )}
                         </div>
                     </ScrollWrap>
@@ -215,8 +215,8 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{entry.taskTitle || entry.title}</p>
-                                            <p className="text-xs text-gray-400">{entry.taskId}</p>
+                                            <p className="font-semibold text-foreground">{entry.taskTitle || entry.title}</p>
+                                            <p className="text-xs text-muted-foreground">{entry.taskId}</p>
                                         </div>
                                         <Pill
                                             label="Receipt parity"
@@ -252,7 +252,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                         <Pill label="Potential assigned rewards" value={`${entry.potentialRewardTotalGd ?? 0} GD`} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                         <Pill label="Receipt policy" value={entry.expectedReceiptPolicy || "unknown"} tone="neutral" truthState="live" badgeLabel="INFO" />
                                     </div>
-                                    <p className="text-xs leading-6 text-gray-400">{entry.explanation || "Task receipt parity explanation unavailable."}</p>
+                                    <p className="text-xs leading-6 text-muted-foreground">{entry.explanation || "Task receipt parity explanation unavailable."}</p>
                                 </div>
                             ))}
                         </div>
@@ -262,11 +262,11 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                 {creatorSpendRows.length ? (
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {creatorSpendRows.map((entry: any) => (
-                            <div key={entry.type} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                            <div key={entry.type} className="rounded-[1rem] border border-border bg-secondary p-4">
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
-                                        <p className="font-semibold text-white">{entry.label}</p>
-                                        <p className="text-xs text-gray-400">{entry.type}</p>
+                                        <p className="font-semibold text-foreground">{entry.label}</p>
+                                        <p className="text-xs text-muted-foreground">{entry.type}</p>
                                     </div>
                                     <Pill label="Count" value={entry.count} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                 </div>
@@ -274,7 +274,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                     <Pill label="Purchased" value={entry.purchasedSpent} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                     <Pill label="Reward" value={entry.rewardSpent} tone={entry.rewardSpent ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                 </div>
-                                <p className="mt-3 text-xs leading-6 text-gray-400">
+                                <p className="mt-3 text-xs leading-6 text-muted-foreground">
                                     {entry.count} creator {entry.label.toLowerCase()} spend(s) used purchased GD; {entry.rewardSpent} used reward GD.
                                 </p>
                             </div>
@@ -303,7 +303,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                 }
             >
                 {(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? (
-                    <div className="mb-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                    <div className="mb-4 rounded-[1rem] border border-warning/20 bg-warning/10 p-4 text-sm text-warning">
                         Runtime task drift is derived from a bounded 7-day sample, not a full-history sweep.
                         Increase the audit depth before treating every warning as global truth.
                     </div>
@@ -316,12 +316,12 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                     data-runtime-task-cooldown-drift-count={runtimeTaskDrift?.cooldownDriftCount ?? data?.stats?.runtimeCooldownConflictUsers ?? 0}
                     data-runtime-task-unsupported-count={runtimeTaskDrift?.unsupportedRuntimeCount ?? data?.stats?.runtimeUnsupportedTaskRecords ?? 0}
                 >
-                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                    <div className="rounded-[1rem] border border-border bg-secondary p-4">
                         <div className="flex flex-wrap gap-2">
                         <Pill label="Generated" value={runtimeTaskDrift?.generatedAtUtc || "unknown"} tone={toneForSourceStatus(runtimeSourceStatus?.status)} truthState={truthStateForSourceStatus(runtimeSourceStatus?.status)} badgeLabel={badgeForSourceStatus(runtimeSourceStatus?.status)} />
                             <Pill label="State" value={runtimeTaskDrift?.state || "review"} tone={toneForGuardrailState(runtimeTaskDrift?.state)} truthState="live" badgeLabel={badgeForDebugSeverity(runtimeTaskDrift?.state || "review")} />
                         </div>
-                        <p className="mt-3 text-xs leading-6 text-gray-400">
+                        <p className="mt-3 text-xs leading-6 text-muted-foreground">
                             Unsupported runtime records are grouped by reason and source so active assignment risk stays separate from historical-only drift.
                             Task rows below separate assignment, completion, reward, receipt, rollup, and trigger evidence lanes instead of treating event stats as completion evidence.
                             {runtimeSourceStatus?.nextAction ? ` ${runtimeSourceStatus.nextAction}` : ""}
@@ -339,8 +339,8 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{group.taskTitle || group.taskId || group.triggerEvent || group.reason}</p>
-                                            <p className="text-xs text-gray-400">{group.reason} | {group.source} | {group.activityScope}</p>
+                                            <p className="font-semibold text-foreground">{group.taskTitle || group.taskId || group.triggerEvent || group.reason}</p>
+                                            <p className="text-xs text-muted-foreground">{group.reason} | {group.source} | {group.activityScope}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Count" value={group.count} tone="neutral" truthState="live" badgeLabel="LOADED" />
@@ -361,12 +361,12 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-xs text-gray-400">No active user sample was attached to this runtime drift group.</p>
+                                        <p className="text-xs text-muted-foreground">No active user sample was attached to this runtime drift group.</p>
                                     )}
-                                    <p className="text-xs leading-6 text-gray-400">{group.suggestedAction}</p>
+                                    <p className="text-xs leading-6 text-muted-foreground">{group.suggestedAction}</p>
                                 </div>
                             )) : (
-                                <div className="px-4 py-4 text-sm text-emerald-100">No unsupported runtime records were found in the sampled task audit.</div>
+                                <div className="px-4 py-4 text-sm text-success">No unsupported runtime records were found in the sampled task audit.</div>
                             )}
                         </div>
                     </ScrollWrap>
@@ -388,8 +388,8 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{entry.taskTitle}</p>
-                                            <p className="text-xs text-gray-400">{entry.taskId} | {entry.triggerEvent}</p>
+                                            <p className="font-semibold text-foreground">{entry.taskTitle}</p>
+                                            <p className="text-xs text-muted-foreground">{entry.taskId} | {entry.triggerEvent}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Parity" value={entry.sourceParityState} tone={entry.sourceParityState === "mismatch" ? "bad" : entry.sourceParityState === "partial" ? "warn" : "good"} truthState="live" badgeLabel={badgeForDebugSeverity(entry.sourceParityState)} />
@@ -412,39 +412,39 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                         <Pill label="Event stats" value={compactNumber(entry.eventStatsCount)} tone={entry.eventStatsCount > Math.max(entry.assignedUsers, entry.taskCompletedCount) ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                                     </div>
                                     {entry.mismatchReasons?.length ? (
-                                        <div className="space-y-1 text-sm text-amber-100">
+                                        <div className="space-y-1 text-sm text-warning">
                                             {entry.mismatchReasons.map((reason: string) => (
                                                 <div key={reason} data-task-runtime-mismatch-reason={reason}>- {reason.replaceAll("_", " ")}</div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-xs leading-6 text-emerald-100">No source parity mismatches detected in the sampled runtime evidence.</p>
+                                        <p className="text-xs leading-6 text-success">No source parity mismatches detected in the sampled runtime evidence.</p>
                                     )}
-                                    <p className="text-xs leading-6 text-gray-400">{entry.explanation}</p>
+                                    <p className="text-xs leading-6 text-muted-foreground">{entry.explanation}</p>
                                 </div>
                             ))}
                         </div>
                     </ScrollWrap>
                     <div className="space-y-4">
-                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <div className="rounded-[1rem] border border-border bg-secondary p-4">
                             <div className="flex flex-wrap gap-2">
                                 <Pill label="Custom defs" value={data?.taskRewardConfig?.customTaskCount ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                 <Pill label="Custom with assignments" value={data?.runtimeTaskAudit?.summary?.customDefinitionsWithAssignments ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                 <Pill label="Custom drift" value={data?.stats?.runtimeCustomTaskDrift ?? 0} tone={(data?.stats?.runtimeCustomTaskDrift ?? 0) === 0 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
                                 <Pill label="No runtime signal" value={data?.runtimeTaskAudit?.summary?.customDefinitionsWithoutRuntimeSignals ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
                             </div>
-                            <p className="mt-3 text-xs leading-6 text-gray-400">
+                            <p className="mt-3 text-xs leading-6 text-muted-foreground">
                                 Custom and admin-authored tasks stay on the same runtime truth model as built-ins. This panel surfaces assignments, drift, reward visibility, cooldown pressure, and definitions that still exist only on paper.
                             </p>
                         </div>
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {(data?.runtimeTaskAudit?.customDistribution || []).length ? (data?.runtimeTaskAudit?.customDistribution || []).map((entry: any) => (
                                     <div key={entry.taskId} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.title}</p>
-                                                <p className="text-xs text-gray-400">{entry.taskId}</p>
+                                                <p className="font-semibold text-foreground">{entry.title}</p>
+                                                <p className="text-xs text-muted-foreground">{entry.taskId}</p>
                                             </div>
                                             <Pill label="Assigned" value={entry.assignedUsers} tone={entry.assignedUsers > 0 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
                                         </div>
@@ -455,7 +455,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                             {entry.oneTime ? <Pill label="Mode" value="one-time" tone="neutral" truthState="live" badgeLabel="LOADED" /> : null}
                                         </div>
                                     </div>
-                                )) : <div className="px-4 py-4 text-sm text-emerald-100">No custom task definitions are present in the sampled runtime data.</div>}
+                                )) : <div className="px-4 py-4 text-sm text-success">No custom task definitions are present in the sampled runtime data.</div>}
                             </div>
                         </ScrollWrap>
                     </div>

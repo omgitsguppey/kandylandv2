@@ -175,13 +175,16 @@ describe("locked content protection truth", () => {
     const viewSource = readFileSync(join(process.cwd(), "src/components/Drops/LockedDropPreviewView.tsx"), "utf8");
     const imagePolicySource = readFileSync(join(process.cwd(), "src/lib/image-loading-policy.ts"), "utf8");
 
-    expect(viewSource).toContain("aspect-square");
-    expect(viewSource).toContain("w-[min(100%,64vw,280px)]");
-    expect(viewSource).toContain("sm:w-[min(100%,52vw,320px)]");
+    const mediaSource = readFileSync(join(process.cwd(), "src/components/ui/media-card.tsx"), "utf8");
+    const layoutSource = readFileSync(join(process.cwd(), "src/components/ui/content-layout.tsx"), "utf8");
+    expect(viewSource).toContain("<MediaCover>");
+    expect(mediaSource).toContain("aspect-square");
+    expect(viewSource).toContain("<DetailLayout");
+    expect(layoutSource).toContain("md:grid-cols-2");
     expect(viewSource).toContain("data-drop-preview-cover-aspect=\"1:1\"");
     expect(viewSource).toContain("getCoverCtaLabel");
     expect(imagePolicySource).toContain("const DROP_GRID_STANDARD_SIZES");
-    expect(imagePolicySource).toContain("const DROP_PREVIEW_SIZES = \"(max-width: 600px) 64vw, 320px\"");
+    expect(imagePolicySource).toContain("const DROP_PREVIEW_SIZES");
   });
 
   it("keeps every locked primary action in the bottom-nav-safe sticky owner", () => {

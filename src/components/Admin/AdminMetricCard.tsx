@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 type AdminMetricTone = "neutral" | "good" | "warn" | "bad";
 
 function getToneClasses(tone: AdminMetricTone) {
-  if (tone === "good") return "border border-emerald-400/20";
-  if (tone === "warn") return "border border-amber-400/20";
-  if (tone === "bad") return "border border-red-400/20";
+  if (tone === "good") return "border border-success/20";
+  if (tone === "warn") return "border border-warning/20";
+  if (tone === "bad") return "border border-destructive/20";
   return "";
 }
 

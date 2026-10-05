@@ -1,5 +1,9 @@
 "use client";
 
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
+
+
 import { useEffect, useState, type ReactNode } from "react";
 import { BellRing } from "lucide-react";
 
@@ -84,24 +88,24 @@ export function AdminTaskAndNotificationModules(props: {
                         data-notification-denominator-mode={props.notificationFunnelModel.denominatorMode}
                         data-notification-missing-source-count={props.notificationFunnelModel.missingSourceCount}
                     >
-                        <div className="flex flex-wrap items-center justify-between gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2">
-                            <p className="min-w-0 text-xs leading-5 text-gray-300">
+                        <div className="flex flex-wrap items-center justify-between gap-2 rounded-[1rem] border border-border bg-background/25 px-3 py-2">
+                            <p className="min-w-0 text-xs leading-5 text-muted-foreground">
                                 {props.notificationFunnelModel.visibleCopy}
                             </p>
-                            <span className="max-w-[5.75rem] shrink-0 truncate rounded-full border border-white/10 bg-white/[0.08] px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white">
+                            <span className="max-w-[5.75rem] shrink-0 truncate rounded-full border border-border bg-secondary px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                                 {props.notificationFunnelModel.truthLabel}
                             </span>
                         </div>
 
-                        <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-4">
-                            <span><span className="font-semibold text-white">State:</span> {props.notificationFunnelModel.state}</span>
-                            <span><span className="font-semibold text-white">Denominator:</span> {props.notificationFunnelModel.denominatorMode}</span>
-                            <span><span className="font-semibold text-white">Range:</span> {props.notificationFunnelModel.range}</span>
-                            <span><span className="font-semibold text-white">Last updated:</span> {generatedAtLabel}</span>
+                        <div className="grid gap-2 rounded-[1rem] border border-border bg-background/25 px-3 py-2 text-[11px] leading-5 text-muted-foreground md:grid-cols-4">
+                            <span><span className="font-semibold text-foreground">State:</span> {props.notificationFunnelModel.state}</span>
+                            <span><span className="font-semibold text-foreground">Denominator:</span> {props.notificationFunnelModel.denominatorMode}</span>
+                            <span><span className="font-semibold text-foreground">Range:</span> {props.notificationFunnelModel.range}</span>
+                            <span><span className="font-semibold text-foreground">Last updated:</span> {generatedAtLabel}</span>
                         </div>
 
                         {props.notificationFunnelModel.warnings.length > 0 && notificationFunnelViewMode !== "table" ? (
-                            <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                            <div className="rounded-[1rem] border border-border bg-background/25 px-3 py-2 text-[11px] leading-5 text-muted-foreground">
                                 {props.notificationFunnelModel.warnings.map((warning) => (
                                     <p key={warning}>{warning}</p>
                                 ))}
@@ -123,22 +127,22 @@ export function AdminTaskAndNotificationModules(props: {
                                 ))}
                             </div>
 
-                            <div className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
-                                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-gray-500">
+                            <div className="rounded-[0.9rem] border border-border bg-background/25 px-3 py-2">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                                     Reminder reasons
                                 </p>
-                                <p className="mt-1 text-xs leading-5 text-gray-300">
+                                <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                     {props.notificationFunnelModel.reminderReasonSummary}
                                 </p>
-                                <p className="mt-1 text-[10px] leading-5 text-gray-500">
+                                <p className="mt-1 text-[10px] leading-5 text-muted-foreground">
                                     Source {props.notificationFunnelModel.reminderReasonsSourceLabel || TASK_REMINDER_TELEMETRY_LABEL} · freshness {props.notificationFunnelModel.reminderReasonsFreshness}
                                 </p>
-                                <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] text-gray-400">
+                                <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
                                     {props.notificationFunnelModel.reminderReasons.map((reason) => (
                                         <span
                                             key={`${reason.reason}-${reason.count}`}
                                             data-notification-reminder-reason-count={reason.count}
-                                            className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5"
+                                            className="rounded border border-border bg-secondary px-1.5 py-0.5"
                                         >
                                             {reason.reason} {reason.count}
                                         </span>
@@ -151,7 +155,7 @@ export function AdminTaskAndNotificationModules(props: {
 
                         {notificationFunnelViewMode === "chart" ? (
                             <div
-                                className="space-y-1.5 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                                className="space-y-1.5 rounded-[1rem] border border-border bg-background/25 p-3"
                                 data-notification-funnel-chart="compact"
                                 data-notification-funnel-source-mode={props.notificationFunnelModel.sourceMode}
                                 data-notification-denominator-mode={props.notificationFunnelModel.denominatorMode}
@@ -159,23 +163,23 @@ export function AdminTaskAndNotificationModules(props: {
                             >
                                 {props.notificationFunnelModel.metrics.map((metric) => (
                                     <div key={metric.key} className="grid grid-cols-[5.6rem_minmax(0,1fr)_4rem] items-center gap-2 text-[10px]">
-                                        <span className="truncate text-gray-400">{metric.label}</span>
-                                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                                        <span className="truncate text-muted-foreground">{metric.label}</span>
+                                        <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
                                             <div
-                                                className={metric.status === "loaded" ? "h-full rounded-full bg-brand-purple" : metric.status === "partial" ? "h-full rounded-full bg-amber-400" : "h-full rounded-full bg-slate-600"}
+                                                className={metric.status === "loaded" ? "h-full rounded-full bg-primary" : metric.status === "partial" ? "h-full rounded-full bg-warning" : "h-full rounded-full bg-secondary"}
                                                 style={{ width: notificationBarWidth(metric) }}
                                             />
                                         </div>
-                                        <span className="text-right font-semibold text-white">
+                                        <span className="text-right font-semibold text-foreground">
                                             {metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : NO_NOTIFICATION_SAMPLE_LABEL)}
                                         </span>
                                     </div>
                                 ))}
 
-                                <div className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-gray-500">Reminder reasons</p>
-                                    <p className="mt-1 text-[11px] leading-5 text-gray-300">{props.notificationFunnelModel.reminderReasonSummary}</p>
-                                    <p className="mt-1 text-[10px] leading-5 text-gray-500">
+                                <div className="rounded-[0.9rem] border border-border bg-background/25 px-3 py-2">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Reminder reasons</p>
+                                    <p className="mt-1 text-[11px] leading-5 text-muted-foreground">{props.notificationFunnelModel.reminderReasonSummary}</p>
+                                    <p className="mt-1 text-[10px] leading-5 text-muted-foreground">
                                         Source {props.notificationFunnelModel.reminderReasonsSourceLabel || TASK_REMINDER_TELEMETRY_LABEL} - freshness {props.notificationFunnelModel.reminderReasonsFreshness}
                                     </p>
                                 </div>
@@ -183,15 +187,15 @@ export function AdminTaskAndNotificationModules(props: {
                         ) : null}
 
                         {notificationFunnelViewMode === "table" ? (
-                            <div
-                                className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                            <TableScrollArea
+                                className="overflow-x-auto rounded-[1rem] border border-border bg-background/25"
                                 data-notification-funnel-table="compact"
                                 data-notification-funnel-source-mode={props.notificationFunnelModel.sourceMode}
                                 data-notification-denominator-mode={props.notificationFunnelModel.denominatorMode}
                                 data-notification-missing-source-count={props.notificationFunnelModel.missingSourceCount}
                             >
-                                <table className="min-w-full text-left text-xs">
-                                    <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                                <DataTable className="min-w-full text-left text-xs">
+                                    <thead className="border-b border-border text-[10px] uppercase tracking-wide text-muted-foreground">
                                         <tr>
                                             <th className="px-3 py-2 font-semibold">Step</th>
                                             <th className="px-3 py-2 font-semibold">Value</th>
@@ -200,7 +204,7 @@ export function AdminTaskAndNotificationModules(props: {
                                             <th className="px-3 py-2 font-semibold">Denominator</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/10 text-gray-300">
+                                    <tbody className="divide-y divide-border text-muted-foreground">
                                         {props.notificationFunnelModel.metrics.map((metric) => (
                                             <tr
                                                 key={metric.key}
@@ -210,8 +214,8 @@ export function AdminTaskAndNotificationModules(props: {
                                                 data-notification-step-freshness={metric.freshnessState}
                                             >
                                                 <td className="max-w-[15rem] px-3 py-2">
-                                                    <p className="truncate font-semibold text-white">{metric.label}</p>
-                                                    <p className="truncate text-[11px] text-gray-500">{metric.explanation}</p>
+                                                    <p className="truncate font-semibold text-foreground">{metric.label}</p>
+                                                    <p className="truncate text-[11px] text-muted-foreground">{metric.explanation}</p>
                                                 </td>
                                                 <td className="px-3 py-2">{metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : NO_NOTIFICATION_SAMPLE_LABEL)}</td>
                                                 <td className="px-3 py-2">{metric.sourceLabel || (metric.key === "sent" ? DEBUG_NOTIFICATION_RECORDS_LABEL : metric.sourceLabel)}</td>
@@ -220,8 +224,8 @@ export function AdminTaskAndNotificationModules(props: {
                                             </tr>
                                         ))}
                                     </tbody>
-                                </table>
-                            </div>
+                                </DataTable>
+                            </TableScrollArea>
                         ) : null}
                     </div>
                 </SectionCard>
@@ -234,7 +238,7 @@ function NotificationStepCard(props: { step: NotificationFunnelStep; compact?: b
     return (
         <div
             key={props.step.key}
-            className="min-w-0 rounded-[0.9rem] border border-white/10 bg-white/[0.04] px-3 py-2"
+            className="min-w-0 rounded-[0.9rem] border border-border bg-secondary px-3 py-2"
             title={`${props.step.label}: ${props.step.explanation}`}
             aria-label={`${props.step.label}: ${props.step.explanation}`}
             data-notification-step={props.step.key}
@@ -242,20 +246,20 @@ function NotificationStepCard(props: { step: NotificationFunnelStep; compact?: b
             data-notification-step-status={props.step.status}
             data-notification-step-freshness={props.step.freshnessState}
         >
-            <p className="truncate text-[10px] font-black uppercase tracking-[0.12em] text-gray-500">
+            <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {props.step.label}
             </p>
-            <p className={props.compact ? "mt-1 text-sm font-bold text-white" : "mt-1 text-lg font-black leading-none text-white"}>
+            <p className={props.compact ? "mt-1 text-sm font-semibold text-foreground" : "mt-1 text-lg font-semibold leading-none text-foreground"}>
                 {props.step.displayValue || (props.step.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : NO_NOTIFICATION_SAMPLE_LABEL)}
             </p>
-            <p className="mt-1 truncate text-[10px] font-semibold text-gray-500">
+            <p className="mt-1 truncate text-[10px] font-semibold text-muted-foreground">
                 {props.step.sourceLabel || (props.step.key === "sent" ? DEBUG_NOTIFICATION_RECORDS_LABEL : props.step.sourceLabel)}
             </p>
-            <p className="mt-1 text-[10px] leading-5 text-gray-400">
+            <p className="mt-1 text-[10px] leading-5 text-muted-foreground">
                 {props.step.status} · {props.step.freshnessState}
                 {props.step.denominator ? ` · ${props.step.denominator}` : ""}
             </p>
-            <p className="mt-1 text-[10px] leading-5 text-gray-500">
+            <p className="mt-1 text-[10px] leading-5 text-muted-foreground">
                 {props.step.explanation}
             </p>
         </div>

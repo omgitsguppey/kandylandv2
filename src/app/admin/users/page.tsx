@@ -1,5 +1,11 @@
 "use client";
 
+import { Textarea } from "@/components/ui/textarea";
+import { Surface } from "@/components/ui/content-layout";
+import { Input } from "@/components/ui/input";
+import { TableScrollArea } from "@/components/ui/data-table";
+
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
@@ -564,16 +570,16 @@ export default function UserManagementPage() {
         user.onboardingCompleted || (analytics?.onboardingCompletionCount || 0) > 0
             ? {
                 label: "Onboarding Complete",
-                className: "text-emerald-300 bg-emerald-500/10 border-emerald-500/20",
+                className: "text-success bg-success/10 border-success/20",
             }
             : (analytics?.onboardingStartCount || 0) > 0
                 ? {
                     label: "Onboarding Live",
-                    className: "text-amber-200 bg-amber-500/10 border-amber-500/20",
+                    className: "text-warning bg-warning/10 border-warning/20",
                 }
                 : {
                     label: "Onboarding Pending",
-                    className: "text-gray-300 bg-white/5 border-white/10",
+                    className: "text-muted-foreground bg-secondary border-border",
                 };
 
     const formatLastSeen = (timestamp?: number) =>
@@ -858,9 +864,9 @@ export default function UserManagementPage() {
 
     const getStatusColor = (status?: string) => {
         switch (status) {
-            case 'banned': return 'text-red-500 bg-red-500/10 border-red-500/20';
-            case 'suspended': return 'text-brand-purple bg-brand-purple/10 border-brand-purple/20';
-            default: return 'text-brand-purple bg-brand-purple/10 border-brand-purple/20';
+            case 'banned': return 'text-destructive bg-destructive/10 border-destructive/20';
+            case 'suspended': return 'text-primary bg-primary/10 border-primary/20';
+            default: return 'text-primary bg-primary/10 border-primary/20';
         }
     };
 
@@ -881,24 +887,24 @@ export default function UserManagementPage() {
                         data-admin-users-snapshot-state={userSummaryTruthState}
                         data-admin-users-pulse-state={usersRealtimePulse.pulseState}
                     >
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-2.5 py-1.5 text-[11px] text-gray-300">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/25 px-2.5 py-1.5 text-[11px] text-muted-foreground">
                             <AdminTruthBadge
                                 state={userSummaryTruthState}
                                 pendingInitialLoad={!summary && summaryLoading}
                                 hasUsableValue={Boolean(summary?.kpiCards?.length)}
-                                className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                className="px-1.5 py-0 text-[8px] tracking-wide"
                             />
                             <span>Snapshot totals</span>
                         </div>
                         <div
-                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-2.5 py-1.5 text-[11px] text-gray-300"
+                            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/25 px-2.5 py-1.5 text-[11px] text-muted-foreground"
                             data-admin-users-pulse-label={usersRealtimePulse.pulseLabel}
                         >
                             <AdminTruthBadge
                                 state={usersRealtimePulseTruthState}
                                 pendingInitialLoad={!summary && summaryLoading}
                                 hasUsableValue={Boolean(summary)}
-                                className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                className="px-1.5 py-0 text-[8px] tracking-wide"
                             />
                             <span>{usersRealtimePulse.pulseLabel}</span>
                         </div>
@@ -906,45 +912,45 @@ export default function UserManagementPage() {
                 ) : null}
                 controls={
                     <>
-                    <button
+                    <Button variant="ghost"
                         onClick={() => setViewMode('users')}
                         className={cn(
-                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition-all",
-                            viewMode === 'users' ? "bg-brand-purple text-white border-brand-purple" : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
+                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-all",
+                            viewMode === 'users' ? "bg-primary text-foreground border-primary" : "bg-secondary text-muted-foreground border-border hover:bg-secondary"
                         )}
                     >
                         <Shield className="w-4 h-4" /> Users
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="ghost"
                         onClick={() => setViewMode('feedback')}
                         className={cn(
-                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition-all",
-                            viewMode === 'feedback' ? "bg-brand-purple text-white border-brand-purple" : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
+                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-all",
+                            viewMode === 'feedback' ? "bg-primary text-foreground border-primary" : "bg-secondary text-muted-foreground border-border hover:bg-secondary"
                         )}
                     >
                         <MessageSquare className="w-4 h-4" /> Feedback
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="ghost"
                         onClick={() => setViewMode('tasks')}
                         className={cn(
-                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition-all",
-                            viewMode === 'tasks' ? "bg-brand-purple text-white border-brand-purple" : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
+                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-all",
+                            viewMode === 'tasks' ? "bg-primary text-foreground border-primary" : "bg-secondary text-muted-foreground border-border hover:bg-secondary"
                         )}
                     >
                         <DollarSign className="w-4 h-4" /> Tasks
-                    </button>
+                    </Button>
                     </>
                 }
             />
 
             {isLocalAdminUiTestSession ? (
                 <div
-                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+                    className="rounded-2xl border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning"
                     data-admin-users-fixture-boundary="true"
                     data-admin-users-fixture-state="source_missing"
                 >
                     <p className="font-bold">source_missing fixture.</p>
-                    <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                    <p className="mt-1 text-xs leading-5 text-warning/80">
                         source_missing: users source is not loaded in this fixture. Protected user records, metrics, feedback, task controls, identity, payment, and content access stay blocked.
                     </p>
                 </div>
@@ -957,7 +963,7 @@ export default function UserManagementPage() {
                     title="Evidence-led user directory"
                     description="Search a user, inspect the current source state, then take a targeted account action without separating identity, wallet, behavior, or protection work into competing dashboards."
                 >
-                    <div
+                    <TableScrollArea
                         className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:thin]"
                         data-admin-users-stats-layout="evidence-ribbon"
                         data-admin-users-truth-source={summary?.truthSnapshot?.sourceTruth ?? "unavailable"}
@@ -968,28 +974,28 @@ export default function UserManagementPage() {
                                 {renderSummaryMetricCard(card)}
                             </div>
                         ))}
-                    </div>
+                    </TableScrollArea>
 
                     <div className="space-y-4">
-                        <div className="flex min-h-14 items-center gap-3 border-y border-white/10 px-2">
-                            <Search className="w-5 h-5 text-gray-500 ml-2" />
-                            <input
+                        <div className="flex min-h-14 items-center gap-3 border-y border-border px-2">
+                            <Search className="w-5 h-5 text-muted-foreground ml-2" />
+                            <Input
                                 type="text"
                                 placeholder="Search users by email, name, username, or ID..."
-                                className="bg-transparent border-none outline-none text-white w-full h-10 placeholder:text-gray-600"
+                                className="bg-transparent border-none outline-none text-foreground w-full h-10 placeholder:text-muted-foreground"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
 
-                        <section className="border-y border-white/10 py-4">
+                        <section className="border-y border-border py-4">
                             <div className="flex items-center justify-between gap-3">
                                 <div>
-                                    <div className="flex items-center gap-2 text-sm font-bold text-white">
-                                        <TrendingUp className="w-4 h-4 text-brand-purple" />
+                                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                        <TrendingUp className="w-4 h-4 text-primary" />
                                         Top behavior users
                                     </div>
-                                    <p className="mt-1 text-[11px] text-gray-400">
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
                                         Ranked by engagement, value, recency, and confidence.
                                     </p>
                                 </div>
@@ -1012,7 +1018,7 @@ export default function UserManagementPage() {
                             <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                                 <div className="flex flex-wrap gap-2">
                                     {(["all", "returned_7d", "purchasers", "unwrappers", "low_confidence"] as AdminBehaviorLeaderboardFilter[]).map((filter) => (
-                                        <button
+                                        <Button variant="ghost"
                                             key={filter}
                                             type="button"
                                             onClick={() => {
@@ -1020,17 +1026,17 @@ export default function UserManagementPage() {
                                                 setBehaviorLeaderboardFilter(filter);
                                             }}
                                             className={cn(
-                                                "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]",
+                                                "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide",
                                                 behaviorLeaderboardFilter === filter
-                                                    ? "border-brand-purple/50 bg-brand-purple/15 text-white"
-                                                    : "border-white/10 bg-white/5 text-gray-400 hover:text-white",
+                                                    ? "border-primary/50 bg-primary/15 text-foreground"
+                                                    : "border-border bg-secondary text-muted-foreground hover:text-foreground",
                                             )}
                                         >
                                             {filter.replace(/_/g, " ")}
-                                        </button>
+                                        </Button>
                                     ))}
                                 </div>
-                                <div className="text-[10px] text-gray-500">
+                                <div className="text-[10px] text-muted-foreground">
                                     {behaviorLeaderboard
                                         ? `${behaviorLeaderboard.totalEligibleUsers} eligible - page size ${behaviorLeaderboard.pageSize}`
                                         : "Loading behavior source"}
@@ -1038,10 +1044,10 @@ export default function UserManagementPage() {
                             </div>
                             <div className="mt-3 grid gap-2">
                                 {!behaviorLeaderboard && behaviorLeaderboardLoading ? (
-                                    <p className="text-sm text-gray-400">Loading behavior leaderboard…</p>
+                                    <p className="text-sm text-muted-foreground">Loading behavior leaderboard…</p>
                                 ) : leaderboardRows.length === 0 ? (
                                     <p
-                                        className="text-sm text-gray-400"
+                                        className="text-sm text-muted-foreground"
                                         data-admin-users-behavior-empty-state="materializer"
                                     >
                                         {behaviorLeaderboard?.warnings[0] || "Run behavior materializer or inspect event facts."}
@@ -1050,7 +1056,7 @@ export default function UserManagementPage() {
                                     <Link
                                         key={row.userId}
                                         href={`/admin/user/${row.userId}`}
-                                        className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3 transition-colors hover:border-brand-purple/35 hover:bg-black/35"
+                                        className="rounded-2xl border border-border bg-background/25 px-3 py-3 transition-colors hover:border-primary/35 hover:bg-background/35"
                                         data-admin-behavior-row-user-id={row.userId}
                                         data-admin-behavior-row-source={row.sourceTruth}
                                         data-admin-behavior-row-freshness={row.freshnessState}
@@ -1059,126 +1065,126 @@ export default function UserManagementPage() {
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-black text-brand-purple">#{((leaderboardPageNumber - 1) * leaderboardPageSize) + index + 1}</span>
-                                                    <p className="truncate text-sm font-bold text-white">
+                                                    <span className="text-xs font-semibold text-primary">#{((leaderboardPageNumber - 1) * leaderboardPageSize) + index + 1}</span>
+                                                    <p className="truncate text-sm font-semibold text-foreground">
                                                         {row.username ? `@${row.username}` : row.displayName}
                                                     </p>
                                                 </div>
-                                                <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-gray-500">
+                                                <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
                                                     {row.userIdentityState === "resolved" ? row.shortUserId : `UID ${row.shortUserId}`}
                                                 </p>
-                                                <p className="mt-1 text-[11px] text-gray-400">
+                                                <p className="mt-1 text-[11px] text-muted-foreground">
                                                     Last meaningful action {formatUtcLabel(row.lastMeaningfulActionAtUtc)}
                                                 </p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-sm font-black text-white">{row.engagementScore}</p>
-                                                <p className="text-[10px] text-gray-500">engagement</p>
+                                                <p className="text-sm font-semibold text-foreground">{row.engagementScore}</p>
+                                                <p className="text-[10px] text-muted-foreground">engagement</p>
                                             </div>
                                         </div>
-                                        <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-gray-300">
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">value {row.valueScore ?? "--"}</span>
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">confidence {row.behaviorConfidence}%</span>
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.purchaseCount} purchases</span>
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.unlockCount} unwraps</span>
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{formatWatchSecondsCompact(row.watchSeconds)} watch</span>
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.taskCompletions} tasks</span>
+                                        <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+                                            <span className="rounded-full border border-border bg-secondary px-2 py-1">value {row.valueScore ?? "--"}</span>
+                                            <span className="rounded-full border border-border bg-secondary px-2 py-1">confidence {row.behaviorConfidence}%</span>
+                                            <span className="rounded-full border border-border bg-secondary px-2 py-1">{row.purchaseCount} purchases</span>
+                                            <span className="rounded-full border border-border bg-secondary px-2 py-1">{row.unlockCount} unwraps</span>
+                                            <span className="rounded-full border border-border bg-secondary px-2 py-1">{formatWatchSecondsCompact(row.watchSeconds)} watch</span>
+                                            <span className="rounded-full border border-border bg-secondary px-2 py-1">{row.taskCompletions} tasks</span>
                                         </div>
-                                        <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.08em] text-gray-500">
+                                        <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">
                                             <span>{row.sourceTruth.replace(/_/g, " ")}</span>
                                             <span>{row.freshnessState}</span>
                                             {row.returnedInLast7d ? <span>returned 7d</span> : null}
                                         </div>
                                         {row.warnings.length > 0 || getBehaviorAvailabilityLabel(getBehaviorRollup(row.userId)) ? (
-                                            <p className="mt-2 text-[11px] text-amber-200">{getBehaviorAvailabilityLabel(getBehaviorRollup(row.userId)) ?? row.warnings[0]}</p>
+                                            <p className="mt-2 text-[11px] text-warning">{getBehaviorAvailabilityLabel(getBehaviorRollup(row.userId)) ?? row.warnings[0]}</p>
                                         ) : null}
                                     </Link>
                                 ))}
                             </div>
-                            <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
-                                <div className="text-[10px] text-gray-500">
+                            <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+                                <div className="text-[10px] text-muted-foreground">
                                     {behaviorLeaderboard
                                         ? `Page ${behaviorLeaderboard.page} of ${behaviorLeaderboard.totalPages} - generated ${formatUtcLabel(behaviorLeaderboard.generatedAtUtc)}`
                                         : "Page 1"}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <button
+                                    <Button variant="ghost"
                                         type="button"
                                         onClick={() => setBehaviorLeaderboardPage((current) => Math.max(1, current - 1))}
                                         disabled={!behaviorLeaderboard || behaviorLeaderboard.page <= 1}
-                                        className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 disabled:opacity-40"
+                                        className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border bg-secondary px-3 text-xs font-semibold text-muted-foreground disabled:opacity-40"
                                     >
                                         <ChevronLeft className="h-3.5 w-3.5" />
                                         Previous
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button variant="ghost"
                                         type="button"
                                         onClick={() => setBehaviorLeaderboardPage((current) => behaviorLeaderboard ? Math.min(behaviorLeaderboard.totalPages, current + 1) : current + 1)}
                                         disabled={!behaviorLeaderboard || behaviorLeaderboard.page >= behaviorLeaderboard.totalPages}
-                                        className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 disabled:opacity-40"
+                                        className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border bg-secondary px-3 text-xs font-semibold text-muted-foreground disabled:opacity-40"
                                     >
                                         Next
                                         <ChevronRight className="h-3.5 w-3.5" />
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </section>
                     </div>
 
                     <div
-                        className="divide-y divide-white/10 border-y border-white/10"
+                        className="divide-y divide-border border-y border-border"
                         data-admin-user-management-summary-lane="identity-activity-confidence"
                     >
                         <div className="py-4" data-admin-user-management-identity-handoff="summary">
                             <div className="flex items-center justify-between gap-2">
-                                <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Identity handoff</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Identity handoff</p>
                                 <AdminTruthBadge
                                     state={userManagementSummaries.length ? "live" : loading ? "refreshing" : "unavailable"}
                                     pendingInitialLoad={loading}
                                     hasUsableValue={userManagementSummaries.length > 0}
-                                    className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                    className="px-1.5 py-0 text-[8px] tracking-wide"
                                 />
                             </div>
-                            <p className="mt-2 text-sm font-bold text-white">
+                            <p className="mt-2 text-sm font-semibold text-foreground">
                                 {identityHandoffSummaryLabel}
                             </p>
-                            <p className="mt-1 text-[11px] leading-5 text-gray-400">
+                            <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
                                 Guest link status is visible per row. Raw user/event rows stay behind detail actions.
                             </p>
                         </div>
                         <div className="py-4" data-admin-user-management-consent-mode="summary">
                             <div className="flex items-center justify-between gap-2">
-                                <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Consent/tracking</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Consent/tracking</p>
                                 <AdminTruthBadge
                                     state={userManagementSummaries.some((entry) => entry.consentMode.mode === "unavailable") ? "degraded" : userManagementSummaries.length ? "live" : "unavailable"}
                                     pendingInitialLoad={loading}
                                     hasUsableValue={userManagementSummaries.length > 0}
-                                    className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                    className="px-1.5 py-0 text-[8px] tracking-wide"
                                 />
                             </div>
-                            <p className="mt-2 text-sm font-bold text-white">
+                            <p className="mt-2 text-sm font-semibold text-foreground">
                                 {isLocalAdminUiTestSession
                                     ? "No consent source loaded"
                                     : `${userManagementSummaries.filter((entry) => entry.consentMode.mode !== "unavailable").length} consent records visible`}
                             </p>
-                            <p className="mt-1 text-[11px] leading-5 text-gray-400">
+                            <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
                                 Behavioral metrics wait for consent and source materialization before they can be shown.
                             </p>
                         </div>
                         <div className="py-4" data-admin-user-management-metric-confidence="summary">
                             <div className="flex items-center justify-between gap-2">
-                                <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Metric confidence</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Metric confidence</p>
                                 <AdminTruthBadge
                                     state={lowConfidenceUsers.length ? "degraded" : userManagementSummaries.length ? "live" : "unavailable"}
                                     pendingInitialLoad={loading}
                                     hasUsableValue={userManagementSummaries.length > 0}
-                                    className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                    className="px-1.5 py-0 text-[8px] tracking-wide"
                                 />
                             </div>
-                            <p className="mt-2 text-sm font-bold text-white">
+                            <p className="mt-2 text-sm font-semibold text-foreground">
                                 {metricConfidenceSummaryLabel}
                             </p>
-                            <p className="mt-1 text-[11px] leading-5 text-gray-400">
+                            <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
                                 Missing metrics show their producer, bridge, or materializer in the user detail drilldown.
                             </p>
                         </div>
@@ -1224,63 +1230,63 @@ export default function UserManagementPage() {
             {viewMode === 'feedback' && (
                 <div className="space-y-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-0">
                     {loadingFeedback ? (
-                        <div className="rounded-[1.75rem] border border-white/5 bg-black/20 p-8 text-center sm:p-12">
-                            <Loader2 className="w-8 h-8 text-brand-purple animate-spin mx-auto mb-4" />
-                            <p className="text-gray-500">Loading feedback submissions...</p>
+                        <div className="rounded-[1.75rem] border border-border bg-background/20 p-8 text-center sm:p-12">
+                            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+                            <p className="text-muted-foreground">Loading feedback submissions...</p>
                         </div>
                     ) : feedback.length === 0 ? (
-                        <div className="glass-panel rounded-[1.75rem] border border-white/5 p-8 text-center sm:rounded-3xl sm:p-12">
-                            <MessageSquare className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No feedback submissions found yet.</p>
+                        <div className="glass-panel rounded-[1.75rem] border border-border p-8 text-center sm:rounded-3xl sm:p-12">
+                            <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                            <p className="text-muted-foreground text-lg">No feedback submissions found yet.</p>
                         </div>
                     ) : (
                         <div className="grid gap-3 sm:gap-4">
                             {feedback.map((item) => (
-                                <div key={item.id} className="glass-panel space-y-4 overflow-hidden rounded-[1.75rem] border border-white/5 p-4 transition-colors hover:border-white/10 sm:rounded-3xl sm:p-6">
+                                <div key={item.id} className="glass-panel space-y-4 overflow-hidden rounded-[1.75rem] border border-border p-4 transition-colors hover:border-border sm:rounded-3xl sm:p-6">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                         <div className="flex min-w-0 items-center gap-3">
-                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-sm font-bold text-gray-500">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-muted-foreground">
                                                 {(item.email?.[0] || "?").toUpperCase()}
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="break-all text-sm font-bold text-white sm:text-base">{item.email || 'Anonymous'}</div>
-                                                <div className="text-xs text-gray-500">
+                                                <div className="break-all text-sm font-semibold text-foreground sm:text-base">{item.email || 'Anonymous'}</div>
+                                                <div className="text-xs text-muted-foreground">
                                                     {typeof item.timestamp === "number" && item.timestamp > 0 ? format(item.timestamp, 'MMM d, h:mm a') : 'Just now'}
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-2 sm:max-w-[45%] sm:justify-end">
                                             {item.rating ? (
-                                                <div className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">
+                                                <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                                                     {item.rating} / 5 Rating
                                                 </div>
                                             ) : null}
                                             {item.category ? (
-                                                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-300">
+                                                <div className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                                     {item.category}
                                                 </div>
                                             ) : null}
                                         </div>
                                     </div>
-                                    <div className="relative rounded-2xl border border-white/5 bg-white/5 p-3 sm:p-4">
+                                    <div className="relative rounded-2xl border border-border bg-secondary p-3 sm:p-4">
                                         <div className="absolute top-4 right-4 opacity-5 pointer-events-none">
                                             <MessageSquare className="w-12 h-12" />
                                         </div>
-                                        <p className="relative z-10 whitespace-pre-wrap break-words text-sm text-gray-300 sm:text-base">{item.message}</p>
+                                        <p className="relative z-10 whitespace-pre-wrap break-words text-sm text-muted-foreground sm:text-base">{item.message}</p>
                                     </div>
                                     <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <div className="max-w-full break-all text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                                        <div className="max-w-full break-all text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                                             User ID: {item.userId}
                                         </div>
-                                        <button
+                                        <Button variant="ghost"
                                             onClick={() => {
                                                 setSearchQuery(item.userId);
                                                 setViewMode('users');
                                             }}
-                                            className="self-start text-xs font-bold text-brand-purple hover:underline sm:self-auto"
+                                            className="self-start text-xs font-semibold text-primary hover:underline sm:self-auto"
                                         >
                                             View User Profile
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             ))}
@@ -1292,12 +1298,12 @@ export default function UserManagementPage() {
             {viewMode === 'tasks' && (
                 isLocalAdminUiTestSession ? (
                     <div
-                        className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 text-sm text-gray-300"
+                        className="rounded-2xl border border-border bg-secondary p-5 text-sm text-muted-foreground"
                         data-admin-users-tasks-fixture-boundary="true"
                         data-admin-users-tasks-fixture-state="source_missing"
                     >
-                        <p className="font-bold text-white">Task controls require verified admin task data.</p>
-                        <p className="mt-2 text-xs leading-5 text-gray-400">
+                        <p className="font-semibold text-foreground">Task controls require verified admin task data.</p>
+                        <p className="mt-2 text-xs leading-5 text-muted-foreground">
                             permission_blocked: this fixture keeps the task builder read-only and skips protected task reads and writes.
                         </p>
                     </div>
@@ -1307,12 +1313,12 @@ export default function UserManagementPage() {
             )}
 
             {(actionType || editUsernameUser || editBalanceUser || contentUser || historyUser || securityDetailsUser) && (
-                <section className="rounded-2xl border border-white/10 bg-black/40 p-3 sm:p-4">
-                    <div className="mb-3 flex flex-col gap-2 border-b border-white/8 pb-3 sm:flex-row sm:items-center sm:justify-between">
+                <section className="rounded-2xl border border-border bg-background/40 p-3 sm:p-4">
+                    <div className="mb-3 flex flex-col gap-2 border-b border-border pb-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple">Selected action</p>
-                            <h2 className="mt-1 text-base font-black text-white">Confirm connected controls</h2>
-                            <p className="mt-1 text-xs text-gray-400">Missing data stays labeled.</p>
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Selected action</p>
+                            <h2 className="mt-1 text-base font-semibold text-foreground">Confirm connected controls</h2>
+                            <p className="mt-1 text-xs text-muted-foreground">Missing data stays labeled.</p>
                         </div>
                         <Button
                             variant="ghost"
@@ -1333,22 +1339,22 @@ export default function UserManagementPage() {
                     </div>
                     <div className="grid gap-3 xl:grid-cols-2">
                     {editUsernameUser && (
-                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
-                            <h3 className="mb-1 text-base font-bold text-white">Edit username</h3>
-                            <p className="mb-4 text-sm text-gray-400">
+                        <Surface className="w-full rounded-xl border border-border bg-card p-4">
+                            <h3 className="mb-1 text-base font-semibold text-foreground">Edit username</h3>
+                            <p className="mb-4 text-sm text-muted-foreground">
                                 Change username for <strong>{editUsernameUser.email}</strong>
                             </p>
                             <div className="mb-4">
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">New Username</label>
-                                <input
+                                <label className="block text-xs font-semibold text-muted-foreground uppercase mb-2">New Username</label>
+                                <Input
                                     type="text"
-                                    className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-purple outline-none"
+                                    className="w-full bg-background/50 border border-border rounded-xl p-3 text-foreground focus:border-primary outline-none"
                                     placeholder="Enter new username..."
                                     value={editUsernameInput}
                                     onChange={(e) => setEditUsernameInput(e.target.value)}
                                 />
-                                <p className="mt-2 text-xs text-brand-purple/70">Requires exactly 3-20 chars (a-z, 0-9, _).</p>
-                                <p className="mt-1 text-xs font-semibold text-red-300">Changes the creator&apos;s public profile URL immediately.</p>
+                                <p className="mt-2 text-xs text-primary/70">Requires exactly 3-20 chars (a-z, 0-9, _).</p>
+                                <p className="mt-1 text-xs font-semibold text-destructive">Changes the creator&apos;s public profile URL immediately.</p>
                             </div>
                             <div className="flex justify-end gap-3">
                                 <Button variant="ghost" onClick={() => setEditUsernameUser(null)}>Cancel</Button>
@@ -1360,23 +1366,23 @@ export default function UserManagementPage() {
                                     {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save username"}
                                 </Button>
                             </div>
-                        </div>
+                        </Surface>
                     )}
 
                     {actionType && actionUser && (
-                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
-                            <h3 className="mb-1 text-base font-bold text-white">
+                        <Surface className="w-full rounded-xl border border-border bg-card p-4">
+                            <h3 className="mb-1 text-base font-semibold text-foreground">
                                 {actionType === "ban" ? "Ban user" : actionType === "suspend" ? "Suspend user" : "Reactivate user"}
                             </h3>
-                            <p className="mb-4 text-sm text-gray-400">
+                            <p className="mb-4 text-sm text-muted-foreground">
                                 Are you sure you want to {actionType} <strong>{actionUser.email}</strong>?
                                 {actionType !== "activate" && " This removes platform access."}
                             </p>
                             {actionType !== 'activate' && (
                                 <div className="mb-4">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Reason</label>
-                                    <textarea
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-purple outline-none resize-none h-24"
+                                    <label className="block text-xs font-semibold text-muted-foreground uppercase mb-2">Reason</label>
+                                    <Textarea
+                                        className="w-full bg-background/50 border border-border rounded-xl p-3 text-foreground focus:border-primary outline-none resize-none h-24"
                                         placeholder={`Reason for ${actionType}...`}
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
@@ -1393,7 +1399,7 @@ export default function UserManagementPage() {
                                     {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : `Confirm ${actionType === 'ban' ? 'Ban' : actionType === 'suspend' ? 'Suspend' : 'Reactivate'}`}
                                 </Button>
                             </div>
-                        </div>
+                        </Surface>
                     )}
                     {editBalanceUser && (
                         <BalanceAdjustmentPanel
@@ -1411,86 +1417,86 @@ export default function UserManagementPage() {
                         />
                     )}
                     {contentUser && (
-                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
-                            <h3 className="mb-1 text-base font-bold text-white">Content access</h3>
-                            <p className="mb-4 text-sm text-gray-400">Unlocked Drops for <strong>{contentUser.username ? `@${contentUser.username}` : contentUser.displayName || contentUser.email}</strong>.</p>
+                        <Surface className="w-full rounded-xl border border-border bg-card p-4">
+                            <h3 className="mb-1 text-base font-semibold text-foreground">Content access</h3>
+                            <p className="mb-4 text-sm text-muted-foreground">Unlocked Drops for <strong>{contentUser.username ? `@${contentUser.username}` : contentUser.displayName || contentUser.email}</strong>.</p>
                             <div className="mb-4">
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Unlocked Drops ({contentUser.unlockedContent?.length || 0})</label>
+                                <label className="block text-xs font-semibold text-muted-foreground uppercase mb-2">Unlocked Drops ({contentUser.unlockedContent?.length || 0})</label>
                                 <div className="max-h-40 overflow-y-auto space-y-2 mb-4">
                                     {contentUser.unlockedContent && contentUser.unlockedContent.length > 0 ? (
                                         contentUser.unlockedContent.map(dropId => (
-                                            <div key={dropId} className="flex items-center justify-between bg-white/5 p-2 rounded-lg text-sm text-gray-300">
+                                            <div key={dropId} className="flex items-center justify-between bg-secondary p-2 rounded-lg text-sm text-muted-foreground">
                                                 <div className="min-w-0">
                                                     <span className="block truncate">{dropReferences[dropId]?.title || dropId}</span>
-                                                    <span className="block truncate text-[11px] text-gray-500">{dropId}</span>
+                                                    <span className="block truncate text-[11px] text-muted-foreground">{dropId}</span>
                                                 </div>
-                                                <button onClick={() => handleManageContent('remove', dropId)} disabled={contentActionProcessing} className="p-1 transition-colors" title="Revoke access" aria-label="Revoke access"><Ban className="w-3 h-3" /></button>
+                                                <Button variant="ghost" onClick={() => handleManageContent('remove', dropId)} disabled={contentActionProcessing} className="p-1 transition-colors" title="Revoke access" aria-label="Revoke access"><Ban className="w-3 h-3" /></Button>
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="text-sm text-gray-500">No unlocked Drops.</div>
+                                        <div className="text-sm text-muted-foreground">No unlocked Drops.</div>
                                     )}
                                 </div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Grant Access (Drop ID)</label>
+                                <label className="block text-xs font-semibold text-muted-foreground uppercase mb-2">Grant Access (Drop ID)</label>
                                 <div className="flex gap-2">
-                                    <input type="text" className="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-white focus:border-brand-purple outline-none text-sm" placeholder="Enter Drop ID..." value={contentInput} onChange={(e) => setContentInput(e.target.value)} />
+                                    <Input type="text" className="w-full bg-background/50 border border-border rounded-xl p-2 text-foreground focus:border-primary outline-none text-sm" placeholder="Enter Drop ID..." value={contentInput} onChange={(e) => setContentInput(e.target.value)} />
                                     <Button size="sm" variant="brand" disabled={contentActionProcessing || !contentInput} onClick={() => handleManageContent('add', contentInput)}><Plus className="w-4 h-4" /></Button>
                                 </div>
                             </div>
                             <div className="flex justify-end">
                                 <Button variant="ghost" onClick={() => { setContentUser(null); setContentInput(""); }}>Close</Button>
                             </div>
-                        </div>
+                        </Surface>
                     )}
                     {securityDetailsUser && (
-                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
-                            <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-white">
-                                <Shield className="w-5 h-5 text-red-500" /> Security details
+                        <Surface className="w-full rounded-xl border border-border bg-card p-4">
+                            <h3 className="mb-1 flex items-center gap-2 text-base font-semibold text-foreground">
+                                <Shield className="w-5 h-5 text-destructive" /> Security details
                             </h3>
-                            <p className="mb-4 flex items-center gap-2 text-sm text-gray-400">
-                                Target: <span className="text-white font-bold">{securityDetailsUser.username ? `@${securityDetailsUser.username}` : securityDetailsUser.displayName || securityDetailsUser.email}</span>
+                            <p className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+                                Target: <span className="text-foreground font-semibold">{securityDetailsUser.username ? `@${securityDetailsUser.username}` : securityDetailsUser.displayName || securityDetailsUser.email}</span>
                             </p>
 
                             <div className="mb-4 space-y-3">
-                                <div className="bg-black/50 p-4 rounded-xl border border-white/5">
+                                <div className="bg-background/50 p-4 rounded-xl border border-border">
                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs text-gray-500 font-bold uppercase">Total Violations</span>
-                                        <span className="text-lg font-black text-red-500">{securityDetailsUser.securityFlags?.ripAttempts || 0}</span>
+                                        <span className="text-xs text-muted-foreground font-semibold uppercase">Total Violations</span>
+                                        <span className="text-lg font-semibold text-destructive">{securityDetailsUser.securityFlags?.ripAttempts || 0}</span>
                                     </div>
                                     {securityDetailsUser.securityFlags?.lastViolation && (
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-500 font-bold uppercase">Last Incident</span>
-                                            <span className="text-sm font-mono text-gray-300">
+                                            <span className="text-xs text-muted-foreground font-semibold uppercase">Last Incident</span>
+                                            <span className="text-sm font-mono text-muted-foreground">
                                                 {format(new Date(securityDetailsUser.securityFlags.lastViolation), 'MMM d, yyyy h:mm a')}
                                             </span>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20">
-                                    <span className="text-xs text-red-400 font-bold uppercase block mb-1">What triggered it</span>
-                                    <p className="text-sm font-semibold text-red-200">
+                                <div className="bg-destructive/10 p-4 rounded-xl border border-destructive/20">
+                                    <span className="text-xs text-destructive font-semibold uppercase block mb-1">What triggered it</span>
+                                    <p className="text-sm font-semibold text-destructive">
                                         {selectedSecurityDescriptor?.label || "Viewer protection warning"}
                                     </p>
-                                    <p className="mt-2 text-sm text-red-300 break-words">
+                                    <p className="mt-2 text-sm text-destructive break-words">
                                         {securityDetailsUser.securityFlags?.lastViolationMessage || selectedSecurityDescriptor?.message || "The viewer logged a protection warning for this account."}
                                     </p>
                                 </div>
 
                                 {securityDetailsUser.securityFlags?.lastViolationDropId && (
-                                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                        <span className="text-xs text-gray-500 font-bold uppercase block mb-1">Where it happened</span>
-                                        <p className="mb-2 text-sm text-gray-300">
+                                    <div className="bg-secondary p-4 rounded-xl border border-border">
+                                        <span className="text-xs text-muted-foreground font-semibold uppercase block mb-1">Where it happened</span>
+                                        <p className="mb-2 text-sm text-muted-foreground">
                                             {selectedSecurityDescriptor?.locationLabel || "Protected viewer"}
                                         </p>
-                                        <p className="text-sm text-brand-purple font-mono break-all">
+                                        <p className="text-sm text-primary font-mono break-all">
                                             {securityDetailsUser.securityFlags.lastViolationDropId}
                                         </p>
                                     </div>
                                 )}
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                            <div className="flex justify-end gap-3 pt-4 border-t border-border">
                                 <Button variant="ghost" onClick={() => setSecurityDetailsUser(null)}>Close details</Button>
                                 {(!securityDetailsUser.status || securityDetailsUser.status === 'active') && (
                                     <Button variant="danger" onClick={() => {
@@ -1502,7 +1508,7 @@ export default function UserManagementPage() {
                                     </Button>
                                 )}
                             </div>
-                        </div>
+                        </Surface>
                     )}
                     </div>
                 </section>

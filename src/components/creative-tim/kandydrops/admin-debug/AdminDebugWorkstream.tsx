@@ -14,7 +14,7 @@ export function AdminDebugWorkstream({ eyebrow, title, subtitle, children }: Adm
         <section className="space-y-4" data-admin-debug-workstream={eyebrow.toLowerCase().replace(/\s+/g, "-")}>
             <header className="min-w-0 space-y-2 wrap-anywhere">
                 <div className="min-w-0 wrap-anywhere">
-                    <p className="text-xs font-bold tracking-[0.15em] text-primary min-w-0 wrap-anywhere">{eyebrow}</p>
+                    <p className="text-xs font-semibold tracking-wide text-primary min-w-0 wrap-anywhere">{eyebrow}</p>
                     <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{title}</h2>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground min-w-0 wrap-anywhere">{subtitle}</p>
                 </div>

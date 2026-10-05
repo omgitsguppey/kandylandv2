@@ -1,5 +1,10 @@
 "use client";
 
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Input } from "@/components/ui/input";
+
+
 import {
   CREATOR_BOOKING_MIN_MINUTES,
   CREATOR_BOOKING_RATES,
@@ -23,15 +28,15 @@ type Props = {
 const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function inputClass() {
-  return "w-full rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm text-white outline-none focus:border-brand-purple/60";
+  return "w-full rounded-2xl border border-border bg-background/35 px-3 py-2 text-sm text-foreground outline-none focus:border-primary/60";
 }
 
 function cardClass() {
-  return "rounded-2xl border border-white/10 bg-black/25 p-3";
+  return "rounded-2xl border border-border bg-background/25 p-3";
 }
 
 function FieldLabel(props: { children: string }) {
-  return <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{props.children}</span>;
+  return <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{props.children}</span>;
 }
 
 function toNumber(value: string) {
@@ -49,7 +54,7 @@ function updateAvailabilityWindow(windows: CreatorAvailabilityWindow[], id: stri
 
 function ToggleRow(props: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
   return (
-    <label className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200">
+    <label className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-border bg-background/20 px-3 py-2 text-sm text-foreground">
       <span>{props.label}</span>
       <input type="checkbox" checked={props.checked} onChange={(event) => props.onChange(event.target.checked)} className="h-4 w-4 accent-brand-purple" />
     </label>
@@ -60,7 +65,7 @@ function NumericField(props: { label: string; value: number; min: number; max?: 
   return (
     <label className="space-y-2">
       <FieldLabel>{props.label}</FieldLabel>
-      <input
+      <Input
         type="number"
         min={props.min}
         max={props.max}
@@ -85,7 +90,7 @@ export function CreatorFanExperienceSettingsFields({
   return (
     <>
       <div className={cardClass()}>
-        <p className="text-sm font-bold text-white">Access toggles</p>
+        <p className="text-sm font-semibold text-foreground">Access toggles</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {[
             ["subscriptionsEnabled", "Fan Pass"],
@@ -101,7 +106,7 @@ export function CreatorFanExperienceSettingsFields({
       </div>
 
       <div className={cardClass()}>
-        <p className="text-sm font-bold text-white">Pricing</p>
+        <p className="text-sm font-semibold text-foreground">Pricing</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <NumericField label="Fan Pass GD" value={settings.subscriptionPriceGd} min={CREATOR_SUBSCRIPTION_MIN_GD} onChange={(value) => setSettings((current) => ({ ...current, subscriptionPriceGd: value }))} />
           <NumericField label="Phone GD / minute" value={settings.phoneRatePerMinuteGd} min={CREATOR_BOOKING_RATES.phone} onChange={(value) => setSettings((current) => ({ ...current, phoneRatePerMinuteGd: value }))} />
@@ -112,13 +117,13 @@ export function CreatorFanExperienceSettingsFields({
       </div>
 
       <div className={cardClass()}>
-        <p className="text-sm font-bold text-white">Requests</p>
+        <p className="text-sm font-semibold text-foreground">Requests</p>
         <div className="mt-3 space-y-2">
           {settings.requestCategories.map((category) => (
-            <div key={category.id} className="grid gap-2 rounded-2xl border border-white/10 bg-black/20 p-3 sm:grid-cols-[1fr_120px_auto]">
+            <div key={category.id} className="grid gap-2 rounded-2xl border border-border bg-background/20 p-3 sm:grid-cols-[1fr_120px_auto]">
               <label className="space-y-2">
                 <FieldLabel>Request name</FieldLabel>
-                <input value={category.label} onChange={(event) => setSettings((current) => ({ ...current, requestCategories: updateCategory(current.requestCategories, category.id, { label: event.target.value }) }))} className={inputClass()} />
+                <Input value={category.label} onChange={(event) => setSettings((current) => ({ ...current, requestCategories: updateCategory(current.requestCategories, category.id, { label: event.target.value }) }))} className={inputClass()} />
               </label>
               <NumericField label="GD" value={category.priceGd} min={0} onChange={(value) => setSettings((current) => ({ ...current, requestCategories: updateCategory(current.requestCategories, category.id, { priceGd: value }) }))} />
               <ToggleRow label="On" checked={category.enabled} onChange={(checked) => setSettings((current) => ({ ...current, requestCategories: updateCategory(current.requestCategories, category.id, { enabled: checked }) }))} />
@@ -128,19 +133,19 @@ export function CreatorFanExperienceSettingsFields({
       </div>
 
       <div className={cardClass()}>
-        <p className="text-sm font-bold text-white">Availability</p>
+        <p className="text-sm font-semibold text-foreground">Availability</p>
         <label className="mt-3 block space-y-2">
           <FieldLabel>Timezone</FieldLabel>
-          <input value={settings.availabilityTimezone} onChange={(event) => setSettings((current) => ({ ...current, availabilityTimezone: event.target.value }))} className={inputClass()} />
+          <Input value={settings.availabilityTimezone} onChange={(event) => setSettings((current) => ({ ...current, availabilityTimezone: event.target.value }))} className={inputClass()} />
         </label>
         <div className="mt-3 space-y-2">
           {settings.availabilityWindows.map((window) => (
-            <div key={window.id} className="grid gap-2 rounded-2xl border border-white/10 bg-black/20 p-3 sm:grid-cols-5">
+            <div key={window.id} className="grid gap-2 rounded-2xl border border-border bg-background/20 p-3 sm:grid-cols-5">
               <label className="space-y-2">
                 <FieldLabel>Day</FieldLabel>
-                <select value={window.dayOfWeek} onChange={(event) => setSettings((current) => ({ ...current, availabilityWindows: updateAvailabilityWindow(current.availabilityWindows, window.id, { dayOfWeek: toNumber(event.target.value) }) }))} className={inputClass()}>
-                  {dayLabels.map((label, index) => <option key={label} value={index}>{label}</option>)}
-                </select>
+                <NativeSelect value={window.dayOfWeek} onChange={(event) => setSettings((current) => ({ ...current, availabilityWindows: updateAvailabilityWindow(current.availabilityWindows, window.id, { dayOfWeek: toNumber(event.target.value) }) }))} className={inputClass()}>
+                  {dayLabels.map((label, index) => <NativeSelectOption key={label} value={index}>{label}</NativeSelectOption>)}
+                </NativeSelect>
               </label>
               <TimeField label="Start" hour={window.startHour} minute={window.startMinute} onChange={(hour, minute) => setSettings((current) => ({ ...current, availabilityWindows: updateAvailabilityWindow(current.availabilityWindows, window.id, { startHour: hour, startMinute: minute }) }))} />
               <TimeField label="End" hour={window.endHour} minute={window.endMinute} onChange={(hour, minute) => setSettings((current) => ({ ...current, availabilityWindows: updateAvailabilityWindow(current.availabilityWindows, window.id, { endHour: hour, endMinute: minute }) }))} />
@@ -158,7 +163,7 @@ export function CreatorFanExperienceSettingsFields({
       </div>
 
       <div className={cardClass()}>
-        <p className="text-sm font-bold text-white">Restrictions</p>
+        <p className="text-sm font-semibold text-foreground">Restrictions</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {[
             ["subscriptionsRestricted", "Fan Pass paused"],
@@ -173,7 +178,7 @@ export function CreatorFanExperienceSettingsFields({
           ))}
         </div>
         {revenuePauseSelected ? (
-          <label className="mt-3 flex min-h-11 items-start gap-3 rounded-2xl border border-brand-purple/25 bg-brand-purple/10 p-3 text-sm text-zinc-100">
+          <label className="mt-3 flex min-h-11 items-start gap-3 rounded-2xl border border-primary/25 bg-primary/10 p-3 text-sm text-foreground">
             <input type="checkbox" checked={restrictionConfirmed} onChange={(event) => setRestrictionConfirmed(event.target.checked)} className="mt-1 h-4 w-4 accent-brand-purple" />
             <span>Confirm that one or more creator earning lanes may be paused. This is audited.</span>
           </label>
@@ -187,7 +192,7 @@ function TimeField(props: { label: string; hour: number; minute: number; onChang
   return (
     <label className="space-y-2">
       <FieldLabel>{props.label}</FieldLabel>
-      <input
+      <Input
         type="time"
         value={`${String(props.hour).padStart(2, "0")}:${String(props.minute).padStart(2, "0")}`}
         onChange={(event) => {

@@ -1,5 +1,8 @@
 "use client";
 
+import { Surface } from "@/components/ui/content-layout";
+
+
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ArrowDownLeft, ArrowUpRight, Loader2, ScrollText, TrendingUp } from "lucide-react";
@@ -73,33 +76,33 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
     };
 
     return (
-        <div className="relative flex max-h-[34rem] flex-col overflow-hidden rounded-[1.65rem] border border-fuchsia-200/15 bg-[linear-gradient(145deg,rgba(59,21,84,0.78),rgba(13,8,25,0.96)_58%,rgba(7,5,15,0.98))] p-4 shadow-[0_18px_48px_rgba(5,0,18,0.36)]">
+        <Surface className="relative flex max-h-[34rem] flex-col overflow-hidden rounded-[1.65rem] border border-primary/15 bg-card p-4 shadow-none">
             <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
                     <div>
-                        <h3 className="flex items-center gap-2 text-lg font-black text-white">
-                            <ScrollText className="h-5 w-5 text-fuchsia-200" />
+                        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                            <ScrollText className="h-5 w-5 text-primary" />
                             Transaction history
                         </h3>
-                        <p className="mt-1 text-sm text-gray-400">{user.displayName || user.email || "Selected user"} - Last 30 records</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{user.displayName || user.email || "Selected user"} - Last 30 records</p>
                     </div>
-                    <div className="rounded-[1.1rem] border border-fuchsia-200/15 bg-fuchsia-200/[0.08] px-3 py-2 text-right">
-                        <span className="block text-[10px] font-bold uppercase text-gray-500">Balance</span>
-                        <span className="font-mono font-bold text-brand-purple">{user.gumDropsBalance || 0} GD</span>
+                    <div className="rounded-[1.1rem] border border-primary/15 bg-primary/[0.08] px-3 py-2 text-right">
+                        <span className="block text-[10px] font-semibold uppercase text-muted-foreground">Balance</span>
+                        <span className="font-mono font-semibold text-primary">{user.gumDropsBalance || 0} GD</span>
                     </div>
             </div>
 
             <div className="custom-scrollbar -mr-2 flex-1 space-y-3 overflow-y-auto pr-2">
                     {loading ? (
                         <div className="flex justify-center py-12">
-                            <Loader2 className="h-6 w-6 animate-spin text-brand-purple" aria-hidden="true" />
+                            <Loader2 className="h-6 w-6 animate-spin text-primary" aria-hidden="true" />
                         </div>
                     ) : error ? (
-                        <div className="rounded-xl border border-red-500/20 bg-red-500/10 py-8 text-center text-sm text-red-200">
+                        <div className="rounded-xl border border-destructive/20 bg-destructive/10 py-8 text-center text-sm text-destructive">
                             <ScrollText className="mx-auto mb-3 h-8 w-8 opacity-60" />
                             {error}
                         </div>
                     ) : transactions.length === 0 ? (
-                        <div className="rounded-[1.15rem] border border-dashed border-white/10 bg-black/20 py-12 text-center text-sm text-violet-100/50">
+                        <div className="rounded-[1.15rem] border border-dashed border-border bg-background/20 py-12 text-center text-sm text-primary/50">
                             <ScrollText className="mx-auto mb-3 h-8 w-8 opacity-20" />
                             No recent transactions for this user.
                         </div>
@@ -112,42 +115,42 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                             return (
                                 <div
                                     key={tx.id}
-                                    className="flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-black/25 p-3 transition-colors hover:border-fuchsia-200/20 hover:bg-fuchsia-200/[0.045]"
+                                    className="flex items-center justify-between rounded-[1.15rem] border border-border bg-background/25 p-3 transition-colors hover:border-primary/20 hover:bg-primary/[0.045]"
                                 >
                                     <div className="min-w-0 flex-1 pr-4">
                                         <div className="mb-1 flex items-center gap-2">
                                             {tx.status === "failed" ? (
-                                                <span className="rounded border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-[10px] font-bold capitalize text-red-500">
+                                                <span className="rounded border border-destructive/20 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-destructive">
                                                     Failed
                                                 </span>
                                             ) : null}
                                             <span
-                                                className={`rounded border px-2 py-0.5 text-[10px] font-bold capitalize ${
+                                                className={`rounded border px-2 py-0.5 text-[10px] font-semibold capitalize ${
                                                     tx.type === "admin_adjustment"
                                                     || tx.type === "purchase_currency"
                                                     || tx.type === "daily_reward"
                                                     || tx.type === "referral_bonus"
                                                     || tx.type === "onboarding_reward"
-                                                        ? "border-brand-purple/20 bg-brand-purple/10 text-brand-purple"
+                                                        ? "border-primary/20 bg-primary/10 text-primary"
                                                         : tx.type === "unlock_content"
-                                                            ? "border-purple-500/20 bg-purple-500/10 text-purple-400"
+                                                            ? "border-primary/20 bg-primary/10 text-primary"
                                                             : isCreatorSpend
-                                                                ? "border-sky-400/20 bg-sky-500/10 text-sky-300"
-                                                                : "border-gray-500/20 bg-gray-500/10 text-gray-400"
+                                                                ? "border-info/20 bg-info/10 text-info"
+                                                                : "border-border bg-secondary text-muted-foreground"
                                                 }`}
                                             >
                                                 {getTransactionBadgeLabel(tx)}
                                             </span>
                                             {isCreatorSpend && tx.ledgerSource ? (
-                                                <span className="rounded border border-sky-400/20 bg-black/30 px-2 py-0.5 text-[10px] font-bold text-sky-200">
+                                                <span className="rounded border border-info/20 bg-background/30 px-2 py-0.5 text-[10px] font-semibold text-info">
                                                     {tx.ledgerSource}
                                                 </span>
                                             ) : null}
-                                            <span className="whitespace-nowrap text-xs text-gray-500">
+                                            <span className="whitespace-nowrap text-xs text-muted-foreground">
                                                 {formatTxTime(tx.timestamp as number)}
                                             </span>
                                         </div>
-                                        <p className="truncate text-sm text-gray-300" title={tx.description}>
+                                        <p className="truncate text-sm text-muted-foreground" title={tx.description}>
                                             {getTransactionDisplayLabel(tx)}
                                         </p>
                                         {tx.type === "purchase_currency" ? (() => {
@@ -156,13 +159,13 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                                                 tx.grossRevenueUsd ?? tx.cost ?? 0,
                                             );
                                             return (
-                                                <p className="mt-1 text-[11px] text-gray-500">
+                                                <p className="mt-1 text-[11px] text-muted-foreground">
                                                     {`$${economics.grossRevenueUsd.toFixed(2)} cash - ${economics.bonusGumDrops.toLocaleString()} bonus GD - $${economics.adjustedProfitUsd.toFixed(2)} adjusted`}
                                                 </p>
                                             );
                                         })() : null}
                                         {isCreatorSpend ? (
-                                            <p className="mt-1 text-[11px] text-gray-500">
+                                            <p className="mt-1 text-[11px] text-muted-foreground">
                                                 {`Purchased spent: ${tx.purchasedAmountSpent ?? 0} GD - Reward spent: ${tx.rewardAmountSpent ?? 0} GD - Creator share: ${tx.creatorRevenueShareGd ?? 0} GD`}
                                             </p>
                                         ) : null}
@@ -170,13 +173,13 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
 
                                     <div
                                         className={`flex shrink-0 items-center gap-1 font-mono font-bold ${
-                                            isPositive ? "text-brand-purple" : isZero ? "text-gray-400" : "text-red-400"
+                                            isPositive ? "text-primary" : isZero ? "text-muted-foreground" : "text-destructive"
                                         }`}
                                     >
                                         {isPositive ? (
                                             <ArrowUpRight className="h-4 w-4" />
                                         ) : isZero ? (
-                                            <TrendingUp className="h-4 w-4 text-gray-500" />
+                                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
                                         ) : (
                                             <ArrowDownLeft className="h-4 w-4" />
                                         )}
@@ -189,9 +192,9 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                     )}
             </div>
 
-            <div className="mt-3 flex shrink-0 justify-end border-t border-fuchsia-200/10 pt-3">
+            <div className="mt-3 flex shrink-0 justify-end border-t border-primary/10 pt-3">
                 <Button variant="ghost" onClick={onClose}>Close</Button>
             </div>
-        </div>
+        </Surface>
     );
 }

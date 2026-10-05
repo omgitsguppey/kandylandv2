@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import type { resolveClientActionError } from "@/lib/errors/client-error-adapter";
 import type { ModuleKey } from "./types";
@@ -9,21 +11,21 @@ type SettingsModuleError = ReturnType<typeof resolveClientActionError>;
 function toneClasses(tone: Tone) {
     switch (tone) {
         case "good":
-            return "border-emerald-400/20 bg-emerald-500/10 text-emerald-100";
+            return "border-success/20 bg-success/10 text-success";
         case "warn":
-            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+            return "border-warning/20 bg-warning/10 text-warning";
         case "bad":
-            return "border-red-400/20 bg-red-500/10 text-red-100";
+            return "border-destructive/20 bg-destructive/10 text-destructive";
         default:
-            return "border-white/10 bg-white/5 text-gray-200";
+            return "border-border bg-secondary text-foreground";
     }
 }
 
 export function CreatorWorkspaceStatusPill({ label, tone = "neutral" }: { label: string; tone?: Tone }) {
     return (
-        <span className={`rounded-xl border px-3 py-2 text-xs font-bold ${toneClasses(tone)}`}>
+        <Badge variant="secondary" className={`rounded-xl border px-3 py-2 text-xs font-semibold ${toneClasses(tone)}`}>
             {label}
-        </span>
+        </Badge>
     );
 }
 
@@ -49,20 +51,20 @@ export function CreatorDashboardSourceNotice({
             ) : null}
 
             {!settingsModuleError && settingsSourceNotice ? (
-                <div
-                    className="rounded-[1.5rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+                <Card
+                    className="gap-0 py-0 rounded-2xl border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning"
                     data-creator-landing-source-state={settingsSourceNotice.state}
                     data-creator-landing-source-review="partial_safe"
                 >
-                    <p className="font-bold text-amber-50">{settingsSourceNotice.title}</p>
-                    <p className="mt-0.5 text-amber-100/85">{settingsSourceNotice.body}</p>
-                </div>
+                    <p className="font-semibold text-warning">{settingsSourceNotice.title}</p>
+                    <p className="mt-0.5 text-warning/85">{settingsSourceNotice.body}</p>
+                </Card>
             ) : null}
 
             {moduleErrorEntries.length > 0 ? (
-                <div className="rounded-[1.5rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                <Card className="gap-0 py-0 rounded-2xl border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning">
                     {moduleErrorEntries.map(([module]) => `${moduleLabels[module]} could not load right now.`).join(" | ")}
-                </div>
+                </Card>
             ) : null}
         </>
     );

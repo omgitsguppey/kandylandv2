@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/textarea";
+
+
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -249,32 +253,32 @@ export default function AdminDropsPage() {
 
             let statusFilterValue: DropCardViewModel["statusFilter"] = "ended";
             let statusLabel = "Ended";
-            let statusClassName = "border-white/10 bg-white/6 text-gray-300";
+            let statusClassName = "border-border bg-secondary text-muted-foreground";
 
             if (lifecycle.kind === "pending_review") {
                 statusFilterValue = "pending_review";
                 statusLabel = "Pending Review";
-                statusClassName = "border-amber-400/20 bg-amber-500/10 text-amber-100";
+                statusClassName = "border-warning/20 bg-warning/10 text-warning";
             } else if (lifecycle.kind === "rejected") {
                 statusFilterValue = "rejected";
                 statusLabel = "Rejected";
-                statusClassName = "border-red-400/20 bg-red-500/10 text-red-200";
+                statusClassName = "border-destructive/20 bg-destructive/10 text-destructive";
             } else if (lifecycle.kind === "queued" && queueSlotLabel) {
                 statusFilterValue = "queued";
                 statusLabel = "Queued";
-                statusClassName = "border-cyan-400/20 bg-cyan-500/10 text-cyan-100";
+                statusClassName = "border-info/20 bg-info/10 text-info";
             } else if (lifecycle.kind === "scheduled") {
                 statusFilterValue = "scheduled";
                 statusLabel = "Scheduled";
-                statusClassName = "border-white/15 bg-white/8 text-white";
+                statusClassName = "border-border bg-secondary text-foreground";
             } else if (lifecycle.kind === "live") {
                 statusFilterValue = "live";
                 statusLabel = "Live";
-                statusClassName = "border-brand-purple/25 bg-brand-purple/14 text-brand-purple";
+                statusClassName = "border-primary/25 bg-primary/14 text-primary";
             } else if (lifecycle.kind === "cooldown") {
                 statusFilterValue = "ended";
                 statusLabel = "Cooling Down";
-                statusClassName = "border-white/15 bg-white/8 text-white";
+                statusClassName = "border-border bg-secondary text-foreground";
             }
 
             let schedulePrimaryLabel = `Starts ${formatAdminCompactDateTime(drop.validFrom)}`;
@@ -737,7 +741,7 @@ export default function AdminDropsPage() {
     if (loading) {
         return (
             <div className="flex min-h-[400px] items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
         );
     }
@@ -820,50 +824,50 @@ export default function AdminDropsPage() {
                     )}
                 />
                 {notificationDraft ? (
-                    <section className="mt-4 rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/8 p-4 shadow-xl shadow-black/20 sm:p-5">
+                    <section className="mt-4 rounded-[1.75rem] border border-primary/20 bg-primary/8 p-4 shadow-xl shadow-scrim/20 sm:p-5">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div className="flex min-w-0 items-center gap-3">
-                                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
+                                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-border bg-background">
                                     <Image src={notificationDraft.imageUrl} alt={notificationDraft.title} fill sizes="48px" className="object-cover" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple">Drop notification</p>
-                                    <p className="truncate text-sm font-semibold text-white">{notificationDraft.title}</p>
-                                    <p className="mt-1 text-xs text-gray-400">Send a bounded update through the existing notification path.</p>
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Drop notification</p>
+                                    <p className="truncate text-sm font-semibold text-foreground">{notificationDraft.title}</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">Send a bounded update through the existing notification path.</p>
                                 </div>
                             </div>
 
                             <div className="min-w-0 flex-1">
-                                <textarea
+                                <Textarea
                                     value={notificationDraft.message}
                                     onChange={(event) => setNotificationDraft((current) => current ? {
                                         ...current,
                                         message: event.target.value.slice(0, 150),
                                     } : current)}
                                     placeholder="Write a short update for this drop..."
-                                    className="h-24 w-full resize-none rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-500"
+                                    className="h-24 w-full resize-none rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground"
                                 />
-                                <div className="mt-2 text-right text-xs text-gray-400">
+                                <div className="mt-2 text-right text-xs text-muted-foreground">
                                     {notificationDraft.message.length}/150
                                 </div>
                             </div>
 
                             <div className="flex shrink-0 items-center justify-end gap-2">
-                                <button
+                                <Button variant="ghost"
                                     type="button"
                                     onClick={() => setNotificationDraft(null)}
-                                    className="rounded-full border border-white/15 px-4 py-2 text-sm text-gray-300"
+                                    className="rounded-full border border-border px-4 py-2 text-sm text-muted-foreground"
                                 >
                                     Cancel
-                                </button>
-                                <button
+                                </Button>
+                                <Button variant="ghost"
                                     type="button"
                                     onClick={handleSendDropNotification}
                                     disabled={sendingNotification}
-                                    className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black disabled:opacity-50"
+                                    className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
                                 >
                                     {sendingNotification ? "Sending..." : "Send"}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </section>

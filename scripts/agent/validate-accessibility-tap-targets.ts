@@ -135,7 +135,7 @@ requireIncludes(adminController, "<KandyAdminMenuSurface", "src/components/Navig
 requireIncludes(adminController, "pathname={pathname}", "src/components/Navigation/AdminDropdown.tsx active control binding");
 requireIncludes(adminController, "navigationItems={navItems}", "src/components/Navigation/AdminDropdown.tsx active control binding");
 const analyticsController = readRequired("src/app/admin/analytics/page.tsx");
-requireIncludes(analyticsController, "from \"@/components/creative-tim/ui/native-select\"", "src/app/admin/analytics/page.tsx active control binding");
+requireIncludes(analyticsController, "from \"@/components/ui/native-select\"", "src/app/admin/analytics/page.tsx active control binding");
 requireIncludes(analyticsController, "Evidence lens", "src/app/admin/analytics/page.tsx active control binding");
 requireIncludes(analyticsController, "value={activeTab}", "src/app/admin/analytics/page.tsx active control binding");
 requireIncludes(analyticsController, "onChange={(event) => setActiveTab(event.target.value as typeof activeTab)}", "src/app/admin/analytics/page.tsx active control binding");
@@ -194,17 +194,17 @@ requireIncludes(debugController, "onTabChange={(tabId) => handleActiveTabChange(
 requireIncludes(debugController, "setActiveTab(nextTab)", "src/app/admin/debug/page.tsx active control binding");
 requireIncludes(debugController, "persistDebugPreferences({ activeTab: nextTab })", "src/app/admin/debug/page.tsx active control binding");
 const debugCanvas = readRequired("src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx");
-requireIncludes(debugCanvas, "from \"@/components/creative-tim/ui/native-select\"", "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx active control binding");
+requireIncludes(debugCanvas, "from \"@/components/ui/native-select\"", "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx active control binding");
 requireIncludes(debugCanvas, "<NativeSelect", "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx active control binding");
 requireIncludes(debugCanvas, "value={activeTab}", "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx active control binding");
 requireIncludes(debugCanvas, "onChange={(event) => onTabChange(event.target.value)}", "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx active control binding");
 requireIncludes(debugCanvas, "aria-label=\"Debug workstream\"", "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx active control binding");
 requireIncludes(debugCanvas, "<NativeSelectOption key={tab.id} value={tab.id}>{tab.label}</NativeSelectOption>", "src/components/creative-tim/kandydrops/admin-debug/AdminDebugControlCanvas.tsx active control binding");
-const nativeSelect = readRequired("src/components/creative-tim/ui/native-select.tsx");
-requireIncludes(nativeSelect, "<select", "src/components/creative-tim/ui/native-select.tsx active control binding");
-requireIncludes(nativeSelect, "{...props}", "src/components/creative-tim/ui/native-select.tsx active control binding");
-requireIncludes(nativeSelect, "<option", "src/components/creative-tim/ui/native-select.tsx active control binding");
-requireIncludes(nativeSelect, "h-11 w-full", "src/components/creative-tim/ui/native-select.tsx active control binding");
+const nativeSelect = readRequired("src/components/ui/native-select.tsx");
+requireIncludes(nativeSelect, "<select", "src/components/ui/native-select.tsx active control binding");
+requireIncludes(nativeSelect, "{...props}", "src/components/ui/native-select.tsx active control binding");
+requireIncludes(nativeSelect, "<option", "src/components/ui/native-select.tsx active control binding");
+requireIncludes(nativeSelect, "h-11 w-full", "src/components/ui/native-select.tsx active control binding");
 
 for (const surfaceKey of [
   "top-nav",

@@ -1,3 +1,5 @@
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
 import React from "react";
 import { Clock3 } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -105,7 +107,7 @@ export function AdminAnalyticsInteractionSnapshotSection(
           data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
         >
           <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Recent interaction snapshot
             </p>
             <span className="text-xs text-muted-foreground">
@@ -122,14 +124,14 @@ export function AdminAnalyticsInteractionSnapshotSection(
                 >
                   <defs>
                     <linearGradient id="liveInteractionDuplicateFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--info)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--info)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <CartesianGrid stroke="var(--border)" vertical={false} />
                   <XAxis
                     dataKey="compactTypeLabel"
-                    stroke="#6b7280"
+                    stroke="var(--muted-foreground)"
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
@@ -137,23 +139,23 @@ export function AdminAnalyticsInteractionSnapshotSection(
                     minTickGap={12}
                     height={30}
                   />
-                  <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip content={<AnalyticsTooltip />} />
-                  <Area type="monotone" dataKey="duplicateCount" name="Grouped events" stroke="#22d3ee" strokeWidth={2} fill="url(#liveInteractionDuplicateFill)" />
+                  <Area type="monotone" dataKey="duplicateCount" name="Grouped events" stroke="var(--info)" strokeWidth={2} fill="url(#liveInteractionDuplicateFill)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           ) : null}
 
           {liveInteractionStreamModel.eventRows.length > 0 && liveInteractionViewMode === "table" ? (
-            <div
+            <TableScrollArea
               className="rounded-2xl bg-card overflow-x-auto"
               data-live-interaction-table="compact"
               data-live-interaction-source-truth={liveInteractionStreamModel.sourceTruth}
               data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
             >
-              <table className="min-w-full text-left text-xs">
-                <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              <DataTable className="min-w-full text-left text-xs">
+                <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-3 py-2 font-semibold">Event</th>
                     <th className="px-3 py-2 font-semibold">Actor</th>
@@ -163,7 +165,7 @@ export function AdminAnalyticsInteractionSnapshotSection(
                     <th className="px-3 py-2 font-semibold">Grouped</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10 text-muted-foreground">
+                <tbody className="divide-y divide-border text-muted-foreground">
                   {liveInteractionStreamModel.eventRows.map((event) => (
                     <tr
                       key={`live-interaction-table-${event.timestamp}-${event.duplicateGroupKey}`}
@@ -183,8 +185,8 @@ export function AdminAnalyticsInteractionSnapshotSection(
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              </DataTable>
+            </TableScrollArea>
           ) : null}
 
           {liveInteractionViewMode === "cards" ? (
@@ -200,7 +202,7 @@ export function AdminAnalyticsInteractionSnapshotSection(
                         <p className="truncate text-xs font-semibold text-foreground">
                           {event.displayLabel}
                           {event.duplicateCount > 1 ? (
-                            <span className="ml-1 text-xs text-brand-purple">
+                            <span className="ml-1 text-xs text-primary">
                               x{event.duplicateCount}
                             </span>
                           ) : null}
@@ -212,17 +214,17 @@ export function AdminAnalyticsInteractionSnapshotSection(
                           {formatAdminAnalyticsSourceTruthLabel(event.sourceTruth)} - {event.surfaceState === "verified" ? "surface verified" : event.surfaceState === "inferred" ? "surface inferred" : "surface missing"} - {event.explanation}
                         </p>
                         {event.eventType === "task_failed" && event.failureReason ? (
-                          <p className="mt-1 text-xs text-rose-200">
+                          <p className="mt-1 text-xs text-destructive">
                             Failure: {event.failureReason}
                           </p>
                         ) : null}
                       </div>
                       <span
                         className={cn(
-                          "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-xs font-bold uppercase tracking-[0.08em]",
+                          "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-xs font-semibold uppercase tracking-wide",
                           event.eventType === "task_failed"
-                            ? "border-rose-400/25 bg-rose-500/10 text-rose-200"
-                            : "border-brand-purple/25 bg-brand-purple/10 text-brand-purple",
+                            ? "border-destructive/25 bg-destructive/10 text-destructive"
+                            : "border-primary/25 bg-primary/10 text-primary",
                         )}
                         title={event.eventKey}
                       >

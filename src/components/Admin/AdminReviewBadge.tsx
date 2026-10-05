@@ -25,7 +25,7 @@ export function AdminReviewBadge({
       data-admin-review-severity={decision.severity}
       data-admin-review-reason={decision.reasonCode}
       className={cn(
-        "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
+        "inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-wider",
         getAdminReviewBadgeClasses(decision.severity),
         className,
       )}

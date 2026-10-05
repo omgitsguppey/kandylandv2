@@ -34,7 +34,7 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 }
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
-const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const purchaseModal = readRequired("src/components/PurchaseModal.tsx") + readRequired("src/hooks/useWalletPurchase.ts");
 const walletFrame = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx");
 const paypalProvider = readRequired("src/components/PayPalProvider.tsx");
 const paypalCreate = readRequired("src/app/api/paypal/create/route.ts");
@@ -50,7 +50,8 @@ if (packageJson.scripts?.["check:wallet-single-paypal-button"] !== "tsx scripts/
 }
 
 for (const expected of [
-  "import { FUNDING, PayPalButtons, usePayPalScriptReducer } from \"@paypal/react-paypal-js\"",
+  "import { FUNDING, PayPalButtons } from \"@paypal/react-paypal-js\"",
+  "usePayPalScriptReducer",
   "fundingSource={FUNDING.PAYPAL}",
   "style={{ layout: \"vertical\", color: \"white\", shape: \"pill\", label: \"paypal\", height: 45 }}",
   "forceReRender={[selectedPriceKey, String(selectedPackage.drops), selectedPackage.label]}",

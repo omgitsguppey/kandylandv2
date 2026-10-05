@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Pill, Section } from "./DebugPrimitives";
 
 const DEBUG_TRACKING_NOT_LOADED = "Not loaded";
@@ -143,11 +147,11 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
                     data-admin-debug-p1p2-backlog-surfaced={String(trackingSummary?.validation?.p1P2BacklogSurfaced === true)}
                 >
                     {lanes.map((lane) => (
-                        <div key={lane.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                        <div key={lane.id} className="rounded-xl border border-border bg-secondary p-3">
                             <div className="flex flex-wrap items-start justify-between gap-2">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-white">{lane.label}</p>
-                                    <p className="mt-1 text-xs leading-5 text-gray-400">{lane.primarySignal}</p>
+                                    <p className="text-sm font-semibold text-foreground">{lane.label}</p>
+                                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{lane.primarySignal}</p>
                                 </div>
                                 <Pill label="Severity" value={labelForSeverity(lane.severity)} tone={lane.severity === "p1" ? "bad" : lane.severity === "p2" ? "warn" : "neutral"} truthState={truthForStatus(lane.status)} />
                             </div>
@@ -156,24 +160,24 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
                                 <Pill label="Owner" value={lane.sourceOwner} tone="neutral" truthState="cached" />
                                 <Pill label="Impact" value={lane.scoreImpact} tone={lane.scoreImpact === "high" ? summaryTone : "neutral"} truthState={truthForStatus(lane.status)} />
                             </div>
-                            <details className="mt-3 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
-                                <summary className="cursor-pointer font-semibold text-gray-100">Source and drilldown</summary>
-                                <p className="mt-2"><span className="text-gray-500">Source owner:</span> {lane.sourceOwner}</p>
-                                <p className="mt-1"><span className="text-gray-500">Source of truth:</span> {lane.sourceOfTruth}</p>
-                                <p className="mt-1"><span className="text-gray-500">Drilldown:</span> {lane.drilldownTarget}</p>
-                                <p className="mt-1 text-gray-500">Raw tables and dumps stay collapsed until this drilldown is opened.</p>
-                            </details>
+                            <Disclosure className="mt-3 rounded-lg border border-border bg-background/20 px-2 py-1.5 text-xs text-muted-foreground">
+                                <DisclosureSummary className="cursor-pointer font-semibold text-foreground">Source and drilldown</DisclosureSummary>
+                                <p className="mt-2"><span className="text-muted-foreground">Source owner:</span> {lane.sourceOwner}</p>
+                                <p className="mt-1"><span className="text-muted-foreground">Source of truth:</span> {lane.sourceOfTruth}</p>
+                                <p className="mt-1"><span className="text-muted-foreground">Drilldown:</span> {lane.drilldownTarget}</p>
+                                <p className="mt-1 text-muted-foreground">Raw tables and dumps stay collapsed until this drilldown is opened.</p>
+                            </Disclosure>
                         </div>
                     ))}
                     {futureCatalog ? (
-                        <details
-                            className="md:col-span-2 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-gray-300"
+                        <Disclosure
+                            className="md:col-span-2 rounded-xl border border-border bg-background/20 p-3 text-xs text-muted-foreground"
                             open={futureCatalog.defaultOpen}
                             data-admin-debug-future-activity-catalog="collapsed"
                             data-admin-debug-quiet-future-activity-count={String(futureCatalog.quietFutureActivityCount)}
                             data-admin-debug-actionable-activity-signal-count={String(futureCatalog.actionableActivitySignalCount)}
                         >
-                            <summary className="cursor-pointer text-sm font-semibold text-gray-100">{futureCatalog.label}</summary>
+                            <DisclosureSummary className="cursor-pointer text-sm font-semibold text-foreground">{futureCatalog.label}</DisclosureSummary>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <Pill label="Quiet" value={futureCatalog.quietFutureActivityCount} tone="neutral" truthState="cached" />
                                 <Pill label="Status" value={futureCatalog.status || "unknown"} tone={toneForStatus(futureCatalog.status)} truthState={truthForStatus(futureCatalog.status)} />
@@ -182,14 +186,14 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
                                 <Pill label="Broken" value={futureCatalog.brokenActivityPathCount} tone={futureCatalog.brokenActivityPathCount > 0 ? "bad" : "good"} truthState={futureCatalog.brokenActivityPathCount > 0 ? "failed" : "live"} />
                                 <Pill label="Score drag" value={futureCatalog.scoreDragActivityCount} tone={futureCatalog.scoreDragActivityCount > 0 ? "bad" : "good"} truthState={futureCatalog.scoreDragActivityCount > 0 ? "failed" : "live"} />
                             </div>
-                            <p className="mt-2 text-gray-500">Quiet future activity is hidden from default warnings. Broken producers, bridges, materializers, metric consumers, and debug mappings stay actionable.</p>
-                            <p className="mt-1"><span className="text-gray-500">Source of truth:</span> {futureCatalog.sourceOfTruth}</p>
-                            <p className="mt-1"><span className="text-gray-500">Drilldown:</span> {futureCatalog.drilldownTarget}</p>
-                        </details>
+                            <p className="mt-2 text-muted-foreground">Quiet future activity is hidden from default warnings. Broken producers, bridges, materializers, metric consumers, and debug mappings stay actionable.</p>
+                            <p className="mt-1"><span className="text-muted-foreground">Source of truth:</span> {futureCatalog.sourceOfTruth}</p>
+                            <p className="mt-1"><span className="text-muted-foreground">Drilldown:</span> {futureCatalog.drilldownTarget}</p>
+                        </Disclosure>
                     ) : null}
                 </div>
             ) : (
-                <p className="text-sm text-gray-300">Tracking summary is unavailable in this debug payload. Refresh the compact debug summary before using it for operator decisions.</p>
+                <p className="text-sm text-muted-foreground">Tracking summary is unavailable in this debug payload. Refresh the compact debug summary before using it for operator decisions.</p>
             )}
         </Section>
     );

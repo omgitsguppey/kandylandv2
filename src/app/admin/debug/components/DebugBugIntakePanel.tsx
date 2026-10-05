@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Pill, Section } from "./DebugPrimitives";
 
 type BugSeverity = "low" | "medium" | "high" | "critical";
@@ -39,7 +43,7 @@ function renderBugReport(report: any) {
     return (
         <div
             key={report.reportId || report.id}
-            className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"
+            className="rounded-[1rem] border border-border bg-secondary p-4"
             data-bug-report-status={report.status}
             data-bug-report-severity={report.severity}
             data-bug-report-age-bucket={ageBucket}
@@ -47,15 +51,15 @@ function renderBugReport(report: any) {
         >
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <p className="truncate font-semibold text-white">{reportTitle(report)}</p>
-                    <p className="mt-1 text-xs text-gray-400">{report.path || report.currentPath || "Unknown path"} | {report.sourceComponent || report.componentName || "Unknown component"}</p>
+                    <p className="truncate font-semibold text-foreground">{reportTitle(report)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{report.path || report.currentPath || "Unknown path"} | {report.sourceComponent || report.componentName || "Unknown component"}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <Pill label="Status" value={report.status || "new"} tone={toneForBugStatus(report.status, report.severity)} badgeLabel={(report.status || "new").toUpperCase()} />
                     <Pill label="Severity" value={report.severity || "medium"} tone={toneForBugSeverity(report.severity)} badgeLabel={(report.severity || "medium").toUpperCase()} />
                 </div>
             </div>
-            <p className="mt-3 line-clamp-3 text-sm text-gray-300">{report.userMessage || report.message || "No message captured."}</p>
+            <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">{report.userMessage || report.message || "No message captured."}</p>
             <div className="mt-3 flex flex-wrap gap-2">
                 <Pill label="Breadcrumbs" value={report.breadcrumbsCount ?? 0} truthState="live" badgeLabel="LOADED" />
                 <Pill label="Diagnostics" value={report.diagnosticsCount ?? 0} truthState="live" badgeLabel="LOADED" />
@@ -72,7 +76,7 @@ function reportGroup(title: string, reports: any[]) {
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">{title}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
                 <Pill label="Reports" value={reports.length} truthState="live" badgeLabel="LOADED" />
             </div>
             <div className="space-y-3">{reports.map(renderBugReport)}</div>
@@ -105,18 +109,18 @@ export function DebugBugIntakePanel({ data }: { data: any }) {
                 data-bug-intake-backlog-count={backlogCount}
                 data-bug-intake-needs-triage-count={needsTriageCount}
             >
-                <div className="rounded-[1rem] border border-white/10 bg-black/20 p-3 text-xs text-gray-300">
+                <div className="rounded-[1rem] border border-border bg-background/20 p-3 text-xs text-muted-foreground">
                     Loaded sample and last-seven-day intake are separate. Older reports remain visible as backlog instead of being counted as current intake.
                 </div>
                 {repeatedPathGroups.length > 0 ? (
-                    <details className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-3 text-xs text-gray-300">
-                        <summary className="cursor-pointer font-semibold text-white">Path clusters</summary>
+                    <Disclosure className="rounded-[1rem] border border-border bg-secondary p-3 text-xs text-muted-foreground">
+                        <DisclosureSummary className="cursor-pointer font-semibold text-foreground">Path clusters</DisclosureSummary>
                         <div className="mt-2 flex flex-wrap gap-2">
                             {repeatedPathGroups.slice(0, 6).map((group: any) => (
                                 <Pill key={group.path} label={group.path} value={group.count} tone={toneForBugSeverity(group.highestSeverity as BugSeverity)} badgeLabel="GROUP" />
                             ))}
                         </div>
-                    </details>
+                    </Disclosure>
                 ) : null}
                 {loadedCount ? (
                     <>
@@ -124,7 +128,7 @@ export function DebugBugIntakePanel({ data }: { data: any }) {
                         {reportGroup("Older backlog", olderReports)}
                     </>
                 ) : (
-                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">No bug reports are loaded in the current sample.</div>
+                    <div className="rounded-[1rem] border border-border bg-secondary p-4 text-sm text-muted-foreground">No bug reports are loaded in the current sample.</div>
                 )}
             </div>
         </Section>

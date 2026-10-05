@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { type LucideIcon } from "lucide-react";
 
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 type StateTone = "violet" | "critical";

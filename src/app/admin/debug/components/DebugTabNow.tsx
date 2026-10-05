@@ -179,7 +179,7 @@ export function DebugTabNow({
                                 <div className="space-y-2 text-sm">
                                     {systemHealthNow.diagnostics.clusters.length ? (
                                         <div className="space-y-1.5">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Diagnostic clusters</p>
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Diagnostic clusters</p>
                                             {systemHealthNow.diagnostics.clusters.slice(0, 3).map((cluster) => (
                                                 <div key={cluster.id} className="min-w-0 space-y-1 border-b border-border py-3 text-sm text-muted-foreground">
                                                     <p className="font-semibold text-foreground">{cluster.fingerprint}</p>

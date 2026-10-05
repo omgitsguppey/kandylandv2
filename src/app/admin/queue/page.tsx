@@ -25,8 +25,8 @@ import {
 } from "@/lib/admin-drop-queue";
 import { normalizeDropRecordOrFallback } from "@/lib/drop-read-models";
 
-import { Card } from "@/components/creative-tim/ui/card";
-import { Input } from "@/components/creative-tim/ui/input";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { resolveClientActionError, type ResolvedClientActionError } from "@/lib/errors/client-error-adapter";

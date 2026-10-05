@@ -1,13 +1,10 @@
 "use client";
-
 import { Drop } from "@/types/db";
 import { useEffect, useLayoutEffect, useState, memo, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import NextImage from "next/image";
-
+import { DropCardCover } from "@/components/DropCardCover";
 import { toast } from "sonner";
 import { User } from "firebase/auth";
-
 import { authFetch } from "@/lib/authFetch";
 import { readUiJson } from "@/lib/ui-continuity";
 import { createStaleRequestGuard } from "@/lib/frontend-hardening/ui/loading-state-contract";
@@ -25,15 +22,8 @@ import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { DropCardCta } from "@/components/DropCardCta";
 import { KandyEditorialReleaseCard } from "@/components/creative-tim/kandydrops/drops/KandyEditorialReleaseCard";
-
-
 import { DROPS_MOBILE_UI_DENSITY, useDropCardImpression } from "@/hooks/useDropCardImpression";
 import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
-import { cn } from "@/lib/utils";
-import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
-import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
-
-
 interface DropCardProps {
     presentation?: "feature" | "shelf";
     drop: Drop;
@@ -45,9 +35,7 @@ interface DropCardProps {
     impressionTrackingSessionId?: string;
     impressionTrackingPosition?: number;
 }
-
 const CATEGORY_TAGS = new Set(["Sweet", "Spicy", "RAW"]);
-
 function DropCardBase({
     presentation = "shelf",
     drop,
@@ -76,7 +64,6 @@ function DropCardBase({
     const error = stateIsCurrent ? unlockState.error : null;
     const unlockGuardRef = useRef(createStaleRequestGuard());
     const unlockScopeRef = useRef({ actorUid: null as string | null, dropId: drop.id, mounted: false, pendingRequestId: null as number | null });
-
     useLayoutEffect(() => {
         unlockGuardRef.current.next();
         unlockScopeRef.current = { actorUid, dropId: drop.id, mounted: true, pendingRequestId: null };
@@ -107,7 +94,6 @@ function DropCardBase({
             }),
         [activeCreatorId, activeProfile?.gumDropsBalance, drop, hasUnlockedDrop, user],
     );
-
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
         if (confirming) {
@@ -115,12 +101,10 @@ function DropCardBase({
         }
         return () => clearTimeout(timeout);
     }, [actorUid, confirming, drop.id]);
-
     useEffect(() => {
         setImageError(false);
         setImageLoaded(false);
     }, [drop.imageUrl]);
-
     useDropCardImpression({
         cardRef,
         drop,
@@ -130,11 +114,9 @@ function DropCardBase({
         impressionTrackingSessionId,
         impressionTrackingPosition,
     });
-
     const displayedTags = useMemo(() => {
         return (drop.tags || []).filter((tag) => CATEGORY_TAGS.has(tag)).slice(0, 3);
     }, [drop.tags]);
-
     const fileCounts = useMemo(() => {
         const summary = getDropMediaSummary(drop);
         return {
@@ -143,18 +125,15 @@ function DropCardBase({
         };
     }, [drop]);
     const totalViews = getDropViewCount(drop);
-
     // Handle unlocking flow
     if (drop.validUntil && Date.now() > drop.validUntil && !hasUnlockedDrop) {
         return null;
     }
-
     const triggerHaptic = () => {
         if (typeof navigator !== "undefined" && navigator.vibrate) {
             navigator.vibrate(10);
         }
     };
-
     const handlePreviewOpen = () => {
         trackEvent("view_drop_details", {
             source_component: "compact_drop_card",
@@ -169,22 +148,18 @@ function DropCardBase({
         fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
         onPreview(drop, "compact_drop_card");
     };
-
     const handleUnlock = async () => {
         if (accessLoading) return;
         if (visibilityState.shouldShowCreatorShareCta) {
             handlePreviewOpen();
             return;
         }
-
         if (!user) {
             openAuthModal("signup");
             return;
         }
-
         const scope = unlockScopeRef.current;
         if (!actorUid || !scope.mounted || scope.actorUid !== actorUid || scope.dropId !== drop.id || scope.pendingRequestId !== null || unlocking || hasUnlockedDrop) return;
-
         const balance = activeProfile?.gumDropsBalance ?? 0;
         if (balance < drop.unlockCost) {
             trackEvent("drop_unwrap_intent_blocked_by_funds", {
@@ -202,7 +177,6 @@ function DropCardBase({
             openPurchaseModal(Math.max(1, visibilityState.shortfallGd || drop.unlockCost - balance));
             return;
         }
-
         if (!confirming) {
             setUnlockState((current) => ({ ...current, confirming: true }));
             triggerHaptic();
@@ -218,7 +192,6 @@ function DropCardBase({
             });
             return;
         }
-
         const requestId = unlockGuardRef.current.next();
         scope.pendingRequestId = requestId;
         const isCurrentUnlock = () => unlockScopeRef.current.mounted
@@ -226,14 +199,12 @@ function DropCardBase({
             && unlockScopeRef.current.dropId === drop.id
             && unlockGuardRef.current.isFresh(requestId);
         setUnlockState((current) => isCurrentUnlock() ? { ...current, confirming: false, unlocking: true, error: null } : current);
-
         try {
             triggerHaptic();
             const response = await authFetch("/api/drops/unlock", {
                 method: "POST",
                 body: JSON.stringify({ dropId: drop.id }),
             });
-
             if (!isCurrentUnlock()) return;
             const result = await readUiJson<Record<string, unknown>>(response, { moduleLabel: "Drop unwrap", url: "/api/drops/unlock", requireSuccess: true });
             if (!isCurrentUnlock()) return;
@@ -241,7 +212,6 @@ function DropCardBase({
             setUserProfile((currentProfile) => isCurrentUnlock() && currentProfile?.uid === actorUid
                 ? applyUnlockedDropPreviewProfilePatch({ currentProfile, dropId: drop.id, unlockCost: drop.unlockCost, newBalance: result.newBalance, unwrappedAt })
                 : currentProfile);
-
             dispatchActivitySync();
             showUnwrapSuccessToast({
                 dropTitle: drop.title,
@@ -271,7 +241,6 @@ function DropCardBase({
             }
         }
     };
-
     const ctaButton = (
         <DropCardCta
             drop={drop}
@@ -286,17 +255,6 @@ function DropCardBase({
             onHaptic={triggerHaptic}
         />
     );
-
-    const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
-    const hasProductCoverBlur = visibilityState.shouldBlurCover;
-    const imagePolicy = getImageLoadingPolicy("drops_grid", {
-        dropGridLayout: resolvedRatio === "16:9" ? "wide" : "standard",
-        intrinsicLayout: true,
-    });
-    const imageTreatmentClassName = cn(
-        imageLoaded ? "scale-100" : "scale-105 blur-md",
-        imageLoaded && hasProductCoverBlur ? "blur-[10px] brightness-[0.72] saturate-[0.86]" : imageLoaded ? "blur-0" : null,
-    );
     const cardStateAttributes = {
         "data-drop-cover-treatment": visibilityState.coverTreatment,
         "data-drop-cta-state": visibilityState.ctaState,
@@ -308,37 +266,13 @@ function DropCardBase({
     };
     const isPortrait = resolvedRatio === "9:16";
 
-    const editorialCover = (
-        <>
-            <NextImage
-                src={coverSrc}
-                alt={`${drop.title} public cover`}
-                fill
-                sizes={imagePolicy.sizes}
-                preload={imagePolicy.preload}
-                loading={imagePolicy.loading}
-                fetchPriority={imagePolicy.fetchPriority}
-                className={cn("bg-black object-cover object-center transition-all duration-700", imageTreatmentClassName)}
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageError(true)}
-                {...getImagePolicyDataAttributes(imagePolicy)}
-            />
-            {imageLoaded && hasProductCoverBlur ? <div className="absolute inset-0 bg-black/22" aria-hidden="true" /> : null}
-            {!imageLoaded ? (
-                <div className="absolute inset-0 overflow-hidden bg-zinc-900/90">
-                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                </div>
-            ) : null}
-        </>
-    );
-
     return (
         <KandyEditorialReleaseCard
             rootRef={cardRef}
             drop={drop}
             presentation={presentation}
             ratioStyle={ratioStyle}
-            cover={editorialCover}
+            cover={<DropCardCover drop={drop} resolvedRatio={resolvedRatio} imageError={imageError} imageLoaded={imageLoaded} shouldBlurCover={visibilityState.shouldBlurCover} onLoad={() => setImageLoaded(true)} onError={() => setImageError(true)} />}
             onPreview={handlePreviewOpen}
             files={fileCounts}
             tags={displayedTags}
@@ -350,5 +284,4 @@ function DropCardBase({
         />
     );
 }
-
 export const DropCard = memo(DropCardBase);

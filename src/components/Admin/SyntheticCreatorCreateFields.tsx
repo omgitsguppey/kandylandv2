@@ -1,5 +1,12 @@
 "use client";
 
+import { Textarea } from "@/components/ui/textarea";
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import {
   SYNTHETIC_CREATOR_TYPE_LABELS,
   SYNTHETIC_CREATOR_TYPES,
@@ -20,13 +27,13 @@ type SyntheticCreatorCreateFieldsProps = {
 
 export function SyntheticCreatorCreateFields({ value, onChange }: SyntheticCreatorCreateFieldsProps) {
   return (
-    <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-4">
-      <summary className="cursor-pointer list-none text-sm font-bold text-white">Synthetic creator</summary>
+    <Disclosure className="mt-4 rounded-2xl border border-border bg-background/25 p-4">
+      <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Synthetic creator</DisclosureSummary>
       <div className="mt-4 space-y-4">
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background/30 px-4 py-3">
           <span>
-            <span className="block text-sm font-bold text-white">Create as synthetic creator</span>
-            <span className="mt-1 block text-xs leading-5 text-zinc-400">Use for internal characters, demos, AI personas, or QA accounts.</span>
+            <span className="block text-sm font-semibold text-foreground">Create as synthetic creator</span>
+            <span className="mt-1 block text-xs leading-5 text-muted-foreground">Use for internal characters, demos, AI personas, or QA accounts.</span>
           </span>
           <input
             type="checkbox"
@@ -40,22 +47,22 @@ export function SyntheticCreatorCreateFields({ value, onChange }: SyntheticCreat
         {value.isSyntheticCreator ? (
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Type</span>
-              <select
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Type</span>
+              <NativeSelect
                 value={value.syntheticCreatorType}
                 onChange={(event) => onChange({
                   ...value,
                   syntheticCreatorType: event.target.value as SyntheticCreatorType,
                 })}
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60"
+                className="w-full rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60"
               >
                 {SYNTHETIC_CREATOR_TYPES.map((type) => (
-                  <option key={type} value={type}>{SYNTHETIC_CREATOR_TYPE_LABELS[type]}</option>
+                  <NativeSelectOption key={type} value={type}>{SYNTHETIC_CREATOR_TYPE_LABELS[type]}</NativeSelectOption>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
-            <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-              <span className="text-sm font-semibold text-white">Human operator required</span>
+            <label className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background/30 px-4 py-3">
+              <span className="text-sm font-semibold text-foreground">Human operator required</span>
               <input
                 type="checkbox"
                 checked={value.humanOperatorRequired}
@@ -64,16 +71,16 @@ export function SyntheticCreatorCreateFields({ value, onChange }: SyntheticCreat
                 aria-label="Human operator required"
               />
             </label>
-            <textarea
+            <Textarea
               value={value.syntheticReason}
               onChange={(event) => onChange({ ...value, syntheticReason: event.target.value })}
               rows={3}
               placeholder="Internal reason for this synthetic creator"
-              className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60 sm:col-span-2"
+              className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60 sm:col-span-2"
             />
           </div>
         ) : null}
       </div>
-    </details>
+    </Disclosure>
   );
 }

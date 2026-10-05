@@ -1,10 +1,14 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import type { ElementType, ReactNode } from "react";
 
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { ADMIN_NO_SOURCE_LABEL, resolveAdminInputTruthState, type AdminTruthState } from "@/lib/admin-truth-state";
 
@@ -93,10 +97,10 @@ export function AdminDebugControlCanvas({
                     </div>
                 }
             />
-            <details className="min-w-0 border-t border-border" data-admin-debug-evidence-boundary="true">
-                <summary className="flex min-h-11 cursor-pointer items-center py-3 text-sm font-medium">Source and evidence details</summary>
+            <Disclosure className="min-w-0 border-t border-border" data-admin-debug-evidence-boundary="true">
+                <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 text-sm font-medium">Source and evidence details</DisclosureSummary>
                 <div className="pb-4">{evidenceBoundary}</div>
-            </details>
+            </Disclosure>
             <section className="min-w-0">{children}</section>
         </div>
     );

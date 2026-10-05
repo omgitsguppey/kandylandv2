@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Loader2, Sparkles, ThumbsDown, ThumbsUp, Trash2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
@@ -66,11 +69,11 @@ function buildScopedJobs(
 function runtimeTone(status?: AdminAiDropDescriptionRuntimeStatus) {
     switch (status) {
         case "ready":
-            return "border-emerald-400/20 bg-emerald-500/10 text-emerald-100";
+            return "border-success/20 bg-success/10 text-success";
         case "disabled":
-            return "border-white/10 bg-white/5 text-gray-200";
+            return "border-border bg-secondary text-foreground";
         default:
-            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+            return "border-warning/20 bg-warning/10 text-warning";
     }
 }
 
@@ -267,13 +270,13 @@ export function AiDropDescriptionGeneratorPanel({
             title="Description"
             defaultOpen
             statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "Ready" : "Needs review"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
-            className="border-brand-purple/15 bg-brand-purple/[0.04]"
+            className="border-primary/15 bg-primary/[0.04]"
         >
         <div data-description-source="deterministic-patterns" data-description-ai-polish="optional">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-brand-purple" />
-                    <span className="truncate text-sm font-semibold text-white">AI Description</span>
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="truncate text-sm font-semibold text-foreground">AI Description</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {dashboard ? (
@@ -290,25 +293,25 @@ export function AiDropDescriptionGeneratorPanel({
                     type="button"
                     onClick={() => void handleGenerate()}
                     disabled={!featureEnabled || !runtimeReady || !titleReady || generating}
-                    className="h-9 border-brand-purple/25 bg-brand-purple/15 px-3 text-xs"
+                    className="h-9 border-primary/25 bg-primary/15 px-3 text-xs"
                 >
                     {generating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Sparkles className="h-4 w-4" />}
                     {visibleJobs.length > 0 ? "Generate again" : "Generate description"}
                 </CompactAiActionButton>
                 {visibleJobs.length > 0 ? (
-                    <button
+                    <Button variant="ghost"
                         type="button"
                         onClick={clearHistory}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-background/35 px-4 text-sm font-semibold text-foreground"
                     >
                         <Trash2 className="h-4 w-4" />
                         Clear history
-                    </button>
+                    </Button>
                 ) : null}
             </div>
 
             {dashboard ? (
-                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                     <span>{dashboard.runtime.model}</span>
                     <span>|</span>
                     <span>{formatAdminAiUsd((dashboard.runtime.inputUsdPerMillion || 0) / 1_000_000)} in/token est.</span>
@@ -318,13 +321,13 @@ export function AiDropDescriptionGeneratorPanel({
             ) : null}
 
             {loadingDashboard && !dashboard ? (
-                <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/25 p-3 text-xs text-gray-400">
+                <div className="mt-3 rounded-[1rem] border border-border bg-background/25 p-3 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />Loading AI status...</span>
                 </div>
             ) : null}
 
-            {!titleReady ? <p className="mt-2 text-[11px] text-amber-200/80">Enter at least 3 title characters before generating.</p> : null}
-            {generationError ? <div className="mt-3 rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">{generationError}</div> : null}
+            {!titleReady ? <p className="mt-2 text-[11px] text-warning/80">Enter at least 3 title characters before generating.</p> : null}
+            {generationError ? <div className="mt-3 rounded-[1rem] border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">{generationError}</div> : null}
 
             {visibleJobs.length > 0 ? (
                 <div className="mt-3 space-y-2">
@@ -338,14 +341,14 @@ export function AiDropDescriptionGeneratorPanel({
                                 key={job.id}
                                 className={cn(
                                     "rounded-[1rem] border p-3",
-                                    isSelected ? "border-brand-purple/35 bg-brand-purple/[0.08]" : "border-white/10 bg-black/35",
+                                    isSelected ? "border-primary/35 bg-primary/[0.08]" : "border-border bg-background/35",
                                 )}
                             >
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <p className="truncate text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">{job.title}</p>
-                                        <p className="mt-2 whitespace-pre-wrap text-sm text-white">{job.descriptionText || job.errorMessage || "Generating..."}</p>
-                                        <p className="mt-1 text-[11px] text-gray-500">
+                                        <p className="truncate text-xs font-semibold uppercase tracking-wide text-muted-foreground">{job.title}</p>
+                                        <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{job.descriptionText || job.errorMessage || "Generating..."}</p>
+                                        <p className="mt-1 text-[11px] text-muted-foreground">
                                             {job.model} | {job.latencyMs ? `${job.latencyMs} ms` : "Pending"} | {formatAdminAiUsd(job.estimatedCostUsd || 0)}
                                         </p>
                                     </div>
@@ -357,7 +360,7 @@ export function AiDropDescriptionGeneratorPanel({
                                         disabled={!canUse || feedbackPending}
                                         className={cn(
                                             "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
-                                            job.feedback === "liked" ? "border-emerald-400/20 bg-emerald-500/10" : "border-white/10 bg-black/35",
+                                            job.feedback === "liked" ? "border-success/20 bg-success/10" : "border-border bg-background/35",
                                         )}
                                     >
                                         <ThumbsUp className="h-3.5 w-3.5" />
@@ -369,7 +372,7 @@ export function AiDropDescriptionGeneratorPanel({
                                         disabled={!canUse || feedbackPending}
                                         className={cn(
                                             "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
-                                            job.feedback === "disliked" ? "border-red-400/20 bg-red-500/10" : "border-white/10 bg-black/35",
+                                            job.feedback === "disliked" ? "border-destructive/20 bg-destructive/10" : "border-border bg-background/35",
                                         )}
                                     >
                                         <ThumbsDown className="h-3.5 w-3.5" />
@@ -381,7 +384,7 @@ export function AiDropDescriptionGeneratorPanel({
                                         disabled={!canUse || feedbackPending}
                                         className={cn(
                                             "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
-                                            isSelected ? "border-brand-purple/30 bg-brand-purple/20" : "border-white/10 bg-black/35",
+                                            isSelected ? "border-primary/30 bg-primary/20" : "border-border bg-background/35",
                                         )}
                                     >
                                         {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Check className="h-3.5 w-3.5" />}

@@ -146,10 +146,10 @@ export function DebugPublicBetaDecisionStrip({ decision, liveIssueCount }: {
     const summary = summarizePublicBetaOperatorDecision(decision);
     return (
         <>
-            <span className="block font-semibold text-white">
+            <span className="block font-semibold text-foreground">
                 {decision.primaryAction ? `Next: ${decision.primaryAction.action}` : "No typed public beta action is queued."}
             </span>
-            <span className="block text-gray-400">
+            <span className="block text-muted-foreground">
                 Source {formatPublicBetaDecisionStatus(decision.sourceReadiness.status)}; release {formatPublicBetaDecisionStatus(decision.releaseReadiness.status)}; queues: {summary?.queueSummary}. {liveIssueCount} current issue{liveIssueCount === 1 ? "" : "s"}.
             </span>
         </>
@@ -176,38 +176,38 @@ export function DebugPublicBetaDecisionDetails({
     const openGates = evidenceGates.filter((gate) => gate.status.toLowerCase() !== "ready" || gate.blocksLaunch);
     return (
         <div className="min-w-0 flex-1">
-            <h3 className="font-bold text-white">Source evidence and refresh work</h3>
-            <p className="text-xs text-gray-300">{decision?.primaryAction ? `Next: ${decision.primaryAction.action}` : fallbackReason}</p>
-            <p className="mt-1 text-[11px] text-gray-500">
+            <h3 className="font-semibold text-foreground">Source evidence and refresh work</h3>
+            <p className="text-xs text-muted-foreground">{decision?.primaryAction ? `Next: ${decision.primaryAction.action}` : fallbackReason}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
                 {decision ? `Source ${formatPublicBetaDecisionStatus(decision.sourceReadiness.status)} | release ${formatPublicBetaDecisionStatus(decision.releaseReadiness.status)} | ${summary?.queueSummary}` : fallbackStatus} | {generatedAtUtc ?? "No generatedAtUtc"} | source {sourceDrift}
             </p>
-            {decision ? <p className="mt-1 text-[11px] text-gray-500" data-public-beta-composite-role="diagnostic-only">Diagnostic composite {decision.compositeConfidence.score}/100 — not a work target.</p> : null}
+            {decision ? <p className="mt-1 text-[11px] text-muted-foreground" data-public-beta-composite-role="diagnostic-only">Diagnostic composite {decision.compositeConfidence.score}/100 — not a work target.</p> : null}
             {evidenceGates.length > 0 ? (
-                <ul className="mt-2 space-y-1 text-xs text-gray-300" data-public-beta-evidence-source="typed-gates">
+                <ul className="mt-2 space-y-1 text-xs text-muted-foreground" data-public-beta-evidence-source="typed-gates">
                     {openGates.map((gate) => (
-                        <li key={`canonical-beta-gate-${gate.id}`} className="rounded-md border border-white/10 bg-black/20 px-2 py-1" data-public-beta-evidence-state={gate.truthState}>
-                            <span className="font-semibold text-white">{gate.label}</span>
-                            <span className="text-gray-400"> - {gate.recommendedAction || gate.detail}</span>
-                            <span className="block text-[10px] text-gray-500">{gate.status} | {gate.freshness} | {gate.evidenceQuality}</span>
+                        <li key={`canonical-beta-gate-${gate.id}`} className="rounded-md border border-border bg-background/20 px-2 py-1" data-public-beta-evidence-state={gate.truthState}>
+                            <span className="font-semibold text-foreground">{gate.label}</span>
+                            <span className="text-muted-foreground"> - {gate.recommendedAction || gate.detail}</span>
+                            <span className="block text-[10px] text-muted-foreground">{gate.status} | {gate.freshness} | {gate.evidenceQuality}</span>
                         </li>
                     ))}
                 </ul>
             ) : null}
             {secondaryActions.length > 0 ? (
                 <div className="mt-2" data-public-beta-secondary-actions="typed">
-                    <p className="text-[11px] font-semibold text-gray-300">Other typed actions</p>
-                    <ul className="mt-1 space-y-1 text-xs text-gray-300">
+                    <p className="text-[11px] font-semibold text-muted-foreground">Other typed actions</p>
+                    <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
                         {secondaryActions.slice(0, 8).map((action) => (
                             <li
                                 key={`public-beta-secondary-${action.lane}-${action.id}`}
-                                className="rounded-md border border-white/10 bg-black/20 px-2 py-1"
+                                className="rounded-md border border-border bg-background/20 px-2 py-1"
                                 data-public-beta-action-lane={action.lane}
                                 data-public-beta-action-source={action.source}
                                 data-public-beta-blocks-launch={String(action.blocksLaunch)}
                             >
-                                <span className="font-semibold text-white">{action.title}</span>
-                                <span className="text-gray-400"> - {action.action}</span>
-                                <span className="block text-[10px] text-gray-500">
+                                <span className="font-semibold text-foreground">{action.title}</span>
+                                <span className="text-muted-foreground"> - {action.action}</span>
+                                <span className="block text-[10px] text-muted-foreground">
                                     {formatPublicBetaDecisionStatus(action.lane)} | source {action.source} | {action.blocksLaunch ? "Blocks launch" : "Advisory"}
                                 </span>
                             </li>
@@ -220,10 +220,10 @@ export function DebugPublicBetaDecisionDetails({
 }
 
 function stateTone(state: string) {
-    if (state === "failed") return "border-red-400/30 bg-red-500/10 text-red-100";
-    if (state === "degraded" || state === "stale") return "border-amber-400/30 bg-amber-500/10 text-amber-100";
-    if (state === "live") return "border-emerald-400/30 bg-emerald-500/10 text-emerald-100";
-    return "border-white/10 bg-white/5 text-gray-200";
+    if (state === "failed") return "border-destructive/30 bg-destructive/10 text-destructive";
+    if (state === "degraded" || state === "stale") return "border-warning/30 bg-warning/10 text-warning";
+    if (state === "live") return "border-success/30 bg-success/10 text-success";
+    return "border-border bg-secondary text-foreground";
 }
 
 function stateLabel(state: string) {
@@ -287,38 +287,38 @@ function CockpitSectionCard({ section }: { section: DebugOperatorCockpitSection 
 
     return (
         <article
-            className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-3"
+            className="rounded-[1.1rem] border border-border bg-secondary p-3"
             data-debug-operator-section={section.id}
             data-debug-truth-state={section.state}
         >
             <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/25">
-                    <Icon className="h-5 w-5 text-white" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border bg-background/25">
+                    <Icon className="h-5 w-5 text-foreground" />
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0">
-                            <h3 className="text-sm font-black text-white">{section.title}</h3>
-                            <p className="mt-1 text-xs leading-5 text-gray-300">{section.operatorSummary}</p>
+                            <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
+                            <p className="mt-1 text-xs leading-5 text-muted-foreground">{section.operatorSummary}</p>
                         </div>
-                        <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em]", stateTone(section.state))}>
+                        <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide", stateTone(section.state))}>
                             {stateLabel(section.state)}
                         </span>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                        <span className="rounded-full border border-border bg-background/25 px-2.5 py-1 text-[11px] text-muted-foreground">
                             Owner: {section.owner}
                         </span>
                     </div>
-                    <p className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs font-semibold text-white">
+                    <p className="mt-3 rounded-xl border border-border bg-background/25 px-3 py-2 text-xs font-semibold text-foreground">
                         Next: {section.nextAction}
                     </p>
                     {firstItems.length > 0 ? (
                         <div className="mt-3 space-y-2">
                             {firstItems.map((item, index) => (
-                                <div key={`${section.id}-${index}`} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs">
-                                    <p className="font-semibold text-white">{itemLabel(item)}</p>
-                                    <p className="mt-1 text-gray-400">{itemAction(item)}</p>
+                                <div key={`${section.id}-${index}`} className="rounded-xl border border-border bg-background/20 px-3 py-2 text-xs">
+                                    <p className="font-semibold text-foreground">{itemLabel(item)}</p>
+                                    <p className="mt-1 text-muted-foreground">{itemAction(item)}</p>
                                 </div>
                             ))}
                         </div>
@@ -332,9 +332,9 @@ function CockpitSectionCard({ section }: { section: DebugOperatorCockpitSection 
 export function DebugOperatorCockpit({ cockpit }: { cockpit?: DebugOperatorCockpitReport | null }) {
     if (!cockpit) {
         return (
-            <section className="rounded-[1.2rem] border border-white/10 bg-black/25 p-4" data-debug-operator-cockpit="missing" data-debug-truth-state="unknown">
-                <h3 className="font-bold text-white">Operator Cockpit</h3>
-                <p className="mt-1 text-sm text-gray-300">Operator cockpit evidence has not loaded yet.</p>
+            <section className="rounded-[1.2rem] border border-border bg-background/25 p-4" data-debug-operator-cockpit="missing" data-debug-truth-state="unknown">
+                <h3 className="font-semibold text-foreground">Operator Cockpit</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Operator cockpit evidence has not loaded yet.</p>
             </section>
         );
     }
@@ -353,25 +353,25 @@ export function DebugOperatorCockpit({ cockpit }: { cockpit?: DebugOperatorCockp
 
     return (
         <section
-            className="rounded-[1.2rem] border border-brand-purple/20 bg-brand-purple/[0.06] p-3"
+            className="rounded-[1.2rem] border border-primary/20 bg-primary/[0.06] p-3"
             data-debug-operator-cockpit="default"
             data-debug-raw-dump-default-open={String(cockpit.rawDumpDefaultOpen)}
             data-debug-truth-state={cockpit.overallStatus === "pass" ? "degraded" : "failed"}
         >
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">Operator Cockpit</p>
-                    <h3 className="text-lg font-black text-white">What to fix next</h3>
-                    <p className="mt-1 text-xs leading-5 text-gray-300">Grouped by source state, owner, and next action.</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Operator Cockpit</p>
+                    <h3 className="text-lg font-semibold text-foreground">What to fix next</h3>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">Grouped by source state, owner, and next action.</p>
                 </div>
                 <div className="flex flex-wrap gap-2" data-debug-operator-summary-source-states="true">
-                    <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                    <span className="rounded-full border border-border bg-background/25 px-2.5 py-1 text-[11px] text-muted-foreground">
                         Needs action {needsActionCount}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                    <span className="rounded-full border border-border bg-background/25 px-2.5 py-1 text-[11px] text-muted-foreground">
                         Refresh due {refreshDueCount}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                    <span className="rounded-full border border-border bg-background/25 px-2.5 py-1 text-[11px] text-muted-foreground">
                         Ready {readyCount}
                     </span>
                 </div>

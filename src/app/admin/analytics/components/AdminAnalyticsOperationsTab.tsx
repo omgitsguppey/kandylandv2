@@ -1,3 +1,8 @@
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
+import { Surface } from "@/components/ui/content-layout";
 import React from "react";
 import { buttonVariants } from "@/components/ui/Button";
 import {
@@ -259,7 +264,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           {item.label}
         </p>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-brand-purple">
+          <span className="text-xs font-semibold text-primary">
             {item.activeUsers}
           </span>
           <AdminStatusBadge
@@ -269,9 +274,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           />
         </div>
       </div>
-      <div className="mt-1.5 hidden h-1 overflow-hidden rounded-full bg-white/10 @3xl:block">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+      <div className="mt-1.5 hidden h-1 overflow-hidden rounded-full bg-secondary @3xl:block">
+        <Surface
+          className="h-full rounded-full bg-card from-brand-purple"
           style={{
             width: `${Math.max(8, (item.activeUsers / Math.max(1, livePulseModel.surfaces[0]?.activeUsers || 1)) * 100)}%`,
           }}
@@ -294,10 +299,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           <p className="truncate text-xs font-semibold text-foreground">
             {item.displayLabel}
           </p>
-          <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs font-bold text-muted-foreground">
+          <span className="shrink-0 rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
             {item.actorBadgeLabel}
           </span>
-          <span className="shrink-0 rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-xs font-bold text-muted-foreground">
+          <span className="shrink-0 rounded border border-border bg-background/30 px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
             {item.purposeLabel}
           </span>
         </div>
@@ -309,7 +314,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         </p>
       </div>
       <div className="flex items-center gap-1.5">
-        <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
+        <span className="rounded-full border border-border bg-background/30 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {item.lastSeenLabel}
         </span>
         <AdminStatusBadge
@@ -346,11 +351,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-gray-200">
+            <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-foreground">
               {percentLabel}
             </span>
             {step.displayedPercent !== null ? (
-              <span className="hidden rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple @3xl:inline-flex">
+              <span className="hidden rounded-full border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary @3xl:inline-flex">
                 {step.ratioMeaning === "event_volume_ratio"
                   ? "Event ratio"
                   : step.ratioMeaning === "not_comparable"
@@ -367,9 +372,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             ) : null}
           </div>
         </div>
-        <div className="h-1 overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+        <div className="h-1 overflow-hidden rounded-full bg-secondary">
+          <Surface
+            className="h-full rounded-full bg-card from-brand-purple"
             style={{ width: `${barWidth}%` }}
           />
         </div>
@@ -427,7 +432,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
+                  <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                     {livePulseModel.refreshState === "refreshing"
                       ? "Refreshing"
                       : livePulseModel.refreshState === "refresh_due"
@@ -513,20 +518,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     >
                       <defs>
                         <linearGradient id="liveUsersFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#b28cff" stopOpacity={0.32} />
-                          <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                          <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.32} />
+                          <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="liveViewsFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#ffffff" stopOpacity={0.22} />
-                          <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
+                          <stop offset="5%" stopColor="var(--foreground)" stopOpacity={0.22} />
+                          <stop offset="95%" stopColor="var(--foreground)" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                      <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                      <CartesianGrid stroke="var(--border)" vertical={false} />
+                      <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} />
                       <Tooltip content={<AnalyticsTooltip />} />
-                      <Area type="monotone" dataKey="users" name="Active users" stroke="#b28cff" strokeWidth={2} fill="url(#liveUsersFill)" />
-                      <Area type="monotone" dataKey="views" name="Page views" stroke="#ffffff" strokeWidth={2} fill="url(#liveViewsFill)" />
+                      <Area type="monotone" dataKey="users" name="Active users" stroke="var(--primary)" strokeWidth={2} fill="url(#liveUsersFill)" />
+                      <Area type="monotone" dataKey="views" name="Page views" stroke="var(--foreground)" strokeWidth={2} fill="url(#liveViewsFill)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
@@ -548,10 +553,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               >
                 <div className="border-b border-border p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Snapshot surfaces
                     </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
+                    <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                       {livePulseModel.surfaces.length} lanes
                     </span>
                   </div>
@@ -586,10 +591,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                 <div className="border-b border-border p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Active identities
                     </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
+                    <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                       {livePulseModel.activeIdentities.length} shown
                     </span>
                   </div>
@@ -659,7 +664,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     <p className="font-semibold text-foreground">
                       {journeyFunnelModel.hydrationState === "unavailable" ? "No event chain source" : "No event sample yet"}
                     </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-muted-foreground">
+                    <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                       {journeyFunnelModel.modeLabel}
                     </span>
                   </div>
@@ -681,7 +686,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   data-journey-funnel-exact-user-funnel-available={String(journeyFunnelModel.exactUserFunnelAvailable)}
                 >
                   {journeyFunnelViewMode === "chart" ? (
-                    <div
+                    <Surface
                       className="rounded-2xl bg-card h-56 p-3"
                       data-journey-funnel-chart="compact"
                       data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}
@@ -692,18 +697,18 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         <AreaChart data={journeyFunnelChartRows} margin={{ top: 4, right: 0, left: -22, bottom: 0 }}>
                           <defs>
                             <linearGradient id="journeyFunnelCountFill" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#b28cff" stopOpacity={0.32} />
-                              <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                              <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.32} />
+                              <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                             </linearGradient>
                             <linearGradient id="journeyFunnelPercentFill" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.26} />
-                              <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+                              <stop offset="5%" stopColor="var(--info)" stopOpacity={0.26} />
+                              <stop offset="95%" stopColor="var(--info)" stopOpacity={0} />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                          <CartesianGrid stroke="var(--border)" vertical={false} />
                           <XAxis
                             dataKey="chartLabel"
-                            stroke="#6b7280"
+                            stroke="var(--muted-foreground)"
                             fontSize={10}
                             tickLine={false}
                             axisLine={false}
@@ -711,25 +716,25 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             minTickGap={12}
                             height={30}
                           />
-                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <YAxis stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                           <Tooltip content={<AnalyticsTooltip />} />
-                          <Area type="monotone" dataKey="countValue" name="Events" stroke="#b28cff" strokeWidth={2} fill="url(#journeyFunnelCountFill)" />
-                          <Area type="monotone" dataKey="percentValue" name="Percent" stroke="#22d3ee" strokeWidth={2} fill="url(#journeyFunnelPercentFill)" />
+                          <Area type="monotone" dataKey="countValue" name="Events" stroke="var(--primary)" strokeWidth={2} fill="url(#journeyFunnelCountFill)" />
+                          <Area type="monotone" dataKey="percentValue" name="Percent" stroke="var(--info)" strokeWidth={2} fill="url(#journeyFunnelPercentFill)" />
                         </AreaChart>
                       </ResponsiveContainer>
-                    </div>
+                    </Surface>
                   ) : null}
 
                   {journeyFunnelViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                       className="rounded-2xl bg-card overflow-x-auto"
                       data-journey-funnel-table="compact"
                       data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}
                       data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}
                       data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}
                     >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                      <DataTable className="min-w-full text-left text-xs">
+                        <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Step</th>
                             <th className="px-3 py-2 font-semibold">Events</th>
@@ -738,7 +743,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             <th className="px-3 py-2 font-semibold">Source</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-muted-foreground">
+                        <tbody className="divide-y divide-border text-muted-foreground">
                           {journeyFunnelModel.steps.map((step) => (
                             <tr
                               key={step.stepKey}
@@ -756,8 +761,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </DataTable>
+                    </TableScrollArea>
                   ) : null}
 
                   {journeyFunnelViewMode === "cards" ? (
@@ -806,13 +811,13 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       </div>
 
                       {journeyFunnelModel.visibleDegradedCopy ? (
-                        <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
+                        <p className="rounded-[1rem] border border-border bg-background/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
                           {journeyFunnelModel.visibleDegradedCopy}
                         </p>
                       ) : null}
 
                       <div className="space-y-1.5">
-                        <div className="flex items-center justify-between gap-2 px-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        <div className="flex items-center justify-between gap-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                           <span>Supporting Events</span>
                           <span>Separate from the chain</span>
                         </div>
@@ -836,17 +841,17 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   ) : null}
 
                   {eventChainCanRenderDetails && journeyFunnelViewMode === "cards" ? (
-                    <details className="space-y-1.5">
-                      <summary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>
+                    <Disclosure className="space-y-1.5">
+                      <DisclosureSummary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>
                         Step details
-                      </summary>
+                      </DisclosureSummary>
                       <div className="mt-2 space-y-1.5">
                         {journeyFunnelModel.steps.map(renderJourneyStepRow)}
                       </div>
-                    </details>
+                    </Disclosure>
                   ) : null}
 
-                  <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
+                  <p className="rounded-[1rem] border border-border bg-background/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
                     {journeyFunnelModel.recommendation}
                   </p>
                 </div>
@@ -890,7 +895,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ) : null}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
+                    <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                       {authOutcomeModel.measurementMode === "canonical_attempt_chain"
                         ? "Attempt chain"
                         : authOutcomeModel.measurementMode === "legacy_event_counts"
@@ -913,7 +918,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <p className="font-semibold text-foreground">
                         {authOutcomeModel.hydrationState === "unavailable" ? "No auth outcome source" : "No auth sample yet"}
                       </p>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-muted-foreground">
+                      <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                         {authOutcomeModel.modeLabel}
                       </span>
                     </div>
@@ -931,7 +936,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     data-auth-outcomes-source-state={authCanRenderDetails ? "loaded" : "no_sample"}
                   >
                     {authOutcomeViewMode === "chart" ? (
-                      <div
+                      <Surface
                         className="rounded-2xl bg-card h-56 p-3"
                         data-auth-outcomes-chart="compact"
                         data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}
@@ -941,18 +946,18 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <AreaChart data={authMethodChartRows} margin={{ top: 4, right: 0, left: -22, bottom: 0 }}>
                             <defs>
                               <linearGradient id="authOutcomeSuccessFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#b28cff" stopOpacity={0.32} />
-                                <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.32} />
+                                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                               </linearGradient>
                               <linearGradient id="authOutcomeFailureFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#fb7185" stopOpacity={0.28} />
-                                <stop offset="95%" stopColor="#fb7185" stopOpacity={0} />
+                                <stop offset="5%" stopColor="var(--destructive)" stopOpacity={0.28} />
+                                <stop offset="95%" stopColor="var(--destructive)" stopOpacity={0} />
                               </linearGradient>
                             </defs>
-                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <CartesianGrid stroke="var(--border)" vertical={false} />
                             <XAxis
                               dataKey="chartLabel"
-                              stroke="#6b7280"
+                              stroke="var(--muted-foreground)"
                               fontSize={10}
                               tickLine={false}
                               axisLine={false}
@@ -960,25 +965,25 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               minTickGap={12}
                               height={30}
                             />
-                            <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                            <YAxis stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                             <Tooltip content={<AnalyticsTooltip />} />
-                            <Area type="monotone" dataKey="successesValue" name="Successes" stroke="#b28cff" strokeWidth={2} fill="url(#authOutcomeSuccessFill)" />
-                            <Area type="monotone" dataKey="failuresValue" name="Failures" stroke="#fb7185" strokeWidth={2} fill="url(#authOutcomeFailureFill)" />
-                            <Area type="monotone" dataKey="unfinishedValue" name="Unfinished" stroke="#64748b" strokeWidth={2} fill="transparent" />
+                            <Area type="monotone" dataKey="successesValue" name="Successes" stroke="var(--primary)" strokeWidth={2} fill="url(#authOutcomeSuccessFill)" />
+                            <Area type="monotone" dataKey="failuresValue" name="Failures" stroke="var(--destructive)" strokeWidth={2} fill="url(#authOutcomeFailureFill)" />
+                            <Area type="monotone" dataKey="unfinishedValue" name="Unfinished" stroke="var(--muted-foreground)" strokeWidth={2} fill="transparent" />
                           </AreaChart>
                         </ResponsiveContainer>
-                      </div>
+                      </Surface>
                     ) : null}
 
                     {authOutcomeViewMode === "table" ? (
-                      <div
+                      <TableScrollArea
                         className="rounded-2xl bg-card overflow-x-auto"
                         data-auth-outcomes-table="compact"
                         data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}
                         data-auth-outcomes-measurement-mode={authOutcomeModel.measurementMode}
                       >
-                        <table className="min-w-full text-left text-xs">
-                          <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                        <DataTable className="min-w-full text-left text-xs">
+                          <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                             <tr>
                               <th className="px-3 py-2 font-semibold">Method</th>
                               <th className="px-3 py-2 font-semibold">Attempts</th>
@@ -989,7 +994,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               <th className="px-3 py-2 font-semibold">Top failure</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-white/10 text-muted-foreground">
+                          <tbody className="divide-y divide-border text-muted-foreground">
                             {authOutcomeModel.methodBreakdown.map((item) => (
                               <tr key={`auth-outcomes-method-table-${item.methodKey}`}>
                                 <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-foreground">{item.visibleLabel}</td>
@@ -1017,8 +1022,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               </tr>
                             ))}
                           </tbody>
-                        </table>
-                      </div>
+                        </DataTable>
+                      </TableScrollArea>
                     ) : null}
 
                     {authOutcomeViewMode === "cards" ? (
@@ -1115,11 +1120,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </div>
 
                     {authOutcomeModel.timingMissingReason ? (
-                      <p className="mt-2 rounded-[1rem] border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-xs leading-4 text-amber-100">
+                      <p className="mt-2 rounded-[1rem] border border-warning/25 bg-warning/10 px-3 py-2 text-xs leading-4 text-warning">
                         {authOutcomeModel.timingMissingReason}
                       </p>
                     ) : null}
-                    <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
+                    <p className="mt-2 rounded-[1rem] border border-border bg-background/25 px-3 py-2 text-xs leading-4 text-muted-foreground">
                       <span className="font-semibold text-foreground">Timing review:</span>{" "}
                       {authOutcomeModel.timingAvailable
                         ? "Completed attempts include start and finish timestamps."
@@ -1128,10 +1133,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                     {authCanRenderDetails ? (
                       <>
-                        <details className="mt-2 @3xl:hidden">
-                          <summary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>
+                        <Disclosure className="mt-2 @3xl:hidden">
+                          <DisclosureSummary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>
                             Method details
-                          </summary>
+                          </DisclosureSummary>
                           <div className="mt-2 space-y-1.5">
                             {authOutcomeModel.methodBreakdown.map((item) => {
                               const attempts = Math.max(1, item.attempts ?? 0);
@@ -1151,14 +1156,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                         {authCountLabel(item.attempts)} attempts · {authCountLabel(item.failures)} failures
                                       </p>
                                     </div>
-                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-xs font-bold text-brand-purple">
+                                    <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
                                       {formatPercent(item.successRatePct / 100)}
                                     </span>
                                   </div>
-                                  <div className="flex h-1 overflow-hidden rounded-full bg-white/10">
-                                    <div className="h-full bg-brand-purple" style={{ width: `${successShare * 100}%` }} />
-                                    <div className="h-full bg-rose-400" style={{ width: `${failureShare * 100}%` }} />
-                                    <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
+                                  <div className="flex h-1 overflow-hidden rounded-full bg-secondary">
+                                    <div className="h-full bg-primary" style={{ width: `${successShare * 100}%` }} />
+                                    <div className="h-full bg-destructive" style={{ width: `${failureShare * 100}%` }} />
+                                    <div className="h-full bg-secondary" style={{ width: `${unfinishedShare * 100}%` }} />
                                   </div>
                                   {item.failureBreakdown[0] ? (
                                     <p className="mt-1 text-xs text-muted-foreground">
@@ -1169,14 +1174,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               );
                             })}
                           </div>
-                        </details>
+                        </Disclosure>
 
                         <div className="border-b border-border mt-2 hidden p-2.5 @3xl:block md:p-3">
                           <div className="mb-2 flex items-center justify-between gap-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                               Method split
                             </p>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
+                            <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                               {authOutcomeModel.methodBreakdown.length} methods
                             </span>
                           </div>
@@ -1202,14 +1207,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                         {authCountLabel(item.attempts)} attempts · {authCountLabel(item.successes)} successes · {authCountLabel(item.failures)} failures · {authCountLabel(item.unfinished)} unfinished
                                       </p>
                                     </div>
-                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-xs font-bold text-brand-purple">
+                                    <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
                                       {formatPercent(item.successRatePct / 100)}
                                     </span>
                                   </div>
-                                  <div className="flex h-1 overflow-hidden rounded-full bg-white/10">
-                                    <div className="h-full bg-brand-purple" style={{ width: `${successShare * 100}%` }} />
-                                    <div className="h-full bg-rose-400" style={{ width: `${failureShare * 100}%` }} />
-                                    <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
+                                  <div className="flex h-1 overflow-hidden rounded-full bg-secondary">
+                                    <div className="h-full bg-primary" style={{ width: `${successShare * 100}%` }} />
+                                    <div className="h-full bg-destructive" style={{ width: `${failureShare * 100}%` }} />
+                                    <div className="h-full bg-secondary" style={{ width: `${unfinishedShare * 100}%` }} />
                                   </div>
                                   <div className="mt-1.5 flex flex-wrap gap-2 text-xs text-muted-foreground">
                                     <span>State: {item.state}</span>
@@ -1224,10 +1229,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                         <div className="border-b border-border mt-2 hidden p-2.5 @3xl:block md:p-3">
                           <div className="mb-2 flex items-center justify-between gap-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                               Auth lifecycle outcomes
                             </p>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-muted-foreground">
+                            <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">
                               {authOutcomeModel.lifecycleOutcomes.length} rows
                             </span>
                           </div>
@@ -1334,29 +1339,29 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <AreaChart data={guestQualityChartRows} margin={{ top: 4, right: 0, left: -22, bottom: 0 }}>
                         <defs>
                           <linearGradient id="guestQualitySampleFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#b28cff" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                            <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                        <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={52} />
-                        <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                        <CartesianGrid stroke="var(--border)" vertical={false} />
+                        <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={52} />
+                        <YAxis stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                         <Tooltip content={<AnalyticsTooltip />} />
-                        <Area type="monotone" dataKey="value" name="Sample count" stroke="#b28cff" strokeWidth={2} fill="url(#guestQualitySampleFill)" />
+                        <Area type="monotone" dataKey="value" name="Sample count" stroke="var(--primary)" strokeWidth={2} fill="url(#guestQualitySampleFill)" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
                 ) : null}
 
                 {guestQualityViewMode === "table" ? (
-                  <div
+                  <TableScrollArea
                     className="rounded-2xl bg-card overflow-x-auto"
                     data-guest-quality-table="compact"
                     data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
                     data-guest-quality-series-state={guestBounceQualityModel.series.state}
                   >
-                    <table className="min-w-full text-left text-xs">
-                      <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                    <DataTable className="min-w-full text-left text-xs">
+                      <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                         <tr>
                           <th className="px-3 py-2 font-semibold">Signal</th>
                           <th className="px-3 py-2 font-semibold">Value</th>
@@ -1365,7 +1370,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <th className="px-3 py-2 font-semibold">Detail</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/10 text-muted-foreground">
+                      <tbody className="divide-y divide-border text-muted-foreground">
                         <tr>
                           <td className="px-3 py-2 font-semibold text-foreground">{guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.display}</td>
@@ -1392,8 +1397,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.signedInBounce.explanation}</td>
                         </tr>
                       </tbody>
-                    </table>
-                  </div>
+                    </DataTable>
+                  </TableScrollArea>
                 ) : null}
 
                 {guestQualityViewMode === "cards" ? (

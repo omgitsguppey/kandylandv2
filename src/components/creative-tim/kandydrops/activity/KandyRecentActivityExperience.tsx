@@ -7,7 +7,8 @@ import {
 import { formatDistanceToNow } from "date-fns";
 
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/creative-tim/ui/input";
+import { ContentSection, SectionHeader, GroupedList, GroupedRow } from "@/components/ui/content-layout";
+import { Input } from "@/components/ui/input";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import type { ActivityItem } from "@/components/Dashboard/RecentActivityFeed";
 import { getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
@@ -56,7 +57,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
     const positive = POSITIVE_TRANSACTION_TYPES.has(item.transaction.type);
     const title = item.label || getTransactionDisplayLabel(item.transaction);
     return (
-      <article className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
+      <GroupedRow>
         <div className="flex min-w-0 flex-[1_1_14rem] items-start gap-3">
           {positive ? <ArrowDownLeft className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" /> : <ArrowUpRight className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
           <div className="min-w-0">
@@ -65,7 +66,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
           </div>
         </div>
         <p className="break-words text-sm font-semibold tabular-nums text-foreground">{positive ? "+" : "-"}{item.transaction.amount} GD</p>
-      </article>
+      </GroupedRow>
     );
   }
 
@@ -80,7 +81,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
         ? "Reminder"
         : failed ? "Reset" : "+" + item.taskEvent.reward + " GD";
   return (
-    <article className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
+    <GroupedRow>
       <div className="flex min-w-0 flex-[1_1_14rem] items-start gap-3">
         {completed ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" /> : neutral ? <Activity className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" /> : <TriangleAlert className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
         <div className="min-w-0">
@@ -89,7 +90,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
         </div>
       </div>
       <p className="break-words text-sm font-semibold tabular-nums text-foreground">{statusLabel}</p>
-    </article>
+    </GroupedRow>
   );
 }
 
@@ -136,7 +137,7 @@ function ActivityHistory({ activities, currentPage, historyError, loadingHistory
         <p className="py-4 text-sm leading-relaxed text-muted-foreground">{searchValue.trim() ? "No activity matches your search yet." : "No activity has been recorded yet."}</p>
       ) : (
         <>
-          <div className="divide-y divide-border">{activities.map((activity) => <ActivityRow key={activity.id} item={activity} />)}</div>
+          <GroupedList aria-label="Activity history">{activities.map((activity) => <ActivityRow key={activity.id} item={activity} />)}</GroupedList>
           <nav className="flex min-w-0 flex-wrap items-center justify-between gap-2" aria-label="Activity pages">
             <Button variant="ghost" size="sm" onClick={onPreviousPage} disabled={currentPage === 1} className="min-w-0 gap-2 whitespace-normal"><ChevronLeft className="size-4 shrink-0" aria-hidden="true" />Previous</Button>
             <span className="text-xs leading-relaxed text-muted-foreground">Page {currentPage} of {totalPages}</span>
@@ -150,14 +151,13 @@ function ActivityHistory({ activities, currentPage, historyError, loadingHistory
 
 export function KandyRecentActivityExperience({ expanded, onToggleExpanded, loadingSummary, summaryError, onRetry, hasRecordedActivity, summaryActivity, activities, currentPage, historyError, loadingHistory, searchValue, totalPages, onSearchChange, onNextPage, onPreviousPage, onUnwrapNow, onOpenExperiences }: KandyRecentActivityExperienceProps) {
   return (
-    <section className="min-w-0 space-y-5" data-mobile-residual-cleanup="score-impact" aria-labelledby="recent-activity-title">
-      <header className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 id="recent-activity-title" className="text-xl font-semibold tracking-tight text-foreground">Recent activity</h2>
+    <ContentSection className="space-y-5" data-mobile-residual-cleanup="score-impact" aria-labelledby="recent-activity-title">
+      <SectionHeader title="Recent activity" headingId="recent-activity-title" accessory={(
         <Button variant="ghost" size="sm" onClick={onToggleExpanded} aria-expanded={expanded} aria-controls="recent-activity-content" className="min-w-0 gap-2 whitespace-normal">
           {expanded ? "Collapse" : "View all"}
           {expanded ? <ChevronUp className="size-4 shrink-0" aria-hidden="true" /> : <ChevronDown className="size-4 shrink-0" aria-hidden="true" />}
         </Button>
-      </header>
+      )} />
       <div id="recent-activity-content" className="min-w-0">
         {summaryError && !expanded && (
           <div className="space-y-3 pb-4">
@@ -171,8 +171,8 @@ export function KandyRecentActivityExperience({ expanded, onToggleExpanded, load
           <div className="flex min-h-40 items-center justify-center" role="status"><Loader2 className="size-6 animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" /><span className="sr-only">Loading recent activity</span></div>
         ) : !hasRecordedActivity ? (
           summaryError ? null : <EmptyActivityState onUnwrapNow={onUnwrapNow} onOpenExperiences={onOpenExperiences} />
-        ) : summaryActivity ? <ActivityRow item={summaryActivity} /> : null}
+        ) : summaryActivity ? <GroupedList aria-label="Latest activity"><ActivityRow item={summaryActivity} /></GroupedList> : null}
       </div>
-    </section>
+    </ContentSection>
   );
 }

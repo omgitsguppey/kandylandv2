@@ -1,16 +1,16 @@
 function LoadingBar({ className }: { className: string }) {
-    return <div className={`rounded-full bg-white/10 ${className}`} />;
+    return <div className={`rounded-full bg-secondary ${className}`} />;
 }
 
 function LoadingPanel({ rows }: { rows: number }) {
     return (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3 shadow-inner shadow-black/15 md:p-4">
+        <div className="rounded-2xl border border-border bg-secondary p-3 shadow-inner shadow-scrim/15 md:p-4">
             <LoadingBar className="h-3 w-32" />
             <div className="mt-3 space-y-2">
                 {Array.from({ length: rows }).map((_, index) => (
-                    <div key={index} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <div key={index} className="rounded-xl border border-border bg-background/20 p-3">
                         <LoadingBar className="h-3 w-24" />
-                        <LoadingBar className="mt-2 h-3 w-full bg-white/5" />
+                        <LoadingBar className="mt-2 h-3 w-full bg-secondary" />
                     </div>
                 ))}
             </div>
@@ -21,16 +21,16 @@ function LoadingPanel({ rows }: { rows: number }) {
 export function AdminControlTowerLoading() {
     return (
         <div aria-busy="true" aria-label="Loading admin control tower" className="space-y-3 animate-pulse md:space-y-4">
-            <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-4 md:p-5">
+            <section className="rounded-3xl border border-border bg-secondary p-4 md:p-5">
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                     <div className="space-y-3">
                         <LoadingBar className="h-3 w-28" />
-                        <LoadingBar className="h-9 w-64 max-w-full bg-white/15" />
-                        <LoadingBar className="h-3 w-80 max-w-full bg-white/5" />
+                        <LoadingBar className="h-9 w-64 max-w-full bg-secondary" />
+                        <LoadingBar className="h-3 w-80 max-w-full bg-secondary" />
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                    <div className="rounded-2xl border border-border bg-background/20 p-3">
                         <LoadingBar className="h-3 w-28" />
-                        <LoadingBar className="mt-3 h-4 w-20 bg-white/15" />
+                        <LoadingBar className="mt-3 h-4 w-20 bg-secondary" />
                     </div>
                 </div>
             </section>

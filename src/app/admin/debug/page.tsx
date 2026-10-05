@@ -737,23 +737,23 @@ export default function DebugConsole() {
                 ? "Live"
                 : "Needs review";
     const sourceStateTone = isLocalAdminUiTestSession
-        ? "bg-amber-400"
+        ? "bg-warning"
         : error
-        ? "bg-red-500"
+        ? "bg-destructive"
         : !data && isLoading
-            ? "bg-amber-400"
+            ? "bg-warning"
             : systemStateHealthy
-                ? "bg-emerald-500"
-                : "bg-amber-400";
+                ? "bg-success"
+                : "bg-warning";
     const sourceStateTextClass = isLocalAdminUiTestSession
-        ? "text-amber-200"
+        ? "text-warning"
         : error
-        ? "text-red-300"
+        ? "text-destructive"
         : !data && isLoading
-            ? "text-amber-200"
+            ? "text-warning"
             : systemStateHealthy
-                ? "text-emerald-500"
-                : "text-amber-200";
+                ? "text-success"
+                : "text-warning";
 
     const refreshAll = async () => {
         if (isLocalAdminUiTestSession) {
@@ -938,19 +938,19 @@ export default function DebugConsole() {
                 <>
                     {isLocalAdminUiTestSession ? (
                 <div
-                    className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+                    className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning"
                     data-admin-debug-fixture-boundary="true"
                     data-admin-debug-fixture-state="source_missing"
                 >
-                    <span className="font-semibold text-white">source_missing fixture.</span>{" "}
+                    <span className="font-semibold text-foreground">source_missing fixture.</span>{" "}
                     The Debug Console layout is inspectable, but route checks, realtime evidence,
                     AI assistant signals, repair actions, and balance adjustments wait for a real
                     admin session with verified evidence.
                 </div>
                     ) : null}
                     <CompactDebugStatusRail items={compactSummaryItems} detailItems={detailItems} />
-                    {error ? <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
-                    {(isLoading || overviewLoading) && !data ? <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3 text-sm text-gray-300 sm:p-4" data-mobile-residual-cleanup="score-impact"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
+                    {error ? <div className="mt-4 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">Debug data could not be loaded right now.</div> : null}
+                    {(isLoading || overviewLoading) && !data ? <div className="mt-4 rounded-2xl border border-border bg-background/25 p-3 text-sm text-muted-foreground sm:p-4" data-mobile-residual-cleanup="score-impact"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
                 </>
             )}
         >

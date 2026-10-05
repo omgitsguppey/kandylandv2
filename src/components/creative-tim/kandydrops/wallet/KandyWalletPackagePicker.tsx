@@ -3,9 +3,9 @@
 import { Candy, Check, Minus, Plus } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
+import { ContentSection, SectionHeader, ValuePair } from "@/components/ui/content-layout";
 import { cn } from "@/lib/utils";
 
 export interface KandyWalletPromo {
@@ -23,28 +23,18 @@ export interface KandyWalletHeaderProps {
 
 export function KandyWalletHeader({ hasUserProfile, rewardBalanceLabel, paidBalanceLabel }: KandyWalletHeaderProps) {
     return (
-        <header className="grid gap-3" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
-            <div>
-                <h2 className="text-xl font-semibold tracking-tight text-foreground">Set your refill</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Pick the GumDrops that should arrive after your payment is confirmed.</p>
-            </div>
+        <ContentSection className="space-y-3" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
+            <SectionHeader title="Set your refill" description="Pick the GumDrops that should arrive after your payment is confirmed." />
             {hasUserProfile ? (
-                <Card
-                    className="grid grid-cols-2 gap-0 overflow-hidden py-0 shadow-none"
-                    data-wallet-mobile-density="compact"
+                <ValuePair
                     aria-label={"Wallet balance: " + rewardBalanceLabel + " reward GD, " + paidBalanceLabel + " paid GD"}
-                >
-                    <div className="border-r border-border px-3 py-2">
-                        <p className="text-xs text-muted-foreground">Reward balance</p>
-                        <p className="mt-1 text-sm font-semibold text-foreground">{rewardBalanceLabel} GD</p>
-                    </div>
-                    <div className="px-3 py-2">
-                        <p className="text-xs text-muted-foreground">Paid balance</p>
-                        <p className="mt-1 text-sm font-semibold text-foreground">{paidBalanceLabel} GD</p>
-                    </div>
-                </Card>
+                    values={[
+                        { label: "Reward balance", value: rewardBalanceLabel + " GD" },
+                        { label: "Paid balance", value: paidBalanceLabel + " GD" },
+                    ]}
+                />
             ) : null}
-        </header>
+        </ContentSection>
     );
 }
 

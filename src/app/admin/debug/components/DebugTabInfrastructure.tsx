@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Section, Pill } from "./DebugPrimitives";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminDebugWorkstream } from "@/components/creative-tim/kandydrops/admin-debug/AdminDebugWorkstream";
@@ -108,14 +112,14 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                     <Section title="Dependency groups" subtitle="Open a group for every declared package and its lockfile result." defaultOpen={true}>
                         <div className="min-w-0 divide-y divide-border" data-debug-dependency-group-count={Array.isArray(inventory.groups) ? inventory.groups.length : undefined}>
                             {Array.isArray(inventory.groups) ? inventory.groups.length > 0 ? inventory.groups.map((group: any) => (
-                                <details key={group.key} className="min-w-0">
-                                    <summary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                                <Disclosure key={group.key} className="min-w-0">
+                                    <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
                                         <span className="inline-block max-w-full min-w-0 align-top">
                                             <span className="block wrap-anywhere font-semibold">{group.label}</span>
                                             <span className="block wrap-anywhere leading-6 text-muted-foreground">{typeof group.count === "number" && Number.isFinite(group.count) ? `${group.count} declared packages` : "Count not loaded"}</span>
                                             <span className="block wrap-anywhere leading-6 text-muted-foreground">{group.topEntries?.join(", ") || "No direct dependencies loaded"}</span>
                                         </span>
-                                    </summary>
+                                    </DisclosureSummary>
                                     <div className="min-w-0 divide-y divide-border pb-3">
                                         {(group.entries || []).map((entry: any) => (
                                             <article key={`${entry.sourcePackage}:${entry.dependencyType}:${entry.name}`} className="min-w-0 space-y-2 py-3 text-sm leading-6">
@@ -131,7 +135,7 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                             </article>
                                         ))}
                                     </div>
-                                </details>
+                                </Disclosure>
                             )) : <p className="py-3 text-sm leading-6 text-muted-foreground">No direct dependency groups are loaded.</p> : <Pill label="Dependency groups" value="Not loaded" truthState="unavailable" badgeLabel="MISSING" />}
                         </div>
                     </Section>
@@ -180,25 +184,25 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                     <Section title="Overrides and not-direct packages" subtitle="Security pins and expected-absent classifications remain inventory evidence." defaultOpen={false}>
                         <div className="min-w-0 divide-y divide-border">
                             {Array.isArray(inventory.overrides) ? inventory.overrides.map((overrideGroup: any) => (
-                                <details key={overrideGroup.sourcePackage} className="min-w-0">
-                                    <summary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                                <Disclosure key={overrideGroup.sourcePackage} className="min-w-0">
+                                    <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
                                         <span className="inline-block max-w-full min-w-0 align-top">
                                             <span className="block wrap-anywhere font-semibold">{overrideGroup.sourcePackage} overrides</span>
                                             <span className="block wrap-anywhere leading-6 text-muted-foreground">{typeof overrideGroup.count === "number" && Number.isFinite(overrideGroup.count) ? `${overrideGroup.count} security and transitive pins` : "Count not loaded"}</span>
                                         </span>
-                                    </summary>
+                                    </DisclosureSummary>
                                     <ul className="min-w-0 space-y-2 pb-3 text-sm leading-6 text-muted-foreground">
                                         {(overrideGroup.names || []).map((name: string) => <li key={name} className="wrap-anywhere font-mono">{name}</li>)}
                                     </ul>
-                                </details>
+                                </Disclosure>
                             )) : <Pill label="Overrides" value="Not loaded" truthState="unavailable" badgeLabel="MISSING" />}
-                            <details className="min-w-0">
-                                <summary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                            <Disclosure className="min-w-0">
+                                <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm outline-none marker:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring">
                                     <span className="inline-block max-w-full min-w-0 align-top">
                                         <span className="block wrap-anywhere font-semibold">Not directly installed / transitive or expected but absent</span>
                                         <span className="block wrap-anywhere leading-6 text-muted-foreground">These are not shown as core direct dependencies.</span>
                                     </span>
-                                </summary>
+                                </DisclosureSummary>
                                 <div className="min-w-0 divide-y divide-border pb-3">
                                     {(inventory.expectedButAbsentDependencies || inventory.notDirectDependencies || []).map((entry: any) => (
                                         <article key={entry.name} className="min-w-0 space-y-2 py-3 text-sm leading-6">
@@ -209,7 +213,7 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                         </article>
                                     ))}
                                 </div>
-                            </details>
+                            </Disclosure>
                         </div>
                     </Section>
                 </div>

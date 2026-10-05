@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Card } from "@/components/ui/card";
+import { ContentGrid } from "@/components/ui/content-layout";
 import { cn } from "@/lib/utils";
 
 interface KandyEditorialReleaseCollectionProps { children: ReactNode; }
 export function KandyEditorialReleaseCollection({ children }: KandyEditorialReleaseCollectionProps) {
-    return <section data-drops-collection-layout="editorial-release-shelves" data-drops-grid-density="editorial-release" className="grid min-w-0 gap-5 [grid-template-columns:repeat(auto-fill,minmax(min(100%,18rem),1fr))]">{children}</section>;
+    return <ContentGrid data-drops-collection-layout="editorial-release-shelves" data-drops-grid-density="editorial-release">{children}</ContentGrid>;
 }
 
 interface KandyEditorialPromotionInterludeProps { children: ReactNode; }

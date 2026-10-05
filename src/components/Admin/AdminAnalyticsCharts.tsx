@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/creative-tim/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import { useMemo, useState } from "react";
 import {

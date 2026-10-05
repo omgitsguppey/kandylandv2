@@ -1,12 +1,12 @@
 import type { ComponentPropsWithoutRef } from "react";
 
-import { CreatorStudioCanvas } from "@/components/creative-tim/kandydrops/creator/CreatorStudioCanvas";
+import { ContentFrame } from "@/components/ui/content-layout";
 
 type CreatorSettingsHubFrameProps = ComponentPropsWithoutRef<"div">;
 
 export function CreatorSettingsHubFrame({ children, className, ...props }: CreatorSettingsHubFrameProps) {
     return (
-        <CreatorStudioCanvas>
+        <ContentFrame>
             <div
                 {...props}
                 className={["relative isolate", className].filter(Boolean).join(" ")}
@@ -15,6 +15,6 @@ export function CreatorSettingsHubFrame({ children, className, ...props }: Creat
             >
                 {children}
             </div>
-        </CreatorStudioCanvas>
+        </ContentFrame>
     );
 }

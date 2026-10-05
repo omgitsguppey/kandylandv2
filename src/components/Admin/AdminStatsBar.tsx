@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { ArrowDownRight, ArrowRight, ArrowUpRight, DollarSign, ShoppingBag, Users, Zap } from "lucide-react";
 
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
@@ -23,7 +27,7 @@ function DeltaBadge({ metric }: { metric: PlatformPulseMetric }) {
     const delta = calculatePlatformPulseDelta(metric.current30dValue, metric.prior30dValue);
     const trend = classifyPlatformPulseTrend(delta);
     const formatted = formatPlatformPulseDelta(delta);
-    const tone = trend === "up" || trend === "new" ? "text-emerald-300" : trend === "down" ? "text-rose-300" : "text-gray-300";
+    const tone = trend === "up" || trend === "new" ? "text-success" : trend === "down" ? "text-destructive" : "text-muted-foreground";
     const Icon = trend === "up" || trend === "new" ? ArrowUpRight : trend === "down" ? ArrowDownRight : ArrowRight;
     return <span className={cn("inline-flex items-center gap-1 text-xs font-semibold", tone)} title={formatted.title} aria-label={formatted.ariaLabel}><Icon className="h-3.5 w-3.5" />{formatted.text}</span>;
 }
@@ -93,7 +97,7 @@ export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: Adm
                                 hasUsableValue={hasUsableValue}
                                 showTruthBadge={shouldRenderIssue}
                                 icon={<Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-kandy-lilac" />}
-                                valueClassName={hasUsableValue ? undefined : "text-sm md:text-base text-gray-300"}
+                                valueClassName={hasUsableValue ? undefined : "text-sm md:text-base text-muted-foreground"}
                                 meta={hasUsableValue ? <DeltaBadge metric={metric} /> : undefined}
                                 auxiliaryBadges={reviewDecision ? <AdminReviewBadge decision={reviewDecision} className="max-w-full" /> : undefined}
                             />
@@ -102,10 +106,10 @@ export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: Adm
                 })}
             </div>
             {issueSummary.length > 0 ? (
-                <details className="min-w-0 rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">
-                    <summary className="min-h-11 cursor-pointer content-center font-bold">Source details ({issueSummary.length})</summary>
-                    <div className="mt-2 grid min-w-0 gap-1">{issueSummary.map((issue) => <p key={issue} className="break-words text-xs leading-5 text-amber-100/85">{issue}</p>)}</div>
-                </details>
+                <Disclosure className="min-w-0 rounded-xl border border-warning/20 bg-warning/10 p-3 text-sm text-warning">
+                    <DisclosureSummary className="min-h-11 cursor-pointer content-center font-bold">Source details ({issueSummary.length})</DisclosureSummary>
+                    <div className="mt-2 grid min-w-0 gap-1">{issueSummary.map((issue) => <p key={issue} className="break-words text-xs leading-5 text-warning/85">{issue}</p>)}</div>
+                </Disclosure>
             ) : null}
         </div>
     );

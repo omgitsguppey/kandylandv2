@@ -2,7 +2,7 @@
 
 import { useRef, type ReactNode } from "react";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/creative-tim/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 export interface KandyWalletModalFrameProps {
     isOpen: boolean;

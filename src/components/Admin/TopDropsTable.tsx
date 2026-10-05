@@ -4,8 +4,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/creative-tim/ui/input";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 import type { Drop } from "@/types/db";
 import { trackEvent } from "@/lib/telemetry";
@@ -26,12 +26,12 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_PILL_STYLES: Record<string, string> = {
-    active: "border-emerald-400/20 bg-emerald-500/10 text-emerald-400",
-    scheduled: "border-amber-400/20 bg-amber-500/10 text-amber-400",
-    expired: "border-gray-400/20 bg-gray-500/10 text-gray-400",
-    queued: "border-blue-400/20 bg-blue-500/10 text-blue-400",
-    draft: "border-gray-400/20 bg-gray-500/10 text-gray-400",
-    pending_review: "border-orange-400/20 bg-orange-500/10 text-orange-400",
+    active: "border-success/20 bg-success/10 text-success",
+    scheduled: "border-warning/20 bg-warning/10 text-warning",
+    expired: "border-border bg-secondary text-muted-foreground",
+    queued: "border-info/20 bg-info/10 text-info",
+    draft: "border-border bg-secondary text-muted-foreground",
+    pending_review: "border-warning/20 bg-warning/10 text-warning",
 };
 
 /* ── Props ───────────────────────────────────────────────────────────────── */

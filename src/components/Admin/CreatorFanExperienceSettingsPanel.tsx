@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+
+
 import { useEffect, useState } from "react";
 
 import { CreatorFanExperienceSettingsFields } from "@/components/Admin/CreatorFanExperienceSettingsFields";
@@ -87,14 +90,14 @@ export function CreatorFanExperienceSettingsPanel({ target, saving, onSubmit }: 
         setRestrictionConfirmed={setRestrictionConfirmed}
       />
 
-      <button
+      <Button variant="ghost"
         type="button"
         onClick={() => void submit()}
         disabled={saving || (revenuePauseSelected && !restrictionConfirmed)}
-        className="min-h-11 w-full rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50 sm:w-auto"
+        className="min-h-11 w-full rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50 sm:w-auto"
       >
         Save fan experience settings
-      </button>
+      </Button>
     </div>
   );
 }

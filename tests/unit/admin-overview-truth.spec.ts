@@ -1230,7 +1230,7 @@ describe("admin analytics overview truth", () => {
     /* ── Density contract ───────────────────────────────────────────── */
 
     it("keeps metric content on the existing sourced Card owner", () => {
-        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain('from "@/components/creative-tim/ui/card"');
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain('from "@/components/ui/card"');
         expect(ANALYTICS_PRIMITIVES_SOURCE).toMatch(/function MetricCard[\s\S]*?<Card\s/u);
     });
 

@@ -61,11 +61,11 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                         >
                             <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
                                 <div className="min-w-0 space-y-3">
-                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
+                                    <div className="min-w-0 rounded-[1.1rem] border border-border bg-background/25 p-3.5">
                                         <div className="flex min-w-0 items-center justify-between gap-3">
                                             <div className="min-w-0">
-                                                <div className="text-sm font-semibold text-white">Current ranked set</div>
-                                                <div className="mt-1 break-words text-xs text-gray-400">{referencePreview.length}/{referenceCap} layout anchors queued.</div>
+                                                <div className="text-sm font-semibold text-foreground">Current ranked set</div>
+                                                <div className="mt-1 break-words text-xs text-muted-foreground">{referencePreview.length}/{referenceCap} layout anchors queued.</div>
                                             </div>
                                             <Badge className={cn("border", statTone(referencePreview.length > 0))}>
                                                 <Eye className="h-3.5 w-3.5" />
@@ -80,26 +80,26 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                     detail="Upload a primary style reference to seed the next ranked set."
                                                 />
                                             ) : referencePreview.map((asset, index) => (
-                                                <div key={`${asset.id}-${index}`} className="flex min-w-0 items-start gap-3 rounded-[1rem] border border-white/8 bg-white/[0.03] p-2.5">
-                                                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/40 text-xs font-semibold text-white">{index + 1}</div>
-                                                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black/30">
+                                                <div key={`${asset.id}-${index}`} className="flex min-w-0 items-start gap-3 rounded-[1rem] border border-border bg-secondary p-2.5">
+                                                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-background/40 text-xs font-semibold text-foreground">{index + 1}</div>
+                                                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[0.9rem] border border-border bg-background/30">
                                                         <Image src={asset.imageUrl} alt={asset.title || "Reference"} fill className="object-cover" sizes="56px" />
                                                     </div>
                                                     <div className="min-w-0">
                                                         <div className="flex flex-wrap items-center gap-2">
-                                                            <div className="truncate text-sm font-semibold text-white">{asset.title || asset.fileName || "Untitled reference"}</div>
-                                                            <Badge className="border border-white/10 bg-white/5 text-gray-200">{getReferenceSourceLabel(asset)}</Badge>
+                                                            <div className="truncate text-sm font-semibold text-foreground">{asset.title || asset.fileName || "Untitled reference"}</div>
+                                                            <Badge className="border border-border bg-secondary text-foreground">{getReferenceSourceLabel(asset)}</Badge>
                                                         </div>
-                                                        <p className="mt-1 break-words text-xs text-gray-400">{asset.selectionReason}</p>
+                                                        <p className="mt-1 break-words text-xs text-muted-foreground">{asset.selectionReason}</p>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
 
-                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
-                                        <div className="text-sm font-semibold text-white">Uploaded house references</div>
-                                        <div className="mt-1 break-words text-xs text-gray-400">Generation uses 2 layout anchors max.</div>
+                                    <div className="min-w-0 rounded-[1.1rem] border border-border bg-background/25 p-3.5">
+                                        <div className="text-sm font-semibold text-foreground">Uploaded house references</div>
+                                        <div className="mt-1 break-words text-xs text-muted-foreground">Generation uses 2 layout anchors max.</div>
 
                                         <div className="mt-3 space-y-3">
                                             {activeHouseReferences.length === 0 ? (
@@ -108,19 +108,19 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                     detail="Upload reusable house references here and Create Drop AI will inherit them automatically."
                                                 />
                                             ) : activeHouseReferences.map((asset) => (
-                                                <div key={asset.id} className="min-w-0 rounded-[1rem] border border-white/10 bg-white/[0.03] p-3">
+                                                <div key={asset.id} className="min-w-0 rounded-[1rem] border border-border bg-secondary p-3">
                                                     <div className="flex flex-col gap-3 sm:flex-row items-start">
-                                                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+                                                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border bg-background/30">
                                                             <Image src={asset.imageUrl} alt={asset.title || asset.fileName || "Reference"} fill className="object-cover" sizes="64px" />
                                                         </div>
                                                         <div className="min-w-0 flex-1">
                                                             <div className="flex flex-wrap items-center gap-2">
-                                                                <div className="truncate text-sm font-semibold text-white">{asset.title || asset.fileName || "House reference"}</div>
-                                                                {asset.primary ? <Badge className="border border-brand-purple/30 bg-brand-purple/15 text-brand-purple">Primary</Badge> : null}
-                                                                {asset.pinned ? <Badge className="border border-white/10 bg-white/5 text-gray-200">Pinned</Badge> : null}
+                                                                <div className="truncate text-sm font-semibold text-foreground">{asset.title || asset.fileName || "House reference"}</div>
+                                                                {asset.primary ? <Badge className="border border-primary/30 bg-primary/15 text-primary">Primary</Badge> : null}
+                                                                {asset.pinned ? <Badge className="border border-border bg-secondary text-foreground">Pinned</Badge> : null}
                                                             </div>
-                                                            <p className="mt-1 break-words text-xs text-gray-400">{getReferenceSelectionReason(asset)}</p>
-                                                            <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
+                                                            <p className="mt-1 break-words text-xs text-muted-foreground">{getReferenceSelectionReason(asset)}</p>
+                                                            <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-muted-foreground">
                                                                 <span>{formatAdminAiNullableNumber(asset.usageCount)} reuse <AdminStatusBadge state={sectionTruthState} className="ml-1 py-0.5" /></span>
                                                                 <span>{formatAdminAiNullableNumber(asset.successfulReuseCount)} success</span>
                                                                 <span>{formatAdminAiNullableNumber(asset.positiveReuseCount)} positive</span>
@@ -152,11 +152,11 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                         </div>
 
                                         {data?.referenceAssets.template && !activeHouseReferences.some((asset) => asset.primary) ? (
-                                            <div className="mt-3 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3">
+                                            <div className="mt-3 rounded-[1rem] border border-warning/20 bg-warning/10 p-3">
                                                 <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
                                                     <div className="min-w-0">
-                                                        <div className="text-sm font-semibold text-white">Legacy primary style asset</div>
-                                                        <div className="mt-1 break-words text-xs text-amber-100/80">This primary reference still lives on the legacy template path. Replace it with an uploaded house reference when ready.</div>
+                                                        <div className="text-sm font-semibold text-foreground">Legacy primary style asset</div>
+                                                        <div className="mt-1 break-words text-xs text-warning/80">This primary reference still lives on the legacy template path. Replace it with an uploaded house reference when ready.</div>
                                                     </div>
                                                     <Button variant="danger" size="sm" onClick={handleLegacyTemplateDelete} isLoading={removingReferenceId === "template"} disabled={isLocalAdminUiTestSession}>
                                                         <Trash2 className="mr-2 h-3.5 w-3.5" />
@@ -169,8 +169,8 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                 </div>
 
                                 <div className="min-w-0 space-y-3">
-                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
-                                        <div className="text-sm font-semibold text-white">Reference health</div>
+                                    <div className="min-w-0 rounded-[1.1rem] border border-border bg-background/25 p-3.5">
+                                        <div className="text-sm font-semibold text-foreground">Reference health</div>
                                         <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
                                             <MetricCard label="House refs" value={formatAdminAiNullableNumber(data?.visualSignals.houseReferenceCount)} truthState={sectionTruthState} />
                                             <MetricCard label="Retained positive" value={formatAdminAiNullableNumber(data?.visualSignals.acceptedRetainedCount)} truthState={sectionTruthState} />

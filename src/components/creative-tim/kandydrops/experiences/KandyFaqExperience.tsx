@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { BookOpen } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 type KandyFaqExperienceProps = {
     children: ReactNode;

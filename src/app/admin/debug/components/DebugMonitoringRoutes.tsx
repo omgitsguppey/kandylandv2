@@ -1,7 +1,11 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Pill, ScrollWrap } from "./DebugPrimitives";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
     ADMIN_DEBUG_ROUTE_RUNTIME_FILTER_OPTIONS,
     type AdminDebugRouteRuntimeFilter,
@@ -190,8 +194,8 @@ export function DebugMonitoringRoutes({
                                             <Pill label="Last result" value={truth.lastResult === "no_sample" ? "No sample" : truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={noSampleTruthState ?? resultTruthState} badgeLabel={noSampleBadge ?? (sampleIsStale ? "STALE SAMPLE" : undefined)} />
                                         </div>
                                     </div>
-                                    <details className="min-w-0 text-sm text-muted-foreground">
-                                        <summary className="min-h-11 cursor-pointer py-3 font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Latency and history</summary>
+                                    <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                                        <DisclosureSummary className="min-h-11 cursor-pointer py-3 font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Latency and history</DisclosureSummary>
                                         {truth.hasSample ? (
                                         <>
                                             <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
@@ -222,7 +226,7 @@ export function DebugMonitoringRoutes({
                                             <Pill label="Slow" value={truth.latency.slowCount} truthState="unavailable" badgeLabel="NO SAMPLE" />
                                         </div>
                                     )}
-                                    </details>
+                                    </Disclosure>
                                     <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">
                                         {coverageState === "unseen"
                                             ? noSampleDisplay?.copy ?? "No runtime sample has been recorded. Metrics are unavailable, not zero."

@@ -1,5 +1,10 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
@@ -57,8 +62,8 @@ export function DebugTabActions({
                                     <div key={issue.uid} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{issue.username}</p>
-                                                <p className="text-xs text-gray-400">{issue.uid}</p>
+                                                <p className="font-semibold text-foreground">{issue.username}</p>
+                                                <p className="text-xs text-muted-foreground">{issue.uid}</p>
                                             </div>
                                             <Pill label="Issues" value={issue.issueCount} tone={toneForTaskSeverity(attribution?.severity ?? "review")} />
                                         </div>
@@ -77,16 +82,16 @@ export function DebugTabActions({
                                             ) : null}
                                         </div>
                                         {attribution ? (
-                                            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                            <div className="rounded-xl border border-border bg-background/20 px-3 py-2 text-xs text-muted-foreground">
                                                 <p>{attribution.recommendedAction}</p>
-                                                <p className="mt-1 text-gray-500">expected {attribution.expectedTaskCount} | found {attribution.foundTaskCount} | canSelfHeal {attribution.canSelfHeal ? "yes" : "no"}</p>
+                                                <p className="mt-1 text-muted-foreground">expected {attribution.expectedTaskCount} | found {attribution.foundTaskCount} | canSelfHeal {attribution.canSelfHeal ? "yes" : "no"}</p>
                                             </div>
                                         ) : null}
                                     </div>
                                     );
                                 })}
                                 {(data?.assignmentIssues || []).length === 0 ? (
-                                    <div className="px-4 py-4 text-sm text-gray-300">No task assignment issues detected in the current sample.</div>
+                                    <div className="px-4 py-4 text-sm text-muted-foreground">No task assignment issues detected in the current sample.</div>
                                 ) : null}
                             </div>
                         </ScrollWrap>
@@ -118,12 +123,12 @@ export function DebugTabActions({
                                     >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{proposal.title ?? proposal.label}</p>
-                                                <p className="text-xs text-gray-400">{proposal.canonicalSourcePath ?? `${proposal.affectedRecordCount ?? 1} affected ${proposal.sourceCollection ?? proposal.sourceType} records`}</p>
+                                                <p className="font-semibold text-foreground">{proposal.title ?? proposal.label}</p>
+                                                <p className="text-xs text-muted-foreground">{proposal.canonicalSourcePath ?? `${proposal.affectedRecordCount ?? 1} affected ${proposal.sourceCollection ?? proposal.sourceType} records`}</p>
                                             </div>
                                             <Pill label="Actionability" value={proposal.actionability ?? "unknown"} tone={toneForRepairActionability(proposal.actionability)} />
                                         </div>
-                                        <p className="text-sm text-gray-200">{proposal.detail ?? proposal.suggestedAction}</p>
+                                        <p className="text-sm text-foreground">{proposal.detail ?? proposal.suggestedAction}</p>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Status" value={proposal.status} tone={proposal.status === "open" ? "warn" : proposal.status === "applied" ? "good" : "neutral"} />
                                             <Pill label="Source collection" value={proposal.sourceCollection ?? proposal.sourceType ?? "unknown"} />
@@ -135,25 +140,25 @@ export function DebugTabActions({
                                             <Pill label="First seen UTC" value={proposal.firstSeenAtUtc ?? "unknown"} />
                                             <Pill label="Last seen UTC" value={proposal.lastSeenAtUtc ?? "unknown"} />
                                         </div>
-                                        <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                        <div className="rounded-xl border border-border bg-background/20 px-3 py-2 text-xs text-muted-foreground">
                                             <p>{proposal.suggestedAction}</p>
-                                            <p className="mt-1 text-gray-500">Missing context: {(proposal.missingContextFields || []).join(", ") || proposal.missingContextReason || "unknown"}</p>
+                                            <p className="mt-1 text-muted-foreground">Missing context: {(proposal.missingContextFields || []).join(", ") || proposal.missingContextReason || "unknown"}</p>
                                             {(proposal.visibleRecords || []).length > 0 ? (
-                                                <details className="mt-2">
-                                                    <summary className="cursor-pointer text-gray-200">Show source records</summary>
+                                                <Disclosure className="mt-2">
+                                                    <DisclosureSummary className="cursor-pointer text-foreground">Show source records</DisclosureSummary>
                                                     <div className="mt-2 space-y-1">
                                                         {(proposal.visibleRecords || []).slice(0, 5).map((record: any) => (
-                                                            <p key={record.dedupeKey} className="break-all text-gray-500">{record.canonicalSourcePath} ({record.duplicateCount} proposal{record.duplicateCount === 1 ? "" : "s"})</p>
+                                                            <p key={record.dedupeKey} className="break-all text-muted-foreground">{record.canonicalSourcePath} ({record.duplicateCount} proposal{record.duplicateCount === 1 ? "" : "s"})</p>
                                                         ))}
                                                     </div>
-                                                    {(proposal.hiddenRecordCount ?? 0) > 0 ? <p className="mt-1 text-gray-500">Show more: {proposal.hiddenRecordCount} additional record{proposal.hiddenRecordCount === 1 ? "" : "s"} collapsed.</p> : null}
-                                                </details>
+                                                    {(proposal.hiddenRecordCount ?? 0) > 0 ? <p className="mt-1 text-muted-foreground">Show more: {proposal.hiddenRecordCount} additional record{proposal.hiddenRecordCount === 1 ? "" : "s"} collapsed.</p> : null}
+                                                </Disclosure>
                                             ) : null}
                                             {(proposal.affectedProposalIds || proposal.duplicateProposalIds || []).length > 0 ? (
-                                                <details className="mt-2">
-                                                    <summary className="cursor-pointer text-gray-200">Affected proposal ids</summary>
-                                                    <p className="mt-1 break-all text-gray-500">{(proposal.affectedProposalIds || proposal.duplicateProposalIds || []).join(", ")}</p>
-                                                </details>
+                                                <Disclosure className="mt-2">
+                                                    <DisclosureSummary className="cursor-pointer text-foreground">Affected proposal ids</DisclosureSummary>
+                                                    <p className="mt-1 break-all text-muted-foreground">{(proposal.affectedProposalIds || proposal.duplicateProposalIds || []).join(", ")}</p>
+                                                </Disclosure>
                                             ) : null}
                                         </div>
                                         <div className="flex flex-wrap gap-2">
@@ -182,7 +187,7 @@ export function DebugTabActions({
                                             </Button>
                                         </div>
                                     </div>
-                                )) : <div className="px-4 py-4 text-sm text-emerald-100">No repair proposals are open in the current orchestration sample.</div>}
+                                )) : <div className="px-4 py-4 text-sm text-success">No repair proposals are open in the current orchestration sample.</div>}
                             </div>
                         </ScrollWrap>
                     </Section>
@@ -195,15 +200,15 @@ export function DebugTabActions({
                         defaultOpen={false}
                         summary={<><Pill label="Balance adjust" value={`${simAmount} drops`} /></>}
                     >
-                        <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                        <div className="rounded-[1rem] border border-warning/20 bg-warning/10 p-4 text-sm text-warning">
                             Manual utilities can help unblock investigation, but they are not monitoring signals and they should not be read as system status.
                         </div>
-                        <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Add Gum Drops to the current admin user</p>
+                        <div className="mt-4 rounded-[1rem] border border-border bg-secondary p-4">
+                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Add Gum Drops to the current admin user</p>
                             <div className="mt-3 flex gap-2">
-                                <input
+                                <Input
                                     type="number"
-                                    className="min-h-11 flex-1 rounded-[1rem] border border-white/10 bg-black/40 px-3 text-white"
+                                    className="min-h-11 flex-1 rounded-[1rem] border border-border bg-background/40 px-3 text-foreground"
                                     value={simAmount}
                                     onChange={(event) => onSimAmountChange(event.target.value)}
                                 />

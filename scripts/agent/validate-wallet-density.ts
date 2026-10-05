@@ -28,7 +28,7 @@ function requireNotIncludes(source: string, forbidden: string, label: string) {
 }
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
-const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const purchaseModal = readRequired("src/components/PurchaseModal.tsx") + readRequired("src/hooks/useWalletPurchase.ts");
 const walletFrame = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletModalFrame.tsx");
 const walletPackagePicker = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletPackagePicker.tsx");
 const walletCheckoutPanel = readRequired("src/components/creative-tim/kandydrops/wallet/KandyWalletCheckoutPanel.tsx");
@@ -164,8 +164,8 @@ for (const expected of [
   requireIncludes(modalTest, expected, "PurchaseModal density tests");
 }
 
-const walletDialogOwner = readRequired("src/components/creative-tim/ui/dialog.tsx");
-requireIncludes(walletFrame, 'import { Dialog, DialogContent, DialogTitle } from "@/components/creative-tim/ui/dialog"', "Wallet shared modal owner binding");
+const walletDialogOwner = readRequired("src/components/ui/dialog.tsx");
+requireIncludes(walletFrame, 'import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"', "Wallet shared modal owner binding");
 requireIncludes(walletFrame, "<DialogContent", "Wallet shared modal content binding");
 requireIncludes(walletDialogOwner, "max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]", "Shared wallet modal viewport and safe areas");
 requireIncludes(walletDialogOwner, "overflow-y-auto", "Shared wallet modal scroll owner");

@@ -116,7 +116,7 @@ const loadingName = importedName(loadingAst, "@/components/creative-tim/kandydro
 requireFact(renderedComponent(sourceRenderNodes(loadingAst), loadingName), "Drops loading route must return the same shared skeleton owner.");
 
 const filterAst = readSourceAst("src/components/StickyFilterBar.tsx");
-const inputName = importedName(filterAst, "@/components/creative-tim/ui/input", "Input");
+const inputName = importedName(filterAst, "@/components/ui/input", "Input");
 const input = renderedComponent(sourceRenderNodes(filterAst), inputName);
 requireFact(input && hasJsxAttribute([input], "type", "search") && hasJsxAttribute([input], "enterKeyHint", "search") && hasJsxAttribute([input], "onFocus", "onSearchFocus"), "Sticky filter must render the sourced search Input with search hints and its actual focus callback.");
 

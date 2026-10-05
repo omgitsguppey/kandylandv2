@@ -1,3 +1,5 @@
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
 import React from 'react';
 import { WandSparkles } from "lucide-react";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
@@ -77,45 +79,45 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
 
                                 <div className="grid min-w-0 gap-3">
                                     <TextAreaBlock label="Base prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={3} helper="Creator name and flavor title drive each run." />
-                                    <details className="group border border-white/10 bg-black/20 rounded-xl overflow-hidden">
-                                        <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white hover:bg-white/[0.02]">
+                                    <Disclosure className="group border border-border bg-background/20 rounded-xl overflow-hidden">
+                                        <DisclosureSummary className="cursor-pointer px-4 py-3 text-xs font-semibold text-foreground hover:bg-secondary">
                                             Advanced clauses
-                                        </summary>
-                                        <div className="p-4 space-y-3 border-t border-white/10">
+                                        </DisclosureSummary>
+                                        <div className="p-4 space-y-3 border-t border-border">
                                             <TextAreaBlock label="Layout lock" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={4} helper="One clause per line." />
                                             <TextAreaBlock label="Flavor rule" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={4} helper="Keeps references from carrying flavor." />
                                             <TextAreaBlock label="Negative prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={4} helper="Blocks copied props and flavor leakage." />
                                         </div>
-                                    </details>
+                                    </Disclosure>
                                 </div>
 
                                 <div className="min-w-0 flex flex-wrap gap-2">
-                                    <button
+                                    <Button variant="ghost"
                                         type="button"
                                         onClick={() => { setPolicyDraft((current) => ({ ...current, autoOptimize: !current.autoOptimize })); setPolicyDirty(true); }}
-                                        className={cn("rounded-full border px-3 py-2 text-xs font-semibold transition", policyDraft.autoOptimize ? "border-brand-purple/40 bg-brand-purple/12 text-brand-purple" : "border-white/10 bg-white/[0.03] text-gray-200")}
+                                        className={cn("rounded-full border px-3 py-2 text-xs font-semibold transition", policyDraft.autoOptimize ? "border-primary/40 bg-primary/12 text-primary" : "border-border bg-secondary text-foreground")}
                                     >
                                         Auto optimize {policyDraft.autoOptimize ? "on" : "off"}
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button variant="ghost"
                                         type="button"
                                         onClick={() => void handleOptimizerEnabledChange(!(data?.settings.optimizerEnabled === true))}
-                                        className={cn("rounded-full border px-3 py-2 text-xs font-semibold transition", data?.settings.optimizerEnabled ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100" : "border-white/10 bg-white/[0.03] text-gray-200")}
+                                        className={cn("rounded-full border px-3 py-2 text-xs font-semibold transition", data?.settings.optimizerEnabled ? "border-success/20 bg-success/10 text-success" : "border-border bg-secondary text-foreground")}
                                         disabled={savingReferenceSettings || isLocalAdminUiTestSession}
                                     >
                                         Runtime optimizer {data?.settings.optimizerEnabled ? "enabled" : "disabled"}
-                                    </button>
+                                    </Button>
                                 </div>
 
-                                <details className="group border border-white/10 bg-black/20 rounded-xl overflow-hidden mt-3">
-                                    <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white hover:bg-white/[0.02]">
+                                <Disclosure className="group border border-border bg-background/20 rounded-xl overflow-hidden mt-3">
+                                    <DisclosureSummary className="cursor-pointer px-4 py-3 text-xs font-semibold text-foreground hover:bg-secondary">
                                         View Last Optimizer Run
-                                    </summary>
-                                    <div className="p-4 space-y-3 border-t border-white/10">
+                                    </DisclosureSummary>
+                                    <div className="p-4 space-y-3 border-t border-border">
                                         <TextAreaBlock label="Latest optimizer proposal" value={data?.promptPolicy.optimizerProposal || "No optimizer proposal yet."} rows={4} readOnly />
                                         <TextAreaBlock label="Last auto-refinement diff" value={(data?.promptPolicy.lastAutoRefinementDiff || []).join("\n") || "No auto-refinement diff recorded yet."} rows={3} readOnly />
                                     </div>
-                                </details>
+                                </Disclosure>
                             </div>
                         </AdminDashboardModule>
     );

@@ -68,15 +68,15 @@ export function DebugPanelStatusBySection({
                             >
                                 <div className="flex flex-wrap items-start justify-between gap-2">
                                     <div>
-                                        <p className="font-semibold text-white">{entry.panelTitle}</p>
-                                        <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
+                                        <p className="font-semibold text-foreground">{entry.panelTitle}</p>
+                                        <p className="text-xs text-muted-foreground">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
                                     </div>
                                     <Pill label="Status" value={labelForPanelStatus(entry.status)} tone={toneForPanelStatus(entry.status)} truthState={truthStateForPanelStatus(entry.status)} />
                                 </div>
-                                <p className="text-sm text-gray-200">{entry.summary}</p>
-                                {entry.sectionStatus?.explanation ? <p className="text-xs text-gray-400">{entry.sectionStatus.explanation}</p> : null}
-                                <p className="text-xs text-gray-400">{entry.action}</p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-sm text-foreground">{entry.summary}</p>
+                                {entry.sectionStatus?.explanation ? <p className="text-xs text-muted-foreground">{entry.sectionStatus.explanation}</p> : null}
+                                <p className="text-xs text-muted-foreground">{entry.action}</p>
+                                <p className="text-xs text-muted-foreground">
                                     Signals total: {totalSignals} / Needs review: {reviewableSignals}
                                     {signalPreview.length > 0 ? " / " : ""}
                                     {signalPreview.map((signal: any, index: number) => (
@@ -91,7 +91,7 @@ export function DebugPanelStatusBySection({
                     })}
                     {(data?.panelSystemLogs || []).length === 0 ? (
                         <div
-                            className="px-4 py-4 text-sm text-gray-300"
+                            className="px-4 py-4 text-sm text-muted-foreground"
                             data-debug-panel-log-empty-status={panelLogStatus.status}
                             data-debug-panel-log-empty-display-state={panelLogStatus.displayState}
                             data-debug-panel-log-proven-zero={panelLogStatus.provenZero ? "true" : "false"}

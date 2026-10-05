@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { type AdminSurfaceState } from "@/lib/admin-parity";
 import {
     adminTruthStateForNoSampleStatus,
@@ -170,8 +174,8 @@ export function DebugNowDiagnostics({
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{channel.label}</p>
-                                            <p className="text-xs text-gray-400">
+                                            <p className="font-semibold text-foreground">{channel.label}</p>
+                                            <p className="text-xs text-muted-foreground">
                                                 Last seen {formatRelative(channel.lastSeenAt)} | {truth.lastSeenAtUtc ?? "unavailable"}
                                             </p>
                                         </div>
@@ -189,23 +193,23 @@ export function DebugNowDiagnostics({
                                         <Pill label="Sample size" value={truth.loadedSample.sampleSize} tone={truth.loadedSample.sampleSize > 0 ? "good" : "warn"} truthState={truth.loadedSample.sampleSize > 0 ? "live" : "unavailable"} />
                                         <Pill label="Last seen" value={formatRelative(channel.lastSeenAt)} tone={toneForChannelState(truth.freshnessState)} truthState={truthStateForChannelState(truth.freshnessState)} />
                                     </div>
-                                    <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Window details</summary>
-                                        <div className="mt-2 grid gap-2 text-xs text-gray-300 md:grid-cols-3">
+                                    <Disclosure className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                        <DisclosureSummary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">Window details</DisclosureSummary>
+                                        <div className="mt-2 grid gap-2 text-xs text-muted-foreground md:grid-cols-3">
                                             <p>Current window: {formatWindowHours(truth.currentWindow.windowMs)} | {truth.currentWindow.errors} errors | {truth.currentWindow.warns} warns | {truth.currentWindow.info} info | {truth.currentWindow.state}</p>
                                             <p>Recent window: {formatWindowHours(truth.recentWindow.windowMs)} | {truth.recentWindow.errors} errors | {truth.recentWindow.warns} warns | {truth.recentWindow.info} info | {truth.recentWindow.state}</p>
                                             <p>Loaded sample history: {truth.loadedSample.sampleSize} records | {truth.loadedSample.errors} errors | {truth.loadedSample.warns} warns | {truth.loadedSample.info} info | {truth.loadedSample.state}</p>
                                         </div>
-                                        <p className="mt-2 text-xs text-gray-400">Freshness {truth.freshnessState} | lastSeenAtUtc {truth.lastSeenAtUtc ?? "unavailable"}</p>
-                                    </details>
-                                    <p className="text-sm text-gray-300">{truth.explanation}</p>
+                                        <p className="mt-2 text-xs text-muted-foreground">Freshness {truth.freshnessState} | lastSeenAtUtc {truth.lastSeenAtUtc ?? "unavailable"}</p>
+                                    </Disclosure>
+                                    <p className="text-sm text-muted-foreground">{truth.explanation}</p>
                                 </div>
                             );})}
                             {(data?.opsHealth?.pipeline?.routes || []).map((route: any) => (
                                 <div key={route.routeKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
                                     <div>
-                                        <p className="font-semibold text-white">{route.label}</p>
-                                        <p className="text-xs text-gray-400">{route.routeKey}</p>
+                                        <p className="font-semibold text-foreground">{route.label}</p>
+                                        <p className="text-xs text-muted-foreground">{route.routeKey}</p>
                                     </div>
                                     <Pill label="Failures" value={route.count} tone={route.count ? "warn" : "good"} />
                                 </div>
@@ -223,8 +227,8 @@ export function DebugNowDiagnostics({
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{cluster.message}</p>
-                                            <p className="text-xs text-gray-400">{cluster.source} | firstSeenAtUtc {cluster.firstSeenAtUtc ?? "unavailable"} | lastSeenAtUtc {cluster.lastSeenAtUtc ?? "unavailable"}</p>
+                                            <p className="font-semibold text-foreground">{cluster.message}</p>
+                                            <p className="text-xs text-muted-foreground">{cluster.source} | firstSeenAtUtc {cluster.firstSeenAtUtc ?? "unavailable"} | lastSeenAtUtc {cluster.lastSeenAtUtc ?? "unavailable"}</p>
                                         </div>
                                         <Pill label="Cluster" value={cluster.count} tone={cluster.severity === "error" ? "bad" : cluster.severity === "warn" ? "warn" : "neutral"} />
                                     </div>
@@ -233,16 +237,16 @@ export function DebugNowDiagnostics({
                                         <Pill label="Route context" value={cluster.routeContext ?? cluster.sourceRouteOrComponent ?? "unknown"} />
                                         <Pill label="Error name" value={cluster.errorName ?? "none"} tone={cluster.errorName ? "warn" : "neutral"} />
                                     </div>
-                                    <p className="text-sm text-gray-300">{cluster.suggestedAction ?? "Review the clustered diagnostic source."}</p>
-                                    <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Individual events</summary>
-                                        <p className="mt-2 text-xs text-gray-400">{(cluster.eventIds || []).join(", ")}</p>
-                                    </details>
+                                    <p className="text-sm text-muted-foreground">{cluster.suggestedAction ?? "Review the clustered diagnostic source."}</p>
+                                    <Disclosure className="rounded-xl border border-border bg-background/20 px-3 py-2">
+                                        <DisclosureSummary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">Individual events</DisclosureSummary>
+                                        <p className="mt-2 text-xs text-muted-foreground">{(cluster.eventIds || []).join(", ")}</p>
+                                    </Disclosure>
                                 </div>
                             ))}
                             {!(data?.opsHealth?.diagnostics?.recentClusters || []).length ? (
                                 <div
-                                    className="px-4 py-4 text-sm text-gray-300"
+                                    className="px-4 py-4 text-sm text-muted-foreground"
                                     data-debug-diagnostics-empty-status={diagnosticsStatus.status}
                                     data-debug-diagnostics-empty-display-state={diagnosticsStatus.displayState}
                                     data-debug-diagnostics-proven-zero={diagnosticsStatus.provenZero ? "true" : "false"}
@@ -265,8 +269,8 @@ export function DebugNowDiagnostics({
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{materializer.label}</p>
-                                            <p className="text-xs text-gray-400">{truth.lane} | {truth.expectedActivity}</p>
+                                            <p className="font-semibold text-foreground">{materializer.label}</p>
+                                            <p className="text-xs text-muted-foreground">{truth.lane} | {truth.expectedActivity}</p>
                                         </div>
                                         <Pill label="Status" value={String(truth.displayState).toUpperCase()} tone={toneForWriterState(truth.displayState)} truthState={truthStateForWriterState(truth.displayState)} badgeLabel={badgeLabelForWriterState(truth.displayState)} />
                                     </div>
@@ -276,12 +280,12 @@ export function DebugNowDiagnostics({
                                         <Pill label="Last seen UTC" value={truth.lastSeenAtUtc ?? formatUtc(materializer.lastSeenAt)} />
                                         <Pill label="Errors" value={truth.errorState} tone={toneForWriterState(truth.errorState)} truthState={truthStateForWriterState(truth.errorState)} />
                                     </div>
-                                    <p className="text-sm text-gray-300">{truth.explanation}</p>
+                                    <p className="text-sm text-muted-foreground">{truth.explanation}</p>
                                 </div>
                             );})}
                             {!(data?.opsHealth?.materializers || []).length ? (
                                 <div
-                                    className="px-4 py-4 text-sm text-gray-300"
+                                    className="px-4 py-4 text-sm text-muted-foreground"
                                     data-debug-writer-empty-status={writerStatus.status}
                                     data-debug-writer-empty-display-state={writerStatus.displayState}
                                     data-debug-writer-proven-zero={writerStatus.provenZero ? "true" : "false"}

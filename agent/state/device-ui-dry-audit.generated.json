@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-10-04T00:35:12.896Z",
-  "overallScore": 100,
-  "overallStatus": "clean",
+  "generatedAt": "2026-10-05T03:44:54.861Z",
+  "overallScore": 70,
+  "overallStatus": "beta-risk",
   "deviceScores": {
-    "xs-phone": 100,
-    "phone": 100,
-    "large-phone": 100,
-    "small-tablet": 100,
+    "xs-phone": 40,
+    "phone": 40,
+    "large-phone": 40,
+    "small-tablet": 40,
     "tablet": 100,
     "large-tablet": 100,
-    "desktop": 100,
-    "wide-desktop": 100,
-    "ultra-wide": 100
+    "desktop": 90,
+    "wide-desktop": 90,
+    "ultra-wide": 90
   },
   "surfaceScores": {
     "home_guest_hero": 100,
     "dashboard": 100,
-    "drops_page": 100,
-    "featured_carousel": 100,
+    "drops_page": 70,
+    "featured_carousel": 0,
     "drop_card_grid": 100,
     "full_page_drop_preview": 100,
     "wallet_modal": 100,
@@ -32,12 +32,500 @@
     "settings_page": 100,
     "my_kandydrops_library": 100
   },
-  "findings": [],
+  "findings": [
+    {
+      "id": "dui_109vq3z",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "large-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_1ilkdzv",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_1jtsyqn",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_1l02xuq",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "drops_page",
+      "category": "breakpoint",
+      "severity": "major",
+      "filePath": "src/app/drops/DropsClient.tsx",
+      "evidence": [
+        "Desktop route/component lacks obvious max-width/container/mx-auto cap."
+      ],
+      "expectedRule": "Desktop and ultra-wide surfaces must cap content width.",
+      "actualPattern": "missing max-width cap evidence",
+      "humanReadableWarning": "Desktop or ultra-wide content may stretch into an unreadable full-width layout.",
+      "deviceProfile": "desktop",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_1r7ou41",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "small-tablet",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_1tedkv9",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "large-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_50b2rx",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_5jecyx",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_5jswsg",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "drops_page",
+      "category": "breakpoint",
+      "severity": "major",
+      "filePath": "src/app/drops/DropsClient.tsx",
+      "evidence": [
+        "Desktop route/component lacks obvious max-width/container/mx-auto cap."
+      ],
+      "expectedRule": "Desktop and ultra-wide surfaces must cap content width.",
+      "actualPattern": "missing max-width cap evidence",
+      "humanReadableWarning": "Desktop or ultra-wide content may stretch into an unreadable full-width layout.",
+      "deviceProfile": "ultra-wide",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_6fj3pz",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_baxx5v",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "small-tablet",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_bqp8yz",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "small-tablet",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_c97og9",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "small-tablet",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_cxb1ht",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "small-tablet",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_ew5oa5",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_gl7ecf",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_glkzt3",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_i7iih",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_k3s4pz",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_o5cv83",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "small-tablet",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_qvc8is",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "drops_page",
+      "category": "breakpoint",
+      "severity": "major",
+      "filePath": "src/app/drops/DropsClient.tsx",
+      "evidence": [
+        "Desktop route/component lacks obvious max-width/container/mx-auto cap."
+      ],
+      "expectedRule": "Desktop and ultra-wide surfaces must cap content width.",
+      "actualPattern": "missing max-width cap evidence",
+      "humanReadableWarning": "Desktop or ultra-wide content may stretch into an unreadable full-width layout.",
+      "deviceProfile": "wide-desktop",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_qyjv5j",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "large-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_s7qllp",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "large-phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_wamgzb",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "debug_truth",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured video chip does not render the camera indicator."
+      ],
+      "expectedRule": "Video file chip uses a camera indicator for image/video distinction.",
+      "actualPattern": "missing camera video indicator",
+      "humanReadableWarning": "Featured video chips may be hard to distinguish from image chips.",
+      "deviceProfile": "large-phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_wpqawd",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "large-phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_wtjdh1",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "image_loading",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "FeaturedCarousel is not consuming the shared image loading policy."
+      ],
+      "expectedRule": "Featured carousel uses index-aware shared image policy.",
+      "actualPattern": "missing getImageLoadingPolicy(\"featured_carousel\")",
+      "humanReadableWarning": "Featured slides may all load with the same priority.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_zuxvch",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "featured_carousel",
+      "category": "drop_grid",
+      "severity": "major",
+      "filePath": "src/components/FeaturedCarousel.tsx",
+      "evidence": [
+        "Featured social proof threshold totalUnwraps > 10 is missing."
+      ],
+      "expectedRule": "Featured social proof shows unwraps only after total unlocks exceed 10; otherwise views.",
+      "actualPattern": "missing totalUnwraps > 10 threshold",
+      "humanReadableWarning": "Featured carousel may show weak unwrap counts such as 0 unwrapped.",
+      "deviceProfile": "phone",
+      "displayMode": "browser"
+    }
+  ],
   "criticalCount": 0,
-  "majorCount": 0,
+  "majorCount": 27,
   "safeAutofixesAvailable": 0,
   "recommendedFixOrder": [
-    "No device UI dry-audit findings. Keep running score:device-ui before browser audits."
+    "Tighten image loading, grid/card sizing, and breakpoint drift.",
+    "Backfill debug truth markers so future dry audits can prove state."
   ],
   "minimalVerificationCommands": [
     "npm run score:device-ui",

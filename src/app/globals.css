@@ -15,17 +15,17 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
-  --color-card-foreground: var(--foreground);
+  --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
-  --color-popover-foreground: var(--foreground);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--foreground);
-  --color-muted: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--secondary);
-  --color-accent-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
@@ -33,11 +33,181 @@
   --color-info: var(--info);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-focus-ring: var(--focus-ring);
   --color-ring: var(--focus-ring);
+  --color-scrim: var(--scrim);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info-foreground: var(--info-foreground);
+  --color-brand-pink-soft: var(--brand-pink-soft);
+
+  --color-red-50: var(--destructive);
+  --color-red-100: var(--destructive);
+  --color-red-200: var(--destructive);
+  --color-red-300: var(--destructive);
+  --color-red-400: var(--destructive);
+  --color-red-500: var(--destructive);
+  --color-red-600: var(--destructive);
+  --color-red-700: var(--destructive);
+  --color-red-800: var(--destructive);
+  --color-red-900: var(--destructive);
+  --color-red-950: var(--destructive);
+  --color-amber-50: var(--warning);
+  --color-amber-100: var(--warning);
+  --color-amber-200: var(--warning);
+  --color-amber-300: var(--warning);
+  --color-amber-400: var(--warning);
+  --color-amber-500: var(--warning);
+  --color-amber-600: var(--warning);
+  --color-amber-700: var(--warning);
+  --color-amber-800: var(--warning);
+  --color-amber-900: var(--warning);
+  --color-amber-950: var(--warning);
+  --color-orange-50: var(--warning);
+  --color-orange-100: var(--warning);
+  --color-orange-200: var(--warning);
+  --color-orange-300: var(--warning);
+  --color-orange-400: var(--warning);
+  --color-orange-500: var(--warning);
+  --color-orange-600: var(--warning);
+  --color-orange-700: var(--warning);
+  --color-orange-800: var(--warning);
+  --color-orange-900: var(--warning);
+  --color-orange-950: var(--warning);
+  --color-yellow-50: var(--warning);
+  --color-yellow-100: var(--warning);
+  --color-yellow-200: var(--warning);
+  --color-yellow-300: var(--warning);
+  --color-yellow-400: var(--warning);
+  --color-yellow-500: var(--warning);
+  --color-yellow-600: var(--warning);
+  --color-yellow-700: var(--warning);
+  --color-yellow-800: var(--warning);
+  --color-yellow-900: var(--warning);
+  --color-yellow-950: var(--warning);
+  --color-emerald-50: var(--success);
+  --color-emerald-100: var(--success);
+  --color-emerald-200: var(--success);
+  --color-emerald-300: var(--success);
+  --color-emerald-400: var(--success);
+  --color-emerald-500: var(--success);
+  --color-emerald-600: var(--success);
+  --color-emerald-700: var(--success);
+  --color-emerald-800: var(--success);
+  --color-emerald-900: var(--success);
+  --color-emerald-950: var(--success);
+  --color-green-50: var(--success);
+  --color-green-100: var(--success);
+  --color-green-200: var(--success);
+  --color-green-300: var(--success);
+  --color-green-400: var(--success);
+  --color-green-500: var(--success);
+  --color-green-600: var(--success);
+  --color-green-700: var(--success);
+  --color-green-800: var(--success);
+  --color-green-900: var(--success);
+  --color-green-950: var(--success);
+  --color-cyan-50: var(--info);
+  --color-cyan-100: var(--info);
+  --color-cyan-200: var(--info);
+  --color-cyan-300: var(--info);
+  --color-cyan-400: var(--info);
+  --color-cyan-500: var(--info);
+  --color-cyan-600: var(--info);
+  --color-cyan-700: var(--info);
+  --color-cyan-800: var(--info);
+  --color-cyan-900: var(--info);
+  --color-cyan-950: var(--info);
+  --color-sky-50: var(--info);
+  --color-sky-100: var(--info);
+  --color-sky-200: var(--info);
+  --color-sky-300: var(--info);
+  --color-sky-400: var(--info);
+  --color-sky-500: var(--info);
+  --color-sky-600: var(--info);
+  --color-sky-700: var(--info);
+  --color-sky-800: var(--info);
+  --color-sky-900: var(--info);
+  --color-sky-950: var(--info);
+  --color-blue-50: var(--info);
+  --color-blue-100: var(--info);
+  --color-blue-200: var(--info);
+  --color-blue-300: var(--info);
+  --color-blue-400: var(--info);
+  --color-blue-500: var(--info);
+  --color-blue-600: var(--info);
+  --color-blue-700: var(--info);
+  --color-blue-800: var(--info);
+  --color-blue-900: var(--info);
+  --color-blue-950: var(--info);
+  --color-indigo-50: var(--info);
+  --color-indigo-100: var(--info);
+  --color-indigo-200: var(--info);
+  --color-indigo-300: var(--info);
+  --color-indigo-400: var(--info);
+  --color-indigo-500: var(--info);
+  --color-indigo-600: var(--info);
+  --color-indigo-700: var(--info);
+  --color-indigo-800: var(--info);
+  --color-indigo-900: var(--info);
+  --color-indigo-950: var(--info);
+
+  /* Legacy palette bridge; new consumers use semantic utilities directly. */
+  --color-gray-100: var(--foreground);
+  --color-gray-200: var(--foreground);
+  --color-zinc-100: var(--foreground);
+  --color-zinc-200: var(--foreground);
+  --color-slate-100: var(--foreground);
+  --color-slate-200: var(--foreground);
+  --color-gray-300: var(--muted-foreground);
+  --color-gray-400: var(--muted-foreground);
+  --color-gray-500: var(--muted-foreground);
+  --color-zinc-300: var(--muted-foreground);
+  --color-zinc-400: var(--muted-foreground);
+  --color-zinc-500: var(--muted-foreground);
+  --color-slate-300: var(--muted-foreground);
+  --color-slate-400: var(--muted-foreground);
+  --color-slate-500: var(--muted-foreground);
+  --color-gray-600: var(--secondary);
+  --color-zinc-600: var(--secondary);
+  --color-zinc-800: var(--secondary);
+  --color-slate-600: var(--secondary);
+  --color-slate-700: var(--secondary);
+  --color-gray-900: var(--card);
+  --color-zinc-900: var(--card);
+  --color-slate-900: var(--card);
+  --color-zinc-950: var(--background);
+  --color-slate-950: var(--background);
+  --color-purple-950: var(--background);
+  --color-fuchsia-950: var(--background);
+  --color-pink-400: var(--brand-pink);
+  --color-pink-500: var(--brand-pink);
+  --color-pink-50: var(--brand-pink-soft);
+  --color-pink-100: var(--brand-pink-soft);
+  --color-pink-200: var(--brand-pink-soft);
+  --color-pink-300: var(--brand-pink-soft);
+  --color-purple-400: var(--primary);
+  --color-purple-500: var(--primary);
+  --color-violet-400: var(--primary);
+  --color-violet-500: var(--primary);
+  --color-fuchsia-400: var(--primary);
+  --color-fuchsia-500: var(--primary);
+  --color-fuchsia-600: var(--primary);
+  --color-purple-50: var(--focus-ring);
+  --color-purple-100: var(--focus-ring);
+  --color-purple-200: var(--focus-ring);
+  --color-purple-300: var(--focus-ring);
+  --color-violet-100: var(--focus-ring);
+  --color-violet-300: var(--focus-ring);
+  --color-fuchsia-50: var(--focus-ring);
+  --color-fuchsia-100: var(--focus-ring);
+  --color-fuchsia-200: var(--focus-ring);
+  --color-fuchsia-300: var(--focus-ring);
 }
 
-:root {
-  color-scheme: dark;
+:root, [data-theme="kandy-dark"] {
+  color-scheme: var(--theme-color-scheme);
+  --theme-color-scheme: dark;
   --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --background: #101014;
   --card: #1c1c20;
@@ -60,8 +230,55 @@
   --surface: var(--card);
   --surface-elevated: var(--popover);
   --surface-border: var(--border);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --success-foreground: #0a2e1c;
+  --warning-foreground: #3a2a05;
+  --info-foreground: #101f3d;
+  --brand-pink-soft: #f3c2e2;
+  --card-foreground: var(--foreground);
+  --popover-foreground: var(--foreground);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--secondary);
+  --accent: var(--secondary);
+  --accent-foreground: var(--foreground);
+  --panel-shadow: rgba(0, 0, 0, 0.12);
+  --navigation-rim: var(--border);
+  --navigation-shadow: rgba(0, 0, 0, 0.20);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
   --admin-shell-gap: 1rem;
   --admin-shell-gap-md: 1.25rem;
+}
+
+/* Explicit opt-in: document.documentElement.dataset.theme = "kandy-light".
+   No automatic light preference while legacy consumers are being migrated. */
+[data-theme="kandy-light"] {
+  --theme-color-scheme: light;
+  --background: #f5f5f7;
+  --foreground: #1c1c20;
+  --card: #ffffff;
+  --popover: #ffffff;
+  --muted-foreground: #60606b;
+  --primary: #7040b5;
+  --primary-foreground: #ffffff;
+  --brand-pink: #b52a83;
+  --brand-pink-soft: #f3c2e2;
+  --secondary: #e8e8ed;
+  --destructive: #b52245;
+  --destructive-foreground: #ffffff;
+  --success: #237449;
+  --success-foreground: #ffffff;
+  --warning: #805c0a;
+  --warning-foreground: #ffffff;
+  --info: #335eac;
+  --info-foreground: #ffffff;
+  --border: rgba(28, 28, 32, 0.18);
+  --input: rgba(28, 28, 32, 0.45);
+  --focus-ring: #68439b;
+  --navigation-fill: rgba(255, 255, 255, 0.94);
+  --scrim: rgba(0, 0, 0, 0.45);
+  --panel-shadow: rgba(0, 0, 0, 0.08);
+  --navigation-shadow: rgba(0, 0, 0, 0.12);
+  --scrollbar-thumb: rgba(28, 28, 32, 0.35);
 }
 
 html { overscroll-behavior-y: none; }
@@ -94,7 +311,7 @@ body {
 .glass-panel {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 2px var(--panel-shadow);
 }
 
 .glass-button {
@@ -111,7 +328,7 @@ body {
   background: var(--popover);
   border: 0;
   color: var(--foreground);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 24px rgba(0, 0, 0, 0.20);
+  box-shadow: inset 0 1px 0 var(--navigation-rim), 0 8px 24px var(--navigation-shadow);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -136,12 +353,20 @@ body {
 }
 
 @media (prefers-contrast: more) {
-  :root { --border: rgba(255, 255, 255, 0.5); --input: rgba(255, 255, 255, 0.65); }
+  :root, [data-theme] { --border: var(--foreground); --input: var(--foreground); }
   .navigation-material { background: var(--popover); border: 1px solid var(--border); box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 @media (forced-colors: active) {
-  :root {
+  :root, [data-theme] {
+    --theme-color-scheme: light dark;
+    --brand-pink: LinkText;
+    --brand-pink-soft: LinkText;
+    --success-foreground: Canvas;
+    --warning-foreground: Canvas;
+    --info-foreground: Canvas;
+    --scrim: Canvas;
+    --scrollbar-thumb: CanvasText;
     --background: Canvas;
     --card: Canvas;
     --popover: Canvas;
@@ -173,7 +398,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--scrollbar-thumb);
   border-radius: 9999px;
 }
 

@@ -62,8 +62,8 @@ describe("payment module symmetry display contract", () => {
     }
     expect(walletPackagePicker).toContain("function KandyWalletPromoBadge");
     expect(walletPackagePicker).toContain("function KandyWalletPriceBlock");
-    expect(walletPackagePicker).toContain('import { Badge } from "@/components/creative-tim/ui/badge"');
-    expect(read("src/components/creative-tim/ui/badge.tsx")).toContain("whitespace-nowrap");
+    expect(walletPackagePicker).toContain('import { Badge } from "@/components/ui/badge"');
+    expect(read("src/components/ui/badge.tsx")).toContain("whitespace-nowrap");
     expect(walletPackagePicker).toContain("max-w-[7.6rem]");
     expect(walletPackagePicker).toContain("leading-none");
   });

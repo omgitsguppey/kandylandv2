@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 import { useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -71,8 +71,8 @@ function resolveActivityTruthState(
 /* ── Badge colors by source ─────────────────────────────────────────────── */
 
 const SOURCE_BADGE_STYLES: Record<string, string> = {
-    transactions: "border-sky-400/20 bg-sky-500/10 text-sky-300",
-    analytics_event_facts: "border-purple-400/20 bg-purple-500/10 text-purple-300",
+    transactions: "border-info/20 bg-info/10 text-info",
+    analytics_event_facts: "border-primary/20 bg-primary/10 text-primary",
 };
 
 /* ── Component ─────────────────────────────────────────────────────────── */

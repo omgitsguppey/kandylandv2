@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/Button";
 import { badgeForSourceStatus, Pill, Section, ScrollWrap, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
@@ -517,8 +521,8 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                             {entry.adminDropHref ? <Link href={entry.adminDropHref} className={buttonVariants({ variant: "ghost", className: "max-w-full justify-start whitespace-normal wrap-anywhere text-left" })}>View drop</Link> : null}
                                             {entry.adminCreatorHref ? <Link href={entry.adminCreatorHref} className={buttonVariants({ variant: "ghost", className: "max-w-full justify-start whitespace-normal wrap-anywhere text-left" })}>View creator</Link> : null}
                                         </div>
-                                        <details className="min-w-0 text-sm text-muted-foreground">
-                                            <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Raw queue details</summary>
+                                        <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                                            <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Raw queue details</DisclosureSummary>
                                             <p className="mt-2 min-w-0 wrap-anywhere">Drop ID: {entry.dropId || entry.shortDropId || "unknown"}</p>
                                             <p>Scheduler key: {entry.schedulerKey || entry.activationKey || "unknown"}</p>
                                             <p>Scheduled UTC: {entry.scheduledForUtc || "unknown"}</p>
@@ -526,7 +530,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                             <p>Raw timestamp: {entry.updatedAt || 0}</p>
                                             {entry.dropMetadataWarning ? <p>{entry.dropMetadataWarning || "drop_metadata_missing"}: {entry.dropMetadataMissingReason || "metadata_missing_with_drop_id"}</p> : null}
                                             {entry.schedulerKeyParseError ? <p>scheduler_key_parse_error: {entry.schedulerKeyParseError}</p> : null}
-                                        </details>
+                                        </Disclosure>
                                     </div>
                                 })}
                                 {notificationDispatchOutcomes.length === 0 ? <div className="px-4 py-4 text-sm text-warning min-w-0 wrap-anywhere">No recent notification dispatch outcomes are loaded yet.</div> : null}
@@ -564,13 +568,13 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                 <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{entry.timestampLabel}</p>
                                 <p className="text-sm text-foreground min-w-0 wrap-anywhere">{entry.description}</p>
                                 {entry.continuityLabel ? <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{entry.continuityLabel}</p> : null}
-                                <details className="min-w-0 text-sm text-muted-foreground">
-                                    <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Transaction details</summary>
+                                <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                                    <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Transaction details</DisclosureSummary>
                                     <p className="mt-2 min-w-0 wrap-anywhere">Local time: {entry.timestampLabel}</p>
                                     <p>UTC: {entry.createdAtUtc || formatUtc(entry.timestamp, "unknown")}</p>
                                     <p data-full-uid-default-visible="false">Admin drilldown UID: {entry.userId}</p>
                                     {entry.userIdentityState !== "resolved" ? <p>User profile could not be resolved from loaded admin sample.</p> : null}
-                                </details>
+                                </Disclosure>
                             </article>
                         ))}
                     </div>
@@ -609,13 +613,13 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                 <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="Actor" value={event.actorLabel} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Surface" value={event.surface} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Context" value={event.eventContext} truthState={event ? "live" : "unavailable"} badgeLabel="INFO" /><Pill label="Freshness" value={event.freshnessState} truthState={event.freshnessState === "stale" ? "stale" : event.freshnessState === "unknown" ? "unavailable" : "live"} /><Pill label="Findings" value={event.findingsCount} tone={event.findingsCount ? "warn" : "good"} truthState={event.findingsCount ? "degraded" : "live"} /><Pill label="Eval eligible" value={event.evalEligible ? "yes" : "no"} tone={event.evalEligible ? "good" : "neutral"} truthState={event ? "live" : "unavailable"} badgeLabel={event.evalEligible ? "YES" : "INFO"} /></div>
                                 {event.requiredMissingInputs.length ? (<p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">Missing required inputs: {event.requiredMissingInputs.join(", ")}</p>) : null}
                                 {event.missingInputs.length > 0 && event.requiredMissingInputs.length === 0 ? (<p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">Context-only missing inputs ignored for this event type: {event.missingInputs.join(", ")}</p>) : null}
-                                <details className="min-w-0 text-sm text-muted-foreground">
-                                    <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Event details</summary>
+                                <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                                    <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Event details</DisclosureSummary>
                                     <p className="mt-2 min-w-0 wrap-anywhere">createdAtUtc: {event.createdAtUtc}</p>
                                     <p>ageLabel: {event.ageLabel}</p>
                                     <p>evalEligibilityReason: {event.evalEligibilityReason}</p>
                                     <p>duplicateEventIds: {event.duplicateEventIds.join(", ")}</p>
-                                </details>
+                                </Disclosure>
                             </div>
                         ))}
                     </div>
@@ -635,15 +639,15 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                         <Pill label="Status" value={event.type || "unknown"} tone={event.type === "failed" ? "warn" : event.type === "completed" ? "good" : "neutral"} truthState={event.type === "failed" ? "degraded" : "live"} badgeLabel={(event.type || "loaded").toUpperCase()} />
                                     </div>
                                     <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere"><Pill label="User" value={event.username || event.userId || "unknown"} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Paid reward" value={`${event.creditedRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Potential reward" value={`${event.potentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Forfeited potential" value={`${event.forfeitedPotentialRewardGd || 0} GD`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} truthState={event ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Window" value={event.dailyTaskWindowId || "unknown"} truthState={event.dailyTaskWindowId ? "live" : "unavailable"} badgeLabel={event.dailyTaskWindowId ? "WINDOW" : "MISSING"} /><Pill label="Reason" value={event.reasonCode || event.reason || "unknown"} tone={(event.reasonCode || event.reason) === "daily_window_expired" ? "warn" : "neutral"} /><Pill label="Source" value={event.source || "unknown"} truthState={event.source ? "live" : "unavailable"} badgeLabel="SOURCE" /></div>
-                                    <details className="min-w-0 text-sm text-muted-foreground">
-                                        <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Task event timing</summary>
+                                    <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                                        <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Task event timing</DisclosureSummary>
                                         <p className="mt-2 min-w-0 wrap-anywhere">assignedAtUtc: {event.assignedAtUtc || formatUtc(event.assignedAt, "unknown")}</p>
                                         <p>updatedAtUtc: {event.updatedAtUtc || formatUtc(event.timestamp, "unknown")}</p>
                                         <p>expiresAtUtc: {event.expiresAtUtc || "unknown"}</p>
                                         <p>rewardEventState: {event.rewardEventState || "unknown"}</p>
                                         <p>rewardCreditIdempotencyKey: {event.rewardCreditIdempotencyKey || "n/a"}</p>
                                         {event.rewardAuditFlag ? <p>rewardAuditFlag: {event.rewardAuditFlag}</p> : null}
-                                    </details>
+                                    </Disclosure>
                                 </div>
                             ))}
                         </div>
@@ -728,8 +732,8 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                         </div>
                                     </div>
                                     <p className="text-xs text-muted-foreground min-w-0 wrap-anywhere">{receipt.ageLabel} | {receipt.createdAtUtc}</p>
-                                    <details className="min-w-0 text-sm text-muted-foreground">
-                                        <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Raw details</summary>
+                                    <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                                        <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Raw details</DisclosureSummary>
                                         <div className="mt-2 space-y-1 min-w-0 wrap-anywhere">
                                             <p>rawEventName: {receipt.rawEventName}</p>
                                             <p>dedupeKey: {receipt.dedupeKey}</p>
@@ -737,7 +741,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                             {receipt.targetDropId ? <p>targetDropId: {receipt.targetDropId}</p> : null}
                                             {receipt.targetDropTitle ? <p>targetDropTitle: {receipt.targetDropTitle}</p> : null}
                                         </div>
-                                    </details>
+                                    </Disclosure>
                                 </div>
                             ))}
                         </div>
@@ -763,11 +767,11 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                             <div className="flex flex-wrap justify-between gap-3 border-b border-border py-2 min-w-0 wrap-anywhere"><span className="text-muted-foreground min-w-0 wrap-anywhere">Role</span><span className="text-foreground min-w-0 wrap-anywhere">{userProfile?.role || "user"}</span></div>
                             <div className="flex flex-wrap justify-between gap-3 border-b border-border py-2 min-w-0 wrap-anywhere"><span className="text-muted-foreground min-w-0 wrap-anywhere">Project</span><span className="wrap-anywhere text-foreground min-w-0">{data?.opsHealth?.runtime?.projectId || "--"}</span></div>
                             <div className="flex flex-wrap justify-between gap-3 py-2 min-w-0 wrap-anywhere"><span className="text-muted-foreground min-w-0 wrap-anywhere">Warnings</span><span className="text-foreground min-w-0 wrap-anywhere">{Array.isArray(data?.opsHealth?.runtime?.warnings) ? `${data.opsHealth.runtime.warnings.length} config warning${data.opsHealth.runtime.warnings.length === 1 ? "" : "s"}` : DEBUG_MONITORING_NOT_LOADED}</span></div>
-                            <details className="min-w-0 text-sm text-muted-foreground">
-                                <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Session details</summary>
+                            <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                                <DisclosureSummary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">Session details</DisclosureSummary>
                                 <p className="mt-2 min-w-0 wrap-anywhere">User ID: {user?.uid || "--"}</p>
                                 <p>Email: {user?.email || "--"}</p>
-                            </details>
+                            </Disclosure>
                         </div>
                         <div className="flex flex-wrap gap-2 min-w-0 wrap-anywhere">
                             <Pill label="GA property" value={valueForConfigState(gaConfigState)} truthState={gaConfigState === "source_missing" ? "unavailable" : undefined} tone={gaConfigState === "configMissing" ? "warn" : "neutral"} badgeLabel={badgeForConfigState(gaConfigState)} />

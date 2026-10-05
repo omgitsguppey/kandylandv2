@@ -19,10 +19,10 @@ function Metric({ label, value, tone = "neutral" }: { label: string; value: stri
   return (
     <div className={cn(
       "rounded-2xl border p-3",
-      tone === "good" ? "border-emerald-400/20 bg-emerald-500/10" : tone === "warn" ? "border-amber-400/20 bg-amber-500/10" : "border-white/10 bg-white/[0.04]",
+      tone === "good" ? "border-success/20 bg-success/10" : tone === "warn" ? "border-warning/20 bg-warning/10" : "border-border bg-secondary",
     )}>
-      <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">{label}</p>
-      <p className="mt-1 text-xl font-black text-white">{value}</p>
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 text-xl font-semibold text-foreground">{value}</p>
     </div>
   );
 }
@@ -148,7 +148,7 @@ export function DebugBugReportSummary({ summary: providedSummary, className }: D
 
   return (
     <section
-      className={cn("rounded-[1.2rem] border border-white/10 bg-black/25 p-3", className)}
+      className={cn("rounded-[1.2rem] border border-border bg-background/25 p-3", className)}
       data-debug-bug-report-summary
       data-debug-report-source="bug_reports"
       data-debug-truth-state={truthState}
@@ -157,12 +157,12 @@ export function DebugBugReportSummary({ summary: providedSummary, className }: D
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/30 bg-brand-purple/15">
-            <Bug className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/15">
+            <Bug className="h-5 w-5 text-foreground" />
           </div>
           <div>
-            <h3 className="font-bold text-white">Bug report truth</h3>
-            <p className="text-xs leading-5 text-gray-400">
+            <h3 className="font-semibold text-foreground">Bug report truth</h3>
+            <p className="text-xs leading-5 text-muted-foreground">
               Read-only translated error reports, reward states, and operator messages.
             </p>
           </div>
@@ -171,23 +171,23 @@ export function DebugBugReportSummary({ summary: providedSummary, className }: D
       </div>
 
       {loading && !truth ? (
-        <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300">
+        <div className="mt-3 rounded-xl border border-border bg-secondary p-3 text-sm text-muted-foreground">
           <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
           Loading bug report truth.
         </div>
       ) : null}
 
       {!loading || truth ? (
-        <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300">
-          <p className="font-semibold text-white">{terminalTruth.nextAction}</p>
-          <p className="mt-1 text-xs text-gray-500">
+        <div className="mt-3 rounded-xl border border-border bg-secondary p-3 text-sm text-muted-foreground">
+          <p className="font-semibold text-foreground">{terminalTruth.nextAction}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Source {terminalTruth.sourcePath} | {terminalTruth.sourceWindow?.label || "no source window"} | {terminalTruth.redactionStatus}
           </p>
         </div>
       ) : null}
 
       {error ? (
-        <div className="mt-3 rounded-xl border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
+        <div className="mt-3 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -202,56 +202,56 @@ export function DebugBugReportSummary({ summary: providedSummary, className }: D
           </div>
 
           {summary ? <div className="mt-3 grid gap-3 md:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-gray-500">
+            <div className="rounded-2xl border border-border bg-secondary p-3">
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <ShieldX className="h-3.5 w-3.5" />
                 Top error keys
               </div>
               <div className="space-y-1.5">
                 {summary.topErrorKeys.length > 0 ? summary.topErrorKeys.map((item) => (
                   <div key={item.key} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="truncate text-gray-200">{item.key}</span>
-                    <span className="font-bold text-white">{item.count}</span>
+                    <span className="truncate text-foreground">{item.key}</span>
+                    <span className="font-semibold text-foreground">{item.count}</span>
                   </div>
-                )) : <p className="text-sm text-gray-400">No reports loaded.</p>}
+                )) : <p className="text-sm text-muted-foreground">No reports loaded.</p>}
               </div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-gray-500">
+            <div className="rounded-2xl border border-border bg-secondary p-3">
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Top surfaces
               </div>
               <div className="space-y-1.5">
                 {summary.topSurfaces.length > 0 ? summary.topSurfaces.map((item) => (
                   <div key={item.key} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="truncate text-gray-200">{item.key}</span>
-                    <span className="font-bold text-white">{item.count}</span>
+                    <span className="truncate text-foreground">{item.key}</span>
+                    <span className="font-semibold text-foreground">{item.count}</span>
                   </div>
-                )) : <p className="text-sm text-gray-400">No reports loaded.</p>}
+                )) : <p className="text-sm text-muted-foreground">No reports loaded.</p>}
               </div>
             </div>
           </div> : null}
 
           {summary && summary.latestReports.length > 0 ? <div className="mt-3 space-y-2">
             {summary.latestReports.slice(0, 8).map((report) => (
-              <article key={report.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              <article key={report.id} className="rounded-2xl border border-border bg-secondary p-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-white">{report.userTitle}</p>
-                    <p className="mt-1 text-xs leading-5 text-gray-300">Report body redacted by default. Open the drilldown-only support record for private details.</p>
+                    <p className="text-sm font-semibold text-foreground">{report.userTitle}</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">Report body redacted by default. Open the drilldown-only support record for private details.</p>
                   </div>
-                  <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                  <span className="rounded-full border border-border bg-background/25 px-2.5 py-1 text-[11px] text-muted-foreground">
                     {report.status}
                   </span>
                 </div>
-                <p className="mt-2 text-xs leading-5 text-gray-400">Operator message body hidden in this summary surface.</p>
-                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-300">
-                  <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1">{report.errorKey}</span>
-                  <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1">{report.surface}</span>
-                  <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1">{report.route}</span>
-                  {report.debugId ? <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1">debug {report.debugId}</span> : null}
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">Operator message body hidden in this summary surface.</p>
+                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                  <span className="rounded-full border border-border bg-background/25 px-2 py-1">{report.errorKey}</span>
+                  <span className="rounded-full border border-border bg-background/25 px-2 py-1">{report.surface}</span>
+                  <span className="rounded-full border border-border bg-background/25 px-2 py-1">{report.route}</span>
+                  {report.debugId ? <span className="rounded-full border border-border bg-background/25 px-2 py-1">debug {report.debugId}</span> : null}
                   {report.rewardGd > 0 ? (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2 py-1 text-emerald-100">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-success/20 bg-success/10 px-2 py-1 text-success">
                       <Gift className="h-3 w-3" />
                       {report.rewardGd} reward GD
                     </span>
@@ -260,7 +260,7 @@ export function DebugBugReportSummary({ summary: providedSummary, className }: D
               </article>
             ))}
           </div> : reportCount === 0 ? (
-            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300">
+            <div className="mt-3 rounded-xl border border-border bg-secondary p-3 text-sm text-muted-foreground">
               Bug Report Truth resolved to an empty terminal state for the loaded source window.
             </div>
           ) : null}

@@ -1,3 +1,5 @@
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
 import React from 'react';
 import { ChevronRight, WandSparkles } from "lucide-react";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
@@ -50,7 +52,7 @@ export function AdminAiOptimizerhealthSection({ state }: { state: AdminAiState }
                             open={moduleOpenState["admin_ai.optimizer"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.optimizer", nextOpen)}
                             actions={(
-                                <Badge className={cn("border", data?.settings.optimizerEnabled ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100" : "border-amber-400/20 bg-amber-500/10 text-amber-100")}>
+                                <Badge className={cn("border", data?.settings.optimizerEnabled ? "border-success/20 bg-success/10 text-success" : "border-warning/20 bg-warning/10 text-warning")}>
                                     <WandSparkles className="h-3.5 w-3.5" />
                                     {data?.settings.optimizerEnabled ? "Enabled" : "Rules-only"}
                                 </Badge>
@@ -63,43 +65,43 @@ export function AdminAiOptimizerhealthSection({ state }: { state: AdminAiState }
                                 <MetricCard label="Last run" value={formatCompactTimestamp(data?.promptPolicy.lastOptimizerRunAtMs)} meta={data?.settings.optimizerModel || "gemini-3.1-flash-lite-preview"} />
                             </div>
 
-                            <div className="mt-3 min-w-0 rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                                <div className="text-sm font-semibold text-white">Prompt history</div>
+                            <div className="mt-3 min-w-0 rounded-[1rem] border border-border bg-background/25 p-3">
+                                <div className="text-sm font-semibold text-foreground">Prompt history</div>
                                 <div className="mt-3 space-y-2">
                                     {(data?.promptPolicyHistory || []).slice(0, 8).map((entry) => (
-                                        <div key={entry.id} className="rounded-[0.95rem] border border-white/8 bg-white/[0.03] p-3">
+                                        <div key={entry.id} className="rounded-[0.95rem] border border-border bg-secondary p-3">
                                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                                <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                                                    <ChevronRight className="h-4 w-4 text-gray-500" />
+                                                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                                     v{entry.version} • {entry.source}
                                                 </div>
-                                                <div className="text-xs text-gray-400">{formatCompactTimestamp(entry.createdAtMs)}</div>
+                                                <div className="text-xs text-muted-foreground">{formatCompactTimestamp(entry.createdAtMs)}</div>
                                             </div>
-                                            <div className="mt-2 text-xs text-gray-400">
+                                            <div className="mt-2 text-xs text-muted-foreground">
                                                 {entry.action}{entry.feedbackAction ? ` • ${entry.feedbackAction}` : ""}{entry.jobId ? ` • job ${entry.jobId}` : ""}
                                             </div>
                                             {entry.diff.length > 0 ? (
-                                                <details className="mt-2 text-[11px] text-gray-300">
-                                                    <summary className="cursor-pointer font-semibold opacity-80 hover:opacity-100">View Diffs ({entry.diff.length})</summary>
+                                                <Disclosure className="mt-2 text-[11px] text-muted-foreground">
+                                                    <DisclosureSummary className="cursor-pointer font-semibold opacity-80 hover:opacity-100">View Diffs ({entry.diff.length})</DisclosureSummary>
                                                     <div className="mt-1 flex flex-wrap gap-1.5">
                                                         {entry.diff.map((line, index) => (
-                                                            <span key={`${entry.id}-${index}`} className="max-w-full break-all rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5">{line}</span>
+                                                            <span key={`${entry.id}-${index}`} className="max-w-full break-all rounded-md border border-border bg-secondary px-1.5 py-0.5">{line}</span>
                                                         ))}
                                                     </div>
-                                                </details>
+                                                </Disclosure>
                                             ) : null}
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="mt-3 min-w-0 rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                                <div className="text-sm font-semibold text-white">Top failure reasons</div>
+                            <div className="mt-3 min-w-0 rounded-[1rem] border border-border bg-background/25 p-3">
+                                <div className="text-sm font-semibold text-foreground">Top failure reasons</div>
                                 <div className="mt-3 space-y-2">
                                     {topFailureReasons.length === 0 ? (
-                                        <p className="text-sm text-gray-400">No recent AI failures recorded.</p>
+                                        <p className="text-sm text-muted-foreground">No recent AI failures recorded.</p>
                                     ) : topFailureReasons.map((reason, index) => (
-                                        <div key={`${reason}-${index}`} className="rounded-[0.95rem] border border-red-400/15 bg-red-500/5 px-3 py-2 text-sm text-red-100 break-words">{reason}</div>
+                                        <div key={`${reason}-${index}`} className="rounded-[0.95rem] border border-destructive/15 bg-destructive/5 px-3 py-2 text-sm text-destructive break-words">{reason}</div>
                                     ))}
                                 </div>
                             </div>

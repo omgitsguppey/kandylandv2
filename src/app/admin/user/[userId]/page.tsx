@@ -1,5 +1,11 @@
 "use client";
 
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+import { Button } from "@/components/ui/Button";
+
+
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -23,7 +29,7 @@ import { BehavioralVerdictCard } from "@/components/Admin/BehavioralVerdictCard"
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminUserDetailMasthead, AdminUsersOperations } from "@/components/creative-tim/kandydrops/admin-users/AdminUsersOperations";
-import { NativeSelect } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
     buildEngagementBehavioralExplanation,
     buildRecommendationBehavioralExplanation,
@@ -293,27 +299,27 @@ const ADMIN_USER_DETAIL_BROWSER_SMOKE_PROFILE: UserProfile = {
 
 function getValidationClasses(status: "pass" | "warn" | "fail") {
     if (status === "pass") {
-        return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+        return "border-success/20 bg-success/10 text-success";
     }
 
     if (status === "fail") {
-        return "border-red-500/20 bg-red-500/10 text-red-200";
+        return "border-destructive/20 bg-destructive/10 text-destructive";
     }
 
-    return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+    return "border-warning/20 bg-warning/10 text-warning";
 }
 
 function getCoverageClasses(status: AdminSurfaceState | "healthy" | "partial" | "empty") {
     const state = coerceUserDetailTruthState(status);
     if (state === "live") {
-        return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+        return "border-success/20 bg-success/10 text-success";
     }
 
     if (state === "failed" || state === "unavailable") {
-        return "border-red-500/20 bg-red-500/10 text-red-200";
+        return "border-destructive/20 bg-destructive/10 text-destructive";
     }
 
-    return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+    return "border-warning/20 bg-warning/10 text-warning";
 }
 
 function coerceUserDetailTruthState(value: unknown): AdminTruthState {
@@ -344,18 +350,18 @@ function formatIndividualMetricState(state: UserMetricHydrationStatus) {
 
 function getSupportStateClasses(state: SupportReadinessState) {
     if (state === "waiting_on_support") {
-        return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+        return "border-warning/20 bg-warning/10 text-warning";
     }
 
     if (state === "waiting_on_user" || state === "open") {
-        return "border-brand-purple/20 bg-brand-purple/10 text-brand-purple";
+        return "border-primary/20 bg-primary/10 text-primary";
     }
 
     if (state === "resolved") {
-        return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+        return "border-success/20 bg-success/10 text-success";
     }
 
-    return "border-white/10 bg-white/5 text-gray-200";
+    return "border-border bg-secondary text-foreground";
 }
 
 export default function AdminUserAnalyticsPage() {
@@ -586,7 +592,7 @@ export default function AdminUserAnalyticsPage() {
     });
     const supportSummaryClassName = supportReadiness
         ? getSupportStateClasses(supportReadiness.summary.state)
-        : "border-gray-500/30 bg-gray-500/10 text-gray-300";
+        : "border-border bg-secondary text-muted-foreground";
     const supportSummaryLabel = supportReadiness?.summary.stateLabel ?? "Support snapshot not loaded";
     const paritySummaryStatus = parity?.validations?.some((item) => item.status === "fail")
         ? "fail"
@@ -597,7 +603,7 @@ export default function AdminUserAnalyticsPage() {
                 : "warn";
     const paritySummaryClassName = parity
         ? getValidationClasses(paritySummaryStatus)
-        : "border-gray-500/30 bg-gray-500/10 text-gray-300";
+        : "border-border bg-secondary text-muted-foreground";
     const paritySummaryLabel = parity ? `${parity.score}% parity` : "Parity snapshot not loaded";
     const engagementExplanation = buildEngagementBehavioralExplanation({
         engagement,
@@ -762,23 +768,23 @@ export default function AdminUserAnalyticsPage() {
     if (authLoading || loading) {
         return (
             <div className="flex min-h-[300px] items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
         );
     }
 
     if (!isAdmin) {
-        return <div className="p-8 text-center text-red-500">Access Restricted</div>;
+        return <div className="p-8 text-center text-destructive">Access Restricted</div>;
     }
 
     if (error || !targetUser) {
         return (
-            <div className="p-8 text-center text-gray-300">
-                <AlertCircle className="mx-auto mb-4 h-8 w-8 text-red-500" />
+            <div className="p-8 text-center text-muted-foreground">
+                <AlertCircle className="mx-auto mb-4 h-8 w-8 text-destructive" />
                 <p>{error}</p>
-                <button onClick={() => router.back()} className="mt-4 text-brand-purple underline">
+                <Button variant="ghost" onClick={() => router.back()} className="mt-4 text-primary underline">
                     Go back
-                </button>
+                </Button>
             </div>
         );
     }
@@ -800,22 +806,22 @@ export default function AdminUserAnalyticsPage() {
             />
             {isLocalAdminUserDetailFixture ? (
                 <div
-                    className="rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                    className="rounded-2xl border border-warning/25 bg-warning/10 px-4 py-3 text-sm leading-6 text-warning"
                     data-admin-user-detail-fixture-boundary="true"
                 >
-                    <span className="font-bold text-white">source_missing fixture.</span> source_missing: user detail source is not loaded in this fixture. Protected analytics, support, security, recommendation, payment, and user metric samples stay blocked.
+                    <span className="font-semibold text-foreground">source_missing fixture.</span> source_missing: user detail source is not loaded in this fixture. Protected analytics, support, security, recommendation, payment, and user metric samples stay blocked.
                 </div>
             ) : null}
 
             <div className="space-y-4">
-                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-                    <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
-                        <Activity className="h-4 w-4 text-brand-purple" /> Account Summary
+                <div className="glass-panel rounded-3xl border border-border p-4 md:p-5">
+                    <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Activity className="h-4 w-4 text-primary" /> Account Summary
                     </h3>
 
                     <div className="grid gap-3 sm:grid-cols-3">
                         {[
-                            { label: "Gross cash", value: formatCommerceMoneyLabel(totalSpentUsd), tone: "text-brand-purple" },
+                            { label: "Gross cash", value: formatCommerceMoneyLabel(totalSpentUsd), tone: "text-primary" },
                             { label: "Adjusted profit", value: formatCommerceMoneyLabel(adjustedProfitUsd) },
                             { label: "Bonus value", value: formatCommerceMoneyLabel(bonusValueUsd) },
                             { label: "Delivered", value: formatCommerceGumDropsLabel(deliveredGumDrops) },
@@ -824,25 +830,25 @@ export default function AdminUserAnalyticsPage() {
                             { label: "Actions", value: formatBehaviorCountLabel(behaviorRollup?.totalActions) },
                             { label: "Views", value: formatBehaviorCountLabel(behaviorRollup?.views) },
                             { label: "Engagement", value: engagementExplanation.verdict },
-                            { label: "Value", value: valueExplanation.verdict, tone: "text-brand-purple" },
+                            { label: "Value", value: valueExplanation.verdict, tone: "text-primary" },
                             { label: "Auth", value: formatBehaviorCountLabel(behaviorRollup?.authEvents) },
                             { label: "Watch time", value: watchTimeLabel },
                             { label: "Last seen", value: lastSeenLabel },
                         ].map((item) => (
-                            <div key={item.label} className="rounded-[1.25rem] border border-white/10 bg-black/30 px-3 py-3">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
-                                <p className={`mt-1 text-sm font-black ${item.tone || "text-white"}`}>{item.value}</p>
+                            <div key={item.label} className="rounded-[1.25rem] border border-border bg-background/30 px-3 py-3">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</p>
+                                <p className={`mt-1 text-sm font-semibold ${item.tone || "text-foreground"}`}>{item.value}</p>
                             </div>
                         ))}
                     </div>
-                    <div className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
+                    <div className="mt-4 rounded-[1.25rem] border border-border bg-background/25 px-4 py-3 text-xs leading-5 text-muted-foreground">
                         <AdminReviewBadge decision={commerceReviewDecision} className="mr-1 py-0.5" />
                         <AdminTruthBadge state={commerceTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableCommerceValue} />{" "}
                         {commerceSummaryText}
                         {failedTxCount > 0 ? ` ${failedTxCount} failed transaction${failedTxCount === 1 ? "" : "s"} excluded from purchase yield.` : ""}
                     </div>
                     <div
-                        className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
+                        className="mt-3 rounded-[1.25rem] border border-border bg-background/25 px-4 py-3 text-xs leading-5 text-muted-foreground"
                         data-individual-user-metric-state={individualMetricState}
                         data-individual-user-metric-source={analytics?.individualMetricTruth?.sourceTruth ?? "source_missing"}
                         data-individual-user-identity-bridge={analytics?.individualMetricTruth?.identityBridgeState ?? "bridge_missing"}
@@ -869,7 +875,7 @@ export default function AdminUserAnalyticsPage() {
                         </p>
                     </div>
                     <div
-                        className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
+                        className="mt-3 rounded-[1.25rem] border border-border bg-background/25 px-4 py-3 text-xs leading-5 text-muted-foreground"
                         data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
                         data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                         data-user-behavior-truth-score={behaviorTruthRollup?.sourceTruthScore ?? "unavailable"}
@@ -894,14 +900,14 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-                    <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
-                        <History className="h-4 w-4 text-brand-purple" /> Action Ledger
+                <div className="glass-panel rounded-3xl border border-border p-4 md:p-5">
+                    <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <History className="h-4 w-4 text-primary" /> Action Ledger
                     </h3>
 
                     <div className="custom-scrollbar max-h-[400px] space-y-3 overflow-y-auto pr-2">
                         {actionLedger.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-gray-500">
+                            <p className="py-8 text-center text-sm text-muted-foreground">
                                 {individualMetricValuesDisplayable
                                     ? "No behavior logged in the proven source window."
                                     : `${individualMetricStateLabel}: individual behavior is unavailable, not zero.`}
@@ -911,15 +917,15 @@ export default function AdminUserAnalyticsPage() {
                                 return (
                                     <div
                                         key={action.actionId}
-                                        className="flex items-center justify-between rounded-xl border border-white/5 bg-black/40 p-3"
+                                        className="flex items-center justify-between rounded-xl border border-border bg-background/40 p-3"
                                         data-user-action-name={action.actionName}
                                         data-user-action-source={action.sourceComponent}
                                     >
                                         <div className="min-w-0 flex-1">
-                                            <div className="line-clamp-1 text-sm font-bold text-white">
+                                            <div className="line-clamp-1 text-sm font-semibold text-foreground">
                                                 {action.label}
                                             </div>
-                                            <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-gray-500">
+                                            <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-muted-foreground">
                                                 <span className="font-mono">
                                                     {formatDistanceToNow(action.timestamp > 0 ? action.timestamp : Date.now(), { addSuffix: true })}
                                                 </span>
@@ -927,22 +933,22 @@ export default function AdminUserAnalyticsPage() {
                                                 <span>{action.sourceComponent}</span>
                                             </div>
                                             {action.rawEventName && action.rawEventName !== action.actionName ? (
-                                                <details className="mt-2 text-[10px] text-gray-500">
-                                                    <summary className="cursor-pointer list-none font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                                <Disclosure className="mt-2 text-[10px] text-muted-foreground">
+                                                    <DisclosureSummary className="cursor-pointer list-none font-semibold uppercase tracking-wide text-muted-foreground">
                                                         Debug
-                                                    </summary>
+                                                    </DisclosureSummary>
                                                     <div className="mt-1 font-mono">
                                                         Raw event: {action.rawEventName}
                                                     </div>
-                                                </details>
+                                                </Disclosure>
                                             ) : null}
                                         </div>
                                         <div className="ml-4 flex shrink-0 flex-col items-end gap-1">
-                                            <span className="rounded-md border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
+                                            <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                                                 {action.actionName}
                                             </span>
                                             {action.entityId ? (
-                                                <span className="max-w-[9rem] truncate font-mono text-[9px] text-gray-500">
+                                                <span className="max-w-[9rem] truncate font-mono text-[9px] text-muted-foreground">
                                                     {action.entityType}:{action.entityId}
                                                 </span>
                                             ) : null}
@@ -955,27 +961,27 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             </div>
 
-            <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+            <div className="glass-panel rounded-3xl border border-border p-4 md:p-5">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
-                            <Sparkles className="h-4 w-4 text-brand-purple" /> Behavioral Intelligence
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <Sparkles className="h-4 w-4 text-primary" /> Behavioral Intelligence
                         </h3>
-                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
                             Deterministic profile, freshness, and recommendation explanations for this account.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${behavioralProfile?.recommendationState === "profile-driven" ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-amber-400/20 bg-amber-400/10 text-amber-200"}`}>
+                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${behavioralProfile?.recommendationState === "profile-driven" ? "border-success/20 bg-success/10 text-success" : "border-warning/20 bg-warning/10 text-warning"}`}>
                             {behavioralProfile?.recommendationState || "deterministic-fallback"}
                         </span>
-                        <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                        <span className="inline-flex items-center rounded-full border border-border bg-background/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                             {behavioralProfile?.freshnessLabel || "unknown"}
                         </span>
-                        <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                        <span className="inline-flex items-center rounded-full border border-border bg-background/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                             Confidence {behavioralConfidence}%
                         </span>
-                        <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                        <span className="inline-flex items-center rounded-full border border-border bg-background/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                             Math {recommendationDebug?.mathCalibration?.verdict || behavioralProfile?.mathCalibration?.verdict || "unvalidated"}
                         </span>
                     </div>
@@ -986,66 +992,66 @@ export default function AdminUserAnalyticsPage() {
 
 
                 <div className="mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-                    <details className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
-                        <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+                    <Disclosure className="rounded-[1.35rem] border border-border bg-background/20 p-4">
+                        <DisclosureSummary className="cursor-pointer text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Why this verdict?
-                        </summary>
+                        </DisclosureSummary>
                         <div className="mt-4 space-y-4">
                         <div className="grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Eligibility</p>
-                                <p className="mt-2 text-lg font-black text-white">{recommendationDebug?.mode || "deterministic-fallback"}</p>
-                                <p className="mt-1 text-xs text-gray-400">
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Eligibility</p>
+                                <p className="mt-2 text-lg font-semibold text-foreground">{recommendationDebug?.mode || "deterministic-fallback"}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">
                                     {recommendationDisplayMode === "insufficient-signal"
                                         ? (recommendationDebug?.insufficientSignalReason || "Not enough verified behavior signal yet.")
                                         : "Recommendations only expand when consent and confidence both clear the threshold."}
                                 </p>
                             </div>
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Fatigue band</p>
-                                <p className="mt-2 text-lg font-black text-white">{behavioralProfile?.fatigueState || "unknown"}</p>
-                                <p className="mt-1 text-xs text-gray-400">Fatigue score {Math.round((behavioralProfile?.fatigueScore || 0) * 100)}%.</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Fatigue band</p>
+                                <p className="mt-2 text-lg font-semibold text-foreground">{behavioralProfile?.fatigueState || "unknown"}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Fatigue score {Math.round((behavioralProfile?.fatigueScore || 0) * 100)}%.</p>
                             </div>
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Exploration vs loyalty</p>
-                                <p className="mt-2 text-lg font-black text-white">{Math.round((behavioralProfile?.explorationScore || 0) * 100)} / {Math.round((behavioralProfile?.loyaltyScore || 0) * 100)}</p>
-                                <p className="mt-1 text-xs text-gray-400">Exploration / loyalty balance derived from recent creators and repeat consumption.</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Exploration vs loyalty</p>
+                                <p className="mt-2 text-lg font-semibold text-foreground">{Math.round((behavioralProfile?.explorationScore || 0) * 100)} / {Math.round((behavioralProfile?.loyaltyScore || 0) * 100)}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Exploration / loyalty balance derived from recent creators and repeat consumption.</p>
                             </div>
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Session depth</p>
-                                <p className="mt-2 text-lg font-black text-white">{behavioralProfile?.averageSessionDepth || 0}</p>
-                                <p className="mt-1 text-xs text-gray-400">{behavioralProfile?.watchSessionCount || 0} tracked watch sessions in the current profile window.</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Session depth</p>
+                                <p className="mt-2 text-lg font-semibold text-foreground">{behavioralProfile?.averageSessionDepth || 0}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">{behavioralProfile?.watchSessionCount || 0} tracked watch sessions in the current profile window.</p>
                             </div>
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Truth score</p>
-                                <p className="mt-2 text-lg font-black text-white">{Math.round(((recommendationDebug?.truthScore ?? behavioralProfile?.truthScore ?? 0) as number) * 100)}%</p>
-                                <p className="mt-1 text-xs text-gray-400">Validated/decorative state: {recommendationDebug?.mathCalibration?.activeMode || behavioralProfile?.mathCalibration?.activeMode || "deterministic"}.</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Truth score</p>
+                                <p className="mt-2 text-lg font-semibold text-foreground">{Math.round(((recommendationDebug?.truthScore ?? behavioralProfile?.truthScore ?? 0) as number) * 100)}%</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Validated/decorative state: {recommendationDebug?.mathCalibration?.activeMode || behavioralProfile?.mathCalibration?.activeMode || "deterministic"}.</p>
                             </div>
                         </div>
 
                         {showBehavioralAffinity && !hideBehavioralRecommendations ? (
                             <>
-                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top creator affinity</p>
+                                <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Top creator affinity</p>
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         {behavioralTopCreators.slice(0, 6).map((entry) => (
-                                            <span key={entry.key} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                            <span key={entry.key} className="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-[11px] font-semibold text-foreground">
                                                 {entry.key} · {entry.score}
                                             </span>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top content themes</p>
+                                <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Top content themes</p>
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         {behavioralTopCategories.slice(0, 4).map((entry) => (
-                                            <span key={`category-${entry.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                            <span key={`category-${entry.key}`} className="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-[11px] font-semibold text-foreground">
                                                 {entry.key} · {entry.score}
                                             </span>
                                         ))}
                                         {behavioralTopThemes.slice(0, 4).map((entry) => (
-                                            <span key={`theme-${entry.key}`} className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold text-brand-purple">
+                                            <span key={`theme-${entry.key}`} className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
                                                 {entry.key} · {entry.score}
                                             </span>
                                         ))}
@@ -1053,10 +1059,10 @@ export default function AdminUserAnalyticsPage() {
                                 </div>
                             </>
                         ) : (
-                            <div className="rounded-[1.35rem] border border-dashed border-white/10 bg-black/20 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Affinity state</p>
-                                <p className="mt-2 text-sm font-semibold text-white">{hideBehavioralRecommendations ? "Confidence below threshold" : "Insufficient signal"}</p>
-                                <p className="mt-1 text-xs leading-5 text-gray-400">
+                            <div className="rounded-[1.35rem] border border-dashed border-border bg-background/20 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Affinity state</p>
+                                <p className="mt-2 text-sm font-semibold text-foreground">{hideBehavioralRecommendations ? "Confidence below threshold" : "Insufficient signal"}</p>
+                                <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                     {hideBehavioralRecommendations
                                         ? "Personalized recommendations stay collapsed until canonical behavior confidence clears the threshold."
                                         : (recommendationDebug?.insufficientSignalReason || "No meaningful creator or content affinity is available for this account yet.")}
@@ -1064,16 +1070,16 @@ export default function AdminUserAnalyticsPage() {
                             </div>
                         )}
                         </div>
-                    </details>
+                    </Disclosure>
 
                     <div className="space-y-3">
-                        <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Recommended drops with explanations</p>
+                        <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Recommended drops with explanations</p>
                             <div className="mt-4 space-y-3">
                                 {recommendationDisplayMode === "insufficient-signal" || hideBehavioralRecommendations ? (
-                                    <div className="rounded-[1.1rem] border border-dashed border-white/10 bg-black/20 p-4">
-                                        <p className="text-sm font-semibold text-white">{hideBehavioralRecommendations ? "Confidence below threshold" : "Insufficient signal"}</p>
-                                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                                    <div className="rounded-[1.1rem] border border-dashed border-border bg-background/20 p-4">
+                                        <p className="text-sm font-semibold text-foreground">{hideBehavioralRecommendations ? "Confidence below threshold" : "Insufficient signal"}</p>
+                                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                             {hideBehavioralRecommendations
                                                 ? "Recommendations stay hidden until the canonical behavior truth rollup clears the confidence threshold."
                                                 : (recommendationDebug?.insufficientSignalReason || "No recommendation explanations are shown until this account has verified behavioral signal.")}
@@ -1081,19 +1087,19 @@ export default function AdminUserAnalyticsPage() {
                                     </div>
                                 ) : showBehavioralExplanationCards ? (
                                     behavioralRecommendations.slice(0, 4).map((entry: any) => (
-                                        <div key={entry.dropId} className="rounded-[1.1rem] border border-white/10 bg-black/30 p-4">
+                                        <div key={entry.dropId} className="rounded-[1.1rem] border border-border bg-background/30 p-4">
                                             <div className="flex flex-wrap items-start justify-between gap-3">
                                                 <div>
-                                                    <p className="text-sm font-bold text-white">{entry.dropTitle}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
-                                                    <p className="mt-2 text-xs leading-5 text-gray-300">{entry.explanationSummary || entry.fallbackReason}</p>
+                                                    <p className="text-sm font-semibold text-foreground">{entry.dropTitle}</p>
+                                                    <p className="mt-1 text-xs text-muted-foreground">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
-                                                    <span className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                                                    <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">
                                                         {entry.rankingMode === "ml_artifact" ? "ML artifact" : "Deterministic"}
                                                     </span>
                                                     {(entry.labels || []).map((label: string) => (
-                                                        <span key={`${entry.dropId}:${label}`} className="inline-flex items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                                                        <span key={`${entry.dropId}:${label}`} className="inline-flex items-center rounded-full border border-border bg-background/35 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                                                             {label}
                                                         </span>
                                                     ))}
@@ -1101,184 +1107,184 @@ export default function AdminUserAnalyticsPage() {
                                             </div>
                                             <div className="mt-3 flex flex-wrap gap-2">
                                                 {(entry.explanationReasons || []).map((reason: string) => (
-                                                    <span key={`${entry.dropId}:${reason}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                                    <span key={`${entry.dropId}:${reason}`} className="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-[11px] font-semibold text-foreground">
                                                         {reason}
                                                     </span>
                                                 ))}
                                             </div>
-                                            <details className="mt-3 rounded-[1rem] border border-white/10 bg-black/20 p-3">
-                                                <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+                                            <Disclosure className="mt-3 rounded-[1rem] border border-border bg-background/20 p-3">
+                                                <DisclosureSummary className="cursor-pointer text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                                     Ranking diagnostics
-                                                </summary>
+                                                </DisclosureSummary>
                                                 <div className="mt-3 flex flex-wrap gap-2">
                                                     {(entry.candidateSources || []).map((source: string) => (
-                                                        <span key={`${entry.dropId}:${source}`} className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                                                        <span key={`${entry.dropId}:${source}`} className="inline-flex items-center rounded-full border border-border bg-background/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                                                             {source.replaceAll("_", " ")}
                                                         </span>
                                                     ))}
                                                 </div>
                                                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                                                     {(entry.factors || []).map((factor: any) => (
-                                                        <div key={`${entry.dropId}:${factor.label}`} className="rounded-[0.9rem] border border-white/10 bg-black/30 px-3 py-2">
-                                                            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{factor.label}</p>
-                                                            <p className="mt-1 text-sm font-semibold text-white">{typeof factor.value === "number" ? `${Math.round(factor.value * 100)}%` : factor.value}</p>
+                                                        <div key={`${entry.dropId}:${factor.label}`} className="rounded-[0.9rem] border border-border bg-background/30 px-3 py-2">
+                                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{factor.label}</p>
+                                                            <p className="mt-1 text-sm font-semibold text-foreground">{typeof factor.value === "number" ? `${Math.round(factor.value * 100)}%` : factor.value}</p>
                                                         </div>
                                                     ))}
                                                 </div>
                                                 {entry.mlDiagnostics ? (
-                                                    <p className="mt-3 text-[11px] leading-5 text-gray-400">
+                                                    <p className="mt-3 text-[11px] leading-5 text-muted-foreground">
                                                         ML blend {Math.round((entry.mlDiagnostics.blendWeight || 0) * 100)}% from {entry.mlDiagnostics.modelSource} ({entry.mlDiagnostics.modelFreshness}).
                                                     </p>
                                                 ) : null}
-                                            </details>
+                                            </Disclosure>
                                         </div>
                                     ))
                                 ) : (
                                     behavioralRecommendations.slice(0, 3).map((entry: any) => (
-                                        <div key={entry.dropId} className="rounded-[1.1rem] border border-white/10 bg-black/20 px-4 py-3">
+                                        <div key={entry.dropId} className="rounded-[1.1rem] border border-border bg-background/20 px-4 py-3">
                                             <div className="flex flex-wrap items-center justify-between gap-3">
                                                 <div>
-                                                    <p className="text-sm font-semibold text-white">{entry.dropTitle}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropCategory || "unknown"} · fallback recommendation</p>
-                                                    <p className="mt-2 text-xs leading-5 text-gray-400">{entry.explanationSummary || entry.fallbackReason}</p>
+                                                    <p className="text-sm font-semibold text-foreground">{entry.dropTitle}</p>
+                                                    <p className="mt-1 text-xs text-muted-foreground">{entry.dropCategory || "unknown"} · fallback recommendation</p>
+                                                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
-                                                <span className="inline-flex items-center rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
+                                                <span className="inline-flex items-center rounded-full border border-warning/20 bg-warning/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-warning">
                                                     Fallback
                                                 </span>
                                             </div>
                                         </div>
                                     ))
                                 )}
-                                {!behavioralRecommendations.length && recommendationDisplayMode !== "insufficient-signal" && !hideBehavioralRecommendations ? <p className="text-sm text-gray-500">No ranked drop candidates are available for this user yet.</p> : null}
+                                {!behavioralRecommendations.length && recommendationDisplayMode !== "insufficient-signal" && !hideBehavioralRecommendations ? <p className="text-sm text-muted-foreground">No ranked drop candidates are available for this user yet.</p> : null}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <details className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-                <summary className="flex cursor-pointer list-none flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <Disclosure className="glass-panel rounded-3xl border border-border p-4 md:p-5">
+                <DisclosureSummary className="flex cursor-pointer list-none flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
-                            <LifeBuoy className="h-4 w-4 text-brand-purple" /> Support handoff
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <LifeBuoy className="h-4 w-4 text-primary" /> Support handoff
                         </h3>
-                            <p className="mt-1 text-xs leading-5 text-gray-400">
+                            <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                 Support-specific thread and bug-report detail is collapsed here and linked to the support queue.
                             </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportSummaryClassName}`}>
+                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${supportSummaryClassName}`}>
                             {supportSummaryLabel}
                         </span>
                         <Link
                             href={`/admin/support?userId=${targetUser.uid}`}
-                            className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200"
+                            className="inline-flex items-center rounded-full border border-border bg-background/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground"
                         >
                             Open support queue
                         </Link>
                     </div>
-                </summary>
+                </DisclosureSummary>
 
                 <div className="mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
                     <div className="space-y-4">
                         <div className="grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support handle</p>
-                                <p className="mt-2 text-lg font-black text-white">{supportReadiness?.summary.primaryHandle || targetUser.username || targetUser.email || targetUser.uid}</p>
-                                <p className="mt-1 text-xs text-gray-400">Primary identity for the in-site support queue.</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Support handle</p>
+                                <p className="mt-2 text-lg font-semibold text-foreground">{supportReadiness?.summary.primaryHandle || targetUser.username || targetUser.email || targetUser.uid}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Primary identity for the in-site support queue.</p>
                             </div>
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support thread key</p>
-                                <p className="mt-2 break-all font-mono text-xs font-semibold text-white">{supportReadiness?.summary.threadKey || `support:${targetUser.uid}`}</p>
-                                <p className="mt-1 text-xs text-gray-400">Stable ownership anchor for in-site support threads.</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Support thread key</p>
+                                <p className="mt-2 break-all font-mono text-xs font-semibold text-foreground">{supportReadiness?.summary.threadKey || `support:${targetUser.uid}`}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Stable ownership anchor for in-site support threads.</p>
                             </div>
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Open support threads</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Open support threads</p>
                                 <div className="mt-1"><AdminTruthBadge state={supportTruthState} hasUsableValue={Boolean(supportReadiness)} /></div>
-                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.openThreads : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
-                                <p className="mt-1 text-xs text-gray-400">{supportReadiness ? supportReadiness.summary.totalThreads : ADMIN_USER_DETAIL_MISSING_LABEL} historical threads.</p>
+                                <p className="mt-2 text-2xl font-semibold text-foreground">{supportReadiness ? supportReadiness.summary.openThreads : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">{supportReadiness ? supportReadiness.summary.totalThreads : ADMIN_USER_DETAIL_MISSING_LABEL} historical threads.</p>
                             </div>
-                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support signals</p>
+                            <div className="rounded-[1.35rem] border border-border bg-background/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Support signals</p>
                                 <div className="mt-1"><AdminTruthBadge state={supportTruthState} hasUsableValue={Boolean(supportReadiness)} /></div>
-                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.bugReportCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
-                                <p className="mt-1 text-xs text-gray-400">Bug reports still surface here as support intake signals.</p>
+                                <p className="mt-2 text-2xl font-semibold text-foreground">{supportReadiness ? supportReadiness.summary.bugReportCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Bug reports still surface here as support intake signals.</p>
                             </div>
                         </div>
 
-                        <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                        <div className="rounded-[1.5rem] border border-border bg-background/25 p-4">
                             <div className="flex flex-wrap gap-2">
-                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.accountEmail ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-gray-400"}`}>
+                                <span className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${supportReadiness?.summary.channels.accountEmail ? "border-success/20 bg-success/10 text-success" : "border-border bg-secondary text-muted-foreground"}`}>
                                     Account email {supportReadiness?.summary.channels.accountEmail ? "on file" : "missing"}
                                 </span>
-                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.inApp ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-gray-400"}`}>
+                                <span className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${supportReadiness?.summary.channels.inApp ? "border-success/20 bg-success/10 text-success" : "border-border bg-secondary text-muted-foreground"}`}>
                                     In-app support {supportReadiness?.summary.channels.inApp ? "ready" : "blocked"}
                                 </span>
-                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.browserPush ? "border-brand-purple/20 bg-brand-purple/10 text-brand-purple" : "border-white/10 bg-white/5 text-gray-400"}`}>
+                                <span className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${supportReadiness?.summary.channels.browserPush ? "border-primary/20 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"}`}>
                                     Push alerts {supportReadiness?.summary.channels.browserPush ? "enabled" : "off"}
                                 </span>
                             </div>
-                            <p className="mt-3 text-xs leading-5 text-gray-400">
+                            <p className="mt-3 text-xs leading-5 text-muted-foreground">
                                 {supportReadiness?.summary.stateDescription || "No current in-site support thread is open for this account."}
                             </p>
-                            <p className="mt-2 text-[11px] text-gray-500">
+                            <p className="mt-2 text-[11px] text-muted-foreground">
                                 Last signal: {formatRelativeTimestamp(supportReadiness?.summary.lastSupportAt || 0)} via {supportReadiness?.summary.lastSupportSource === "support_thread" ? "support thread" : supportReadiness?.summary.lastSupportSource === "feedback" ? "bug report" : "no support activity yet"}.
                             </p>
                         </div>
                     </div>
 
-                    <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                    <div className="rounded-[1.5rem] border border-border bg-background/25 p-4">
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <p className="text-sm font-semibold text-white">Recent support signals</p>
-                                <p className="mt-1 text-xs leading-5 text-gray-400">
+                                <p className="text-sm font-semibold text-foreground">Recent support signals</p>
+                                <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                     Current support threads and bug reports share the same operational lane.
                                 </p>
                             </div>
-                            <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                            <span className="rounded-full border border-border bg-background/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 {supportReadiness ? `${supportReadiness.signals.length} loaded` : ADMIN_USER_DETAIL_MISSING_LABEL}
                             </span>
                         </div>
 
                         <div className="custom-scrollbar mt-4 max-h-[320px] space-y-3 overflow-y-auto pr-1">
                             {supportReadiness?.signals.length ? supportReadiness.signals.map((signal) => (
-                                <div key={signal.id} className="rounded-[1.1rem] border border-white/10 bg-black/20 p-3">
+                                <div key={signal.id} className="rounded-[1.1rem] border border-border bg-background/20 p-3">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="line-clamp-2 text-sm font-semibold text-white">{signal.summary}</p>
-                                            <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">
+                                            <p className="line-clamp-2 text-sm font-semibold text-foreground">{signal.summary}</p>
+                                            <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
                                                 {signal.kind === "thread" ? "Support thread" : "Bug report"} - {signal.status.replaceAll("_", " ")}
                                             </p>
                                         </div>
-                                        <span className="shrink-0 text-[11px] text-gray-500">{formatRelativeTimestamp(signal.timestamp)}</span>
+                                        <span className="shrink-0 text-[11px] text-muted-foreground">{formatRelativeTimestamp(signal.timestamp)}</span>
                                     </div>
                                     {signal.path ? (
-                                        <p className="mt-2 break-all font-mono text-[11px] text-gray-500">{signal.path}</p>
+                                        <p className="mt-2 break-all font-mono text-[11px] text-muted-foreground">{signal.path}</p>
                                     ) : null}
                                 </div>
                             )) : (
-                                <div className="rounded-[1.1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                                <div className="rounded-[1.1rem] border border-dashed border-border bg-background/20 p-4 text-sm text-muted-foreground">
                                     No support conversations or bug reports are attached to this account yet.
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
-            </details>
+            </Disclosure>
 
             {(creatorApplication || isCreatorOpsUser) ? (
-                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+                <div className="glass-panel rounded-3xl border border-border p-4 md:p-5">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
-                            <h3 className="flex items-center gap-2 text-sm font-bold text-white">
-                                <Sparkles className="h-4 w-4 text-brand-purple" /> Creator record handoff
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <Sparkles className="h-4 w-4 text-primary" /> Creator record handoff
                             </h3>
-                            <p className="mt-1 text-xs leading-5 text-gray-400">
+                            <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                 Creator intake, approval, and live operations now stay in the dedicated creator roster.
                             </p>
                         </div>
                         {creatorRecordSummary ? (
-                            <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                            <span className="rounded-full border border-border bg-background/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 {creatorRecordSummary.stage}
                             </span>
                         ) : null}
@@ -1286,15 +1292,15 @@ export default function AdminUserAnalyticsPage() {
                     <div className="mt-4 flex flex-wrap gap-3">
                         <Link
                             href={creatorRecordHref}
-                            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-black"
+                            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background"
                         >
                             Open creator record
                             <ArrowLeft className="h-4 w-4 rotate-180" />
                         </Link>
                         {creatorOnboardingCanonical ? (
-                            <p className="max-w-2xl text-sm leading-5 text-gray-400">{creatorRecordSummary?.summary}</p>
+                            <p className="max-w-2xl text-sm leading-5 text-muted-foreground">{creatorRecordSummary?.summary}</p>
                         ) : (
-                            <p className="max-w-2xl text-sm leading-5 text-gray-400">This account has creator-linked state, but the focused roster record remains canonical.</p>
+                            <p className="max-w-2xl text-sm leading-5 text-muted-foreground">This account has creator-linked state, but the focused roster record remains canonical.</p>
                         )}
                     </div>
                 </div>
@@ -1302,43 +1308,43 @@ export default function AdminUserAnalyticsPage() {
 
 
 
-            <details className="glass-panel rounded-3xl border border-white/5 p-6">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-white">
+            <Disclosure className="glass-panel rounded-3xl border border-border p-6">
+                <DisclosureSummary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-foreground">
                     <span className="flex items-center gap-2">
-                        <Activity className="h-4 w-4 text-brand-purple" /> Source diagnostics
+                        <Activity className="h-4 w-4 text-primary" /> Source diagnostics
                     </span>
-                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${paritySummaryClassName}`}>
+                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${paritySummaryClassName}`}>
                         {paritySummaryLabel}
                     </span>
-                </summary>
+                </DisclosureSummary>
 
                 <div className="grid gap-3 md:grid-cols-3">
-                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Overall Confidence</p>
+                    <div className="rounded-[1.4rem] border border-border bg-background/30 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Overall Confidence</p>
                         <div className="mt-1"><AdminTruthBadge state={parityTruthState} hasUsableValue={Boolean(parity)} /></div>
-                        <p className="mt-2 text-3xl font-black text-white">{parity ? `${parity.score}%` : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
-                        <p className="mt-1 text-xs text-gray-400">Purchase and unlock analytics aligned across indexed sources.</p>
+                        <p className="mt-2 text-3xl font-semibold text-foreground">{parity ? `${parity.score}%` : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">Purchase and unlock analytics aligned across indexed sources.</p>
                     </div>
-                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <div className="rounded-[1.4rem] border border-border bg-background/30 p-4">
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Purchase Parity</p>
-                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.purchase.canonicalCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
-                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.purchase.populatedSources : ADMIN_USER_DETAIL_MISSING_LABEL} populated sources</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Purchase Parity</p>
+                                <p className="mt-2 text-3xl font-semibold text-foreground">{parity ? parity.purchase.canonicalCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">{parity ? parity.purchase.populatedSources : ADMIN_USER_DETAIL_MISSING_LABEL} populated sources</p>
                             </div>
-                            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.purchase.status ?? "fail")}`}>
+                            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getValidationClasses(parity?.purchase.status ?? "fail")}`}>
                                 {parity?.purchase.status ?? "fail"}
                             </span>
                         </div>
                     </div>
-                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <div className="rounded-[1.4rem] border border-border bg-background/30 p-4">
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Unlock Parity</p>
-                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.unlock.canonicalCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
-                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.unlock.populatedSources : ADMIN_USER_DETAIL_MISSING_LABEL} populated sources</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Unlock Parity</p>
+                                <p className="mt-2 text-3xl font-semibold text-foreground">{parity ? parity.unlock.canonicalCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">{parity ? parity.unlock.populatedSources : ADMIN_USER_DETAIL_MISSING_LABEL} populated sources</p>
                             </div>
-                            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.unlock.status ?? "fail")}`}>
+                            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getValidationClasses(parity?.unlock.status ?? "fail")}`}>
                                 {parity?.unlock.status ?? "fail"}
                             </span>
                         </div>
@@ -1350,23 +1356,23 @@ export default function AdminUserAnalyticsPage() {
                         { label: "Purchases", insight: parity?.purchase },
                         { label: "Unlocks", insight: parity?.unlock },
                     ].map((entry) => (
-                        <div key={entry.label} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                        <div key={entry.label} className="rounded-[1.5rem] border border-border bg-background/25 p-4">
                             <div className="mb-3 flex items-start justify-between gap-3">
                                 <div>
-                                    <p className="text-sm font-semibold text-white">{entry.label}</p>
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="text-sm font-semibold text-foreground">{entry.label}</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         {entry.insight ? `Confidence ${entry.insight.score}% with a source spread of ${entry.insight.spread}.` : "Parity insight unavailable."}
                                     </p>
                                 </div>
-                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(entry.insight?.status ?? "fail")}`}>
+                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getValidationClasses(entry.insight?.status ?? "fail")}`}>
                                     {entry.insight?.status ?? "fail"}
                                 </span>
                             </div>
                             <div className="grid gap-2 sm:grid-cols-2">
                                 {(entry.insight?.sources ?? []).map((source) => (
-                                    <div key={`${entry.label}-${source.key}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
-                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{source.label}</p>
-                                        <p className="mt-1 text-sm font-semibold text-white">{source.count.toLocaleString()}</p>
+                                    <div key={`${entry.label}-${source.key}`} className="rounded-[1rem] border border-border bg-background/20 px-3 py-2">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{source.label}</p>
+                                        <p className="mt-1 text-sm font-semibold text-foreground">{source.count.toLocaleString()}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1376,17 +1382,17 @@ export default function AdminUserAnalyticsPage() {
 
                 <div className="mt-5 grid gap-3 lg:grid-cols-2">
                     {(parity?.coverage ?? []).map((module) => (
-                        <div key={module.key} className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
+                        <div key={module.key} className="rounded-[1.4rem] border border-border bg-background/25 p-4">
                             <div className="mb-2 flex items-start justify-between gap-3">
                                 <div>
-                                    <p className="text-sm font-semibold text-white">{module.label}</p>
-                                    <p className="mt-1 text-xs leading-6 text-gray-400">{module.detail}</p>
+                                    <p className="text-sm font-semibold text-foreground">{module.label}</p>
+                                    <p className="mt-1 text-xs leading-6 text-muted-foreground">{module.detail}</p>
                                 </div>
                                 <AdminTruthBadge state={coerceUserDetailTruthState(module.status)} hasUsableValue={module.total > 0 || module.score > 0} />
                             </div>
-                            <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                            <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                                 {module.sources.map((source) => (
-                                    <span key={`${module.key}-${source.key}`} className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">
+                                    <span key={`${module.key}-${source.key}`} className="rounded-full border border-border bg-background/20 px-2.5 py-1">
                                         {source.label}: {source.count.toLocaleString()}
                                     </span>
                                 ))}
@@ -1397,43 +1403,43 @@ export default function AdminUserAnalyticsPage() {
 
                 <div className="mt-5 grid gap-3 lg:grid-cols-3">
                     {(parity?.validations ?? []).map((item) => (
-                        <div key={item.label} className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
+                        <div key={item.label} className="rounded-[1.4rem] border border-border bg-background/25 p-4">
                             <div className="mb-2 flex items-start justify-between gap-3">
-                                <p className="text-sm font-semibold text-white">{item.label}</p>
-                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(item.status)}`}>
+                                <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getValidationClasses(item.status)}`}>
                                     {item.status}
                                 </span>
                             </div>
-                            <p className="text-xs leading-6 text-gray-400">{item.detail}</p>
+                            <p className="text-xs leading-6 text-muted-foreground">{item.detail}</p>
                         </div>
                     ))}
                 </div>
-            </details>
+            </Disclosure>
 
             <div className="space-y-4">
-                <div className="glass-panel rounded-3xl border border-white/5 p-6">
-                    <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
-                        <Play className="h-4 w-4 text-brand-purple" /> Top Viewed Drops
+                <div className="glass-panel rounded-3xl border border-border p-6">
+                    <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Play className="h-4 w-4 text-primary" /> Top Viewed Drops
                     </h3>
                     <div className="space-y-3">
                         {!individualMetricValuesDisplayable ? (
-                            <p className="text-sm text-gray-500">{individualMetricStateLabel}: individual viewing evidence is unavailable.</p>
+                            <p className="text-sm text-muted-foreground">{individualMetricStateLabel}: individual viewing evidence is unavailable.</p>
                         ) : (analytics?.topViewedDrops?.length || 0) === 0 ? (
-                            <p className="text-sm text-gray-500">No library viewing has been tracked for this user yet.</p>
+                            <p className="text-sm text-muted-foreground">No library viewing has been tracked for this user yet.</p>
                         ) : (
                             analytics!.topViewedDrops.map((dropEntry) => (
-                                <div key={dropEntry.dropId} className="rounded-2xl border border-white/5 bg-black/35 px-4 py-3">
+                                <div key={dropEntry.dropId} className="rounded-2xl border border-border bg-background/35 px-4 py-3">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="truncate text-sm font-bold text-white">{dropEntry.dropTitle}</p>
-                                            <p className="mt-1 text-xs text-gray-500">Drop ID: {dropEntry.dropId}</p>
+                                            <p className="truncate text-sm font-semibold text-foreground">{dropEntry.dropTitle}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">Drop ID: {dropEntry.dropId}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="inline-flex items-center gap-1 text-sm font-bold text-brand-purple">
+                                            <p className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
                                                 <Eye className="h-3.5 w-3.5" />
                                                 {dropEntry.views}
                                             </p>
-                                            <p className="mt-1 text-xs text-gray-400">
+                                            <p className="mt-1 text-xs text-muted-foreground">
                                                 {dropEntry.watchSeconds > 0
                                                     ? `${Math.max(1, Math.round(dropEntry.watchSeconds / 60))}m watched`
                                                     : "No completed watch time"}
@@ -1446,30 +1452,30 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 </div>
 
-                <details className="glass-panel rounded-3xl border border-white/5 p-6">
-                    <summary className="mb-4 flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-white">
+                <Disclosure className="glass-panel rounded-3xl border border-border p-6">
+                    <DisclosureSummary className="mb-4 flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-foreground">
                         <span className="flex items-center gap-2">
-                            <ShieldAlert className="h-4 w-4 text-brand-purple" /> Security handoff
+                            <ShieldAlert className="h-4 w-4 text-primary" /> Security handoff
                         </span>
-                        <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                        <span className="rounded-full border border-border bg-background/30 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                             {formatProfileMetricLabel(securitySummary?.allTimeCount)} flags
                         </span>
-                    </summary>
+                    </DisclosureSummary>
                     <div className="mb-4 grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">All time flags</p>
-                            <p className="mt-2 text-2xl font-black text-white">{formatProfileMetricLabel(securitySummary?.allTimeCount)}</p>
-                            <p className="mt-1 text-xs text-gray-500">Includes historical counters carried forward from legacy flags.</p>
+                        <div className="rounded-2xl border border-border bg-background/30 px-4 py-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">All time flags</p>
+                            <p className="mt-2 text-2xl font-semibold text-foreground">{formatProfileMetricLabel(securitySummary?.allTimeCount)}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">Includes historical counters carried forward from legacy flags.</p>
                         </div>
-                        <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Last 30 days</p>
-                            <p className="mt-2 text-2xl font-black text-white">{formatProfileMetricLabel(securitySummary?.last30DaysCount)}</p>
-                            <p className="mt-1 text-xs text-gray-500">Recent viewer protection alerts in the last month.</p>
+                        <div className="rounded-2xl border border-border bg-background/30 px-4 py-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Last 30 days</p>
+                            <p className="mt-2 text-2xl font-semibold text-foreground">{formatProfileMetricLabel(securitySummary?.last30DaysCount)}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">Recent viewer protection alerts in the last month.</p>
                         </div>
-                        <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Latest flag</p>
-                            <p className="mt-2 text-sm font-bold text-white">{securitySummary && !isLocalAdminUserDetailFixture ? securitySummary.lastViolationReason || "No flags recorded" : "No source"}</p>
-                            <p className="mt-1 text-xs text-gray-500">
+                        <div className="rounded-2xl border border-border bg-background/30 px-4 py-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Latest flag</p>
+                            <p className="mt-2 text-sm font-semibold text-foreground">{securitySummary && !isLocalAdminUserDetailFixture ? securitySummary.lastViolationReason || "No flags recorded" : "No source"}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 {securitySummary?.lastViolationAt
                                     ? `${typeof securitySummary.lastViolationAt === "string"
                                         ? formatDistanceToNow(new Date(securitySummary.lastViolationAt), { addSuffix: true })
@@ -1484,43 +1490,43 @@ export default function AdminUserAnalyticsPage() {
                             { key: "all" as const, label: "All time" },
                             { key: "30d" as const, label: "Last 30 days" },
                         ].map((option) => (
-                            <button
+                            <Button variant="ghost"
                                 key={option.key}
                                 type="button"
                                 onClick={() => setSecurityWindow(option.key)}
-                                className={`rounded-full border px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-colors ${
+                                className={`rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
                                     securityWindow === option.key
-                                        ? "border-brand-purple/40 bg-brand-purple/15 text-white"
-                                        : "border-white/10 bg-black/30 text-gray-400 hover:text-white"
+                                        ? "border-primary/40 bg-primary/15 text-foreground"
+                                        : "border-border bg-background/30 text-muted-foreground hover:text-foreground"
                                 }`}
                             >
                                 {option.label}
-                            </button>
+                            </Button>
                         ))}
                     </div>
 
                     <div className="mb-4 grid gap-3 sm:grid-cols-2">
                         <label className="space-y-2 text-left">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Severity</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Severity</span>
                             <NativeSelect
                                 value={securitySeverityFilter}
                                 onChange={(event) => setSecuritySeverityFilter(event.target.value)}
                             >
-                                <option value="all">All severities</option>
-                                <option value="high">High</option>
-                                <option value="medium">Medium</option>
-                                <option value="low">Low</option>
+                                <NativeSelectOption value="all">All severities</NativeSelectOption>
+                                <NativeSelectOption value="high">High</NativeSelectOption>
+                                <NativeSelectOption value="medium">Medium</NativeSelectOption>
+                                <NativeSelectOption value="low">Low</NativeSelectOption>
                             </NativeSelect>
                         </label>
                         <label className="space-y-2 text-left">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Reason</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Reason</span>
                             <NativeSelect
                                 value={securityReasonFilter}
                                 onChange={(event) => setSecurityReasonFilter(event.target.value)}
                             >
-                                <option value="all">All reasons</option>
+                                <NativeSelectOption value="all">All reasons</NativeSelectOption>
                                 {securityReasonOptions.map((reason) => (
-                                    <option key={reason.reason} value={reason.reason}>{reason.label}</option>
+                                    <NativeSelectOption key={reason.reason} value={reason.reason}>{reason.label}</NativeSelectOption>
                                 ))}
                             </NativeSelect>
                         </label>
@@ -1528,7 +1534,7 @@ export default function AdminUserAnalyticsPage() {
                     {securitySummary?.reasons?.length ? (
                         <div className="mb-4 flex flex-wrap gap-2">
                             {securitySummary.reasons.map((item) => (
-                                <span key={item.reason} className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-[11px] font-semibold text-gray-300">
+                                <span key={item.reason} className="rounded-full border border-border bg-background/25 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
                                     {item.label}: {item.count.toLocaleString()}
                                 </span>
                             ))}
@@ -1536,21 +1542,21 @@ export default function AdminUserAnalyticsPage() {
                     ) : null}
                     <div className="space-y-3">
                         {isLocalAdminUserDetailFixture || (!securitySummary && securityEvents.length === 0) ? (
-                            <p className="text-sm text-gray-500">No source: account security evidence is unavailable.</p>
+                            <p className="text-sm text-muted-foreground">No source: account security evidence is unavailable.</p>
                         ) : filteredSecurityEvents.length === 0 ? (
-                            <p className="text-sm text-gray-500">No viewer protection issues match this filter.</p>
+                            <p className="text-sm text-muted-foreground">No viewer protection issues match this filter.</p>
                         ) : (
                             filteredSecurityEvents.map((event) => (
-                                <div key={event.id} className="rounded-2xl border border-white/5 bg-black/35 px-4 py-3">
+                                <div key={event.id} className="rounded-2xl border border-border bg-background/35 px-4 py-3">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="text-sm font-bold text-white">{event.label}</p>
-                                            <p className="mt-1 text-sm leading-6 text-gray-400">{event.message}</p>
-                                            <p className="mt-2 text-xs text-gray-500">
+                                            <p className="text-sm font-semibold text-foreground">{event.label}</p>
+                                            <p className="mt-1 text-sm leading-6 text-muted-foreground">{event.message}</p>
+                                            <p className="mt-2 text-xs text-muted-foreground">
                                                 {event.locationLabel}
                                                 {event.dropTitle ? ` | ${event.dropTitle}` : event.dropId ? ` | Drop ${event.dropId}` : ""}
                                             </p>
-                                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                                                 {event.reason ? <span>Signal: {event.label}</span> : null}
                                                 {event.pagePath ? <span>Path: {event.pagePath}</span> : null}
                                                 {event.contentKind ? <span>Type: {event.contentKind}</span> : null}
@@ -1559,20 +1565,20 @@ export default function AdminUserAnalyticsPage() {
                                                 {event.sessionId ? <span>Session: {event.sessionId}</span> : null}
                                             </div>
                                             {event.dropTitle && event.dropId ? (
-                                                <p className="mt-1 text-[11px] text-gray-500">{event.dropId}</p>
+                                                <p className="mt-1 text-[11px] text-muted-foreground">{event.dropId}</p>
                                             ) : null}
                                         </div>
                                         <div className="shrink-0 text-right">
-                                            <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${
+                                            <span className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
                                                 event.severity === "high"
-                                                    ? "bg-red-500/15 text-red-300"
+                                                    ? "bg-destructive/15 text-destructive"
                                                     : event.severity === "medium"
-                                                        ? "bg-amber-500/15 text-amber-300"
-                                                        : "bg-white/10 text-gray-300"
+                                                        ? "bg-warning/15 text-warning"
+                                                        : "bg-secondary text-muted-foreground"
                                             }`}>
                                                 {event.severity}
                                             </span>
-                                            <p className="mt-2 text-xs text-gray-500">
+                                            <p className="mt-2 text-xs text-muted-foreground">
                                                 {event.timestamp ? formatDistanceToNow(event.timestamp, { addSuffix: true }) : "Time unavailable"}
                                             </p>
                                         </div>
@@ -1582,11 +1588,11 @@ export default function AdminUserAnalyticsPage() {
                         )}
                     </div>
                     {targetUser.securityFlags?.ripAttempts ? (
-                        <p className="mt-4 text-xs text-gray-500">
+                        <p className="mt-4 text-xs text-muted-foreground">
                             Showing {filteredSecurityEvents.length} of {securityEvents.length} stored security logs. Historical total on this account: {securitySummary?.allTimeCount ?? targetUser.securityFlags.ripAttempts}
                         </p>
                     ) : null}
-                </details>
+                </Disclosure>
             </div>
         </AdminUsersOperations>
     );

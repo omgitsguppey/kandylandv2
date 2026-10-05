@@ -1,5 +1,9 @@
 "use client";
 
+import { ContentSection, GroupedList } from "@/components/ui/content-layout";
+
+import { Button } from "@/components/ui/Button";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 
@@ -7,12 +11,7 @@ import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { FanPassSubscriberRow, type FanPassSubscriberCrmRow } from "@/components/Creators/FanPassSubscriberRow";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { authFetch } from "@/lib/authFetch";
-import {
-  buildBugReportContext,
-  getSafePreviousRoute,
-  resolveClientActionError,
-  type ResolvedClientActionError,
-} from "@/lib/errors/client-error-adapter";
+import { buildBugReportContext, getSafePreviousRoute, resolveClientActionError, type ResolvedClientActionError } from "@/lib/errors/client-error-adapter";
 
 type SectionState = "live" | "unavailable" | "not_configured" | "blocked" | "needs_setup" | "needs_review" | "error";
 type FanPassStatus = "active" | "canceled" | "grace" | "past_due" | string;
@@ -143,8 +142,8 @@ export function CreatorFanPassManager({
       : "Fan Pass subscriber visibility is configuration-only until pricing is enabled.";
 
   return (
-    <section
-      className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#120b20]/90 p-5 shadow-[0_22px_60px_rgba(0,0,0,0.28)] sm:p-6"
+    <ContentSection
+      className="overflow-hidden rounded-2xl bg-card p-5  sm:p-6"
       data-creator-fan-pass-manager
       data-testid="creator-fan-pass-manager"
       data-creator-fan-pass-management-state={managementState}
@@ -155,26 +154,26 @@ export function CreatorFanPassManager({
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-widest text-purple-200">Fan Pass desk</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight text-white">Your closest audience</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-300">{canLoadSubscribers ? `${creatorName} has ${activeCount.toLocaleString()} active subscriber${activeCount === 1 ? "" : "s"}.` : unavailableMessage}</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Fan Pass desk</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">Fan Pass subscribers</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{canLoadSubscribers ? `${creatorName} has ${activeCount.toLocaleString()} active subscriber${activeCount === 1 ? "" : "s"}.` : unavailableMessage}</p>
         </div>
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => void loadSubscribers()}
           disabled={!canLoadSubscribers || loading}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm font-bold text-gray-200 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <RefreshCw className="h-3.5 w-3.5" />}
           Refresh
-        </button>
+        </Button>
       </div>
 
-      <p className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3 text-sm font-semibold text-gray-300">
+      <p className="mt-4 rounded-2xl bg-secondary px-4 py-3 text-sm font-semibold text-muted-foreground">
         Read-only creator view. Public creator pages own fan membership changes.
       </p>
       {error ? (
-        <p className="mt-4 rounded-[1.5rem] border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-100">{error}</p>
+        <p className="mt-4 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">{error}</p>
       ) : null}
       {actionError ? (
         <HumanErrorNotice
@@ -196,21 +195,21 @@ export function CreatorFanPassManager({
       ) : null}
 
       {!canLoadSubscribers ? (
-        <p className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3 text-sm text-gray-300">{unavailableMessage}</p>
+        <p className="mt-4 rounded-2xl bg-secondary px-4 py-3 text-sm text-muted-foreground">{unavailableMessage}</p>
       ) : loading ? (
-        <div className="mt-5 flex min-h-20 items-center gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 px-4 text-sm text-gray-300">
-          <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
+        <div className="mt-5 flex min-h-20 items-center gap-3 rounded-2xl bg-secondary px-4 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" aria-hidden="true" />
           Loading Fan Pass subscribers
         </div>
       ) : subscribers.length === 0 ? (
-        <p className="mt-4 rounded-[1.5rem] border border-dashed border-white/10 bg-black/20 px-4 py-5 text-sm text-gray-300">No subscribers yet.</p>
+        <p className="mt-4 rounded-2xl border border-dashed border-border bg-secondary px-4 py-5 text-sm text-muted-foreground">No subscribers yet.</p>
       ) : (
-        <div className="mt-5 space-y-3">
+        <GroupedList className="mt-4">
           {subscribers.map((subscriber) => (
             <FanPassSubscriberRow key={subscriber.id} subscriber={subscriber} fallbackPriceGd={priceGd} />
           ))}
-        </div>
+        </GroupedList>
       )}
-    </section>
+    </ContentSection>
   );
 }

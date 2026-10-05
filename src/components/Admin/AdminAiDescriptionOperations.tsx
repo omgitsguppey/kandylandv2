@@ -1,5 +1,8 @@
 "use client";
 
+import { Textarea } from "@/components/ui/textarea";
+
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Activity, Check, Loader2, Power, RefreshCw, Sparkles, ThumbsDown, ThumbsUp, WandSparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -134,11 +137,11 @@ function formatSnapshotUsd(value: number | null | undefined, hasSnapshot: boolea
 function runtimeTone(status?: AdminAiDropDescriptionRuntimeStatus) {
     switch (status) {
         case "ready":
-            return "border-emerald-400/20 bg-emerald-500/10 text-emerald-100";
+            return "border-success/20 bg-success/10 text-success";
         case "disabled":
-            return "border-white/10 bg-white/5 text-gray-200";
+            return "border-border bg-secondary text-foreground";
         default:
-            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+            return "border-warning/20 bg-warning/10 text-warning";
     }
 }
 
@@ -154,16 +157,16 @@ function MetricCard({
     tone?: "neutral" | "good" | "warn";
 }) {
     const toneClassName = tone === "good"
-        ? "border-emerald-400/20 bg-emerald-500/10"
+        ? "border-success/20 bg-success/10"
         : tone === "warn"
-            ? "border-amber-400/20 bg-amber-500/10"
-            : "border-white/10 bg-white/[0.04]";
+            ? "border-warning/20 bg-warning/10"
+            : "border-border bg-secondary";
 
     return (
         <div className={cn("min-w-0 overflow-hidden rounded-[1rem] border p-3", toneClassName)}>
-            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-            <div className="mt-1 break-words text-xl font-black text-white">{value}</div>
-            {meta ? <p className="mt-1 break-words text-xs text-gray-400">{meta}</p> : null}
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+            <div className="mt-1 break-words text-xl font-semibold text-foreground">{value}</div>
+            {meta ? <p className="mt-1 break-words text-xs text-muted-foreground">{meta}</p> : null}
         </div>
     );
 }
@@ -183,15 +186,15 @@ function TextAreaBlock({
 }) {
     return (
         <label className="block space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">{label}</div>
-            <textarea
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+            <Textarea
                 value={value}
                 onChange={(event) => onChange?.(event.target.value)}
                 rows={rows}
                 readOnly={readOnly}
                 className={cn(
-                    "w-full rounded-[1rem] border border-white/10 bg-black/35 px-3 py-3 text-sm text-white outline-none transition focus:border-brand-purple/50 focus:ring-1 focus:ring-brand-purple/40",
-                    readOnly ? "cursor-default text-gray-300" : "",
+                    "w-full rounded-[1rem] border border-border bg-background/35 px-3 py-3 text-sm text-foreground outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/40",
+                    readOnly ? "cursor-default text-muted-foreground" : "",
                 )}
             />
         </label>
@@ -457,7 +460,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
         const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
         return (
             <AdminDashboardModule title="Description operations" description="Description AI runtime is not available." defaultOpen>
-                <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100" data-admin-ai-description-safe-error="true">
+                <div className="rounded-[1rem] border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive" data-admin-ai-description-safe-error="true">
                     {safeError.operatorMessage}
                 </div>
             </AdminDashboardModule>
@@ -468,20 +471,20 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
         <div className="space-y-4">
             {isLocalAdminUiTestSession ? (
                 <div
-                    className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100"
+                    className="rounded-[1rem] border border-warning/20 bg-warning/10 p-3 text-sm text-warning"
                     data-admin-ai-description-fixture-boundary="true"
                 >
-                    <span className="font-semibold text-white">source_missing fixture.</span> source_missing: description operations source is not loaded in this fixture.
+                    <span className="font-semibold text-foreground">source_missing fixture.</span> source_missing: description operations source is not loaded in this fixture.
                 </div>
             ) : null}
-            <div className={cn("overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/70 px-3 py-3 backdrop-blur", compact ? "" : "sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10")}>
+            <div className={cn("overflow-hidden rounded-[1.2rem] border border-border bg-background/70 px-3 py-3", compact ? "" : "sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10")}>
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0">
-                        <div className="flex items-center gap-2 text-sm font-bold text-white">
-                            <Activity className="h-4 w-4 text-brand-purple" />
+                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <Activity className="h-4 w-4 text-primary" />
                             Description operations
                         </div>
-                        <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                        <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                             <span>{data?.settings.model || ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE}</span>
                             <span>|</span>
                             <span>{latestResolvedModel || "Version not reported"}</span>
@@ -494,7 +497,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                             {data?.runtime.status === "ready" ? <Sparkles className="h-3.5 w-3.5" /> : <Power className="h-3.5 w-3.5" />}
                             {data?.runtime.status === "ready" ? "Ready" : data?.runtime.status === "disabled" ? "Off" : "Needs review"}
                         </span>
-                        <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-gray-200">
+                        <span className="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs text-foreground">
                             {formatSnapshotUsd(data?.aggregate.totalEstimatedCostUsd, hasDashboardSnapshot)} total
                         </span>
                         <Button
@@ -593,13 +596,13 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                             <TextAreaBlock label="Locked clauses" value={policyDraft.lockedClauses} rows={5} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} />
                             <TextAreaBlock label="Mutable clauses" value={policyDraft.mutableClauses} rows={4} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} />
                             <TextAreaBlock label="Current mutable prompt" value={policyDraft.currentMutablePrompt} rows={5} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} />
-                            <button
+                            <Button variant="ghost"
                                 type="button"
                                 onClick={() => { setPolicyDraft((current) => ({ ...current, autoOptimize: !current.autoOptimize })); setPolicyDirty(true); }}
-                                className={cn("rounded-full border px-3 py-2 text-xs font-semibold transition", policyDraft.autoOptimize ? "border-brand-purple/40 bg-brand-purple/12 text-brand-purple" : "border-white/10 bg-white/[0.03] text-gray-200")}
+                                className={cn("rounded-full border px-3 py-2 text-xs font-semibold transition", policyDraft.autoOptimize ? "border-primary/40 bg-primary/12 text-primary" : "border-border bg-secondary text-foreground")}
                             >
                                 Auto optimize {policyDraft.autoOptimize ? "on" : "off"}
-                            </button>
+                            </Button>
                             <TextAreaBlock label="Latest optimizer proposal" value={data?.promptPolicy.optimizerProposal || "No optimizer proposal yet."} rows={4} readOnly />
                             <TextAreaBlock label="Last refinement diff" value={(data?.promptPolicy.lastAutoRefinementDiff || []).join("\n") || "No refinement diff recorded yet."} rows={4} readOnly />
                         </div>
@@ -615,7 +618,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                         onOpenChange={(nextOpen) => persistModuleState("admin_ai_desc.recent", nextOpen)}
                     >
                         {(data?.recentJobs || []).length === 0 ? (
-                            <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/25 p-4 text-sm text-gray-400">
+                            <div className="rounded-[1rem] border border-dashed border-border bg-background/25 p-4 text-sm text-muted-foreground">
                                 No description generations recorded yet.
                             </div>
                         ) : (
@@ -623,23 +626,23 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                                 {(data?.recentJobs || []).map((job) => {
                                     const canFeedback = job.status === "succeeded" && typeof job.descriptionText === "string" && job.descriptionText.trim().length > 0;
                                     return (
-                                        <article key={job.id} className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                                        <article key={job.id} className="rounded-[1rem] border border-border bg-background/25 p-3">
                                             <div className="flex flex-wrap items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <MarqueeText
                                                         title={job.title}
-                                                        className="text-sm font-semibold text-white"
+                                                        className="text-sm font-semibold text-foreground"
                                                         ariaLabel={job.title}
                                                     />
-                                                    <div className="mt-1 text-xs text-gray-400">
+                                                    <div className="mt-1 text-xs text-muted-foreground">
                                                         {job.model}{job.resolvedModel ? ` -> ${job.resolvedModel}` : " -> runtime version not exposed"} | {job.latencyMs ? `${job.latencyMs} ms` : "Pending"} | {formatAdminAiUsd(job.estimatedCostUsd || 0)}
                                                     </div>
                                                 </div>
-                                                <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", job.status === "succeeded" ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100" : job.status === "failed" ? "border-red-400/20 bg-red-500/10 text-red-100" : "border-cyan-400/20 bg-cyan-500/10 text-cyan-100")}>
+                                                <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", job.status === "succeeded" ? "border-success/20 bg-success/10 text-success" : job.status === "failed" ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-info/20 bg-info/10 text-info")}>
                                                     {job.status}
                                                 </span>
                                             </div>
-                                            <p className="mt-3 whitespace-pre-wrap text-sm text-white">{job.descriptionText || job.errorMessage || "Generation pending..."}</p>
+                                            <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{job.descriptionText || job.errorMessage || "Generation pending..."}</p>
                                             <div className="mt-3 flex flex-wrap gap-2">
                                                 <Button size="sm" variant={job.feedback === "liked" ? "brand" : "outline"} onClick={() => void handleFeedback(job.id, "like")} disabled={!canFeedback || isLocalAdminUiTestSession} isLoading={feedbackingJobId === job.id}>
                                                     <ThumbsUp className="mr-2 h-3.5 w-3.5" />
@@ -670,58 +673,58 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                         actions={(
                             <div className="flex flex-wrap gap-2">
                                 {(["all", "accepted", "liked", "neutral", "disliked", "failed"] as GalleryFilter[]).map((filter) => (
-                                    <button
+                                    <Button variant="ghost"
                                         key={filter}
                                         type="button"
                                         onClick={() => setGalleryFilter(filter)}
-                                        className={cn("rounded-full border px-2.5 py-1 text-[11px] font-semibold transition", galleryFilter === filter ? "border-brand-purple/40 bg-brand-purple/15 text-brand-purple" : "border-white/10 bg-white/5 text-gray-300")}
+                                        className={cn("rounded-full border px-2.5 py-1 text-[11px] font-semibold transition", galleryFilter === filter ? "border-primary/40 bg-primary/15 text-primary" : "border-border bg-secondary text-muted-foreground")}
                                     >
                                         {filter}
-                                    </button>
+                                    </Button>
                                 ))}
                             </div>
                         )}
                     >
                         {filteredGallery.length === 0 ? (
-                            <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/25 p-4 text-sm text-gray-400">
+                            <div className="rounded-[1rem] border border-dashed border-border bg-background/25 p-4 text-sm text-muted-foreground">
                                 No description jobs match this filter.
                             </div>
                         ) : (
                             <div className="space-y-3">
                                 {filteredGallery.map((item) => (
-                                    <article key={item.id} className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                                    <article key={item.id} className="rounded-[1rem] border border-border bg-background/25 p-3">
                                         <div className="flex flex-wrap items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <MarqueeText
                                                     title={item.title}
-                                                    className="text-sm font-semibold text-white"
+                                                    className="text-sm font-semibold text-foreground"
                                                     ariaLabel={item.title}
                                                 />
-                                                <div className="mt-1 text-xs text-gray-400">{item.model} | {formatTimestamp(item.requestedAtMs)}</div>
+                                                <div className="mt-1 text-xs text-muted-foreground">{item.model} | {formatTimestamp(item.requestedAtMs)}</div>
                                             </div>
-                                            <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", item.status === "failed" ? "border-red-400/20 bg-red-500/10 text-red-100" : item.accepted ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100" : "border-white/10 bg-white/5 text-gray-200")}>
+                                            <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", item.status === "failed" ? "border-destructive/20 bg-destructive/10 text-destructive" : item.accepted ? "border-success/20 bg-success/10 text-success" : "border-border bg-secondary text-foreground")}>
                                                 {item.accepted ? "accepted" : item.feedback}
                                             </span>
                                         </div>
-                                        <p className="mt-3 whitespace-pre-wrap text-sm text-white">{buildGalleryDescription(item)}</p>
+                                        <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{buildGalleryDescription(item)}</p>
                                     </article>
                                 ))}
                             </div>
                         )}
-                        <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                            <div className="text-sm font-semibold text-white">Prompt history</div>
+                        <div className="mt-3 rounded-[1rem] border border-border bg-background/25 p-3">
+                            <div className="text-sm font-semibold text-foreground">Prompt history</div>
                             <div className="mt-3 space-y-2">
                                 {(data?.promptPolicyHistory || []).slice(0, 6).map((entry) => (
-                                    <div key={entry.id} className="rounded-[0.9rem] border border-white/8 bg-white/[0.03] p-3">
+                                    <div key={entry.id} className="rounded-[0.9rem] border border-border bg-secondary p-3">
                                         <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <div className="text-sm font-semibold text-white">v{entry.version} | {entry.source}</div>
-                                            <div className="text-xs text-gray-400">{formatTimestamp(entry.createdAtMs)}</div>
+                                            <div className="text-sm font-semibold text-foreground">v{entry.version} | {entry.source}</div>
+                                            <div className="text-xs text-muted-foreground">{formatTimestamp(entry.createdAtMs)}</div>
                                         </div>
-                                        <div className="mt-1 text-xs text-gray-400">{entry.action}{entry.feedbackAction ? ` | ${entry.feedbackAction}` : ""}</div>
+                                        <div className="mt-1 text-xs text-muted-foreground">{entry.action}{entry.feedbackAction ? ` | ${entry.feedbackAction}` : ""}</div>
                                         {entry.diff.length > 0 ? (
                                             <div className="mt-2 space-y-1">
                                                 {entry.diff.map((line, index) => (
-                                                    <div key={`${entry.id}-${index}`} className="break-words text-xs text-gray-300">{line}</div>
+                                                    <div key={`${entry.id}-${index}`} className="break-words text-xs text-muted-foreground">{line}</div>
                                                 ))}
                                             </div>
                                         ) : null}
@@ -734,7 +737,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
             </div>
 
             {isLoading && !data ? (
-                <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300">
+                <div className="rounded-[1rem] border border-border bg-background/25 p-3 text-sm text-muted-foreground">
                     <span className="inline-flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                         Loading description operations...

@@ -1,3 +1,5 @@
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { Candy } from "lucide-react";
@@ -74,23 +76,23 @@ export function AdminAnalyticsContentConversionSection(
       >
         <div className="border-b border-border grid gap-2 px-3 py-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
           <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Range</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Range</div>
             <div className="font-semibold text-foreground">{contentConversionModel.range}</div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Source</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Source</div>
             <div className="font-semibold text-foreground">{contentConversionModel.sourceLabel}</div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Previews</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Previews</div>
             <div className="font-semibold text-foreground">{contentConversionModel.totalPreviews.toLocaleString()}</div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Unwraps</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Unwraps</div>
             <div className="font-semibold text-foreground">{contentConversionModel.totalUnlocks.toLocaleString()}</div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Unwrap rate</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Unwrap rate</div>
             <div className="font-semibold text-foreground">
               {contentConversionModel.overallUnlockRatePct !== null
                 ? formatPercent(contentConversionModel.overallUnlockRatePct / 100)
@@ -98,11 +100,11 @@ export function AdminAnalyticsContentConversionSection(
             </div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Missing metadata</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Missing metadata</div>
             <div className="font-semibold text-foreground">{contentConversionModel.missingMetadataCount}</div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Last updated</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Last updated</div>
             <div className="font-semibold text-foreground">{formatAbsoluteDateTime(contentConversionModel.generatedAtUtc)}</div>
           </div>
         </div>
@@ -138,10 +140,10 @@ export function AdminAnalyticsContentConversionSection(
                     data={contentConversionChartRows}
                     margin={{ top: 8, right: 8, left: -18, bottom: 36 }}
                   >
-                    <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                    <CartesianGrid stroke="var(--border)" vertical={false} />
                     <XAxis
                       dataKey="chartLabel"
-                      stroke="#6b7280"
+                      stroke="var(--muted-foreground)"
                       fontSize={10}
                       tickLine={false}
                       axisLine={false}
@@ -150,22 +152,22 @@ export function AdminAnalyticsContentConversionSection(
                       textAnchor="end"
                       height={58}
                     />
-                    <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                     <Tooltip content={<AnalyticsTooltip />} />
-                    <Bar dataKey="previewCount" name="Previews" fill="#22d3ee" radius={[10, 10, 0, 0]} />
-                    <Bar dataKey="unlockCount" name="Unwraps" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                    <Bar dataKey="previewCount" name="Previews" fill="var(--info)" radius={[10, 10, 0, 0]} />
+                    <Bar dataKey="unlockCount" name="Unwraps" fill="var(--primary)" radius={[10, 10, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             ) : null}
 
             {contentConversionViewMode === "table" ? (
-              <div
+              <TableScrollArea
                 className="rounded-2xl bg-card overflow-x-auto"
                 data-content-conversion-table="compact"
               >
-                <table className="min-w-full text-left text-xs">
-                  <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                <DataTable className="min-w-full text-left text-xs">
+                  <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
                       <th className="px-3 py-2 font-semibold">Group</th>
                       <th className="px-3 py-2 font-semibold">Drops</th>
@@ -177,7 +179,7 @@ export function AdminAnalyticsContentConversionSection(
                       <th className="px-3 py-2 font-semibold">State</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/10 text-muted-foreground">
+                  <tbody className="divide-y divide-border text-muted-foreground">
                     {contentConversionVisibleRows.map((row) => (
                       <tr
                         key={`content-conversion-table-${row.groupKey}`}
@@ -190,15 +192,15 @@ export function AdminAnalyticsContentConversionSection(
                         <td className="px-3 py-2">{row.dropCount}</td>
                         <td className="px-3 py-2">{row.previewCount.toLocaleString()}</td>
                         <td className="px-3 py-2">{row.unlockCount.toLocaleString()}</td>
-                        <td className="px-3 py-2 text-brand-purple">{row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : noRateSampleLabel}</td>
+                        <td className="px-3 py-2 text-primary">{row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : noRateSampleLabel}</td>
                         <td className="px-3 py-2">{(row.viewerOpenCount ?? 0).toLocaleString()}</td>
                         <td className="px-3 py-2">{row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : noWatchSampleLabel}</td>
                         <td className="px-3 py-2"><AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs" /></td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </DataTable>
+              </TableScrollArea>
             ) : null}
 
             {contentConversionViewMode === "cards" ? (

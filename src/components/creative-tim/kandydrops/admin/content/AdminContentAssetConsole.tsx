@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
-import { NativeSelect, NativeSelectOption } from "@/components/creative-tim/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useMemo, useState, type ChangeEvent } from "react";
 import {
     Copy,
@@ -81,21 +81,21 @@ function isVideoPreview(file: AdminContentAsset, previewUrl: string) {
 function AssetIcon({ filename }: { filename: string }) {
     const extension = filename.split(".").pop()?.toLowerCase();
     if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension || "")) {
-        return <ImageIcon className="h-6 w-6 text-brand-purple/70" aria-hidden="true" />;
+        return <ImageIcon className="h-6 w-6 text-primary/70" aria-hidden="true" />;
     }
     if (["mp4", "mov", "webm"].includes(extension || "")) {
-        return <Video className="h-6 w-6 text-brand-purple/70" aria-hidden="true" />;
+        return <Video className="h-6 w-6 text-primary/70" aria-hidden="true" />;
     }
-    return <FileIcon className="h-6 w-6 text-gray-500" aria-hidden="true" />;
+    return <FileIcon className="h-6 w-6 text-muted-foreground" aria-hidden="true" />;
 }
 
 function AssetPreview({ file, previewUrl }: { file: AdminContentAsset; previewUrl: string }) {
     return (
-        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-lg shadow-black/20">
+        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/50 shadow-lg shadow-scrim/20">
             {isImagePreview(file, previewUrl) ? (
-                <Image src={previewUrl} alt={file.name} fill sizes="80px" className="object-cover bg-black" />
+                <Image src={previewUrl} alt={file.name} fill sizes="80px" className="object-cover bg-background" />
             ) : isVideoPreview(file, previewUrl) ? (
-                <video src={previewUrl} className="h-full w-full object-cover bg-black" muted loop playsInline />
+                <video src={previewUrl} className="h-full w-full object-cover bg-background" muted loop playsInline />
             ) : (
                 <AssetIcon filename={file.name} />
             )}
@@ -111,12 +111,12 @@ function EmptyAssetState({
     description?: string;
 }) {
     return (
-        <div className="flex min-h-64 flex-col items-center justify-center border-y border-dashed border-white/15 bg-black/15 px-6 text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-gray-500">
+        <div className="flex min-h-64 flex-col items-center justify-center border-y border-dashed border-border bg-background/15 px-6 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-secondary text-muted-foreground">
                 <FileIcon className="h-6 w-6" aria-hidden="true" />
             </div>
-            <p className="text-sm font-bold text-white">{message}</p>
-            {description ? <p className="mt-2 max-w-md text-sm text-gray-500">{description}</p> : null}
+            <p className="text-sm font-semibold text-foreground">{message}</p>
+            {description ? <p className="mt-2 max-w-md text-sm text-muted-foreground">{description}</p> : null}
         </div>
     );
 }
@@ -167,7 +167,7 @@ export function AdminContentAssetConsole({
                         <RefreshCw className={"h-4 w-4 " + (loading ? "animate-spin" : "")} aria-hidden="true" />
                         Refresh source
                     </Button>
-                    <label className={"inline-flex min-h-11 items-center gap-2 rounded-2xl border px-3 text-xs font-bold transition-colors " + (isFixture || uploading ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-gray-500" : "cursor-pointer border-kandy-lilac/35 bg-kandy-lilac/12 text-kandy-lilac hover:bg-kandy-lilac/20")}>
+                    <label className={"inline-flex min-h-11 items-center gap-2 rounded-2xl border px-3 text-xs font-semibold transition-colors" + (isFixture || uploading ? "cursor-not-allowed border-border bg-secondary text-muted-foreground" : "cursor-pointer border-kandy-lilac/35 bg-kandy-lilac/12 text-kandy-lilac hover:bg-kandy-lilac/20")}>
                         <input
                             type="file"
                             onChange={onUpload}
@@ -184,27 +184,27 @@ export function AdminContentAssetConsole({
 
             <div className="relative grid gap-5 xl:grid-cols-[18rem_minmax(0,1fr)]">
                 <aside className="space-y-4">
-                    <section className="border-l-2 border-kandy-lilac/45 bg-black/20 px-4 py-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-kandy-lilac/75">Source posture</p>
+                    <section className="border-l-2 border-kandy-lilac/45 bg-background/20 px-4 py-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-kandy-lilac/75">Source posture</p>
                         <dl className="mt-4 space-y-3">
-                            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
-                                <dt className="text-xs text-gray-400">Storage source</dt>
-                                <dd className="text-xs font-black text-white">{isFixture ? "source_missing" : error ? "failed" : loading ? "collecting" : "available"}</dd>
+                            <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
+                                <dt className="text-xs text-muted-foreground">Storage source</dt>
+                                <dd className="text-xs font-semibold text-foreground">{isFixture ? "source_missing" : error ? "failed" : loading ? "collecting" : "available"}</dd>
                             </div>
-                            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
-                                <dt className="text-xs text-gray-400">Visible records</dt>
-                                <dd className="text-sm font-black text-white">{isFixture ? "--" : filteredFiles.length}</dd>
+                            <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
+                                <dt className="text-xs text-muted-foreground">Visible records</dt>
+                                <dd className="text-sm font-semibold text-foreground">{isFixture ? "--" : filteredFiles.length}</dd>
                             </div>
                             <div className="flex items-center justify-between gap-3">
-                                <dt className="text-xs text-gray-400">Inspection lens</dt>
-                                <dd className="text-xs font-bold text-kandy-lilac">{activeTab}</dd>
+                                <dt className="text-xs text-muted-foreground">Inspection lens</dt>
+                                <dd className="text-xs font-semibold text-kandy-lilac">{activeTab}</dd>
                             </div>
                         </dl>
                     </section>
 
                     {isFixture ? (
                         <div
-                            className="border-l-2 border-amber-400/60 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                            className="border-l-2 border-warning/60 bg-warning/10 px-4 py-3 text-sm leading-6 text-warning"
                             data-admin-content-fixture-boundary="true"
                             data-admin-content-source-state="source_missing"
                         >
@@ -213,7 +213,7 @@ export function AdminContentAssetConsole({
                     ) : null}
 
                     {error ? (
-                        <div className="border-l-2 border-red-400/60 bg-red-500/10 px-4 py-3 text-sm text-red-200" data-admin-content-safe-error="true" role="alert">
+                        <div className="border-l-2 border-destructive/60 bg-destructive/10 px-4 py-3 text-sm text-destructive" data-admin-content-safe-error="true" role="alert">
                             {error}
                         </div>
                     ) : null}
@@ -226,18 +226,18 @@ export function AdminContentAssetConsole({
                     </label>
                 </aside>
 
-                <main className="min-w-0 border-y border-white/10 bg-black/15" aria-label="Asset inspection field">
-                    <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 px-4 py-4 sm:px-5">
+                <main className="min-w-0 border-y border-border bg-background/15" aria-label="Asset inspection field">
+                    <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-kandy-lilac/75">Asset inspection</p>
-                            <h2 className="mt-1 text-xl font-black tracking-tight text-white">Current storage records</h2>
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-kandy-lilac/75">Asset inspection</p>
+                            <h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground">Current storage records</h2>
                         </div>
-                        <p className="text-xs text-gray-500">Preview, copy, and protected deletion stay attached to each record.</p>
+                        <p className="text-xs text-muted-foreground">Preview, copy, and protected deletion stay attached to each record.</p>
                     </div>
 
                     {loading && files.length === 0 ? (
-                        <div className="flex min-h-64 flex-col items-center justify-center text-gray-500">
-                            <Loader2 className="mb-4 h-8 w-8 animate-spin text-brand-purple" aria-hidden="true" />
+                        <div className="flex min-h-64 flex-col items-center justify-center text-muted-foreground">
+                            <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
                             <p className="text-sm">Loading assets...</p>
                         </div>
                     ) : files.length === 0 ? (
@@ -245,62 +245,62 @@ export function AdminContentAssetConsole({
                     ) : filteredFiles.length === 0 ? (
                         <EmptyAssetState message={"No files match the " + activeTab + " category."} />
                     ) : (
-                        <div className="grid gap-px bg-white/10 sm:grid-cols-2 2xl:grid-cols-3">
+                        <div className="grid gap-px bg-secondary sm:grid-cols-2 2xl:grid-cols-3">
                             {filteredFiles.map((file) => {
                                 const displayPath = file.displayPath || file.name;
                                 const previewUrl = typeof file.url === "string" && file.url.length > 0 ? file.url : "";
                                 const category = classifyFile(file);
 
                                 return (
-                                    <article key={file.id} className="group flex min-h-56 flex-col bg-[#100a17] p-4 transition-colors hover:bg-[#171020]">
+                                    <article key={file.id} className="group flex min-h-56 flex-col bg-card p-4 transition-colors bg-card">
                                         <div className="flex min-w-0 gap-3">
                                             <AssetPreview file={file} previewUrl={previewUrl} />
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex flex-wrap items-center gap-2">
-                                                    <p className="truncate text-sm font-black text-white" title={file.name}>{file.name}</p>
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.14em] text-kandy-lilac">{category}</span>
+                                                    <p className="truncate text-sm font-semibold text-foreground" title={file.name}>{file.name}</p>
+                                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-kandy-lilac">{category}</span>
                                                 </div>
-                                                <p className="mt-2 truncate font-mono text-[11px] text-gray-500" title={displayPath}>{truncatePath(displayPath, 50)}</p>
-                                                <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-400">
+                                                <p className="mt-2 truncate font-mono text-[11px] text-muted-foreground" title={displayPath}>{truncatePath(displayPath, 50)}</p>
+                                                <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                                                     {file.size ? <span>{formatBytes(file.size)}</span> : null}
                                                     {file.timeCreated ? <span>{new Date(file.timeCreated).toLocaleDateString()}</span> : null}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-500">Protected actions</span>
+                                        <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-4">
+                                            <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Protected actions</span>
                                             <div className="flex shrink-0 items-center gap-2" role="group" aria-label={file.name + " actions"}>
-                                                <button
+                                                <Button variant="ghost"
                                                     type="button"
                                                     onClick={() => previewUrl ? window.open(previewUrl, "_blank", "noopener,noreferrer") : undefined}
-                                                    className="inline-flex h-11 w-11 items-center justify-center border border-white/10 bg-black/30 text-gray-300 transition-colors hover:border-kandy-lilac/45 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                                    className="inline-flex h-11 w-11 items-center justify-center border border-border bg-background/30 text-muted-foreground transition-colors hover:border-kandy-lilac/45 hover:bg-secondary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                                                     title={previewUrl ? "Open preview" : "Preview unavailable"}
                                                     aria-label={previewUrl ? "Open preview for " + file.name : "Preview unavailable for " + file.name}
                                                     disabled={!previewUrl}
                                                 >
                                                     <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                                                </button>
-                                                <button
+                                                </Button>
+                                                <Button variant="ghost"
                                                     type="button"
                                                     onClick={() => previewUrl ? void onCopyUrl(previewUrl) : undefined}
-                                                    className="inline-flex h-11 w-11 items-center justify-center border border-white/10 bg-black/30 text-gray-300 transition-colors hover:border-kandy-lilac/45 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                                    className="inline-flex h-11 w-11 items-center justify-center border border-border bg-background/30 text-muted-foreground transition-colors hover:border-kandy-lilac/45 hover:bg-secondary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                                                     title={previewUrl ? "Copy preview link" : "Preview unavailable"}
                                                     aria-label={previewUrl ? "Copy preview link for " + file.name : "Preview unavailable for " + file.name}
                                                     disabled={!previewUrl}
                                                 >
                                                     <Copy className="h-4 w-4" aria-hidden="true" />
-                                                </button>
-                                                <button
+                                                </Button>
+                                                <Button variant="ghost"
                                                     type="button"
                                                     onClick={() => void onDelete(file.id)}
-                                                    className="inline-flex h-11 w-11 items-center justify-center border border-red-400/25 bg-red-500/10 text-red-300 transition-colors hover:bg-red-500/20 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-40"
+                                                    className="inline-flex h-11 w-11 items-center justify-center border border-destructive/25 bg-destructive/10 text-destructive transition-colors hover:bg-destructive/20 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
                                                     title={isFixture ? "Delete requires verified admin access" : "Delete file"}
                                                     aria-label={isFixture ? "Delete requires verified admin access" : "Delete " + file.name}
                                                     disabled={isFixture}
                                                 >
                                                     <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     </article>

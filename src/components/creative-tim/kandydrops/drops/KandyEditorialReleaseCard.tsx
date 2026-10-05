@@ -2,8 +2,8 @@
 
 import type { CSSProperties, ReactNode, RefObject } from "react";
 import { Eye, Image as ImageIcon, Lock, Video } from "lucide-react";
-import { Card, CardContent } from "@/components/creative-tim/ui/card";
-import { Badge } from "@/components/creative-tim/ui/badge";
+import { MediaCard, MediaPreview } from "@/components/ui/media-card";
+import { Badge } from "@/components/ui/badge";
 
 import { DropCardTimer } from "@/components/DropCardParts";
 import type { Drop } from "@/types/db";
@@ -43,14 +43,11 @@ export function KandyEditorialReleaseCard({
     const hasFiles = files.images > 0 || files.videos > 0;
 
     return (
-        <article ref={rootRef} data-drop-card-root data-drop-card-density="compact-media" data-drop-card-layout="creative-tim-media-grid" data-drop-card-presentation={presentation} {...stateAttributes} className="group h-full min-w-0">
-            <Card className="gap-0 overflow-hidden py-0">
-                <button type="button" onClick={onPreview} aria-label={`Preview ${drop.title}`} style={ratioStyle} className="relative min-h-11 w-full overflow-hidden bg-muted text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
-                    {cover}
-                </button>
-                <CardContent className="flex min-w-0 flex-col gap-3 px-2 py-4">
-                    <h3 className="text-lg font-semibold leading-snug tracking-tight [overflow-wrap:anywhere]">{drop.title}</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">{drop.description}</p>
+        <MediaCard ref={rootRef} data-drop-card-root data-drop-card-density="compact-media" data-drop-card-layout="creative-tim-media-grid" data-drop-card-presentation={presentation} {...stateAttributes} className="group"
+            title={drop.title}
+            description={drop.description}
+            cover={<MediaPreview onClick={onPreview} aria-label={`Preview ${drop.title}`} style={ratioStyle}>{cover}</MediaPreview>}
+        >
                     <div className="flex min-w-0 flex-wrap items-center gap-2">
                         <Badge variant="secondary" className="max-w-full shrink whitespace-normal [overflow-wrap:anywhere]">{drop.unlockCost.toLocaleString()} GD</Badge>
                         {hasFiles ? <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-2 text-sm text-muted-foreground [overflow-wrap:anywhere]">
@@ -67,8 +64,6 @@ export function KandyEditorialReleaseCard({
                         {cta}
                     </div>
                     {error ? <p role="alert" className="flex min-w-0 items-start gap-2 rounded-xl bg-destructive/10 p-3 text-sm leading-relaxed text-destructive"><Lock className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" /><span className="min-w-0 [overflow-wrap:anywhere]">{error}</span></p> : null}
-                </CardContent>
-            </Card>
-        </article>
+        </MediaCard>
     );
 }

@@ -1,5 +1,9 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { Surface } from "@/components/ui/content-layout";
+
+
 import { useState } from "react";
 import { UserProfile } from "@/types/db";
 import { adjustUserBalance } from "@/lib/firebase/admin-actions";
@@ -76,14 +80,14 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
     const finalBalance = currentBalance + adjustment;
 
     return (
-        <div className="relative overflow-hidden rounded-[1.65rem] border border-fuchsia-200/15 bg-[linear-gradient(145deg,rgba(69,25,95,0.82),rgba(20,9,36,0.96)_58%,rgba(8,5,17,0.98))] p-4 shadow-[0_18px_48px_rgba(5,0,18,0.36)]">
+        <Surface className="relative overflow-hidden rounded-[1.65rem] border border-primary/15 bg-card p-4 shadow-none">
             <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
-                    <h3 className="text-lg font-black text-white">Adjust GumDrops balance</h3>
-                    <p className="mt-1 text-sm text-violet-100/68">
+                    <h3 className="text-lg font-semibold text-foreground">Adjust GumDrops balance</h3>
+                    <p className="mt-1 text-sm text-primary/68">
                         Update GumDrops for <strong>{user.displayName || user.email}</strong>.
                     </p>
-                    <p className="mt-3 inline-flex rounded-xl border border-amber-300/20 bg-amber-400/[0.08] px-3 py-2 text-xs font-semibold leading-5 text-amber-100">
+                    <p className="mt-3 inline-flex rounded-xl border border-warning/20 bg-warning/[0.08] px-3 py-2 text-xs font-semibold leading-5 text-warning">
                         <AlertCircle className="h-3 w-3" />
                         Audit reason required. Payment proof required for money-affecting recovery.
                     </p>
@@ -92,28 +96,28 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
             </div>
 
             <div className="space-y-3">
-                    <div className="flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-black/25 p-3">
-                        <span className="text-xs font-bold text-gray-500 uppercase">Current</span>
-                        <span className="font-mono text-xl text-white">{currentBalance} GD</span>
+                    <div className="flex items-center justify-between rounded-[1.15rem] border border-border bg-background/25 p-3">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase">Current</span>
+                        <span className="font-mono text-xl text-foreground">{currentBalance} GD</span>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Adjustment (+/-)</label>
-                            <input
+                            <label className="block text-xs font-semibold text-muted-foreground uppercase mb-2">Adjustment (+/-)</label>
+                            <Input
                                 type="number"
                                 autoFocus
-                                className="min-h-11 w-full rounded-xl border border-white/10 bg-black/45 px-3 font-mono text-lg text-white outline-none transition-colors focus:border-fuchsia-200/50"
+                                className="min-h-11 w-full rounded-xl border border-border bg-background/45 px-3 font-mono text-lg text-foreground outline-none transition-colors focus:border-primary/50"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
                                 placeholder="0"
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Reason</label>
-                            <input
+                            <label className="block text-xs font-semibold text-muted-foreground uppercase mb-2">Reason</label>
+                            <Input
                                 type="text"
-                                className="min-h-11 w-full rounded-xl border border-white/10 bg-black/45 px-3 text-sm text-white outline-none transition-colors focus:border-fuchsia-200/50"
+                                className="min-h-11 w-full rounded-xl border border-border bg-background/45 px-3 text-sm text-foreground outline-none transition-colors focus:border-primary/50"
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}
                                 placeholder="e.g. Refund"
@@ -121,9 +125,9 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between rounded-[1.15rem] border border-fuchsia-200/15 bg-fuchsia-200/[0.07] p-3">
-                        <span className="text-xs font-bold text-gray-500 uppercase">New balance</span>
-                        <span className={`font-mono text-xl font-bold ${adjustment > 0 ? "text-brand-purple" : adjustment < 0 ? "text-red-400" : "text-gray-400"}`}>
+                    <div className="flex items-center justify-between rounded-[1.15rem] border border-primary/15 bg-primary/[0.07] p-3">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase">New balance</span>
+                        <span className={`font-mono text-xl font-semibold ${adjustment > 0 ? "text-primary" : adjustment < 0 ? "text-destructive" : "text-muted-foreground"}`}>
                             {finalBalance} GD
                         </span>
                     </div>
@@ -138,6 +142,6 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
                     {processing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Confirm adjustment"}
                 </Button>
             </div>
-        </div>
+        </Surface>
     );
 }

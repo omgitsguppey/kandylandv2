@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Clock, Eye, Image as ImageIcon, Loader2, Lock, Share2, Unlock, Wallet } from "lucide-react";
 
-import { Badge } from "@/components/creative-tim/ui/badge";
-import { Card } from "@/components/creative-tim/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ContentFrame, DetailGroup, DetailLayout, SectionHeader, StickyActionDock } from "@/components/ui/content-layout";
+import { MediaCover } from "@/components/ui/media-card";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import type {
@@ -54,8 +55,8 @@ export function LockedDropPreviewView({
     const tags = Array.isArray(drop.tags) ? drop.tags.slice(0, 2) : [];
 
     return (
-        <div
-            className="relative isolate mx-auto flex min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px))] w-full min-w-0 max-w-5xl flex-col px-4 pb-4 pt-[calc(var(--kandy-cookie-offset,0px)+0.75rem)] text-foreground"
+        <ContentFrame
+            className="relative isolate flex min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px))] max-w-5xl flex-col pb-4 pt-[calc(var(--kandy-cookie-offset,0px)+1.5rem)] text-foreground md:pb-6"
             data-drop-preview-page="true"
             data-drop-preview-urgency-tier={truth.urgencyTier}
             data-drop-preview-cta-state={truth.ctaState}
@@ -71,42 +72,43 @@ export function LockedDropPreviewView({
                 <ReportBugButton context="drop-preview-page" variant="icon" label="Report a bug" />
             </nav>
 
-            <header className="mb-6 min-w-0 space-y-3">
-                <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-                    <p className="min-w-0 text-sm text-muted-foreground [overflow-wrap:anywhere]">{creatorLabel}</p>
-                    <Button type="button" variant="ghost" size="sm" onClick={onShare} className="min-w-0 gap-2" data-drop-preview-share-button="true" data-drop-preview-creator-share-eligible={truth.creatorCoverPreviewEligible}>
-                        <Share2 aria-hidden="true" className="h-4 w-4 shrink-0" />
-                        Share
-                    </Button>
-                </div>
-                <h1 className="text-3xl font-semibold leading-tight tracking-tight [overflow-wrap:anywhere]">{drop.title}</h1>
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <Badge variant="secondary" className="max-w-full min-w-0 whitespace-normal border-0 text-sm [overflow-wrap:anywhere]">{drop.unlockCost.toLocaleString()} GD</Badge>
-                    {tags.map((tag) => (
-                        <span key={tag} className="max-w-full min-w-0 text-sm text-muted-foreground [overflow-wrap:anywhere]">{tag}</span>
-                    ))}
-                </div>
-            </header>
-
-            <section aria-label="Drop details" className="grid min-w-0 flex-1 grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))] items-start gap-6">
+            <DetailLayout className="flex-1">
                 <CoverHero drop={drop} truth={truth} mediaCounts={mediaCounts} />
-
                 <div className="min-w-0 space-y-6 [overflow-wrap:anywhere]">
-                    <p className="whitespace-pre-line text-base leading-relaxed text-muted-foreground">{drop.description}</p>
-                    <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-3 text-sm text-muted-foreground" data-drop-preview-social-proof-type={socialProof.type}>
-                        <span className="inline-flex min-w-0 items-center gap-2">
-                            {socialProof.type === "unwraps" ? <Unlock aria-hidden="true" className="h-4 w-4 shrink-0" /> : <Eye aria-hidden="true" className="h-4 w-4 shrink-0" />}
-                            {socialProof.label}
-                        </span>
-                        <span className="inline-flex min-w-0 items-center gap-2" aria-label={timerFullLabel} title={timerFullLabel}>
-                            <Clock aria-hidden="true" className="h-4 w-4 shrink-0" />
-                            {timerLabel}
-                        </span>
+                    <SectionHeader level={1} title={drop.title} accessory={
+                        <Button type="button" variant="ghost" size="sm" onClick={onShare} className="gap-2" data-drop-preview-share-button="true" data-drop-preview-creator-share-eligible={truth.creatorCoverPreviewEligible}>
+                            <Share2 aria-hidden="true" className="h-4 w-4 shrink-0" />Share
+                        </Button>
+                    } />
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <Badge variant="secondary" className="whitespace-normal text-sm">{drop.unlockCost.toLocaleString()} GD</Badge>
+                        {tags.map((tag) => <Badge key={tag} variant="secondary" className="max-w-full whitespace-normal">{tag}</Badge>)}
                     </div>
-                    <UrgencyBand truth={truth} />
+                    <DetailGroup title="About">
+                        <p className="whitespace-pre-line text-base leading-relaxed text-muted-foreground">{drop.description}</p>
+                        <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-3 text-sm text-muted-foreground" data-drop-preview-social-proof-type={socialProof.type}>
+                            <span className="inline-flex min-w-0 items-center gap-2">
+                                {socialProof.type === "unwraps" ? <Unlock aria-hidden="true" className="h-4 w-4 shrink-0" /> : <Eye aria-hidden="true" className="h-4 w-4 shrink-0" />}
+                                {socialProof.label}
+                            </span>
+                            <span className="inline-flex min-w-0 items-center gap-2" aria-label={timerFullLabel} title={timerFullLabel}>
+                                <Clock aria-hidden="true" className="h-4 w-4 shrink-0" />{timerLabel}
+                            </span>
+                        </div>
+                        <UrgencyBand truth={truth} />
+                    </DetailGroup>
+                    <DetailGroup title="Contents">
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                            {mediaCounts.images > 0 ? <span className="inline-flex items-center gap-2"><ImageIcon aria-hidden="true" className="h-4 w-4" />{mediaCounts.images} {mediaCounts.images === 1 ? "image" : "images"}</span> : null}
+                            {mediaCounts.videos > 0 ? <span className="inline-flex items-center gap-2"><span aria-hidden="true">🎥</span>{mediaCounts.videos} {mediaCounts.videos === 1 ? "video" : "videos"}</span> : null}
+                        </div>
+                    </DetailGroup>
+                    <DetailGroup title="Creator">
+                        <p className="text-base text-muted-foreground">{creatorLabel}</p>
+                    </DetailGroup>
                     {truth.isUnlocked ? <SuccessPanel /> : <FeedbackStrip selectedReaction={selectedReaction} onReact={onReact} />}
                 </div>
-            </section>
+            </DetailLayout>
 
             <StickyPreviewCta
                 truth={truth}
@@ -119,7 +121,7 @@ export function LockedDropPreviewView({
                 onKeepUnwrapping={onKeepUnwrapping}
                 onShare={onShare}
             />
-        </div>
+        </ContentFrame>
     );
 }
 
@@ -131,8 +133,8 @@ function CoverHero({ drop, truth, mediaCounts }: Pick<LockedDropPreviewViewProps
     ].filter(Boolean).join(", ");
 
     return (
-        <Card className="mx-auto w-[min(100%,64vw,280px)] min-w-0 gap-0 overflow-hidden p-0 sm:w-[min(100%,52vw,320px)]" data-drop-preview-cover-treatment={truth.coverTreatment} data-drop-preview-cover-aspect="1:1">
-            <div className="relative aspect-square w-full">
+        <div className="min-w-0 space-y-3" data-drop-preview-cover-treatment={truth.coverTreatment} data-drop-preview-cover-aspect="1:1">
+            <MediaCover>
                 <Image
                     src={drop.imageUrl || "/placeholder.jpg"}
                     alt={drop.title}
@@ -145,8 +147,8 @@ function CoverHero({ drop, truth, mediaCounts }: Pick<LockedDropPreviewViewProps
                     className={cn("object-cover object-center", truth.shouldBlurCover && "blur-[6px] brightness-[0.76] saturate-[0.9]")}
                     {...getImagePolicyDataAttributes(imagePolicy)}
                 />
-            </div>
-            <div className="flex min-w-0 flex-wrap items-center gap-3 p-3 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+            </MediaCover>
+            <div className="flex min-w-0 flex-wrap items-center gap-3 px-1 text-sm text-muted-foreground [overflow-wrap:anywhere]">
                 <span>{drop.type === "promo" ? "Drop" : "Limited Release"}</span>
                 {mediaLabel ? (
                     <span className="inline-flex min-w-0 flex-wrap items-center gap-2" aria-label={mediaLabel} title={mediaLabel}>
@@ -155,7 +157,7 @@ function CoverHero({ drop, truth, mediaCounts }: Pick<LockedDropPreviewViewProps
                     </span>
                 ) : null}
             </div>
-        </Card>
+        </div>
     );
 }
 
@@ -200,7 +202,7 @@ function StickyPreviewCta({ truth, unlockCost, authLoading, unlocking, confirmin
     if (!truth.isUnlocked && !truth.shouldShowCreatorShareCta && !shouldShowLockedCta) return null;
 
     return (
-        <div className="navigation-material sticky bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)] z-30 mt-6 min-w-0 rounded-2xl p-3" data-drop-preview-sticky-cta-above-bottom-nav="true">
+        <StickyActionDock className="bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)]" data-drop-preview-sticky-cta-above-bottom-nav="true">
             {truth.isUnlocked ? (
                 <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-2">
                     <Button type="button" variant="brand" onClick={onOpenLibrary} className="min-h-12 min-w-0 gap-2 whitespace-normal px-4 [overflow-wrap:anywhere]">
@@ -220,7 +222,7 @@ function StickyPreviewCta({ truth, unlockCost, authLoading, unlocking, confirmin
                     {getCoverCtaLabel({ truth, authLoading, unlocking, confirming, unlockCost })}
                 </Button>
             )}
-        </div>
+        </StickyActionDock>
     );
 }
 

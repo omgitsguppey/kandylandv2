@@ -3,6 +3,8 @@
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
+import { ContentFrame, SectionHeader } from "@/components/ui/content-layout";
+import { Card, CardContent } from "@/components/ui/card";
 import { DropCard } from "@/components/DropCard";
 import { KandyEditorialHomeShelf } from "@/components/creative-tim/kandydrops/drops/KandyEditorialHomeShelf";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
@@ -31,10 +33,10 @@ export function PublicDropShelf({ drops, presentation }: PublicDropShelfProps) {
 
         if (!featuredDrop) {
             return (
-                <div className="min-w-0 rounded-lg bg-muted p-4 text-center [overflow-wrap:anywhere]">
+                <Card className="py-0"><CardContent className="p-5 text-center [overflow-wrap:anywhere]">
                     <p className="text-sm font-medium text-foreground">No featured Drop is available right now.</p>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Explore creators or check back for future releases.</p>
-                </div>
+                </CardContent></Card>
             );
         }
 
@@ -60,15 +62,8 @@ export function PublicDropShelf({ drops, presentation }: PublicDropShelfProps) {
             className="border-t border-border"
             aria-labelledby="home-drops-title"
         >
-            <div className="mx-auto min-w-0 w-full max-w-6xl px-4 py-8 sm:py-12 [overflow-wrap:anywhere]">
-                <header className="mb-6 space-y-2 sm:mb-8">
-                    <h2 id="home-drops-title" className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                        More Drops
-                    </h2>
-                    <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-                        Preview a Drop before you unwrap it.
-                    </p>
-                </header>
+            <ContentFrame className="space-y-6 [overflow-wrap:anywhere]">
+                <SectionHeader headingId="home-drops-title" title="More Drops" description="Preview a Drop before you unwrap it." />
 
                 {drops.length > 0 ? (
                     <KandyEditorialHomeShelf
@@ -87,14 +82,14 @@ export function PublicDropShelf({ drops, presentation }: PublicDropShelfProps) {
                         )}
                     />
                 ) : (
-                    <div className="min-w-0 rounded-xl bg-muted p-4 text-center [overflow-wrap:anywhere]">
+                    <Card className="py-0"><CardContent className="p-5 text-center [overflow-wrap:anywhere]">
                         <p className="text-base font-medium text-foreground">No additional Drops are available right now.</p>
                         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
                             Check back for future releases from creators.
                         </p>
-                    </div>
+                    </CardContent></Card>
                 )}
-            </div>
+            </ContentFrame>
         </section>
     );
 }
